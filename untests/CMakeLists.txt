@@ -1,6 +1,7 @@
 function(add_e2d_tests NAME)
   set(TESTS_NAME untests_${NAME})
-  file(GLOB_RECURSE ${TESTS_NAME}_sources
+  file(GLOB ${TESTS_NAME}_sources
+    sources/*.*
 	sources/${TESTS_NAME}/*.*)
   set(TESTS_SOURCES ${${TESTS_NAME}_sources})
   source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${TESTS_SOURCES})

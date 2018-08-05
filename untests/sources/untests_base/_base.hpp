@@ -4,8 +4,6 @@
  * Copyright (C) 2018 Matvey Cherevko
  ******************************************************************************/
 
-#define CATCH_CONFIG_MAIN
-#include "_core.hpp"
+#pragma once
 
-TEST_CASE("core") {
-}
+#include "../common.hpp"

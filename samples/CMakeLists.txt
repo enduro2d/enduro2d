@@ -1,6 +1,6 @@
 function(add_e2d_sample NAME)
   set(SAMPLE_NAME sample_${NAME})
-  file(GLOB_RECURSE ${SAMPLE_NAME}_sources
+  file(GLOB ${SAMPLE_NAME}_sources
     sources/*.*
     sources/${SAMPLE_NAME}/*.*)
   set(SAMPLE_SOURCES ${${SAMPLE_NAME}_sources})
