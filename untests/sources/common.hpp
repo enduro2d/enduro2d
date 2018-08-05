@@ -8,4 +8,3 @@
 
 #include "../catch/catch.hpp"
 #include <enduro2d/enduro2d.hpp>
-using namespace e2d;

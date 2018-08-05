@@ -19,6 +19,19 @@ set(CMAKE_C_FLAGS_RELEASE   ${CMAKE_C_FLAGS_RELEASE}${E2D_RELEASE_FLAGS})
 set(CMAKE_CXX_FLAGS_RELEASE ${CMAKE_CXX_FLAGS_RELEASE}${E2D_RELEASE_FLAGS})
 
 #
+# warnings
+#
+
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_compile_options(-Werror -Weverything)
+  add_compile_options(-Wno-c++98-compat -Wno-c++98-compat-pedantic)
+elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+  add_compile_options(-Werror -Wall -Wextra -Wpedantic)
+elseif(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+  add_compile_options(/WX /W4)
+endif()
+
+#
 # e2d sources
 #
 

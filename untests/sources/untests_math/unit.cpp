@@ -4,15 +4,8 @@
  * Copyright (C) 2018 Matvey Cherevko
  ******************************************************************************/
 
-#pragma once
-
 #include "_math.hpp"
+using namespace e2d;
 
-#include "mat2.hpp"
-#include "mat3.hpp"
-#include "mat4.hpp"
-#include "trig.hpp"
-#include "unit.hpp"
-#include "vec2.hpp"
-#include "vec3.hpp"
-#include "vec4.hpp"
+TEST_CASE("unit") {
+}

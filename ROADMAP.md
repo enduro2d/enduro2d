@@ -1,17 +1,16 @@
 # Roadmap
 
-## `v0.1`
+## `Milestone I`
 
 - ### `basic math`
-  - [ ] `vec2, vec3, vec4`
-  - [ ] `mat2, mat3, mat4`
-  - [ ] `pnt2<T>, rect<T>`
-  - [ ] `unit<T,Tag>`
-  - [ ] `basic math functions`
+  - [x] `vec2, vec3, vec4`
+  - [x] `mat2, mat3, mat4`
+  - [x] `unit<T,Tag>`
+  - [x] `basic math functions`
     ```
     clamp, min, max, approximately etc.
     ```
-  - [ ] `basic trigonometric functions and constants`
+  - [x] `basic trigonometric functions and constants`
     ```
     pi, sin, cos, to_deg, to_rad etc.
     ```
@@ -37,7 +36,7 @@
   - [ ] `thread pool and async tasks`
   - [ ] `pseudo-random number generator`
 
-## `v0.2`
+## `Milestone II`
 
 - ### `basic core`
   - [ ] `logger`
@@ -69,7 +68,7 @@
     groups, dependencies, async loading
     ```
 
-## `v0.3`
+## `Milestone III`
 
 ```
 Coming Soon...
