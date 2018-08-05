@@ -1,0 +1,27 @@
+dist: trusty
+language: cpp
+compiler:
+  - gcc
+  - clang
+env:
+  - BUILD_TYPE=Debug
+  - BUILD_TYPE=Release
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+      - llvm-toolchain-trusty-5.0
+    packages:
+      - g++-7
+      - clang-5.0
+install:
+  - "[ $CXX = g++ ] && export CC=gcc-7 || true"
+  - "[ $CXX = g++ ] && export CXX=g++-7 || true"
+  - "[ $CXX = clang++ ] && export CC=clang-5.0 || true"
+  - "[ $CXX = clang++ ] && export CXX=clang++-5.0 || true"
+script:
+  - mkdir -p build/$BUILD_TYPE
+  - cd build/$BUILD_TYPE
+  - cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE ../..
+  - cmake --build . -- -j2
+  - ctest

@@ -1,0 +1,18 @@
+version: "{build}"
+shallow_clone: true
+image:
+  - Visual Studio 2015
+  - Visual Studio 2017
+configuration:
+  - Debug
+  - Release
+platform:
+  - Win32
+  - x64
+build_script:
+  - cmake --version
+  - mkdir build && cd build
+  - cmake .. -A%PLATFORM%
+  - cmake --build . --config %CONFIGURATION%
+  - ctest
+test: off
