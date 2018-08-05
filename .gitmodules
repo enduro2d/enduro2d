@@ -1,0 +1,9 @@
+[submodule "modules/catch2"]
+	path = modules/catch2
+	url = https://github.com/catchorg/Catch2
+[submodule "modules/stb"]
+	path = modules/stb
+	url = https://github.com/nothings/stb
+[submodule "modules/utfcpp"]
+	path = modules/utfcpp
+	url = https://github.com/nemtrif/utfcpp
