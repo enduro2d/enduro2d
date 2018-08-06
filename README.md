@@ -8,7 +8,7 @@
 [![license][badge.license]][license]
 
 [badge.travis]: https://api.travis-ci.org/enduro2d/enduro2d.svg?branch=master
-[badge.appveyor]: https://ci.appveyor.com/api/projects/status/github/enduro2d/enduro2d?svg=true&passingText=master%20-%20OK
+[badge.appveyor]: https://ci.appveyor.com/api/projects/status/lo14y5nwttb2u9hq/branch/master?svg=true&passingText=master%20-%20OK
 [badge.language]: https://img.shields.io/badge/language-C%2B%2B14-red.svg
 [badge.license]: https://img.shields.io/badge/license-MIT-blue.svg
 

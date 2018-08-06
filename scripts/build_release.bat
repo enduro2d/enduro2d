@@ -1,8 +1,14 @@
 @echo off
 set BUILD_DIR=%~dp0%\..\build
-mkdir %BUILD_DIR%\release
-cd %BUILD_DIR%\release
-cmake ../..
-cmake --build . --config Release
-ctest
-cd ..\..
+mkdir %BUILD_DIR%\release || goto :error
+cd %BUILD_DIR%\release || goto :error
+cmake ../.. || goto :error
+cmake --build . --config Release || goto :error
+ctest || goto :error
+cd ..\.. || goto :error
+
+goto :EOF
+
+:error
+echo Failed with error #%errorlevel%.
+exit /b %errorlevel%
