@@ -427,15 +427,6 @@ namespace e2d { namespace math
 
     template < typename T >
     std::enable_if_t<
-        std::is_unsigned<T>::value || std::is_floating_point<T>::value,
-        make_distance_t<T>>
-    distance(T l, T r) noexcept {
-        std::tie(l, r) = minmax(l, r);
-        return r - l;
-    }
-
-    template < typename T >
-    std::enable_if_t<
         std::is_integral<T>::value && std::is_signed<T>::value,
         make_distance_t<T>>
     distance(T l, T r) noexcept {
@@ -443,6 +434,15 @@ namespace e2d { namespace math
         return r < 0 || l >= 0
             ? abs_to_unsigned<T>(r - l)
             : abs_to_unsigned(l) + abs_to_unsigned(r);
+    }
+
+    template < typename T >
+    std::enable_if_t<
+        std::is_unsigned<T>::value || std::is_floating_point<T>::value,
+        make_distance_t<T>>
+    distance(T l, T r) noexcept {
+        std::tie(l, r) = minmax(l, r);
+        return r - l;
     }
 
     //

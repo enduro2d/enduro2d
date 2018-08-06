@@ -16,25 +16,24 @@
     ```
 
 - ### `basic utils`
-  - [ ] `path`
+  - [x] `path`
     ```
     functions to manipulating paths in a portable way
     ```
-  - [ ] `color, color32`
-  - [ ] `basic string functions`
+  - [x] `color, color32`
+  - [x] `basic string functions`
     ```
     unicode convertions, wildcard patterns, type safe format
     ```
-  - [ ] `timer and time functions`
-  - [ ] `image, image loaders`
+  - [x] `timer and time functions`
+  - [x] `image, image loaders`
     ```
-    basic raw and compressed formats
-    internal: g8, ga8, rgb8, rgba8, dxt1/3/5
-    external: png, jpg, tga, dds
+    basic true color formats
+    internal: g8, ga8, rgb8, rgba8
+    external: png, jpg, tga
     ```
-  - [ ] `streams and native file system`
-  - [ ] `thread pool and async tasks`
-  - [ ] `pseudo-random number generator`
+  - [x] `streams and native file system`
+  - [x] `thread pool and async tasks`
 
 ## `Milestone II`
 

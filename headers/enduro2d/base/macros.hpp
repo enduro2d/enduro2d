@@ -30,4 +30,22 @@
 // E2D_UNUSED
 //
 
-#define E2D_UNUSED(expr) (void)(expr)
+template < typename T >
+void E2D_UNUSED(T&& arg) noexcept {
+    (void)arg;
+}
+
+template < typename T, typename... Ts >
+void E2D_UNUSED(T&& arg, Ts&&... args) noexcept {
+    E2D_UNUSED(arg);
+    E2D_UNUSED(std::forward<Ts>(args)...);
+}
+
+//
+// E2D_COUNTOF
+//
+
+template < typename T, std::size_t N >
+constexpr std::size_t E2D_COUNTOF(const T(&)[N]) noexcept {
+    return N;
+}

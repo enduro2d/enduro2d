@@ -4,17 +4,13 @@
  * Copyright (C) 2018 Matvey Cherevko
  ******************************************************************************/
 
-#pragma once
+#include "image_impl.hpp"
 
-#include "_utils.hpp"
-
-#include "buffer.hpp"
-#include "color.hpp"
-#include "color32.hpp"
-#include "filesystem.hpp"
-#include "image.hpp"
-#include "jobber.hpp"
-#include "streams.hpp"
-#include "strfmts.hpp"
-#include "strings.hpp"
-#include "time.hpp"
+namespace e2d { namespace images { namespace impl
+{
+    bool try_load_image_pvr(image& dst, const buffer& src) noexcept {
+        //TODO: implme
+        E2D_UNUSED(dst, src);
+        return false;
+    }
+}}}

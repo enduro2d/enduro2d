@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include "_base.hpp"
+#include "stdex.hpp"
 
 namespace e2d
 {
@@ -26,28 +26,36 @@ namespace e2d
 
 namespace e2d
 {
+    class exception
+    : public std::exception {};
+
     template < typename Value
              , std::size_t Size >
     using array = std::array<Value, Size>;
 
     template < typename Value
-             , typename Alloc = std::allocator<Value> >
-    using vector = std::vector<Value, Alloc>;
+             , typename Allocator = std::allocator<Value> >
+    using vector = std::vector<Value, Allocator>;
 
     template < typename Value
              , typename Hash = std::hash<Value>
              , typename Pred = std::equal_to<Value>
-             , typename Alloc = std::allocator<Value> >
-    using hash_set = std::unordered_set<Value, Hash, Pred, Alloc>;
+             , typename Allocator = std::allocator<Value> >
+    using hash_set = std::unordered_set<Value, Hash, Pred, Allocator>;
 
     template < typename Key
              , typename Value
              , typename Hash = std::hash<Key>
              , typename Pred = std::equal_to<Key>
-             , typename Alloc = std::allocator<std::pair<const Key, Value>> >
-    using hash_map = std::unordered_map<Key, Value, Hash, Pred, Alloc>;
+             , typename Allocator = std::allocator<std::pair<const Key, Value>> >
+    using hash_map = std::unordered_map<Key, Value, Hash, Pred, Allocator>;
 
     template < typename Char
-             , typename Alloc = std::allocator<Char> >
-    using basic_string = std::basic_string<Char, std::char_traits<Char>, Alloc>;
+             , typename Traits = std::char_traits<Char>
+             , typename Allocator = std::allocator<Char> >
+    using basic_string = std::basic_string<Char, Traits, Allocator>;
+
+    template < typename Char
+             , typename Traits = std::char_traits<Char> >
+    using basic_string_view = stdex::basic_string_view<Char, Traits>;
 }

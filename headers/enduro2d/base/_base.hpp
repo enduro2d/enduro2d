@@ -16,8 +16,10 @@
 #include <mutex>
 #include <atomic>
 #include <thread>
+#include <future>
 #include <condition_variable>
 
+#include <tuple>
 #include <array>
 #include <string>
 #include <vector>
@@ -25,9 +27,11 @@
 #include <unordered_map>
 
 #include <new>
-#include <memory>
+#include <ratio>
 #include <chrono>
+#include <memory>
 #include <limits>
+#include <numeric>
 #include <utility>
 #include <iterator>
 #include <exception>

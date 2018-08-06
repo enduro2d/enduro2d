@@ -8,6 +8,7 @@ function(add_e2d_sample NAME)
   add_executable(${SAMPLE_NAME} ${SAMPLE_SOURCES})
   target_include_directories(${SAMPLE_NAME} PRIVATE "../headers")
   target_link_libraries(${SAMPLE_NAME} enduro2d)
+  target_link_libraries(${SAMPLE_NAME} "${CMAKE_THREAD_LIBS_INIT}")
 endfunction(add_e2d_sample)
 
 add_e2d_sample(00)

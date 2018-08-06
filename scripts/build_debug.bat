@@ -4,7 +4,7 @@ mkdir %BUILD_DIR%\debug || goto :error
 cd %BUILD_DIR%\debug || goto :error
 cmake ../.. || goto :error
 cmake --build . --config Debug || goto :error
-ctest || goto :error
+ctest --verbose || goto :error
 cd ..\.. || goto :error
 
 goto :EOF

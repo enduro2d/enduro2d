@@ -5,5 +5,5 @@ mkdir -p $BUILD_DIR/debug
 cd $BUILD_DIR/debug
 cmake -DCMAKE_BUILD_TYPE=Debug ../..
 cmake --build . -- -j8
-ctest
+ctest --verbose
 cd ../..

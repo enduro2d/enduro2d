@@ -4,7 +4,7 @@ mkdir %BUILD_DIR%\release || goto :error
 cd %BUILD_DIR%\release || goto :error
 cmake ../.. || goto :error
 cmake --build . --config Release || goto :error
-ctest || goto :error
+ctest --verbose || goto :error
 cd ..\.. || goto :error
 
 goto :EOF

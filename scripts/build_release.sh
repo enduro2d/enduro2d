@@ -5,5 +5,5 @@ mkdir -p $BUILD_DIR/release
 cd $BUILD_DIR/release
 cmake -DCMAKE_BUILD_TYPE=Release ../..
 cmake --build . -- -j8
-ctest
+ctest --verbose
 cd ../..

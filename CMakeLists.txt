@@ -2,6 +2,12 @@ cmake_minimum_required(VERSION 3.9.2 FATAL_ERROR)
 project(enduro2d)
 
 #
+# external packages
+#
+
+find_package(Threads REQUIRED)
+
+#
 # global defines
 #
 
@@ -23,12 +29,11 @@ set(CMAKE_CXX_FLAGS_RELEASE ${CMAKE_CXX_FLAGS_RELEASE}${E2D_RELEASE_FLAGS})
 #
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  add_compile_options(-Werror -Weverything)
-  add_compile_options(-Wno-c++98-compat -Wno-c++98-compat-pedantic)
+  add_compile_options(-Wall -Wextra -Wpedantic)
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-  add_compile_options(-Werror -Wall -Wextra -Wpedantic)
+  add_compile_options(-Wall -Wextra -Wpedantic)
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
-  add_compile_options(/WX /W4)
+  add_compile_options(/W4)
 endif()
 
 #
