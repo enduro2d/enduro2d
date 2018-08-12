@@ -25,3 +25,9 @@
 #  define E2D_ASSERT(expr)            ((void)0)
 #  define E2D_ASSERT_MSG(expr, msg)   ((void)0)
 #endif
+
+//
+// E2D_UNUSED
+//
+
+#define E2D_UNUSED(expr) (void)(expr)
