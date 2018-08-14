@@ -1,0 +1,5 @@
+-DDEBUG
+-Iheaders
+-Isources
+-std=c++14
+-stdlib=libc++
