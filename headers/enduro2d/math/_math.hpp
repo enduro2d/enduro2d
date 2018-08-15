@@ -79,6 +79,58 @@ namespace e2d
 namespace e2d { namespace math
 {
     //
+    // ceil/floor/round/trunc
+    //
+
+    template < typename T >
+    std::enable_if_t<std::is_integral<T>::value, T>
+    ceil(T v) noexcept {
+        return v;
+    }
+
+    template < typename T >
+    std::enable_if_t<std::is_integral<T>::value, T>
+    floor(T v) noexcept {
+        return v;
+    }
+
+    template < typename T >
+    std::enable_if_t<std::is_integral<T>::value, T>
+    round(T v) noexcept {
+        return v;
+    }
+
+    template < typename T >
+    std::enable_if_t<std::is_integral<T>::value, T>
+    trunc(T v) noexcept {
+        return v;
+    }
+
+    template < typename T >
+    std::enable_if_t<std::is_floating_point<T>::value, T>
+    ceil(T v) noexcept {
+        return std::ceil(v);
+    }
+
+    template < typename T >
+    std::enable_if_t<std::is_floating_point<T>::value, T>
+    floor(T v) noexcept {
+        return std::floor(v);
+    }
+
+    template < typename T >
+    std::enable_if_t<std::is_floating_point<T>::value, T>
+    round(T v) noexcept {
+        return std::round(v);
+    }
+
+    template < typename T >
+    std::enable_if_t<std::is_floating_point<T>::value, T>
+    trunc(T v) noexcept {
+        return std::trunc(v);
+    }
+
+    //
     // numeric cast
     //
 
@@ -115,9 +167,10 @@ namespace e2d { namespace math
             std::is_floating_point<From>::value && std::is_integral<To>::value,
             bool>
         check_numeric_cast(From v) noexcept {
+            const From t = trunc(v);
             const To l = std::numeric_limits<To>::lowest();
             const To m = std::numeric_limits<To>::max();
-            return v >= static_cast<From>(l) && v <= static_cast<From>(m);
+            return t >= static_cast<From>(l) && t <= static_cast<From>(m);
         }
 
         // i -> u
@@ -300,46 +353,6 @@ namespace e2d { namespace math
     }
 
     //
-    // ceil/floor/round
-    //
-
-    template < typename T >
-    std::enable_if_t<std::is_integral<T>::value, T>
-    ceil(T v) noexcept {
-        return v;
-    }
-
-    template < typename T >
-    std::enable_if_t<std::is_integral<T>::value, T>
-    floor(T v) noexcept {
-        return v;
-    }
-
-    template < typename T >
-    std::enable_if_t<std::is_integral<T>::value, T>
-    round(T v) noexcept {
-        return v;
-    }
-
-    template < typename T >
-    std::enable_if_t<std::is_floating_point<T>::value, T>
-    ceil(T v) noexcept {
-        return std::ceil(v);
-    }
-
-    template < typename T >
-    std::enable_if_t<std::is_floating_point<T>::value, T>
-    floor(T v) noexcept {
-        return std::floor(v);
-    }
-
-    template < typename T >
-    std::enable_if_t<std::is_floating_point<T>::value, T>
-    round(T v) noexcept {
-        return std::round(v);
-    }
-
-    //
     // min/max/minmax
     //
 
@@ -377,7 +390,7 @@ namespace e2d { namespace math
     template < typename T >
     std::enable_if_t<std::is_arithmetic<T>::value, T>
     saturate(T v) noexcept {
-        return clamp(v, 0, 1);
+        return clamp(v, T(0), T(1));
     }
 
     //

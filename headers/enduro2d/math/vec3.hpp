@@ -42,6 +42,8 @@ namespace e2d
 
         template < typename To >
         vec3<To> cast_to() const noexcept;
+
+        T* data() noexcept;
         const T* data() const noexcept;
 
         T& operator[](std::size_t index) noexcept;
@@ -125,6 +127,11 @@ namespace e2d
     }
 
     template < typename T >
+    T* vec3<T>::data() noexcept {
+        return &x;
+    }
+
+    template < typename T >
     const T* vec3<T>::data() const noexcept {
         return &x;
     }
@@ -132,13 +139,13 @@ namespace e2d
     template < typename T >
     T& vec3<T>::operator[](std::size_t index) noexcept {
         E2D_ASSERT(index < 3);
-        return (&x)[index];
+        return data()[index];
     }
 
     template < typename T >
     T vec3<T>::operator[](std::size_t index) const noexcept {
         E2D_ASSERT(index < 3);
-        return (&x)[index];
+        return data()[index];
     }
 
     template < typename T >
@@ -557,7 +564,7 @@ namespace e2d { namespace math
     }
 
     //
-    // contains/contains_zero
+    // contains
     //
 
     template < typename T >

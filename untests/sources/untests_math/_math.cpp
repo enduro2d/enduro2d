@@ -82,6 +82,17 @@ TEST_CASE("math") {
         // u -> i
         REQUIRE(check_numeric_cast<i8>(127u));
         REQUIRE_FALSE(check_numeric_cast<i8>(128u));
+
+        {
+            REQUIRE(check_numeric_cast<i8>(127.7f));
+            REQUIRE(math::numeric_cast<i8>(127.7f) == 127);
+
+            REQUIRE(check_numeric_cast<i8>(-127.7f));
+            REQUIRE(math::numeric_cast<i8>(-127.7f) == -127);
+
+            REQUIRE(check_numeric_cast<u8>(255.9f));
+            REQUIRE(math::numeric_cast<u8>(255.9f) == 255);
+        }
     }
     {
         REQUIRE(math::is_power_of_2(1u));
@@ -168,20 +179,26 @@ TEST_CASE("math") {
         REQUIRE(math::approximately(math::ceil(1), 1));
         REQUIRE(math::approximately(math::floor(1), 1));
         REQUIRE(math::approximately(math::round(1), 1));
+        REQUIRE(math::approximately(math::trunc(1), 1));
 
         REQUIRE(math::approximately(math::ceil(-1), -1));
         REQUIRE(math::approximately(math::floor(-1), -1));
         REQUIRE(math::approximately(math::round(-1), -1));
+        REQUIRE(math::approximately(math::trunc(-1), -1));
 
         REQUIRE(math::approximately(math::ceil(0.4f), 1.f));
         REQUIRE(math::approximately(math::floor(0.4f), 0.f));
+        REQUIRE(math::approximately(math::trunc(0.4f), 0.f));
         REQUIRE(math::approximately(math::ceil(-0.4f), 0.f));
         REQUIRE(math::approximately(math::floor(-0.4f), -1.f));
+        REQUIRE(math::approximately(math::trunc(-0.4f), 0.f));
 
         REQUIRE(math::approximately(math::ceil(0.6f), 1.f));
         REQUIRE(math::approximately(math::floor(0.6f), 0.f));
+        REQUIRE(math::approximately(math::trunc(0.6f), 0.f));
         REQUIRE(math::approximately(math::ceil(-0.6f), 0.f));
         REQUIRE(math::approximately(math::floor(-0.6f), -1.f));
+        REQUIRE(math::approximately(math::trunc(-0.6f), 0.f));
 
         REQUIRE(math::approximately(math::round(0.4f), 0.f));
         REQUIRE(math::approximately(math::round(0.6f), 1.f));
