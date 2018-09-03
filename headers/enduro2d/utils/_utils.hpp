@@ -18,6 +18,7 @@ namespace e2d
     class jobber;
     class input_stream;
     class output_stream;
+    class url;
 }
 
 namespace e2d
