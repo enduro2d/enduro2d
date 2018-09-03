@@ -68,7 +68,7 @@ namespace
                 dst.assign(img_size, img_format, std::move(img_buffer));
                 return true;
             }
-        } catch (std::exception&) {
+        } catch (...) {
             // nothing
         }
         return false;

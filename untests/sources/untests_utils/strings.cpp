@@ -7,6 +7,16 @@
 #include "_utils.hpp"
 using namespace e2d;
 
+namespace
+{
+    const char* null_utf8 = nullptr;
+    const wchar_t* null_wide = nullptr;
+    const char16_t* null_utf16 = nullptr;
+    const char32_t* null_utf32 = nullptr;
+
+    str_view null_view = {null_utf8, 0};
+}
+
 TEST_CASE("strings") {
     {
         REQUIRE(make_utf8("hello") == "hello");
@@ -30,11 +40,6 @@ TEST_CASE("strings") {
         REQUIRE(make_utf32(U"hello") == U"hello");
     }
     {
-        const char* null_utf8 = nullptr;
-        const wchar_t* null_wide = nullptr;
-        const char16_t* null_utf16 = nullptr;
-        const char32_t* null_utf32 = nullptr;
-
         REQUIRE(make_utf8(str_view(null_utf8, 0)) == make_utf8(u""));
         REQUIRE(make_utf8(wstr_view(null_wide, 0)) == make_utf8(L""));
         REQUIRE(make_utf8(str16_view(null_utf16, 0)) == make_utf8(u""));
@@ -95,8 +100,6 @@ TEST_CASE("strings") {
         REQUIRE(wildcard_match("", "*") == true);
         REQUIRE(wildcard_match("", "?") == false);
 
-        const char* null_utf8 = nullptr;
-        str_view null_view = {null_utf8, 0};
         REQUIRE(wildcard_match(null_view, null_view) == true);
         REQUIRE(wildcard_match("a", null_view) == false);
         REQUIRE(wildcard_match(null_view, "*") == true);
@@ -214,7 +217,6 @@ TEST_CASE("strings") {
     }
     {
         char buf[6];
-        REQUIRE_THROWS_AS(strings::format(buf, sizeof(buf), nullptr), strings::bad_format);
         REQUIRE_THROWS_AS(strings::format(buf, 0, "hello"), strings::bad_format_buffer);
         REQUIRE_THROWS_AS(strings::format(nullptr, sizeof(buf), "hello"), strings::bad_format_buffer);
         REQUIRE_THROWS_AS(strings::format(buf, sizeof(buf), "helloE"), strings::bad_format_buffer);
@@ -235,8 +237,6 @@ TEST_CASE("strings") {
         REQUIRE_THROWS_AS(strings::format(buf, sizeof(buf), "%z%hell"), strings::bad_format);
     }
     {
-        REQUIRE_THROWS_AS(strings::rformat(nullptr), strings::bad_format);
-
         REQUIRE_THROWS_AS(strings::rformat("%"), strings::bad_format);
         REQUIRE_THROWS_AS(strings::rformat("%hell"), strings::bad_format);
         REQUIRE_THROWS_AS(strings::rformat("he%ll"), strings::bad_format);
@@ -249,6 +249,20 @@ TEST_CASE("strings") {
         REQUIRE_THROWS_AS(strings::rformat("%x%"), strings::bad_format);
         REQUIRE_THROWS_AS(strings::rformat("hell%y%"), strings::bad_format);
         REQUIRE_THROWS_AS(strings::rformat("%z%hell"), strings::bad_format);
+    }
+    {
+        REQUIRE(strings::rformat(str_view("%0"), 42) == "42");
+        REQUIRE(strings::rformat(str_view("%0%1",2), 42) == "42");
+
+        auto s1 = make_utf8("hello");
+        auto s2 = make_wide("hello");
+        auto s3 = make_utf16("hello");
+        auto s4 = make_utf32("hello");
+
+        REQUIRE(strings::rformat(str_view("%0"), str_view(s1)) == "hello");
+        REQUIRE(strings::rformat(str_view("%0"), wstr_view(s2)) == "hello");
+        REQUIRE(strings::rformat(str_view("%0"), str16_view(s3)) == "hello");
+        REQUIRE(strings::rformat(str_view("%0"), str32_view(s4)) == "hello");
     }
     {
         char buf[1];
