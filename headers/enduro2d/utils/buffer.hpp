@@ -12,8 +12,7 @@ namespace e2d
 {
     class buffer final {
     public:
-        buffer() noexcept = default;
-        ~buffer() noexcept = default;
+        buffer() = default;
 
         buffer(buffer&& other) noexcept;
         buffer& operator=(buffer&& other) noexcept;

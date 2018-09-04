@@ -12,8 +12,7 @@ namespace e2d
 {
     class url final {
     public:
-        url() noexcept = default;
-        ~url() noexcept = default;
+        url() = default;
 
         url(url&& other) noexcept;
         url& operator=(url&& other) noexcept;
