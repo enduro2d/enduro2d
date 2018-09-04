@@ -6,6 +6,7 @@
 
 #pragma once
 
+#include <enduro2d/utils/path.hpp>
 #include <enduro2d/utils/strings.hpp>
 #include <enduro2d/utils/filesystem.hpp>
 

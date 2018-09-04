@@ -5,7 +5,7 @@
  ******************************************************************************/
 
 #include <enduro2d/utils/url.hpp>
-#include <enduro2d/utils/filesystem.hpp>
+#include <enduro2d/utils/path.hpp>
 
 namespace
 {
