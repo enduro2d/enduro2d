@@ -238,8 +238,10 @@ namespace e2d { namespace strings
 
         template < typename Tuple >
         std::enable_if_t<std::tuple_size<Tuple>::value <= 10, std::size_t>
-        format_impl(char* dst, std::size_t size, const char* format, const Tuple& targs) {
-            if ( !format ) {
+        format_impl(char* dst, std::size_t size, str_view fmt, const Tuple& targs) {
+            const char* format_i = fmt.cbegin();
+            const char* const format_e = fmt.cend();
+            if ( !format_i ) {
                 throw bad_format();
             }
             if ( !dst != !size ) {
@@ -248,20 +250,19 @@ namespace e2d { namespace strings
             std::size_t result = 0;
             const char* const b_dst = dst;
             const char* const e_dst = b_dst ? b_dst + size : nullptr;
-            while ( *format ) {
+            while ( format_i != format_e ) {
                 if ( dst && dst == e_dst - 1 ) {
                     *dst = '\0';
                     throw bad_format_buffer();
                 }
-                if ( *format != '%' ) {
+                if ( *format_i != '%' ) {
                     if ( dst ) {
-                        *dst++ = *format;
+                        *dst++ = *format_i;
                     }
                     ++result;
-                    ++format;
+                    ++format_i;
                 } else {
-                    const char n_param = *(++format);
-                    if ( !n_param ) {
+                    if ( ++format_i == format_e ) {
                         // "hello%"
                         if ( dst ) {
                             *dst = '\0';
@@ -273,7 +274,7 @@ namespace e2d { namespace strings
                         ? math::numeric_cast<std::size_t>(e_dst - dst)
                         : 0;
                     E2D_ASSERT(!dst || dst_tail_size);
-                    switch ( n_param ) {
+                    switch ( *format_i ) {
                         case '0' :
                             write_arg_r = write_arg_n<0>(dst, dst_tail_size, targs);
                             break;
@@ -337,7 +338,7 @@ namespace e2d { namespace strings
                         dst += write_bytes;
                     }
                     result += write_bytes;
-                    ++format;
+                    ++format_i;
                 }
             }
             if ( dst ) {
@@ -353,7 +354,7 @@ namespace e2d { namespace strings
     template < typename... Args >
     std::size_t format(
         char* dst, std::size_t size,
-        const char* fmt, Args&&... args)
+        str_view fmt, Args&&... args)
     {
         return impl::format_impl(
             dst, size, fmt,
@@ -361,7 +362,7 @@ namespace e2d { namespace strings
     }
 
     template < typename... Args >
-    str rformat(const char* fmt, Args&&... args) {
+    str rformat(str_view fmt, Args&&... args) {
         auto targs = std::make_tuple(
             impl::wrap_arg(std::forward<Args>(args))...);
         const std::size_t expected_format_size = impl::format_impl(

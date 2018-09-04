@@ -46,10 +46,10 @@ namespace e2d
         template < typename... Args >
         std::size_t format(
             char* dst, std::size_t size,
-            const char* fmt, Args&&... args);
+            str_view fmt, Args&&... args);
 
         template < typename... Args >
-        str rformat(const char* fmt, Args&&... args);
+        str rformat(str_view fmt, Args&&... args);
 
         bool wildcard_match(str_view string, str_view pattern);
     }

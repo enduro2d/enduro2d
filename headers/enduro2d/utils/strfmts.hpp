@@ -353,6 +353,13 @@ namespace e2d { namespace strings
         }
     };
 
+    template <>
+    class format_arg<str_view> : public format_arg<str> {
+    public:
+        explicit format_arg(str_view sv)
+        : format_arg<str>(sv) {}
+    };
+
     //
     // wstr
     //
@@ -370,6 +377,13 @@ namespace e2d { namespace strings
             return math::numeric_cast<std::ptrdiff_t>(
                 format(dst, size, "%0", make_utf8(value_.c_str())));
         }
+    };
+
+    template <>
+    class format_arg<wstr_view> : public format_arg<wstr> {
+    public:
+        explicit format_arg(wstr_view sv)
+        : format_arg<wstr>(sv) {}
     };
 
     //
@@ -391,6 +405,13 @@ namespace e2d { namespace strings
         }
     };
 
+    template <>
+    class format_arg<str16_view> : public format_arg<str16> {
+    public:
+        explicit format_arg(str16_view sv)
+        : format_arg<str16>(sv) {}
+    };
+
     //
     // str32
     //
@@ -408,6 +429,13 @@ namespace e2d { namespace strings
             return math::numeric_cast<std::ptrdiff_t>(
                 format(dst, size, "%0", make_utf8(value_.c_str())));
         }
+    };
+
+    template <>
+    class format_arg<str32_view> : public format_arg<str32> {
+    public:
+        explicit format_arg(str32_view sv)
+        : format_arg<str32>(sv) {}
     };
 
     //

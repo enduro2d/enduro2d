@@ -7,6 +7,7 @@
 #pragma once
 
 #include "_base.hpp"
+
 #include "configs.hpp"
 #include "macros.hpp"
 #include "stdex.hpp"

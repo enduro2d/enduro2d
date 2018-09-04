@@ -399,6 +399,10 @@ namespace e2d { namespace stdex
     };
 
     template < typename Char, typename Traits >
+    const typename basic_string_view<Char, Traits>::size_type
+        basic_string_view<Char, Traits>::npos;
+
+    template < typename Char, typename Traits >
     bool operator<(
         basic_string_view<Char, Traits> l,
         basic_string_view<Char, Traits> r) noexcept

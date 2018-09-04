@@ -17,5 +17,6 @@
 #include "streams.hpp"
 #include "strfmts.hpp"
 #include "strings.hpp"
+#include "strings.inl"
 #include "time.hpp"
 #include "url.hpp"
