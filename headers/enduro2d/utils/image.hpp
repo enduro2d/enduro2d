@@ -60,8 +60,7 @@ namespace e2d
 
     class image final {
     public:
-        image() noexcept = default;
-        ~image() noexcept = default;
+        image() = default;
 
         image(image&& other) noexcept;
         image& operator=(image&& other) noexcept;
