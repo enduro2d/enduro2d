@@ -19,6 +19,9 @@ namespace e2d
     class input_stream;
     class output_stream;
     class url;
+
+    template < typename T >
+    class module;
 }
 
 namespace e2d
