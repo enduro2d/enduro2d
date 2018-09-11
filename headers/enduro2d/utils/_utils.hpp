@@ -18,6 +18,8 @@ namespace e2d
     class jobber;
     class input_stream;
     class output_stream;
+    class input_sequence;
+    class output_sequence;
     class url;
 
     template < typename T >
