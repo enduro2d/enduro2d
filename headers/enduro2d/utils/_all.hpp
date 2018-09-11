@@ -14,6 +14,7 @@
 #include "filesystem.hpp"
 #include "image.hpp"
 #include "jobber.hpp"
+#include "module.hpp"
 #include "path.hpp"
 #include "streams.hpp"
 #include "strfmts.hpp"
