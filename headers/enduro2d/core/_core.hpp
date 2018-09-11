@@ -9,3 +9,16 @@
 #include "../base/_all.hpp"
 #include "../math/_all.hpp"
 #include "../utils/_all.hpp"
+
+namespace e2d
+{
+    class debug;
+}
+
+namespace e2d
+{
+    template < typename ModuleT >
+    ModuleT& the() {
+        return modules::instance<ModuleT>();
+    }
+}

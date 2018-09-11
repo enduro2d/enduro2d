@@ -7,3 +7,5 @@
 #pragma once
 
 #include "_core.hpp"
+
+#include "debug.hpp"
