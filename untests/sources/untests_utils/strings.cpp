@@ -345,16 +345,16 @@ TEST_CASE("strings") {
             str("0 2 1 4 3 6 7 5 8 9"));
     }
     {
-        REQUIRE(strings::rformat("%0", strings::make_format_arg(-5, 3)) == " -5");
-        REQUIRE(strings::rformat("%0", strings::make_format_arg(-5, 4)) == "  -5");
-        REQUIRE(strings::rformat("%0", strings::make_format_arg(21, 1)) == "21");
-        REQUIRE(strings::rformat("%0", strings::make_format_arg(21, 2)) == "21");
-        REQUIRE(strings::rformat("%0", strings::make_format_arg(42, 3)) == " 42");
-        REQUIRE(strings::rformat("%0", strings::make_format_arg(42u, 3)) == " 42");
+        REQUIRE(strings::rformat("%0", strings::make_format_arg(-5, u8(3))) == " -5");
+        REQUIRE(strings::rformat("%0", strings::make_format_arg(-5, u8(4))) == "  -5");
+        REQUIRE(strings::rformat("%0", strings::make_format_arg(21, u8(1))) == "21");
+        REQUIRE(strings::rformat("%0", strings::make_format_arg(21, u8(2))) == "21");
+        REQUIRE(strings::rformat("%0", strings::make_format_arg(42, u8(3))) == " 42");
+        REQUIRE(strings::rformat("%0", strings::make_format_arg(42u, u8(3))) == " 42");
         REQUIRE(strings::rformat("%0", strings::make_format_arg(1.23f)) == "1.230000");
-        REQUIRE(strings::rformat("%0", strings::make_format_arg(1.23f,0)) == "1.230000");
-        REQUIRE(strings::rformat("%0", strings::make_format_arg(1.23f,0,2)) == "1.23");
-        REQUIRE(strings::rformat("%0", strings::make_format_arg(1.23f,5,2)) == " 1.23");
+        REQUIRE(strings::rformat("%0", strings::make_format_arg(1.23f,u8(0))) == "1.230000");
+        REQUIRE(strings::rformat("%0", strings::make_format_arg(1.23f,u8(0),u8(2))) == "1.23");
+        REQUIRE(strings::rformat("%0", strings::make_format_arg(1.23f,u8(5),u8(2))) == " 1.23");
         REQUIRE(strings::rformat("%0", strings::make_format_arg(true)) == "true");
         REQUIRE(strings::rformat("%0", strings::make_format_arg(false)) == "false");
 

@@ -23,7 +23,7 @@ namespace e2d
         virtual std::size_t read(void* dst, std::size_t size) = 0;
         virtual std::size_t seek(std::ptrdiff_t offset, bool relative) = 0;
         virtual std::size_t tell() const = 0;
-        virtual std::size_t length() const = 0;
+        virtual std::size_t length() const noexcept = 0;
     };
     using input_stream_uptr = std::unique_ptr<input_stream>;
 
@@ -50,6 +50,16 @@ namespace e2d
 
         std::exception_ptr exception() const noexcept {
             return exception_;
+        }
+
+        input_sequence& seek(std::ptrdiff_t offset, bool relative) noexcept {
+            try {
+                stream_.seek(offset, relative);
+            } catch (...) {
+                success_ = false;
+                exception_ = std::current_exception();
+            }
+            return *this;
         }
 
         template < typename T >
@@ -86,6 +96,16 @@ namespace e2d
 
         std::exception_ptr exception() const noexcept {
             return exception_;
+        }
+
+        output_sequence& seek(std::ptrdiff_t offset, bool relative) noexcept {
+            try {
+                stream_.seek(offset, relative);
+            } catch (...) {
+                success_ = false;
+                exception_ = std::current_exception();
+            }
+            return *this;
         }
 
         template < typename T >

@@ -13,6 +13,7 @@
 namespace e2d
 {
     class debug;
+    class vfs;
 }
 
 namespace e2d

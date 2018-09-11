@@ -54,7 +54,7 @@ namespace
             return pos_;
         }
 
-        std::size_t length() const final {
+        std::size_t length() const noexcept final {
             return data_.size();
         }
     private:
