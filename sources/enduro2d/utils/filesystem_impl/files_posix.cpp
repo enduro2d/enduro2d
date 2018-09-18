@@ -4,9 +4,9 @@
  * Copyright (C) 2018 Matvey Cherevko
  ******************************************************************************/
 
-#include "filesystem_impl.hpp"
+#include "files.hpp"
 
-#if defined(E2D_FILESYSTEM_MODE) && E2D_FILESYSTEM_MODE == E2D_FILESYSTEM_MODE_POSIX
+#if defined(E2D_FILES_MODE) && E2D_FILES_MODE == E2D_FILES_MODE_POSIX
 
 #include <fcntl.h>
 #include <unistd.h>
@@ -53,7 +53,7 @@ namespace
                 : throw bad_stream_operation();
         }
 
-        std::size_t length() const final {
+        std::size_t length() const noexcept final {
             return length_;
         }
 

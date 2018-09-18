@@ -4,7 +4,8 @@
  * Copyright (C) 2018 Matvey Cherevko
  ******************************************************************************/
 
-#include "filesystem_impl/filesystem_impl.hpp"
+#include "filesystem_impl/files.hpp"
+#include "filesystem_impl/filesystem.hpp"
 
 namespace e2d
 {
@@ -72,5 +73,9 @@ namespace e2d { namespace filesystem
     bool try_write_all(const buffer& src, str_view path, bool append) noexcept {
         return streams::try_write_tail(
             src, make_write_file(path, append));
+    }
+
+    bool extract_predef_path(str& dst, predef_path path_type) {
+        return impl::extract_predef_path(dst, path_type);
     }
 }}

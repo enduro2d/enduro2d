@@ -50,6 +50,24 @@ TEST_CASE("filesystem") {
     }
     SECTION("filesystem") {
         {
+            std::printf("-= filesystem::extract_predef_path tests\n");
+            str path;
+            std::printf("home: %s\n",
+                filesystem::extract_predef_path(path, filesystem::predef_path::home) ? path.c_str() : "error");
+            std::printf("appdata: %s\n",
+                filesystem::extract_predef_path(path, filesystem::predef_path::appdata) ? path.c_str() : "error");
+            std::printf("desktop: %s\n",
+                filesystem::extract_predef_path(path, filesystem::predef_path::desktop) ? path.c_str() : "error");
+            std::printf("working: %s\n",
+                filesystem::extract_predef_path(path, filesystem::predef_path::working) ? path.c_str() : "error");
+            std::printf("documents: %s\n",
+                filesystem::extract_predef_path(path, filesystem::predef_path::documents) ? path.c_str() : "error");
+            std::printf("resources: %s\n",
+                filesystem::extract_predef_path(path, filesystem::predef_path::resources) ? path.c_str() : "error");
+            std::printf("executable: %s\n",
+                filesystem::extract_predef_path(path, filesystem::predef_path::executable) ? path.c_str() : "error");
+        }
+        {
             const str_view child_dir_name = "test_filesystem_file_name";
             REQUIRE(filesystem::remove_file(child_dir_name));
             REQUIRE_FALSE(filesystem::exists(child_dir_name));

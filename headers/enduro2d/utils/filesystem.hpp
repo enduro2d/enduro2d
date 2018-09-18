@@ -47,4 +47,16 @@ namespace e2d { namespace filesystem
 
     bool try_read_all(buffer& dst, str_view path) noexcept;
     bool try_write_all(const buffer& src, str_view path, bool append) noexcept;
+
+    enum class predef_path {
+        home,
+        appdata,
+        desktop,
+        working,
+        documents,
+        resources,
+        executable
+    };
+
+    bool extract_predef_path(str& dst, predef_path path_type);
 }}

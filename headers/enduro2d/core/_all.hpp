@@ -9,3 +9,4 @@
 #include "_core.hpp"
 
 #include "debug.hpp"
+#include "vfs.hpp"

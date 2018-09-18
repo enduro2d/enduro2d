@@ -34,16 +34,13 @@
 // E2D_PLATFORM
 //
 
-#define E2D_PLATFORM_ANDROID 1
-#define E2D_PLATFORM_LINUX   2
-#define E2D_PLATFORM_IOS     3
-#define E2D_PLATFORM_MACOSX  4
-#define E2D_PLATFORM_WINDOWS 5
+#define E2D_PLATFORM_LINUX   1
+#define E2D_PLATFORM_IOS     2
+#define E2D_PLATFORM_MACOSX  3
+#define E2D_PLATFORM_WINDOWS 4
 
 #ifndef E2D_PLATFORM
-#  if defined(__ANDROID__) || defined(ANDROID)
-#    define E2D_PLATFORM E2D_PLATFORM_ANDROID
-#  elif defined(__linux__) || defined(__linux) || defined(linux)
+#  if defined(__linux__) || defined(__linux) || defined(linux)
 #    define E2D_PLATFORM E2D_PLATFORM_LINUX
 #  elif defined(macintosh) || defined(Macintosh) || defined(__APPLE__)
 #    include <TargetConditionals.h>
