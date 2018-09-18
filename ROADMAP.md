@@ -38,9 +38,9 @@
 ## `Milestone II`
 
 - ### `basic core`
-  - [ ] `logger`
+  - [x] `logger`
     ```
-    levels, filters, sinks, tags
+    levels, sinks
     ```
   - [ ] `basic input system`
     ```
@@ -58,7 +58,7 @@
     index and vertex buffers, render state,
     textures, blends, pixel and vertex shaders
     ```
-  - [ ] `virtual file system`
+  - [x] `virtual file system`
     ```
     path aliases, archives, async loading
     ```
