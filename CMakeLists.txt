@@ -83,12 +83,12 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 # subdirectories
 #
 
-option(BUILD_SAMPLES "Build samples" ON)
-if(BUILD_SAMPLES)
+option(E2D_BUILD_SAMPLES "Build samples" ON)
+if(E2D_BUILD_SAMPLES)
   add_subdirectory(samples)
 endif()
 
-option(BUILD_UNTESTS "Build untests" ON)
-if(BUILD_UNTESTS)
+option(E2D_BUILD_UNTESTS "Build untests" ON)
+if(E2D_BUILD_UNTESTS)
   add_subdirectory(untests)
 endif()

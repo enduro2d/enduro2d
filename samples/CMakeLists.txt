@@ -5,9 +5,13 @@ function(add_e2d_sample NAME)
     # external
     #
 
+    find_package(OpenGL REQUIRED)
     find_package(Threads REQUIRED)
 
     if(APPLE)
+        find_library(Cocoa Cocoa)
+        find_library(IOKit IOKit)
+        find_library(CoreVideo CoreVideo)
         find_library(Foundation Foundation)
     endif(APPLE)
 
@@ -33,10 +37,14 @@ function(add_e2d_sample NAME)
 
     target_link_libraries(${SAMPLE_NAME}
         enduro2d
-        "${CMAKE_THREAD_LIBS_INIT}")
+        ${OPENGL_gl_LIBRARY}
+        ${CMAKE_THREAD_LIBS_INIT})
 
     if(APPLE)
         target_link_libraries(${SAMPLE_NAME}
+            ${Cocoa}
+            ${IOKit}
+            ${CoreVideo}
             ${Foundation})
     endif(APPLE)
 
@@ -45,15 +53,15 @@ function(add_e2d_sample NAME)
     #
 
     if(MSVC)
-      add_custom_command(TARGET ${SAMPLE_NAME} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${CMAKE_CURRENT_SOURCE_DIR}/bin
-        ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/bin)
+        add_custom_command(TARGET ${SAMPLE_NAME} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_directory
+            ${CMAKE_CURRENT_SOURCE_DIR}/bin
+            ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/bin)
     else()
-      add_custom_command(TARGET ${SAMPLE_NAME} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${CMAKE_CURRENT_SOURCE_DIR}/bin
-        ${CMAKE_CURRENT_BINARY_DIR}/bin)
+        add_custom_command(TARGET ${SAMPLE_NAME} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_directory
+            ${CMAKE_CURRENT_SOURCE_DIR}/bin
+            ${CMAKE_CURRENT_BINARY_DIR}/bin)
     endif()
 endfunction(add_e2d_sample)
 
