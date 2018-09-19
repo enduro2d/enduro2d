@@ -5,15 +5,3 @@
  ******************************************************************************/
 
 #include <enduro2d/core/window.hpp>
-
-namespace e2d
-{
-    class window::state final : private e2d::noncopyable {
-    public:
-    };
-
-    window::window()
-    : state_(new state()){}
-
-    window::~window() noexcept = default;
-}

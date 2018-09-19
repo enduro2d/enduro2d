@@ -42,6 +42,7 @@ function(add_e2d_sample NAME)
 
     if(APPLE)
         target_link_libraries(${SAMPLE_NAME}
+            glfw
             ${Cocoa}
             ${IOKit}
             ${CoreVideo}
