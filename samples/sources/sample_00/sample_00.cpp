@@ -22,7 +22,7 @@ int main() {
     }
 
     auto current_time = time::now_s();
-    while ( !w.should_close() && current_time + make_seconds(5ll) < time::now_s() ) {
+    while ( !w.should_close() && current_time + make_seconds<i64>(5) < time::now_s() ) {
         w.swap_buffers();
         window::poll_events();
     }
