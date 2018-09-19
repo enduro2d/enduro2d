@@ -20,6 +20,7 @@ namespace
     class glfw_state : private noncopyable {
     public:
         glfw_state() {
+            glfwSetErrorCallback(error_handler);
             if ( !glfwInit() ) {
                 throw bad_window_operation();
             }
@@ -27,6 +28,7 @@ namespace
 
         ~glfw_state() noexcept {
             glfwTerminate();
+            glfwSetErrorCallback(nullptr);
         }
     public:
         static bool poll_events() noexcept {
@@ -48,6 +50,16 @@ namespace
     private:
         static std::mutex mutex_;
         static std::shared_ptr<glfw_state> shared_state_;
+    private:
+        static void error_handler(int error, const char* message) noexcept {
+            try {
+                the<debug>().error(
+                    "GLFW: error(%0) message(%1)",
+                    error, message);
+            } catch (...) {
+                // nothing
+            }
+        }
     };
 
     std::mutex glfw_state::mutex_;

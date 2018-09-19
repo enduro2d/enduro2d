@@ -8,6 +8,9 @@
 using namespace e2d;
 
 int main() {
+    modules::initialize<debug>();
+    the<debug>().add_sink<debug_console_sink>();
+
     window w{{640, 480}, "Enduro2D", false};
     while ( !w.should_close() ) {
         w.swap_buffers();

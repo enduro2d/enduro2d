@@ -6,6 +6,7 @@
 
 #pragma once
 
+#include <enduro2d/core/debug.hpp>
 #include <enduro2d/core/window.hpp>
 
 #define E2D_WINDOW_MODE_NONE 1
