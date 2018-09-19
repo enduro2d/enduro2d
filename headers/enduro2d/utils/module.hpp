@@ -31,11 +31,12 @@ namespace e2d
         virtual ~module() noexcept = default;
     public:
         template < typename ImplT, typename... Args >
-        static void initialize(Args&&... args) {
+        static ImplT& initialize(Args&&... args) {
             if ( is_initialized() ) {
                 throw module_already_initialized();
             }
             instance_ = std::make_unique<ImplT>(std::forward<Args>(args)...);
+            return static_cast<ImplT&>(*instance_);
         }
 
         static void shutdown() noexcept {
@@ -63,9 +64,9 @@ namespace e2d
 namespace e2d { namespace modules
 {
     template < typename ImplT, typename... Args >
-    void initialize(Args&&... args) {
+    ImplT& initialize(Args&&... args) {
         using BaseT = typename ImplT::base_type;
-        module<BaseT>::template initialize<ImplT>(std::forward<Args>(args)...);
+        return module<BaseT>::template initialize<ImplT>(std::forward<Args>(args)...);
     }
 
     template < typename ImplT >
