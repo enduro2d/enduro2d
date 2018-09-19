@@ -22,10 +22,20 @@ namespace e2d
         window(const v2u& size, str_view title, bool fullscreen);
         ~window() noexcept;
 
+        void hide() noexcept;
+        void show() noexcept;
+        void restore() noexcept;
+        void minimize() noexcept;
+
         v2u real_size() const noexcept;
         v2u virtual_size() const noexcept;
 
+        const str& title() const noexcept;
+        void set_title(str_view title);
+
         bool should_close() const noexcept;
+        void set_should_close(bool yesno) noexcept;
+
         void swap_buffers() noexcept;
         static bool poll_events() noexcept;
     private:

@@ -63,11 +63,14 @@ namespace e2d
         glfw_state_ptr shared_state;
         window_uptr window;
         v2u virtual_size;
+        str title;
+        std::mutex mutex;
     public:
         state(const v2u& size, str_view title, bool fullscreen)
         : shared_state(glfw_state::get_shared_state())
         , window(open_window_(size, make_utf8(title), fullscreen))
         , virtual_size(size)
+        , title(title)
         {
             if ( !window ) {
                 throw bad_window_operation();
@@ -110,23 +113,71 @@ namespace e2d
     : state_(new state(size, title, fullscreen)) {}
     window::~window() noexcept = default;
 
+    void window::hide() noexcept {
+        std::lock_guard<std::mutex> guard(state_->mutex);
+        E2D_ASSERT(state_->window);
+        glfwHideWindow(state_->window.get());
+    }
+
+    void window::show() noexcept {
+        std::lock_guard<std::mutex> guard(state_->mutex);
+        E2D_ASSERT(state_->window);
+        glfwShowWindow(state_->window.get());
+    }
+
+    void window::restore() noexcept {
+        std::lock_guard<std::mutex> guard(state_->mutex);
+        E2D_ASSERT(state_->window);
+        glfwRestoreWindow(state_->window.get());
+    }
+
+    void window::minimize() noexcept {
+        std::lock_guard<std::mutex> guard(state_->mutex);
+        E2D_ASSERT(state_->window);
+        glfwIconifyWindow(state_->window.get());
+    }
+
     v2u window::real_size() const noexcept {
+        std::lock_guard<std::mutex> guard(state_->mutex);
         E2D_ASSERT(state_->window);
         int w = 0, h = 0;
-        glfwGetWindowSize(state_->window.get(), &w, &h);
+        glfwGetFramebufferSize(state_->window.get(), &w, &h);
         return make_vec2(w,h).cast_to<u32>();
     }
 
     v2u window::virtual_size() const noexcept {
+        std::lock_guard<std::mutex> guard(state_->mutex);
         return state_->virtual_size;
     }
 
+    const str& window::title() const noexcept {
+        std::lock_guard<std::mutex> guard(state_->mutex);
+        return state_->title;
+    }
+
+    void window::set_title(str_view title) {
+        std::lock_guard<std::mutex> guard(state_->mutex);
+        E2D_ASSERT(state_->window);
+        state_->title = make_utf8(title);
+        glfwSetWindowTitle(
+            state_->window.get(), state_->title.c_str());
+    }
+
     bool window::should_close() const noexcept {
+        std::lock_guard<std::mutex> guard(state_->mutex);
         E2D_ASSERT(state_->window);
         return glfwWindowShouldClose(state_->window.get());
     }
 
+    void window::set_should_close(bool yesno) noexcept {
+        std::lock_guard<std::mutex> guard(state_->mutex);
+        E2D_ASSERT(state_->window);
+        glfwSetWindowShouldClose(
+            state_->window.get(), yesno ? GLFW_TRUE : GLFW_FALSE);
+    }
+
     void window::swap_buffers() noexcept {
+        std::lock_guard<std::mutex> guard(state_->mutex);
         E2D_ASSERT(state_->window);
         glfwSwapBuffers(state_->window.get());
     }

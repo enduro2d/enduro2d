@@ -15,6 +15,8 @@ namespace e2d
         v2u size;
         str title;
         bool fullscreen = false;
+        bool should_close = false;
+        std::mutex mutex;
     public:
         state(const v2u& size, str_view title, bool fullscreen)
         : size(size)
@@ -27,16 +29,46 @@ namespace e2d
     : state_(new state(size, title, fullscreen)) {}
     window::~window() noexcept = default;
 
+    void window::hide() noexcept {
+    }
+
+    void window::show() noexcept {
+    }
+
+    void window::restore() noexcept {
+    }
+
+    void window::minimize() noexcept {
+    }
+
     v2u window::real_size() const noexcept {
+        std::lock_guard<std::mutex> guard(state_->mutex);
         return state_->size;
     }
 
     v2u window::virtual_size() const noexcept {
+        std::lock_guard<std::mutex> guard(state_->mutex);
         return state_->size;
     }
 
+    const str& window::title() const noexcept {
+        std::lock_guard<std::mutex> guard(state_->mutex);
+        return state_->title;
+    }
+
+    void window::set_title(str_view title) {
+        std::lock_guard<std::mutex> guard(state_->mutex);
+        state_->title = make_utf8(title);
+    }
+
     bool window::should_close() const noexcept {
-        return false;
+        std::lock_guard<std::mutex> guard(state_->mutex);
+        return state_->should_close;
+    }
+
+    void window::set_should_close(bool yesno) noexcept {
+        std::lock_guard<std::mutex> guard(state_->mutex);
+        state_->should_close = yesno;
     }
 
     void window::swap_buffers() noexcept {
