@@ -7,3 +7,6 @@
 [submodule "modules/utfcpp"]
 	path = modules/utfcpp
 	url = https://github.com/nemtrif/utfcpp
+[submodule "modules/glfw"]
+	path = modules/glfw
+	url = https://github.com/glfw/glfw
