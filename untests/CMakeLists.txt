@@ -40,6 +40,11 @@ function(add_e2d_tests NAME)
             ${Foundation})
     endif(APPLE)
 
+    set_target_properties(${TESTS_NAME} PROPERTIES
+        CXX_STANDARD 14
+        CXX_STANDARD_REQUIRED YES
+        CXX_EXTENSIONS NO)
+
     #
     # resources
     #
@@ -49,12 +54,12 @@ function(add_e2d_tests NAME)
             COMMAND ${CMAKE_COMMAND} -E copy_directory
             ${CMAKE_CURRENT_SOURCE_DIR}/bin
             ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/bin)
-    else()
+    else(MSVC)
         add_custom_command(TARGET ${TESTS_NAME} POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_directory
             ${CMAKE_CURRENT_SOURCE_DIR}/bin
             ${CMAKE_CURRENT_BINARY_DIR}/bin)
-    endif()
+    endif(MSVC)
 
     #
     # tests
