@@ -130,6 +130,11 @@ namespace e2d
         return glfwWindowShouldClose(state_->window.get());
     }
 
+    void window::swap_buffers() noexcept {
+        E2D_ASSERT(state_->window);
+        glfwSwapBuffers(state_->window.get());
+    }
+
     bool window::poll_events() noexcept {
         return glfw_state::poll_events();
     }

@@ -68,59 +68,59 @@ TEST_CASE("strfmts") {
             v2u(1,2)) == "(1,2)");
         REQUIRE(strings::rformat(
             "%0",
-            strings::make_format_arg(v3u(1,2,3), 3)) == "(  1,  2,  3)");
+            strings::make_format_arg(v3u(1,2,3), u8(3))) == "(  1,  2,  3)");
         REQUIRE(strings::rformat(
             "%0",
-            strings::make_format_arg(v4i(1,2,3,4), 2)) == "( 1, 2, 3, 4)");
+            strings::make_format_arg(v4i(1,2,3,4), u8(2))) == "( 1, 2, 3, 4)");
 
         REQUIRE(strings::rformat(
             "%0",
             v2f(1.f,2.f)) == "(1.000000,2.000000)");
         REQUIRE(strings::rformat(
             "%0",
-            strings::make_format_arg(v3d(1,2,3), 5, 2)) == "( 1.00, 2.00, 3.00)");
+            strings::make_format_arg(v3d(1,2,3), u8(5), u8(2))) == "( 1.00, 2.00, 3.00)");
         REQUIRE(strings::rformat(
             "%0",
-            strings::make_format_arg(v4f(1,2,3,4),0,1)) == "(1.0,2.0,3.0,4.0)");
+            strings::make_format_arg(v4f(1,2,3,4), u8(0), u8(1))) == "(1.0,2.0,3.0,4.0)");
     }
     {
         REQUIRE(strings::rformat(
             "%0",
-            strings::make_format_arg(m2i(1,2,3,4), 3)) ==
+            strings::make_format_arg(m2i(1,2,3,4), u8(3))) ==
             "((  1,  2),(  3,  4))");
         REQUIRE(strings::rformat(
             "%0",
-            strings::make_format_arg(m3i(1,2,3,4,5,6,7,8,9), 1)) ==
+            strings::make_format_arg(m3i(1,2,3,4,5,6,7,8,9), u8(1))) ==
             "((1,2,3),(4,5,6),(7,8,9))");
         REQUIRE(strings::rformat(
             "%0",
-            strings::make_format_arg(m4i(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16), 2)) ==
+            strings::make_format_arg(m4i(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16), u8(2))) ==
             "(( 1, 2, 3, 4),( 5, 6, 7, 8),( 9,10,11,12),(13,14,15,16))");
 
         REQUIRE(strings::rformat(
             "%0",
-            strings::make_format_arg(m2f(1,2,3,4), 5, 2)) ==
+            strings::make_format_arg(m2f(1,2,3,4), u8(5), u8(2))) ==
             "(( 1.00, 2.00),( 3.00, 4.00))");
         REQUIRE(strings::rformat(
             "%0",
-            strings::make_format_arg(m3f(1,2,3,4,5,6,7,8,9), 4, 1)) ==
+            strings::make_format_arg(m3f(1,2,3,4,5,6,7,8,9), u8(4), u8(1))) ==
             "(( 1.0, 2.0, 3.0),( 4.0, 5.0, 6.0),( 7.0, 8.0, 9.0))");
         REQUIRE(strings::rformat(
             "%0",
-            strings::make_format_arg(m4f(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16), 2,0)) ==
+            strings::make_format_arg(m4f(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16), u8(2), u8(0))) ==
             "(( 1, 2, 3, 4),( 5, 6, 7, 8),( 9,10,11,12),(13,14,15,16))");
     }
     {
         REQUIRE(strings::rformat("%0", make_rad(2)) == "2rad");
         REQUIRE(strings::rformat(
             "%0",
-            strings::make_format_arg(make_rad(2.f), 5, 2)) ==
+            strings::make_format_arg(make_rad(2.f), u8(5), u8(2))) ==
             " 2.00rad");
 
         REQUIRE(strings::rformat("%0", make_deg(3)) == "3deg");
         REQUIRE(strings::rformat(
             "%0",
-            strings::make_format_arg(make_deg(2.0), 5, 2)) ==
+            strings::make_format_arg(make_deg(2.0), u8(5), u8(2))) ==
             " 2.00deg");
     }
     {
@@ -137,11 +137,11 @@ TEST_CASE("strfmts") {
     {
         REQUIRE(strings::rformat(
             "%0",
-            strings::make_format_arg(color(1.f,2.f,3.f,4.f), 0, 2)) ==
+            strings::make_format_arg(color(1.f,2.f,3.f,4.f), u8(0), u8(2))) ==
             "(1.00,2.00,3.00,4.00)");
         REQUIRE(strings::rformat(
             "%0",
-            strings::make_format_arg(color32(1,2,3,4), 2)) == "( 1, 2, 3, 4)");
+            strings::make_format_arg(color32(1,2,3,4), u8(2))) == "( 1, 2, 3, 4)");
     }
     {
         REQUIRE(strings::rformat("%0", make_seconds(2)) == "2s");
@@ -152,7 +152,7 @@ TEST_CASE("strfmts") {
         REQUIRE(strings::rformat("%0", make_milliseconds(3.0)) == "3.000000ms");
         REQUIRE(strings::rformat(
             "%0",
-            strings::make_format_arg(make_microseconds(4.f), 5, 2)) ==
+            strings::make_format_arg(make_microseconds(4.f), u8(5), u8(2))) ==
             " 4.00us");
     }
 }

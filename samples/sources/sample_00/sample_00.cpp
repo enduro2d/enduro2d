@@ -10,6 +10,7 @@ using namespace e2d;
 int main() {
     window w{{640, 480}, "Enduro2D", false};
     while ( !w.should_close() ) {
+        w.swap_buffers();
         window::poll_events();
     }
 }

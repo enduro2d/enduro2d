@@ -26,6 +26,7 @@ namespace e2d
         v2u virtual_size() const noexcept;
 
         bool should_close() const noexcept;
+        void swap_buffers() noexcept;
         static bool poll_events() noexcept;
     private:
         class state;

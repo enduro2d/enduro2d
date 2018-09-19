@@ -39,6 +39,9 @@ namespace e2d
         return false;
     }
 
+    void window::swap_buffers() noexcept {
+    }
+
     bool window::poll_events() noexcept {
         return false;
     }

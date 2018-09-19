@@ -89,12 +89,12 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 # 3rd party
 #
 
-if(APPLE)
+if(WIN32 OR APPLE)
   set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
   set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
   set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
   add_subdirectory(modules/glfw)
-endif(APPLE)
+endif(WIN32 OR APPLE)
 
 #
 # subdirectories
