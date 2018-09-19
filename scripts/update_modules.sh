@@ -16,6 +16,9 @@ git submodule update --remote --recursive
 mkdir -p $ROOT_DIR/untests/catch
 cp -fv $MODULES_DIR/catch2/single_include/catch2/catch.hpp $ROOT_DIR/untests/catch/catch.hpp
 
+mkdir -p $RDPARTY_DIR/glfw
+cp -rfv $MODULES_DIR/glfw/include/GLFW/ $RDPARTY_DIR/glfw/
+
 mkdir -p $RDPARTY_DIR/stb
 cp -fv $MODULES_DIR/stb/stb_image.h $RDPARTY_DIR/stb/stb_image.h
 cp -fv $MODULES_DIR/stb/stb_image_resize.h $RDPARTY_DIR/stb/stb_image_resize.h
