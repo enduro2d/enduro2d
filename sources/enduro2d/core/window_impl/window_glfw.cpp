@@ -80,33 +80,29 @@ namespace e2d
         }
     private:
         static window_uptr open_window_(
-            const v2u& size, const str& title, bool fullscreen) noexcept
+            const v2u& virtual_size, const str& title, bool fullscreen) noexcept
         {
-            if ( fullscreen ) {
-                GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-                if ( !monitor ) {
-                    return {nullptr, glfwDestroyWindow};
-                }
-                const GLFWvidmode* video_mode = glfwGetVideoMode(monitor);
-                if ( !video_mode ) {
-                    return {nullptr, glfwDestroyWindow};
-                }
-                GLFWwindow* w = glfwCreateWindow(
-                    video_mode->width,
-                    video_mode->height,
-                    title.c_str(),
-                    monitor,
-                    nullptr);
-                return {w, glfwDestroyWindow};
-            } else {
-                GLFWwindow* w = glfwCreateWindow(
-                    math::numeric_cast<int>(size.x),
-                    math::numeric_cast<int>(size.y),
-                    title.c_str(),
-                    nullptr,
-                    nullptr);
-                return {w, glfwDestroyWindow};
+            GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+            if ( !monitor ) {
+                return {nullptr, glfwDestroyWindow};
             }
+            const GLFWvidmode* video_mode = glfwGetVideoMode(monitor);
+            if ( !video_mode ) {
+                return {nullptr, glfwDestroyWindow};
+            }
+            glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+            v2i real_size = fullscreen
+                ? make_vec2(video_mode->width, video_mode->height)
+                : virtual_size.cast_to<i32>();
+            GLFWwindow* w = glfwCreateWindow(
+                real_size.x,
+                real_size.y,
+                title.c_str(),
+                fullscreen ? monitor : nullptr,
+                nullptr);
+            return {w, glfwDestroyWindow};
         }
     };
 
