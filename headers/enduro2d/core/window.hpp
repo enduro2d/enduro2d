@@ -19,13 +19,20 @@ namespace e2d
 
     class window final : public module<window> {
     public:
-        window(const v2u& size, str_view title, bool fullscreen);
+        window(const v2u& size, str_view title, bool vsync, bool fullscreen);
         ~window() noexcept;
 
         void hide() noexcept;
         void show() noexcept;
         void restore() noexcept;
         void minimize() noexcept;
+
+        bool vsync() const noexcept;
+        bool fullscreen() const noexcept;
+
+        bool visible() const noexcept;
+        bool focused() const noexcept;
+        bool minimized() const noexcept;
 
         v2u real_size() const noexcept;
         v2u virtual_size() const noexcept;

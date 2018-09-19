@@ -76,13 +76,17 @@ namespace e2d
         window_uptr window;
         v2u virtual_size;
         str title;
+        bool vsync = false;
+        bool fullscreen = false;
         std::mutex mutex;
     public:
-        state(const v2u& size, str_view title, bool fullscreen)
+        state(const v2u& size, str_view title, bool vsync, bool fullscreen)
         : shared_state(glfw_state::get_shared_state())
-        , window(open_window_(size, make_utf8(title), fullscreen))
+        , window(open_window_(size, make_utf8(title), vsync, fullscreen))
         , virtual_size(size)
         , title(title)
+        , vsync(vsync)
+        , fullscreen(fullscreen)
         {
             if ( !window ) {
                 throw bad_window_operation();
@@ -95,7 +99,7 @@ namespace e2d
         }
     private:
         static window_uptr open_window_(
-            const v2u& virtual_size, const str& title, bool fullscreen) noexcept
+            const v2u& virtual_size, const str& title, bool vsync, bool fullscreen) noexcept
         {
             GLFWmonitor* monitor = glfwGetPrimaryMonitor();
             if ( !monitor ) {
@@ -117,12 +121,15 @@ namespace e2d
                 title.c_str(),
                 fullscreen ? monitor : nullptr,
                 nullptr);
+            if ( w ) {
+                glfwSwapInterval(vsync ? 1 : 0);
+            }
             return {w, glfwDestroyWindow};
         }
     };
 
-    window::window(const v2u& size, str_view title, bool fullscreen)
-    : state_(new state(size, title, fullscreen)) {}
+    window::window(const v2u& size, str_view title, bool vsync, bool fullscreen)
+    : state_(new state(size, title, vsync, fullscreen)) {}
     window::~window() noexcept = default;
 
     void window::hide() noexcept {
@@ -147,6 +154,34 @@ namespace e2d
         std::lock_guard<std::mutex> guard(state_->mutex);
         E2D_ASSERT(state_->window);
         glfwIconifyWindow(state_->window.get());
+    }
+
+    bool window::vsync() const noexcept {
+        std::lock_guard<std::mutex> guard(state_->mutex);
+        return state_->vsync;
+    }
+
+    bool window::fullscreen() const noexcept {
+        std::lock_guard<std::mutex> guard(state_->mutex);
+        return state_->fullscreen;
+    }
+
+    bool window::visible() const noexcept {
+        std::lock_guard<std::mutex> guard(state_->mutex);
+        E2D_ASSERT(state_->window);
+        return glfwGetWindowAttrib(state_->window.get(), GLFW_VISIBLE);
+    }
+
+    bool window::focused() const noexcept {
+        std::lock_guard<std::mutex> guard(state_->mutex);
+        E2D_ASSERT(state_->window);
+        return glfwGetWindowAttrib(state_->window.get(), GLFW_FOCUSED);
+    }
+
+    bool window::minimized() const noexcept {
+        std::lock_guard<std::mutex> guard(state_->mutex);
+        E2D_ASSERT(state_->window);
+        return glfwGetWindowAttrib(state_->window.get(), GLFW_ICONIFIED);
     }
 
     v2u window::real_size() const noexcept {

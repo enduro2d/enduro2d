@@ -12,43 +12,81 @@ namespace e2d
 {
     class window::state final : private e2d::noncopyable {
     public:
-        v2u size;
+        v2u virtual_size;
         str title;
+        bool vsync = false;
         bool fullscreen = false;
         bool should_close = false;
+        bool visible = true;
+        bool focused = true;
+        bool minimized = false;
         std::mutex mutex;
     public:
-        state(const v2u& size, str_view title, bool fullscreen)
-        : size(size)
+        state(const v2u& size, str_view title, bool vsync, bool fullscreen)
+        : virtual_size(size)
         , title(make_utf8(title))
+        , vsync(vsync)
         , fullscreen(fullscreen) {}
         ~state() noexcept = default;
     };
 
-    window::window(const v2u& size, str_view title, bool fullscreen)
-    : state_(new state(size, title, fullscreen)) {}
+    window::window(const v2u& size, str_view title, bool vsync, bool fullscreen)
+    : state_(new state(size, title, vsync, fullscreen)) {}
     window::~window() noexcept = default;
 
     void window::hide() noexcept {
+        std::lock_guard<std::mutex> guard(state_->mutex);
+        state_->visible = false;
     }
 
     void window::show() noexcept {
+        std::lock_guard<std::mutex> guard(state_->mutex);
+        state_->visible = true;
     }
 
     void window::restore() noexcept {
+        std::lock_guard<std::mutex> guard(state_->mutex);
+        state_->minimized = false;
     }
 
     void window::minimize() noexcept {
+        std::lock_guard<std::mutex> guard(state_->mutex);
+        state_->minimized = true;
+    }
+
+    bool window::vsync() const noexcept {
+        std::lock_guard<std::mutex> guard(state_->mutex);
+        return state_->vsync;
+    }
+
+    bool window::fullscreen() const noexcept {
+        std::lock_guard<std::mutex> guard(state_->mutex);
+        return state_->fullscreen;
+    }
+
+    bool window::visible() const noexcept {
+        std::lock_guard<std::mutex> guard(state_->mutex);
+        return state_->visible;
+    }
+
+    bool window::focused() const noexcept {
+        std::lock_guard<std::mutex> guard(state_->mutex);
+        return state_->focused;
+    }
+
+    bool window::minimized() const noexcept {
+        std::lock_guard<std::mutex> guard(state_->mutex);
+        return state_->minimized;
     }
 
     v2u window::real_size() const noexcept {
         std::lock_guard<std::mutex> guard(state_->mutex);
-        return state_->size;
+        return state_->virtual_size;
     }
 
     v2u window::virtual_size() const noexcept {
         std::lock_guard<std::mutex> guard(state_->mutex);
-        return state_->size;
+        return state_->virtual_size;
     }
 
     const str& window::title() const noexcept {
