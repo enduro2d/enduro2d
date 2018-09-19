@@ -27,12 +27,15 @@ namespace e2d
         void restore() noexcept;
         void minimize() noexcept;
 
-        bool vsync() const noexcept;
-        bool fullscreen() const noexcept;
-
         bool visible() const noexcept;
         bool focused() const noexcept;
         bool minimized() const noexcept;
+
+        bool vsync() const noexcept;
+        bool fullscreen() const noexcept;
+
+        bool toggle_vsync(bool yesno) noexcept;
+        bool toggle_fullscreen(bool yesno) noexcept;
 
         v2u real_size() const noexcept;
         v2u virtual_size() const noexcept;

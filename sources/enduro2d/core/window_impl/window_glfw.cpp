@@ -122,6 +122,7 @@ namespace e2d
                 fullscreen ? monitor : nullptr,
                 nullptr);
             if ( w ) {
+                glfwMakeContextCurrent(w);
                 glfwSwapInterval(vsync ? 1 : 0);
             }
             return {w, glfwDestroyWindow};
@@ -156,16 +157,6 @@ namespace e2d
         glfwIconifyWindow(state_->window.get());
     }
 
-    bool window::vsync() const noexcept {
-        std::lock_guard<std::mutex> guard(state_->mutex);
-        return state_->vsync;
-    }
-
-    bool window::fullscreen() const noexcept {
-        std::lock_guard<std::mutex> guard(state_->mutex);
-        return state_->fullscreen;
-    }
-
     bool window::visible() const noexcept {
         std::lock_guard<std::mutex> guard(state_->mutex);
         E2D_ASSERT(state_->window);
@@ -182,6 +173,52 @@ namespace e2d
         std::lock_guard<std::mutex> guard(state_->mutex);
         E2D_ASSERT(state_->window);
         return glfwGetWindowAttrib(state_->window.get(), GLFW_ICONIFIED);
+    }
+
+    bool window::vsync() const noexcept {
+        std::lock_guard<std::mutex> guard(state_->mutex);
+        return state_->vsync;
+    }
+
+    bool window::fullscreen() const noexcept {
+        std::lock_guard<std::mutex> guard(state_->mutex);
+        return state_->fullscreen;
+    }
+
+    bool window::toggle_vsync(bool yesno) noexcept {
+        std::lock_guard<std::mutex> guard(state_->mutex);
+        glfwMakeContextCurrent(state_->window.get());
+        glfwSwapInterval(yesno ? 1 : 0);
+        state_->vsync = yesno;
+        return true;
+    }
+
+    bool window::toggle_fullscreen(bool yesno) noexcept {
+        std::lock_guard<std::mutex> guard(state_->mutex);
+        if ( state_->fullscreen == yesno ) {
+            return true;
+        }
+        GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+        if ( !monitor ) {
+            return false;
+        }
+        const GLFWvidmode* video_mode = glfwGetVideoMode(monitor);
+        if ( !video_mode ) {
+            return false;
+        }
+        v2i real_size = yesno
+            ? make_vec2(video_mode->width, video_mode->height)
+            : state_->virtual_size.cast_to<i32>();
+        glfwSetWindowMonitor(
+            state_->window.get(),
+            yesno ? monitor : nullptr,
+            yesno ? 0 : math::max(0, video_mode->width / 2 - real_size.x / 2),
+            yesno ? 0 : math::max(0, video_mode->height / 2 - real_size.y / 2),
+            real_size.x,
+            real_size.y,
+            yesno ? video_mode->refreshRate : 0);
+        state_->fullscreen = yesno;
+        return true;
     }
 
     v2u window::real_size() const noexcept {

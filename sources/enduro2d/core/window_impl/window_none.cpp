@@ -54,16 +54,6 @@ namespace e2d
         state_->minimized = true;
     }
 
-    bool window::vsync() const noexcept {
-        std::lock_guard<std::mutex> guard(state_->mutex);
-        return state_->vsync;
-    }
-
-    bool window::fullscreen() const noexcept {
-        std::lock_guard<std::mutex> guard(state_->mutex);
-        return state_->fullscreen;
-    }
-
     bool window::visible() const noexcept {
         std::lock_guard<std::mutex> guard(state_->mutex);
         return state_->visible;
@@ -77,6 +67,28 @@ namespace e2d
     bool window::minimized() const noexcept {
         std::lock_guard<std::mutex> guard(state_->mutex);
         return state_->minimized;
+    }
+
+    bool window::vsync() const noexcept {
+        std::lock_guard<std::mutex> guard(state_->mutex);
+        return state_->vsync;
+    }
+
+    bool window::fullscreen() const noexcept {
+        std::lock_guard<std::mutex> guard(state_->mutex);
+        return state_->fullscreen;
+    }
+
+    bool window::toggle_vsync(bool yesno) noexcept {
+        std::lock_guard<std::mutex> guard(state_->mutex);
+        state_->vsync = yesno;
+        return true;
+    }
+
+    bool window::toggle_fullscreen(bool yesno) noexcept {
+        std::lock_guard<std::mutex> guard(state_->mutex);
+        state_->fullscreen = yesno;
+        return true;
     }
 
     v2u window::real_size() const noexcept {
