@@ -4,10 +4,16 @@
  * Copyright (C) 2018 Matvey Cherevko
  ******************************************************************************/
 
-#pragma once
+#include <enduro2d/core/window.hpp>
 
-#include "_core.hpp"
+namespace e2d
+{
+    class window::state final : private e2d::noncopyable {
+    public:
+    };
 
-#include "debug.hpp"
-#include "vfs.hpp"
-#include "window.hpp"
+    window::window()
+    : state_(new state()){}
+
+    window::~window() noexcept = default;
+}

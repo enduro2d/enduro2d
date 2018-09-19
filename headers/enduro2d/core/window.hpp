@@ -8,6 +8,14 @@
 
 #include "_core.hpp"
 
-#include "debug.hpp"
-#include "vfs.hpp"
-#include "window.hpp"
+namespace e2d
+{
+    class window final : public module<window> {
+    public:
+        window();
+        ~window() noexcept;
+    private:
+        class state;
+        std::unique_ptr<state> state_;
+    };
+}
