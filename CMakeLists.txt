@@ -5,7 +5,9 @@ project(enduro2d)
 # build mode
 #
 
-foreach(flags CMAKE_C_FLAGS_DEBUG
+foreach(flags CMAKE_C_FLAGS
+              CMAKE_C_FLAGS_DEBUG
+              CMAKE_CXX_FLAGS
               CMAKE_CXX_FLAGS_DEBUG)
   set(${flags} "${${flags}} -D_DEBUG -DNRELEASE")
 endforeach(flags)
@@ -86,15 +88,13 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
   CXX_EXTENSIONS NO)
 
 #
-# 3rd party
+# glfw module
 #
 
-if(WIN32 OR APPLE)
-  set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
-  set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-  set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
-  add_subdirectory(modules/glfw)
-endif(WIN32 OR APPLE)
+set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+add_subdirectory(modules/glfw)
 
 #
 # subdirectories

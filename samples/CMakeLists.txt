@@ -36,14 +36,10 @@ function(add_e2d_sample NAME)
         PRIVATE "../headers")
 
     target_link_libraries(${SAMPLE_NAME}
+        glfw
         enduro2d
         ${OPENGL_gl_LIBRARY}
         ${CMAKE_THREAD_LIBS_INIT})
-
-	if(WIN32 OR APPLE)
-		target_link_libraries(${SAMPLE_NAME}
-			glfw)
-    endif(WIN32 OR APPLE)
 
     if(APPLE)
         target_link_libraries(${SAMPLE_NAME}
