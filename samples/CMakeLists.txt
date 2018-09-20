@@ -36,8 +36,8 @@ function(add_e2d_sample NAME)
         PRIVATE "../headers")
 
     target_link_libraries(${SAMPLE_NAME}
-        glfw
         enduro2d
+        glfw
         ${OPENGL_gl_LIBRARY}
         ${CMAKE_THREAD_LIBS_INIT})
 

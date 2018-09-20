@@ -3,51 +3,51 @@ matrix:
   include:
     - os: linux
       dist: trusty
-      addons: { apt: { sources: ubuntu-toolchain-r-test, packages: g++-4.9 } }
+      addons: { apt: { sources: ubuntu-toolchain-r-test, packages: ["xorg-dev", "g++-4.9"] } }
       env: MATRIX_EVAL="CC=gcc-4.9 && CXX=g++-4.9"
     - os: linux
       dist: trusty
-      addons: { apt: { sources: ubuntu-toolchain-r-test, packages: g++-5 } }
+      addons: { apt: { sources: ubuntu-toolchain-r-test, packages: ["xorg-dev", "g++-5"] } }
       env: MATRIX_EVAL="CC=gcc-5 && CXX=g++-5"
     - os: linux
       dist: trusty
-      addons: { apt: { sources: ubuntu-toolchain-r-test, packages: g++-6 } }
+      addons: { apt: { sources: ubuntu-toolchain-r-test, packages: ["xorg-dev", "g++-6"] } }
       env: MATRIX_EVAL="CC=gcc-6 && CXX=g++-6"
     - os: linux
       dist: trusty
-      addons: { apt: { sources: ubuntu-toolchain-r-test, packages: g++-7 } }
+      addons: { apt: { sources: ubuntu-toolchain-r-test, packages: ["xorg-dev", "g++-7"] } }
       env: MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
     - os: linux
       dist: trusty
-      addons: { apt: { sources: ubuntu-toolchain-r-test, packages: g++-8 } }
+      addons: { apt: { sources: ubuntu-toolchain-r-test, packages: ["xorg-dev", "g++-8"] } }
       env: MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
     - os: linux
       dist: trusty
-      addons: { apt: { sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-precise-3.6"], packages: ["clang-3.6", "g++-5"] } }
+      addons: { apt: { sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-precise-3.6"], packages: ["xorg-dev", "clang-3.6", "g++-5"] } }
       env: MATRIX_EVAL="CC=clang-3.6 && CXX=clang++-3.6"
     - os: linux
       dist: trusty
-      addons: { apt: { sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-precise-3.7"], packages: ["clang-3.7", "g++-5"] } }
+      addons: { apt: { sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-precise-3.7"], packages: ["xorg-dev", "clang-3.7", "g++-5"] } }
       env: MATRIX_EVAL="CC=clang-3.7 && CXX=clang++-3.7"
     - os: linux
       dist: trusty
-      addons: { apt: { sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-precise-3.8"], packages: ["clang-3.8", "g++-5"] } }
+      addons: { apt: { sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-precise-3.8"], packages: ["xorg-dev", "clang-3.8", "g++-5"] } }
       env: MATRIX_EVAL="CC=clang-3.8 && CXX=clang++-3.8"
     - os: linux
       dist: trusty
-      addons: { apt: { sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-precise-3.9"], packages: ["clang-3.9", "g++-5"] } }
+      addons: { apt: { sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-precise-3.9"], packages: ["xorg-dev", "clang-3.9", "g++-5"] } }
       env: MATRIX_EVAL="CC=clang-3.9 && CXX=clang++-3.9"
     - os: linux
       dist: trusty
-      addons: { apt: { sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-trusty-4.0"], packages: ["clang-4.0", "g++-5"] } }
+      addons: { apt: { sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-trusty-4.0"], packages: ["xorg-dev", "clang-4.0", "g++-5"] } }
       env: MATRIX_EVAL="CC=clang-4.0 && CXX=clang++-4.0"
     - os: linux
       dist: trusty
-      addons: { apt: { sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-trusty-5.0"], packages: ["clang-5.0", "g++-7"] } }
+      addons: { apt: { sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-trusty-5.0"], packages: ["xorg-dev", "clang-5.0", "g++-7"] } }
       env: MATRIX_EVAL="CC=clang-5.0 && CXX=clang++-5.0"
     - os: linux
       dist: trusty
-      addons: { apt: { sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-trusty-6.0"], packages: ["clang-6.0", "g++-7"] } }
+      addons: { apt: { sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-trusty-6.0"], packages: ["xorg-dev", "clang-6.0", "g++-7"] } }
       env: MATRIX_EVAL="CC=clang-6.0 && CXX=clang++-6.0"
     - os: osx
       osx_image: xcode8.3
