@@ -112,6 +112,8 @@ namespace e2d
             glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
             glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
             glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+            glfwWindowHint(GLFW_SCALE_TO_MONITOR, GLFW_FALSE);
+            glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_FALSE);
             v2i real_size = fullscreen
                 ? make_vec2(video_mode->width, video_mode->height)
                 : virtual_size.cast_to<i32>();

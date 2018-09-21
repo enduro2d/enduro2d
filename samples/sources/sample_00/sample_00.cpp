@@ -14,15 +14,13 @@ int main() {
     window& w = modules::initialize<window>(
         v2u{640, 480}, "Enduro2D", false, false);
 
-    for ( std::size_t i = 0; i < 2; ++i ) {
-        w.swap_buffers();
-        window::poll_events();
-        std::this_thread::sleep_for(time::to_chrono(make_seconds(2)));
-        w.toggle_fullscreen(!w.fullscreen());
-    }
+    the<debug>()
+        .trace("SAMPLE: window real size: %0", w.real_size())
+        .trace("SAMPLE: window virtual size: %0", w.virtual_size())
+        .trace("SAMPLE: window framebuffer size: %0", w.framebuffer_size());
 
-    auto current_time = time::now_s();
-    while ( !w.should_close() && current_time + make_seconds<i64>(5) < time::now_s() ) {
+    auto closing_time = time::now_s() + make_seconds<i64>(5);
+    while ( !w.should_close() && time::now_s() < closing_time ) {
         w.swap_buffers();
         window::poll_events();
     }
