@@ -4,24 +4,17 @@
  * Copyright (C) 2018 Matvey Cherevko
  ******************************************************************************/
 
-#pragma once
-
-#include "../base/_all.hpp"
-#include "../math/_all.hpp"
-#include "../utils/_all.hpp"
+#include <enduro2d/core/input.hpp>
 
 namespace e2d
 {
-    class debug;
-    class input;
-    class vfs;
-    class window;
-}
+    class input::state final : private e2d::noncopyable {
+    public:
+        state() = default;
+        ~state() noexcept = default;
+    };
 
-namespace e2d
-{
-    template < typename ModuleT >
-    ModuleT& the() {
-        return modules::instance<ModuleT>();
-    }
+    input::input()
+    : state_(new state()) {}
+    input::~input() noexcept = default;
 }
