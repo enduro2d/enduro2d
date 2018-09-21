@@ -5,9 +5,7 @@ project(enduro2d)
 # build mode
 #
 
-foreach(flags CMAKE_C_FLAGS
-              CMAKE_C_FLAGS_DEBUG
-              CMAKE_CXX_FLAGS
+foreach(flags CMAKE_C_FLAGS_DEBUG
               CMAKE_CXX_FLAGS_DEBUG)
   set(${flags} "${${flags}} -D_DEBUG -DNRELEASE")
 endforeach(flags)
