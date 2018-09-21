@@ -39,6 +39,7 @@ namespace e2d
 
         v2u real_size() const noexcept;
         v2u virtual_size() const noexcept;
+        v2u framebuffer_size() const noexcept;
 
         const str& title() const noexcept;
         void set_title(str_view title);

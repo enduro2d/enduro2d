@@ -101,6 +101,11 @@ namespace e2d
         return state_->virtual_size;
     }
 
+    v2u window::framebuffer_size() const noexcept {
+        std::lock_guard<std::mutex> guard(state_->mutex);
+        return state_->virtual_size;
+    }
+
     const str& window::title() const noexcept {
         std::lock_guard<std::mutex> guard(state_->mutex);
         return state_->title;

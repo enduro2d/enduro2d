@@ -216,7 +216,7 @@ namespace e2d
             yesno ? 0 : math::max(0, video_mode->height / 2 - real_size.y / 2),
             real_size.x,
             real_size.y,
-            yesno ? video_mode->refreshRate : 0);
+            GLFW_DONT_CARE);
         state_->fullscreen = yesno;
         return true;
     }
@@ -225,13 +225,21 @@ namespace e2d
         std::lock_guard<std::mutex> guard(state_->mutex);
         E2D_ASSERT(state_->window);
         int w = 0, h = 0;
-        glfwGetFramebufferSize(state_->window.get(), &w, &h);
+        glfwGetWindowSize(state_->window.get(), &w, &h);
         return make_vec2(w,h).cast_to<u32>();
     }
 
     v2u window::virtual_size() const noexcept {
         std::lock_guard<std::mutex> guard(state_->mutex);
         return state_->virtual_size;
+    }
+
+    v2u window::framebuffer_size() const noexcept {
+        std::lock_guard<std::mutex> guard(state_->mutex);
+        E2D_ASSERT(state_->window);
+        int w = 0, h = 0;
+        glfwGetFramebufferSize(state_->window.get(), &w, &h);
+        return make_vec2(w,h).cast_to<u32>();
     }
 
     const str& window::title() const noexcept {
