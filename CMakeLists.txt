@@ -2,24 +2,25 @@ cmake_minimum_required(VERSION 3.9.2 FATAL_ERROR)
 project(enduro2d)
 
 #
-# global defines
+# build mode
 #
 
-enable_testing()
+foreach(flags CMAKE_C_FLAGS_DEBUG
+              CMAKE_CXX_FLAGS_DEBUG)
+  set(${flags} "${${flags}} -D_DEBUG -DNRELEASE")
+endforeach(flags)
 
-set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
-
-set(E2D_DEBUG_FLAGS       " -D_DEBUG -DNRELEASE")
-set(E2D_RELEASE_FLAGS     " -DNDEBUG -D_RELEASE")
-set(CMAKE_C_FLAGS_DEBUG     ${CMAKE_C_FLAGS_DEBUG}${E2D_DEBUG_FLAGS})
-set(CMAKE_CXX_FLAGS_DEBUG   ${CMAKE_CXX_FLAGS_DEBUG}${E2D_DEBUG_FLAGS})
-set(CMAKE_C_FLAGS_RELEASE   ${CMAKE_C_FLAGS_RELEASE}${E2D_RELEASE_FLAGS})
-set(CMAKE_CXX_FLAGS_RELEASE ${CMAKE_CXX_FLAGS_RELEASE}${E2D_RELEASE_FLAGS})
+foreach(flags CMAKE_C_FLAGS_RELEASE
+              CMAKE_C_FLAGS_MINSIZEREL
+              CMAKE_C_FLAGS_RELWITHDEBINFO
+              CMAKE_CXX_FLAGS_RELEASE
+              CMAKE_CXX_FLAGS_MINSIZEREL
+              CMAKE_CXX_FLAGS_RELWITHDEBINFO)
+  set(${flags} "${${flags}} -DNDEBUG -D_RELEASE")
+endforeach(flags)
 
 #
-# warnings
+# warning mode
 #
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
@@ -39,56 +40,71 @@ endif()
 # e2d sources
 #
 
-file(GLOB_RECURSE e2d_headers
+file(GLOB_RECURSE E2D_HEADERS
   headers/enduro2d/*.hpp
   headers/enduro2d/*.inl)
 
-file(GLOB_RECURSE e2d_sources
+file(GLOB_RECURSE E2D_SOURCES
   sources/enduro2d/*.cpp
   sources/enduro2d/*.hpp
   headers/enduro2d/*.inl)
 
 if(APPLE)
-  file(GLOB_RECURSE e2d_sources_mm
+  file(GLOB_RECURSE E2D_SOURCES_MM
     sources/enduro2d/*.mm)
-  list(APPEND e2d_sources ${e2d_sources_mm})
+  list(APPEND E2D_SOURCES ${E2D_SOURCES_MM})
 endif()
 
 #
-# 3rd party
+# e2d 3rd party
 #
 
-file(GLOB_RECURSE e2d_3rdparty
+file(GLOB_RECURSE E2D_3RDPARTY
   sources/3rdparty/*.*)
 
 #
-# e2d library
+# e2d library target
 #
 
 add_library(${PROJECT_NAME} STATIC
-  ${e2d_headers}
-  ${e2d_sources}
-  ${e2d_3rdparty})
+  ${E2D_HEADERS}
+  ${E2D_SOURCES}
+  ${E2D_3RDPARTY})
 
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES
-  ${e2d_headers}
-  ${e2d_sources}
-  ${e2d_3rdparty})
+  ${E2D_HEADERS}
+  ${E2D_SOURCES}
+  ${E2D_3RDPARTY})
 
 target_include_directories(${PROJECT_NAME} PRIVATE
   headers
   sources)
 
+set_target_properties(${PROJECT_NAME} PROPERTIES
+  CXX_STANDARD 14
+  CXX_STANDARD_REQUIRED YES
+  CXX_EXTENSIONS NO)
+
+#
+# glfw module
+#
+
+set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+add_subdirectory(modules/glfw)
+
 #
 # subdirectories
 #
 
-option(BUILD_SAMPLES "Build samples" ON)
-if(BUILD_SAMPLES)
+option(E2D_BUILD_SAMPLES "Build samples" ON)
+if(E2D_BUILD_SAMPLES)
   add_subdirectory(samples)
 endif()
 
-option(BUILD_UNTESTS "Build untests" ON)
-if(BUILD_UNTESTS)
+option(E2D_BUILD_UNTESTS "Build untests" ON)
+if(E2D_BUILD_UNTESTS)
+  enable_testing()
   add_subdirectory(untests)
 endif()

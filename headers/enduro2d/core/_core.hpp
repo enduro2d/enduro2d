@@ -14,6 +14,7 @@ namespace e2d
 {
     class debug;
     class vfs;
+    class window;
 }
 
 namespace e2d

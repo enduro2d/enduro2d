@@ -41,19 +41,19 @@ namespace e2d
         level min_level() const noexcept;
 
         template < typename... Args >
-        void log(level lvl, str_view fmt, Args&&... args);
+        debug& log(level lvl, str_view fmt, Args&&... args);
 
         template < typename... Args >
-        void trace(str_view fmt, Args&&... args);
+        debug& trace(str_view fmt, Args&&... args);
 
         template < typename... Args >
-        void warning(str_view fmt, Args&&... args);
+        debug& warning(str_view fmt, Args&&... args);
 
         template < typename... Args >
-        void error(str_view fmt, Args&&... args);
+        debug& error(str_view fmt, Args&&... args);
 
         template < typename... Args >
-        void fatal(str_view fmt, Args&&... args);
+        debug& fatal(str_view fmt, Args&&... args);
     private:
         mutable std::mutex mutex_;
         level min_level_ = level::trace;
@@ -100,7 +100,7 @@ namespace e2d
     }
 
     template < typename... Args >
-    void debug::log(level lvl, str_view fmt, Args&&... args) {
+    debug& debug::log(level lvl, str_view fmt, Args&&... args) {
         std::lock_guard<std::mutex> guard(mutex_);
         if ( lvl >= min_level_ && !sinks_.empty() ) {
             str text = strings::rformat(fmt, std::forward<Args>(args)...);
@@ -110,25 +110,26 @@ namespace e2d
                 }
             }
         }
+        return *this;
     }
 
     template < typename... Args >
-    void debug::trace(str_view fmt, Args&&... args) {
-        log(level::trace, fmt, std::forward<Args>(args)...);
+    debug& debug::trace(str_view fmt, Args&&... args) {
+        return log(level::trace, fmt, std::forward<Args>(args)...);
     }
 
     template < typename... Args >
-    void debug::warning(str_view fmt, Args&&... args) {
-        log(level::warning, fmt, std::forward<Args>(args)...);
+    debug& debug::warning(str_view fmt, Args&&... args) {
+        return log(level::warning, fmt, std::forward<Args>(args)...);
     }
 
     template < typename... Args >
-    void debug::error(str_view fmt, Args&&... args) {
-        log(level::error, fmt, std::forward<Args>(args)...);
+    debug& debug::error(str_view fmt, Args&&... args) {
+        return log(level::error, fmt, std::forward<Args>(args)...);
     }
 
     template < typename... Args >
-    void debug::fatal(str_view fmt, Args&&... args) {
-        log(level::fatal, fmt, std::forward<Args>(args)...);
+    debug& debug::fatal(str_view fmt, Args&&... args) {
+        return log(level::fatal, fmt, std::forward<Args>(args)...);
     }
 }

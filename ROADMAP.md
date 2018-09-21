@@ -47,9 +47,9 @@
     events, listeners, polling
     devices: mouse, keyboard
     ```
-  - [ ] `basic window system`
+  - [x] `basic window system`
     ```
-    GLFW, Windows and Mac OS X
+    GLFW, Windows, Linux, Mac OS X
     windowed and fullscreen modes
     ```
   - [ ] `basic render system`

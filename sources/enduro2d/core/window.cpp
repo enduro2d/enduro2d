@@ -4,10 +4,4 @@
  * Copyright (C) 2018 Matvey Cherevko
  ******************************************************************************/
 
-#pragma once
-
-#include "_core.hpp"
-
-#include "debug.hpp"
-#include "vfs.hpp"
-#include "window.hpp"
+#include <enduro2d/core/window.hpp>
