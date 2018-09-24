@@ -19,6 +19,19 @@ namespace e2d
 
     class window final : public module<window> {
     public:
+        class event_listener : private e2d::noncopyable {
+        public:
+            virtual ~event_listener() noexcept = default;
+            virtual void on_key(key key, u32 scancode, key_action action) noexcept;
+            virtual void on_uchar(char32_t uchar) noexcept;
+            virtual void on_scroll(const v2f& delta) noexcept;
+            virtual void on_cursor(const v2f& position) noexcept;
+            virtual void on_mouse(mouse mouse, mouse_action action) noexcept;
+            virtual void on_focus(bool focused) noexcept;
+            virtual void on_minimize(bool minimized) noexcept;
+        };
+        using event_listener_uptr = std::unique_ptr<event_listener>;
+    public:
         window(const v2u& size, str_view title, bool vsync, bool fullscreen);
         ~window() noexcept;
 
@@ -49,8 +62,36 @@ namespace e2d
 
         void swap_buffers() noexcept;
         static bool poll_events() noexcept;
+
+        template < typename T, typename... Args >
+        T& register_event_listener(Args&&... args);
+        event_listener& register_event_listener(event_listener_uptr listener);
+        void unregister_event_listener(const event_listener& listener) noexcept;
     private:
         class state;
         std::unique_ptr<state> state_;
     };
+
+    class window_trace_event_listener final : public window::event_listener {
+    public:
+        window_trace_event_listener(debug& debug) noexcept;
+        void on_key(key key, u32 scancode, key_action action) noexcept final;
+        void on_uchar(char32_t uchar) noexcept final;
+        void on_scroll(const v2f& delta) noexcept final;
+        void on_cursor(const v2f& position) noexcept final;
+        void on_mouse(mouse mouse, mouse_action action) noexcept final;
+        void on_focus(bool focused) noexcept final;
+        void on_minimize(bool minimized) noexcept final;
+    private:
+        debug& debug_;
+    };
+}
+
+namespace e2d
+{
+    template < typename T, typename... Args >
+    T& window::register_event_listener(Args&&... args) {
+        return static_cast<T&>(
+            register_event_listener(std::make_unique<T>(std::forward<Args>(args)...)));
+    }
 }

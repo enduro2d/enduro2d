@@ -64,6 +64,187 @@ namespace
 
     std::mutex glfw_state::mutex_;
     std::shared_ptr<glfw_state> glfw_state::shared_state_;
+
+    key convert_glfw_key(int key) noexcept {
+#define DEFINE_CASE(x,y) case GLFW_KEY_##x: return key::y
+        switch ( key ) {
+            DEFINE_CASE(0, _0);
+            DEFINE_CASE(1, _1);
+            DEFINE_CASE(2, _2);
+            DEFINE_CASE(3, _3);
+            DEFINE_CASE(4, _4);
+            DEFINE_CASE(5, _5);
+            DEFINE_CASE(6, _6);
+            DEFINE_CASE(7, _7);
+            DEFINE_CASE(8, _8);
+            DEFINE_CASE(9, _9);
+
+            DEFINE_CASE(A, a);
+            DEFINE_CASE(B, b);
+            DEFINE_CASE(C, c);
+            DEFINE_CASE(D, d);
+            DEFINE_CASE(E, e);
+            DEFINE_CASE(F, f);
+            DEFINE_CASE(G, g);
+            DEFINE_CASE(H, h);
+            DEFINE_CASE(I, i);
+            DEFINE_CASE(J, j);
+            DEFINE_CASE(K, k);
+            DEFINE_CASE(L, l);
+            DEFINE_CASE(M, m);
+            DEFINE_CASE(N, n);
+            DEFINE_CASE(O, o);
+            DEFINE_CASE(P, p);
+            DEFINE_CASE(Q, q);
+            DEFINE_CASE(R, r);
+            DEFINE_CASE(S, s);
+            DEFINE_CASE(T, t);
+            DEFINE_CASE(U, u);
+            DEFINE_CASE(V, v);
+            DEFINE_CASE(W, w);
+            DEFINE_CASE(X, x);
+            DEFINE_CASE(Y, y);
+            DEFINE_CASE(Z, z);
+
+            DEFINE_CASE(F1, f1);
+            DEFINE_CASE(F2, f2);
+            DEFINE_CASE(F3, f3);
+            DEFINE_CASE(F4, f4);
+            DEFINE_CASE(F5, f5);
+            DEFINE_CASE(F6, f6);
+            DEFINE_CASE(F7, f7);
+            DEFINE_CASE(F8, f8);
+            DEFINE_CASE(F9, f9);
+            DEFINE_CASE(F10, f10);
+            DEFINE_CASE(F11, f11);
+            DEFINE_CASE(F12, f12);
+            DEFINE_CASE(F13, f13);
+            DEFINE_CASE(F14, f14);
+            DEFINE_CASE(F15, f15);
+            DEFINE_CASE(F16, f16);
+            DEFINE_CASE(F17, f17);
+            DEFINE_CASE(F18, f18);
+            DEFINE_CASE(F19, f19);
+            DEFINE_CASE(F20, f20);
+            DEFINE_CASE(F21, f21);
+            DEFINE_CASE(F22, f22);
+            DEFINE_CASE(F23, f23);
+            DEFINE_CASE(F24, f24);
+            DEFINE_CASE(F25, f25);
+
+            DEFINE_CASE(MINUS, minus);
+            DEFINE_CASE(EQUAL, equal);
+            DEFINE_CASE(BACKSPACE, backspace);
+            DEFINE_CASE(WORLD_1, section_sign);
+            DEFINE_CASE(GRAVE_ACCENT, grave_accent);
+
+            DEFINE_CASE(LEFT_BRACKET, lbracket);
+            DEFINE_CASE(RIGHT_BRACKET, rbracket);
+            DEFINE_CASE(SEMICOLON, semicolon);
+            DEFINE_CASE(APOSTROPHE, apostrophe);
+            DEFINE_CASE(BACKSLASH, backslash);
+
+            DEFINE_CASE(COMMA, comma);
+            DEFINE_CASE(PERIOD, period);
+            DEFINE_CASE(SLASH, slash);
+
+            DEFINE_CASE(ESCAPE, escape);
+            DEFINE_CASE(TAB, tab);
+            DEFINE_CASE(CAPS_LOCK, caps_lock);
+            DEFINE_CASE(SPACE, space);
+            DEFINE_CASE(ENTER, enter);
+
+            DEFINE_CASE(LEFT_SHIFT, lshift);
+            DEFINE_CASE(RIGHT_SHIFT, rshift);
+            DEFINE_CASE(LEFT_CONTROL, lcontrol);
+            DEFINE_CASE(RIGHT_CONTROL, rcontrol);
+            DEFINE_CASE(LEFT_ALT, lalt);
+            DEFINE_CASE(RIGHT_ALT, ralt);
+            DEFINE_CASE(LEFT_SUPER, lsuper);
+            DEFINE_CASE(RIGHT_SUPER, rsuper);
+            DEFINE_CASE(MENU, menu);
+
+            DEFINE_CASE(PRINT_SCREEN, print_screen);
+            DEFINE_CASE(SCROLL_LOCK, scroll_lock);
+            DEFINE_CASE(PAUSE, pause);
+
+            DEFINE_CASE(INSERT, insert);
+            DEFINE_CASE(DELETE, del);
+            DEFINE_CASE(HOME, home);
+            DEFINE_CASE(END, end);
+            DEFINE_CASE(PAGE_UP, page_up);
+            DEFINE_CASE(PAGE_DOWN, page_down);
+
+            DEFINE_CASE(LEFT, left);
+            DEFINE_CASE(UP, up);
+            DEFINE_CASE(RIGHT, right);
+            DEFINE_CASE(DOWN, down);
+
+            DEFINE_CASE(KP_0, kp_0);
+            DEFINE_CASE(KP_1, kp_1);
+            DEFINE_CASE(KP_2, kp_2);
+            DEFINE_CASE(KP_3, kp_3);
+            DEFINE_CASE(KP_4, kp_4);
+            DEFINE_CASE(KP_5, kp_5);
+            DEFINE_CASE(KP_6, kp_6);
+            DEFINE_CASE(KP_7, kp_7);
+            DEFINE_CASE(KP_8, kp_8);
+            DEFINE_CASE(KP_9, kp_9);
+
+            DEFINE_CASE(NUM_LOCK, kp_num_lock);
+            DEFINE_CASE(KP_DIVIDE, kp_divide);
+            DEFINE_CASE(KP_MULTIPLY, kp_multiply);
+            DEFINE_CASE(KP_SUBTRACT, kp_subtract);
+            DEFINE_CASE(KP_ADD, kp_add);
+            DEFINE_CASE(KP_ENTER, kp_enter);
+            DEFINE_CASE(KP_EQUAL, kp_equal);
+            DEFINE_CASE(KP_DECIMAL, kp_decimal);
+
+            default: return key::unknown;
+        }
+#undef DEFINE_CASE
+    }
+
+    mouse convert_glfw_mouse(int mouse) noexcept {
+        switch ( mouse ) {
+            case GLFW_MOUSE_BUTTON_LEFT:
+                return mouse::left;
+            case GLFW_MOUSE_BUTTON_RIGHT:
+                return mouse::right;
+            case GLFW_MOUSE_BUTTON_MIDDLE:
+                return mouse::middle;
+            case GLFW_MOUSE_BUTTON_4:
+                return mouse::x1;
+            case GLFW_MOUSE_BUTTON_5:
+                return mouse::x2;
+            default:
+                return mouse::unknown;
+        }
+    }
+
+    key_action convert_glfw_key_action(int action) noexcept {
+        switch ( action ) {
+            case GLFW_PRESS:
+                return key_action::press;
+            case GLFW_REPEAT:
+                return key_action::repeat;
+            case GLFW_RELEASE:
+                return key_action::release;
+            default:
+                return key_action::unknown;
+        }
+    }
+
+    mouse_action convert_glfw_mouse_action(int action) noexcept {
+        switch ( action ) {
+            case GLFW_PRESS:
+                return mouse_action::press;
+            case GLFW_RELEASE:
+                return mouse_action::release;
+            default:
+                return mouse_action::unknown;
+        }
+    }
 }
 
 namespace e2d
@@ -72,13 +253,17 @@ namespace e2d
     public:
         using window_uptr = std::unique_ptr<
             GLFWwindow, void(*)(GLFWwindow*)>;
+        using listeners_t = std::vector<event_listener_uptr>;
+    public:
+        std::mutex mutex;
+        listeners_t listeners;
         glfw_state_ptr shared_state;
         window_uptr window;
         v2u virtual_size;
         str title;
         bool vsync = false;
         bool fullscreen = false;
-        std::mutex mutex;
+        char _pad[6];
     public:
         state(const v2u& size, str_view title, bool vsync, bool fullscreen)
         : shared_state(glfw_state::get_shared_state())
@@ -91,11 +276,29 @@ namespace e2d
             if ( !window ) {
                 throw bad_window_operation();
             }
+            glfwSetWindowUserPointer(window.get(), this);
+            glfwSetKeyCallback(window.get(), key_callback_);
+            glfwSetCharCallback(window.get(), uchar_callback_);
+            glfwSetScrollCallback(window.get(), scroll_callback_);
+            glfwSetCursorPosCallback(window.get(), cursor_callback_);
+            glfwSetMouseButtonCallback(window.get(), mouse_callback_);
+            glfwSetWindowFocusCallback(window.get(), focus_callback_);
+            glfwSetWindowIconifyCallback(window.get(), minimize_callback_);
         }
 
         ~state() noexcept {
             // reset window before shared state
             window.reset();
+        }
+
+        template < typename F, typename... Args >
+        void for_all_listeners(const F& f, const Args&... args) noexcept {
+            std::lock_guard<std::mutex> guard(mutex);
+            for ( const event_listener_uptr& listener : listeners ) {
+                if ( listener ) {
+                    stdex::invoke(f, listener.get(), args...);
+                }
+            }
         }
     private:
         static window_uptr open_window_(
@@ -129,7 +332,79 @@ namespace e2d
             }
             return {w, glfwDestroyWindow};
         }
+
+        static void key_callback_(GLFWwindow* window, int key, int scancode, int action, int mods) noexcept {
+            E2D_UNUSED(mods);
+            state* self = static_cast<state*>(glfwGetWindowUserPointer(window));
+            if ( self ) {
+                self->for_all_listeners(
+                    &event_listener::on_key,
+                    convert_glfw_key(key),
+                    math::numeric_cast<u32>(scancode),
+                    convert_glfw_key_action(action));
+            }
+        }
+
+        static void uchar_callback_(GLFWwindow* window, u32 uchar) noexcept {
+            state* self = static_cast<state*>(glfwGetWindowUserPointer(window));
+            if ( self ) {
+                self->for_all_listeners(
+                    &event_listener::on_uchar,
+                    static_cast<char32_t>(uchar));
+            }
+        }
+
+        static void scroll_callback_(GLFWwindow* window, double xoffset, double yoffset) noexcept {
+            state* self = static_cast<state*>(glfwGetWindowUserPointer(window));
+            if ( self ) {
+                self->for_all_listeners(
+                    &event_listener::on_scroll,
+                    make_vec2(xoffset, yoffset).cast_to<f32>());
+            }
+        }
+
+        static void cursor_callback_(GLFWwindow* window, double x, double y) noexcept {
+            state* self = static_cast<state*>(glfwGetWindowUserPointer(window));
+            if ( self ) {
+                self->for_all_listeners(
+                    &event_listener::on_cursor,
+                    make_vec2(x, y).cast_to<f32>());
+            }
+        }
+
+        static void mouse_callback_(GLFWwindow* window, int button, int action, int mods) noexcept {
+            E2D_UNUSED(mods);
+            state* self = static_cast<state*>(glfwGetWindowUserPointer(window));
+            if ( self ) {
+                self->for_all_listeners(
+                    &event_listener::on_mouse,
+                    convert_glfw_mouse(button),
+                    convert_glfw_mouse_action(action));
+            }
+        }
+
+        static void focus_callback_(GLFWwindow* window, int focused) noexcept {
+            state* self = static_cast<state*>(glfwGetWindowUserPointer(window));
+            if ( self ) {
+                self->for_all_listeners(
+                    &event_listener::on_focus,
+                    focused);
+            }
+        }
+
+        static void minimize_callback_(GLFWwindow* window, int minimized) noexcept {
+            state* self = static_cast<state*>(glfwGetWindowUserPointer(window));
+            if ( self ) {
+                self->for_all_listeners(
+                    &event_listener::on_minimize,
+                    minimized);
+            }
+        }
     };
+
+    //
+    // class window
+    //
 
     window::window(const v2u& size, str_view title, bool vsync, bool fullscreen)
     : state_(new state(size, title, vsync, fullscreen)) {}
@@ -278,6 +553,24 @@ namespace e2d
 
     bool window::poll_events() noexcept {
         return glfw_state::poll_events();
+    }
+
+    window::event_listener& window::register_event_listener(event_listener_uptr listener) {
+        E2D_ASSERT(listener);
+        std::lock_guard<std::mutex> guard(state_->mutex);
+        state_->listeners.push_back(std::move(listener));
+        return *state_->listeners.back();
+    }
+
+    void window::unregister_event_listener(const event_listener& listener) noexcept {
+        std::lock_guard<std::mutex> guard(state_->mutex);
+        for ( auto iter = state_->listeners.begin(); iter != state_->listeners.end(); ) {
+            if ( iter->get() == &listener ) {
+                iter = state_->listeners.erase(iter);
+            } else {
+                ++iter;
+            }
+        }
     }
 }
 

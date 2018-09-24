@@ -12,6 +12,7 @@ namespace e2d
 {
     class window::state final : private e2d::noncopyable {
     public:
+        std::mutex mutex;
         v2u virtual_size;
         str title;
         bool vsync = false;
@@ -20,7 +21,7 @@ namespace e2d
         bool visible = true;
         bool focused = true;
         bool minimized = false;
-        std::mutex mutex;
+        char _pad[2];
     public:
         state(const v2u& size, str_view title, bool vsync, bool fullscreen)
         : virtual_size(size)
@@ -131,6 +132,15 @@ namespace e2d
 
     bool window::poll_events() noexcept {
         return false;
+    }
+
+    window::event_listener& window::register_event_listener(event_listener_uptr listener) {
+        E2D_ASSERT(listener);
+        return *listener;
+    }
+
+    void window::unregister_event_listener(const event_listener& listener) noexcept {
+        E2D_UNUSED(listener);
     }
 }
 
