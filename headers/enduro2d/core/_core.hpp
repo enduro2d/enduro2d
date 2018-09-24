@@ -25,3 +25,154 @@ namespace e2d
         return modules::instance<ModuleT>();
     }
 }
+
+namespace e2d
+{
+    enum class key {
+        _0,
+        _1,
+        _2,
+        _3,
+        _4,
+        _5,
+        _6,
+        _7,
+        _8,
+        _9,
+
+        a,
+        b,
+        c,
+        d,
+        e,
+        f,
+        g,
+        h,
+        i,
+        j,
+        k,
+        l,
+        m,
+        n,
+        o,
+        p,
+        q,
+        r,
+        s,
+        t,
+        u,
+        v,
+        w,
+        x,
+        y,
+        z,
+
+        f1,
+        f2,
+        f3,
+        f4,
+        f5,
+        f6,
+        f7,
+        f8,
+        f9,
+        f10,
+        f11,
+        f12,
+        f13,
+        f14,
+        f15,
+        f16,
+        f17,
+        f18,
+        f19,
+        f20,
+        f21,
+        f22,
+        f23,
+        f24,
+        f25,
+
+        minus,
+        equal,
+        backspace,
+        section_sign,
+        grave_accent,
+
+        lbracket,
+        rbracket,
+        semicolon,
+        apostrophe,
+        backslash,
+
+        comma,
+        period,
+        slash,
+
+        escape,
+        tab,
+        caps_lock,
+        space,
+        enter,
+
+        lshift,
+        rshift,
+        lcontrol,
+        rcontrol,
+        lalt,
+        ralt,
+        lsuper,
+        rsuper,
+        menu,
+
+        print_screen,
+        scroll_lock,
+        pause,
+
+        insert,
+        del,
+        home,
+        end,
+        page_up,
+        page_down,
+
+        left,
+        up,
+        right,
+        down,
+
+        kp_0,
+        kp_1,
+        kp_2,
+        kp_3,
+        kp_4,
+        kp_5,
+        kp_6,
+        kp_7,
+        kp_8,
+        kp_9,
+
+        kp_num_lock,
+        kp_divide,
+        kp_multiply,
+        kp_subtract,
+        kp_add,
+        kp_enter,
+        kp_equal,
+        kp_decimal,
+
+        unknown
+    };
+
+    enum class mouse {
+        left,
+        right,
+        middle,
+        x1,
+        x2,
+        unknown
+    };
+
+    const char* key_to_cstr(key key) noexcept;
+    const char* mouse_to_cstr(mouse mouse) noexcept;
+}
