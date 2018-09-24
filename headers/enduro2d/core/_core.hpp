@@ -173,6 +173,21 @@ namespace e2d
         unknown
     };
 
+    enum class key_action {
+        press,
+        repeat,
+        release,
+        unknown
+    };
+
+    enum class mouse_action {
+        press,
+        release,
+        unknown
+    };
+
     const char* key_to_cstr(key key) noexcept;
     const char* mouse_to_cstr(mouse mouse) noexcept;
+    const char* key_action_to_cstr(key_action action) noexcept;
+    const char* mouse_action_to_cstr(mouse_action action) noexcept;
 }
