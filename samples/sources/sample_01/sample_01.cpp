@@ -8,11 +8,13 @@
 using namespace e2d;
 
 int main() {
+    input& i = modules::initialize<input>();
     debug& d = modules::initialize<debug>();
     window& w = modules::initialize<window>(
         v2u{640, 480}, "Enduro2D", false, false);
 
     d.add_sink<debug_console_sink>();
+    w.register_event_listener<window_input_source>(i);
     w.register_event_listener<window_trace_event_listener>(d);
 
     the<debug>()
@@ -20,8 +22,9 @@ int main() {
         .trace("SAMPLE: window virtual size: %0", w.virtual_size())
         .trace("SAMPLE: window framebuffer size: %0", w.framebuffer_size());
 
-    while ( !w.should_close() ) {
+    while ( !w.should_close() && !i.key_up(key::escape) ) {
+        i.frame_tick();
         w.swap_buffers();
-        window::poll_events();
+        window::frame_tick();
     }
 }

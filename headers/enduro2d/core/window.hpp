@@ -62,7 +62,7 @@ namespace e2d
         void set_should_close(bool yesno) noexcept;
 
         void swap_buffers() noexcept;
-        static bool poll_events() noexcept;
+        static bool frame_tick() noexcept;
 
         template < typename T, typename... Args >
         T& register_event_listener(Args&&... args);
