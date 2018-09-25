@@ -205,8 +205,8 @@ namespace
         #undef DEFINE_CASE
     }
 
-    mouse convert_glfw_mouse(int mouse) noexcept {
-        switch ( mouse ) {
+    mouse convert_glfw_mouse(int m) noexcept {
+        switch ( m ) {
             case GLFW_MOUSE_BUTTON_LEFT:
                 return mouse::left;
             case GLFW_MOUSE_BUTTON_RIGHT:
@@ -222,8 +222,8 @@ namespace
         }
     }
 
-    key_action convert_glfw_key_action(int action) noexcept {
-        switch ( action ) {
+    key_action convert_glfw_key_action(int ka) noexcept {
+        switch ( ka ) {
             case GLFW_PRESS:
                 return key_action::press;
             case GLFW_REPEAT:
@@ -235,8 +235,8 @@ namespace
         }
     }
 
-    mouse_action convert_glfw_mouse_action(int action) noexcept {
-        switch ( action ) {
+    mouse_action convert_glfw_mouse_action(int ma) noexcept {
+        switch ( ma ) {
             case GLFW_PRESS:
                 return mouse_action::press;
             case GLFW_RELEASE:
