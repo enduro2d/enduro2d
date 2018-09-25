@@ -28,7 +28,7 @@ namespace e2d
 
 namespace e2d
 {
-    enum class key {
+    enum class key : u16 {
         _0,
         _1,
         _2,
@@ -164,7 +164,7 @@ namespace e2d
         unknown
     };
 
-    enum class mouse {
+    enum class mouse : u8 {
         left,
         right,
         middle,
@@ -173,14 +173,14 @@ namespace e2d
         unknown
     };
 
-    enum class key_action {
+    enum class key_action : u8 {
         press,
         repeat,
         release,
         unknown
     };
 
-    enum class mouse_action {
+    enum class mouse_action : u8 {
         press,
         release,
         unknown

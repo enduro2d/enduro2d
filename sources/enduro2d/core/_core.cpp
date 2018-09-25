@@ -8,9 +8,9 @@
 
 namespace e2d
 {
-    const char* key_to_cstr(key key) noexcept {
-#define DEFINE_CASE(x) case key::x: return #x
-        switch ( key ) {
+    const char* key_to_cstr(key k) noexcept {
+        #define DEFINE_CASE(x) case key::x: return #x
+        switch ( k ) {
             DEFINE_CASE(_0);
             DEFINE_CASE(_1);
             DEFINE_CASE(_2);
@@ -148,12 +148,12 @@ namespace e2d
                 E2D_ASSERT_MSG(false, "unexpected key");
                 return "";
         }
-#undef DEFINE_CASE
+        #undef DEFINE_CASE
     }
 
-    const char* mouse_to_cstr(mouse mouse) noexcept {
-#define DEFINE_CASE(x) case mouse::x: return #x
-        switch ( mouse ) {
+    const char* mouse_to_cstr(mouse m) noexcept {
+        #define DEFINE_CASE(x) case mouse::x: return #x
+        switch ( m ) {
             DEFINE_CASE(left);
             DEFINE_CASE(right);
             DEFINE_CASE(middle);
@@ -164,12 +164,12 @@ namespace e2d
                 E2D_ASSERT_MSG(false, "unexpected mouse");
                 return "";
         }
-#undef DEFINE_CASE
+        #undef DEFINE_CASE
     }
 
-    const char* key_action_to_cstr(key_action action) noexcept {
-#define DEFINE_CASE(x) case key_action::x: return #x
-        switch ( action ) {
+    const char* key_action_to_cstr(key_action ka) noexcept {
+        #define DEFINE_CASE(x) case key_action::x: return #x
+        switch ( ka ) {
             DEFINE_CASE(press);
             DEFINE_CASE(repeat);
             DEFINE_CASE(release);
@@ -178,12 +178,12 @@ namespace e2d
                 E2D_ASSERT_MSG(false, "unexpected key action");
                 return "";
         }
-#undef DEFINE_CASE
+        #undef DEFINE_CASE
     }
 
-    const char* mouse_action_to_cstr(mouse_action action) noexcept {
-#define DEFINE_CASE(x) case mouse_action::x: return #x
-        switch ( action ) {
+    const char* mouse_action_to_cstr(mouse_action ka) noexcept {
+        #define DEFINE_CASE(x) case mouse_action::x: return #x
+        switch ( ka ) {
             DEFINE_CASE(press);
             DEFINE_CASE(release);
             DEFINE_CASE(unknown);
@@ -191,6 +191,6 @@ namespace e2d
                 E2D_ASSERT_MSG(false, "unexpected mouse action");
                 return "";
         }
-#undef DEFINE_CASE
+        #undef DEFINE_CASE
     }
 }
