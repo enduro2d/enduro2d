@@ -5,6 +5,10 @@ project(enduro2d)
 # build mode
 #
 
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE Release)
+endif(NOT CMAKE_BUILD_TYPE)
+
 foreach(flags CMAKE_C_FLAGS_DEBUG
               CMAKE_CXX_FLAGS_DEBUG)
   set(${flags} "${${flags}} -D_DEBUG -DNRELEASE")
