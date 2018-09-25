@@ -65,9 +65,9 @@ namespace
     std::mutex glfw_state::mutex_;
     std::shared_ptr<glfw_state> glfw_state::shared_state_;
 
-    key convert_glfw_key(int key) noexcept {
-#define DEFINE_CASE(x,y) case GLFW_KEY_##x: return key::y
-        switch ( key ) {
+    key convert_glfw_key(int k) noexcept {
+        #define DEFINE_CASE(x,y) case GLFW_KEY_##x: return key::y
+        switch ( k ) {
             DEFINE_CASE(0, _0);
             DEFINE_CASE(1, _1);
             DEFINE_CASE(2, _2);
@@ -202,7 +202,7 @@ namespace
 
             default: return key::unknown;
         }
-#undef DEFINE_CASE
+        #undef DEFINE_CASE
     }
 
     mouse convert_glfw_mouse(int mouse) noexcept {
@@ -255,8 +255,8 @@ namespace e2d
             GLFWwindow, void(*)(GLFWwindow*)>;
         using listeners_t = std::vector<event_listener_uptr>;
     public:
-        std::mutex mutex;
         listeners_t listeners;
+        std::recursive_mutex rmutex;
         glfw_state_ptr shared_state;
         window_uptr window;
         v2u virtual_size;
@@ -282,6 +282,7 @@ namespace e2d
             glfwSetScrollCallback(window.get(), scroll_callback_);
             glfwSetCursorPosCallback(window.get(), cursor_callback_);
             glfwSetMouseButtonCallback(window.get(), mouse_callback_);
+            glfwSetWindowCloseCallback(window.get(), close_callback_);
             glfwSetWindowFocusCallback(window.get(), focus_callback_);
             glfwSetWindowIconifyCallback(window.get(), minimize_callback_);
         }
@@ -293,7 +294,7 @@ namespace e2d
 
         template < typename F, typename... Args >
         void for_all_listeners(const F& f, const Args&... args) noexcept {
-            std::lock_guard<std::mutex> guard(mutex);
+            std::lock_guard<std::recursive_mutex> guard(rmutex);
             for ( const event_listener_uptr& listener : listeners ) {
                 if ( listener ) {
                     stdex::invoke(f, listener.get(), args...);
@@ -383,6 +384,14 @@ namespace e2d
             }
         }
 
+        static void close_callback_(GLFWwindow* window) noexcept {
+            state* self = static_cast<state*>(glfwGetWindowUserPointer(window));
+            if ( self ) {
+                self->for_all_listeners(
+                    &event_listener::on_close);
+            }
+        }
+
         static void focus_callback_(GLFWwindow* window, int focused) noexcept {
             state* self = static_cast<state*>(glfwGetWindowUserPointer(window));
             if ( self ) {
@@ -411,59 +420,59 @@ namespace e2d
     window::~window() noexcept = default;
 
     void window::hide() noexcept {
-        std::lock_guard<std::mutex> guard(state_->mutex);
+        std::lock_guard<std::recursive_mutex> guard(state_->rmutex);
         E2D_ASSERT(state_->window);
         glfwHideWindow(state_->window.get());
     }
 
     void window::show() noexcept {
-        std::lock_guard<std::mutex> guard(state_->mutex);
+        std::lock_guard<std::recursive_mutex> guard(state_->rmutex);
         E2D_ASSERT(state_->window);
         glfwShowWindow(state_->window.get());
     }
 
     void window::restore() noexcept {
-        std::lock_guard<std::mutex> guard(state_->mutex);
+        std::lock_guard<std::recursive_mutex> guard(state_->rmutex);
         E2D_ASSERT(state_->window);
         glfwRestoreWindow(state_->window.get());
     }
 
     void window::minimize() noexcept {
-        std::lock_guard<std::mutex> guard(state_->mutex);
+        std::lock_guard<std::recursive_mutex> guard(state_->rmutex);
         E2D_ASSERT(state_->window);
         glfwIconifyWindow(state_->window.get());
     }
 
     bool window::visible() const noexcept {
-        std::lock_guard<std::mutex> guard(state_->mutex);
+        std::lock_guard<std::recursive_mutex> guard(state_->rmutex);
         E2D_ASSERT(state_->window);
         return glfwGetWindowAttrib(state_->window.get(), GLFW_VISIBLE);
     }
 
     bool window::focused() const noexcept {
-        std::lock_guard<std::mutex> guard(state_->mutex);
+        std::lock_guard<std::recursive_mutex> guard(state_->rmutex);
         E2D_ASSERT(state_->window);
         return glfwGetWindowAttrib(state_->window.get(), GLFW_FOCUSED);
     }
 
     bool window::minimized() const noexcept {
-        std::lock_guard<std::mutex> guard(state_->mutex);
+        std::lock_guard<std::recursive_mutex> guard(state_->rmutex);
         E2D_ASSERT(state_->window);
         return glfwGetWindowAttrib(state_->window.get(), GLFW_ICONIFIED);
     }
 
     bool window::vsync() const noexcept {
-        std::lock_guard<std::mutex> guard(state_->mutex);
+        std::lock_guard<std::recursive_mutex> guard(state_->rmutex);
         return state_->vsync;
     }
 
     bool window::fullscreen() const noexcept {
-        std::lock_guard<std::mutex> guard(state_->mutex);
+        std::lock_guard<std::recursive_mutex> guard(state_->rmutex);
         return state_->fullscreen;
     }
 
     bool window::toggle_vsync(bool yesno) noexcept {
-        std::lock_guard<std::mutex> guard(state_->mutex);
+        std::lock_guard<std::recursive_mutex> guard(state_->rmutex);
         glfwMakeContextCurrent(state_->window.get());
         glfwSwapInterval(yesno ? 1 : 0);
         state_->vsync = yesno;
@@ -471,7 +480,7 @@ namespace e2d
     }
 
     bool window::toggle_fullscreen(bool yesno) noexcept {
-        std::lock_guard<std::mutex> guard(state_->mutex);
+        std::lock_guard<std::recursive_mutex> guard(state_->rmutex);
         if ( state_->fullscreen == yesno ) {
             return true;
         }
@@ -499,7 +508,7 @@ namespace e2d
     }
 
     v2u window::real_size() const noexcept {
-        std::lock_guard<std::mutex> guard(state_->mutex);
+        std::lock_guard<std::recursive_mutex> guard(state_->rmutex);
         E2D_ASSERT(state_->window);
         int w = 0, h = 0;
         glfwGetWindowSize(state_->window.get(), &w, &h);
@@ -507,12 +516,12 @@ namespace e2d
     }
 
     v2u window::virtual_size() const noexcept {
-        std::lock_guard<std::mutex> guard(state_->mutex);
+        std::lock_guard<std::recursive_mutex> guard(state_->rmutex);
         return state_->virtual_size;
     }
 
     v2u window::framebuffer_size() const noexcept {
-        std::lock_guard<std::mutex> guard(state_->mutex);
+        std::lock_guard<std::recursive_mutex> guard(state_->rmutex);
         E2D_ASSERT(state_->window);
         int w = 0, h = 0;
         glfwGetFramebufferSize(state_->window.get(), &w, &h);
@@ -520,12 +529,12 @@ namespace e2d
     }
 
     const str& window::title() const noexcept {
-        std::lock_guard<std::mutex> guard(state_->mutex);
+        std::lock_guard<std::recursive_mutex> guard(state_->rmutex);
         return state_->title;
     }
 
     void window::set_title(str_view title) {
-        std::lock_guard<std::mutex> guard(state_->mutex);
+        std::lock_guard<std::recursive_mutex> guard(state_->rmutex);
         E2D_ASSERT(state_->window);
         state_->title = make_utf8(title);
         glfwSetWindowTitle(
@@ -533,20 +542,20 @@ namespace e2d
     }
 
     bool window::should_close() const noexcept {
-        std::lock_guard<std::mutex> guard(state_->mutex);
+        std::lock_guard<std::recursive_mutex> guard(state_->rmutex);
         E2D_ASSERT(state_->window);
         return glfwWindowShouldClose(state_->window.get());
     }
 
     void window::set_should_close(bool yesno) noexcept {
-        std::lock_guard<std::mutex> guard(state_->mutex);
+        std::lock_guard<std::recursive_mutex> guard(state_->rmutex);
         E2D_ASSERT(state_->window);
         glfwSetWindowShouldClose(
             state_->window.get(), yesno ? GLFW_TRUE : GLFW_FALSE);
     }
 
     void window::swap_buffers() noexcept {
-        std::lock_guard<std::mutex> guard(state_->mutex);
+        std::lock_guard<std::recursive_mutex> guard(state_->rmutex);
         E2D_ASSERT(state_->window);
         glfwSwapBuffers(state_->window.get());
     }
@@ -557,13 +566,13 @@ namespace e2d
 
     window::event_listener& window::register_event_listener(event_listener_uptr listener) {
         E2D_ASSERT(listener);
-        std::lock_guard<std::mutex> guard(state_->mutex);
+        std::lock_guard<std::recursive_mutex> guard(state_->rmutex);
         state_->listeners.push_back(std::move(listener));
         return *state_->listeners.back();
     }
 
     void window::unregister_event_listener(const event_listener& listener) noexcept {
-        std::lock_guard<std::mutex> guard(state_->mutex);
+        std::lock_guard<std::recursive_mutex> guard(state_->rmutex);
         for ( auto iter = state_->listeners.begin(); iter != state_->listeners.end(); ) {
             if ( iter->get() == &listener ) {
                 iter = state_->listeners.erase(iter);

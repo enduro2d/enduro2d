@@ -33,6 +33,9 @@ namespace e2d
         E2D_UNUSED(mouse, action);
     }
 
+    void window::event_listener::on_close() noexcept {
+    }
+
     void window::event_listener::on_focus(bool focused) noexcept {
         E2D_UNUSED(focused);
     }
@@ -71,6 +74,10 @@ namespace e2d
         debug_.trace("WINDOW: on_mouse(mouse: %0 action: %1)",
             mouse_to_cstr(mouse),
             mouse_action_to_cstr(action));
+    }
+
+    void window_trace_event_listener::on_close() noexcept {
+        debug_.trace("WINDOW: on_close()");
     }
 
     void window_trace_event_listener::on_focus(bool focused) noexcept {

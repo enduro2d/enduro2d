@@ -27,6 +27,7 @@ namespace e2d
             virtual void on_scroll(const v2f& delta) noexcept;
             virtual void on_cursor(const v2f& position) noexcept;
             virtual void on_mouse(mouse mouse, mouse_action action) noexcept;
+            virtual void on_close() noexcept;
             virtual void on_focus(bool focused) noexcept;
             virtual void on_minimize(bool minimized) noexcept;
         };
@@ -80,6 +81,7 @@ namespace e2d
         void on_scroll(const v2f& delta) noexcept final;
         void on_cursor(const v2f& position) noexcept final;
         void on_mouse(mouse mouse, mouse_action action) noexcept final;
+        void on_close() noexcept final;
         void on_focus(bool focused) noexcept final;
         void on_minimize(bool minimized) noexcept final;
     private:
