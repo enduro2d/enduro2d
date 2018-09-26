@@ -13,6 +13,8 @@
 namespace e2d
 {
     class debug;
+    class mouse;
+    class keyboard;
     class input;
     class vfs;
     class window;

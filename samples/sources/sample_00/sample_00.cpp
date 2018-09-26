@@ -21,7 +21,8 @@ int main() {
      .trace("SAMPLE: window virtual size: %0", w.virtual_size())
      .trace("SAMPLE: window framebuffer size: %0", w.framebuffer_size());
 
-    while ( !w.should_close() && !i.is_keyboard_key_just_released(keyboard_key::escape) ) {
+    const keyboard& k = i.keyboard();
+    while ( !w.should_close() && !k.is_key_just_released(keyboard_key::escape) ) {
         i.frame_tick();
         w.swap_buffers();
         window::frame_tick();
