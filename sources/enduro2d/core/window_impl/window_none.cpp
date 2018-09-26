@@ -20,11 +20,12 @@ namespace e2d
         str title;
         bool vsync = false;
         bool fullscreen = false;
+        bool cursor_hidden = false;
         bool should_close = false;
         bool visible = true;
         bool focused = true;
         bool minimized = false;
-        char _pad[2];
+        char _pad[1];
     public:
         state(const v2u& size, str_view title, bool vsync, bool fullscreen)
         : virtual_size(size)
@@ -62,11 +63,11 @@ namespace e2d
         std::lock_guard<std::recursive_mutex> guard(state_->rmutex);
         if ( !state_->focused ) {
             state_->focused = true;
-            state_->for_all_listeners(&event_listener::on_focus, true);
+            state_->for_all_listeners(&event_listener::on_window_focus, true);
         }
         if ( state_->minimized ) {
             state_->minimized = false;
-            state_->for_all_listeners(&event_listener::on_minimize, false);
+            state_->for_all_listeners(&event_listener::on_window_minimize, false);
         }
     }
 
@@ -74,11 +75,11 @@ namespace e2d
         std::lock_guard<std::recursive_mutex> guard(state_->rmutex);
         if ( state_->focused ) {
             state_->focused = false;
-            state_->for_all_listeners(&event_listener::on_focus, false);
+            state_->for_all_listeners(&event_listener::on_window_focus, false);
         }
         if ( !state_->minimized ) {
             state_->minimized = true;
-            state_->for_all_listeners(&event_listener::on_minimize, true);
+            state_->for_all_listeners(&event_listener::on_window_minimize, true);
         }
     }
 
@@ -119,6 +120,21 @@ namespace e2d
         return true;
     }
 
+    void window::hide_cursor() noexcept {
+        std::lock_guard<std::recursive_mutex> guard(state_->rmutex);
+        state_->cursor_hidden = true;
+    }
+
+    void window::show_cursor() noexcept {
+        std::lock_guard<std::recursive_mutex> guard(state_->rmutex);
+        state_->cursor_hidden = false;
+    }
+
+    bool window::is_cursor_hidden() const noexcept {
+        std::lock_guard<std::recursive_mutex> guard(state_->rmutex);
+        return state_->cursor_hidden;
+    }
+
     v2u window::real_size() const noexcept {
         std::lock_guard<std::recursive_mutex> guard(state_->rmutex);
         return state_->virtual_size;
@@ -157,7 +173,7 @@ namespace e2d
     void window::swap_buffers() noexcept {
     }
 
-    bool window::poll_events() noexcept {
+    bool window::frame_tick() noexcept {
         return false;
     }
 

@@ -40,6 +40,8 @@ namespace e2d
     class mouse::state final : private e2d::noncopyable {
     public:
         mutable std::mutex mutex;
+        v2f cursor_pos;
+        v2f scroll_delta;
         std::array<button_state, enum_to_number(mouse_button::unknown) + 1> button_states;
         char _pad[2];
     public:
@@ -58,10 +60,21 @@ namespace e2d
 
         void frame_tick() noexcept {
             std::lock_guard<std::mutex> guard(mutex);
+            scroll_delta = v2f::zero();
             std::for_each(
                 button_states.begin(),
                 button_states.end(),
                 &update_button_state);
+        }
+
+        void post_event(input::move_cursor_event evt) noexcept {
+            std::lock_guard<std::mutex> guard(mutex);
+            cursor_pos = evt.pos;
+        }
+
+        void post_event(input::mouse_scroll_event evt) noexcept {
+            std::lock_guard<std::mutex> guard(mutex);
+            scroll_delta += evt.delta;
         }
 
         void post_event(input::mouse_button_event evt) noexcept {
@@ -95,6 +108,7 @@ namespace e2d
     class keyboard::state final : private e2d::noncopyable {
     public:
         mutable std::mutex mutex;
+        str32 input_text;
         std::array<button_state, enum_to_number(keyboard_key::unknown) + 1> key_states;
     public:
         state() noexcept {
@@ -112,10 +126,16 @@ namespace e2d
 
         void frame_tick() noexcept {
             std::lock_guard<std::mutex> guard(mutex);
+            input_text.clear();
             std::for_each(
                 key_states.begin(),
                 key_states.end(),
                 &update_button_state);
+        }
+
+        void post_event(input::input_char_event evt) noexcept {
+            std::lock_guard<std::mutex> guard(mutex);
+            input_text += evt.uchar;
         }
 
         void post_event(input::keyboard_key_event evt) noexcept {
@@ -150,6 +170,16 @@ namespace e2d
     mouse::mouse()
     : state_(new state()) {}
     mouse::~mouse() noexcept = default;
+
+    v2f mouse::cursor_pos() const noexcept {
+        std::lock_guard<std::mutex> guard(state_->mutex);
+        return state_->cursor_pos;
+    }
+
+    v2f mouse::scroll_delta() const noexcept {
+        std::lock_guard<std::mutex> guard(state_->mutex);
+        return state_->scroll_delta;
+    }
 
     bool mouse::is_any_button_pressed() const noexcept {
         std::lock_guard<std::mutex> guard(state_->mutex);
@@ -242,6 +272,16 @@ namespace e2d
     : state_(new state()) {}
     keyboard::~keyboard() noexcept = default;
 
+    str32 keyboard::input_text() const {
+        std::lock_guard<std::mutex> guard(state_->mutex);
+        return state_->input_text;
+    }
+
+    void keyboard::extract_input_text(str32& dst) const {
+        std::lock_guard<std::mutex> guard(state_->mutex);
+        dst = state_->input_text;
+    }
+
     bool keyboard::is_any_key_pressed() const noexcept {
         std::lock_guard<std::mutex> guard(state_->mutex);
         return std::any_of(
@@ -331,8 +371,6 @@ namespace e2d
 
     class input::state final : private e2d::noncopyable {
     public:
-        std::mutex mutex;
-        str32 input_text;
         class mouse mouse;
         class keyboard keyboard;
     };
@@ -345,16 +383,6 @@ namespace e2d
     : state_(new state()) {}
     input::~input() noexcept = default;
 
-    str32 input::input_text() const {
-        std::lock_guard<std::mutex> guard(state_->mutex);
-        return state_->input_text;
-    }
-
-    void input::extract_input_text(str32& dst) const {
-        std::lock_guard<std::mutex> guard(state_->mutex);
-        dst = state_->input_text;
-    }
-
     const mouse& input::mouse() const noexcept {
         return state_->mouse;
     }
@@ -364,8 +392,15 @@ namespace e2d
     }
 
     void input::post_event(input_char_event evt) noexcept {
-        std::lock_guard<std::mutex> guard(state_->mutex);
-        state_->input_text += evt.uchar;
+        state_->keyboard.state_->post_event(evt);
+    }
+
+    void input::post_event(move_cursor_event evt) noexcept {
+        state_->mouse.state_->post_event(evt);
+    }
+
+    void input::post_event(mouse_scroll_event evt) noexcept {
+        state_->mouse.state_->post_event(evt);
     }
 
     void input::post_event(mouse_button_event evt) noexcept {
@@ -377,10 +412,6 @@ namespace e2d
     }
 
     void input::frame_tick() noexcept {
-        {
-            std::lock_guard<std::mutex> guard(state_->mutex);
-            state_->input_text.clear();
-        }
         state_->mouse.state_->frame_tick();
         state_->keyboard.state_->frame_tick();
     }
@@ -393,15 +424,23 @@ namespace e2d
     : input_(input) {}
 
     void window_input_source::on_input_char(char32_t uchar) noexcept {
-        input_.post_event({uchar});
+        input_.post_event(input::input_char_event{uchar});
+    }
+
+    void window_input_source::on_move_cursor(const v2f& pos) noexcept {
+        input_.post_event(input::move_cursor_event{pos});
+    }
+
+    void window_input_source::on_mouse_scroll(const v2f& delta) noexcept {
+        input_.post_event(input::mouse_scroll_event{delta});
+    }
+
+    void window_input_source::on_mouse_button(mouse_button btn, mouse_button_action act) noexcept {
+        input_.post_event(input::mouse_button_event{btn, act});
     }
 
     void window_input_source::on_keyboard_key(keyboard_key key, u32 scancode, keyboard_key_action act) noexcept {
         E2D_UNUSED(scancode);
-        input_.post_event({key, act});
-    }
-
-    void window_input_source::on_mouse_button(mouse_button btn, mouse_button_action act) noexcept {
-        input_.post_event({btn, act});
+        input_.post_event(input::keyboard_key_event{key, act});
     }
 }

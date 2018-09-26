@@ -259,7 +259,8 @@ namespace e2d
         str title;
         bool vsync = false;
         bool fullscreen = false;
-        char _pad[6];
+        bool cursor_hidden = false;
+        char _pad[5];
     public:
         state(const v2u& size, str_view title, bool vsync, bool fullscreen)
         : shared_state(glfw_state::get_shared_state())
@@ -268,13 +269,14 @@ namespace e2d
         , title(title)
         , vsync(vsync)
         , fullscreen(fullscreen)
+        , cursor_hidden(false)
         {
             if ( !window ) {
                 throw bad_window_operation();
             }
             glfwSetWindowUserPointer(window.get(), this);
-            glfwSetScrollCallback(window.get(), scroll_callback_);
             glfwSetCursorPosCallback(window.get(), move_cursor_callback_);
+            glfwSetScrollCallback(window.get(), mouse_scroll_callback_);
             glfwSetCharCallback(window.get(), input_char_callback_);
             glfwSetMouseButtonCallback(window.get(), mouse_button_callback_);
             glfwSetKeyCallback(window.get(), keyboard_key_callback_);
@@ -296,6 +298,14 @@ namespace e2d
                     stdex::invoke(f, listener.get(), args...);
                 }
             }
+        }
+
+        event_listener& on_new_event_listener(event_listener& listener) noexcept {
+            double cursor_x = 0.0, cursor_y = 0.0;
+            E2D_ASSERT(window);
+            glfwGetCursorPos(window.get(), &cursor_x, &cursor_y);
+            listener.on_move_cursor(make_vec2(cursor_x, cursor_y).cast_to<f32>());
+            return listener;
         }
     private:
         static window_uptr open_window_(
@@ -330,21 +340,21 @@ namespace e2d
             return {w, glfwDestroyWindow};
         }
 
-        static void scroll_callback_(GLFWwindow* window, double delta_x, double delta_y) noexcept {
-            state* self = static_cast<state*>(glfwGetWindowUserPointer(window));
-            if ( self ) {
-                self->for_all_listeners(
-                    &event_listener::on_scroll,
-                    make_vec2(delta_x, delta_y).cast_to<f32>());
-            }
-        }
-
         static void move_cursor_callback_(GLFWwindow* window, double pos_x, double pos_y) noexcept {
             state* self = static_cast<state*>(glfwGetWindowUserPointer(window));
             if ( self ) {
                 self->for_all_listeners(
                     &event_listener::on_move_cursor,
                     make_vec2(pos_x, pos_y).cast_to<f32>());
+            }
+        }
+
+        static void mouse_scroll_callback_(GLFWwindow* window, double delta_x, double delta_y) noexcept {
+            state* self = static_cast<state*>(glfwGetWindowUserPointer(window));
+            if ( self ) {
+                self->for_all_listeners(
+                    &event_listener::on_mouse_scroll,
+                    make_vec2(delta_x, delta_y).cast_to<f32>());
             }
         }
 
@@ -505,6 +515,25 @@ namespace e2d
         return true;
     }
 
+    void window::hide_cursor() noexcept {
+        std::lock_guard<std::recursive_mutex> guard(state_->rmutex);
+        E2D_ASSERT(state_->window);
+        glfwSetInputMode(state_->window.get(), GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+        state_->cursor_hidden = true;
+    }
+
+    void window::show_cursor() noexcept {
+        std::lock_guard<std::recursive_mutex> guard(state_->rmutex);
+        E2D_ASSERT(state_->window);
+        glfwSetInputMode(state_->window.get(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+        state_->cursor_hidden = false;
+    }
+
+    bool window::is_cursor_hidden() const noexcept {
+        std::lock_guard<std::recursive_mutex> guard(state_->rmutex);
+        return state_->cursor_hidden;
+    }
+
     v2u window::real_size() const noexcept {
         std::lock_guard<std::recursive_mutex> guard(state_->rmutex);
         int w = 0, h = 0;
@@ -564,7 +593,7 @@ namespace e2d
         E2D_ASSERT(listener);
         std::lock_guard<std::recursive_mutex> guard(state_->rmutex);
         state_->listeners.push_back(std::move(listener));
-        return *state_->listeners.back();
+        return state_->on_new_event_listener(*state_->listeners.back());
     }
 
     void window::unregister_event_listener(const event_listener& listener) noexcept {
