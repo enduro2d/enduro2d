@@ -65,8 +65,21 @@ namespace
     std::mutex glfw_state::mutex_;
     std::shared_ptr<glfw_state> glfw_state::shared_state_;
 
-    key convert_glfw_key(int k) noexcept {
-        #define DEFINE_CASE(x,y) case GLFW_KEY_##x: return key::y
+    mouse_button convert_glfw_mouse_button(int m) noexcept {
+        #define DEFINE_CASE(x,y) case GLFW_MOUSE_BUTTON_##x: return mouse_button::y
+        switch ( m ) {
+            DEFINE_CASE(LEFT, left);
+            DEFINE_CASE(RIGHT, right);
+            DEFINE_CASE(MIDDLE, middle);
+            DEFINE_CASE(4, x1);
+            DEFINE_CASE(5, x2);
+            default: return mouse_button::unknown;
+        }
+        #undef DEFINE_CASE
+    }
+
+    keyboard_key convert_glfw_keyboard_key(int k) noexcept {
+        #define DEFINE_CASE(x,y) case GLFW_KEY_##x: return keyboard_key::y
         switch ( k ) {
             DEFINE_CASE(0, _0);
             DEFINE_CASE(1, _1);
@@ -200,49 +213,32 @@ namespace
             DEFINE_CASE(KP_EQUAL, kp_equal);
             DEFINE_CASE(KP_DECIMAL, kp_decimal);
 
-            default: return key::unknown;
+            default: return keyboard_key::unknown;
         }
         #undef DEFINE_CASE
     }
 
-    mouse convert_glfw_mouse(int m) noexcept {
-        switch ( m ) {
-            case GLFW_MOUSE_BUTTON_LEFT:
-                return mouse::left;
-            case GLFW_MOUSE_BUTTON_RIGHT:
-                return mouse::right;
-            case GLFW_MOUSE_BUTTON_MIDDLE:
-                return mouse::middle;
-            case GLFW_MOUSE_BUTTON_4:
-                return mouse::x1;
-            case GLFW_MOUSE_BUTTON_5:
-                return mouse::x2;
-            default:
-                return mouse::unknown;
-        }
-    }
-
-    key_action convert_glfw_key_action(int ka) noexcept {
-        switch ( ka ) {
-            case GLFW_PRESS:
-                return key_action::press;
-            case GLFW_REPEAT:
-                return key_action::repeat;
-            case GLFW_RELEASE:
-                return key_action::release;
-            default:
-                return key_action::unknown;
-        }
-    }
-
-    mouse_action convert_glfw_mouse_action(int ma) noexcept {
+    mouse_button_action convert_glfw_mouse_button_action(int ma) noexcept {
         switch ( ma ) {
             case GLFW_PRESS:
-                return mouse_action::press;
+                return mouse_button_action::press;
             case GLFW_RELEASE:
-                return mouse_action::release;
+                return mouse_button_action::release;
             default:
-                return mouse_action::unknown;
+                return mouse_button_action::unknown;
+        }
+    }
+
+    keyboard_key_action convert_glfw_keyboard_key_action(int ka) noexcept {
+        switch ( ka ) {
+            case GLFW_PRESS:
+                return keyboard_key_action::press;
+            case GLFW_REPEAT:
+                return keyboard_key_action::repeat;
+            case GLFW_RELEASE:
+                return keyboard_key_action::release;
+            default:
+                return keyboard_key_action::unknown;
         }
     }
 }
@@ -277,14 +273,14 @@ namespace e2d
                 throw bad_window_operation();
             }
             glfwSetWindowUserPointer(window.get(), this);
-            glfwSetKeyCallback(window.get(), key_callback_);
-            glfwSetCharCallback(window.get(), uchar_callback_);
             glfwSetScrollCallback(window.get(), scroll_callback_);
-            glfwSetCursorPosCallback(window.get(), cursor_callback_);
-            glfwSetMouseButtonCallback(window.get(), mouse_callback_);
-            glfwSetWindowCloseCallback(window.get(), close_callback_);
-            glfwSetWindowFocusCallback(window.get(), focus_callback_);
-            glfwSetWindowIconifyCallback(window.get(), minimize_callback_);
+            glfwSetCursorPosCallback(window.get(), move_cursor_callback_);
+            glfwSetCharCallback(window.get(), input_char_callback_);
+            glfwSetMouseButtonCallback(window.get(), mouse_button_callback_);
+            glfwSetKeyCallback(window.get(), keyboard_key_callback_);
+            glfwSetWindowCloseCallback(window.get(), window_close_callback_);
+            glfwSetWindowFocusCallback(window.get(), window_focus_callback_);
+            glfwSetWindowIconifyCallback(window.get(), window_minimize_callback_);
         }
 
         ~state() noexcept {
@@ -334,78 +330,78 @@ namespace e2d
             return {w, glfwDestroyWindow};
         }
 
-        static void key_callback_(GLFWwindow* window, int key, int scancode, int action, int mods) noexcept {
-            E2D_UNUSED(mods);
-            state* self = static_cast<state*>(glfwGetWindowUserPointer(window));
-            if ( self ) {
-                self->for_all_listeners(
-                    &event_listener::on_key,
-                    convert_glfw_key(key),
-                    math::numeric_cast<u32>(scancode),
-                    convert_glfw_key_action(action));
-            }
-        }
-
-        static void uchar_callback_(GLFWwindow* window, u32 uchar) noexcept {
-            state* self = static_cast<state*>(glfwGetWindowUserPointer(window));
-            if ( self ) {
-                self->for_all_listeners(
-                    &event_listener::on_uchar,
-                    static_cast<char32_t>(uchar));
-            }
-        }
-
-        static void scroll_callback_(GLFWwindow* window, double xoffset, double yoffset) noexcept {
+        static void scroll_callback_(GLFWwindow* window, double delta_x, double delta_y) noexcept {
             state* self = static_cast<state*>(glfwGetWindowUserPointer(window));
             if ( self ) {
                 self->for_all_listeners(
                     &event_listener::on_scroll,
-                    make_vec2(xoffset, yoffset).cast_to<f32>());
+                    make_vec2(delta_x, delta_y).cast_to<f32>());
             }
         }
 
-        static void cursor_callback_(GLFWwindow* window, double x, double y) noexcept {
+        static void move_cursor_callback_(GLFWwindow* window, double pos_x, double pos_y) noexcept {
             state* self = static_cast<state*>(glfwGetWindowUserPointer(window));
             if ( self ) {
                 self->for_all_listeners(
-                    &event_listener::on_cursor,
-                    make_vec2(x, y).cast_to<f32>());
+                    &event_listener::on_move_cursor,
+                    make_vec2(pos_x, pos_y).cast_to<f32>());
             }
         }
 
-        static void mouse_callback_(GLFWwindow* window, int button, int action, int mods) noexcept {
+        static void input_char_callback_(GLFWwindow* window, u32 uchar) noexcept {
+            state* self = static_cast<state*>(glfwGetWindowUserPointer(window));
+            if ( self ) {
+                self->for_all_listeners(
+                    &event_listener::on_input_char,
+                    static_cast<char32_t>(uchar));
+            }
+        }
+
+        static void mouse_button_callback_(GLFWwindow* window, int button, int action, int mods) noexcept {
             E2D_UNUSED(mods);
             state* self = static_cast<state*>(glfwGetWindowUserPointer(window));
             if ( self ) {
                 self->for_all_listeners(
-                    &event_listener::on_mouse,
-                    convert_glfw_mouse(button),
-                    convert_glfw_mouse_action(action));
+                    &event_listener::on_mouse_button,
+                    convert_glfw_mouse_button(button),
+                    convert_glfw_mouse_button_action(action));
             }
         }
 
-        static void close_callback_(GLFWwindow* window) noexcept {
+        static void keyboard_key_callback_(GLFWwindow* window, int key, int scancode, int action, int mods) noexcept {
+            E2D_UNUSED(mods);
             state* self = static_cast<state*>(glfwGetWindowUserPointer(window));
             if ( self ) {
                 self->for_all_listeners(
-                    &event_listener::on_close);
+                    &event_listener::on_keyboard_key,
+                    convert_glfw_keyboard_key(key),
+                    math::numeric_cast<u32>(scancode),
+                    convert_glfw_keyboard_key_action(action));
             }
         }
 
-        static void focus_callback_(GLFWwindow* window, int focused) noexcept {
+        static void window_close_callback_(GLFWwindow* window) noexcept {
             state* self = static_cast<state*>(glfwGetWindowUserPointer(window));
             if ( self ) {
                 self->for_all_listeners(
-                    &event_listener::on_focus,
+                    &event_listener::on_window_close);
+            }
+        }
+
+        static void window_focus_callback_(GLFWwindow* window, int focused) noexcept {
+            state* self = static_cast<state*>(glfwGetWindowUserPointer(window));
+            if ( self ) {
+                self->for_all_listeners(
+                    &event_listener::on_window_focus,
                     focused);
             }
         }
 
-        static void minimize_callback_(GLFWwindow* window, int minimized) noexcept {
+        static void window_minimize_callback_(GLFWwindow* window, int minimized) noexcept {
             state* self = static_cast<state*>(glfwGetWindowUserPointer(window));
             if ( self ) {
                 self->for_all_listeners(
-                    &event_listener::on_minimize,
+                    &event_listener::on_window_minimize,
                     minimized);
             }
         }
@@ -473,6 +469,7 @@ namespace e2d
 
     bool window::toggle_vsync(bool yesno) noexcept {
         std::lock_guard<std::recursive_mutex> guard(state_->rmutex);
+        E2D_ASSERT(state_->window);
         glfwMakeContextCurrent(state_->window.get());
         glfwSwapInterval(yesno ? 1 : 0);
         state_->vsync = yesno;
@@ -495,6 +492,7 @@ namespace e2d
         v2i real_size = yesno
             ? make_vec2(video_mode->width, video_mode->height)
             : state_->virtual_size.cast_to<i32>();
+        E2D_ASSERT(state_->window);
         glfwSetWindowMonitor(
             state_->window.get(),
             yesno ? monitor : nullptr,
@@ -509,8 +507,8 @@ namespace e2d
 
     v2u window::real_size() const noexcept {
         std::lock_guard<std::recursive_mutex> guard(state_->rmutex);
-        E2D_ASSERT(state_->window);
         int w = 0, h = 0;
+        E2D_ASSERT(state_->window);
         glfwGetWindowSize(state_->window.get(), &w, &h);
         return make_vec2(w,h).cast_to<u32>();
     }
@@ -522,8 +520,8 @@ namespace e2d
 
     v2u window::framebuffer_size() const noexcept {
         std::lock_guard<std::recursive_mutex> guard(state_->rmutex);
-        E2D_ASSERT(state_->window);
         int w = 0, h = 0;
+        E2D_ASSERT(state_->window);
         glfwGetFramebufferSize(state_->window.get(), &w, &h);
         return make_vec2(w,h).cast_to<u32>();
     }
@@ -535,10 +533,9 @@ namespace e2d
 
     void window::set_title(str_view title) {
         std::lock_guard<std::recursive_mutex> guard(state_->rmutex);
-        E2D_ASSERT(state_->window);
         state_->title = make_utf8(title);
-        glfwSetWindowTitle(
-            state_->window.get(), state_->title.c_str());
+        E2D_ASSERT(state_->window);
+        glfwSetWindowTitle(state_->window.get(), state_->title.c_str());
     }
 
     bool window::should_close() const noexcept {
@@ -550,8 +547,7 @@ namespace e2d
     void window::set_should_close(bool yesno) noexcept {
         std::lock_guard<std::recursive_mutex> guard(state_->rmutex);
         E2D_ASSERT(state_->window);
-        glfwSetWindowShouldClose(
-            state_->window.get(), yesno ? GLFW_TRUE : GLFW_FALSE);
+        glfwSetWindowShouldClose(state_->window.get(), yesno ? GLFW_TRUE : GLFW_FALSE);
     }
 
     void window::swap_buffers() noexcept {

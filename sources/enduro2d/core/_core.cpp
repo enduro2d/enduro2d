@@ -8,9 +8,25 @@
 
 namespace e2d
 {
-    const char* key_to_cstr(key k) noexcept {
-        #define DEFINE_CASE(x) case key::x: return #x
-        switch ( k ) {
+    const char* mouse_button_to_cstr(mouse_button btn) noexcept {
+        #define DEFINE_CASE(x) case mouse_button::x: return #x
+        switch ( btn ) {
+            DEFINE_CASE(left);
+            DEFINE_CASE(right);
+            DEFINE_CASE(middle);
+            DEFINE_CASE(x1);
+            DEFINE_CASE(x2);
+            DEFINE_CASE(unknown);
+            default:
+                E2D_ASSERT_MSG(false, "unexpected mouse button");
+                return "";
+        }
+        #undef DEFINE_CASE
+    }
+
+    const char* keyboard_key_to_cstr(keyboard_key key) noexcept {
+        #define DEFINE_CASE(x) case keyboard_key::x: return #x
+        switch ( key ) {
             DEFINE_CASE(_0);
             DEFINE_CASE(_1);
             DEFINE_CASE(_2);
@@ -145,50 +161,34 @@ namespace e2d
 
             DEFINE_CASE(unknown);
             default:
-                E2D_ASSERT_MSG(false, "unexpected key");
+                E2D_ASSERT_MSG(false, "unexpected keyboard key");
                 return "";
         }
         #undef DEFINE_CASE
     }
 
-    const char* mouse_to_cstr(mouse m) noexcept {
-        #define DEFINE_CASE(x) case mouse::x: return #x
-        switch ( m ) {
-            DEFINE_CASE(left);
-            DEFINE_CASE(right);
-            DEFINE_CASE(middle);
-            DEFINE_CASE(x1);
-            DEFINE_CASE(x2);
+    const char* mouse_button_action_to_cstr(mouse_button_action action) noexcept {
+        #define DEFINE_CASE(x) case mouse_button_action::x: return #x
+        switch ( action ) {
+            DEFINE_CASE(press);
+            DEFINE_CASE(release);
             DEFINE_CASE(unknown);
             default:
-                E2D_ASSERT_MSG(false, "unexpected mouse");
+                E2D_ASSERT_MSG(false, "unexpected mouse button action");
                 return "";
         }
         #undef DEFINE_CASE
     }
 
-    const char* key_action_to_cstr(key_action ka) noexcept {
-        #define DEFINE_CASE(x) case key_action::x: return #x
-        switch ( ka ) {
+    const char* keyboard_key_action_to_cstr(keyboard_key_action action) noexcept {
+        #define DEFINE_CASE(x) case keyboard_key_action::x: return #x
+        switch ( action ) {
             DEFINE_CASE(press);
             DEFINE_CASE(repeat);
             DEFINE_CASE(release);
             DEFINE_CASE(unknown);
             default:
-                E2D_ASSERT_MSG(false, "unexpected key action");
-                return "";
-        }
-        #undef DEFINE_CASE
-    }
-
-    const char* mouse_action_to_cstr(mouse_action ka) noexcept {
-        #define DEFINE_CASE(x) case mouse_action::x: return #x
-        switch ( ka ) {
-            DEFINE_CASE(press);
-            DEFINE_CASE(release);
-            DEFINE_CASE(unknown);
-            default:
-                E2D_ASSERT_MSG(false, "unexpected mouse action");
+                E2D_ASSERT_MSG(false, "unexpected keyboard key action");
                 return "";
         }
         #undef DEFINE_CASE

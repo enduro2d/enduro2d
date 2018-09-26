@@ -23,29 +23,33 @@ namespace e2d
         input();
         ~input() noexcept;
 
-        bool any_key_up() const noexcept;
-        bool any_key_down() const noexcept;
-        bool any_key_downed() const noexcept;
+        bool is_any_mouse_button_pressed() const noexcept;
+        bool is_any_mouse_button_just_pressed() const noexcept;
+        bool is_any_mouse_button_just_released() const noexcept;
 
-        bool any_mouse_up() const noexcept;
-        bool any_mouse_down() const noexcept;
-        bool any_mouse_downed() const noexcept;
+        bool is_any_keyboard_key_pressed() const noexcept;
+        bool is_any_keyboard_key_just_pressed() const noexcept;
+        bool is_any_keyboard_key_just_released() const noexcept;
 
-        bool key_up(key key) const noexcept;
-        bool key_down(key key) const noexcept;
-        bool key_downed(key key) const noexcept;
+        bool is_mouse_button_pressed(mouse_button btn) const noexcept;
+        bool is_mouse_button_just_pressed(mouse_button btn) const noexcept;
+        bool is_mouse_button_just_released(mouse_button btn) const noexcept;
 
-        bool mouse_up(mouse mouse) const noexcept;
-        bool mouse_down(mouse mouse) const noexcept;
-        bool mouse_downed(mouse mouse) const noexcept;
+        bool is_keyboard_key_pressed(keyboard_key key) const noexcept;
+        bool is_keyboard_key_just_pressed(keyboard_key key) const noexcept;
+        bool is_keyboard_key_just_released(keyboard_key key) const noexcept;
 
-        void extract_up_keys(std::vector<key>& result) const;
-        void extract_down_keys(std::vector<key>& result) const;
-        void extract_downed_keys(std::vector<key>& result) const;
+        void extract_pressed_mouse_buttons(std::vector<mouse_button>& dst) const;
+        void extract_just_pressed_mouse_buttons(std::vector<mouse_button>& dst) const;
+        void extract_just_released_mouse_buttons(std::vector<mouse_button>& dst) const;
+
+        void extract_pressed_keyboard_keys(std::vector<keyboard_key>& dst) const;
+        void extract_just_pressed_keyboard_keys(std::vector<keyboard_key>& dst) const;
+        void extract_just_released_keyboard_keys(std::vector<keyboard_key>& dst) const;
 
         void frame_tick() noexcept;
-        void post_event(key key, key_action action) noexcept;
-        void post_event(mouse mouse, mouse_action action) noexcept;
+        void post_event(keyboard_key key, keyboard_key_action act) noexcept;
+        void post_event(mouse_button btn, mouse_button_action act) noexcept;
     private:
         class state;
         std::unique_ptr<state> state_;
@@ -54,8 +58,8 @@ namespace e2d
     class window_input_source : public window::event_listener {
     public:
         window_input_source(input& input) noexcept;
-        void on_key(key key, u32 scancode, key_action action) noexcept final;
-        void on_mouse(mouse mouse, mouse_action action) noexcept final;
+        void on_mouse_button(mouse_button btn, mouse_button_action act) noexcept final;
+        void on_keyboard_key(keyboard_key key, u32 scancode, keyboard_key_action act) noexcept final;
     private:
         input& input_;
     };

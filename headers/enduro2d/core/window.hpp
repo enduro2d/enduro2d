@@ -22,14 +22,14 @@ namespace e2d
         class event_listener : private e2d::noncopyable {
         public:
             virtual ~event_listener() noexcept = default;
-            virtual void on_key(key key, u32 scancode, key_action action) noexcept;
-            virtual void on_uchar(char32_t uchar) noexcept;
             virtual void on_scroll(const v2f& delta) noexcept;
-            virtual void on_cursor(const v2f& position) noexcept;
-            virtual void on_mouse(mouse mouse, mouse_action action) noexcept;
-            virtual void on_close() noexcept;
-            virtual void on_focus(bool focused) noexcept;
-            virtual void on_minimize(bool minimized) noexcept;
+            virtual void on_move_cursor(const v2f& pos) noexcept;
+            virtual void on_input_char(char32_t uchar) noexcept;
+            virtual void on_mouse_button(mouse_button btn, mouse_button_action act) noexcept;
+            virtual void on_keyboard_key(keyboard_key key, u32 scancode, keyboard_key_action act) noexcept;
+            virtual void on_window_close() noexcept;
+            virtual void on_window_focus(bool focused) noexcept;
+            virtual void on_window_minimize(bool minimized) noexcept;
         };
         using event_listener_uptr = std::unique_ptr<event_listener>;
     public:
@@ -76,14 +76,14 @@ namespace e2d
     class window_trace_event_listener final : public window::event_listener {
     public:
         window_trace_event_listener(debug& debug) noexcept;
-        void on_key(key key, u32 scancode, key_action action) noexcept final;
-        void on_uchar(char32_t uchar) noexcept final;
         void on_scroll(const v2f& delta) noexcept final;
-        void on_cursor(const v2f& position) noexcept final;
-        void on_mouse(mouse mouse, mouse_action action) noexcept final;
-        void on_close() noexcept final;
-        void on_focus(bool focused) noexcept final;
-        void on_minimize(bool minimized) noexcept final;
+        void on_move_cursor(const v2f& pos) noexcept final;
+        void on_input_char(char32_t uchar) noexcept final;
+        void on_mouse_button(mouse_button btn, mouse_button_action act) noexcept final;
+        void on_keyboard_key(keyboard_key key, u32 scancode, keyboard_key_action act) noexcept final;
+        void on_window_close() noexcept final;
+        void on_window_focus(bool focused) noexcept final;
+        void on_window_minimize(bool minimized) noexcept final;
     private:
         debug& debug_;
     };
