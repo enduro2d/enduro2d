@@ -2,14 +2,6 @@ cmake_minimum_required(VERSION 3.9.2 FATAL_ERROR)
 project(enduro2d)
 
 #
-# default build mode
-#
-
-if(NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE Release)
-endif(NOT CMAKE_BUILD_TYPE)
-
-#
 # warning mode
 #
 
@@ -116,8 +108,11 @@ endif(APPLE)
 set(E2D_INCLUDE_DIRS
     ${CMAKE_CURRENT_SOURCE_DIR}/headers)
 
-set(E2D_LIBRARIES ${E2D_LIBRARIES} PARENT_SCOPE)
-set(E2D_INCLUDE_DIRS ${E2D_INCLUDE_DIRS} PARENT_SCOPE)
+get_directory_property(E2D_PARENT_DIRECTORY PARENT_DIRECTORY)
+if(E2D_PARENT_DIRECTORY)
+    set(E2D_LIBRARIES ${E2D_LIBRARIES} PARENT_SCOPE)
+    set(E2D_INCLUDE_DIRS ${E2D_INCLUDE_DIRS} PARENT_SCOPE)
+endif(E2D_PARENT_DIRECTORY)
 
 #
 # subdirectories
