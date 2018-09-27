@@ -1,3 +1,5 @@
 .vs/*
+.vscode/*
 build/*
+CMakeSettings.json
 CMakeLists.txt.user
