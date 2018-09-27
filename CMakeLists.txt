@@ -2,14 +2,6 @@ cmake_minimum_required(VERSION 3.9.2 FATAL_ERROR)
 project(enduro2d)
 
 #
-# default build mode
-#
-
-if(NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE Release)
-endif(NOT CMAKE_BUILD_TYPE)
-
-#
 # warning mode
 #
 
@@ -23,6 +15,33 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
         string(REGEX REPLACE "/W[0-4]" "/W4" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
     else()
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
+    endif()
+endif()
+
+#
+# linking mode
+#
+
+if(MSVC)
+    option(USE_MSVC_RUNTIME_LIBRARY_DLL "Use MSVC runtime library DLL" OFF)
+    if(NOT USE_MSVC_RUNTIME_LIBRARY_DLL)
+        foreach(flag CMAKE_C_FLAGS
+                     CMAKE_C_FLAGS_DEBUG
+                     CMAKE_C_FLAGS_RELEASE
+                     CMAKE_C_FLAGS_MINSIZEREL
+                     CMAKE_C_FLAGS_RELWITHDEBINFO
+                     CMAKE_CXX_FLAGS
+                     CMAKE_CXX_FLAGS_DEBUG
+                     CMAKE_CXX_FLAGS_RELEASE
+                     CMAKE_CXX_FLAGS_MINSIZEREL
+                     CMAKE_CXX_FLAGS_RELWITHDEBINFO)
+            if(${flag} MATCHES "/MD")
+                string(REGEX REPLACE "/MD" "/MT" ${flag} "${${flag}}")
+            endif()
+            if(${flag} MATCHES "/MDd")
+                string(REGEX REPLACE "/MDd" "/MTd" ${flag} "${${flag}}")
+            endif()
+        endforeach()
     endif()
 endif()
 
@@ -116,8 +135,12 @@ endif(APPLE)
 set(E2D_INCLUDE_DIRS
     ${CMAKE_CURRENT_SOURCE_DIR}/headers)
 
-set(E2D_LIBRARIES ${E2D_LIBRARIES} PARENT_SCOPE)
-set(E2D_INCLUDE_DIRS ${E2D_INCLUDE_DIRS} PARENT_SCOPE)
+get_directory_property(E2D_PARENT_DIRECTORY
+    PARENT_DIRECTORY)
+if(E2D_PARENT_DIRECTORY)
+    set(E2D_LIBRARIES ${E2D_LIBRARIES} PARENT_SCOPE)
+    set(E2D_INCLUDE_DIRS ${E2D_INCLUDE_DIRS} PARENT_SCOPE)
+endif(E2D_PARENT_DIRECTORY)
 
 #
 # subdirectories
