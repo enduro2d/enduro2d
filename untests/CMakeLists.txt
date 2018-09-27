@@ -2,16 +2,6 @@ function(add_e2d_tests NAME)
     set(TESTS_NAME untests_${NAME})
 
     #
-    # external
-    #
-
-    find_package(Threads REQUIRED)
-
-    if(APPLE)
-        find_library(Foundation Foundation)
-    endif(APPLE)
-
-    #
     # sources
     #
 
@@ -27,19 +17,10 @@ function(add_e2d_tests NAME)
 
     add_executable(${TESTS_NAME}
         ${TESTS_SOURCES})
-
-    target_include_directories(${TESTS_NAME}
-        PRIVATE "../headers")
-
     target_link_libraries(${TESTS_NAME}
-        enduro2d
-        "${CMAKE_THREAD_LIBS_INIT}")
-
-    if(APPLE)
-        target_link_libraries(${TESTS_NAME}
-            ${Foundation})
-    endif(APPLE)
-
+        ${E2D_LIBRARIES})
+    target_include_directories(${TESTS_NAME}
+        PRIVATE ${E2D_INCLUDE_DIRS})
     set_target_properties(${TESTS_NAME} PROPERTIES
         CXX_STANDARD 14
         CXX_STANDARD_REQUIRED YES

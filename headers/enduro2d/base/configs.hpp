@@ -66,10 +66,10 @@
 #define E2D_BUILD_MODE_RELEASE 2
 
 #ifndef E2D_BUILD_MODE
-#  if defined(DEBUG) || defined(_DEBUG) || defined(NRELEASE)
-#    define E2D_BUILD_MODE E2D_BUILD_MODE_DEBUG
-#  elif defined(RELEASE) || defined(_RELEASE) || defined(NDEBUG)
+#  if defined(RELEASE) || defined(_RELEASE) || defined(NDEBUG)
 #    define E2D_BUILD_MODE E2D_BUILD_MODE_RELEASE
+#  else
+#    define E2D_BUILD_MODE E2D_BUILD_MODE_DEBUG
 #  endif
 #endif
 

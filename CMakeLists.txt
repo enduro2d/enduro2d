@@ -6,38 +6,24 @@ project(enduro2d)
 #
 
 if(NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE Release)
+    set(CMAKE_BUILD_TYPE Release)
 endif(NOT CMAKE_BUILD_TYPE)
-
-foreach(flags CMAKE_C_FLAGS_DEBUG
-              CMAKE_CXX_FLAGS_DEBUG)
-  set(${flags} "${${flags}} -D_DEBUG -DNRELEASE")
-endforeach(flags)
-
-foreach(flags CMAKE_C_FLAGS_RELEASE
-              CMAKE_C_FLAGS_MINSIZEREL
-              CMAKE_C_FLAGS_RELWITHDEBINFO
-              CMAKE_CXX_FLAGS_RELEASE
-              CMAKE_CXX_FLAGS_MINSIZEREL
-              CMAKE_CXX_FLAGS_RELWITHDEBINFO)
-  set(${flags} "${${flags}} -DNDEBUG -D_RELEASE")
-endforeach(flags)
 
 #
 # warning mode
 #
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  add_compile_options(-Wall -Wextra -Wpedantic)
+    add_compile_options(-Wall -Wextra -Wpedantic)
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-  add_compile_options(-Wall -Wextra -Wpedantic)
+    add_compile_options(-Wall -Wextra -Wpedantic)
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
-  add_definitions(-D_CRT_SECURE_NO_WARNINGS)
-  if(CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
-    string(REGEX REPLACE "/W[0-4]" "/W4" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-  else()
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
-  endif()
+    add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+    if(CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
+        string(REGEX REPLACE "/W[0-4]" "/W4" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+    else()
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
+    endif()
 endif()
 
 #
@@ -45,53 +31,41 @@ endif()
 #
 
 file(GLOB_RECURSE E2D_HEADERS
-  headers/enduro2d/*.hpp
-  headers/enduro2d/*.inl)
+    headers/enduro2d/*.hpp
+    headers/enduro2d/*.inl)
 
 file(GLOB_RECURSE E2D_SOURCES
-  sources/enduro2d/*.cpp
-  sources/enduro2d/*.hpp
-  headers/enduro2d/*.inl)
+    sources/enduro2d/*.cpp
+    sources/enduro2d/*.hpp
+    headers/enduro2d/*.inl)
 
 if(APPLE)
-  file(GLOB_RECURSE E2D_SOURCES_MM
-    sources/enduro2d/*.mm)
-  list(APPEND E2D_SOURCES ${E2D_SOURCES_MM})
+    file(GLOB_RECURSE E2D_SOURCES_MM
+        sources/enduro2d/*.mm)
+    list(APPEND E2D_SOURCES
+        ${E2D_SOURCES_MM})
 endif()
 
 #
-# e2d 3rd party
+# e2d internal 3rd party
 #
 
 file(GLOB_RECURSE E2D_3RDPARTY
-  sources/3rdparty/*.*)
+    sources/3rdparty/*.*)
 
 #
-# e2d library target
+# e2d external 3rd party
 #
 
-add_library(${PROJECT_NAME} STATIC
-  ${E2D_HEADERS}
-  ${E2D_SOURCES}
-  ${E2D_3RDPARTY})
+find_package(OpenGL REQUIRED)
+find_package(Threads REQUIRED)
 
-source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES
-  ${E2D_HEADERS}
-  ${E2D_SOURCES}
-  ${E2D_3RDPARTY})
-
-target_include_directories(${PROJECT_NAME} PRIVATE
-  headers
-  sources)
-
-set_target_properties(${PROJECT_NAME} PROPERTIES
-  CXX_STANDARD 14
-  CXX_STANDARD_REQUIRED YES
-  CXX_EXTENSIONS NO)
-
-#
-# glfw module
-#
+if(APPLE)
+    find_library(Cocoa Cocoa)
+    find_library(IOKit IOKit)
+    find_library(CoreVideo CoreVideo)
+    find_library(Foundation Foundation)
+endif(APPLE)
 
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
@@ -99,16 +73,60 @@ set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 add_subdirectory(modules/glfw)
 
 #
+# e2d library target
+#
+
+add_library(${PROJECT_NAME} STATIC
+    ${E2D_HEADERS}
+    ${E2D_SOURCES}
+    ${E2D_3RDPARTY})
+
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES
+    ${E2D_HEADERS}
+    ${E2D_SOURCES}
+    ${E2D_3RDPARTY})
+
+target_include_directories(${PROJECT_NAME} PRIVATE
+    headers
+    sources)
+
+set_target_properties(${PROJECT_NAME} PROPERTIES
+    CXX_STANDARD 14
+    CXX_STANDARD_REQUIRED YES
+    CXX_EXTENSIONS NO)
+
+#
+# e2d public variables
+#
+
+set(E2D_INCLUDE_DIRS
+    ${CMAKE_CURRENT_SOURCE_DIR}/headers)
+
+set(E2D_LIBRARIES
+    enduro2d
+    glfw
+    ${OPENGL_gl_LIBRARY}
+    ${CMAKE_THREAD_LIBS_INIT})
+
+if(APPLE)
+    list(APPEND ${E2D_LIBRARIES}
+        ${Cocoa}
+        ${IOKit}
+        ${CoreVideo}
+        ${Foundation})
+endif(APPLE)
+
+#
 # subdirectories
 #
 
 option(E2D_BUILD_SAMPLES "Build samples" ON)
 if(E2D_BUILD_SAMPLES)
-  add_subdirectory(samples)
+    add_subdirectory(samples)
 endif()
 
 option(E2D_BUILD_UNTESTS "Build untests" ON)
 if(E2D_BUILD_UNTESTS)
-  enable_testing()
-  add_subdirectory(untests)
+    enable_testing()
+    add_subdirectory(untests)
 endif()

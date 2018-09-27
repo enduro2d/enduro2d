@@ -6,6 +6,7 @@
 
 #include <enduro2d/base/_all.hpp>
 
-#if defined(E2D_COMPILER) && E2D_COMPILER == E2D_COMPILER_GCC
-
-#endif
+int main(int argc, char *argv[]) {
+    E2D_UNUSED(argc, argv);
+    return e2d_main();
+}

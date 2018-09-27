@@ -7,7 +7,7 @@
 #include "../common.hpp"
 using namespace e2d;
 
-int main() {
+int e2d_main() {
     input& i = modules::initialize<input>();
     debug& d = modules::initialize<debug>();
     window& w = modules::initialize<window>(
@@ -27,4 +27,5 @@ int main() {
         w.swap_buffers();
         window::frame_tick();
     }
+    return 0;
 }
