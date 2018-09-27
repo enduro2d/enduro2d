@@ -116,7 +116,7 @@ namespace e2d
             : false;
     }
 
-    bool vfs::unregister_scheme(str_view scheme) noexcept {
+    bool vfs::unregister_scheme(str_view scheme) {
         std::lock_guard<std::mutex> guard(state_->mutex);
         return state_->schemes.erase(scheme) > 0;
     }
@@ -127,7 +127,7 @@ namespace e2d
             std::make_pair(scheme, alias)).second;
     }
 
-    bool vfs::unregister_scheme_alias(str_view scheme) noexcept {
+    bool vfs::unregister_scheme_alias(str_view scheme) {
         std::lock_guard<std::mutex> guard(state_->mutex);
         return state_->aliases.erase(scheme) > 0;
     }

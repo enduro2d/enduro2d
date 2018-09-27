@@ -9,5 +9,6 @@
 #include "_core.hpp"
 
 #include "debug.hpp"
+#include "input.hpp"
 #include "vfs.hpp"
 #include "window.hpp"
