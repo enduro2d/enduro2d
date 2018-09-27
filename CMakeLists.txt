@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.9.2 FATAL_ERROR)
 project(enduro2d)
 
 #
-# build mode
+# default build mode
 #
 
 if(NOT CMAKE_BUILD_TYPE)
@@ -99,9 +99,6 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 # e2d public variables
 #
 
-set(E2D_INCLUDE_DIRS
-    ${CMAKE_CURRENT_SOURCE_DIR}/headers)
-
 set(E2D_LIBRARIES
     enduro2d
     glfw
@@ -115,6 +112,12 @@ if(APPLE)
         ${CoreVideo}
         ${Foundation})
 endif(APPLE)
+
+set(E2D_INCLUDE_DIRS
+    ${CMAKE_CURRENT_SOURCE_DIR}/headers)
+
+set(E2D_LIBRARIES ${E2D_LIBRARIES} PARENT_SCOPE)
+set(E2D_INCLUDE_DIRS ${E2D_INCLUDE_DIRS} PARENT_SCOPE)
 
 #
 # subdirectories
