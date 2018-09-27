@@ -42,7 +42,7 @@
     ```
     levels, sinks
     ```
-  - [ ] `basic input system`
+  - [x] `basic input system`
     ```
     events, listeners, polling
     devices: mouse, keyboard
