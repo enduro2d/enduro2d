@@ -22,9 +22,9 @@ namespace e2d
         class event_listener : private e2d::noncopyable {
         public:
             virtual ~event_listener() noexcept = default;
+            virtual void on_input_char(char32_t uchar) noexcept;
             virtual void on_move_cursor(const v2f& pos) noexcept;
             virtual void on_mouse_scroll(const v2f& delta) noexcept;
-            virtual void on_input_char(char32_t uchar) noexcept;
             virtual void on_mouse_button(mouse_button btn, mouse_button_action act) noexcept;
             virtual void on_keyboard_key(keyboard_key key, u32 scancode, keyboard_key_action act) noexcept;
             virtual void on_window_close() noexcept;
@@ -80,9 +80,9 @@ namespace e2d
     class window_trace_event_listener final : public window::event_listener {
     public:
         window_trace_event_listener(debug& debug) noexcept;
+        void on_input_char(char32_t uchar) noexcept final;
         void on_move_cursor(const v2f& pos) noexcept final;
         void on_mouse_scroll(const v2f& delta) noexcept final;
-        void on_input_char(char32_t uchar) noexcept final;
         void on_mouse_button(mouse_button btn, mouse_button_action act) noexcept final;
         void on_keyboard_key(keyboard_key key, u32 scancode, keyboard_key_action act) noexcept final;
         void on_window_close() noexcept final;

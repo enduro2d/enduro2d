@@ -275,9 +275,9 @@ namespace e2d
                 throw bad_window_operation();
             }
             glfwSetWindowUserPointer(window.get(), this);
+            glfwSetCharCallback(window.get(), input_char_callback_);
             glfwSetCursorPosCallback(window.get(), move_cursor_callback_);
             glfwSetScrollCallback(window.get(), mouse_scroll_callback_);
-            glfwSetCharCallback(window.get(), input_char_callback_);
             glfwSetMouseButtonCallback(window.get(), mouse_button_callback_);
             glfwSetKeyCallback(window.get(), keyboard_key_callback_);
             glfwSetWindowCloseCallback(window.get(), window_close_callback_);
@@ -295,7 +295,7 @@ namespace e2d
             std::lock_guard<std::recursive_mutex> guard(rmutex);
             for ( const event_listener_uptr& listener : listeners ) {
                 if ( listener ) {
-                    stdex::invoke(f, listener.get(), args...);
+                    stdex::invoke(f, *listener.get(), args...);
                 }
             }
         }
@@ -340,6 +340,15 @@ namespace e2d
             return {w, glfwDestroyWindow};
         }
 
+        static void input_char_callback_(GLFWwindow* window, u32 uchar) noexcept {
+            state* self = static_cast<state*>(glfwGetWindowUserPointer(window));
+            if ( self ) {
+                self->for_all_listeners(
+                    &event_listener::on_input_char,
+                    static_cast<char32_t>(uchar));
+            }
+        }
+
         static void move_cursor_callback_(GLFWwindow* window, double pos_x, double pos_y) noexcept {
             state* self = static_cast<state*>(glfwGetWindowUserPointer(window));
             if ( self ) {
@@ -355,15 +364,6 @@ namespace e2d
                 self->for_all_listeners(
                     &event_listener::on_mouse_scroll,
                     make_vec2(delta_x, delta_y).cast_to<f32>());
-            }
-        }
-
-        static void input_char_callback_(GLFWwindow* window, u32 uchar) noexcept {
-            state* self = static_cast<state*>(glfwGetWindowUserPointer(window));
-            if ( self ) {
-                self->for_all_listeners(
-                    &event_listener::on_input_char,
-                    static_cast<char32_t>(uchar));
             }
         }
 

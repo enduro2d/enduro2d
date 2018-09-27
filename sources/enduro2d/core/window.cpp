@@ -13,16 +13,16 @@ namespace e2d
     // class window::event_listener
     //
 
+    void window::event_listener::on_input_char(char32_t uchar) noexcept {
+        E2D_UNUSED(uchar);
+    }
+
     void window::event_listener::on_move_cursor(const v2f& pos) noexcept {
         E2D_UNUSED(pos);
     }
 
     void window::event_listener::on_mouse_scroll(const v2f& delta) noexcept {
         E2D_UNUSED(delta);
-    }
-
-    void window::event_listener::on_input_char(char32_t uchar) noexcept {
-        E2D_UNUSED(uchar);
     }
 
     void window::event_listener::on_mouse_button(mouse_button btn, mouse_button_action act) noexcept {
@@ -51,16 +51,16 @@ namespace e2d
     window_trace_event_listener::window_trace_event_listener(debug& debug) noexcept
     : debug_(debug) {}
 
+    void window_trace_event_listener::on_input_char(char32_t uchar) noexcept {
+        debug_.trace("WINDOW: on_input_char(uchar: %0)", str32_view(&uchar, 1));
+    }
+
     void window_trace_event_listener::on_move_cursor(const v2f& pos) noexcept {
         debug_.trace("WINDOW: on_move_cursor(pos: %0)", pos);
     }
 
     void window_trace_event_listener::on_mouse_scroll(const v2f& delta) noexcept {
         debug_.trace("WINDOW: on_scroll(delta: %0)", delta);
-    }
-
-    void window_trace_event_listener::on_input_char(char32_t uchar) noexcept {
-        debug_.trace("WINDOW: on_input_char(uchar: %0)", str32_view(&uchar, 1));
     }
 
     void window_trace_event_listener::on_mouse_button(mouse_button btn, mouse_button_action act) noexcept {
