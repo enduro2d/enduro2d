@@ -4,12 +4,8 @@
  * Copyright (C) 2018 Matvey Cherevko
  ******************************************************************************/
 
-#include <enduro2d/base/_all.hpp>
+#pragma once
 
-#if defined(E2D_PLATFORM) && E2D_PLATFORM == E2D_PLATFORM_WINDOWS
+#include "types.hpp"
 
-int main() {
-    return 0;
-}
-
-#endif
+e2d::i32 e2d_main();

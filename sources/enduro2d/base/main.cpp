@@ -6,10 +6,7 @@
 
 #include <enduro2d/base/_all.hpp>
 
-#if defined(E2D_PLATFORM) && E2D_PLATFORM == E2D_PLATFORM_MACOSX
-
-int main() {
-    return 0;
+int main(int argc, char *argv[]) {
+    E2D_UNUSED(argc, argv);
+    return e2d_main();
 }
-
-#endif
