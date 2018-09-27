@@ -452,19 +452,19 @@ namespace e2d
     bool window::visible() const noexcept {
         std::lock_guard<std::recursive_mutex> guard(state_->rmutex);
         E2D_ASSERT(state_->window);
-        return glfwGetWindowAttrib(state_->window.get(), GLFW_VISIBLE);
+        return GLFW_TRUE == glfwGetWindowAttrib(state_->window.get(), GLFW_VISIBLE);
     }
 
     bool window::focused() const noexcept {
         std::lock_guard<std::recursive_mutex> guard(state_->rmutex);
         E2D_ASSERT(state_->window);
-        return glfwGetWindowAttrib(state_->window.get(), GLFW_FOCUSED);
+        return GLFW_TRUE == glfwGetWindowAttrib(state_->window.get(), GLFW_FOCUSED);
     }
 
     bool window::minimized() const noexcept {
         std::lock_guard<std::recursive_mutex> guard(state_->rmutex);
         E2D_ASSERT(state_->window);
-        return glfwGetWindowAttrib(state_->window.get(), GLFW_ICONIFIED);
+        return GLFW_TRUE == glfwGetWindowAttrib(state_->window.get(), GLFW_ICONIFIED);
     }
 
     bool window::vsync() const noexcept {
@@ -570,7 +570,7 @@ namespace e2d
     bool window::should_close() const noexcept {
         std::lock_guard<std::recursive_mutex> guard(state_->rmutex);
         E2D_ASSERT(state_->window);
-        return glfwWindowShouldClose(state_->window.get());
+        return GLFW_TRUE == glfwWindowShouldClose(state_->window.get());
     }
 
     void window::set_should_close(bool yesno) noexcept {

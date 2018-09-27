@@ -17,7 +17,7 @@ namespace
         just_released
     };
 
-    void update_button_state(enum button_state& state) noexcept {
+    void update_button_state(button_state& state) noexcept {
         if ( state == button_state::just_pressed ) {
             state = button_state::pressed;
         } else if ( state == button_state::just_released ) {
@@ -80,7 +80,7 @@ namespace e2d
         void post_event(input::mouse_button_event evt) noexcept {
             std::lock_guard<std::mutex> guard(mutex);
             const std::size_t index = button_index(evt.button);
-            const enum button_state ms = button_states[index];
+            const button_state ms = button_states[index];
             switch ( evt.action ) {
                 case mouse_button_action::press:
                     if ( ms == button_state::released || ms == button_state::just_released ) {
@@ -141,7 +141,7 @@ namespace e2d
         void post_event(input::keyboard_key_event evt) noexcept {
             std::lock_guard<std::mutex> guard(mutex);
             const std::size_t index = key_index(evt.key);
-            const enum button_state ks = key_states[index];
+            const button_state ks = key_states[index];
             switch ( evt.action ) {
                 case keyboard_key_action::press:
                 case keyboard_key_action::repeat:
@@ -215,7 +215,7 @@ namespace e2d
     bool mouse::is_button_pressed(mouse_button btn) const noexcept {
         std::lock_guard<std::mutex> guard(state_->mutex);
         const std::size_t index = state_->button_index(btn);
-        const enum button_state ms = state_->button_states[index];
+        const button_state ms = state_->button_states[index];
         return ms == button_state::just_pressed
             || ms == button_state::pressed;
     }
@@ -223,14 +223,14 @@ namespace e2d
     bool mouse::is_button_just_pressed(mouse_button btn) const noexcept {
         std::lock_guard<std::mutex> guard(state_->mutex);
         const std::size_t index = state_->button_index(btn);
-        const enum button_state ms = state_->button_states[index];
+        const button_state ms = state_->button_states[index];
         return ms == button_state::just_pressed;
     }
 
     bool mouse::is_button_just_released(mouse_button btn) const noexcept {
         std::lock_guard<std::mutex> guard(state_->mutex);
         const std::size_t index = state_->button_index(btn);
-        const enum button_state ms = state_->button_states[index];
+        const button_state ms = state_->button_states[index];
         return ms == button_state::just_released;
     }
 
@@ -316,7 +316,7 @@ namespace e2d
     bool keyboard::is_key_pressed(keyboard_key key) const noexcept {
         std::lock_guard<std::mutex> guard(state_->mutex);
         const std::size_t index = state_->key_index(key);
-        const enum button_state ks = state_->key_states[index];
+        const button_state ks = state_->key_states[index];
         return ks == button_state::just_pressed
             || ks == button_state::pressed;
     }
@@ -324,14 +324,14 @@ namespace e2d
     bool keyboard::is_key_just_pressed(keyboard_key key) const noexcept {
         std::lock_guard<std::mutex> guard(state_->mutex);
         const std::size_t index = state_->key_index(key);
-        const enum button_state ks = state_->key_states[index];
+        const button_state ks = state_->key_states[index];
         return ks == button_state::just_pressed;
     }
 
     bool keyboard::is_key_just_released(keyboard_key key) const noexcept {
         std::lock_guard<std::mutex> guard(state_->mutex);
         const std::size_t index = state_->key_index(key);
-        const enum button_state ks = state_->key_states[index];
+        const button_state ks = state_->key_states[index];
         return ks == button_state::just_released;
     }
 
@@ -383,11 +383,11 @@ namespace e2d
     : state_(new state()) {}
     input::~input() noexcept = default;
 
-    const mouse& input::mouse() const noexcept {
+    const class mouse& input::mouse() const noexcept {
         return state_->mouse;
     }
 
-    const keyboard& input::keyboard() const noexcept {
+    const class keyboard& input::keyboard() const noexcept {
         return state_->keyboard;
     }
 

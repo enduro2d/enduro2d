@@ -65,27 +65,40 @@ namespace e2d
     public:
         struct input_char_event {
             char32_t uchar = 0;
+            input_char_event(char32_t uchar)
+            : uchar(uchar) {}
         };
         struct move_cursor_event {
             v2f pos = v2f::zero();
+            move_cursor_event(const v2f& pos)
+            : pos(pos) {}
         };
         struct mouse_scroll_event {
             v2f delta = v2f::zero();
+            mouse_scroll_event(const v2f& delta)
+            : delta(delta) {}
         };
         struct mouse_button_event {
             mouse_button button = mouse_button::unknown;
             mouse_button_action action = mouse_button_action::unknown;
+            mouse_button_event(mouse_button btn, mouse_button_action act)
+            : button(btn)
+            , action(act) {}
+
         };
         struct keyboard_key_event {
             keyboard_key key = keyboard_key::unknown;
             keyboard_key_action action = keyboard_key_action::unknown;
+            keyboard_key_event(keyboard_key key, keyboard_key_action act)
+            : key(key)
+            , action(act) {}
         };
     public:
         input();
         ~input() noexcept;
 
-        const mouse& mouse() const noexcept;
-        const keyboard& keyboard() const noexcept;
+        const class mouse& mouse() const noexcept;
+        const class keyboard& keyboard() const noexcept;
 
         void post_event(input_char_event evt) noexcept;
         void post_event(move_cursor_event evt) noexcept;
