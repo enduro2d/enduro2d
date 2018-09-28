@@ -4,12 +4,13 @@
  * Copyright (C) 2018 Matvey Cherevko
  ******************************************************************************/
 
-#pragma once
+#include <enduro2d/core/render.hpp>
 
-#include "_core.hpp"
+namespace e2d
+{
+    render::render() {
+    }
 
-#include "debug.hpp"
-#include "input.hpp"
-#include "render.hpp"
-#include "vfs.hpp"
-#include "window.hpp"
+    render::~render() {
+    }
+}

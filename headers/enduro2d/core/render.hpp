@@ -8,8 +8,11 @@
 
 #include "_core.hpp"
 
-#include "debug.hpp"
-#include "input.hpp"
-#include "render.hpp"
-#include "vfs.hpp"
-#include "window.hpp"
+namespace e2d
+{
+    class render final : public module<render> {
+    public:
+        render();
+        ~render();
+    };
+}

@@ -4,12 +4,8 @@
  * Copyright (C) 2018 Matvey Cherevko
  ******************************************************************************/
 
-#pragma once
-
 #include "_core.hpp"
+using namespace e2d;
 
-#include "debug.hpp"
-#include "input.hpp"
-#include "render.hpp"
-#include "vfs.hpp"
-#include "window.hpp"
+TEST_CASE("render"){
+}
