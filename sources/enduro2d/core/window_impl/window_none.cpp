@@ -18,19 +18,17 @@ namespace e2d
         std::recursive_mutex rmutex;
         v2u virtual_size;
         str title;
-        bool vsync = false;
         bool fullscreen = false;
         bool cursor_hidden = false;
         bool should_close = false;
         bool visible = true;
         bool focused = true;
         bool minimized = false;
-        char _pad[1];
+        char _pad[2];
     public:
-        state(const v2u& size, str_view title, bool vsync, bool fullscreen)
+        state(const v2u& size, str_view title, bool fullscreen)
         : virtual_size(size)
         , title(make_utf8(title))
-        , vsync(vsync)
         , fullscreen(fullscreen) {}
         ~state() noexcept = default;
 
@@ -45,8 +43,8 @@ namespace e2d
         }
     };
 
-    window::window(const v2u& size, str_view title, bool vsync, bool fullscreen)
-    : state_(new state(size, title, vsync, fullscreen)) {}
+    window::window(const v2u& size, str_view title, bool fullscreen)
+    : state_(new state(size, title, fullscreen)) {}
     window::~window() noexcept = default;
 
     void window::hide() noexcept {
@@ -98,20 +96,9 @@ namespace e2d
         return state_->minimized;
     }
 
-    bool window::vsync() const noexcept {
-        std::lock_guard<std::recursive_mutex> guard(state_->rmutex);
-        return state_->vsync;
-    }
-
     bool window::fullscreen() const noexcept {
         std::lock_guard<std::recursive_mutex> guard(state_->rmutex);
         return state_->fullscreen;
-    }
-
-    bool window::toggle_vsync(bool yesno) noexcept {
-        std::lock_guard<std::recursive_mutex> guard(state_->rmutex);
-        state_->vsync = yesno;
-        return true;
     }
 
     bool window::toggle_fullscreen(bool yesno) noexcept {
@@ -170,7 +157,11 @@ namespace e2d
         state_->should_close = yesno;
     }
 
-    void window::swap_buffers() noexcept {
+    void window::bind_context() noexcept {
+    }
+
+    void window::swap_buffers(bool vsync) noexcept {
+        E2D_UNUSED(vsync);
     }
 
     bool window::frame_tick() noexcept {

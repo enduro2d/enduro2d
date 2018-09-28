@@ -33,7 +33,7 @@ namespace e2d
         };
         using event_listener_uptr = std::unique_ptr<event_listener>;
     public:
-        window(const v2u& size, str_view title, bool vsync, bool fullscreen);
+        window(const v2u& size, str_view title, bool fullscreen);
         ~window() noexcept;
 
         void hide() noexcept;
@@ -45,10 +45,7 @@ namespace e2d
         bool focused() const noexcept;
         bool minimized() const noexcept;
 
-        bool vsync() const noexcept;
         bool fullscreen() const noexcept;
-
-        bool toggle_vsync(bool yesno) noexcept;
         bool toggle_fullscreen(bool yesno) noexcept;
 
         void hide_cursor() noexcept;
@@ -65,7 +62,8 @@ namespace e2d
         bool should_close() const noexcept;
         void set_should_close(bool yesno) noexcept;
 
-        void swap_buffers() noexcept;
+        void bind_context() noexcept;
+        void swap_buffers(bool vsync) noexcept;
         static bool frame_tick() noexcept;
 
         template < typename T, typename... Args >
