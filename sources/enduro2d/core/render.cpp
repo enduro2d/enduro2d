@@ -4,13 +4,4 @@
  * Copyright (C) 2018 Matvey Cherevko
  ******************************************************************************/
 
-#include <enduro2d/core/render.hpp>
-
-namespace e2d
-{
-    render::render() {
-    }
-
-    render::~render() {
-    }
-}
+#include "render_impl/render.hpp"

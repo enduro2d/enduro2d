@@ -4,18 +4,21 @@
  * Copyright (C) 2018 Matvey Cherevko
  ******************************************************************************/
 
-#pragma once
+#include "render.hpp"
 
-#include "_core.hpp"
+#if defined(E2D_RENDER_MODE) && E2D_RENDER_MODE == E2D_RENDER_MODE_NONE
 
 namespace e2d
 {
-    class render final : public module<render> {
+    class render::state final : private e2d::noncopyable {
     public:
-        render();
-        ~render() noexcept;
-    private:
-        class state;
-        std::unique_ptr<state> state_;
+        state() {}
+        ~state() noexcept = default;
     };
+
+    render::render()
+    : state_(new state()) {}
+    render::~render() noexcept = default;
 }
+
+#endif

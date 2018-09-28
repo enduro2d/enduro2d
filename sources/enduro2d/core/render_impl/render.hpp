@@ -6,20 +6,19 @@
 
 #pragma once
 
-#include <enduro2d/core/debug.hpp>
-#include <enduro2d/core/window.hpp>
+#include <enduro2d/core/render.hpp>
 
-#define E2D_WINDOW_MODE_NONE 1
-#define E2D_WINDOW_MODE_GLFW 2
+#define E2D_RENDER_MODE_NONE 1
+#define E2D_RENDER_MODE_OGL 2
 
-#ifndef E2D_WINDOW_MODE
+#ifndef E2D_RENDER_MODE
 #  if defined(E2D_PLATFORM) && E2D_PLATFORM == E2D_PLATFORM_IOS
-#    define E2D_WINDOW_MODE E2D_WINDOW_MODE_NONE
+#    define E2D_RENDER_MODE E2D_RENDER_MODE_NONE
 #  elif defined(E2D_PLATFORM) && E2D_PLATFORM == E2D_PLATFORM_LINUX
-#    define E2D_WINDOW_MODE E2D_WINDOW_MODE_GLFW
+#    define E2D_RENDER_MODE E2D_RENDER_MODE_NONE
 #  elif defined(E2D_PLATFORM) && E2D_PLATFORM == E2D_PLATFORM_MACOSX
-#    define E2D_WINDOW_MODE E2D_WINDOW_MODE_GLFW
+#    define E2D_RENDER_MODE E2D_RENDER_MODE_OGL
 #  elif defined(E2D_PLATFORM) && E2D_PLATFORM == E2D_PLATFORM_WINDOWS
-#    define E2D_WINDOW_MODE E2D_WINDOW_MODE_GLFW
+#    define E2D_RENDER_MODE E2D_RENDER_MODE_NONE
 #  endif
 #endif
