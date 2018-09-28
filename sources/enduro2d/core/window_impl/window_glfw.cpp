@@ -573,7 +573,7 @@ namespace e2d
         glfwSwapBuffers(state_->window.get());
     }
 
-    bool window::frame_tick() noexcept {
+    bool window::poll_events() noexcept {
         return glfw_state::poll_events();
     }
 

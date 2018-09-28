@@ -164,7 +164,7 @@ namespace e2d
         E2D_UNUSED(vsync);
     }
 
-    bool window::frame_tick() noexcept {
+    bool window::poll_events() noexcept {
         return false;
     }
 

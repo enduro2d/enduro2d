@@ -64,7 +64,7 @@ namespace e2d
 
         void bind_context() noexcept;
         void swap_buffers(bool vsync) noexcept;
-        static bool frame_tick() noexcept;
+        static bool poll_events() noexcept;
 
         template < typename T, typename... Args >
         T& register_event_listener(Args&&... args);

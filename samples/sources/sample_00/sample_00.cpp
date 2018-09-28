@@ -20,9 +20,9 @@ int e2d_main() {
     while ( !the<window>().should_close() && !k.is_key_just_released(keyboard_key::escape) ) {
         the<render>().set_clear_color({1.f, 0.4f, 0.f});
         the<render>().clear(true, true, true);
-        the<input>().frame_tick();
         the<window>().swap_buffers(true);
-        window::frame_tick();
+        the<input>().frame_tick();
+        window::poll_events();
     }
     return 0;
 }
