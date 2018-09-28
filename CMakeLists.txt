@@ -18,6 +18,10 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
     endif()
 endif()
 
+if(APPLE)
+    add_compile_options(-Wno-deprecated-declarations)
+endif(APPLE)
+
 #
 # linking mode
 #
@@ -106,9 +110,10 @@ source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES
     ${E2D_SOURCES}
     ${E2D_3RDPARTY})
 
-target_include_directories(${PROJECT_NAME} PRIVATE
-    headers
-    sources)
+target_include_directories(${PROJECT_NAME}
+    PRIVATE headers
+    PRIVATE sources
+    PRIVATE ${OPENGL_INCLUDE_DIR})
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
     CXX_STANDARD 14
