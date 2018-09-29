@@ -66,7 +66,7 @@ namespace e2d
         E2D_UNUSED(projection);
     }
 
-    void render::set_viewport(f32 x, f32 y, f32 w, f32 h) noexcept {
+    void render::set_viewport(u32 x, u32 y, u32 w, u32 h) noexcept {
         E2D_UNUSED(x, y, w, h);
     }
 
@@ -76,6 +76,14 @@ namespace e2d
 
     void render::disable_state(state state) noexcept {
         E2D_UNUSED(state);
+    }
+
+    void render::set_blend_func(blend_func src, blend_func dst) noexcept {
+        E2D_UNUSED(src, dst);
+    }
+
+    void render::set_blend_color(const color& color) noexcept {
+        E2D_UNUSED(color);
     }
 
     void render::set_cull_face(cull_face cull_face) noexcept {
@@ -90,7 +98,11 @@ namespace e2d
         E2D_UNUSED(yesno);
     }
 
-    void render::set_stencil_func(stencil_func stencil_func, i32 ref, u32 mask) noexcept {
+    void render::set_clear_depth(f32 value) noexcept {
+        E2D_UNUSED(value);
+    }
+
+    void render::set_stencil_func(stencil_func stencil_func, u32 ref, u32 mask) noexcept {
         E2D_UNUSED(stencil_func, ref, mask);
     }
 
@@ -102,20 +114,16 @@ namespace e2d
         E2D_UNUSED(fail, zfail, zpass);
     }
 
+    void render::set_clear_stencil(u32 value) noexcept {
+        E2D_UNUSED(value);
+    }
+
     void render::set_clear_color(const color& color) noexcept {
         E2D_UNUSED(color);
     }
 
     void render::set_color_mask(bool r, bool g, bool b, bool a) {
         E2D_UNUSED(r, g, b, a);
-    }
-
-    void render::set_blend_func(blend_func src, blend_func dst) noexcept {
-        E2D_UNUSED(src, dst);
-    }
-
-    void render::set_blend_color(const color& color) noexcept {
-        E2D_UNUSED(color);
     }
 }
 

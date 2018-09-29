@@ -10,6 +10,10 @@
 
 namespace e2d
 {
+    //
+    // texture
+    //
+
     class texture final : noncopyable {
     public:
         enum class wrap {
@@ -27,10 +31,18 @@ namespace e2d
 
         void set_wrap(wrap u, wrap v) noexcept;
         void set_filter(filter min, filter mag) noexcept;
+
+        const v2u& native_size() const noexcept;
+        const v2u& original_size() const noexcept;
     private:
         class internal_state;
         std::unique_ptr<internal_state> state_;
     };
+    using texture_ptr = std::shared_ptr<texture>;
+
+    //
+    // render
+    //
 
     class render final : public module<render> {
     public:
@@ -96,25 +108,34 @@ namespace e2d
         render();
         ~render() noexcept;
 
+        texture_ptr create_texture(const image& image) noexcept;
+        texture_ptr create_texture(const v2u& size, image_data_format format) noexcept;
+
         void clear(bool color, bool depth, bool stencil) noexcept;
 
         void set_view(const m4f& view) noexcept;
         void set_projection(const m4f& projection) noexcept;
-        void set_viewport(f32 x, f32 y, f32 w, f32 h) noexcept;
+        void set_viewport(u32 x, u32 y, u32 w, u32 h) noexcept;
 
         void enable_state(state state) noexcept;
         void disable_state(state state) noexcept;
 
-        void set_cull_face(cull_face cull_face) noexcept;
-        void set_depth_func(depth_func depth_func) noexcept;
-        void set_depth_mask(bool yesno) noexcept;
-        void set_stencil_func(stencil_func stencil_func, i32 ref, u32 mask) noexcept;
-        void set_stencil_mask(u32 mask) noexcept;
-        void set_stencil_op(stencil_op fail, stencil_op zfail, stencil_op zpass) noexcept;
-        void set_clear_color(const color& color) noexcept;
-        void set_color_mask(bool r, bool g, bool b, bool a);
         void set_blend_func(blend_func src, blend_func dst) noexcept;
         void set_blend_color(const color& color) noexcept;
+
+        void set_cull_face(cull_face cull_face) noexcept;
+
+        void set_depth_func(depth_func depth_func) noexcept;
+        void set_depth_mask(bool yesno) noexcept;
+        void set_clear_depth(f32 value) noexcept;
+
+        void set_stencil_func(stencil_func stencil_func, u32 ref, u32 mask) noexcept;
+        void set_stencil_mask(u32 mask) noexcept;
+        void set_stencil_op(stencil_op fail, stencil_op zfail, stencil_op zpass) noexcept;
+        void set_clear_stencil(u32 value) noexcept;
+
+        void set_clear_color(const color& color) noexcept;
+        void set_color_mask(bool r, bool g, bool b, bool a);
     private:
         class internal_state;
         std::unique_ptr<internal_state> state_;

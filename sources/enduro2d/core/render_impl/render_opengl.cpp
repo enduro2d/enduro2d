@@ -16,7 +16,7 @@ namespace
 {
     using namespace e2d;
 
-    GLenum convert_wrap(texture::wrap w) noexcept {
+    GLint convert_wrap(texture::wrap w) noexcept {
         #define DEFINE_CASE(x,y) case texture::wrap::x: return y;
         switch ( w ) {
             DEFINE_CASE(clamp, GL_CLAMP_TO_EDGE);
@@ -29,7 +29,7 @@ namespace
         #undef DEFINE_CASE
     }
 
-    GLenum convert_filter(texture::filter f) noexcept {
+    GLint convert_filter(texture::filter f) noexcept {
         #define DEFINE_CASE(x,y) case texture::filter::x: return y;
         switch ( f ) {
             DEFINE_CASE(linear, GL_LINEAR);
@@ -156,6 +156,10 @@ namespace e2d
 
     class texture::internal_state final : private e2d::noncopyable {
     public:
+        GLuint id = 0;
+        v2u native_size;
+        v2u original_size;
+    public:
         internal_state() {}
         ~internal_state() noexcept = default;
     };
@@ -183,11 +187,27 @@ namespace e2d
     texture::~texture() noexcept = default;
 
     void texture::set_wrap(wrap u, wrap v) noexcept {
-        E2D_UNUSED(convert_wrap(u), convert_wrap(v));
+        E2D_ASSERT(state_->id);
+        glBindTexture(GL_TEXTURE_2D, state_->id);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, convert_wrap(u));
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, convert_wrap(v));
+        glBindTexture(GL_TEXTURE_2D, 0);
     }
 
     void texture::set_filter(filter min, filter mag) noexcept {
-        E2D_UNUSED(convert_filter(min), convert_filter(mag));
+        E2D_ASSERT(state_->id);
+        glBindTexture(GL_TEXTURE_2D, state_->id);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, convert_filter(min));
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, convert_filter(mag));
+        glBindTexture(GL_TEXTURE_2D, 0);
+    }
+
+    const v2u& texture::native_size() const noexcept {
+        return state_->native_size;
+    }
+
+    const v2u& texture::original_size() const noexcept {
+        return state_->original_size;
     }
 
     //
@@ -197,6 +217,16 @@ namespace e2d
     render::render()
     : state_(new internal_state()) {}
     render::~render() noexcept = default;
+
+    texture_ptr render::create_texture(const image& image) noexcept {
+        E2D_UNUSED(image);
+        return nullptr;
+    }
+
+    texture_ptr render::create_texture(const v2u& size, image_data_format format) noexcept {
+        E2D_UNUSED(size, format);
+        return nullptr;
+    }
 
     void render::clear(bool color, bool depth, bool stencil) noexcept {
         std::lock_guard<std::mutex> guard(state_->mutex);
@@ -223,7 +253,7 @@ namespace e2d
         state_->projection = projection;
     }
 
-    void render::set_viewport(f32 x, f32 y, f32 w, f32 h) noexcept {
+    void render::set_viewport(u32 x, u32 y, u32 w, u32 h) noexcept {
         std::lock_guard<std::mutex> guard(state_->mutex);
         glViewport(
             math::numeric_cast<GLint>(x),
@@ -242,6 +272,20 @@ namespace e2d
         glDisable(convert_state(state));
     }
 
+    void render::set_blend_func(blend_func src, blend_func dst) noexcept {
+        std::lock_guard<std::mutex> guard(state_->mutex);
+        glBlendFunc(convert_blend_func(src), convert_blend_func(dst));
+    }
+
+    void render::set_blend_color(const color& color) noexcept {
+        std::lock_guard<std::mutex> guard(state_->mutex);
+        glBlendColor(
+            math::numeric_cast<GLclampf>(color.r),
+            math::numeric_cast<GLclampf>(color.g),
+            math::numeric_cast<GLclampf>(color.b),
+            math::numeric_cast<GLclampf>(color.a));
+    }
+
     void render::set_cull_face(cull_face cull_face) noexcept {
         std::lock_guard<std::mutex> guard(state_->mutex);
         glCullFace(convert_cull_face(cull_face));
@@ -257,9 +301,12 @@ namespace e2d
         glDepthMask(yesno ? GL_TRUE : GL_FALSE);
     }
 
-    void render::set_stencil_func(
-        stencil_func stencil_func, i32 ref, u32 mask) noexcept
-    {
+    void render::set_clear_depth(f32 value) noexcept {
+        std::lock_guard<std::mutex> guard(state_->mutex);
+        glClearDepth(math::numeric_cast<GLclampd>(value));
+    }
+
+    void render::set_stencil_func(stencil_func stencil_func, u32 ref, u32 mask) noexcept {
         std::lock_guard<std::mutex> guard(state_->mutex);
         glStencilFunc(
             convert_stencil_func(stencil_func),
@@ -282,6 +329,11 @@ namespace e2d
             convert_stencil_op(zpass));
     }
 
+    void render::set_clear_stencil(u32 value) noexcept {
+        std::lock_guard<std::mutex> guard(state_->mutex);
+        glClearStencil(math::numeric_cast<GLint>(value));
+    }
+
     void render::set_clear_color(const color& color) noexcept {
         std::lock_guard<std::mutex> guard(state_->mutex);
         glClearColor(
@@ -298,20 +350,6 @@ namespace e2d
             g ? GL_TRUE : GL_FALSE,
             b ? GL_TRUE : GL_FALSE,
             a ? GL_TRUE : GL_FALSE);
-    }
-
-    void render::set_blend_func(blend_func src, blend_func dst) noexcept {
-        std::lock_guard<std::mutex> guard(state_->mutex);
-        glBlendFunc(convert_blend_func(src), convert_blend_func(dst));
-    }
-
-    void render::set_blend_color(const color& color) noexcept {
-        std::lock_guard<std::mutex> guard(state_->mutex);
-        glBlendColor(
-            math::numeric_cast<GLclampf>(color.r),
-            math::numeric_cast<GLclampf>(color.g),
-            math::numeric_cast<GLclampf>(color.b),
-            math::numeric_cast<GLclampf>(color.a));
     }
 }
 
