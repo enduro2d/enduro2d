@@ -10,7 +10,7 @@ using namespace e2d;
 int e2d_main() {
     modules::initialize<debug>();
     modules::initialize<input>();
-    modules::initialize<render>();
+    modules::initialize<render>(the<debug>());
     modules::initialize<window>(v2u{640, 480}, "Enduro2D", false);
 
     the<debug>().add_sink<debug_console_sink>();

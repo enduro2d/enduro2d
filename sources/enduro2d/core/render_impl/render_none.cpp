@@ -11,6 +11,16 @@
 namespace e2d
 {
     //
+    // shader::internal_state
+    //
+
+    class shader::internal_state final : private e2d::noncopyable {
+    public:
+        internal_state() {}
+        ~internal_state() noexcept = default;
+    };
+
+    //
     // texture::internal_state
     //
 
@@ -31,11 +41,19 @@ namespace e2d
     };
 
     //
+    // shader
+    //
+
+    shader::shader(internal_state_uptr state)
+    : state_(std::move(state)) {}
+    shader::~shader() noexcept = default;
+
+    //
     // texture
     //
 
-    texture::texture()
-    : state_(new internal_state()) {}
+    texture::texture(internal_state_uptr state)
+    : state_(std::move(state)) {}
     texture::~texture() noexcept = default;
 
     void texture::set_wrap(wrap u, wrap v) noexcept {
@@ -50,9 +68,25 @@ namespace e2d
     // render
     //
 
-    render::render()
-    : state_(new internal_state()) {}
+    render::render(debug& debug)
+    : debug_(debug)
+    , state_(new internal_state()) {}
     render::~render() noexcept = default;
+
+    shader_ptr render::create_shader(input_stream_uptr vertex, input_stream_uptr fragment) {
+        E2D_UNUSED(vertex, fragment);
+        return nullptr;
+    }
+
+    texture_ptr render::create_texture(const image& image) {
+        E2D_UNUSED(image);
+        return nullptr;
+    }
+
+    texture_ptr render::create_texture(const v2u& size, image_data_format format) {
+        E2D_UNUSED(size, format);
+        return nullptr;
+    }
 
     void render::clear(bool color, bool depth, bool stencil) noexcept {
         E2D_UNUSED(color, depth, stencil);
@@ -84,6 +118,10 @@ namespace e2d
 
     void render::set_blend_color(const color& color) noexcept {
         E2D_UNUSED(color);
+    }
+
+    void render::set_blend_equation(blend_equation blend_equation) noexcept {
+        E2D_UNUSED(blend_equation);
     }
 
     void render::set_cull_face(cull_face cull_face) noexcept {

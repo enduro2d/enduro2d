@@ -93,6 +93,19 @@ namespace
         #undef DEFINE_CASE
     }
 
+    GLenum convert_blend_equation(render::blend_equation bf) noexcept {
+        #define DEFINE_CASE(x,y) case render::blend_equation::x: return y;
+        switch ( bf ) {
+            DEFINE_CASE(add, GL_FUNC_ADD);
+            DEFINE_CASE(subtract, GL_FUNC_SUBTRACT);
+            DEFINE_CASE(reverse_subtract, GL_FUNC_REVERSE_SUBTRACT);
+            default:
+                E2D_ASSERT_MSG(false, "unexpected render blend equation");
+                return 0;
+        }
+        #undef DEFINE_CASE
+    }
+
     GLenum convert_depth_func(render::depth_func df) noexcept {
         #define DEFINE_CASE(x,y) case render::depth_func::x: return y;
         switch ( df ) {
@@ -146,21 +159,180 @@ namespace
         }
         #undef DEFINE_CASE
     }
+
+    class gl_shader_id final : private noncopyable {
+    public:
+        gl_shader_id() noexcept
+        : id_(0) {}
+
+        gl_shader_id(GLuint id) noexcept
+        : id_(id) {
+            E2D_ASSERT(glIsShader(id));
+        }
+
+        ~gl_shader_id() noexcept {
+            reset();
+        }
+
+        gl_shader_id(gl_shader_id&& other) noexcept {
+            reset();
+            std::swap(id_, other.id_);
+        }
+
+        void reset() noexcept {
+            if ( id_ ) {
+                glDeleteShader(id_);
+                id_ = 0;
+            }
+        }
+
+        bool empty() const noexcept {
+            return id_ == 0;
+        }
+
+        GLuint operator*() const noexcept {
+            return id_;
+        }
+    private:
+        GLuint id_;
+    };
+
+    class gl_program_id final : private noncopyable {
+    public:
+        gl_program_id() noexcept
+        : id_(0) {}
+
+        gl_program_id(GLuint id) noexcept
+        : id_(id) {
+            E2D_ASSERT(glIsProgram(id));
+        }
+
+        ~gl_program_id() noexcept {
+            reset();
+        }
+
+        gl_program_id(gl_program_id&& other) noexcept {
+            reset();
+            std::swap(id_, other.id_);
+        }
+
+        void reset() noexcept {
+            if ( id_ ) {
+                glDeleteProgram(id_);
+                id_ = 0;
+            }
+        }
+
+        bool empty() const noexcept {
+            return id_ == 0;
+        }
+
+        GLuint operator*() const noexcept {
+            return id_;
+        }
+    private:
+        GLuint id_;
+    };
+
+    class gl_texture_id final : private noncopyable {
+    public:
+        gl_texture_id() noexcept
+        : id_(0) {}
+
+        gl_texture_id(GLuint id) noexcept
+        : id_(id) {
+            E2D_ASSERT(glIsTexture(id));
+        }
+
+        ~gl_texture_id() noexcept {
+            reset();
+        }
+
+        gl_texture_id(gl_texture_id&& other) noexcept {
+            reset();
+            std::swap(id_, other.id_);
+        }
+
+        void reset() noexcept {
+            if ( id_ ) {
+                glDeleteTextures(1, &id_);
+                id_ = 0;
+            }
+        }
+
+        bool empty() const noexcept {
+            return id_ == 0;
+        }
+
+        GLuint operator*() const noexcept {
+            return id_;
+        }
+    private:
+        GLuint id_;
+    };
+
+    gl_shader_id compile_shader(debug& d, const char* const s, GLenum t) {
+        E2D_ASSERT(s);
+        E2D_ASSERT(t == GL_VERTEX_SHADER || t == GL_FRAGMENT_SHADER);
+        gl_shader_id id{glCreateShader(t)};
+        glShaderSource(*id, 1, &s, nullptr);
+        glCompileShader(*id);
+        GLint success = GL_FALSE;
+        glGetShaderiv(*id, GL_COMPILE_STATUS, &success);
+        if ( success ) {
+            return id;
+        }
+        char error_buffer[512] = {0};
+        glGetShaderInfoLog(*id, E2D_COUNTOF(error_buffer), nullptr, error_buffer);
+        d.error("RENDER: vertex shader compilation failed:\n-> %0", error_buffer);
+        return gl_shader_id{};
+    }
+
+    gl_program_id link_program(debug& d, gl_shader_id vs, gl_shader_id fs) {
+        E2D_ASSERT(!vs.empty() && !fs.empty());
+        gl_program_id id{glCreateProgram()};
+        glAttachShader(*id, *vs);
+        glAttachShader(*id, *fs);
+        glLinkProgram(*id);
+        GLint success = GL_FALSE;
+        glGetProgramiv(*id, GL_LINK_STATUS, &success);
+        if ( success ) {
+            return id;
+        }
+        char error_buffer[512] = {0};
+        glGetProgramInfoLog(*id, E2D_COUNTOF(error_buffer), nullptr, error_buffer);
+        d.error("RENDER: shader program linking failed:\n-> %0", error_buffer);
+        return gl_program_id{};
+    }
 }
 
 namespace e2d
 {
+    //
+    // shader::internal_state
+    //
+
+    class shader::internal_state final : private e2d::noncopyable {
+    public:
+        gl_program_id id;
+    public:
+        internal_state(gl_program_id id)
+        : id(std::move(id)) {}
+        ~internal_state() noexcept = default;
+    };
+
     //
     // texture::internal_state
     //
 
     class texture::internal_state final : private e2d::noncopyable {
     public:
-        GLuint id = 0;
+        gl_texture_id id;
         v2u native_size;
         v2u original_size;
     public:
-        internal_state() {}
+        internal_state(gl_texture_id id)
+        : id(std::move(id)) {}
         ~internal_state() noexcept = default;
     };
 
@@ -179,24 +351,32 @@ namespace e2d
     };
 
     //
+    // shader
+    //
+
+    shader::shader(internal_state_uptr state)
+    : state_(std::move(state)) {}
+    shader::~shader() noexcept = default;
+
+    //
     // texture
     //
 
-    texture::texture()
-    : state_(new internal_state()) {}
+    texture::texture(internal_state_uptr state)
+    : state_(std::move(state)) {}
     texture::~texture() noexcept = default;
 
     void texture::set_wrap(wrap u, wrap v) noexcept {
-        E2D_ASSERT(state_->id);
-        glBindTexture(GL_TEXTURE_2D, state_->id);
+        E2D_ASSERT(!state_->id.empty());
+        glBindTexture(GL_TEXTURE_2D, *state_->id);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, convert_wrap(u));
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, convert_wrap(v));
         glBindTexture(GL_TEXTURE_2D, 0);
     }
 
     void texture::set_filter(filter min, filter mag) noexcept {
-        E2D_ASSERT(state_->id);
-        glBindTexture(GL_TEXTURE_2D, state_->id);
+        E2D_ASSERT(!state_->id.empty());
+        glBindTexture(GL_TEXTURE_2D, *state_->id);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, convert_filter(min));
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, convert_filter(mag));
         glBindTexture(GL_TEXTURE_2D, 0);
@@ -214,16 +394,40 @@ namespace e2d
     // render
     //
 
-    render::render()
-    : state_(new internal_state()) {}
+    render::render(debug& debug)
+    : debug_(debug)
+    , state_(new internal_state()) {}
     render::~render() noexcept = default;
 
-    texture_ptr render::create_texture(const image& image) noexcept {
+    shader_ptr render::create_shader(input_stream_uptr vertex, input_stream_uptr fragment) {
+        str vertex_str;
+        gl_shader_id vs = streams::try_read_tail(vertex_str, vertex)
+            ? compile_shader(debug_, vertex_str.c_str(), GL_VERTEX_SHADER)
+            : gl_shader_id();
+        if ( vs.empty() ) {
+            return nullptr;
+        }
+        str fragment_str;
+        gl_shader_id fs = streams::try_read_tail(fragment_str, fragment)
+            ? compile_shader(debug_, fragment_str.c_str(), GL_FRAGMENT_SHADER)
+            : gl_shader_id();
+        if ( fs.empty() ) {
+            return nullptr;
+        }
+        gl_program_id ps = link_program(debug_, std::move(vs), std::move(fs));
+        if ( ps.empty() ) {
+            return nullptr;
+        }
+        return std::make_unique<shader>(
+            std::make_unique<shader::internal_state>(std::move(ps)));
+    }
+
+    texture_ptr render::create_texture(const image& image) {
         E2D_UNUSED(image);
         return nullptr;
     }
 
-    texture_ptr render::create_texture(const v2u& size, image_data_format format) noexcept {
+    texture_ptr render::create_texture(const v2u& size, image_data_format format) {
         E2D_UNUSED(size, format);
         return nullptr;
     }
@@ -284,6 +488,11 @@ namespace e2d
             math::numeric_cast<GLclampf>(color.g),
             math::numeric_cast<GLclampf>(color.b),
             math::numeric_cast<GLclampf>(color.a));
+    }
+
+    void render::set_blend_equation(blend_equation blend_equation) noexcept {
+        std::lock_guard<std::mutex> guard(state_->mutex);
+        glBlendEquation(convert_blend_equation(blend_equation));
     }
 
     void render::set_cull_face(cull_face cull_face) noexcept {

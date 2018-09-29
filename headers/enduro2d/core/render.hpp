@@ -11,10 +11,31 @@
 namespace e2d
 {
     //
+    // shader
+    //
+
+    class shader final : noncopyable {
+    private:
+        friend class render;
+        class internal_state;
+        using internal_state_uptr = std::unique_ptr<internal_state>;
+    public:
+        shader(internal_state_uptr);
+        ~shader() noexcept;
+    private:
+        internal_state_uptr state_;
+    };
+    using shader_ptr = std::shared_ptr<shader>;
+
+    //
     // texture
     //
 
     class texture final : noncopyable {
+    private:
+        friend class render;
+        class internal_state;
+        using internal_state_uptr = std::unique_ptr<internal_state>;
     public:
         enum class wrap {
             clamp,
@@ -26,7 +47,7 @@ namespace e2d
             nearest
         };
     public:
-        texture();
+        texture(internal_state_uptr);
         ~texture() noexcept;
 
         void set_wrap(wrap u, wrap v) noexcept;
@@ -35,8 +56,7 @@ namespace e2d
         const v2u& native_size() const noexcept;
         const v2u& original_size() const noexcept;
     private:
-        class internal_state;
-        std::unique_ptr<internal_state> state_;
+        internal_state_uptr state_;
     };
     using texture_ptr = std::shared_ptr<texture>;
 
@@ -74,6 +94,11 @@ namespace e2d
             one_minus_constant_alpha,
             src_alpha_saturate
         };
+        enum class blend_equation {
+            add,
+            subtract,
+            reverse_subtract
+        };
         enum class depth_func {
             never,
             less,
@@ -105,11 +130,15 @@ namespace e2d
             invert
         };
     public:
-        render();
+        render(debug& debug);
         ~render() noexcept;
 
-        texture_ptr create_texture(const image& image) noexcept;
-        texture_ptr create_texture(const v2u& size, image_data_format format) noexcept;
+        shader_ptr create_shader(
+            input_stream_uptr vertex,
+            input_stream_uptr fragment);
+
+        texture_ptr create_texture(const image& image);
+        texture_ptr create_texture(const v2u& size, image_data_format format);
 
         void clear(bool color, bool depth, bool stencil) noexcept;
 
@@ -122,6 +151,7 @@ namespace e2d
 
         void set_blend_func(blend_func src, blend_func dst) noexcept;
         void set_blend_color(const color& color) noexcept;
+        void set_blend_equation(blend_equation blend_equation) noexcept;
 
         void set_cull_face(cull_face cull_face) noexcept;
 
@@ -137,6 +167,7 @@ namespace e2d
         void set_clear_color(const color& color) noexcept;
         void set_color_mask(bool r, bool g, bool b, bool a);
     private:
+        debug& debug_;
         class internal_state;
         std::unique_ptr<internal_state> state_;
     };
