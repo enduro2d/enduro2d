@@ -251,11 +251,11 @@ namespace e2d { namespace strings
             const char* const b_dst = dst;
             const char* const e_dst = b_dst ? b_dst + size : nullptr;
             while ( format_i != format_e ) {
-                if ( dst && dst == e_dst - 1 ) {
-                    *dst = '\0';
-                    throw bad_format_buffer();
-                }
                 if ( *format_i != '%' ) {
+                    if ( dst && dst == e_dst - 1 ) {
+                        *dst = '\0';
+                        throw bad_format_buffer();
+                    }
                     if ( dst ) {
                         *dst++ = *format_i;
                     }
