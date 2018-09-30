@@ -393,6 +393,27 @@ TEST_CASE("strings") {
             strings::rformat("%0", std::numeric_limits<f64>::min()) ==
             std::to_string(std::numeric_limits<f64>::min()));
     }
+    SECTION("regression") {
+        {
+            // https://github.com/enduro2d/enduro2d/issues/10
+            {
+                REQUIRE(strings::rformat("%0", "\0") == "");
+                REQUIRE(strings::format(nullptr, 0, "%0", "\0") == 0);
+            }
+            {
+                char buf[1];
+                strings::format(buf, E2D_COUNTOF(buf), "%0", "\0");
+                REQUIRE(str(buf) == str(""));
+            }
+            {
+                char buf[2];
+                REQUIRE_THROWS_AS(strings::format(buf, E2D_COUNTOF(buf), "%0%1", 1, 20), strings::bad_format_buffer);
+                REQUIRE(str(buf) == str("1"));
+                REQUIRE_THROWS_AS(strings::format(buf, E2D_COUNTOF(buf), "%0%1", 20, 1), strings::bad_format_buffer);
+                REQUIRE(str(buf) == str("2"));
+            }
+        }
+    }
     SECTION("performance") {
         std::printf("-= strings::performance tests =-\n");
     #if defined(E2D_BUILD_MODE) && E2D_BUILD_MODE == E2D_BUILD_MODE_DEBUG
