@@ -16,6 +16,51 @@ namespace
 {
     using namespace e2d;
 
+    GLint convert_uniform_type(shader::uniform_type ut) noexcept {
+        #define DEFINE_CASE(x,y) case shader::uniform_type::x: return y;
+        switch ( ut ) {
+            DEFINE_CASE(i, GL_INT);
+            DEFINE_CASE(f, GL_FLOAT);
+
+            DEFINE_CASE(v2i, GL_INT_VEC2);
+            DEFINE_CASE(v3i, GL_INT_VEC3);
+            DEFINE_CASE(v4i, GL_INT_VEC4);
+
+            DEFINE_CASE(v2f, GL_FLOAT_VEC2);
+            DEFINE_CASE(v3f, GL_FLOAT_VEC3);
+            DEFINE_CASE(v4f, GL_FLOAT_VEC4);
+
+            DEFINE_CASE(m2f, GL_FLOAT_MAT2);
+            DEFINE_CASE(m3f, GL_FLOAT_MAT3);
+            DEFINE_CASE(m4f, GL_FLOAT_MAT4);
+
+            DEFINE_CASE(s2d, GL_SAMPLER_2D);
+            default:
+                E2D_ASSERT_MSG(false, "unexpected uniform type");
+                return 0;
+        }
+        #undef DEFINE_CASE
+    }
+
+    GLint convert_attribute_type(shader::attribute_type ut) noexcept {
+        #define DEFINE_CASE(x,y) case shader::attribute_type::x: return y;
+        switch ( ut ) {
+            DEFINE_CASE(f, GL_FLOAT);
+
+            DEFINE_CASE(v2f, GL_FLOAT_VEC2);
+            DEFINE_CASE(v3f, GL_FLOAT_VEC3);
+            DEFINE_CASE(v4f, GL_FLOAT_VEC4);
+
+            DEFINE_CASE(m2f, GL_FLOAT_MAT2);
+            DEFINE_CASE(m3f, GL_FLOAT_MAT3);
+            DEFINE_CASE(m4f, GL_FLOAT_MAT4);
+            default:
+                E2D_ASSERT_MSG(false, "unexpected attribute type");
+                return 0;
+        }
+        #undef DEFINE_CASE
+    }
+
     GLint convert_wrap(texture::wrap w) noexcept {
         #define DEFINE_CASE(x,y) case texture::wrap::x: return y;
         switch ( w ) {
@@ -274,7 +319,7 @@ namespace
     gl_shader_id compile_shader(debug& d, const char* const s, GLenum t) {
         E2D_ASSERT(s);
         E2D_ASSERT(t == GL_VERTEX_SHADER || t == GL_FRAGMENT_SHADER);
-        gl_shader_id id{glCreateShader(t)};
+        gl_shader_id id(glCreateShader(t));
         glShaderSource(*id, 1, &s, nullptr);
         glCompileShader(*id);
         GLint success = GL_FALSE;
@@ -282,15 +327,17 @@ namespace
         if ( success ) {
             return id;
         }
-        char error_buffer[512] = {0};
-        glGetShaderInfoLog(*id, E2D_COUNTOF(error_buffer), nullptr, error_buffer);
-        d.error("RENDER: vertex shader compilation failed:\n-> %0", error_buffer);
-        return gl_shader_id{};
+        GLint log_len = 0;
+        glGetShaderiv(*id, GL_INFO_LOG_LENGTH, &log_len);
+        vector<char> error_buffer(math::numeric_cast<std::size_t>(log_len) + 1, '\0');
+        glGetShaderInfoLog(*id, log_len, nullptr, error_buffer.data());
+        d.error("RENDER: vertex shader compilation failed:\n--> %0", error_buffer.data());
+        return gl_shader_id();
     }
 
     gl_program_id link_program(debug& d, gl_shader_id vs, gl_shader_id fs) {
         E2D_ASSERT(!vs.empty() && !fs.empty());
-        gl_program_id id{glCreateProgram()};
+        gl_program_id id(glCreateProgram());
         glAttachShader(*id, *vs);
         glAttachShader(*id, *fs);
         glLinkProgram(*id);
@@ -299,10 +346,12 @@ namespace
         if ( success ) {
             return id;
         }
-        char error_buffer[512] = {0};
-        glGetProgramInfoLog(*id, E2D_COUNTOF(error_buffer), nullptr, error_buffer);
-        d.error("RENDER: shader program linking failed:\n-> %0", error_buffer);
-        return gl_program_id{};
+        GLint log_len = 0;
+        glGetProgramiv(*id, GL_INFO_LOG_LENGTH, &log_len);
+        vector<char> error_buffer(math::numeric_cast<std::size_t>(log_len) + 1, '\0');
+        glGetProgramInfoLog(*id, log_len, nullptr, error_buffer.data());
+        d.error("RENDER: shader program linking failed:\n--> %0", error_buffer.data());
+        return gl_program_id();
     }
 }
 

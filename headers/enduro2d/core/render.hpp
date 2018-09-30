@@ -20,6 +20,36 @@ namespace e2d
         class internal_state;
         using internal_state_uptr = std::unique_ptr<internal_state>;
     public:
+        enum class uniform_type {
+            i,
+            f,
+
+            v2i,
+            v3i,
+            v4i,
+
+            v2f,
+            v3f,
+            v4f,
+
+            m2f,
+            m3f,
+            m4f,
+
+            s2d
+        };
+        enum class attribute_type {
+            f,
+
+            v2f,
+            v3f,
+            v4f,
+
+            m2f,
+            m3f,
+            m4f
+        };
+    public:
         shader(internal_state_uptr);
         ~shader() noexcept;
     private:
