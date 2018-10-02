@@ -341,23 +341,25 @@ namespace e2d { namespace strings
     template <>
     class format_arg<str> {
         str value_;
+        u8 width_;
     public:
         template < typename U >
-        explicit format_arg(U&& value)
+        explicit format_arg(U&& value, u8 width = 0)
             noexcept(noexcept(std::is_nothrow_constructible<str, U>::value))
-        : value_(std::forward<U>(value)) {}
+        : value_(std::forward<U>(value)), width_(width) {}
 
         std::ptrdiff_t write(char* dst, size_t size) const {
             return math::numeric_cast<std::ptrdiff_t>(
-                format(dst, size, "%0", value_.c_str()));
+                format(dst, size, "%0",
+                    make_format_arg(value_.c_str(), width_)));
         }
     };
 
     template <>
     class format_arg<str_view> : public format_arg<str> {
     public:
-        explicit format_arg(str_view sv)
-        : format_arg<str>(sv) {}
+        explicit format_arg(str_view sv, u8 width = 0)
+        : format_arg<str>(sv, width) {}
     };
 
     //
@@ -367,23 +369,25 @@ namespace e2d { namespace strings
     template <>
     class format_arg<wstr> {
         wstr value_;
+        u8 width_;
     public:
         template < typename U >
-        explicit format_arg(U&& value)
+        explicit format_arg(U&& value, u8 width = 0)
             noexcept(noexcept(std::is_nothrow_constructible<wstr, U>::value))
-        : value_(std::forward<U>(value)) {}
+        : value_(std::forward<U>(value)), width_(width) {}
 
         std::ptrdiff_t write(char* dst, size_t size) const {
             return math::numeric_cast<std::ptrdiff_t>(
-                format(dst, size, "%0", make_utf8(value_.c_str())));
+                format(dst, size, "%0",
+                    make_format_arg(make_utf8(value_), width_)));
         }
     };
 
     template <>
     class format_arg<wstr_view> : public format_arg<wstr> {
     public:
-        explicit format_arg(wstr_view sv)
-        : format_arg<wstr>(sv) {}
+        explicit format_arg(wstr_view sv, u8 width = 0)
+        : format_arg<wstr>(sv, width) {}
     };
 
     //
@@ -393,23 +397,25 @@ namespace e2d { namespace strings
     template <>
     class format_arg<str16> {
         str16 value_;
+        u8 width_;
     public:
         template < typename U >
-        explicit format_arg(U&& value)
+        explicit format_arg(U&& value, u8 width = 0)
             noexcept(noexcept(std::is_nothrow_constructible<str16, U>::value))
-        : value_(std::forward<U>(value)) {}
+        : value_(std::forward<U>(value)), width_(width) {}
 
         std::ptrdiff_t write(char* dst, size_t size) const {
             return math::numeric_cast<std::ptrdiff_t>(
-                format(dst, size, "%0", make_utf8(value_.c_str())));
+                format(dst, size, "%0",
+                    make_format_arg(make_utf8(value_), width_)));
         }
     };
 
     template <>
     class format_arg<str16_view> : public format_arg<str16> {
     public:
-        explicit format_arg(str16_view sv)
-        : format_arg<str16>(sv) {}
+        explicit format_arg(str16_view sv, u8 width = 0)
+        : format_arg<str16>(sv, width) {}
     };
 
     //
@@ -419,23 +425,25 @@ namespace e2d { namespace strings
     template <>
     class format_arg<str32> {
         str32 value_;
+        u8 width_;
     public:
         template < typename U >
-        explicit format_arg(U&& value)
+        explicit format_arg(U&& value, u8 width = 0)
             noexcept(noexcept(std::is_nothrow_constructible<str32, U>::value))
-        : value_(std::forward<U>(value)) {}
+        : value_(std::forward<U>(value)), width_(width) {}
 
         std::ptrdiff_t write(char* dst, size_t size) const {
             return math::numeric_cast<std::ptrdiff_t>(
-                format(dst, size, "%0", make_utf8(value_.c_str())));
+                format(dst, size, "%0",
+                    make_format_arg(make_utf8(value_), width_)));
         }
     };
 
     template <>
     class format_arg<str32_view> : public format_arg<str32> {
     public:
-        explicit format_arg(str32_view sv)
-        : format_arg<str32>(sv) {}
+        explicit format_arg(str32_view sv, u8 width = 0)
+        : format_arg<str32>(sv, width) {}
     };
 
     //
