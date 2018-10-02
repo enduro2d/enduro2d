@@ -345,6 +345,36 @@ TEST_CASE("strings") {
             str("0 2 1 4 3 6 7 5 8 9"));
     }
     {
+        REQUIRE(strings::rformat("%0", strings::make_format_arg("ab", u8(4))) == "  ab");
+        REQUIRE(strings::rformat("%0", strings::make_format_arg("ab", u8(3))) == " ab");
+        REQUIRE(strings::rformat("%0", strings::make_format_arg("ab", u8(2))) == "ab");
+        REQUIRE(strings::rformat("%0", strings::make_format_arg("ab", u8(1))) == "ab");
+        REQUIRE(strings::rformat("%0", strings::make_format_arg("ab", u8(0))) == "ab");
+
+        REQUIRE(strings::rformat("%0", strings::make_format_arg(str("ab"), u8(4))) == "  ab");
+        REQUIRE(strings::rformat("%0", strings::make_format_arg(str("ab"), u8(3))) == " ab");
+        REQUIRE(strings::rformat("%0", strings::make_format_arg(str("ab"), u8(2))) == "ab");
+        REQUIRE(strings::rformat("%0", strings::make_format_arg(str("ab"), u8(1))) == "ab");
+        REQUIRE(strings::rformat("%0", strings::make_format_arg(str("ab"), u8(0))) == "ab");
+
+        {
+            auto s1 = make_utf8("ab");
+            auto s2 = make_wide("ab");
+            auto s3 = make_utf16("ab");
+            auto s4 = make_utf32("ab");
+
+            REQUIRE(strings::rformat("%0", strings::make_format_arg(s1, u8(4))) == "  ab");
+            REQUIRE(strings::rformat("%0", strings::make_format_arg(s2, u8(4))) == "  ab");
+            REQUIRE(strings::rformat("%0", strings::make_format_arg(s3, u8(4))) == "  ab");
+            REQUIRE(strings::rformat("%0", strings::make_format_arg(s4, u8(4))) == "  ab");
+
+            REQUIRE(strings::rformat("%0", strings::make_format_arg(str_view(s1), u8(4))) == "  ab");
+            REQUIRE(strings::rformat("%0", strings::make_format_arg(wstr_view(s2), u8(4))) == "  ab");
+            REQUIRE(strings::rformat("%0", strings::make_format_arg(str16_view(s3), u8(4))) == "  ab");
+            REQUIRE(strings::rformat("%0", strings::make_format_arg(str32_view(s4), u8(4))) == "  ab");
+        }
+    }
+    {
         REQUIRE(strings::rformat("%0", strings::make_format_arg(-5, u8(3))) == " -5");
         REQUIRE(strings::rformat("%0", strings::make_format_arg(-5, u8(4))) == "  -5");
         REQUIRE(strings::rformat("%0", strings::make_format_arg(21, u8(1))) == "21");
