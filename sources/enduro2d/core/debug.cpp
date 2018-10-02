@@ -72,15 +72,16 @@ namespace e2d
 
     debug_file_sink::debug_file_sink(str_view path)
     : path_(path) {
-        make_write_file(path, false);
+        const auto file = make_write_file(path, false);
+        E2D_UNUSED(file);
+        E2D_ASSERT_MSG(file, "DEBUG: ignored failed sink file cleaning");
     }
 
     bool debug_file_sink::on_message(debug::level lvl, str_view text) noexcept {
         try {
-            auto file = make_write_file(path_, true);
-            str log_text = log_text_format(lvl, text);
+            const auto file = make_write_file(path_, true);
             return file && output_sequence(*file)
-                .write(log_text.c_str(), log_text.length())
+                .write_all(log_text_format(lvl, text))
                 .success();
         } catch (...) {
             return false;
@@ -93,7 +94,7 @@ namespace e2d
 
     bool debug_console_sink::on_message(debug::level lvl, str_view text) noexcept {
         try {
-            str log_text = log_text_format(lvl, text);
+            const str log_text = log_text_format(lvl, text);
             const std::ptrdiff_t rprintf = std::printf("%s", log_text.c_str());
             return rprintf >= 0
                 && math::numeric_cast<std::size_t>(rprintf) == log_text.length();

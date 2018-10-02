@@ -41,19 +41,19 @@ namespace e2d
         level min_level() const noexcept;
 
         template < typename... Args >
-        debug& log(level lvl, str_view fmt, Args&&... args);
+        debug& log(level lvl, str_view fmt, Args&&... args) noexcept;
 
         template < typename... Args >
-        debug& trace(str_view fmt, Args&&... args);
+        debug& trace(str_view fmt, Args&&... args) noexcept;
 
         template < typename... Args >
-        debug& warning(str_view fmt, Args&&... args);
+        debug& warning(str_view fmt, Args&&... args) noexcept;
 
         template < typename... Args >
-        debug& error(str_view fmt, Args&&... args);
+        debug& error(str_view fmt, Args&&... args) noexcept;
 
         template < typename... Args >
-        debug& fatal(str_view fmt, Args&&... args);
+        debug& fatal(str_view fmt, Args&&... args) noexcept;
     private:
         mutable std::mutex mutex_;
         vector<std::pair<level, sink_uptr>> sinks_;
@@ -78,7 +78,9 @@ namespace e2d
 {
     template < typename T, typename... Args >
     T& debug::register_sink(Args&&... args) {
-        return register_sink_ex<T>(level::trace, std::forward<Args>(args)...);
+        return register_sink_ex<T>(
+            level::trace,
+            std::forward<Args>(args)...);
     }
 
     template < typename T, typename... Args >
@@ -89,13 +91,22 @@ namespace e2d
     }
 
     template < typename... Args >
-    debug& debug::log(level lvl, str_view fmt, Args&&... args) {
+    debug& debug::log(level lvl, str_view fmt, Args&&... args) noexcept {
         std::lock_guard<std::mutex> guard(mutex_);
         if ( lvl >= min_level_ && !sinks_.empty() ) {
-            str text = strings::rformat(fmt, std::forward<Args>(args)...);
+            str formatted_text;
+            try {
+                formatted_text = strings::rformat(
+                    fmt, std::forward<Args>(args)...);
+            } catch (...) {
+                E2D_ASSERT_MSG(false, "DEBUG: ignored log formatting exception");
+                return *this;
+            }
             for ( const auto& pair : sinks_ ) {
                 if ( lvl >= pair.first && pair.second ) {
-                    pair.second->on_message(lvl, text);
+                    bool success = pair.second->on_message(lvl, formatted_text);
+                    E2D_UNUSED(success);
+                    E2D_ASSERT_MSG(success, "DEBUG: ignored failed log sink call");
                 }
             }
         }
@@ -103,22 +114,22 @@ namespace e2d
     }
 
     template < typename... Args >
-    debug& debug::trace(str_view fmt, Args&&... args) {
+    debug& debug::trace(str_view fmt, Args&&... args) noexcept {
         return log(level::trace, fmt, std::forward<Args>(args)...);
     }
 
     template < typename... Args >
-    debug& debug::warning(str_view fmt, Args&&... args) {
+    debug& debug::warning(str_view fmt, Args&&... args) noexcept {
         return log(level::warning, fmt, std::forward<Args>(args)...);
     }
 
     template < typename... Args >
-    debug& debug::error(str_view fmt, Args&&... args) {
+    debug& debug::error(str_view fmt, Args&&... args) noexcept {
         return log(level::error, fmt, std::forward<Args>(args)...);
     }
 
     template < typename... Args >
-    debug& debug::fatal(str_view fmt, Args&&... args) {
+    debug& debug::fatal(str_view fmt, Args&&... args) noexcept {
         return log(level::fatal, fmt, std::forward<Args>(args)...);
     }
 }
