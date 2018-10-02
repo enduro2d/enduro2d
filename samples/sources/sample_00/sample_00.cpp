@@ -13,7 +13,7 @@ int e2d_main() {
     window& w = modules::initialize<window>(
         v2u{640, 480}, "Enduro2D", true, false);
 
-    d.add_sink<debug_console_sink>();
+    d.register_sink<debug_console_sink>();
     w.register_event_listener<window_input_source>(i);
     w.register_event_listener<window_trace_event_listener>(d);
 

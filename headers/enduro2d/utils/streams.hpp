@@ -39,45 +39,27 @@ namespace e2d
 
 namespace e2d
 {
-    class input_sequence : private noncopyable {
+    class input_sequence final : private noncopyable {
     public:
-        input_sequence(input_stream& stream) noexcept
-        : stream_(stream) {}
+        input_sequence(input_stream& stream) noexcept;
+        ~input_sequence() noexcept = default;
 
-        bool success() const noexcept {
-            return success_;
-        }
+        bool success() const noexcept;
+        std::exception_ptr exception() const noexcept;
 
-        std::exception_ptr exception() const noexcept {
-            return exception_;
-        }
-
-        input_sequence& seek(std::ptrdiff_t offset, bool relative) noexcept {
-            try {
-                stream_.seek(offset, relative);
-            } catch (...) {
-                success_ = false;
-                exception_ = std::current_exception();
-            }
-            return *this;
-        }
+        input_sequence& seek(std::ptrdiff_t offset, bool relative) noexcept;
+        input_sequence& read(void* dst, std::size_t size) noexcept;
+        input_sequence& read_all(str& dst) noexcept;
+        input_sequence& read_all(buffer& dst) noexcept;
 
         template < typename T >
         std::enable_if_t<
             std::is_arithmetic<T>::value,
             input_sequence&>
         read(T& v) noexcept {
-            return read(&v, sizeof(v));
-        }
-
-        input_sequence& read(void* dst, std::size_t size) noexcept {
-            try {
-                success_ = success_ && stream_.read(dst, size) == size;
-            } catch (...) {
-                success_ = false;
-                exception_ = std::current_exception();
-            }
-            return *this;
+            return success_
+                ? read(&v, sizeof(v))
+                : *this;
         }
     private:
         input_stream& stream_;
@@ -85,45 +67,27 @@ namespace e2d
         std::exception_ptr exception_ = nullptr;
     };
 
-    class output_sequence : private noncopyable {
+    class output_sequence final : private noncopyable {
     public:
-        output_sequence(output_stream& stream) noexcept
-        : stream_(stream) {}
+        output_sequence(output_stream& stream) noexcept;
+        ~output_sequence() noexcept = default;
 
-        bool success() const noexcept {
-            return success_;
-        }
+        bool success() const noexcept;
+        std::exception_ptr exception() const noexcept;
 
-        std::exception_ptr exception() const noexcept {
-            return exception_;
-        }
-
-        output_sequence& seek(std::ptrdiff_t offset, bool relative) noexcept {
-            try {
-                stream_.seek(offset, relative);
-            } catch (...) {
-                success_ = false;
-                exception_ = std::current_exception();
-            }
-            return *this;
-        }
+        output_sequence& seek(std::ptrdiff_t offset, bool relative) noexcept;
+        output_sequence& write(const void* src, std::size_t size) noexcept;
+        output_sequence& write_all(const str& src) noexcept;
+        output_sequence& write_all(const buffer& src) noexcept;
 
         template < typename T >
         std::enable_if_t<
             std::is_arithmetic<T>::value,
             output_sequence&>
         write(T v) noexcept {
-            return write(&v, sizeof(v));
-        }
-
-        output_sequence& write(const void* src, std::size_t size) noexcept {
-            try {
-                success_ = success_ && stream_.write(src, size) == size;
-            } catch (...) {
-                success_ = false;
-                exception_ = std::current_exception();
-            }
-            return *this;
+            return success_
+                ? write(&v, sizeof(v))
+                : *this;
         }
     private:
         output_stream& stream_;
@@ -140,8 +104,16 @@ namespace e2d
 namespace e2d { namespace streams
 {
     bool try_read_tail(
+        str& dst,
+        const input_stream_uptr& stream) noexcept;
+
+    bool try_read_tail(
         buffer& dst,
         const input_stream_uptr& stream) noexcept;
+
+    bool try_write_tail(
+        const str& src,
+        const output_stream_uptr& stream) noexcept;
 
     bool try_write_tail(
         const buffer& src,
