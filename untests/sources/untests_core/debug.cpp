@@ -14,34 +14,37 @@ namespace
     class test_sink final : public debug::sink {
     public:
         str on_message_acc;
+        static str s_on_message_acc;
 
         bool on_message(debug::level lvl, str_view text) noexcept final {
             E2D_UNUSED(lvl);
             on_message_acc.append(text.cbegin(), text.cend());
+            s_on_message_acc.append(text.cbegin(), text.cend());
             return true;
         }
     };
+    str test_sink::s_on_message_acc;
 }
 
 TEST_CASE("debug"){
     {
         debug d;
         test_sink& s = d.register_sink<test_sink>();
-        REQUIRE(s.on_message_acc.empty());
+        REQUIRE(test_sink::s_on_message_acc.empty());
         d.trace("h");
         d.warning("e");
-        REQUIRE(s.on_message_acc == "he");
+        REQUIRE(test_sink::s_on_message_acc == "he");
         d.set_min_level(debug::level::error);
         d.trace("el");
         d.warning("lo");
-        REQUIRE(s.on_message_acc == "he");
+        REQUIRE(test_sink::s_on_message_acc == "he");
         d.error("ll");
-        REQUIRE(s.on_message_acc == "hell");
+        REQUIRE(test_sink::s_on_message_acc == "hell");
         d.fatal("o");
-        REQUIRE(s.on_message_acc == "hello");
+        REQUIRE(test_sink::s_on_message_acc == "hello");
         d.unregister_sink(s);
         d.fatal("!!!");
-        REQUIRE(s.on_message_acc == "hello");
+        REQUIRE(test_sink::s_on_message_acc == "hello");
     }
     {
         modules::initialize<debug>();
