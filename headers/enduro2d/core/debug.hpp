@@ -18,7 +18,6 @@ namespace e2d
             error,
             fatal
         };
-
         class sink : private e2d::noncopyable {
         public:
             virtual ~sink() noexcept = default;
@@ -27,15 +26,16 @@ namespace e2d
         using sink_uptr = std::unique_ptr<sink>;
     public:
         debug();
-        ~debug();
+        ~debug() noexcept;
 
         template < typename T, typename... Args >
-        T& add_sink(Args&&... args);
-        sink& add_sink(sink_uptr sink);
+        T& register_sink(Args&&... args);
+        sink& register_sink(sink_uptr sink);
+        void unregister_sink(const sink& sink);
 
         template < typename T, typename... Args >
-        T& add_sink_ex(level min_lvl, Args&&... args);
-        sink& add_sink_ex(level min_lvl, sink_uptr sink);
+        T& register_sink_ex(level min_lvl, Args&&... args);
+        sink& register_sink_ex(level min_lvl, sink_uptr sink);
 
         void set_min_level(level lvl) noexcept;
         level min_level() const noexcept;
@@ -56,8 +56,8 @@ namespace e2d
         debug& fatal(str_view fmt, Args&&... args);
     private:
         mutable std::mutex mutex_;
-        level min_level_ = level::trace;
         vector<std::pair<level, sink_uptr>> sinks_;
+        level min_level_ = level::trace;
     };
 
     class debug_file_sink final : public debug::sink {
@@ -77,26 +77,15 @@ namespace e2d
 namespace e2d
 {
     template < typename T, typename... Args >
-    T& debug::add_sink(Args&&... args) {
-        return add_sink_ex<T>(level::trace, std::forward<Args>(args)...);
-    }
-
-    inline debug::sink& debug::add_sink(sink_uptr sink) {
-        return add_sink_ex(level::trace, std::move(sink));
+    T& debug::register_sink(Args&&... args) {
+        return register_sink_ex<T>(level::trace, std::forward<Args>(args)...);
     }
 
     template < typename T, typename... Args >
-    T& debug::add_sink_ex(level min_lvl, Args&&... args) {
-        return static_cast<T&>(add_sink_ex(
+    T& debug::register_sink_ex(level min_lvl, Args&&... args) {
+        return static_cast<T&>(register_sink_ex(
             min_lvl,
             std::make_unique<T>(std::forward<Args>(args)...)));
-    }
-
-    inline debug::sink& debug::add_sink_ex(level min_lvl, sink_uptr sink) {
-        E2D_ASSERT(sink);
-        std::lock_guard<std::mutex> guard(mutex_);
-        sinks_.push_back(std::make_pair(min_lvl, std::move(sink)));
-        return *sinks_.back().second;
     }
 
     template < typename... Args >

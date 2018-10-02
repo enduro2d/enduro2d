@@ -26,7 +26,7 @@ namespace
 TEST_CASE("debug"){
     {
         debug d;
-        test_sink& s = d.add_sink<test_sink>();
+        test_sink& s = d.register_sink<test_sink>();
         REQUIRE(s.on_message_acc.empty());
         d.trace("h");
         d.warning("e");
@@ -39,11 +39,14 @@ TEST_CASE("debug"){
         REQUIRE(s.on_message_acc == "hell");
         d.fatal("o");
         REQUIRE(s.on_message_acc == "hello");
+        d.unregister_sink(s);
+        d.fatal("!!!");
+        REQUIRE(s.on_message_acc == "hello");
     }
     {
         modules::initialize<debug>();
-        test_sink& s1 = the<debug>().add_sink_ex<test_sink>(debug::level::warning);
-        test_sink& s2 = the<debug>().add_sink_ex<test_sink>(debug::level::error);
+        test_sink& s1 = the<debug>().register_sink_ex<test_sink>(debug::level::warning);
+        test_sink& s2 = the<debug>().register_sink_ex<test_sink>(debug::level::error);
         REQUIRE(s1.on_message_acc.empty());
         REQUIRE(s2.on_message_acc.empty());
         the<debug>().trace("w");
