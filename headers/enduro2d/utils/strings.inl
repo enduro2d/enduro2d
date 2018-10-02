@@ -146,7 +146,7 @@ namespace e2d { namespace strings
         : value_(value), width_(width), precision_(precision) {}
 
         std::ptrdiff_t write(char* dst, size_t size) const noexcept {
-            char format[10] = {0};
+            char format[11] = {0};
             char* b_format = format;
             *b_format++ = '%';
             b_format = impl::u8toa(width_, b_format);
@@ -178,24 +178,40 @@ namespace e2d { namespace strings
     template <>
     class format_arg<char*> {
         const char* value_;
+        u8 width_;
     public:
-        explicit format_arg(const char* value) noexcept
-        : value_(value) {}
+        explicit format_arg(const char* value, u8 width = 0) noexcept
+        : value_(value), width_(width) {}
 
         std::ptrdiff_t write(char* dst, size_t size) const noexcept {
-            return std::snprintf(dst, size, "%s", value_);
+            char format[6] = {0};
+            char* b_format = format;
+            *b_format++ = '%';
+            b_format = impl::u8toa(width_, b_format);
+            *b_format++ = 's';
+            E2D_ASSERT(b_format < format + sizeof(format));
+            return std::snprintf(
+                dst, size, format, value_);
         }
     };
 
     template <>
     class format_arg<const char*> {
         const char* value_;
+        u8 width_;
     public:
-        explicit format_arg(const char* value) noexcept
-        : value_(value) {}
+        explicit format_arg(const char* value, u8 width = 0) noexcept
+        : value_(value), width_(width) {}
 
         std::ptrdiff_t write(char* dst, size_t size) const noexcept {
-            return std::snprintf(dst, size, "%s", value_);
+            char format[6] = {0};
+            char* b_format = format;
+            *b_format++ = '%';
+            b_format = impl::u8toa(width_, b_format);
+            *b_format++ = 's';
+            E2D_ASSERT(b_format < format + sizeof(format));
+            return std::snprintf(
+                dst, size, format, value_);
         }
     };
 
