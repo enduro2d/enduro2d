@@ -31,12 +31,43 @@ namespace e2d
     };
 
     //
+    // index_buffer::internal_state
+    //
+
+    class index_buffer::internal_state final : private e2d::noncopyable {
+    public:
+        std::size_t count = 0;
+    public:
+        internal_state(std::size_t ncount)
+        : count(ncount) {}
+        ~internal_state() noexcept = default;
+    };
+
+    //
+    // vertex_buffer::internal_state
+    //
+
+    class vertex_buffer::internal_state final : private e2d::noncopyable {
+    public:
+        std::size_t count = 0;
+    public:
+        internal_state(std::size_t ncount)
+        : count(ncount) {}
+        ~internal_state() noexcept = default;
+    };
+
+    //
     // render::internal_state
     //
 
     class render::internal_state final : private e2d::noncopyable {
     public:
-        internal_state() {}
+        debug& debug;
+        window& window;
+    public:
+        internal_state(class debug& debug, class window& window)
+        : debug(debug)
+        , window(window) {}
         ~internal_state() noexcept = default;
     };
 
@@ -65,12 +96,27 @@ namespace e2d
     }
 
     //
+    // index_buffer
+    //
+
+    index_buffer::index_buffer(internal_state_uptr state)
+    : state_(std::move(state)) {}
+    index_buffer::~index_buffer() noexcept = default;
+
+    //
+    // vertex_buffer
+    //
+
+    vertex_buffer::vertex_buffer(internal_state_uptr state)
+    : state_(std::move(state)) {}
+    vertex_buffer::~vertex_buffer() noexcept = default;
+
+    //
     // render
     //
 
-    render::render(debug& debug)
-    : debug_(debug)
-    , state_(new internal_state()) {}
+    render::render(debug& d, window& w)
+    : state_(new internal_state(d, w)) {}
     render::~render() noexcept = default;
 
     shader_ptr render::create_shader(input_stream_uptr vertex, input_stream_uptr fragment) {
@@ -88,8 +134,34 @@ namespace e2d
         return nullptr;
     }
 
+    index_buffer_ptr render::create_index_buffer(
+        const u16* indices,
+        std::size_t count,
+        index_buffer::usage usage)
+    {
+        E2D_UNUSED(indices, count, usage);
+        return nullptr;
+    }
+
+    vertex_buffer_ptr render::create_vertex_buffer(
+        const vertex* vertices,
+        std::size_t count,
+        vertex_buffer::usage usage)
+    {
+        E2D_UNUSED(vertices, count, usage);
+        return nullptr;
+    }
+
     void render::clear(bool color, bool depth, bool stencil) noexcept {
         E2D_UNUSED(color, depth, stencil);
+    }
+
+    void render::draw(
+        const shader_ptr& ps,
+        const index_buffer_ptr& ib,
+        const vertex_buffer_ptr& vb) noexcept
+    {
+        E2D_UNUSED(ps, ib, vb);
     }
 
     void render::set_view(const m4f& view) noexcept {
