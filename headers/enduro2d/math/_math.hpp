@@ -37,35 +37,47 @@ namespace e2d
 
 namespace e2d
 {
+    using v2d = vec2<f64>;
+    using v2f = vec2<f32>;
     using v2i = vec2<i32>;
     using v2u = vec2<u32>;
-    using v2f = vec2<f32>;
-    using v2d = vec2<f64>;
+    using v2hi = vec2<i16>;
+    using v2hu = vec2<u16>;
 
+    using v3d = vec3<f64>;
+    using v3f = vec3<f32>;
     using v3i = vec3<i32>;
     using v3u = vec3<u32>;
-    using v3f = vec3<f32>;
-    using v3d = vec3<f64>;
+    using v3hi = vec3<i16>;
+    using v3hu = vec3<u16>;
 
+    using v4d = vec4<f64>;
+    using v4f = vec4<f32>;
     using v4i = vec4<i32>;
     using v4u = vec4<u32>;
-    using v4f = vec4<f32>;
-    using v4d = vec4<f64>;
+    using v4hi = vec4<i16>;
+    using v4hu = vec4<u16>;
 
+    using m2d = mat2<f64>;
+    using m2f = mat2<f32>;
     using m2i = mat2<i32>;
     using m2u = mat2<u32>;
-    using m2f = mat2<f32>;
-    using m2d = mat2<f64>;
+    using m2hi = mat2<i16>;
+    using m2hu = mat2<u16>;
 
+    using m3d = mat3<f64>;
+    using m3f = mat3<f32>;
     using m3i = mat3<i32>;
     using m3u = mat3<u32>;
-    using m3f = mat3<f32>;
-    using m3d = mat3<f64>;
+    using m3hi = mat3<i16>;
+    using m3hu = mat3<u16>;
 
+    using m4d = mat4<f64>;
+    using m4f = mat4<f32>;
     using m4i = mat4<i32>;
     using m4u = mat4<u32>;
-    using m4f = mat4<f32>;
-    using m4d = mat4<f64>;
+    using m4hi = mat4<i16>;
+    using m4hu = mat4<u16>;
 
     struct deg_tag {};
     struct rad_tag {};
