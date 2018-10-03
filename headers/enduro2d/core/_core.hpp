@@ -16,8 +16,11 @@ namespace e2d
     class mouse;
     class keyboard;
     class input;
+    class vertex;
     class shader;
     class texture;
+    class index_buffer;
+    class vertex_buffer;
     class render;
     class vfs;
     class window;

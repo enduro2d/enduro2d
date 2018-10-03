@@ -11,6 +11,17 @@
 namespace e2d
 {
     //
+    // vertex
+    //
+
+    class vertex {
+    public:
+        v3f pos;
+        v2f uv[2];
+        color32 color;
+    };
+
+    //
     // shader
     //
 
@@ -82,13 +93,60 @@ namespace e2d
 
         void set_wrap(wrap u, wrap v) noexcept;
         void set_filter(filter min, filter mag) noexcept;
-
-        const v2u& native_size() const noexcept;
-        const v2u& original_size() const noexcept;
     private:
         internal_state_uptr state_;
     };
     using texture_ptr = std::shared_ptr<texture>;
+
+    //
+    // index buffer
+    //
+
+    class index_buffer final : private noncopyable {
+    private:
+        friend class render;
+        class internal_state;
+        using internal_state_uptr = std::unique_ptr<internal_state>;
+    public:
+        enum class usage {
+            static_draw,
+            stream_draw,
+            dynamic_draw
+        };
+    public:
+        index_buffer(internal_state_uptr);
+        ~index_buffer() noexcept;
+        void update(const u16* indices, std::size_t count, std::size_t offset) noexcept;
+        std::size_t count() const noexcept;
+    private:
+        internal_state_uptr state_;
+    };
+    using index_buffer_ptr = std::shared_ptr<index_buffer>;
+
+    //
+    // vertex buffer
+    //
+
+    class vertex_buffer final : private noncopyable {
+    private:
+        friend class render;
+        class internal_state;
+        using internal_state_uptr = std::unique_ptr<internal_state>;
+    public:
+        enum class usage {
+            static_draw,
+            stream_draw,
+            dynamic_draw
+        };
+    public:
+        vertex_buffer(internal_state_uptr);
+        ~vertex_buffer() noexcept;
+        void update(const vertex* vertices, std::size_t count, std::size_t offset) noexcept;
+        std::size_t count() const noexcept;
+    private:
+        internal_state_uptr state_;
+    };
+    using vertex_buffer_ptr = std::shared_ptr<vertex_buffer>;
 
     //
     // render
@@ -160,17 +218,36 @@ namespace e2d
             invert
         };
     public:
-        render(debug& debug);
+        render(debug& d, window& w);
         ~render() noexcept;
 
         shader_ptr create_shader(
             input_stream_uptr vertex,
             input_stream_uptr fragment);
 
-        texture_ptr create_texture(const image& image);
-        texture_ptr create_texture(const v2u& size, image_data_format format);
+        texture_ptr create_texture(
+            const image& image);
+
+        texture_ptr create_texture(
+            const v2u& size,
+            image_data_format format);
+
+        index_buffer_ptr create_index_buffer(
+            const u16* indices,
+            std::size_t count,
+            index_buffer::usage usage);
+
+        vertex_buffer_ptr create_vertex_buffer(
+            const vertex* vertices,
+            std::size_t count,
+            vertex_buffer::usage usage);
 
         void clear(bool color, bool depth, bool stencil) noexcept;
+
+        void draw(
+            const shader_ptr& ps,
+            const index_buffer_ptr& ib,
+            const vertex_buffer_ptr& vb) noexcept;
 
         void set_view(const m4f& view) noexcept;
         void set_projection(const m4f& projection) noexcept;
@@ -197,7 +274,6 @@ namespace e2d
         void set_clear_color(const color& color) noexcept;
         void set_color_mask(bool r, bool g, bool b, bool a);
     private:
-        debug& debug_;
         class internal_state;
         std::unique_ptr<internal_state> state_;
     };
