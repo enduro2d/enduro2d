@@ -184,6 +184,9 @@ namespace e2d { namespace strings
         : value_(value), width_(width) {}
 
         std::ptrdiff_t write(char* dst, size_t size) const noexcept {
+            if ( !value_ ) {
+                return 0;
+            }
             char format[6] = {0};
             char* b_format = format;
             *b_format++ = '%';
@@ -204,6 +207,9 @@ namespace e2d { namespace strings
         : value_(value), width_(width) {}
 
         std::ptrdiff_t write(char* dst, size_t size) const noexcept {
+            if ( !value_ ) {
+                return 0;
+            }
             char format[6] = {0};
             char* b_format = format;
             *b_format++ = '%';
