@@ -289,7 +289,7 @@ namespace e2d { namespace math
     //
 
     template < typename T >
-    mat3<T> make_scale_matrix3(T x, T y, T z = T(1)) {
+    mat3<T> make_scale_matrix3(T x, T y, T z = T(1)) noexcept {
         return {
             x, 0, 0,
             0, y, 0,
@@ -297,7 +297,7 @@ namespace e2d { namespace math
     }
 
     template < typename T >
-    mat3<T> make_scale_matrix3(const vec4<T>& xyz) {
+    mat3<T> make_scale_matrix3(const vec4<T>& xyz) noexcept {
         return make_scale_matrix3(
             xyz.x,
             xyz.y,
@@ -305,7 +305,7 @@ namespace e2d { namespace math
     }
 
     template < typename T >
-    mat3<T> make_scale_matrix3(const vec3<T>& xyz) {
+    mat3<T> make_scale_matrix3(const vec3<T>& xyz) noexcept {
         return make_scale_matrix3(
             xyz.x,
             xyz.y,
@@ -313,7 +313,7 @@ namespace e2d { namespace math
     }
 
     template < typename T >
-    mat3<T> make_scale_matrix3(const vec2<T>& xy, T z = T(1)) {
+    mat3<T> make_scale_matrix3(const vec2<T>& xy, T z = T(1)) noexcept {
         return make_scale_matrix3(
             xy.x,
             xy.y,
@@ -330,7 +330,7 @@ namespace e2d { namespace math
         const unit<T, AngleTag>& angle,
         T axis_x,
         T axis_y,
-        T axis_z)
+        T axis_z) noexcept
     {
         const T x   = axis_x;
         const T y   = axis_y;
@@ -356,7 +356,7 @@ namespace e2d { namespace math
     template < typename T, typename AngleTag >
     mat3<T> make_rotation_matrix3(
         const unit<T, AngleTag>& angle,
-        const vec4<T>& axis_xyz)
+        const vec4<T>& axis_xyz) noexcept
     {
         return make_rotation_matrix3(
             angle,
@@ -368,7 +368,7 @@ namespace e2d { namespace math
     template < typename T, typename AngleTag >
     mat3<T> make_rotation_matrix3(
         const unit<T, AngleTag>& angle,
-        const vec3<T>& axis_xyz)
+        const vec3<T>& axis_xyz) noexcept
     {
         return make_rotation_matrix3(
             angle,
@@ -381,7 +381,7 @@ namespace e2d { namespace math
     mat3<T> make_rotation_matrix3(
         const unit<T, AngleTag>& angle,
         const vec2<T>& axis_xy,
-        T axis_z)
+        T axis_z) noexcept
     {
         return make_rotation_matrix3(
             angle,
