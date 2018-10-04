@@ -345,6 +345,10 @@ TEST_CASE("strings") {
             str("0 2 1 4 3 6 7 5 8 9"));
     }
     {
+        REQUIRE(strings::rformat("%0", static_cast<char*>(nullptr)).empty());
+        REQUIRE(strings::rformat("%0", static_cast<const char*>(nullptr)).empty());
+    }
+    {
         REQUIRE(strings::rformat("%0", strings::make_format_arg("ab", u8(4))) == "  ab");
         REQUIRE(strings::rformat("%0", strings::make_format_arg("ab", u8(3))) == " ab");
         REQUIRE(strings::rformat("%0", strings::make_format_arg("ab", u8(2))) == "ab");
