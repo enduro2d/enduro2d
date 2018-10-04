@@ -271,28 +271,28 @@ namespace e2d { namespace math
     //
 
     template < typename T >
-    mat2<T> make_scale_matrix2(T x, T y) {
+    mat2<T> make_scale_matrix2(T x, T y) noexcept {
         return {
             x, 0,
             0, y};
     }
 
     template < typename T >
-    mat2<T> make_scale_matrix2(const vec4<T>& xy) {
+    mat2<T> make_scale_matrix2(const vec4<T>& xy) noexcept {
         return make_scale_matrix2(
             xy.x,
             xy.y);
     }
 
     template < typename T >
-    mat2<T> make_scale_matrix2(const vec3<T>& xy) {
+    mat2<T> make_scale_matrix2(const vec3<T>& xy) noexcept {
         return make_scale_matrix2(
             xy.x,
             xy.y);
     }
 
     template < typename T >
-    mat2<T> make_scale_matrix2(const vec2<T>& xy) {
+    mat2<T> make_scale_matrix2(const vec2<T>& xy) noexcept {
         return make_scale_matrix2(
             xy.x,
             xy.y);
@@ -304,7 +304,7 @@ namespace e2d { namespace math
 
     template < typename T, typename AngleTag >
     std::enable_if_t<std::is_floating_point<T>::value, mat2<T>>
-    make_rotation_matrix2(const unit<T, AngleTag>& angle) {
+    make_rotation_matrix2(const unit<T, AngleTag>& angle) noexcept {
         const T cs = math::cos(angle);
         const T sn = math::sin(angle);
         return {

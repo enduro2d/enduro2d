@@ -333,7 +333,7 @@ namespace e2d { namespace math
     //
 
     template < typename T >
-    mat4<T> make_scale_matrix4(T x, T y, T z = T(1)) {
+    mat4<T> make_scale_matrix4(T x, T y, T z = T(1)) noexcept {
         return {
             x, 0, 0, 0,
             0, y, 0, 0,
@@ -342,7 +342,7 @@ namespace e2d { namespace math
     }
 
     template < typename T >
-    mat4<T> make_scale_matrix4(const vec4<T>& xyz) {
+    mat4<T> make_scale_matrix4(const vec4<T>& xyz) noexcept {
         return make_scale_matrix4(
             xyz.x,
             xyz.y,
@@ -350,7 +350,7 @@ namespace e2d { namespace math
     }
 
     template < typename T >
-    mat4<T> make_scale_matrix4(const vec3<T>& xyz) {
+    mat4<T> make_scale_matrix4(const vec3<T>& xyz) noexcept {
         return make_scale_matrix4(
             xyz.x,
             xyz.y,
@@ -358,7 +358,7 @@ namespace e2d { namespace math
     }
 
     template < typename T >
-    mat4<T> make_scale_matrix4(const vec2<T>& xy, T z = T(1)) {
+    mat4<T> make_scale_matrix4(const vec2<T>& xy, T z = T(1)) noexcept {
         return make_scale_matrix4(
             xy.x,
             xy.y,
@@ -370,7 +370,7 @@ namespace e2d { namespace math
     //
 
     template < typename T >
-    mat4<T> make_translation_matrix4(T x, T y, T z = T(0)) {
+    mat4<T> make_translation_matrix4(T x, T y, T z = T(0)) noexcept {
         return {
             1, 0, 0, 0,
             0, 1, 0, 0,
@@ -379,7 +379,7 @@ namespace e2d { namespace math
     }
 
     template < typename T >
-    mat4<T> make_translation_matrix4(const vec4<T>& xyz) {
+    mat4<T> make_translation_matrix4(const vec4<T>& xyz) noexcept {
         return make_translation_matrix4(
             xyz.x,
             xyz.y,
@@ -387,7 +387,7 @@ namespace e2d { namespace math
     }
 
     template < typename T >
-    mat4<T> make_translation_matrix4(const vec3<T>& xyz) {
+    mat4<T> make_translation_matrix4(const vec3<T>& xyz) noexcept {
         return make_translation_matrix4(
             xyz.x,
             xyz.y,
@@ -395,7 +395,7 @@ namespace e2d { namespace math
     }
 
     template < typename T >
-    mat4<T> make_translation_matrix4(const vec2<T>& xy, T z = T(0)) {
+    mat4<T> make_translation_matrix4(const vec2<T>& xy, T z = T(0)) noexcept {
         return make_translation_matrix4(
             xy.x,
             xy.y,
@@ -412,7 +412,7 @@ namespace e2d { namespace math
         const unit<T, AngleTag>& angle,
         T axis_x,
         T axis_y,
-        T axis_z)
+        T axis_z) noexcept
     {
         const T x   = axis_x;
         const T y   = axis_y;
@@ -439,7 +439,7 @@ namespace e2d { namespace math
     template < typename T, typename AngleTag >
     mat4<T> make_rotation_matrix4(
         const unit<T, AngleTag>& angle,
-        const vec4<T>& axis_xyz)
+        const vec4<T>& axis_xyz) noexcept
     {
         return make_rotation_matrix4(
             angle,
@@ -451,7 +451,7 @@ namespace e2d { namespace math
     template < typename T, typename AngleTag >
     mat4<T> make_rotation_matrix4(
         const unit<T, AngleTag>& angle,
-        const vec3<T>& axis_xyz)
+        const vec3<T>& axis_xyz) noexcept
     {
         return make_rotation_matrix4(
             angle,
@@ -464,7 +464,7 @@ namespace e2d { namespace math
     mat4<T> make_rotation_matrix4(
         const unit<T, AngleTag>& angle,
         const vec2<T>& axis_xy,
-        T axis_z)
+        T axis_z) noexcept
     {
         return make_rotation_matrix4(
             angle,
@@ -479,7 +479,7 @@ namespace e2d { namespace math
 
     template < typename T >
     std::enable_if_t<std::is_floating_point<T>::value, mat4<T>>
-    make_orthogonal_matrix4(T width, T height, T znear, T zfar) {
+    make_orthogonal_matrix4(T width, T height, T znear, T zfar) noexcept {
         E2D_ASSERT(!math::is_near_zero(width, T(0)));
         E2D_ASSERT(!math::is_near_zero(height, T(0)));
         E2D_ASSERT(!math::approximately(znear, zfar, T(0)));
