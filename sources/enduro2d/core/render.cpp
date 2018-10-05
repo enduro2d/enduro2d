@@ -17,7 +17,7 @@ namespace
             DEFINE_CASE(unsigned_short, sizeof(u16));
             default:
                 E2D_ASSERT_MSG(false, "unexpected index type");
-                break;
+                return 0;
         }
         #undef DEFINE_CASE
     }
@@ -32,7 +32,7 @@ namespace
             DEFINE_CASE(floating_point, sizeof(u32));
             default:
                 E2D_ASSERT_MSG(false, "unexpected attribute type");
-                break;
+                return 0;
         }
         #undef DEFINE_CASE
     }
@@ -44,6 +44,14 @@ namespace e2d
     // index_declaration::index_info
     //
 
+    index_declaration::index_info::index_info() noexcept = default;
+    index_declaration::index_info::~index_info() noexcept = default;
+
+    index_declaration::index_info::index_info(
+        const index_info&) noexcept = default;
+    index_declaration::index_info& index_declaration::index_info::operator=(
+        const index_info&) noexcept = default;
+
     index_declaration::index_info::index_info(index_type ntype) noexcept
     : type(ntype) {}
 
@@ -53,6 +61,11 @@ namespace e2d
 
     index_declaration::index_declaration() noexcept = default;
     index_declaration::~index_declaration() noexcept = default;
+
+    index_declaration::index_declaration(
+        const index_declaration&) noexcept = default;
+    index_declaration& index_declaration::operator=(
+        const index_declaration&) noexcept = default;
 
     index_declaration::index_declaration(index_type type) noexcept
     : index_(type) {}
@@ -92,6 +105,14 @@ namespace e2d
     // vertex_declaration::attribute_info
     //
 
+    vertex_declaration::attribute_info::attribute_info() noexcept = default;
+    vertex_declaration::attribute_info::~attribute_info() noexcept = default;
+
+    vertex_declaration::attribute_info::attribute_info(
+        const attribute_info&) noexcept = default;
+    vertex_declaration::attribute_info& vertex_declaration::attribute_info::operator=(
+        const attribute_info&) noexcept = default;
+
     vertex_declaration::attribute_info::attribute_info(
         str_view nname,
         std::size_t nrows,
@@ -120,6 +141,11 @@ namespace e2d
 
     vertex_declaration::vertex_declaration() noexcept = default;
     vertex_declaration::~vertex_declaration() noexcept = default;
+
+    vertex_declaration::vertex_declaration(
+        const vertex_declaration&) noexcept = default;
+    vertex_declaration& vertex_declaration::operator=(
+        const vertex_declaration&) noexcept = default;
 
     vertex_declaration& vertex_declaration::normalized() noexcept {
         E2D_ASSERT(attribute_count_ > 0);

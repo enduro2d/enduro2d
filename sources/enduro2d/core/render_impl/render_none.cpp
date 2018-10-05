@@ -16,7 +16,10 @@ namespace e2d
 
     class shader::internal_state final : private e2d::noncopyable {
     public:
-        internal_state() {}
+        vertex_declaration decl_;
+    public:
+        internal_state(const vertex_declaration& decl)
+        : decl_(decl){}
         ~internal_state() noexcept = default;
     };
 
@@ -36,10 +39,7 @@ namespace e2d
 
     class index_buffer::internal_state final : private e2d::noncopyable {
     public:
-        std::size_t count = 0;
-    public:
-        internal_state(std::size_t ncount)
-        : count(ncount) {}
+        internal_state() {}
         ~internal_state() noexcept = default;
     };
 
@@ -49,10 +49,7 @@ namespace e2d
 
     class vertex_buffer::internal_state final : private e2d::noncopyable {
     public:
-        std::size_t count = 0;
-    public:
-        internal_state(std::size_t ncount)
-        : count(ncount) {}
+        internal_state() {}
         ~internal_state() noexcept = default;
     };
 
@@ -62,12 +59,12 @@ namespace e2d
 
     class render::internal_state final : private e2d::noncopyable {
     public:
-        debug& debug;
-        window& window;
+        debug& debug_;
+        window& window_;
     public:
-        internal_state(class debug& debug, class window& window)
-        : debug(debug)
-        , window(window) {}
+        internal_state(debug& debug, window& window)
+        : debug_(debug)
+        , window_(window) {}
         ~internal_state() noexcept = default;
     };
 
@@ -78,6 +75,18 @@ namespace e2d
     shader::shader(internal_state_uptr state)
     : state_(std::move(state)) {}
     shader::~shader() noexcept = default;
+
+    const vertex_declaration& shader::decl() const noexcept {
+        return state_->decl_;
+    }
+
+    void shader::set_uniform(str_view name, i32 value) const noexcept {
+        E2D_UNUSED(name, value);
+    }
+
+    void shader::set_uniform(str_view name, f32 value) const noexcept {
+        E2D_UNUSED(name, value);
+    }
 
     //
     // texture
@@ -119,8 +128,12 @@ namespace e2d
     : state_(new internal_state(d, w)) {}
     render::~render() noexcept = default;
 
-    shader_ptr render::create_shader(input_stream_uptr vertex, input_stream_uptr fragment) {
-        E2D_UNUSED(vertex, fragment);
+    shader_ptr render::create_shader(
+        input_stream_uptr vertex,
+        input_stream_uptr fragment,
+        const vertex_declaration& decl)
+    {
+        E2D_UNUSED(vertex, fragment, decl);
         return nullptr;
     }
 
@@ -135,20 +148,20 @@ namespace e2d
     }
 
     index_buffer_ptr render::create_index_buffer(
-        const u16* indices,
-        std::size_t count,
+        const buffer& indices,
+        const index_declaration& decl,
         index_buffer::usage usage)
     {
-        E2D_UNUSED(indices, count, usage);
+        E2D_UNUSED(indices, decl, usage);
         return nullptr;
     }
 
     vertex_buffer_ptr render::create_vertex_buffer(
-        const vertex* vertices,
-        std::size_t count,
+        const buffer& vertices,
+        const vertex_declaration& decl,
         vertex_buffer::usage usage)
     {
-        E2D_UNUSED(vertices, count, usage);
+        E2D_UNUSED(vertices, decl, usage);
         return nullptr;
     }
 
@@ -157,11 +170,16 @@ namespace e2d
     }
 
     void render::draw(
+        topology tp,
         const shader_ptr& ps,
         const index_buffer_ptr& ib,
         const vertex_buffer_ptr& vb) noexcept
     {
-        E2D_UNUSED(ps, ib, vb);
+        E2D_UNUSED(tp, ps, ib, vb);
+    }
+
+    void render::set_model(const m4f& model) noexcept {
+        E2D_UNUSED(model);
     }
 
     void render::set_view(const m4f& view) noexcept {

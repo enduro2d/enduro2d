@@ -27,11 +27,11 @@ namespace e2d
         public:
             index_type type = index_type::unsigned_short;
         public:
-            index_info() noexcept = default;
-            ~index_info() noexcept = default;
+            index_info() noexcept;
+            ~index_info() noexcept;
 
-            index_info(const index_info&) noexcept = default;
-            index_info& operator=(const index_info&) noexcept = default;
+            index_info(const index_info&) noexcept;
+            index_info& operator=(const index_info&) noexcept;
 
             explicit index_info(index_type type) noexcept;
         };
@@ -39,8 +39,8 @@ namespace e2d
         index_declaration() noexcept;
         ~index_declaration() noexcept;
 
-        index_declaration(const index_declaration&) noexcept = default;
-        index_declaration& operator=(const index_declaration&) noexcept = default;
+        index_declaration(const index_declaration&) noexcept;
+        index_declaration& operator=(const index_declaration&) noexcept;
 
         explicit index_declaration(index_type index_type) noexcept;
 
@@ -89,11 +89,11 @@ namespace e2d
             attribute_type type = attribute_type::floating_point;
             bool normalized = false;
         public:
-            attribute_info() noexcept = default;
-            ~attribute_info() noexcept = default;
+            attribute_info() noexcept;
+            ~attribute_info() noexcept;
 
-            attribute_info(const attribute_info&) noexcept = default;
-            attribute_info& operator=(const attribute_info&) noexcept = default;
+            attribute_info(const attribute_info&) noexcept;
+            attribute_info& operator=(const attribute_info&) noexcept;
 
             attribute_info(
                 str_view name,
@@ -109,8 +109,8 @@ namespace e2d
         vertex_declaration() noexcept;
         ~vertex_declaration() noexcept;
 
-        vertex_declaration(const vertex_declaration&) noexcept = default;
-        vertex_declaration& operator=(const vertex_declaration&) noexcept = default;
+        vertex_declaration(const vertex_declaration&) noexcept;
+        vertex_declaration& operator=(const vertex_declaration&) noexcept;
 
         template < typename T >
         vertex_declaration& add_attribute(str_view name) noexcept;
@@ -385,12 +385,12 @@ namespace e2d
         index_buffer_ptr create_index_buffer(
             const buffer& indices,
             const index_declaration& decl,
-            enum index_buffer::usage usage);
+            index_buffer::usage usage);
 
         vertex_buffer_ptr create_vertex_buffer(
             const buffer& vertices,
             const vertex_declaration& decl,
-            enum vertex_buffer::usage usage);
+            vertex_buffer::usage usage);
 
         void clear(
             bool color,

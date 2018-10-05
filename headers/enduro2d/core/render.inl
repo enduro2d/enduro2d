@@ -17,6 +17,7 @@ namespace e2d
     vertex_declaration& vertex_declaration::add_attribute(str_view name) noexcept {
         E2D_UNUSED(name);
         static_assert(sizeof(T) == 0, "not implemented for this type");
+        return *this;
     }
 
     #define DEFINE_ADD_ATTRIBUTE_SPECIALIZATION(t, rows, columns, type)\
