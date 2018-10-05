@@ -16,11 +16,38 @@ namespace
 {
     using namespace e2d;
 
+    GLenum convert_index_type(index_declaration::index_type it) noexcept {
+        #define DEFINE_CASE(x,y) case index_declaration::index_type::x: return y;
+        switch ( it ) {
+            DEFINE_CASE(unsigned_byte, GL_UNSIGNED_BYTE);
+            DEFINE_CASE(unsigned_short, GL_UNSIGNED_SHORT);
+            default:
+                E2D_ASSERT_MSG(false, "unexpected index type");
+                return 0;
+        }
+        #undef DEFINE_CASE
+    }
+
+    GLenum convert_attribute_type(vertex_declaration::attribute_type at) noexcept {
+        #define DEFINE_CASE(x,y) case vertex_declaration::attribute_type::x: return y;
+        switch ( at ) {
+            DEFINE_CASE(signed_byte, GL_BYTE);
+            DEFINE_CASE(unsigned_byte, GL_UNSIGNED_BYTE);
+            DEFINE_CASE(signed_short, GL_SHORT);
+            DEFINE_CASE(unsigned_short, GL_UNSIGNED_SHORT);
+            DEFINE_CASE(floating_point, GL_FLOAT);
+            default:
+                E2D_ASSERT_MSG(false, "unexpected attribute type");
+                return 0;
+        }
+        #undef DEFINE_CASE
+    }
+
     GLint convert_uniform_type(shader::uniform_type ut) noexcept {
         #define DEFINE_CASE(x,y) case shader::uniform_type::x: return y;
         switch ( ut ) {
-            DEFINE_CASE(i, GL_INT);
-            DEFINE_CASE(f, GL_FLOAT);
+            DEFINE_CASE(signed_integer, GL_INT);
+            DEFINE_CASE(floating_point, GL_FLOAT);
 
             DEFINE_CASE(v2i, GL_INT_VEC2);
             DEFINE_CASE(v3i, GL_INT_VEC3);
@@ -34,7 +61,8 @@ namespace
             DEFINE_CASE(m3f, GL_FLOAT_MAT3);
             DEFINE_CASE(m4f, GL_FLOAT_MAT4);
 
-            DEFINE_CASE(s2d, GL_SAMPLER_2D);
+            DEFINE_CASE(sampler_2d, GL_SAMPLER_2D);
+            DEFINE_CASE(sampler_cube, GL_SAMPLER_CUBE);
             default:
                 E2D_ASSERT_MSG(false, "unexpected uniform type");
                 return 0;
@@ -42,9 +70,9 @@ namespace
         #undef DEFINE_CASE
     }
 
-    GLint convert_attribute_type(shader::attribute_type ut) noexcept {
+    GLint convert_attribute_type(shader::attribute_type at) noexcept {
         #define DEFINE_CASE(x,y) case shader::attribute_type::x: return y;
-        switch ( ut ) {
+        switch ( at ) {
             DEFINE_CASE(f, GL_FLOAT);
 
             DEFINE_CASE(v2f, GL_FLOAT_VEC2);
@@ -231,6 +259,19 @@ namespace
         #undef DEFINE_CASE
     }
 
+    GLenum convert_topology(render::topology t) noexcept {
+        #define DEFINE_CASE(x,y) case render::topology::x: return y;
+        switch ( t ) {
+            DEFINE_CASE(triangles, GL_TRIANGLES);
+            DEFINE_CASE(triangles_fan, GL_TRIANGLE_FAN);
+            DEFINE_CASE(triangles_strip, GL_TRIANGLE_STRIP);
+            default:
+                E2D_ASSERT_MSG(false, "unexpected topology");
+                return 0;
+        }
+        #undef DEFINE_CASE
+    }
+
     const char* glsl_type_to_cstr(GLenum t) noexcept {
         #define DEFINE_CASE(x) case x: return #x
         switch ( t ) {
@@ -250,6 +291,7 @@ namespace
             DEFINE_CASE(GL_FLOAT_MAT4);
 
             DEFINE_CASE(GL_SAMPLER_2D);
+            DEFINE_CASE(GL_SAMPLER_CUBE);
             default:
                 return "GL_UNKNOWN";
         }
@@ -268,6 +310,11 @@ namespace
                 return "GL_UNKNOWN";
         }
         #undef DEFINE_CASE
+    }
+
+    void gl_get_string(GLenum name, const char** str) noexcept {
+        E2D_ASSERT(str);
+        *str = reinterpret_cast<const char*>(glGetString(name));
     }
 
     void gl_create_shader_wrapper(GLenum type, GLuint* id) noexcept {
@@ -293,7 +340,7 @@ namespace
     #define GL_FLUSH_ERRORS(dbg)\
         for ( GLenum err = glGetError(); err != GL_NO_ERROR; err = glGetError() ) {\
             E2D_ASSERT_MSG(false, "RENDER: GL_FLUSH_ERRORS()");\
-            dbg.error("RENDER: GL_FLUSH_ERRORS():\n"\
+            (dbg).error("RENDER: GL_FLUSH_ERRORS():\n"\
                 "--> File: %0\n"\
                 "--> Line: %1\n"\
                 "--> Code: %2",\
@@ -306,7 +353,7 @@ namespace
         code;\
         for ( GLenum err = glGetError(); err != GL_NO_ERROR; err = glGetError() ) {\
             E2D_ASSERT_MSG(false, #code);\
-            dbg.error(\
+            (dbg).error(\
                 "RENDER: GL_CHECK(%0):\n"\
                 "--> File: %1\n"\
                 "--> Line: %2\n"\
@@ -337,7 +384,7 @@ namespace
             E2D_ASSERT(!id || glIsBuffer(id));
         }
     public:
-        gl_buffer_id(debug& debug) noexcept
+        explicit gl_buffer_id(debug& debug) noexcept
         : debug_(debug) {}
 
         ~gl_buffer_id() noexcept {
@@ -390,7 +437,7 @@ namespace
             E2D_ASSERT(!id || glIsShader(id));
         }
     public:
-        gl_shader_id(debug& debug) noexcept
+        explicit gl_shader_id(debug& debug) noexcept
         : debug_(debug) {}
 
         ~gl_shader_id() noexcept {
@@ -440,7 +487,7 @@ namespace
             E2D_ASSERT(!id || glIsProgram(id));
         }
     public:
-        gl_program_id(debug& debug) noexcept
+        explicit gl_program_id(debug& debug) noexcept
         : debug_(debug) {}
 
         ~gl_program_id() noexcept {
@@ -494,7 +541,7 @@ namespace
             E2D_ASSERT(!id || glIsTexture(id));
         }
     public:
-        gl_texture_id(debug& debug) noexcept
+        explicit gl_texture_id(debug& debug) noexcept
         : debug_(debug) {}
 
         ~gl_texture_id() noexcept {
@@ -526,7 +573,129 @@ namespace
         GLuint id_ = 0;
     };
 
-    gl_shader_id compile_shader(debug& debug, const str& source, GLenum type) noexcept {
+    void trace_opengl_info(debug& debug) noexcept {
+        const char* vendor = nullptr;
+        GL_CHECK_CODE(debug, gl_get_string(GL_VENDOR, &vendor));
+        const char* renderer = nullptr;
+        GL_CHECK_CODE(debug, gl_get_string(GL_RENDERER, &renderer));
+        const char* version = nullptr;
+        GL_CHECK_CODE(debug, gl_get_string(GL_VERSION, &version));
+        const char* language = nullptr;
+        GL_CHECK_CODE(debug, gl_get_string(GL_SHADING_LANGUAGE_VERSION, &language));
+        const char* extensions = nullptr;
+        GL_CHECK_CODE(debug, gl_get_string(GL_EXTENSIONS, &extensions));
+        const auto cstr_or_undefined = [](const char* cstr) noexcept {
+            return (cstr && *cstr)
+                ? cstr
+                : "(undefined)";
+        };
+        debug.trace("RENDER: opengl info:\n"
+            "--> VENDOR: %0\n"
+            "--> RENDERER: %1\n"
+            "--> VERSION: %2\n"
+            "--> LANGUAGE: %3\n"
+            "--> EXTENSIONS: %4",
+            cstr_or_undefined(vendor),
+            cstr_or_undefined(renderer),
+            cstr_or_undefined(version),
+            cstr_or_undefined(language),
+            cstr_or_undefined(extensions));
+    }
+
+    void trace_current_program_info(debug& debug, GLuint program) noexcept {
+        E2D_ASSERT(glIsProgram(program));
+
+        GLint uniforms = 0;
+        GLint attributes = 0;
+        GL_CHECK_CODE(debug, glGetProgramiv(
+            program, GL_ACTIVE_UNIFORMS, &uniforms));
+        GL_CHECK_CODE(debug, glGetProgramiv(
+            program, GL_ACTIVE_ATTRIBUTES, &attributes));
+
+        debug.trace("RENDER: Program info:\n"
+            "--> active uniforms: %0\n"
+            "--> active attributes: %1",
+            uniforms,
+            attributes);
+
+        GLint uniform_max_len = 0;
+        GLint attribute_max_len = 0;
+        GL_CHECK_CODE(debug, glGetProgramiv(
+            program, GL_ACTIVE_UNIFORM_MAX_LENGTH, &uniform_max_len));
+        GL_CHECK_CODE(debug, glGetProgramiv(
+            program, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &attribute_max_len));
+
+        GLint max_name_len = math::max(uniform_max_len, attribute_max_len);
+        GLchar* name_buffer = static_cast<GLchar*>(E2D_ALLOCA(
+            sizeof(GLchar) * math::numeric_cast<std::size_t>(max_name_len)));
+        E2D_ASSERT(name_buffer);
+
+        for ( GLuint i = 0; i < math::numeric_cast<GLuint>(uniforms); ++i ) {
+            GLint size = 0;
+            GLenum type = 0;
+            GL_CHECK_CODE(debug, glGetActiveUniform(
+                program, i, max_name_len,
+                nullptr, &size, &type, name_buffer));
+            GLint location = 0;
+            GL_CHECK_CODE(debug, gl_get_uniform_location(
+                program, name_buffer, &location));
+            debug.trace(
+                "uniform: %0, size: %1, type: %2, location: %3",
+                name_buffer, size, glsl_type_to_cstr(type), location);
+        }
+
+        for ( GLuint i = 0; i < math::numeric_cast<GLuint>(attributes); ++i ) {
+            GLint size = 0;
+            GLenum type = 0;
+            GL_CHECK_CODE(debug, glGetActiveAttrib(
+                program, i, max_name_len,
+                nullptr, &size, &type, name_buffer));
+            GLint location = 0;
+            GL_CHECK_CODE(debug, gl_get_attribute_location(
+                program, name_buffer, &location));
+            debug.trace(
+                "attribute: %0, size: %1, type: %2, location: %3",
+                name_buffer, size, glsl_type_to_cstr(type), location);
+        }
+    }
+
+    bool process_shader_compilation_result(debug& debug, GLuint shader) noexcept {
+        E2D_ASSERT(glIsShader(shader));
+        GLint success = GL_FALSE;
+        GL_CHECK_CODE(debug, glGetShaderiv(shader, GL_COMPILE_STATUS, &success));
+        GLint log_len = 0;
+        GL_CHECK_CODE(debug, glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &log_len));
+        if ( log_len > 0 ) {
+            GLchar* log_buffer = static_cast<GLchar*>(E2D_ALLOCA(
+                sizeof(GLchar) * math::numeric_cast<std::size_t>(log_len)));
+            GL_CHECK_CODE(debug, glGetShaderInfoLog(
+                shader, log_len, nullptr, log_buffer));
+            debug.log(success ? debug::level::warning : debug::level::error,
+                "RENDER: shader compilation info:\n--> %0", log_buffer);
+        }
+        return success == GL_TRUE;
+    }
+
+    bool process_program_linking_result(debug& debug, GLuint program) noexcept {
+        E2D_ASSERT(glIsProgram(program));
+        GLint success = GL_FALSE;
+        GL_CHECK_CODE(debug, glGetProgramiv(program, GL_LINK_STATUS, &success));
+        GLint log_len = 0;
+        GL_CHECK_CODE(debug, glGetProgramiv(program, GL_INFO_LOG_LENGTH, &log_len));
+        if ( log_len > 0 ) {
+            GLchar* log_buffer = static_cast<GLchar*>(E2D_ALLOCA(
+                sizeof(GLchar) * math::numeric_cast<std::size_t>(log_len)));
+            GL_CHECK_CODE(debug, glGetProgramInfoLog(
+                program, log_len, nullptr, log_buffer));
+            debug.log(success ? debug::level::warning : debug::level::error,
+                "RENDER: program linking info:\n--> %0", log_buffer);
+        }
+        return success == GL_TRUE;
+    }
+
+    gl_shader_id compile_shader(
+        debug& debug, const str& source, GLenum type) noexcept
+    {
         gl_shader_id id = gl_shader_id::create(debug, type);
         if ( id.empty() ) {
             return id;
@@ -534,22 +703,32 @@ namespace
         const char* source_cstr = source.c_str();
         GL_CHECK_CODE(debug, glShaderSource(*id, 1, &source_cstr, nullptr));
         GL_CHECK_CODE(debug, glCompileShader(*id));
-        GLint success = GL_FALSE;
-        GL_CHECK_CODE(debug, glGetShaderiv(*id, GL_COMPILE_STATUS, &success));
-        GLint log_len = 0;
-        GL_CHECK_CODE(debug, glGetShaderiv(*id, GL_INFO_LOG_LENGTH, &log_len));
-        if ( log_len > 0 ) {
-            vector<char> log_buffer(math::numeric_cast<std::size_t>(log_len) + 1, '\0');
-            GL_CHECK_CODE(debug, glGetShaderInfoLog(*id, log_len, nullptr, log_buffer.data()));
-            debug.log(success ? debug::level::trace : debug::level::error,
-                "RENDER: shader compilation info:\n--> %0", log_buffer.data());
-        }
-        return success
+        return process_shader_compilation_result(debug, *id)
             ? std::move(id)
             : gl_shader_id(debug);
     }
 
-    gl_program_id link_program(debug& debug, gl_shader_id vs, gl_shader_id fs) noexcept {
+    bool rebind_program_attributes(
+        debug& debug, GLuint program, const vertex_declaration& decl) noexcept
+    {
+        E2D_ASSERT(glIsProgram(program));
+        GLuint location = 0;
+        for ( std::size_t i = 0, e = decl.attribute_count(); i < e; ++i ) {
+            const vertex_declaration::attribute_info& ai = decl.attribute(i);
+            GL_CHECK_CODE(debug, glBindAttribLocation(
+                program, location, ai.name));
+            location += math::numeric_cast<GLuint>(ai.rows);
+        }
+        //TODO(BlackMat): add attribute type checks
+        return true;
+    }
+
+    gl_program_id link_program(
+        debug& debug,
+        gl_shader_id vs,
+        gl_shader_id fs,
+        const vertex_declaration& decl) noexcept
+    {
         E2D_ASSERT(!vs.empty() && !fs.empty());
         gl_program_id id = gl_program_id::create(debug);
         if ( id.empty() ) {
@@ -557,93 +736,15 @@ namespace
         }
         GL_CHECK_CODE(debug, glAttachShader(*id, *vs));
         GL_CHECK_CODE(debug, glAttachShader(*id, *fs));
-
-        GL_CHECK_CODE(debug, glBindAttribLocation(*id, 0, "in_pos"));
-        GL_CHECK_CODE(debug, glBindAttribLocation(*id, 1, "in_uv0"));
-        GL_CHECK_CODE(debug, glBindAttribLocation(*id, 2, "in_uv1"));
-        GL_CHECK_CODE(debug, glBindAttribLocation(*id, 3, "in_color"));
-
+        if ( !rebind_program_attributes(debug, *id, decl) ) {
+            return gl_program_id(debug);
+        }
         GL_CHECK_CODE(debug, glLinkProgram(*id));
-        GLint success = GL_FALSE;
-        GL_CHECK_CODE(debug, glGetProgramiv(*id, GL_LINK_STATUS, &success));
-        GLint log_len = 0;
-        GL_CHECK_CODE(debug, glGetProgramiv(*id, GL_INFO_LOG_LENGTH, &log_len));
-        if ( log_len > 0 ) {
-            vector<char> log_buffer(math::numeric_cast<std::size_t>(log_len) + 1, '\0');
-            GL_CHECK_CODE(debug, glGetProgramInfoLog(*id, log_len, nullptr, log_buffer.data()));
-            debug.log(success ? debug::level::trace : debug::level::error,
-                "RENDER: program linking info:\n--> %0", log_buffer.data());
+        if ( !process_program_linking_result(debug, *id) ) {
+            return gl_program_id(debug);
         }
-        if ( success ) {
-            GLint uniforms = 0;
-            GLint attributes = 0;
-            GL_CHECK_CODE(debug, glGetProgramiv(*id, GL_ACTIVE_UNIFORMS, &uniforms));
-            GL_CHECK_CODE(debug, glGetProgramiv(*id, GL_ACTIVE_ATTRIBUTES, &attributes));
-
-            GLint uniform_max_len = 0;
-            GLint attribute_max_len = 0;
-            GL_CHECK_CODE(debug, glGetProgramiv(*id, GL_ACTIVE_UNIFORM_MAX_LENGTH, &uniform_max_len));
-            GL_CHECK_CODE(debug, glGetProgramiv(*id, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &attribute_max_len));
-
-            debug.trace("Shader info:\n"
-                "--> uniforms: %0\n"
-                "--> attributes: %1\n"
-                "--> uniform_max_len: %2\n"
-                "--> attribute_max_len: %3",
-                uniforms,
-                attributes,
-                uniform_max_len,
-                attribute_max_len);
-
-            vector<char> name_buffer(
-                math::numeric_cast<std::size_t>(
-                    math::max(uniform_max_len, attribute_max_len)), '\0');
-
-            for ( GLuint i = 0; i < math::numeric_cast<GLuint>(uniforms); ++i ) {
-                GLint size = 0;
-                GLenum type = 0;
-                GL_CHECK_CODE(debug, glGetActiveUniform(
-                    *id,
-                    i,
-                    math::numeric_cast<GLsizei>(name_buffer.size()),
-                    nullptr,
-                    &size,
-                    &type,
-                    name_buffer.data()));
-
-                GLint location = 0;
-                GL_CHECK_CODE(debug, gl_get_uniform_location(
-                    *id, name_buffer.data(), &location));
-
-                debug.trace(
-                    "uniform: %0, size: %1, type: %2, location: %3",
-                    name_buffer.data(), size, glsl_type_to_cstr(type), location);
-            }
-
-            for ( GLuint i = 0; i < math::numeric_cast<GLuint>(attributes); ++i ) {
-                GLint size = 0;
-                GLenum type = 0;
-                GL_CHECK_CODE(debug, glGetActiveAttrib(
-                    *id,
-                    i,
-                    math::numeric_cast<GLsizei>(name_buffer.size()),
-                    nullptr,
-                    &size,
-                    &type,
-                    name_buffer.data()));
-
-                GLint location = 0;
-                GL_CHECK_CODE(debug, gl_get_attribute_location(
-                    *id, name_buffer.data(), &location));
-
-                debug.trace(
-                    "attribute: %0, size: %1, type: %2, location: %3",
-                    name_buffer.data(), size, glsl_type_to_cstr(type), location);
-            }
-        }
-        return success
-            ? std::move(id)
-            : gl_program_id(debug);
+        trace_current_program_info(debug, *id);
+        return id;
     }
 
     bool validate_program(debug& debug, const gl_program_id& ps) noexcept {
@@ -654,12 +755,46 @@ namespace
         GLint log_len = 0;
         GL_CHECK_CODE(debug, glGetProgramiv(*ps, GL_INFO_LOG_LENGTH, &log_len));
         if ( log_len > 0 ) {
-            vector<char> log_buffer(math::numeric_cast<std::size_t>(log_len) + 1, '\0');
-            GL_CHECK_CODE(debug, glGetProgramInfoLog(*ps, log_len, nullptr, log_buffer.data()));
-            debug.log(success ? debug::level::trace : debug::level::error,
-                "RENDER: program validation info:\n--> %0", log_buffer.data());
+            GLchar* log_buffer = static_cast<GLchar*>(E2D_ALLOCA(
+                sizeof(GLchar) * math::numeric_cast<std::size_t>(log_len)));
+            GL_CHECK_CODE(debug, glGetProgramInfoLog(*ps, log_len, nullptr, log_buffer));
+            debug.log(success ? debug::level::warning : debug::level::error,
+                "RENDER: program validation info:\n--> %0", log_buffer);
         }
         return success == GL_TRUE;
+    }
+
+    void bind_vertex_declaration(debug& debug, const vertex_declaration& decl) noexcept {
+        GLuint location = 0;
+        for ( std::size_t i = 0; i < decl.attribute_count(); ++i ) {
+            const vertex_declaration::attribute_info& ai = decl.attribute(i);
+            const GLuint rows = math::numeric_cast<GLuint>(ai.rows);
+            for ( GLuint row = 0; row < rows; ++row ) {
+                GL_CHECK_CODE(debug, glEnableVertexAttribArray(
+                    location + row));
+                GL_CHECK_CODE(debug, glVertexAttribPointer(
+                    location + row,
+                    math::numeric_cast<GLint>(ai.columns),
+                    convert_attribute_type(ai.type),
+                    ai.normalized ? GL_TRUE : GL_FALSE,
+                    math::numeric_cast<GLsizei>(decl.vertex_size()),
+                    reinterpret_cast<const GLvoid*>(ai.stride + row * ai.row_size())));
+            }
+            location += rows;
+        }
+    }
+
+    void unbind_vertex_declaration(debug& debug, const vertex_declaration& decl) noexcept {
+        GLuint location = 0;
+        for ( std::size_t i = 0; i < decl.attribute_count(); ++i ) {
+            const vertex_declaration::attribute_info& ai = decl.attribute(i);
+            const GLuint rows = math::numeric_cast<GLuint>(ai.rows);
+            for ( GLuint row = 0; row < rows; ++row ) {
+                GL_CHECK_CODE(debug, glDisableVertexAttribArray(
+                    location + row));
+            }
+            location += rows;
+        }
     }
 }
 
@@ -671,13 +806,18 @@ namespace e2d
 
     class shader::internal_state final : private e2d::noncopyable {
     public:
-        debug& debug;
-        gl_program_id id;
+        debug& debug_;
+        gl_program_id id_;
+        vertex_declaration decl_;
     public:
-        internal_state(class debug& debug, gl_program_id nid)
-        : debug(debug)
-        , id(std::move(nid)) {
-            E2D_ASSERT(!id.empty());
+        internal_state(
+            debug& debug,
+            gl_program_id id,
+            const vertex_declaration& decl)
+        : debug_(debug)
+        , id_(std::move(id))
+        , decl_(decl) {
+            E2D_ASSERT(!id_.empty());
         }
         ~internal_state() noexcept = default;
     };
@@ -688,13 +828,13 @@ namespace e2d
 
     class texture::internal_state final : private e2d::noncopyable {
     public:
-        debug& debug;
-        gl_texture_id id;
+        debug& debug_;
+        gl_texture_id id_;
     public:
-        internal_state(class debug& debug, gl_texture_id nid)
-        : debug(debug)
-        , id(std::move(nid)) {
-            E2D_ASSERT(!id.empty());
+        internal_state(debug& debug, gl_texture_id id)
+        : debug_(debug)
+        , id_(std::move(id)) {
+            E2D_ASSERT(!id_.empty());
         }
         ~internal_state() noexcept = default;
     };
@@ -705,15 +845,24 @@ namespace e2d
 
     class index_buffer::internal_state final : private e2d::noncopyable {
     public:
-        debug& debug;
-        gl_buffer_id id;
-        std::size_t count = 0;
+        debug& debug_;
+        gl_buffer_id id_;
+        std::size_t size_ = 0;
+        index_declaration decl_;
+        usage usage_;
     public:
-        internal_state(class debug& debug, gl_buffer_id nid, std::size_t ncount)
-        : debug(debug)
-        , id(std::move(nid))
-        , count(ncount) {
-            E2D_ASSERT(!id.empty());
+        internal_state(
+            debug& debug,
+            gl_buffer_id id,
+            std::size_t size,
+            const index_declaration& decl,
+            usage usage)
+        : debug_(debug)
+        , id_(std::move(id))
+        , size_(size)
+        , decl_(decl)
+        , usage_(usage) {
+            E2D_ASSERT(!id_.empty());
         }
         ~internal_state() noexcept = default;
     };
@@ -724,15 +873,24 @@ namespace e2d
 
     class vertex_buffer::internal_state final : private e2d::noncopyable {
     public:
-        debug& debug;
-        gl_buffer_id id;
-        std::size_t count = 0;
+        debug& debug_;
+        gl_buffer_id id_;
+        std::size_t size_ = 0;
+        vertex_declaration decl_;
+        usage usage_;
     public:
-        internal_state(class debug& debug, gl_buffer_id nid, std::size_t ncount)
-        : debug(debug)
-        , id(std::move(nid))
-        , count(ncount) {
-            E2D_ASSERT(!id.empty());
+        internal_state(
+            debug& debug,
+            gl_buffer_id id,
+            std::size_t size,
+            const vertex_declaration& decl,
+            usage usage)
+        : debug_(debug)
+        , id_(std::move(id))
+        , size_(size)
+        , decl_(decl)
+        , usage_(usage) {
+            E2D_ASSERT(!id_.empty());
         }
         ~internal_state() noexcept = default;
     };
@@ -743,14 +901,15 @@ namespace e2d
 
     class render::internal_state final : private e2d::noncopyable {
     public:
-        debug& debug;
-        window& window;
-        m4f view;
-        m4f projection;
+        debug& debug_;
+        window& window_;
+        m4f model_;
+        m4f view_;
+        m4f projection_;
     public:
-        internal_state(class debug& debug, class window& window)
-        : debug(debug)
-        , window(window) {}
+        internal_state(debug& debug, window& window)
+        : debug_(debug)
+        , window_(window) {}
         ~internal_state() noexcept = default;
     };
 
@@ -762,6 +921,40 @@ namespace e2d
     : state_(std::move(state)) {}
     shader::~shader() noexcept = default;
 
+    const vertex_declaration& shader::decl() const noexcept {
+        return state_->decl_;
+    }
+
+    void shader::set_uniform(str_view name, i32 value) const noexcept {
+        const std::size_t name_buffer_size = name.length() + 1;
+        GLchar* name_buffer = static_cast<GLchar*>(E2D_ALLOCA(name_buffer_size));
+        strings::format_nothrow(name_buffer, name_buffer_size, nullptr, "%0", name);
+        GLint location = 0;
+        GL_CHECK_CODE(state_->debug_, gl_get_uniform_location(
+            *state_->id_, name_buffer, &location));
+        if ( location != -1 ) {
+            GL_CHECK_CODE(state_->debug_, glUseProgram(*state_->id_));
+            GL_CHECK_CODE(state_->debug_, glUniform1i(
+                location, math::numeric_cast<GLint>(value)));
+            GL_CHECK_CODE(state_->debug_, glUseProgram(0));
+        }
+    }
+
+    void shader::set_uniform(str_view name, f32 value) const noexcept {
+        const std::size_t name_buffer_size = name.length() + 1;
+        GLchar* name_buffer = static_cast<GLchar*>(E2D_ALLOCA(name_buffer_size));
+        strings::format_nothrow(name_buffer, name_buffer_size, nullptr, "%0", name);
+        GLint location = 0;
+        GL_CHECK_CODE(state_->debug_, gl_get_uniform_location(
+            *state_->id_, name_buffer, &location));
+        if ( location != -1 ) {
+            GL_CHECK_CODE(state_->debug_, glUseProgram(*state_->id_));
+            GL_CHECK_CODE(state_->debug_, glUniform1f(
+                location, math::numeric_cast<GLfloat>(value)));
+            GL_CHECK_CODE(state_->debug_, glUseProgram(0));
+        }
+    }
+
     //
     // texture
     //
@@ -771,24 +964,24 @@ namespace e2d
     texture::~texture() noexcept = default;
 
     void texture::set_wrap(wrap u, wrap v) noexcept {
-        GL_CHECK_CODE(state_->debug, glBindTexture(
-            GL_TEXTURE_2D, *state_->id));
-        GL_CHECK_CODE(state_->debug, glTexParameteri(
+        GL_CHECK_CODE(state_->debug_, glBindTexture(
+            GL_TEXTURE_2D, *state_->id_));
+        GL_CHECK_CODE(state_->debug_, glTexParameteri(
             GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, convert_wrap(u)));
-        GL_CHECK_CODE(state_->debug, glTexParameteri(
+        GL_CHECK_CODE(state_->debug_, glTexParameteri(
             GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, convert_wrap(v)));
-        GL_CHECK_CODE(state_->debug, glBindTexture(
+        GL_CHECK_CODE(state_->debug_, glBindTexture(
             GL_TEXTURE_2D, 0));
     }
 
     void texture::set_filter(filter min, filter mag) noexcept {
-        GL_CHECK_CODE(state_->debug, glBindTexture(
-            GL_TEXTURE_2D, *state_->id));
-        GL_CHECK_CODE(state_->debug, glTexParameteri(
+        GL_CHECK_CODE(state_->debug_, glBindTexture(
+            GL_TEXTURE_2D, *state_->id_));
+        GL_CHECK_CODE(state_->debug_, glTexParameteri(
             GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, convert_filter(min)));
-        GL_CHECK_CODE(state_->debug, glTexParameteri(
+        GL_CHECK_CODE(state_->debug_, glTexParameteri(
             GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, convert_filter(mag)));
-        GL_CHECK_CODE(state_->debug, glBindTexture(
+        GL_CHECK_CODE(state_->debug_, glBindTexture(
             GL_TEXTURE_2D, 0));
     }
 
@@ -800,22 +993,36 @@ namespace e2d
     : state_(std::move(state)) {}
     index_buffer::~index_buffer() noexcept = default;
 
-    void index_buffer::update(
-        const u16* indices, std::size_t count, std::size_t offset) noexcept
-    {
-        GL_CHECK_CODE(state_->debug, glBindBuffer(
-            GL_ELEMENT_ARRAY_BUFFER, *state_->id));
-        GL_CHECK_CODE(state_->debug, glBufferSubData(
+    void index_buffer::update(const buffer& indices, std::size_t offset) noexcept {
+        const std::size_t buffer_offset = offset * state_->decl_.index_size();
+        E2D_ASSERT(indices.size() + buffer_offset <= state_->size_);
+        E2D_ASSERT(indices.size() % state_->decl_.index_size() == 0);
+        GL_CHECK_CODE(state_->debug_, glBindBuffer(
+            GL_ELEMENT_ARRAY_BUFFER, *state_->id_));
+        GL_CHECK_CODE(state_->debug_, glBufferSubData(
             GL_ELEMENT_ARRAY_BUFFER,
-            math::numeric_cast<GLintptr>(sizeof(u16) * offset),
-            math::numeric_cast<GLsizeiptr>(sizeof(u16) * count),
-            indices));
-        GL_CHECK_CODE(state_->debug, glBindBuffer(
+            math::numeric_cast<GLintptr>(buffer_offset),
+            math::numeric_cast<GLsizeiptr>(indices.size()),
+            indices.data()));
+        GL_CHECK_CODE(state_->debug_, glBindBuffer(
             GL_ELEMENT_ARRAY_BUFFER, 0));
     }
 
-    std::size_t index_buffer::count() const noexcept {
-        return state_->count;
+    const index_declaration& index_buffer::decl() const noexcept {
+        return state_->decl_;
+    }
+
+    index_buffer::usage index_buffer::buffer_usage() const noexcept {
+        return state_->usage_;
+    }
+
+    std::size_t index_buffer::buffer_size() const noexcept {
+        return state_->size_;
+    }
+
+    std::size_t index_buffer::index_count() const noexcept {
+        E2D_ASSERT(state_->size_ % state_->decl_.index_size() == 0);
+        return state_->size_ / state_->decl_.index_size();
     }
 
     //
@@ -826,54 +1033,76 @@ namespace e2d
     : state_(std::move(state)) {}
     vertex_buffer::~vertex_buffer() noexcept = default;
 
-    void vertex_buffer::update(
-        const vertex* vertices, std::size_t count, std::size_t offset) noexcept
-    {
-        GL_CHECK_CODE(state_->debug, glBindBuffer(
+    void vertex_buffer::update(const buffer& vertices, std::size_t offset) noexcept {
+        const std::size_t buffer_offset = offset * state_->decl_.vertex_size();
+        E2D_ASSERT(vertices.size() + buffer_offset <= state_->size_);
+        E2D_ASSERT(vertices.size() % state_->decl_.vertex_size() == 0);
+        GL_CHECK_CODE(state_->debug_, glBindBuffer(
             GL_ARRAY_BUFFER,
-            *state_->id));
-        GL_CHECK_CODE(state_->debug, glBufferSubData(
+            *state_->id_));
+        GL_CHECK_CODE(state_->debug_, glBufferSubData(
             GL_ARRAY_BUFFER,
-            math::numeric_cast<GLintptr>(sizeof(vertex) * offset),
-            math::numeric_cast<GLsizeiptr>(sizeof(vertex) * count),
-            vertices));
-        GL_CHECK_CODE(state_->debug, glBindBuffer(
+            math::numeric_cast<GLintptr>(buffer_offset),
+            math::numeric_cast<GLsizeiptr>(vertices.size()),
+            vertices.data()));
+        GL_CHECK_CODE(state_->debug_, glBindBuffer(
             GL_ARRAY_BUFFER, 0));
     }
 
-    std::size_t vertex_buffer::count() const noexcept {
-        return state_->count;
+    const vertex_declaration& vertex_buffer::decl() const noexcept {
+        return state_->decl_;
+    }
+
+    vertex_buffer::usage vertex_buffer::buffer_usage() const noexcept {
+        return state_->usage_;
+    }
+
+    std::size_t vertex_buffer::buffer_size() const noexcept {
+        return state_->size_;
+    }
+
+    std::size_t vertex_buffer::vertex_count() const noexcept {
+        E2D_ASSERT(state_->size_ % state_->decl_.vertex_size() == 0);
+        return state_->size_ / state_->decl_.vertex_size();
     }
 
     //
     // render
     //
 
-    render::render(debug& d, window& w)
-    : state_(new internal_state(d, w)) {}
+    render::render(debug& debug, window& window)
+    : state_(new internal_state(debug, window)) {
+        trace_opengl_info(debug);
+    }
     render::~render() noexcept = default;
 
-    shader_ptr render::create_shader(input_stream_uptr vertex, input_stream_uptr fragment) {
+    shader_ptr render::create_shader(
+        input_stream_uptr vertex,
+        input_stream_uptr fragment,
+        const vertex_declaration& decl)
+    {
         str vertex_str;
         gl_shader_id vs = streams::try_read_tail(vertex_str, vertex)
-            ? compile_shader(state_->debug, vertex_str.c_str(), GL_VERTEX_SHADER)
-            : gl_shader_id(state_->debug);
+            ? compile_shader(state_->debug_, vertex_str, GL_VERTEX_SHADER)
+            : gl_shader_id(state_->debug_);
         if ( vs.empty() ) {
             return nullptr;
         }
         str fragment_str;
         gl_shader_id fs = streams::try_read_tail(fragment_str, fragment)
-            ? compile_shader(state_->debug, fragment_str.c_str(), GL_FRAGMENT_SHADER)
-            : gl_shader_id(state_->debug);
+            ? compile_shader(state_->debug_, fragment_str, GL_FRAGMENT_SHADER)
+            : gl_shader_id(state_->debug_);
         if ( fs.empty() ) {
             return nullptr;
         }
-        gl_program_id ps = link_program(state_->debug, std::move(vs), std::move(fs));
-        if ( ps.empty() || !validate_program(state_->debug, ps) ) {
+        gl_program_id ps = link_program(
+            state_->debug_, std::move(vs), std::move(fs), decl);
+        if ( ps.empty() || !validate_program(state_->debug_, ps) ) {
             return nullptr;
         }
         return std::make_shared<shader>(
-            std::make_unique<shader::internal_state>(state_->debug, std::move(ps)));
+            std::make_unique<shader::internal_state>(
+                state_->debug_, std::move(ps), decl));
     }
 
     texture_ptr render::create_texture(const image& image) {
@@ -887,43 +1116,49 @@ namespace e2d
     }
 
     index_buffer_ptr render::create_index_buffer(
-        const u16* indices, std::size_t count, index_buffer::usage usage)
+        const buffer& indices,
+        const index_declaration& decl,
+        index_buffer::usage usage)
     {
         gl_buffer_id id = gl_buffer_id::create_and_bind(
-            state_->debug, GL_ELEMENT_ARRAY_BUFFER);
+            state_->debug_, GL_ELEMENT_ARRAY_BUFFER);
         if ( id.empty() ) {
             return nullptr;
         }
-        GL_CHECK_CODE(state_->debug, glBufferData(
+        E2D_ASSERT(indices.size() % decl.index_size() == 0);
+        GL_CHECK_CODE(state_->debug_, glBufferData(
             GL_ELEMENT_ARRAY_BUFFER,
-            math::numeric_cast<GLsizeiptr>(sizeof(u16) * count),
-            indices,
+            math::numeric_cast<GLsizeiptr>(indices.size()),
+            indices.data(),
             convert_usage(usage)));
-        GL_CHECK_CODE(state_->debug, glBindBuffer(
+        GL_CHECK_CODE(state_->debug_, glBindBuffer(
             GL_ELEMENT_ARRAY_BUFFER, 0));
         return std::make_shared<index_buffer>(
             std::make_unique<index_buffer::internal_state>(
-                state_->debug, std::move(id), count));
+                state_->debug_, std::move(id), indices.size(), decl, usage));
     }
 
     vertex_buffer_ptr render::create_vertex_buffer(
-        const vertex* vertices, std::size_t count, vertex_buffer::usage usage)
+        const buffer& vertices,
+        const vertex_declaration& decl,
+        vertex_buffer::usage usage)
     {
         gl_buffer_id id = gl_buffer_id::create_and_bind(
-            state_->debug, GL_ARRAY_BUFFER);
+            state_->debug_, GL_ARRAY_BUFFER);
         if ( id.empty() ) {
             return nullptr;
         }
-        GL_CHECK_CODE(state_->debug, glBufferData(
+        E2D_ASSERT(vertices.size() % decl.vertex_size() == 0);
+        GL_CHECK_CODE(state_->debug_, glBufferData(
             GL_ARRAY_BUFFER,
-            math::numeric_cast<GLsizeiptr>(sizeof(vertex) * count),
-            vertices,
+            math::numeric_cast<GLsizeiptr>(vertices.size()),
+            vertices.data(),
             convert_usage(usage)));
-        GL_CHECK_CODE(state_->debug, glBindBuffer(
+        GL_CHECK_CODE(state_->debug_, glBindBuffer(
             GL_ARRAY_BUFFER, 0));
         return std::make_shared<vertex_buffer>(
             std::make_unique<vertex_buffer::internal_state>(
-                state_->debug, std::move(id), count));
+                state_->debug_, std::move(id), vertices.size(), decl, usage));
     }
 
     void render::clear(bool color, bool depth, bool stencil) noexcept {
@@ -937,64 +1172,50 @@ namespace e2d
         if ( stencil ) {
             mask |= GL_STENCIL_BUFFER_BIT;
         }
-        GL_CHECK_CODE(state_->debug, glClear(mask));
+        GL_CHECK_CODE(state_->debug_, glClear(mask));
     }
 
     void render::draw(
+        topology tp,
         const shader_ptr& ps,
         const index_buffer_ptr& ib,
         const vertex_buffer_ptr& vb) noexcept
     {
         E2D_ASSERT(ps && ib && vb);
+        E2D_ASSERT(ps->decl() == vb->decl());
 
-        GL_CHECK_CODE(state_->debug, glUseProgram(*ps->state_->id));
-        GL_CHECK_CODE(state_->debug, glEnableVertexAttribArray(0));
-        GL_CHECK_CODE(state_->debug, glEnableVertexAttribArray(1));
-        GL_CHECK_CODE(state_->debug, glEnableVertexAttribArray(2));
-        GL_CHECK_CODE(state_->debug, glEnableVertexAttribArray(3));
+        const index_declaration& id = ib->decl();
+        const vertex_declaration& vd = vb->decl();
 
-        GL_CHECK_CODE(state_->debug, glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *ib->state_->id));
-        GL_CHECK_CODE(state_->debug, glBindBuffer(GL_ARRAY_BUFFER, *vb->state_->id));
+        GL_CHECK_CODE(state_->debug_, glUseProgram(*ps->state_->id_));
+        GL_CHECK_CODE(state_->debug_, glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *ib->state_->id_));
+        GL_CHECK_CODE(state_->debug_, glBindBuffer(GL_ARRAY_BUFFER, *vb->state_->id_));
+        bind_vertex_declaration(state_->debug_, vd);
 
-        GL_CHECK_CODE(state_->debug, glVertexAttribPointer(
-            0, 3, GL_FLOAT, GL_FALSE,
-            sizeof(vertex), reinterpret_cast<const GLvoid*>(offsetof(vertex, pos))));
-
-        GL_CHECK_CODE(state_->debug, glVertexAttribPointer(
-            1, 2, GL_FLOAT, GL_FALSE,
-            sizeof(vertex), reinterpret_cast<const GLvoid*>(offsetof(vertex, uv[0]))));
-
-        GL_CHECK_CODE(state_->debug, glVertexAttribPointer(
-            2, 2, GL_FLOAT, GL_FALSE,
-            sizeof(vertex), reinterpret_cast<const GLvoid*>(offsetof(vertex, uv[1]))));
-
-        GL_CHECK_CODE(state_->debug, glVertexAttribPointer(
-            3, 4, GL_UNSIGNED_BYTE, GL_TRUE,
-            sizeof(vertex), reinterpret_cast<const GLvoid*>(offsetof(vertex, color))));
-
-        GL_CHECK_CODE(state_->debug, glDrawElements(
-            GL_TRIANGLES,
-            math::numeric_cast<GLsizei>(ib->count()),
-            GL_UNSIGNED_SHORT,
+        GL_CHECK_CODE(state_->debug_, glDrawElements(
+            convert_topology(tp),
+            math::numeric_cast<GLsizei>(ib->index_count()),
+            convert_index_type(id.index().type),
             nullptr));
 
-        GL_CHECK_CODE(state_->debug, glDisableVertexAttribArray(3));
-        GL_CHECK_CODE(state_->debug, glDisableVertexAttribArray(2));
-        GL_CHECK_CODE(state_->debug, glDisableVertexAttribArray(1));
-        GL_CHECK_CODE(state_->debug, glDisableVertexAttribArray(0));
-        GL_CHECK_CODE(state_->debug, glUseProgram(0));
+        unbind_vertex_declaration(state_->debug_, vd);
+        GL_CHECK_CODE(state_->debug_, glUseProgram(0));
+    }
+
+    void render::set_model(const m4f& model) noexcept {
+        state_->model_ = model;
     }
 
     void render::set_view(const m4f& view) noexcept {
-        state_->view = view;
+        state_->view_ = view;
     }
 
     void render::set_projection(const m4f& projection) noexcept {
-        state_->projection = projection;
+        state_->projection_ = projection;
     }
 
     void render::set_viewport(u32 x, u32 y, u32 w, u32 h) noexcept {
-        GL_CHECK_CODE(state_->debug, glViewport(
+        GL_CHECK_CODE(state_->debug_, glViewport(
             math::numeric_cast<GLint>(x),
             math::numeric_cast<GLint>(y),
             math::numeric_cast<GLsizei>(w),
@@ -1002,20 +1223,20 @@ namespace e2d
     }
 
     void render::enable_state(state state) noexcept {
-        GL_CHECK_CODE(state_->debug, glEnable(convert_state(state)));
+        GL_CHECK_CODE(state_->debug_, glEnable(convert_state(state)));
     }
 
     void render::disable_state(state state) noexcept {
-        GL_CHECK_CODE(state_->debug, glDisable(convert_state(state)));
+        GL_CHECK_CODE(state_->debug_, glDisable(convert_state(state)));
     }
 
     void render::set_blend_func(blend_func src, blend_func dst) noexcept {
-        GL_CHECK_CODE(state_->debug, glBlendFunc(
+        GL_CHECK_CODE(state_->debug_, glBlendFunc(
             convert_blend_func(src), convert_blend_func(dst)));
     }
 
     void render::set_blend_color(const color& color) noexcept {
-        GL_CHECK_CODE(state_->debug, glBlendColor(
+        GL_CHECK_CODE(state_->debug_, glBlendColor(
             math::numeric_cast<GLclampf>(color.r),
             math::numeric_cast<GLclampf>(color.g),
             math::numeric_cast<GLclampf>(color.b),
@@ -1023,58 +1244,58 @@ namespace e2d
     }
 
     void render::set_blend_equation(blend_equation blend_equation) noexcept {
-        GL_CHECK_CODE(state_->debug, glBlendEquation(
+        GL_CHECK_CODE(state_->debug_, glBlendEquation(
             convert_blend_equation(blend_equation)));
     }
 
     void render::set_cull_face(cull_face cull_face) noexcept {
-        GL_CHECK_CODE(state_->debug, glCullFace(
+        GL_CHECK_CODE(state_->debug_, glCullFace(
             convert_cull_face(cull_face)));
     }
 
     void render::set_depth_func(depth_func depth_func) noexcept {
-        GL_CHECK_CODE(state_->debug, glDepthFunc(
+        GL_CHECK_CODE(state_->debug_, glDepthFunc(
             convert_depth_func(depth_func)));
     }
 
     void render::set_depth_mask(bool yesno) noexcept {
-        GL_CHECK_CODE(state_->debug, glDepthMask(
+        GL_CHECK_CODE(state_->debug_, glDepthMask(
             yesno ? GL_TRUE : GL_FALSE));
     }
 
     void render::set_clear_depth(f32 value) noexcept {
-        GL_CHECK_CODE(state_->debug, glClearDepth(
+        GL_CHECK_CODE(state_->debug_, glClearDepth(
             math::numeric_cast<GLclampd>(value)));
     }
 
     void render::set_stencil_func(stencil_func stencil_func, u32 ref, u32 mask) noexcept {
-        GL_CHECK_CODE(state_->debug, glStencilFunc(
+        GL_CHECK_CODE(state_->debug_, glStencilFunc(
             convert_stencil_func(stencil_func),
             math::numeric_cast<GLint>(ref),
             math::numeric_cast<GLuint>(mask)));
     }
 
     void render::set_stencil_mask(u32 mask) noexcept {
-        GL_CHECK_CODE(state_->debug, glStencilMask(
+        GL_CHECK_CODE(state_->debug_, glStencilMask(
             math::numeric_cast<GLuint>(mask)));
     }
 
     void render::set_stencil_op(
         stencil_op fail, stencil_op zfail, stencil_op zpass) noexcept
     {
-        GL_CHECK_CODE(state_->debug, glStencilOp(
+        GL_CHECK_CODE(state_->debug_, glStencilOp(
             convert_stencil_op(fail),
             convert_stencil_op(zfail),
             convert_stencil_op(zpass)));
     }
 
     void render::set_clear_stencil(u32 value) noexcept {
-        GL_CHECK_CODE(state_->debug, glClearStencil(
+        GL_CHECK_CODE(state_->debug_, glClearStencil(
             math::numeric_cast<GLint>(value)));
     }
 
     void render::set_clear_color(const color& color) noexcept {
-        GL_CHECK_CODE(state_->debug, glClearColor(
+        GL_CHECK_CODE(state_->debug_, glClearColor(
             math::numeric_cast<GLclampf>(color.r),
             math::numeric_cast<GLclampf>(color.g),
             math::numeric_cast<GLclampf>(color.b),
@@ -1082,7 +1303,7 @@ namespace e2d
     }
 
     void render::set_color_mask(bool r, bool g, bool b, bool a) {
-        GL_CHECK_CODE(state_->debug, glColorMask(
+        GL_CHECK_CODE(state_->debug_, glColorMask(
             r ? GL_TRUE : GL_FALSE,
             g ? GL_TRUE : GL_FALSE,
             b ? GL_TRUE : GL_FALSE,

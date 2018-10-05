@@ -16,7 +16,6 @@ namespace e2d
     class mouse;
     class keyboard;
     class input;
-    class vertex;
     class shader;
     class texture;
     class index_buffer;
