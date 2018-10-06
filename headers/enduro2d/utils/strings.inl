@@ -386,6 +386,23 @@ namespace e2d { namespace strings
     }
 
     template < typename... Args >
+    bool format_nothrow(
+        char* dst, std::size_t dst_size, std::size_t* length,
+        str_view fmt, Args&&... args) noexcept
+    {
+        try {
+            std::size_t result = format(
+                dst, dst_size, fmt, std::forward<Args>(args)...);
+            if ( length ) {
+                *length = result;
+            }
+            return true;
+        } catch (...) {
+            return false;
+        }
+    }
+
+    template < typename... Args >
     str rformat(str_view fmt, Args&&... args) {
         auto targs = std::make_tuple(
             impl::wrap_arg(std::forward<Args>(args))...);
@@ -396,6 +413,16 @@ namespace e2d { namespace strings
             buffer.data(), buffer.size(), fmt, targs);
         E2D_ASSERT(expected_format_size == actual_format_size);
         return str(buffer.data(), buffer.data() + actual_format_size);
+    }
+
+    template < typename... Args >
+    bool rformat_nothrow(str& dst, str_view fmt, Args&&... args) noexcept {
+        try {
+            dst = rformat(fmt, std::forward<Args>(args)...);
+            return true;
+        } catch (...) {
+            return false;
+        }
     }
 }}
 

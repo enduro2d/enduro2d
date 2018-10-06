@@ -51,7 +51,18 @@ namespace e2d
             str_view fmt, Args&&... args);
 
         template < typename... Args >
-        str rformat(str_view fmt, Args&&... args);
+        bool format_nothrow(
+            char* dst, std::size_t dst_size, std::size_t* length,
+            str_view fmt, Args&&... args) noexcept;
+
+        template < typename... Args >
+        str rformat(
+            str_view fmt, Args&&... args);
+
+        template < typename... Args >
+        bool rformat_nothrow(
+            str& dst,
+            str_view fmt, Args&&... args) noexcept;
 
         bool wildcard_match(str_view string, str_view pattern);
     }

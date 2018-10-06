@@ -251,6 +251,18 @@ TEST_CASE("strings") {
         REQUIRE_THROWS_AS(strings::rformat("%z%hell"), strings::bad_format);
     }
     {
+        str s;
+        REQUIRE(strings::rformat_nothrow(s, "%0", "hello"));
+        REQUIRE(s == "hello");
+        REQUIRE_FALSE(strings::rformat_nothrow(s, "%"));
+        char buf[5] = {0};
+        std::size_t length = 0;
+        REQUIRE(strings::format_nothrow(buf, E2D_COUNTOF(buf), &length, "%0", "hell"));
+        REQUIRE(length == 4);
+        REQUIRE(str(buf) == str("hell"));
+        REQUIRE_FALSE(strings::format_nothrow(buf, E2D_COUNTOF(buf), &length, "%0", "hello"));
+    }
+    {
         REQUIRE(strings::rformat(str_view("%0"), 42) == "42");
         REQUIRE(strings::rformat(str_view("%0%1",2), 42) == "42");
 
