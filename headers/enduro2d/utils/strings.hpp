@@ -4,6 +4,8 @@
  * Copyright (C) 2018 Matvey Cherevko
  ******************************************************************************/
 
+#ifndef E2D_INCLUDE_GUARD_4540A3A22AD942D8A6B0C77A3346E73A
+#define E2D_INCLUDE_GUARD_4540A3A22AD942D8A6B0C77A3346E73A
 #pragma once
 
 #include "_utils.hpp"
@@ -56,3 +58,4 @@ namespace e2d
 }
 
 #include "strings.inl"
+#endif

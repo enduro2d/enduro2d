@@ -4,6 +4,8 @@
  * Copyright (C) 2018 Matvey Cherevko
  ******************************************************************************/
 
+#ifndef E2D_INCLUDE_GUARD_5BC5A803A3694674845E9953209E8CBE
+#define E2D_INCLUDE_GUARD_5BC5A803A3694674845E9953209E8CBE
 #pragma once
 
 #include "_utils.hpp"
@@ -390,3 +392,5 @@ namespace e2d { namespace strings
         return str(buffer.data(), buffer.data() + actual_format_size);
     }
 }}
+
+#endif
