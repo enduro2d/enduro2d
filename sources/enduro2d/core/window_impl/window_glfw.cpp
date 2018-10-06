@@ -241,6 +241,25 @@ namespace
                 return keyboard_key_action::unknown;
         }
     }
+
+#if defined(E2D_PLATFORM) && E2D_PLATFORM == E2D_PLATFORM_MACOSX
+    // https://github.com/glfw/glfw/issues/1334
+    void glfw_issue_1334(GLFWwindow* window) noexcept {
+        E2D_ASSERT(window);
+        static i32 done_count = 0;
+        if ( done_count < 2 ) {
+            int x, y;
+            glfwGetWindowPos(window, &x, &y);
+            int nx = x + (done_count ? 1 : -1);
+            glfwSetWindowPos(window, nx, y);
+            done_count++;
+        }
+    }
+#else
+    void glfw_issue_1334(GLFWwindow* window) noexcept {
+        E2D_UNUSED(window);
+    }
+#endif
 }
 
 namespace e2d
@@ -571,6 +590,7 @@ namespace e2d
         E2D_ASSERT(state_->window);
         glfwSwapInterval(vsync ? 1 : 0);
         glfwSwapBuffers(state_->window.get());
+        glfw_issue_1334(state_->window.get());
     }
 
     bool window::poll_events() noexcept {
