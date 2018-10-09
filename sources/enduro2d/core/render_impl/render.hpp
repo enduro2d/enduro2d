@@ -7,8 +7,8 @@
 #pragma once
 
 #include <enduro2d/core/debug.hpp>
-#include <enduro2d/core/window.hpp>
 #include <enduro2d/core/render.hpp>
+#include <enduro2d/core/window.hpp>
 
 #define E2D_RENDER_MODE_NONE 1
 #define E2D_RENDER_MODE_OPENGL 2

@@ -109,9 +109,9 @@ namespace e2d
     vertex_declaration::attribute_info::~attribute_info() noexcept = default;
 
     vertex_declaration::attribute_info::attribute_info(
-        const attribute_info&) noexcept = default;
+        const attribute_info&) = default;
     vertex_declaration::attribute_info& vertex_declaration::attribute_info::operator=(
-        const attribute_info&) noexcept = default;
+        const attribute_info&) = default;
 
     vertex_declaration::attribute_info::attribute_info(
         str_view nname,
@@ -120,16 +120,12 @@ namespace e2d
         std::size_t nstride,
         attribute_type ntype,
         bool nnormalized)
-    : rows(nrows)
+    : name(nname)
+    , rows(nrows)
     , columns(ncolumns)
     , stride(nstride)
     , type(ntype)
-    , normalized(nnormalized) {
-        bool name_format_success = strings::format_nothrow(
-            name, E2D_COUNTOF(name), nullptr, "%0", nname);
-        E2D_UNUSED(name_format_success);
-        E2D_ASSERT(name_format_success);
-    }
+    , normalized(nnormalized) {}
 
     std::size_t vertex_declaration::attribute_info::row_size() const noexcept {
         return attribute_element_size(type) * columns;
@@ -143,9 +139,9 @@ namespace e2d
     vertex_declaration::~vertex_declaration() noexcept = default;
 
     vertex_declaration::vertex_declaration(
-        const vertex_declaration&) noexcept = default;
+        const vertex_declaration&) = default;
     vertex_declaration& vertex_declaration::operator=(
-        const vertex_declaration&) noexcept = default;
+        const vertex_declaration&) = default;
 
     vertex_declaration& vertex_declaration::normalized() noexcept {
         E2D_ASSERT(attribute_count_ > 0);
@@ -163,7 +159,7 @@ namespace e2d
         std::size_t rows,
         std::size_t columns,
         attribute_type type,
-        bool normalized) noexcept
+        bool normalized)
     {
         E2D_ASSERT(attribute_count_ < attributes_.size());
         const std::size_t stride = vertex_size_;
@@ -215,7 +211,7 @@ namespace e2d
         const vertex_declaration::attribute_info& l,
         const vertex_declaration::attribute_info& r) noexcept
     {
-        return !std::strcmp(l.name, r.name)
+        return l.name == r.name
             && l.rows == r.rows
             && l.columns == r.columns
             && l.stride == r.stride
@@ -254,22 +250,22 @@ namespace e2d
     // render_state
     //
 
-    render::render_state& render::render_state::culling(bool enable) noexcept {
+    render::capabilities_state& render::capabilities_state::culling(bool enable) noexcept {
         culling_ = enable;
         return *this;
     }
 
-    render::render_state& render::render_state::blending(bool enable) noexcept {
+    render::capabilities_state& render::capabilities_state::blending(bool enable) noexcept {
         blending_ = enable;
         return *this;
     }
 
-    render::render_state& render::render_state::depth_test(bool enable) noexcept {
+    render::capabilities_state& render::capabilities_state::depth_test(bool enable) noexcept {
         depth_test_ = enable;
         return *this;
     }
 
-    render::render_state& render::render_state::stencil_test(bool enable) noexcept {
+    render::capabilities_state& render::capabilities_state::stencil_test(bool enable) noexcept {
         stencil_test_ = enable;
         return *this;
     }

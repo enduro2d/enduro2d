@@ -43,7 +43,7 @@ TEST_CASE("render"){
         REQUIRE(vd.vertex_size() == 8);
 
         vertex_declaration::attribute_info ai = vd.attribute(0);
-        REQUIRE(!std::strcmp(ai.name, "hello"));
+        REQUIRE(ai.name == "hello");
         REQUIRE(ai.columns == 2);
         REQUIRE(ai.stride == 0);
         REQUIRE(ai.type == vertex_declaration::attribute_type::floating_point);
@@ -57,7 +57,7 @@ TEST_CASE("render"){
         REQUIRE(vd.vertex_size() == 14);
 
         vertex_declaration::attribute_info ai2 = vd.attribute(1);
-        REQUIRE(!std::strcmp(ai2.name, "world"));
+        REQUIRE(ai2.name == "world");
         REQUIRE(ai2.columns == 1);
         REQUIRE(ai2.stride == 12);
         REQUIRE(ai2.type == vertex_declaration::attribute_type::unsigned_short);

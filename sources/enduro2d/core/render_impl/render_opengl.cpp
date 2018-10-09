@@ -704,7 +704,7 @@ namespace
         for ( std::size_t i = 0, e = decl.attribute_count(); i < e; ++i ) {
             const vertex_declaration::attribute_info& ai = decl.attribute(i);
             GL_CHECK_CODE(debug, glBindAttribLocation(
-                program, location, ai.name));
+                program, location, ai.name.c_str()));
             location += math::numeric_cast<GLuint>(ai.rows);
         }
         return true;
@@ -1239,18 +1239,6 @@ namespace e2d
         return *this;
     }
 
-    render& render::set_render_state(const render_state& bs) noexcept {
-        GL_CHECK_CODE(state_->debug_, gl_enable_or_disable(
-            GL_CULL_FACE, bs.culling_));
-        GL_CHECK_CODE(state_->debug_, gl_enable_or_disable(
-            GL_BLEND, bs.blending_));
-        GL_CHECK_CODE(state_->debug_, gl_enable_or_disable(
-            GL_DEPTH_TEST, bs.depth_test_));
-        GL_CHECK_CODE(state_->debug_, gl_enable_or_disable(
-            GL_STENCIL_TEST, bs.stencil_test_));
-        return *this;
-    }
-
     render& render::set_stencil_state(const stencil_state& ss) noexcept {
         GL_CHECK_CODE(state_->debug_, glStencilMask(
             math::numeric_cast<GLuint>(ss.write_)));
@@ -1292,6 +1280,18 @@ namespace e2d
             (enum_to_number(bs.color_mask_) & enum_to_number(blending_color_mask::g)) != 0,
             (enum_to_number(bs.color_mask_) & enum_to_number(blending_color_mask::b)) != 0,
             (enum_to_number(bs.color_mask_) & enum_to_number(blending_color_mask::a)) != 0));
+        return *this;
+    }
+
+    render& render::set_capabilities_state(const capabilities_state& cs) noexcept {
+        GL_CHECK_CODE(state_->debug_, gl_enable_or_disable(
+            GL_CULL_FACE, cs.culling_));
+        GL_CHECK_CODE(state_->debug_, gl_enable_or_disable(
+            GL_BLEND, cs.blending_));
+        GL_CHECK_CODE(state_->debug_, gl_enable_or_disable(
+            GL_DEPTH_TEST, cs.depth_test_));
+        GL_CHECK_CODE(state_->debug_, gl_enable_or_disable(
+            GL_STENCIL_TEST, cs.stencil_test_));
         return *this;
     }
 }

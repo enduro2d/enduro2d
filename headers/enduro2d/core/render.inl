@@ -14,7 +14,7 @@
 namespace e2d
 {
     template < typename T >
-    vertex_declaration& vertex_declaration::add_attribute(str_view name) noexcept {
+    vertex_declaration& vertex_declaration::add_attribute(str_view name) {
         E2D_UNUSED(name);
         static_assert(sizeof(T) == 0, "not implemented for this type");
         return *this;
@@ -22,7 +22,7 @@ namespace e2d
 
     #define DEFINE_ADD_ATTRIBUTE_SPECIALIZATION(t, rows, columns, type)\
         template <>\
-        inline vertex_declaration& vertex_declaration::add_attribute<t>(str_view name) noexcept {\
+        inline vertex_declaration& vertex_declaration::add_attribute<t>(str_view name) {\
             return add_attribute(name, (rows), (columns), attribute_type::type, false);\
         }
 

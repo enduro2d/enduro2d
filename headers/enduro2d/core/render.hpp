@@ -69,9 +69,6 @@ namespace e2d
 
     class vertex_declaration final {
     public:
-        constexpr static std::size_t max_attribute_name = 128;
-        constexpr static std::size_t max_attribute_count = 16;
-
         enum class attribute_type : u8 {
             signed_byte,
             unsigned_byte,
@@ -82,7 +79,7 @@ namespace e2d
 
         class attribute_info final {
         public:
-            char name[max_attribute_name] = {0};
+            str name;
             std::size_t rows = 0;
             std::size_t columns = 0;
             std::size_t stride = 0;
@@ -92,8 +89,8 @@ namespace e2d
             attribute_info() noexcept;
             ~attribute_info() noexcept;
 
-            attribute_info(const attribute_info&) noexcept;
-            attribute_info& operator=(const attribute_info&) noexcept;
+            attribute_info(const attribute_info&);
+            attribute_info& operator=(const attribute_info&);
 
             attribute_info(
                 str_view name,
@@ -109,11 +106,11 @@ namespace e2d
         vertex_declaration() noexcept;
         ~vertex_declaration() noexcept;
 
-        vertex_declaration(const vertex_declaration&) noexcept;
-        vertex_declaration& operator=(const vertex_declaration&) noexcept;
+        vertex_declaration(const vertex_declaration&);
+        vertex_declaration& operator=(const vertex_declaration&);
 
         template < typename T >
-        vertex_declaration& add_attribute(str_view name) noexcept;
+        vertex_declaration& add_attribute(str_view name);
         vertex_declaration& normalized() noexcept;
 
         vertex_declaration& skip_bytes(
@@ -124,12 +121,13 @@ namespace e2d
             std::size_t rows,
             std::size_t columns,
             attribute_type type,
-            bool normalized) noexcept;
+            bool normalized);
 
         const attribute_info& attribute(std::size_t i) const noexcept;
         std::size_t attribute_count() const noexcept;
         std::size_t vertex_size() const noexcept;
     private:
+        constexpr static std::size_t max_attribute_count = 16;
         array<attribute_info, max_attribute_count> attributes_;
         std::size_t attribute_count_ = 0;
         std::size_t vertex_size_ = 0;
@@ -288,6 +286,14 @@ namespace e2d
     using vertex_buffer_ptr = std::shared_ptr<vertex_buffer>;
 
     //
+    // render_state
+    //
+
+    class render_state final : private noncopyable {
+    public:
+    };
+
+    //
     // render
     //
 
@@ -393,20 +399,6 @@ namespace e2d
             u8 _pad[2] = {0};
         };
 
-        class render_state {
-        public:
-            render_state& culling(bool enable) noexcept;
-            render_state& blending(bool enable) noexcept;
-            render_state& depth_test(bool enable) noexcept;
-            render_state& stencil_test(bool enable) noexcept;
-        private:
-            friend class render;
-            bool culling_ = false;
-            bool blending_ = false;
-            bool depth_test_ = false;
-            bool stencil_test_ = false;
-        };
-
         class stencil_state {
         public:
             stencil_state& write(u8 mask) noexcept;
@@ -457,6 +449,20 @@ namespace e2d
             blending_color_mask color_mask_ = blending_color_mask::rgba;
             u8 _pad[1] = {0};
         };
+
+        class capabilities_state {
+        public:
+            capabilities_state& culling(bool enable) noexcept;
+            capabilities_state& blending(bool enable) noexcept;
+            capabilities_state& depth_test(bool enable) noexcept;
+            capabilities_state& stencil_test(bool enable) noexcept;
+        private:
+            friend class render;
+            bool culling_ = false;
+            bool blending_ = false;
+            bool depth_test_ = false;
+            bool stencil_test_ = false;
+        };
     public:
         render(debug& d, window& w);
         ~render() noexcept final;
@@ -499,10 +505,10 @@ namespace e2d
         render& set_viewport(u32 x, u32 y, u32 w, u32 h) noexcept;
 
         render& set_depth_state(const depth_state& ds) noexcept;
-        render& set_render_state(const render_state& rs) noexcept;
         render& set_stencil_state(const stencil_state& ss) noexcept;
         render& set_culling_state(const culling_state& cs) noexcept;
         render& set_blending_state(const blending_state& bs) noexcept;
+        render& set_capabilities_state(const capabilities_state& cs) noexcept;
     private:
         class internal_state;
         std::unique_ptr<internal_state> state_;
