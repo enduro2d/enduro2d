@@ -238,6 +238,26 @@ namespace e2d
             ? str32()
             : str32(src.cbegin(), src.cend());
     }
+
+    //
+    // make_hash
+    //
+
+    str_hash make_hash(str_view src) {
+        return str_hash(src);
+    }
+
+    wstr_hash make_hash(wstr_view src) {
+        return wstr_hash(src);
+    }
+
+    str16_hash make_hash(str16_view src) {
+        return str16_hash(src);
+    }
+
+    str32_hash make_hash(str32_view src) {
+        return str32_hash(src);
+    }
 }
 
 namespace e2d { namespace strings

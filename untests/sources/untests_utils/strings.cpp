@@ -19,6 +19,45 @@ namespace
 
 TEST_CASE("strings") {
     {
+        REQUIRE(str_hash().empty());
+        REQUIRE(str_hash("").empty());
+        REQUIRE_FALSE(str_hash("1").empty());
+
+        REQUIRE(str_hash().hash() == str_hash().hash());
+        REQUIRE(str_hash().hash() == str_hash({null_utf8,0}).hash());
+        REQUIRE(str_hash().hash() == wstr_hash({null_wide,0}).hash());
+        REQUIRE(str_hash().hash() == str16_hash({null_utf16,0}).hash());
+        REQUIRE(str_hash().hash() == str32_hash({null_utf32,0}).hash());
+        REQUIRE(str_hash("hello").hash() == str_hash("hello").hash());
+        REQUIRE(str_hash("world").hash() == str_hash("world").hash());
+        REQUIRE(str_hash("hello").hash() != str_hash("world").hash());
+
+        REQUIRE(str_hash() == str_hash());
+        REQUIRE(str_hash() == make_hash({null_utf8,0}));
+        REQUIRE(wstr_hash() == make_hash({null_wide,0}));
+        REQUIRE(str16_hash() == make_hash({null_utf16,0}));
+        REQUIRE(str32_hash() == make_hash({null_utf32,0}));
+        REQUIRE(str_hash("hello") == make_hash("hello"));
+        REQUIRE(str_hash("world") == make_hash("world"));
+        REQUIRE(str_hash("hello") != make_hash("world"));
+
+        REQUIRE(str_hash("hello").assign("world") == make_hash("world"));
+        REQUIRE(str_hash("hello").assign(make_hash("world")) == make_hash("world"));
+        {
+            str_hash s("hello");
+            s.clear();
+            REQUIRE(s.empty());
+            REQUIRE(s == str_hash());
+        }
+        {
+            str_hash s1("hello");
+            str_hash s2("world");
+            s1.swap(s2);
+            REQUIRE(s2 == str_hash("hello"));
+            REQUIRE(s1 == make_hash("world"));
+        }
+    }
+    {
         REQUIRE(make_utf8("hello") == "hello");
         REQUIRE(make_utf8(L"hello") == "hello");
         REQUIRE(make_utf8(u"hello") == "hello");
@@ -251,6 +290,18 @@ TEST_CASE("strings") {
         REQUIRE_THROWS_AS(strings::rformat("%z%hell"), strings::bad_format);
     }
     {
+        str s;
+        REQUIRE(strings::rformat_nothrow(s, "%0", "hello"));
+        REQUIRE(s == "hello");
+        REQUIRE_FALSE(strings::rformat_nothrow(s, "%"));
+        char buf[5] = {0};
+        std::size_t length = 0;
+        REQUIRE(strings::format_nothrow(buf, E2D_COUNTOF(buf), &length, "%0", "hell"));
+        REQUIRE(length == 4);
+        REQUIRE(str(buf) == str("hell"));
+        REQUIRE_FALSE(strings::format_nothrow(buf, E2D_COUNTOF(buf), &length, "%0", "hello"));
+    }
+    {
         REQUIRE(strings::rformat(str_view("%0"), 42) == "42");
         REQUIRE(strings::rformat(str_view("%0%1",2), 42) == "42");
 
@@ -343,6 +394,10 @@ TEST_CASE("strings") {
                 "%0 %2 %1 %4 %3 %6 %7 %5 %8 %9",
                 0, 1, 2, 3, 4, 5, 6, 7, 8, 9) ==
             str("0 2 1 4 3 6 7 5 8 9"));
+    }
+    {
+        REQUIRE(strings::rformat("%0", static_cast<char*>(nullptr)).empty());
+        REQUIRE(strings::rformat("%0", static_cast<const char*>(nullptr)).empty());
     }
     {
         REQUIRE(strings::rformat("%0", strings::make_format_arg("ab", u8(4))) == "  ab");

@@ -4,9 +4,60 @@
  * Copyright (C) 2018 Matvey Cherevko
  ******************************************************************************/
 
+#ifndef E2D_INCLUDE_GUARD_4540A3A22AD942D8A6B0C77A3346E73A
+#define E2D_INCLUDE_GUARD_4540A3A22AD942D8A6B0C77A3346E73A
 #pragma once
 
 #include "_utils.hpp"
+
+namespace e2d
+{
+    template < typename Char >
+    class basic_string_hash final {
+    public:
+        static std::size_t empty_hash() noexcept;
+    public:
+        basic_string_hash() noexcept;
+        ~basic_string_hash() noexcept;
+
+        basic_string_hash(basic_string_hash&& other) noexcept;
+        basic_string_hash& operator=(basic_string_hash&& other) noexcept;
+
+        basic_string_hash(const basic_string_hash& other) noexcept;
+        basic_string_hash& operator=(const basic_string_hash& other) noexcept;
+
+        explicit basic_string_hash(basic_string_view<Char> str) noexcept;
+
+        basic_string_hash& assign(basic_string_hash&& other) noexcept;
+        basic_string_hash& assign(const basic_string_hash& other) noexcept;
+        basic_string_hash& assign(basic_string_view<Char> str) noexcept;
+
+        void swap(basic_string_hash& other) noexcept;
+        void clear() noexcept;
+        bool empty() const noexcept;
+
+        std::size_t hash() const noexcept;
+    private:
+        static std::size_t calculate_hash(
+            basic_string_view<Char> str) noexcept;
+        static void debug_check_collisions(
+            std::size_t hash, basic_string_view<Char> str) noexcept;
+    private:
+        std::size_t hash_ = empty_hash();
+    };
+
+    template < typename Char >
+    void swap(basic_string_hash<Char>& l, basic_string_hash<Char>& r) noexcept;
+
+    template < typename Char >
+    bool operator<(basic_string_hash<Char> l, basic_string_hash<Char> r) noexcept;
+
+    template < typename Char >
+    bool operator==(basic_string_hash<Char> l, basic_string_hash<Char> r) noexcept;
+
+    template < typename Char >
+    bool operator!=(basic_string_hash<Char> l, basic_string_hash<Char> r) noexcept;
+}
 
 namespace e2d
 {
@@ -30,6 +81,11 @@ namespace e2d
     str32 make_utf32(str16_view src);
     str32 make_utf32(str32_view src);
 
+    str_hash make_hash(str_view src);
+    wstr_hash make_hash(wstr_view src);
+    str16_hash make_hash(str16_view src);
+    str32_hash make_hash(str32_view src);
+
     namespace strings
     {
         class format_error;
@@ -49,10 +105,22 @@ namespace e2d
             str_view fmt, Args&&... args);
 
         template < typename... Args >
-        str rformat(str_view fmt, Args&&... args);
+        bool format_nothrow(
+            char* dst, std::size_t dst_size, std::size_t* length,
+            str_view fmt, Args&&... args) noexcept;
+
+        template < typename... Args >
+        str rformat(
+            str_view fmt, Args&&... args);
+
+        template < typename... Args >
+        bool rformat_nothrow(
+            str& dst,
+            str_view fmt, Args&&... args) noexcept;
 
         bool wildcard_match(str_view string, str_view pattern);
     }
 }
 
 #include "strings.inl"
+#endif
