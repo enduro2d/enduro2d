@@ -84,13 +84,16 @@ int e2d_main() {
 
     const keyboard& k = the<input>().keyboard();
     while ( !the<window>().should_close() && !k.is_key_just_released(keyboard_key::escape) ) {
-        the<render>().set_clear_color({1.f, 0.4f, 0.f, 1.f});
-        the<render>().clear(true, true, true);
-
-        f32 t = (time::now_ms() - begin_time).cast_to<f32>().value;
-        ps->set_uniform("u_time", t);
         {
-            the<render>().draw(render::topology::triangles, ps, ib, vb);
+            f32 t = (time::now_ms() - begin_time).cast_to<f32>().value;
+            ps->set_uniform("u_time", t);
+        }
+        {
+            the<render>()
+                .clear_depth_buffer(1.f)
+                .clear_stencil_buffer(0)
+                .clear_color_buffer({1.f, 0.4f, 0.f, 1.f})
+                .draw(render::topology::triangles, ps, ib, vb);
         }
         the<window>().swap_buffers(true);
         the<input>().frame_tick();

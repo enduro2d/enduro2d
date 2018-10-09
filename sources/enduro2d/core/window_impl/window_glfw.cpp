@@ -278,15 +278,13 @@ namespace e2d
         str title;
         bool fullscreen = false;
         bool cursor_hidden = false;
-        char _pad[6];
     public:
-        state(const v2u& size, str_view title, bool fullscreen)
+        state(const v2u& size, str_view ntitle, bool nfullscreen)
         : shared_state(glfw_state::get_shared_state())
-        , window(open_window_(size, make_utf8(title), fullscreen))
+        , window(open_window_(size, make_utf8(ntitle), nfullscreen))
         , virtual_size(size)
-        , title(title)
-        , fullscreen(fullscreen)
-        , cursor_hidden(false)
+        , title(ntitle)
+        , fullscreen(nfullscreen)
         {
             if ( !window ) {
                 throw bad_window_operation();
@@ -341,6 +339,9 @@ namespace e2d
             glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
             glfwWindowHint(GLFW_SCALE_TO_MONITOR, GLFW_FALSE);
             glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_FALSE);
+        #if defined(E2D_BUILD_MODE) && E2D_BUILD_MODE == E2D_BUILD_MODE_DEBUG
+            glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
+        #endif
             v2i real_size = fullscreen
                 ? make_vec2(video_mode->width, video_mode->height)
                 : virtual_size.cast_to<i32>();

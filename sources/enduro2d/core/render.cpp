@@ -229,4 +229,133 @@ namespace e2d
     {
         return !(l == r);
     }
+
+    //
+    // depth_state
+    //
+
+    render::depth_state& render::depth_state::range(f32 near, f32 far) noexcept {
+        near_ = near;
+        far_ = far;
+        return *this;
+    }
+
+    render::depth_state& render::depth_state::write(bool enable) noexcept {
+        write_ = enable;
+        return *this;
+    }
+
+    render::depth_state& render::depth_state::func(compare_func func) noexcept {
+        func_ = func;
+        return *this;
+    }
+
+    //
+    // render_state
+    //
+
+    render::render_state& render::render_state::culling(bool enable) noexcept {
+        culling_ = enable;
+        return *this;
+    }
+
+    render::render_state& render::render_state::blending(bool enable) noexcept {
+        blending_ = enable;
+        return *this;
+    }
+
+    render::render_state& render::render_state::depth_test(bool enable) noexcept {
+        depth_test_ = enable;
+        return *this;
+    }
+
+    render::render_state& render::render_state::stencil_test(bool enable) noexcept {
+        stencil_test_ = enable;
+        return *this;
+    }
+
+    //
+    // stencil_state
+    //
+
+    render::stencil_state& render::stencil_state::write(u8 mask) noexcept {
+        write_ = mask;
+        return *this;
+    }
+
+    render::stencil_state& render::stencil_state::func(compare_func func, u8 ref, u8 mask) noexcept {
+        func_ = func;
+        ref_ = ref;
+        read_ = mask;
+        return *this;
+    }
+
+    render::stencil_state& render::stencil_state::op(stencil_op sfail, stencil_op zfail, stencil_op pass) noexcept {
+        sfail_ = sfail;
+        zfail_ = zfail;
+        pass_ = pass;
+        return *this;
+    }
+
+    //
+    // culling_state
+    //
+
+    render::culling_state& render::culling_state::mode(culling_mode mode) noexcept {
+        mode_ = mode;
+        return *this;
+    }
+
+    render::culling_state& render::culling_state::face(culling_face face) noexcept {
+        face_ = face;
+        return *this;
+    }
+
+    //
+    // blending_state
+    //
+
+    render::blending_state& render::blending_state::constant_color(const color& c) noexcept {
+        constant_color_ = c;
+        return *this;
+    }
+
+    render::blending_state& render::blending_state::factor(blending_factor src, blending_factor dst) noexcept {
+        rgb_factor(src, dst);
+        alpha_factor(src, dst);
+        return *this;
+    }
+
+    render::blending_state& render::blending_state::rgb_factor(blending_factor src, blending_factor dst) noexcept {
+        src_rgb_factor_ = src;
+        dst_rgb_factor_ = dst;
+        return *this;
+    }
+
+    render::blending_state& render::blending_state::alpha_factor(blending_factor src, blending_factor dst) noexcept {
+        src_alpha_factor_ = src;
+        dst_alpha_factor_ = dst;
+        return *this;
+    }
+
+    render::blending_state& render::blending_state::equation(blending_equation equation) noexcept {
+        rgb_equation(equation);
+        alpha_equation(equation);
+        return *this;
+    }
+
+    render::blending_state& render::blending_state::rgb_equation(blending_equation equation) noexcept {
+        rgb_equation_ = equation;
+        return *this;
+    }
+
+    render::blending_state& render::blending_state::alpha_equation(blending_equation equation) noexcept {
+        alpha_equation_ = equation;
+        return *this;
+    }
+
+    render::blending_state& render::blending_state::color_mask(blending_color_mask mask) noexcept {
+        color_mask_ = mask;
+        return *this;
+    }
 }

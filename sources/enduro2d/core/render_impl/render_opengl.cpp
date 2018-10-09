@@ -73,7 +73,7 @@ namespace
     GLint convert_attribute_type(shader::attribute_type at) noexcept {
         #define DEFINE_CASE(x,y) case shader::attribute_type::x: return y;
         switch ( at ) {
-            DEFINE_CASE(f, GL_FLOAT);
+            DEFINE_CASE(floating_point, GL_FLOAT);
 
             DEFINE_CASE(v2f, GL_FLOAT_VEC2);
             DEFINE_CASE(v3f, GL_FLOAT_VEC3);
@@ -140,35 +140,82 @@ namespace
         #undef DEFINE_CASE
     }
 
-    GLenum convert_state(render::state s) noexcept {
-        #define DEFINE_CASE(x,y) case render::state::x: return y;
-        switch ( s ) {
-            DEFINE_CASE(blend, GL_BLEND);
-            DEFINE_CASE(cull_face, GL_CULL_FACE);
-            DEFINE_CASE(depth_test, GL_DEPTH_TEST);
-            DEFINE_CASE(stencil_test, GL_STENCIL_TEST);
+    GLenum convert_topology(render::topology t) noexcept {
+        #define DEFINE_CASE(x,y) case render::topology::x: return y;
+        switch ( t ) {
+            DEFINE_CASE(triangles, GL_TRIANGLES);
+            DEFINE_CASE(triangles_fan, GL_TRIANGLE_FAN);
+            DEFINE_CASE(triangles_strip, GL_TRIANGLE_STRIP);
             default:
-                E2D_ASSERT_MSG(false, "unexpected render state");
+                E2D_ASSERT_MSG(false, "unexpected render topology");
                 return 0;
         }
         #undef DEFINE_CASE
     }
 
-    GLenum convert_cull_face(render::cull_face cf) noexcept {
-        #define DEFINE_CASE(x,y) case render::cull_face::x: return y;
+    GLenum convert_stencil_op(render::stencil_op sa) noexcept {
+        #define DEFINE_CASE(x,y) case render::stencil_op::x: return y;
+        switch ( sa ) {
+            DEFINE_CASE(keep, GL_KEEP);
+            DEFINE_CASE(zero, GL_ZERO);
+            DEFINE_CASE(replace, GL_REPLACE);
+            DEFINE_CASE(incr, GL_INCR);
+            DEFINE_CASE(incr_wrap, GL_INCR_WRAP);
+            DEFINE_CASE(decr, GL_DECR);
+            DEFINE_CASE(decr_wrap, GL_DECR_WRAP);
+            DEFINE_CASE(invert, GL_INVERT);
+            default:
+                E2D_ASSERT_MSG(false, "unexpected render stencil op");
+                return 0;
+        }
+        #undef DEFINE_CASE
+    }
+
+    GLenum convert_compare_func(render::compare_func cf) noexcept {
+        #define DEFINE_CASE(x,y) case render::compare_func::x: return y;
         switch ( cf ) {
-            DEFINE_CASE(front, GL_FRONT);
-            DEFINE_CASE(back, GL_BACK);
-            DEFINE_CASE(front_back, GL_FRONT_AND_BACK);
+            DEFINE_CASE(never, GL_NEVER);
+            DEFINE_CASE(less, GL_LESS);
+            DEFINE_CASE(lequal, GL_LEQUAL);
+            DEFINE_CASE(greater, GL_GREATER);
+            DEFINE_CASE(gequal, GL_GEQUAL);
+            DEFINE_CASE(equal, GL_EQUAL);
+            DEFINE_CASE(notequal, GL_NOTEQUAL);
+            DEFINE_CASE(always, GL_ALWAYS);
             default:
-                E2D_ASSERT_MSG(false, "unexpected render cull face");
+                E2D_ASSERT_MSG(false, "unexpected render compare func");
                 return 0;
         }
         #undef DEFINE_CASE
     }
 
-    GLenum convert_blend_func(render::blend_func bf) noexcept {
-        #define DEFINE_CASE(x,y) case render::blend_func::x: return y;
+    GLenum convert_culling_mode(render::culling_mode cm) noexcept {
+        #define DEFINE_CASE(x,y) case render::culling_mode::x: return y;
+        switch ( cm ) {
+            DEFINE_CASE(cw, GL_CW);
+            DEFINE_CASE(ccw, GL_CCW);
+            default:
+                E2D_ASSERT_MSG(false, "unexpected render culling mode");
+                return 0;
+        }
+        #undef DEFINE_CASE
+    }
+
+    GLenum convert_culling_face(render::culling_face cf) noexcept {
+        #define DEFINE_CASE(x,y) case render::culling_face::x: return y;
+        switch ( cf ) {
+            DEFINE_CASE(back, GL_BACK);
+            DEFINE_CASE(front, GL_FRONT);
+            DEFINE_CASE(back_and_front, GL_FRONT_AND_BACK);
+            default:
+                E2D_ASSERT_MSG(false, "unexpected render culling face");
+                return 0;
+        }
+        #undef DEFINE_CASE
+    }
+
+    GLenum convert_blending_factor(render::blending_factor bf) noexcept {
+        #define DEFINE_CASE(x,y) case render::blending_factor::x: return y;
         switch ( bf ) {
             DEFINE_CASE(zero, GL_ZERO);
             DEFINE_CASE(one, GL_ONE);
@@ -186,87 +233,20 @@ namespace
             DEFINE_CASE(one_minus_constant_alpha, GL_ONE_MINUS_CONSTANT_ALPHA);
             DEFINE_CASE(src_alpha_saturate, GL_SRC_ALPHA_SATURATE);
             default:
-                E2D_ASSERT_MSG(false, "unexpected render blend func");
+                E2D_ASSERT_MSG(false, "unexpected render blending factor");
                 return 0;
         }
         #undef DEFINE_CASE
     }
 
-    GLenum convert_blend_equation(render::blend_equation bf) noexcept {
-        #define DEFINE_CASE(x,y) case render::blend_equation::x: return y;
-        switch ( bf ) {
+    GLenum convert_blending_equation(render::blending_equation be) noexcept {
+        #define DEFINE_CASE(x,y) case render::blending_equation::x: return y;
+        switch ( be ) {
             DEFINE_CASE(add, GL_FUNC_ADD);
             DEFINE_CASE(subtract, GL_FUNC_SUBTRACT);
             DEFINE_CASE(reverse_subtract, GL_FUNC_REVERSE_SUBTRACT);
             default:
-                E2D_ASSERT_MSG(false, "unexpected render blend equation");
-                return 0;
-        }
-        #undef DEFINE_CASE
-    }
-
-    GLenum convert_depth_func(render::depth_func df) noexcept {
-        #define DEFINE_CASE(x,y) case render::depth_func::x: return y;
-        switch ( df ) {
-            DEFINE_CASE(never, GL_NEVER);
-            DEFINE_CASE(less, GL_LESS);
-            DEFINE_CASE(lequal, GL_LEQUAL);
-            DEFINE_CASE(greater, GL_GREATER);
-            DEFINE_CASE(gequal, GL_GEQUAL);
-            DEFINE_CASE(equal, GL_EQUAL);
-            DEFINE_CASE(notequal, GL_NOTEQUAL);
-            DEFINE_CASE(always, GL_ALWAYS);
-            default:
-                E2D_ASSERT_MSG(false, "unexpected render depth func");
-                return 0;
-        }
-        #undef DEFINE_CASE
-    }
-
-    GLenum convert_stencil_func(render::stencil_func sf) noexcept {
-        #define DEFINE_CASE(x,y) case render::stencil_func::x: return y;
-        switch ( sf ) {
-            DEFINE_CASE(never, GL_NEVER);
-            DEFINE_CASE(less, GL_LESS);
-            DEFINE_CASE(lequal, GL_LEQUAL);
-            DEFINE_CASE(greater, GL_GREATER);
-            DEFINE_CASE(gequal, GL_GEQUAL);
-            DEFINE_CASE(equal, GL_EQUAL);
-            DEFINE_CASE(notequal, GL_NOTEQUAL);
-            DEFINE_CASE(always, GL_ALWAYS);
-            default:
-                E2D_ASSERT_MSG(false, "unexpected render stencil func");
-                return 0;
-        }
-        #undef DEFINE_CASE
-    }
-
-    GLenum convert_stencil_op(render::stencil_op so) noexcept {
-        #define DEFINE_CASE(x,y) case render::stencil_op::x: return y;
-        switch ( so ) {
-            DEFINE_CASE(keep, GL_KEEP);
-            DEFINE_CASE(zero, GL_ZERO);
-            DEFINE_CASE(replace, GL_REPLACE);
-            DEFINE_CASE(incr, GL_INCR);
-            DEFINE_CASE(incr_wrap, GL_INCR_WRAP);
-            DEFINE_CASE(decr, GL_DECR);
-            DEFINE_CASE(decr_wrap, GL_DECR_WRAP);
-            DEFINE_CASE(invert, GL_INVERT);
-            default:
-                E2D_ASSERT_MSG(false, "unexpected render stencil op");
-                return 0;
-        }
-        #undef DEFINE_CASE
-    }
-
-    GLenum convert_topology(render::topology t) noexcept {
-        #define DEFINE_CASE(x,y) case render::topology::x: return y;
-        switch ( t ) {
-            DEFINE_CASE(triangles, GL_TRIANGLES);
-            DEFINE_CASE(triangles_fan, GL_TRIANGLE_FAN);
-            DEFINE_CASE(triangles_strip, GL_TRIANGLE_STRIP);
-            default:
-                E2D_ASSERT_MSG(false, "unexpected topology");
+                E2D_ASSERT_MSG(false, "unexpected render blending equation");
                 return 0;
         }
         #undef DEFINE_CASE
@@ -335,6 +315,14 @@ namespace
     void gl_get_attribute_location(GLuint program, const GLchar* name, GLint* loc) noexcept {
         E2D_ASSERT(loc);
         *loc = glGetAttribLocation(program, name);
+    }
+
+    void gl_enable_or_disable(GLenum cap, bool enable) noexcept {
+        if ( enable ) {
+            glEnable(cap);
+        } else {
+            glDisable(cap);
+        }
     }
 
     #define GL_FLUSH_ERRORS(dbg)\
@@ -719,7 +707,6 @@ namespace
                 program, location, ai.name));
             location += math::numeric_cast<GLuint>(ai.rows);
         }
-        //TODO(BlackMat): add attribute type checks
         return true;
     }
 
@@ -795,6 +782,11 @@ namespace
             }
             location += rows;
         }
+    }
+
+    template < typename E >
+    constexpr std::underlying_type_t<E> enum_to_number(E e) noexcept {
+        return static_cast<std::underlying_type_t<E>>(e);
     }
 }
 
@@ -1161,20 +1153,6 @@ namespace e2d
                 state_->debug_, std::move(id), vertices.size(), decl, usage));
     }
 
-    void render::clear(bool color, bool depth, bool stencil) noexcept {
-        GLbitfield mask = 0;
-        if ( color ) {
-            mask |= GL_COLOR_BUFFER_BIT;
-        }
-        if ( depth ) {
-            mask |= GL_DEPTH_BUFFER_BIT;
-        }
-        if ( stencil ) {
-            mask |= GL_STENCIL_BUFFER_BIT;
-        }
-        GL_CHECK_CODE(state_->debug_, glClear(mask));
-    }
-
     void render::draw(
         topology tp,
         const shader_ptr& ps,
@@ -1202,112 +1180,119 @@ namespace e2d
         GL_CHECK_CODE(state_->debug_, glUseProgram(0));
     }
 
-    void render::set_model(const m4f& model) noexcept {
+    render& render::clear_depth_buffer(f32 value) noexcept {
+        GL_CHECK_CODE(state_->debug_, glClearDepth(
+            math::numeric_cast<GLclampd>(math::saturate(value))));
+        GL_CHECK_CODE(state_->debug_, glClear(GL_DEPTH_BUFFER_BIT));
+        return *this;
+    }
+
+    render& render::clear_stencil_buffer(u8 value) noexcept {
+        GL_CHECK_CODE(state_->debug_, glClearStencil(
+            math::numeric_cast<GLint>(value)));
+        GL_CHECK_CODE(state_->debug_, glClear(GL_STENCIL_BUFFER_BIT));
+        return *this;
+    }
+
+    render& render::clear_color_buffer(const color& value) noexcept {
+        GL_CHECK_CODE(state_->debug_, glClearColor(
+            math::numeric_cast<GLclampf>(math::saturate(value.r)),
+            math::numeric_cast<GLclampf>(math::saturate(value.g)),
+            math::numeric_cast<GLclampf>(math::saturate(value.b)),
+            math::numeric_cast<GLclampf>(math::saturate(value.a))));
+        GL_CHECK_CODE(state_->debug_, glClear(GL_COLOR_BUFFER_BIT));
+        return *this;
+    }
+
+    render& render::set_model(const m4f& model) noexcept {
         state_->model_ = model;
+        return *this;
     }
 
-    void render::set_view(const m4f& view) noexcept {
+    render& render::set_view(const m4f& view) noexcept {
         state_->view_ = view;
+        return *this;
     }
 
-    void render::set_projection(const m4f& projection) noexcept {
+    render& render::set_projection(const m4f& projection) noexcept {
         state_->projection_ = projection;
+        return *this;
     }
 
-    void render::set_viewport(u32 x, u32 y, u32 w, u32 h) noexcept {
+    render& render::set_viewport(u32 x, u32 y, u32 w, u32 h) noexcept {
         GL_CHECK_CODE(state_->debug_, glViewport(
             math::numeric_cast<GLint>(x),
             math::numeric_cast<GLint>(y),
             math::numeric_cast<GLsizei>(w),
             math::numeric_cast<GLsizei>(h)));
+        return *this;
     }
 
-    void render::enable_state(state state) noexcept {
-        GL_CHECK_CODE(state_->debug_, glEnable(convert_state(state)));
-    }
-
-    void render::disable_state(state state) noexcept {
-        GL_CHECK_CODE(state_->debug_, glDisable(convert_state(state)));
-    }
-
-    void render::set_blend_func(blend_func src, blend_func dst) noexcept {
-        GL_CHECK_CODE(state_->debug_, glBlendFunc(
-            convert_blend_func(src), convert_blend_func(dst)));
-    }
-
-    void render::set_blend_color(const color& color) noexcept {
-        GL_CHECK_CODE(state_->debug_, glBlendColor(
-            math::numeric_cast<GLclampf>(color.r),
-            math::numeric_cast<GLclampf>(color.g),
-            math::numeric_cast<GLclampf>(color.b),
-            math::numeric_cast<GLclampf>(color.a)));
-    }
-
-    void render::set_blend_equation(blend_equation blend_equation) noexcept {
-        GL_CHECK_CODE(state_->debug_, glBlendEquation(
-            convert_blend_equation(blend_equation)));
-    }
-
-    void render::set_cull_face(cull_face cull_face) noexcept {
-        GL_CHECK_CODE(state_->debug_, glCullFace(
-            convert_cull_face(cull_face)));
-    }
-
-    void render::set_depth_func(depth_func depth_func) noexcept {
-        GL_CHECK_CODE(state_->debug_, glDepthFunc(
-            convert_depth_func(depth_func)));
-    }
-
-    void render::set_depth_mask(bool yesno) noexcept {
+    render& render::set_depth_state(const depth_state& ds) noexcept {
+        GL_CHECK_CODE(state_->debug_, glDepthRange(
+            math::numeric_cast<GLclampd>(math::saturate(ds.near_)),
+            math::numeric_cast<GLclampd>(math::saturate(ds.far_))));
         GL_CHECK_CODE(state_->debug_, glDepthMask(
-            yesno ? GL_TRUE : GL_FALSE));
+            ds.write_ ? GL_TRUE : GL_FALSE));
+        GL_CHECK_CODE(state_->debug_, glDepthFunc(
+            convert_compare_func(ds.func_)));
+        return *this;
     }
 
-    void render::set_clear_depth(f32 value) noexcept {
-        GL_CHECK_CODE(state_->debug_, glClearDepth(
-            math::numeric_cast<GLclampd>(value)));
+    render& render::set_render_state(const render_state& bs) noexcept {
+        GL_CHECK_CODE(state_->debug_, gl_enable_or_disable(
+            GL_CULL_FACE, bs.culling_));
+        GL_CHECK_CODE(state_->debug_, gl_enable_or_disable(
+            GL_BLEND, bs.blending_));
+        GL_CHECK_CODE(state_->debug_, gl_enable_or_disable(
+            GL_DEPTH_TEST, bs.depth_test_));
+        GL_CHECK_CODE(state_->debug_, gl_enable_or_disable(
+            GL_STENCIL_TEST, bs.stencil_test_));
+        return *this;
     }
 
-    void render::set_stencil_func(stencil_func stencil_func, u32 ref, u32 mask) noexcept {
-        GL_CHECK_CODE(state_->debug_, glStencilFunc(
-            convert_stencil_func(stencil_func),
-            math::numeric_cast<GLint>(ref),
-            math::numeric_cast<GLuint>(mask)));
-    }
-
-    void render::set_stencil_mask(u32 mask) noexcept {
+    render& render::set_stencil_state(const stencil_state& ss) noexcept {
         GL_CHECK_CODE(state_->debug_, glStencilMask(
-            math::numeric_cast<GLuint>(mask)));
-    }
-
-    void render::set_stencil_op(
-        stencil_op fail, stencil_op zfail, stencil_op zpass) noexcept
-    {
+            math::numeric_cast<GLuint>(ss.write_)));
+        GL_CHECK_CODE(state_->debug_, glStencilFunc(
+            convert_compare_func(ss.func_),
+            math::numeric_cast<GLint>(ss.ref_),
+            math::numeric_cast<GLuint>(ss.read_)));
         GL_CHECK_CODE(state_->debug_, glStencilOp(
-            convert_stencil_op(fail),
-            convert_stencil_op(zfail),
-            convert_stencil_op(zpass)));
+            convert_stencil_op(ss.sfail_),
+            convert_stencil_op(ss.zfail_),
+            convert_stencil_op(ss.pass_)));
+        return *this;
     }
 
-    void render::set_clear_stencil(u32 value) noexcept {
-        GL_CHECK_CODE(state_->debug_, glClearStencil(
-            math::numeric_cast<GLint>(value)));
+    render& render::set_culling_state(const culling_state& cs) noexcept {
+        GL_CHECK_CODE(state_->debug_, glFrontFace(
+            convert_culling_mode(cs.mode_)));
+        GL_CHECK_CODE(state_->debug_, glCullFace(
+            convert_culling_face(cs.face_)));
+        return *this;
     }
 
-    void render::set_clear_color(const color& color) noexcept {
-        GL_CHECK_CODE(state_->debug_, glClearColor(
-            math::numeric_cast<GLclampf>(color.r),
-            math::numeric_cast<GLclampf>(color.g),
-            math::numeric_cast<GLclampf>(color.b),
-            math::numeric_cast<GLclampf>(color.a)));
-    }
-
-    void render::set_color_mask(bool r, bool g, bool b, bool a) {
+    render& render::set_blending_state(const blending_state& bs) noexcept {
+        GL_CHECK_CODE(state_->debug_, glBlendColor(
+            math::numeric_cast<GLclampf>(math::saturate(bs.constant_color_.r)),
+            math::numeric_cast<GLclampf>(math::saturate(bs.constant_color_.g)),
+            math::numeric_cast<GLclampf>(math::saturate(bs.constant_color_.b)),
+            math::numeric_cast<GLclampf>(math::saturate(bs.constant_color_.a))));
+        GL_CHECK_CODE(state_->debug_, glBlendFuncSeparate(
+            convert_blending_factor(bs.src_rgb_factor_),
+            convert_blending_factor(bs.dst_rgb_factor_),
+            convert_blending_factor(bs.src_alpha_factor_),
+            convert_blending_factor(bs.dst_alpha_factor_)));
+        GL_CHECK_CODE(state_->debug_, glBlendEquationSeparate(
+            convert_blending_equation(bs.rgb_equation_),
+            convert_blending_equation(bs.alpha_equation_)));
         GL_CHECK_CODE(state_->debug_, glColorMask(
-            r ? GL_TRUE : GL_FALSE,
-            g ? GL_TRUE : GL_FALSE,
-            b ? GL_TRUE : GL_FALSE,
-            a ? GL_TRUE : GL_FALSE));
+            (enum_to_number(bs.color_mask_) & enum_to_number(blending_color_mask::r)) != 0,
+            (enum_to_number(bs.color_mask_) & enum_to_number(blending_color_mask::g)) != 0,
+            (enum_to_number(bs.color_mask_) & enum_to_number(blending_color_mask::b)) != 0,
+            (enum_to_number(bs.color_mask_) & enum_to_number(blending_color_mask::a)) != 0));
+        return *this;
     }
 }
 

@@ -18,7 +18,7 @@ namespace e2d
     public:
         vertex_declaration decl_;
     public:
-        internal_state(const vertex_declaration& decl)
+        explicit internal_state(const vertex_declaration& decl) noexcept
         : decl_(decl){}
         ~internal_state() noexcept = default;
     };
@@ -29,7 +29,7 @@ namespace e2d
 
     class texture::internal_state final : private e2d::noncopyable {
     public:
-        internal_state() {}
+        internal_state() noexcept = default;
         ~internal_state() noexcept = default;
     };
 
@@ -39,7 +39,7 @@ namespace e2d
 
     class index_buffer::internal_state final : private e2d::noncopyable {
     public:
-        internal_state() {}
+        internal_state() noexcept = default;
         ~internal_state() noexcept = default;
     };
 
@@ -49,7 +49,7 @@ namespace e2d
 
     class vertex_buffer::internal_state final : private e2d::noncopyable {
     public:
-        internal_state() {}
+        internal_state() noexcept = default;
         ~internal_state() noexcept = default;
     };
 
@@ -62,7 +62,7 @@ namespace e2d
         debug& debug_;
         window& window_;
     public:
-        internal_state(debug& debug, window& window)
+        internal_state(debug& debug, window& window) noexcept
         : debug_(debug)
         , window_(window) {}
         ~internal_state() noexcept = default;
@@ -165,8 +165,19 @@ namespace e2d
         return nullptr;
     }
 
-    void render::clear(bool color, bool depth, bool stencil) noexcept {
-        E2D_UNUSED(color, depth, stencil);
+    render& render::clear_depth_buffer(f32 value) noexcept {
+        E2D_UNUSED(value);
+        return *this;
+    }
+
+    render& render::clear_stencil_buffer(u8 value) noexcept {
+        E2D_UNUSED(value);
+        return *this;
+    }
+
+    render& render::clear_color_buffer(const color& value) noexcept {
+        E2D_UNUSED(value);
+        return *this;
     }
 
     void render::draw(
@@ -178,80 +189,49 @@ namespace e2d
         E2D_UNUSED(tp, ps, ib, vb);
     }
 
-    void render::set_model(const m4f& model) noexcept {
+    render& render::set_model(const m4f& model) noexcept {
         E2D_UNUSED(model);
+        return *this;
     }
 
-    void render::set_view(const m4f& view) noexcept {
+    render& render::set_view(const m4f& view) noexcept {
         E2D_UNUSED(view);
+        return *this;
     }
 
-    void render::set_projection(const m4f& projection) noexcept {
+    render& render::set_projection(const m4f& projection) noexcept {
         E2D_UNUSED(projection);
+        return *this;
     }
 
-    void render::set_viewport(u32 x, u32 y, u32 w, u32 h) noexcept {
+    render& render::set_viewport(u32 x, u32 y, u32 w, u32 h) noexcept {
         E2D_UNUSED(x, y, w, h);
+        return *this;
     }
 
-    void render::enable_state(state state) noexcept {
-        E2D_UNUSED(state);
+    render& render::set_depth_state(const depth_state& ds) noexcept {
+        E2D_UNUSED(ds);
+        return *this;
     }
 
-    void render::disable_state(state state) noexcept {
-        E2D_UNUSED(state);
+    render& render::set_render_state(const render_state& rs) noexcept {
+        E2D_UNUSED(rs);
+        return *this;
     }
 
-    void render::set_blend_func(blend_func src, blend_func dst) noexcept {
-        E2D_UNUSED(src, dst);
+    render& render::set_stencil_state(const stencil_state& ss) noexcept {
+        E2D_UNUSED(ss);
+        return *this;
     }
 
-    void render::set_blend_color(const color& color) noexcept {
-        E2D_UNUSED(color);
+    render& render::set_culling_state(const culling_state& cs) noexcept {
+        E2D_UNUSED(cs);
+        return *this;
     }
 
-    void render::set_blend_equation(blend_equation blend_equation) noexcept {
-        E2D_UNUSED(blend_equation);
-    }
-
-    void render::set_cull_face(cull_face cull_face) noexcept {
-        E2D_UNUSED(cull_face);
-    }
-
-    void render::set_depth_func(depth_func depth_func) noexcept {
-        E2D_UNUSED(depth_func);
-    }
-
-    void render::set_depth_mask(bool yesno) noexcept {
-        E2D_UNUSED(yesno);
-    }
-
-    void render::set_clear_depth(f32 value) noexcept {
-        E2D_UNUSED(value);
-    }
-
-    void render::set_stencil_func(stencil_func stencil_func, u32 ref, u32 mask) noexcept {
-        E2D_UNUSED(stencil_func, ref, mask);
-    }
-
-    void render::set_stencil_mask(u32 mask) noexcept {
-        E2D_UNUSED(mask);
-    }
-
-    void render::set_stencil_op(stencil_op fail, stencil_op zfail, stencil_op zpass) noexcept {
-        E2D_UNUSED(fail, zfail, zpass);
-    }
-
-    void render::set_clear_stencil(u32 value) noexcept {
-        E2D_UNUSED(value);
-    }
-
-    void render::set_clear_color(const color& color) noexcept {
-        E2D_UNUSED(color);
-    }
-
-    void render::set_color_mask(bool r, bool g, bool b, bool a) {
-        E2D_UNUSED(r, g, b, a);
+    render& render::set_blending_state(const blending_state& bs) noexcept {
+        E2D_UNUSED(bs);
+        return *this;
     }
 }
 
