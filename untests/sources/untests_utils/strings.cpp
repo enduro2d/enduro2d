@@ -19,6 +19,45 @@ namespace
 
 TEST_CASE("strings") {
     {
+        REQUIRE(str_hash().empty());
+        REQUIRE(str_hash("").empty());
+        REQUIRE_FALSE(str_hash("1").empty());
+
+        REQUIRE(str_hash().hash() == str_hash().hash());
+        REQUIRE(str_hash().hash() == str_hash({null_utf8,0}).hash());
+        REQUIRE(str_hash().hash() == wstr_hash({null_wide,0}).hash());
+        REQUIRE(str_hash().hash() == str16_hash({null_utf16,0}).hash());
+        REQUIRE(str_hash().hash() == str32_hash({null_utf32,0}).hash());
+        REQUIRE(str_hash("hello").hash() == str_hash("hello").hash());
+        REQUIRE(str_hash("world").hash() == str_hash("world").hash());
+        REQUIRE(str_hash("hello").hash() != str_hash("world").hash());
+
+        REQUIRE(str_hash() == str_hash());
+        REQUIRE(str_hash() == make_hash({null_utf8,0}));
+        REQUIRE(wstr_hash() == make_hash({null_wide,0}));
+        REQUIRE(str16_hash() == make_hash({null_utf16,0}));
+        REQUIRE(str32_hash() == make_hash({null_utf32,0}));
+        REQUIRE(str_hash("hello") == make_hash("hello"));
+        REQUIRE(str_hash("world") == make_hash("world"));
+        REQUIRE(str_hash("hello") != make_hash("world"));
+
+        REQUIRE(str_hash("hello").assign("world") == make_hash("world"));
+        REQUIRE(str_hash("hello").assign(make_hash("world")) == make_hash("world"));
+        {
+            str_hash s("hello");
+            s.clear();
+            REQUIRE(s.empty());
+            REQUIRE(s == str_hash());
+        }
+        {
+            str_hash s1("hello");
+            str_hash s2("world");
+            s1.swap(s2);
+            REQUIRE(s2 == str_hash("hello"));
+            REQUIRE(s1 == make_hash("world"));
+        }
+    }
+    {
         REQUIRE(make_utf8("hello") == "hello");
         REQUIRE(make_utf8(L"hello") == "hello");
         REQUIRE(make_utf8(u"hello") == "hello");

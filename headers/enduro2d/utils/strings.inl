@@ -4,10 +4,182 @@
  * Copyright (C) 2018 Matvey Cherevko
  ******************************************************************************/
 
+#ifndef E2D_INCLUDE_GUARD_5BC5A803A3694674845E9953209E8CBE
+#define E2D_INCLUDE_GUARD_5BC5A803A3694674845E9953209E8CBE
 #pragma once
 
 #include "_utils.hpp"
 #include "strings.hpp"
+
+namespace e2d
+{
+    template < typename Char >
+    std::size_t basic_string_hash<Char>::empty_hash() noexcept {
+        static std::size_t hash = calculate_hash(basic_string_view<Char>());
+        return hash;
+    }
+
+    template < typename Char >
+    basic_string_hash<Char>::basic_string_hash() noexcept = default;
+
+    template < typename Char >
+    basic_string_hash<Char>::~basic_string_hash() noexcept = default;
+
+    template < typename Char >
+    basic_string_hash<Char>::basic_string_hash(
+        basic_string_hash&& other) noexcept
+    {
+        assign(std::move(other));
+    }
+
+    template < typename Char >
+    basic_string_hash<Char>& basic_string_hash<Char>::operator=(
+        basic_string_hash&& other) noexcept
+    {
+        return assign(std::move(other));
+    }
+
+    template < typename Char >
+    basic_string_hash<Char>::basic_string_hash(
+        const basic_string_hash& other) noexcept
+    {
+        assign(other);
+    }
+
+    template < typename Char >
+    basic_string_hash<Char>& basic_string_hash<Char>::operator=(
+        const basic_string_hash& other) noexcept
+    {
+        return assign(other);
+    }
+
+    template < typename Char >
+    basic_string_hash<Char>::basic_string_hash(
+        basic_string_view<Char> str) noexcept
+    {
+        assign(str);
+    }
+
+    template < typename Char >
+    basic_string_hash<Char>& basic_string_hash<Char>::assign(
+        basic_string_hash&& other) noexcept
+    {
+        if ( this != &other ) {
+            swap(other);
+            other.clear();
+        }
+        return *this;
+    }
+
+    template < typename Char >
+    basic_string_hash<Char>& basic_string_hash<Char>::assign(
+        const basic_string_hash& other) noexcept
+    {
+        if ( this != &other ) {
+            hash_ = other.hash_;
+        }
+        return *this;
+    }
+
+    template < typename Char >
+    basic_string_hash<Char>& basic_string_hash<Char>::assign(
+        basic_string_view<Char> str) noexcept
+    {
+        hash_ = calculate_hash(str);
+        return *this;
+    }
+
+    template < typename Char >
+    void basic_string_hash<Char>::swap(basic_string_hash& other) noexcept {
+        using std::swap;
+        swap(hash_, other.hash_);
+    }
+
+    template < typename Char >
+    void basic_string_hash<Char>::clear() noexcept {
+        hash_ = empty_hash();
+    }
+
+    template < typename Char >
+    bool basic_string_hash<Char>::empty() const noexcept {
+        return hash_ == empty_hash();
+    }
+
+    template < typename Char >
+    std::size_t basic_string_hash<Char>::hash() const noexcept {
+        return hash_;
+    }
+
+    template < typename Char >
+    std::size_t basic_string_hash<Char>::calculate_hash(
+        basic_string_view<Char> str) noexcept
+    {
+        std::size_t hash = std::hash<basic_string_view<Char>>()(str);
+        debug_check_collisions(hash, str);
+        return hash;
+    }
+
+    template < typename Char >
+    void basic_string_hash<Char>::debug_check_collisions(
+        std::size_t hash, basic_string_view<Char> str) noexcept
+    {
+    #if defined(E2D_BUILD_MODE) && E2D_BUILD_MODE == E2D_BUILD_MODE_DEBUG
+        try {
+            static std::mutex mutex;
+            static hash_map<std::size_t, basic_string<Char>> table;
+            std::lock_guard<std::mutex> guard(mutex);
+            const auto iter = table.find(hash);
+            if ( iter != table.end() ) {
+                E2D_ASSERT_MSG(
+                    iter->second == str,
+                    "basic_string_hash: hash collision detected");
+            } else {
+                table.insert(std::make_pair(hash, str));
+            }
+        } catch (...) {
+            E2D_ASSERT_MSG(false, "basic_string_hash: unexpected exception");
+            throw;
+        }
+    #else
+        E2D_UNUSED(hash, str);
+    #endif
+    }
+}
+
+namespace e2d
+{
+    template < typename Char >
+    void swap(basic_string_hash<Char>& l, basic_string_hash<Char>& r) noexcept {
+        l.swap(r);
+    }
+
+    template < typename Char >
+    bool operator<(basic_string_hash<Char> l, basic_string_hash<Char> r) noexcept {
+        return l.hash() < r.hash();
+    }
+
+    template < typename Char >
+    bool operator==(basic_string_hash<Char> l, basic_string_hash<Char> r) noexcept {
+        return l.hash() == r.hash();
+    }
+
+    template < typename Char >
+    bool operator!=(basic_string_hash<Char> l, basic_string_hash<Char> r) noexcept {
+        return !(l == r);
+    }
+}
+
+namespace std
+{
+    template < typename Char >
+    struct hash<e2d::basic_string_hash<Char>>
+        : std::unary_function<e2d::basic_string_hash<Char>, std::size_t>
+    {
+        std::size_t operator()(e2d::basic_string_hash<Char> hs) const noexcept {
+            return hs.hash();
+        }
+    };
+}
 
 namespace e2d { namespace strings
 {
@@ -423,3 +595,5 @@ namespace e2d { namespace strings
         }
     }
 }}
+
+#endif

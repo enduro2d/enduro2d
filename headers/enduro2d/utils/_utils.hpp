@@ -24,6 +24,9 @@ namespace e2d
 
     template < typename T >
     class module;
+
+    template < typename Char >
+    class basic_string_hash;
 }
 
 namespace e2d
@@ -37,6 +40,11 @@ namespace e2d
     using wstr_view  = basic_string_view<wchar_t>;
     using str16_view = basic_string_view<char16_t>;
     using str32_view = basic_string_view<char32_t>;
+
+    using str_hash = basic_string_hash<char>;
+    using wstr_hash = basic_string_hash<wchar_t>;
+    using str16_hash = basic_string_hash<char16_t>;
+    using str32_hash = basic_string_hash<char32_t>;
 
     struct seconds_tag {};
     struct milliseconds_tag {};
@@ -53,10 +61,11 @@ namespace e2d
 namespace e2d
 {
     class noncopyable {
+    public:
+        noncopyable(const noncopyable&) = delete;
+        noncopyable& operator=(const noncopyable&) = delete;
     protected:
         noncopyable() = default;
         ~noncopyable() = default;
-        noncopyable(const noncopyable&) = delete;
-        noncopyable& operator=(const noncopyable&) = delete;
     };
 }
