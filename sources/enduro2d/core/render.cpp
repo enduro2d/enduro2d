@@ -105,7 +105,7 @@ namespace e2d
     // vertex_declaration::attribute_info
     //
 
-    vertex_declaration::attribute_info::attribute_info() noexcept = default;
+    vertex_declaration::attribute_info::attribute_info() = default;
     vertex_declaration::attribute_info::~attribute_info() noexcept = default;
 
     vertex_declaration::attribute_info::attribute_info(
@@ -135,7 +135,7 @@ namespace e2d
     // vertex_declaration
     //
 
-    vertex_declaration::vertex_declaration() noexcept = default;
+    vertex_declaration::vertex_declaration() = default;
     vertex_declaration::~vertex_declaration() noexcept = default;
 
     vertex_declaration::vertex_declaration(

@@ -86,7 +86,7 @@ namespace e2d
             attribute_type type = attribute_type::floating_point;
             bool normalized = false;
         public:
-            attribute_info() noexcept;
+            attribute_info();
             ~attribute_info() noexcept;
 
             attribute_info(const attribute_info&);
@@ -103,7 +103,7 @@ namespace e2d
             std::size_t row_size() const noexcept;
         };
     public:
-        vertex_declaration() noexcept;
+        vertex_declaration();
         ~vertex_declaration() noexcept;
 
         vertex_declaration(const vertex_declaration&);

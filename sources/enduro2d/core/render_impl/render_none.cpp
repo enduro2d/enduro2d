@@ -214,11 +214,6 @@ namespace e2d
         return *this;
     }
 
-    render& render::set_render_state(const render_state& rs) noexcept {
-        E2D_UNUSED(rs);
-        return *this;
-    }
-
     render& render::set_stencil_state(const stencil_state& ss) noexcept {
         E2D_UNUSED(ss);
         return *this;
@@ -231,6 +226,11 @@ namespace e2d
 
     render& render::set_blending_state(const blending_state& bs) noexcept {
         E2D_UNUSED(bs);
+        return *this;
+    }
+
+    render& render::set_capabilities_state(const capabilities_state& cs) noexcept {
+        E2D_UNUSED(cs);
         return *this;
     }
 }
