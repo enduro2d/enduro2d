@@ -72,6 +72,10 @@ namespace e2d
     // shader
     //
 
+    const shader::internal_state& shader::state() const noexcept {
+        return *state_;
+    }
+
     shader::shader(internal_state_uptr state)
     : state_(std::move(state)) {}
     shader::~shader() noexcept = default;
@@ -92,6 +96,10 @@ namespace e2d
     // texture
     //
 
+    const texture::internal_state& texture::state() const noexcept {
+        return *state_;
+    }
+
     texture::texture(internal_state_uptr state)
     : state_(std::move(state)) {}
     texture::~texture() noexcept = default;
@@ -108,6 +116,10 @@ namespace e2d
     // index_buffer
     //
 
+    const index_buffer::internal_state& index_buffer::state() const noexcept {
+        return *state_;
+    }
+
     index_buffer::index_buffer(internal_state_uptr state)
     : state_(std::move(state)) {}
     index_buffer::~index_buffer() noexcept = default;
@@ -115,6 +127,10 @@ namespace e2d
     //
     // vertex_buffer
     //
+
+    const vertex_buffer::internal_state& vertex_buffer::state() const noexcept {
+        return *state_;
+    }
 
     vertex_buffer::vertex_buffer(internal_state_uptr state)
     : state_(std::move(state)) {}

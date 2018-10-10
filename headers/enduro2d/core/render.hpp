@@ -12,6 +12,19 @@
 
 namespace e2d
 {
+    class render;
+    class shader;
+    class texture;
+    class index_buffer;
+    class vertex_buffer;
+    class index_declaration;
+    class vertex_declaration;
+
+    using shader_ptr = std::shared_ptr<shader>;
+    using texture_ptr = std::shared_ptr<texture>;
+    using index_buffer_ptr = std::shared_ptr<index_buffer>;
+    using vertex_buffer_ptr = std::shared_ptr<vertex_buffer>;
+
     //
     // index_declaration
     //
@@ -151,10 +164,10 @@ namespace e2d
     //
 
     class shader final : noncopyable {
-    private:
-        friend class render;
+    public:
         class internal_state;
         using internal_state_uptr = std::unique_ptr<internal_state>;
+        const internal_state& state() const noexcept;
     public:
         enum class uniform_type : u8 {
             signed_integer,
@@ -193,20 +206,29 @@ namespace e2d
         const vertex_declaration& decl() const noexcept;
         void set_uniform(str_view name, i32 value) const noexcept;
         void set_uniform(str_view name, f32 value) const noexcept;
+        void set_uniform(str_view name, const v2i& value) const noexcept;
+        void set_uniform(str_view name, const v3i& value) const noexcept;
+        void set_uniform(str_view name, const v4i& value) const noexcept;
+        void set_uniform(str_view name, const v2f& value) const noexcept;
+        void set_uniform(str_view name, const v3f& value) const noexcept;
+        void set_uniform(str_view name, const v4f& value) const noexcept;
+        void set_uniform(str_view name, const m2f& value) const noexcept;
+        void set_uniform(str_view name, const m3f& value) const noexcept;
+        void set_uniform(str_view name, const m4f& value) const noexcept;
+        void set_uniform(str_view name, const texture_ptr& value) const noexcept;
     private:
         internal_state_uptr state_;
     };
-    using shader_ptr = std::shared_ptr<shader>;
 
     //
     // texture
     //
 
     class texture final : noncopyable {
-    private:
-        friend class render;
+    public:
         class internal_state;
         using internal_state_uptr = std::unique_ptr<internal_state>;
+        const internal_state& state() const noexcept;
     public:
         enum class wrap : u8 {
             clamp,
@@ -227,17 +249,16 @@ namespace e2d
     private:
         internal_state_uptr state_;
     };
-    using texture_ptr = std::shared_ptr<texture>;
 
     //
     // index buffer
     //
 
     class index_buffer final : private noncopyable {
-    private:
-        friend class render;
+    public:
         class internal_state;
         using internal_state_uptr = std::unique_ptr<internal_state>;
+        const internal_state& state() const noexcept;
     public:
         enum class usage : u8 {
             static_draw,
@@ -255,17 +276,16 @@ namespace e2d
     private:
         internal_state_uptr state_;
     };
-    using index_buffer_ptr = std::shared_ptr<index_buffer>;
 
     //
     // vertex buffer
     //
 
     class vertex_buffer final : private noncopyable {
-    private:
-        friend class render;
+    public:
         class internal_state;
         using internal_state_uptr = std::unique_ptr<internal_state>;
+        const internal_state& state() const noexcept;
     public:
         enum class usage : u8{
             static_draw,
@@ -282,15 +302,6 @@ namespace e2d
         std::size_t vertex_count() const noexcept;
     private:
         internal_state_uptr state_;
-    };
-    using vertex_buffer_ptr = std::shared_ptr<vertex_buffer>;
-
-    //
-    // render_state
-    //
-
-    class render_state final : private noncopyable {
-    public:
     };
 
     //

@@ -793,10 +793,6 @@ namespace e2d
 
     class shader::internal_state final : private e2d::noncopyable {
     public:
-        debug& debug_;
-        gl_program_id id_;
-        vertex_declaration decl_;
-    public:
         internal_state(
             debug& debug,
             gl_program_id id,
@@ -807,6 +803,85 @@ namespace e2d
             E2D_ASSERT(!id_.empty());
         }
         ~internal_state() noexcept = default;
+    public:
+        const gl_program_id& id() const noexcept {
+            return id_;
+        }
+
+        template < typename F >
+        void with_activated_program(F&& f) {
+            GLint prev_program = 0;
+            GL_CHECK_CODE(debug_, glGetIntegerv(GL_CURRENT_PROGRAM, &prev_program));
+            GL_CHECK_CODE(debug_, glUseProgram(*id_));
+            try {
+                stdex::invoke(std::forward<F>(f));
+            } catch (...) {
+                GL_CHECK_CODE(debug_, glUseProgram(
+                    math::numeric_cast<GLuint>(prev_program)));
+                throw;
+            }
+            GL_CHECK_CODE(debug_, glUseProgram(
+                math::numeric_cast<GLuint>(prev_program)));
+        }
+
+        template < typename F, typename... Args >
+        void with_found_uniform_location(str_view name, F&& f) {
+            GLint location = find_uniform_location_by_name(name);
+            if ( location != -1 ) {
+                stdex::invoke(std::forward<F>(f), location);
+            }
+        }
+    private:
+        GLint find_uniform_location_by_name(str_view name) noexcept {
+            str_hash name_hash = make_hash(name);
+            const auto iter = uniforms_.find(name_hash);
+            if ( iter != uniforms_.end() ) {
+                return iter->second;
+            }
+            const std::size_t name_buffer_size = name.length() + 1;
+            GLchar* name_buffer = static_cast<GLchar*>(E2D_ALLOCA(name_buffer_size));
+            bool fmt_success = strings::format_nothrow(
+                name_buffer, name_buffer_size, nullptr, "%0", name);
+            E2D_UNUSED(fmt_success);
+            E2D_ASSERT(fmt_success);
+            GLint location = -1;
+            GL_CHECK_CODE(debug_, gl_get_uniform_location(*id_, name_buffer, &location));
+            try {
+                uniforms_.insert(std::make_pair(name_hash, location));
+            } catch (...) {
+                E2D_ASSERT_MSG(false, "RENDER: ignored uniform cache exception");
+            }
+            return location;
+        }
+
+        GLint find_attribute_location_by_name(str_view name) noexcept {
+            str_hash name_hash = make_hash(name);
+            const auto iter = attributes_.find(name_hash);
+            if ( iter != uniforms_.end() ) {
+                return iter->second;
+            }
+            const std::size_t name_buffer_size = name.length() + 1;
+            GLchar* name_buffer = static_cast<GLchar*>(E2D_ALLOCA(name_buffer_size));
+            bool fmt_success = strings::format_nothrow(
+                name_buffer, name_buffer_size, nullptr, "%0", name);
+            E2D_UNUSED(fmt_success);
+            E2D_ASSERT(fmt_success);
+            GLint location = -1;
+            GL_CHECK_CODE(debug_, gl_get_attribute_location(*id_, name_buffer, &location));
+            try {
+                attributes_.insert(std::make_pair(name_hash, location));
+            } catch (...) {
+                E2D_ASSERT_MSG(false, "RENDER: ignored attribute cache exception");
+            }
+            return location;
+        }
+    private:
+        friend class shader;
+        debug& debug_;
+        gl_program_id id_;
+        vertex_declaration decl_;
+        hash_map<str_hash, GLint> uniforms_;
+        hash_map<str_hash, GLint> attributes_;
     };
 
     //
@@ -815,15 +890,20 @@ namespace e2d
 
     class texture::internal_state final : private e2d::noncopyable {
     public:
-        debug& debug_;
-        gl_texture_id id_;
-    public:
         internal_state(debug& debug, gl_texture_id id)
         : debug_(debug)
         , id_(std::move(id)) {
             E2D_ASSERT(!id_.empty());
         }
         ~internal_state() noexcept = default;
+    public:
+        const gl_texture_id& id() const noexcept {
+            return id_;
+        }
+    private:
+        friend class texture;
+        debug& debug_;
+        gl_texture_id id_;
     };
 
     //
@@ -831,12 +911,6 @@ namespace e2d
     //
 
     class index_buffer::internal_state final : private e2d::noncopyable {
-    public:
-        debug& debug_;
-        gl_buffer_id id_;
-        std::size_t size_ = 0;
-        index_declaration decl_;
-        usage usage_;
     public:
         internal_state(
             debug& debug,
@@ -852,6 +926,17 @@ namespace e2d
             E2D_ASSERT(!id_.empty());
         }
         ~internal_state() noexcept = default;
+    public:
+        const gl_buffer_id& id() const noexcept {
+            return id_;
+        }
+    private:
+        friend class index_buffer;
+        debug& debug_;
+        gl_buffer_id id_;
+        std::size_t size_ = 0;
+        index_declaration decl_;
+        usage usage_;
     };
 
     //
@@ -859,12 +944,6 @@ namespace e2d
     //
 
     class vertex_buffer::internal_state final : private e2d::noncopyable {
-    public:
-        debug& debug_;
-        gl_buffer_id id_;
-        std::size_t size_ = 0;
-        vertex_declaration decl_;
-        usage usage_;
     public:
         internal_state(
             debug& debug,
@@ -880,6 +959,17 @@ namespace e2d
             E2D_ASSERT(!id_.empty());
         }
         ~internal_state() noexcept = default;
+    public:
+        const gl_buffer_id& id() const noexcept {
+            return id_;
+        }
+    private:
+        friend class vertex_buffer;
+        debug& debug_;
+        gl_buffer_id id_;
+        std::size_t size_ = 0;
+        vertex_declaration decl_;
+        usage usage_;
     };
 
     //
@@ -888,21 +978,26 @@ namespace e2d
 
     class render::internal_state final : private e2d::noncopyable {
     public:
+        internal_state(debug& debug, window& window)
+        : debug_(debug)
+        , window_(window) {}
+        ~internal_state() noexcept = default;
+    private:
+        friend class render;
         debug& debug_;
         window& window_;
         m4f model_;
         m4f view_;
         m4f projection_;
-    public:
-        internal_state(debug& debug, window& window)
-        : debug_(debug)
-        , window_(window) {}
-        ~internal_state() noexcept = default;
     };
 
     //
     // shader
     //
+
+    const shader::internal_state& shader::state() const noexcept {
+        return *state_;
+    }
 
     shader::shader(internal_state_uptr state)
     : state_(std::move(state)) {}
@@ -913,38 +1008,108 @@ namespace e2d
     }
 
     void shader::set_uniform(str_view name, i32 value) const noexcept {
-        const std::size_t name_buffer_size = name.length() + 1;
-        GLchar* name_buffer = static_cast<GLchar*>(E2D_ALLOCA(name_buffer_size));
-        strings::format_nothrow(name_buffer, name_buffer_size, nullptr, "%0", name);
-        GLint location = 0;
-        GL_CHECK_CODE(state_->debug_, gl_get_uniform_location(
-            *state_->id_, name_buffer, &location));
-        if ( location != -1 ) {
-            GL_CHECK_CODE(state_->debug_, glUseProgram(*state_->id_));
-            GL_CHECK_CODE(state_->debug_, glUniform1i(
-                location, math::numeric_cast<GLint>(value)));
-            GL_CHECK_CODE(state_->debug_, glUseProgram(0));
-        }
+        state_->with_activated_program([this, name, value]() noexcept {
+            state_->with_found_uniform_location(name, [this, value](GLint location) noexcept {
+                GL_CHECK_CODE(state_->debug_, glUniform1i(location, value));
+            });
+        });
     }
 
     void shader::set_uniform(str_view name, f32 value) const noexcept {
-        const std::size_t name_buffer_size = name.length() + 1;
-        GLchar* name_buffer = static_cast<GLchar*>(E2D_ALLOCA(name_buffer_size));
-        strings::format_nothrow(name_buffer, name_buffer_size, nullptr, "%0", name);
-        GLint location = 0;
-        GL_CHECK_CODE(state_->debug_, gl_get_uniform_location(
-            *state_->id_, name_buffer, &location));
-        if ( location != -1 ) {
-            GL_CHECK_CODE(state_->debug_, glUseProgram(*state_->id_));
-            GL_CHECK_CODE(state_->debug_, glUniform1f(
-                location, math::numeric_cast<GLfloat>(value)));
-            GL_CHECK_CODE(state_->debug_, glUseProgram(0));
-        }
+        state_->with_activated_program([this, name, value]() noexcept {
+            state_->with_found_uniform_location(name, [this, value](GLint location) noexcept {
+                GL_CHECK_CODE(state_->debug_, glUniform1f(location, value));
+            });
+        });
+    }
+
+    void shader::set_uniform(str_view name, const v2i& value) const noexcept {
+        state_->with_activated_program([this, name, &value]() noexcept {
+            state_->with_found_uniform_location(name, [this, &value](GLint location) noexcept {
+                GL_CHECK_CODE(state_->debug_, glUniform2iv(location, 1, value.data()));
+            });
+        });
+    }
+
+    void shader::set_uniform(str_view name, const v3i& value) const noexcept {
+        state_->with_activated_program([this, name, &value]() noexcept {
+            state_->with_found_uniform_location(name, [this, &value](GLint location) noexcept {
+                GL_CHECK_CODE(state_->debug_, glUniform3iv(location, 1, value.data()));
+            });
+        });
+    }
+
+    void shader::set_uniform(str_view name, const v4i& value) const noexcept {
+        state_->with_activated_program([this, name, &value]() noexcept {
+            state_->with_found_uniform_location(name, [this, &value](GLint location) noexcept {
+                GL_CHECK_CODE(state_->debug_, glUniform4iv(location, 1, value.data()));
+            });
+        });
+    }
+
+    void shader::set_uniform(str_view name, const v2f& value) const noexcept {
+        state_->with_activated_program([this, name, &value]() noexcept {
+            state_->with_found_uniform_location(name, [this, &value](GLint location) noexcept {
+                GL_CHECK_CODE(state_->debug_, glUniform2fv(location, 1, value.data()));
+            });
+        });
+    }
+
+    void shader::set_uniform(str_view name, const v3f& value) const noexcept {
+        state_->with_activated_program([this, name, &value]() noexcept {
+            state_->with_found_uniform_location(name, [this, &value](GLint location) noexcept {
+                GL_CHECK_CODE(state_->debug_, glUniform3fv(location, 1, value.data()));
+            });
+        });
+    }
+    void shader::set_uniform(str_view name, const v4f& value) const noexcept {
+        state_->with_activated_program([this, name, &value]() noexcept {
+            state_->with_found_uniform_location(name, [this, &value](GLint location) noexcept {
+                GL_CHECK_CODE(state_->debug_, glUniform4fv(location, 1, value.data()));
+            });
+        });
+    }
+
+    void shader::set_uniform(str_view name, const m2f& value) const noexcept {
+        state_->with_activated_program([this, name, &value]() noexcept {
+            state_->with_found_uniform_location(name, [this, &value](GLint location) noexcept {
+                GL_CHECK_CODE(state_->debug_, glUniformMatrix2fv(location, 1, GL_TRUE, value.data()));
+            });
+        });
+    }
+
+    void shader::set_uniform(str_view name, const m3f& value) const noexcept {
+        state_->with_activated_program([this, name, &value]() noexcept {
+            state_->with_found_uniform_location(name, [this, &value](GLint location) noexcept {
+                GL_CHECK_CODE(state_->debug_, glUniformMatrix3fv(location, 1, GL_TRUE, value.data()));
+            });
+        });
+    }
+
+    void shader::set_uniform(str_view name, const m4f& value) const noexcept {
+        state_->with_activated_program([this, name, &value]() noexcept {
+            state_->with_found_uniform_location(name, [this, &value](GLint location) noexcept {
+                GL_CHECK_CODE(state_->debug_, glUniformMatrix4fv(location, 1, GL_TRUE, value.data()));
+            });
+        });
+    }
+
+    void shader::set_uniform(str_view name, const texture_ptr& value) const noexcept {
+        state_->with_activated_program([this, name, value]() noexcept {
+            state_->with_found_uniform_location(name, [this, value](GLint location) noexcept {
+                GL_CHECK_CODE(state_->debug_, glUniform1i(
+                    location, math::numeric_cast<GLint>(*value->state().id())));
+            });
+        });
     }
 
     //
     // texture
     //
+
+    const texture::internal_state& texture::state() const noexcept {
+        return *state_;
+    }
 
     texture::texture(internal_state_uptr state)
     : state_(std::move(state)) {}
@@ -975,6 +1140,10 @@ namespace e2d
     //
     // index_buffer
     //
+
+    const index_buffer::internal_state& index_buffer::state() const noexcept {
+        return *state_;
+    }
 
     index_buffer::index_buffer(internal_state_uptr state)
     : state_(std::move(state)) {}
@@ -1015,6 +1184,10 @@ namespace e2d
     //
     // vertex_buffer
     //
+
+    const vertex_buffer::internal_state& vertex_buffer::state() const noexcept {
+        return *state_;
+    }
 
     vertex_buffer::vertex_buffer(internal_state_uptr state)
     : state_(std::move(state)) {}
@@ -1160,9 +1333,9 @@ namespace e2d
         const index_declaration& id = ib->decl();
         const vertex_declaration& vd = vb->decl();
 
-        GL_CHECK_CODE(state_->debug_, glUseProgram(*ps->state_->id_));
-        GL_CHECK_CODE(state_->debug_, glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *ib->state_->id_));
-        GL_CHECK_CODE(state_->debug_, glBindBuffer(GL_ARRAY_BUFFER, *vb->state_->id_));
+        GL_CHECK_CODE(state_->debug_, glUseProgram(*ps->state().id()));
+        GL_CHECK_CODE(state_->debug_, glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *ib->state().id()));
+        GL_CHECK_CODE(state_->debug_, glBindBuffer(GL_ARRAY_BUFFER, *vb->state().id()));
         bind_vertex_declaration(state_->debug_, vd);
 
         GL_CHECK_CODE(state_->debug_, glDrawElements(
