@@ -114,30 +114,22 @@ namespace e2d
 
     template < typename T >
     mat2<T>& mat2<T>::operator+=(T v) noexcept {
-        rows[0] += v;
-        rows[1] += v;
-        return *this;
+        return *this = *this + v;
     }
 
     template < typename T >
     mat2<T>& mat2<T>::operator*=(T v) noexcept {
-        rows[0] *= v;
-        rows[1] *= v;
-        return *this;
+        return *this = *this * v;
     }
 
     template < typename T >
     mat2<T>& mat2<T>::operator+=(const mat2& other) noexcept {
-        rows[0] += other.rows[0];
-        rows[1] += other.rows[1];
-        return *this;
+        return *this = *this + other;
     }
 
     template < typename T >
     mat2<T>& mat2<T>::operator*=(const mat2& other) noexcept {
-        rows[0] *= other.rows[0];
-        rows[1] *= other.rows[1];
-        return *this;
+        return *this = *this * other;
     }
 }
 
