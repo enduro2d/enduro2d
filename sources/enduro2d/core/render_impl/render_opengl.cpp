@@ -783,11 +783,6 @@ namespace
             location += rows;
         }
     }
-
-    template < typename E >
-    constexpr std::underlying_type_t<E> enum_to_number(E e) noexcept {
-        return static_cast<std::underlying_type_t<E>>(e);
-    }
 }
 
 namespace e2d
@@ -1276,10 +1271,10 @@ namespace e2d
             convert_blending_equation(bs.rgb_equation_),
             convert_blending_equation(bs.alpha_equation_)));
         GL_CHECK_CODE(state_->debug_, glColorMask(
-            (enum_to_number(bs.color_mask_) & enum_to_number(blending_color_mask::r)) != 0,
-            (enum_to_number(bs.color_mask_) & enum_to_number(blending_color_mask::g)) != 0,
-            (enum_to_number(bs.color_mask_) & enum_to_number(blending_color_mask::b)) != 0,
-            (enum_to_number(bs.color_mask_) & enum_to_number(blending_color_mask::a)) != 0));
+            (math::enum_to_number(bs.color_mask_) & math::enum_to_number(blending_color_mask::r)) != 0,
+            (math::enum_to_number(bs.color_mask_) & math::enum_to_number(blending_color_mask::g)) != 0,
+            (math::enum_to_number(bs.color_mask_) & math::enum_to_number(blending_color_mask::b)) != 0,
+            (math::enum_to_number(bs.color_mask_) & math::enum_to_number(blending_color_mask::a)) != 0));
         return *this;
     }
 

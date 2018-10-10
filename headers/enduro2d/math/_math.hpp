@@ -476,4 +476,13 @@ namespace e2d { namespace math
     is_near_zero(T v, T precision = default_precision<T>()) noexcept {
         return approximately(v, T(0), precision);
     }
+
+    //
+    // enum_to_number
+    //
+
+    template < typename E >
+    constexpr std::underlying_type_t<E> enum_to_number(E e) noexcept {
+        return static_cast<std::underlying_type_t<E>>(e);
+    }
 }}
