@@ -10,3 +10,6 @@
 [submodule "modules/glfw"]
 	path = modules/glfw
 	url = https://github.com/glfw/glfw
+[submodule "modules/variant"]
+	path = modules/variant
+	url = https://github.com/mpark/variant

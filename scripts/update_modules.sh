@@ -29,3 +29,6 @@ cp -fv $MODULES_DIR/stb/stb_truetype.h $RDPARTY_DIR/stb/stb_truetype.h
 
 mkdir -p $RDPARTY_DIR/utfcpp
 cp -rfv $MODULES_DIR/utfcpp/source/ $RDPARTY_DIR/utfcpp/
+
+mkdir -p $RDPARTY_DIR/variant
+cp -rfv $MODULES_DIR/variant/include/mpark/ $RDPARTY_DIR/variant/
