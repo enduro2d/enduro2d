@@ -2,33 +2,39 @@
 ROOT_DIR=`dirname "$BASH_SOURCE"`/..
 MODULES_DIR=$ROOT_DIR/modules
 HEADERS_DIR=$ROOT_DIR/headers
-RDPARTY_DIR=$ROOT_DIR/sources/3rdparty
+SOURCES_DIR=$ROOT_DIR/sources
+UNTESTS_DIR=$ROOT_DIR/untests
+HEADERS_RDPARTY_DIR=$HEADERS_DIR/3rdparty
+SOURCES_RDPARTY_DIR=$SOURCES_DIR/3rdparty
 
 mkdir -p $MODULES_DIR
 mkdir -p $HEADERS_DIR
-mkdir -p $RDPARTY_DIR
+mkdir -p $SOURCES_DIR
+mkdir -p $UNTESTS_DIR
+mkdir -p $HEADERS_RDPARTY_DIR
+mkdir -p $SOURCES_RDPARTY_DIR
 
 git submodule init
 git submodule update
 git pull --recurse-submodules
 git submodule update --remote --recursive
 
-mkdir -p $ROOT_DIR/untests/catch
-cp -fv $MODULES_DIR/catch2/single_include/catch2/catch.hpp $ROOT_DIR/untests/catch/catch.hpp
+mkdir -p $UNTESTS_DIR/catch
+cp -fv $MODULES_DIR/catch2/single_include/catch2/catch.hpp $UNTESTS_DIR/catch/catch.hpp
 
-mkdir -p $RDPARTY_DIR/glfw
-cp -rfv $MODULES_DIR/glfw/include/GLFW/ $RDPARTY_DIR/glfw/
+mkdir -p $SOURCES_RDPARTY_DIR/glfw
+cp -rfv $MODULES_DIR/glfw/include/GLFW/ $SOURCES_RDPARTY_DIR/glfw/
 
-mkdir -p $RDPARTY_DIR/stb
-cp -fv $MODULES_DIR/stb/stb_image.h $RDPARTY_DIR/stb/stb_image.h
-cp -fv $MODULES_DIR/stb/stb_image_resize.h $RDPARTY_DIR/stb/stb_image_resize.h
-cp -fv $MODULES_DIR/stb/stb_image_write.h $RDPARTY_DIR/stb/stb_image_write.h
-cp -fv $MODULES_DIR/stb/stb_rect_pack.h $RDPARTY_DIR/stb/stb_rect_pack.h
-cp -fv $MODULES_DIR/stb/stb_sprintf.h $RDPARTY_DIR/stb/stb_sprintf.h
-cp -fv $MODULES_DIR/stb/stb_truetype.h $RDPARTY_DIR/stb/stb_truetype.h
+mkdir -p $SOURCES_RDPARTY_DIR/stb
+cp -fv $MODULES_DIR/stb/stb_image.h $SOURCES_RDPARTY_DIR/stb/stb_image.h
+cp -fv $MODULES_DIR/stb/stb_image_resize.h $SOURCES_RDPARTY_DIR/stb/stb_image_resize.h
+cp -fv $MODULES_DIR/stb/stb_image_write.h $SOURCES_RDPARTY_DIR/stb/stb_image_write.h
+cp -fv $MODULES_DIR/stb/stb_rect_pack.h $SOURCES_RDPARTY_DIR/stb/stb_rect_pack.h
+cp -fv $MODULES_DIR/stb/stb_sprintf.h $SOURCES_RDPARTY_DIR/stb/stb_sprintf.h
+cp -fv $MODULES_DIR/stb/stb_truetype.h $SOURCES_RDPARTY_DIR/stb/stb_truetype.h
 
-mkdir -p $RDPARTY_DIR/utfcpp
-cp -rfv $MODULES_DIR/utfcpp/source/ $RDPARTY_DIR/utfcpp/
+mkdir -p $SOURCES_RDPARTY_DIR/utfcpp
+cp -rfv $MODULES_DIR/utfcpp/source/ $SOURCES_RDPARTY_DIR/utfcpp/
 
-mkdir -p $RDPARTY_DIR/variant
-cp -rfv $MODULES_DIR/variant/include/mpark/ $RDPARTY_DIR/variant/
+mkdir -p $HEADERS_RDPARTY_DIR/variant
+cp -rfv $MODULES_DIR/variant/include/mpark/ $HEADERS_RDPARTY_DIR/variant/
