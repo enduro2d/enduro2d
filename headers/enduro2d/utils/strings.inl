@@ -114,7 +114,12 @@ namespace e2d
     std::size_t basic_string_hash<Char>::calculate_hash(
         basic_string_view<Char> str) noexcept
     {
-        std::size_t hash = std::hash<basic_string_view<Char>>()(str);
+        // Inspired by:
+        // http://www.cse.yorku.ca/~oz/hash.html
+        std::size_t hash = 0;
+        for ( Char c : str ) {
+            hash = c + (hash << 6u) + (hash << 16u) - hash;
+        }
         debug_check_collisions(hash, str);
         return hash;
     }
@@ -137,7 +142,7 @@ namespace e2d
                 table.insert(std::make_pair(hash, str));
             }
         } catch (...) {
-            E2D_ASSERT_MSG(false, "basic_string_hash: unexpected exception");
+            E2D_ASSERT_MSG(false, "basic_string_hash: unexpected debug exception");
             throw;
         }
     #else

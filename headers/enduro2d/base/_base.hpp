@@ -39,3 +39,5 @@
 #include <algorithm>
 #include <functional>
 #include <type_traits>
+
+#include <3rdparty/variant/variant.hpp>

@@ -74,6 +74,7 @@ endif()
 #
 
 file(GLOB_RECURSE E2D_3RDPARTY
+    headers/3rdparty/*.*
     sources/3rdparty/*.*)
 
 #
