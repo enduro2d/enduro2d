@@ -16,10 +16,7 @@ namespace e2d
 
     class shader::internal_state final : private e2d::noncopyable {
     public:
-        vertex_declaration decl_;
-    public:
-        explicit internal_state(const vertex_declaration& decl) noexcept
-        : decl_(decl){}
+        internal_state() noexcept = default;
         ~internal_state() noexcept = default;
     };
 
@@ -80,18 +77,6 @@ namespace e2d
     : state_(std::move(state)) {}
     shader::~shader() noexcept = default;
 
-    const vertex_declaration& shader::decl() const noexcept {
-        return state_->decl_;
-    }
-
-    void shader::set_uniform(str_view name, i32 value) const noexcept {
-        E2D_UNUSED(name, value);
-    }
-
-    void shader::set_uniform(str_view name, f32 value) const noexcept {
-        E2D_UNUSED(name, value);
-    }
-
     //
     // texture
     //
@@ -103,14 +88,6 @@ namespace e2d
     texture::texture(internal_state_uptr state)
     : state_(std::move(state)) {}
     texture::~texture() noexcept = default;
-
-    void texture::set_wrap(wrap u, wrap v) noexcept {
-        E2D_UNUSED(u, v);
-    }
-
-    void texture::set_filter(filter min, filter mag) noexcept {
-        E2D_UNUSED(min, mag);
-    }
 
     //
     // index_buffer
@@ -146,10 +123,9 @@ namespace e2d
 
     shader_ptr render::create_shader(
         input_stream_uptr vertex,
-        input_stream_uptr fragment,
-        const vertex_declaration& decl)
+        input_stream_uptr fragment)
     {
-        E2D_UNUSED(vertex, fragment, decl);
+        E2D_UNUSED(vertex, fragment);
         return nullptr;
     }
 
@@ -158,8 +134,8 @@ namespace e2d
         return nullptr;
     }
 
-    texture_ptr render::create_texture(const v2u& size, image_data_format format) {
-        E2D_UNUSED(size, format);
+    texture_ptr render::create_texture(const input_stream_uptr& image_stream) {
+        E2D_UNUSED(image_stream);
         return nullptr;
     }
 
@@ -181,6 +157,21 @@ namespace e2d
         return nullptr;
     }
 
+    void render::draw(
+        const material& mat,
+        const geometry& geo)
+    {
+        E2D_UNUSED(mat, geo);
+    }
+
+    void render::draw(
+        const material& mat,
+        const geometry& geo,
+        const property_block& props)
+    {
+        E2D_UNUSED(mat, geo, props);
+    }
+
     render& render::clear_depth_buffer(f32 value) noexcept {
         E2D_UNUSED(value);
         return *this;
@@ -196,57 +187,8 @@ namespace e2d
         return *this;
     }
 
-    void render::draw(
-        topology tp,
-        const shader_ptr& ps,
-        const index_buffer_ptr& ib,
-        const vertex_buffer_ptr& vb) noexcept
-    {
-        E2D_UNUSED(tp, ps, ib, vb);
-    }
-
-    render& render::set_model(const m4f& model) noexcept {
-        E2D_UNUSED(model);
-        return *this;
-    }
-
-    render& render::set_view(const m4f& view) noexcept {
-        E2D_UNUSED(view);
-        return *this;
-    }
-
-    render& render::set_projection(const m4f& projection) noexcept {
-        E2D_UNUSED(projection);
-        return *this;
-    }
-
     render& render::set_viewport(u32 x, u32 y, u32 w, u32 h) noexcept {
         E2D_UNUSED(x, y, w, h);
-        return *this;
-    }
-
-    render& render::set_depth_state(const depth_state& ds) noexcept {
-        E2D_UNUSED(ds);
-        return *this;
-    }
-
-    render& render::set_stencil_state(const stencil_state& ss) noexcept {
-        E2D_UNUSED(ss);
-        return *this;
-    }
-
-    render& render::set_culling_state(const culling_state& cs) noexcept {
-        E2D_UNUSED(cs);
-        return *this;
-    }
-
-    render& render::set_blending_state(const blending_state& bs) noexcept {
-        E2D_UNUSED(bs);
-        return *this;
-    }
-
-    render& render::set_capabilities_state(const capabilities_state& cs) noexcept {
-        E2D_UNUSED(cs);
         return *this;
     }
 }
