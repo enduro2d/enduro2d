@@ -214,6 +214,22 @@ namespace e2d
         return *this;
     }
 
+    f32 render::depth_state::near() const noexcept {
+        return near_;
+    }
+
+    f32 render::depth_state::far() const noexcept {
+        return far_;
+    }
+
+    bool render::depth_state::write() const noexcept {
+        return write_;
+    }
+
+    render::compare_func render::depth_state::func() const noexcept {
+        return func_;
+    }
+
     //
     // stencil_state
     //
@@ -237,6 +253,34 @@ namespace e2d
         return *this;
     }
 
+    u8 render::stencil_state::write() const noexcept {
+        return write_;
+    }
+
+    render::compare_func render::stencil_state::func() const noexcept {
+        return func_;
+    }
+
+    u8 render::stencil_state::ref() const noexcept {
+        return ref_;
+    }
+
+    u8 render::stencil_state::mask() const noexcept {
+        return read_;
+    }
+
+    render::stencil_op render::stencil_state::pass() const noexcept {
+        return pass_;
+    }
+
+    render::stencil_op render::stencil_state::sfail() const noexcept {
+        return sfail_;
+    }
+
+    render::stencil_op render::stencil_state::zfail() const noexcept {
+        return zfail_;
+    }
+
     //
     // culling_state
     //
@@ -249,6 +293,14 @@ namespace e2d
     render::culling_state& render::culling_state::face(culling_face face) noexcept {
         face_ = face;
         return *this;
+    }
+
+    render::culling_mode render::culling_state::mode() const noexcept {
+        return mode_;
+    }
+
+    render::culling_face render::culling_state::face() const noexcept {
+        return face_;
     }
 
     //
@@ -331,6 +383,38 @@ namespace e2d
         return *this;
     }
 
+    const color& render::blending_state::constant_color() const noexcept {
+        return constant_color_;
+    }
+
+    render::blending_color_mask render::blending_state::color_mask() const noexcept {
+        return color_mask_;
+    }
+
+    render::blending_factor render::blending_state::src_rgb_factor() const noexcept {
+        return src_rgb_factor_;
+    }
+
+    render::blending_factor render::blending_state::dst_rgb_factor() const noexcept {
+        return dst_rgb_factor_;
+    }
+
+    render::blending_factor render::blending_state::src_alpha_factor() const noexcept {
+        return src_alpha_factor_;
+    }
+
+    render::blending_factor render::blending_state::dst_alpha_factor() const noexcept {
+        return dst_alpha_factor_;
+    }
+
+    render::blending_equation render::blending_state::rgb_equation() const noexcept {
+        return rgb_equation_;
+    }
+
+    render::blending_equation render::blending_state::alpha_equation() const noexcept {
+        return alpha_equation_;
+    }
+
     //
     // capabilities_state
     //
@@ -353,6 +437,22 @@ namespace e2d
     render::capabilities_state& render::capabilities_state::stencil_test(bool enable) noexcept {
         stencil_test_ = enable;
         return *this;
+    }
+
+    bool render::capabilities_state::culling() const noexcept {
+        return culling_;
+    }
+
+    bool render::capabilities_state::blending() const noexcept {
+        return blending_;
+    }
+
+    bool render::capabilities_state::depth_test() const noexcept {
+        return depth_test_;
+    }
+
+    bool render::capabilities_state::stencil_test() const noexcept {
+        return stencil_test_;
     }
 
     //

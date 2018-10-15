@@ -191,56 +191,56 @@ namespace e2d
 
     render::internal_state& render::internal_state::set_depth_state(const depth_state& ds) noexcept {
         GL_CHECK_CODE(debug_, glDepthRange(
-            math::numeric_cast<GLclampd>(math::saturate(ds.near_)),
-            math::numeric_cast<GLclampd>(math::saturate(ds.far_))));
+            math::numeric_cast<GLclampd>(math::saturate(ds.near())),
+            math::numeric_cast<GLclampd>(math::saturate(ds.far()))));
         GL_CHECK_CODE(debug_, glDepthMask(
-            ds.write_ ? GL_TRUE : GL_FALSE));
+            ds.write() ? GL_TRUE : GL_FALSE));
         GL_CHECK_CODE(debug_, glDepthFunc(
-            convert_compare_func(ds.func_)));
+            convert_compare_func(ds.func())));
         return *this;
     }
 
     render::internal_state& render::internal_state::set_stencil_state(const stencil_state& ss) noexcept {
         GL_CHECK_CODE(debug_, glStencilMask(
-            math::numeric_cast<GLuint>(ss.write_)));
+            math::numeric_cast<GLuint>(ss.write())));
         GL_CHECK_CODE(debug_, glStencilFunc(
-            convert_compare_func(ss.func_),
-            math::numeric_cast<GLint>(ss.ref_),
-            math::numeric_cast<GLuint>(ss.read_)));
+            convert_compare_func(ss.func()),
+            math::numeric_cast<GLint>(ss.ref()),
+            math::numeric_cast<GLuint>(ss.mask())));
         GL_CHECK_CODE(debug_, glStencilOp(
-            convert_stencil_op(ss.sfail_),
-            convert_stencil_op(ss.zfail_),
-            convert_stencil_op(ss.pass_)));
+            convert_stencil_op(ss.sfail()),
+            convert_stencil_op(ss.zfail()),
+            convert_stencil_op(ss.pass())));
         return *this;
     }
 
     render::internal_state& render::internal_state::set_culling_state(const culling_state& cs) noexcept {
         GL_CHECK_CODE(debug_, glFrontFace(
-            convert_culling_mode(cs.mode_)));
+            convert_culling_mode(cs.mode())));
         GL_CHECK_CODE(debug_, glCullFace(
-            convert_culling_face(cs.face_)));
+            convert_culling_face(cs.face())));
         return *this;
     }
 
     render::internal_state& render::internal_state::set_blending_state(const blending_state& bs) noexcept {
         GL_CHECK_CODE(debug_, glBlendColor(
-            math::numeric_cast<GLclampf>(math::saturate(bs.constant_color_.r)),
-            math::numeric_cast<GLclampf>(math::saturate(bs.constant_color_.g)),
-            math::numeric_cast<GLclampf>(math::saturate(bs.constant_color_.b)),
-            math::numeric_cast<GLclampf>(math::saturate(bs.constant_color_.a))));
+            math::numeric_cast<GLclampf>(math::saturate(bs.constant_color().r)),
+            math::numeric_cast<GLclampf>(math::saturate(bs.constant_color().g)),
+            math::numeric_cast<GLclampf>(math::saturate(bs.constant_color().b)),
+            math::numeric_cast<GLclampf>(math::saturate(bs.constant_color().a))));
         GL_CHECK_CODE(debug_, glBlendFuncSeparate(
-            convert_blending_factor(bs.src_rgb_factor_),
-            convert_blending_factor(bs.dst_rgb_factor_),
-            convert_blending_factor(bs.src_alpha_factor_),
-            convert_blending_factor(bs.dst_alpha_factor_)));
+            convert_blending_factor(bs.src_rgb_factor()),
+            convert_blending_factor(bs.dst_rgb_factor()),
+            convert_blending_factor(bs.src_alpha_factor()),
+            convert_blending_factor(bs.dst_alpha_factor())));
         GL_CHECK_CODE(debug_, glBlendEquationSeparate(
-            convert_blending_equation(bs.rgb_equation_),
-            convert_blending_equation(bs.alpha_equation_)));
+            convert_blending_equation(bs.rgb_equation()),
+            convert_blending_equation(bs.alpha_equation())));
         GL_CHECK_CODE(debug_, glColorMask(
-            (math::enum_to_number(bs.color_mask_) & math::enum_to_number(blending_color_mask::r)) != 0,
-            (math::enum_to_number(bs.color_mask_) & math::enum_to_number(blending_color_mask::g)) != 0,
-            (math::enum_to_number(bs.color_mask_) & math::enum_to_number(blending_color_mask::b)) != 0,
-            (math::enum_to_number(bs.color_mask_) & math::enum_to_number(blending_color_mask::a)) != 0));
+            (math::enum_to_number(bs.color_mask()) & math::enum_to_number(blending_color_mask::r)) != 0,
+            (math::enum_to_number(bs.color_mask()) & math::enum_to_number(blending_color_mask::g)) != 0,
+            (math::enum_to_number(bs.color_mask()) & math::enum_to_number(blending_color_mask::b)) != 0,
+            (math::enum_to_number(bs.color_mask()) & math::enum_to_number(blending_color_mask::a)) != 0));
         return *this;
     }
 
@@ -252,10 +252,10 @@ namespace e2d
                 glDisable(cap);
             }
         };
-        GL_CHECK_CODE(debug_, enable_or_disable(GL_CULL_FACE, cs.culling_));
-        GL_CHECK_CODE(debug_, enable_or_disable(GL_BLEND, cs.blending_));
-        GL_CHECK_CODE(debug_, enable_or_disable(GL_DEPTH_TEST, cs.depth_test_));
-        GL_CHECK_CODE(debug_, enable_or_disable(GL_STENCIL_TEST, cs.stencil_test_));
+        GL_CHECK_CODE(debug_, enable_or_disable(GL_CULL_FACE, cs.culling()));
+        GL_CHECK_CODE(debug_, enable_or_disable(GL_BLEND, cs.blending()));
+        GL_CHECK_CODE(debug_, enable_or_disable(GL_DEPTH_TEST, cs.depth_test()));
+        GL_CHECK_CODE(debug_, enable_or_disable(GL_STENCIL_TEST, cs.stencil_test()));
         return *this;
     }
 }

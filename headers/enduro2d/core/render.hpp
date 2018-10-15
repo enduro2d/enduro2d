@@ -362,8 +362,12 @@ namespace e2d
             depth_state& range(f32 near, f32 far) noexcept;
             depth_state& write(bool enable) noexcept;
             depth_state& func(compare_func func) noexcept;
+
+            f32 near() const noexcept;
+            f32 far() const noexcept;
+            bool write() const noexcept;
+            compare_func func() const noexcept;
         private:
-            friend class render;
             f32 near_ = 0.0f;
             f32 far_ = 1.0f;
             bool write_ = true;
@@ -376,8 +380,15 @@ namespace e2d
             stencil_state& write(u8 mask) noexcept;
             stencil_state& func(compare_func func, u8 ref, u8 mask) noexcept;
             stencil_state& op(stencil_op sfail, stencil_op zfail, stencil_op pass) noexcept;
+
+            u8 write() const noexcept;
+            compare_func func() const noexcept;
+            u8 ref() const noexcept;
+            u8 mask() const noexcept;
+            stencil_op pass() const noexcept;
+            stencil_op sfail() const noexcept;
+            stencil_op zfail() const noexcept;
         private:
-            friend class render;
             u8 write_ = 1;
             u8 ref_ = 0;
             u8 read_ = 1;
@@ -392,8 +403,10 @@ namespace e2d
         public:
             culling_state& mode(culling_mode mode) noexcept;
             culling_state& face(culling_face face) noexcept;
+
+            culling_mode mode() const noexcept;
+            culling_face face() const noexcept;
         private:
-            friend class render;
             culling_mode mode_ = culling_mode::ccw;
             culling_face face_ = culling_face::back;
             u8 _pad[2] = {0};
@@ -419,8 +432,19 @@ namespace e2d
             blending_state& equation(blending_equation equation) noexcept;
             blending_state& rgb_equation(blending_equation equation) noexcept;
             blending_state& alpha_equation(blending_equation equation) noexcept;
+
+            const color& constant_color() const noexcept;
+            blending_color_mask color_mask() const noexcept;
+
+            blending_factor src_rgb_factor() const noexcept;
+            blending_factor dst_rgb_factor() const noexcept;
+
+            blending_factor src_alpha_factor() const noexcept;
+            blending_factor dst_alpha_factor() const noexcept;
+
+            blending_equation rgb_equation() const noexcept;
+            blending_equation alpha_equation() const noexcept;
         private:
-            friend class render;
             color constant_color_ = color::clear();
             blending_color_mask color_mask_ = blending_color_mask::rgba;
             blending_factor src_rgb_factor_ = blending_factor::one;
@@ -438,8 +462,12 @@ namespace e2d
             capabilities_state& blending(bool enable) noexcept;
             capabilities_state& depth_test(bool enable) noexcept;
             capabilities_state& stencil_test(bool enable) noexcept;
+
+            bool culling() const noexcept;
+            bool blending() const noexcept;
+            bool depth_test() const noexcept;
+            bool stencil_test() const noexcept;
         private:
-            friend class render;
             bool culling_ = false;
             bool blending_ = false;
             bool depth_test_ = false;
