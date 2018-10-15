@@ -173,9 +173,10 @@ int e2d_main() {
 
     const keyboard& k = the<input>().keyboard();
     while ( !the<window>().should_close() && !k.is_key_just_released(keyboard_key::escape) ) {
+        const auto game_time = (time::now_ms() - begin_game_time).cast_to<f32>().value;
 
         material.properties()
-            .property("u_time", (time::now_ms() - begin_game_time).cast_to<f32>().value)
+            .property("u_time", game_time)
             .property("u_MVP", projection);
 
         the<render>()
