@@ -40,20 +40,20 @@ namespace e2d
         public:
             index_type type = index_type::unsigned_short;
         public:
-            index_info() noexcept;
-            ~index_info() noexcept;
+            index_info() = default;
+            ~index_info() noexcept = default;
 
-            index_info(const index_info&) noexcept;
-            index_info& operator=(const index_info&) noexcept;
+            index_info(const index_info&) noexcept = default;
+            index_info& operator=(const index_info&) noexcept = default;
 
             explicit index_info(index_type type) noexcept;
         };
     public:
-        index_declaration() noexcept;
-        ~index_declaration() noexcept;
+        index_declaration() = default;
+        ~index_declaration() noexcept = default;
 
-        index_declaration(const index_declaration&) noexcept;
-        index_declaration& operator=(const index_declaration&) noexcept;
+        index_declaration(const index_declaration&) noexcept = default;
+        index_declaration& operator=(const index_declaration&) noexcept = default;
 
         explicit index_declaration(index_type index_type) noexcept;
 
@@ -99,11 +99,11 @@ namespace e2d
             attribute_type type = attribute_type::floating_point;
             bool normalized = false;
         public:
-            attribute_info() noexcept;
-            ~attribute_info() noexcept;
+            attribute_info() = default;
+            ~attribute_info() noexcept = default;
 
-            attribute_info(const attribute_info&) noexcept;
-            attribute_info& operator=(const attribute_info&) noexcept;
+            attribute_info(const attribute_info&) noexcept = default;
+            attribute_info& operator=(const attribute_info&) noexcept = default;
 
             attribute_info(
                 std::size_t stride,
@@ -116,11 +116,11 @@ namespace e2d
             std::size_t row_size() const noexcept;
         };
     public:
-        vertex_declaration() noexcept;
-        ~vertex_declaration() noexcept;
+        vertex_declaration() = default;
+        ~vertex_declaration() noexcept = default;
 
-        vertex_declaration(const vertex_declaration&) noexcept;
-        vertex_declaration& operator=(const vertex_declaration&) noexcept;
+        vertex_declaration(const vertex_declaration&) noexcept = default;
+        vertex_declaration& operator=(const vertex_declaration&) noexcept = default;
 
         template < typename T >
         vertex_declaration& add_attribute(str_hash name) noexcept;
@@ -315,10 +315,10 @@ namespace e2d
         enum class blending_color_mask : u8 {
             none = 0,
 
-            r = (u8(1) << u8(0)),
-            g = (u8(1) << u8(1)),
-            b = (u8(1) << u8(2)),
-            a = (u8(1) << u8(3)),
+            r = (1 << 0),
+            g = (1 << 1),
+            b = (1 << 2),
+            a = (1 << 3),
 
             rg = r | g,
             rb = r | b,
@@ -507,14 +507,11 @@ namespace e2d
 
         class property_block final {
         public:
-            property_block() noexcept;
-            ~property_block() noexcept;
+            property_block() = default;
+            ~property_block() noexcept = default;
 
-            property_block(property_block&&) noexcept;
-            property_block& operator=(property_block&&) noexcept;
-
-            property_block(const property_block&);
-            property_block& operator=(const property_block&);
+            property_block(const property_block&) = default;
+            property_block& operator=(const property_block&) = default;
 
             property_block& clear() noexcept;
             property_block& merge(const property_block& pb);

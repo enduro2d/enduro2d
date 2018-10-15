@@ -72,6 +72,10 @@ matrix:
       compiler: clang
 before_install:
   - eval "${MATRIX_EVAL}"
-script:
+  - if [ "$TRAVIS_OS_NAME" == 'osx' ]; then brew update; brew install git-lfs; fi
+before_script:
   - git submodule update --init --recursive
+  - git lfs install
+  - git lfs pull
+script:
   - ./scripts/build_all.sh

@@ -44,28 +44,12 @@ namespace e2d
     // index_declaration::index_info
     //
 
-    index_declaration::index_info::index_info() noexcept = default;
-    index_declaration::index_info::~index_info() noexcept = default;
-
-    index_declaration::index_info::index_info(
-        const index_info&) noexcept = default;
-    index_declaration::index_info& index_declaration::index_info::operator=(
-        const index_info&) noexcept = default;
-
     index_declaration::index_info::index_info(index_type ntype) noexcept
     : type(ntype) {}
 
     //
     // index_declaration
     //
-
-    index_declaration::index_declaration() noexcept = default;
-    index_declaration::~index_declaration() noexcept = default;
-
-    index_declaration::index_declaration(
-        const index_declaration&) noexcept = default;
-    index_declaration& index_declaration::operator=(
-        const index_declaration&) noexcept = default;
 
     index_declaration::index_declaration(index_type type) noexcept
     : index_(type) {}
@@ -105,14 +89,6 @@ namespace e2d
     // vertex_declaration::attribute_info
     //
 
-    vertex_declaration::attribute_info::attribute_info() noexcept = default;
-    vertex_declaration::attribute_info::~attribute_info() noexcept = default;
-
-    vertex_declaration::attribute_info::attribute_info(
-        const attribute_info&) noexcept = default;
-    vertex_declaration::attribute_info& vertex_declaration::attribute_info::operator=(
-        const attribute_info&) noexcept = default;
-
     vertex_declaration::attribute_info::attribute_info(
         std::size_t nstride,
         str_hash nname,
@@ -134,14 +110,6 @@ namespace e2d
     //
     // vertex_declaration
     //
-
-    vertex_declaration::vertex_declaration() noexcept = default;
-    vertex_declaration::~vertex_declaration() noexcept = default;
-
-    vertex_declaration::vertex_declaration(
-        const vertex_declaration&) noexcept  = default;
-    vertex_declaration& vertex_declaration::operator=(
-        const vertex_declaration&) noexcept  = default;
 
     vertex_declaration& vertex_declaration::normalized() noexcept {
         E2D_ASSERT(attribute_count_ > 0);
@@ -520,15 +488,6 @@ namespace e2d
     //
     // render::property_block
     //
-
-    render::property_block::property_block() noexcept = default;
-    render::property_block::~property_block() noexcept = default;
-
-    render::property_block::property_block(property_block&&) noexcept = default;
-    render::property_block& render::property_block::operator=(property_block&&) noexcept = default;
-
-    render::property_block::property_block(const property_block&) = default;
-    render::property_block& render::property_block::operator=(const property_block&) = default;
 
     render::property_block& render::property_block::clear() noexcept {
         properties_.clear();

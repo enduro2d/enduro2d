@@ -154,7 +154,6 @@ namespace e2d
             }
         } catch (...) {
             E2D_ASSERT_MSG(false, "basic_string_hash: unexpected debug exception");
-            throw;
         }
     #else
         E2D_UNUSED(hash, str);
