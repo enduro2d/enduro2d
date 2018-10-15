@@ -89,6 +89,15 @@ namespace e2d
     : state_(std::move(state)) {}
     texture::~texture() noexcept = default;
 
+    const v2u& texture::size() const noexcept {
+        static v2u size;
+        return size;
+    }
+
+    image_data_format texture::format() const noexcept {
+        return image_data_format::rgba8;
+    }
+
     //
     // index_buffer
     //
