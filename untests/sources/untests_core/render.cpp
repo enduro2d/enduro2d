@@ -8,6 +8,68 @@
 using namespace e2d;
 
 TEST_CASE("render"){
+    SECTION("property_block"){
+        {
+            const auto pb1 = render::property_block()
+                .property("f", 1.f)
+                .property("i", 42);
+            REQUIRE(*pb1.property<f32>("f") == 1.f);
+            REQUIRE(*pb1.property<i32>("i") == 42);
+            REQUIRE_FALSE(pb1.property<f32>("i"));
+            REQUIRE_FALSE(pb1.property<i32>("f"));
+            REQUIRE(pb1.property("i"));
+            REQUIRE(pb1.property("f"));
+            REQUIRE(stdex::get<i32>(*pb1.property("i")) == 42);
+            REQUIRE(stdex::get<f32>(*pb1.property("f")) == 1.f);
+            {
+                f32 acc = 0.f;
+                pb1.foreach_by_properties([&acc](str_hash n, const render::property_value& v){
+                    if ( n == make_hash("f") ) {
+                        acc += stdex::get<f32>(v);
+                    }
+                    if ( n == make_hash("i") ) {
+                        acc += stdex::get<i32>(v);
+                    }
+                });
+                REQUIRE(math::approximately(acc, 43.f));
+            }
+        }
+        {
+            const auto pb1 = render::property_block()
+                .property("f", 1.f)
+                .property("i", 42);
+            const auto pb2 = render::property_block()
+                .property("ff", 2.f)
+                .property("ii", 84);
+            auto pb3 = render::property_block()
+                .merge(pb1)
+                .merge(pb2);
+            REQUIRE(pb3.property_count() == 4);
+            REQUIRE(pb3.property("i"));
+            REQUIRE(pb3.property("f"));
+            REQUIRE(pb3.property("ii"));
+            REQUIRE(pb3.property("ff"));
+            pb3.clear();
+            REQUIRE(pb3.property_count() == 0);
+            REQUIRE_FALSE(pb3.property("i"));
+            REQUIRE_FALSE(pb3.property("f"));
+            REQUIRE_FALSE(pb3.property("ii"));
+            REQUIRE_FALSE(pb3.property("ff"));
+        }
+        {
+            const auto pb1 = render::property_block()
+                .property("i", 42)
+                .property("f", 1.f);
+            const auto pb2 = render::property_block()
+                .property("i", 40)
+                .property("ii", 20)
+                .merge(pb1);
+            REQUIRE(pb2.property_count() == 3);
+            REQUIRE(*pb2.property<i32>("i") == 42);
+            REQUIRE(*pb2.property<i32>("ii") == 20);
+            REQUIRE(*pb2.property<f32>("f") == 1.f);
+        }
+    }
     SECTION("index_declaration"){
         index_declaration id;
         REQUIRE(id.index().type == index_declaration::index_type::unsigned_short);
@@ -43,7 +105,7 @@ TEST_CASE("render"){
         REQUIRE(vd.vertex_size() == 8);
 
         vertex_declaration::attribute_info ai = vd.attribute(0);
-        REQUIRE(ai.name == "hello");
+        REQUIRE(ai.name == make_hash("hello"));
         REQUIRE(ai.columns == 2);
         REQUIRE(ai.stride == 0);
         REQUIRE(ai.type == vertex_declaration::attribute_type::floating_point);
@@ -57,7 +119,7 @@ TEST_CASE("render"){
         REQUIRE(vd.vertex_size() == 14);
 
         vertex_declaration::attribute_info ai2 = vd.attribute(1);
-        REQUIRE(ai2.name == "world");
+        REQUIRE(ai2.name == make_hash("world"));
         REQUIRE(ai2.columns == 1);
         REQUIRE(ai2.stride == 12);
         REQUIRE(ai2.type == vertex_declaration::attribute_type::unsigned_short);

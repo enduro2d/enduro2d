@@ -13,8 +13,12 @@
 
 namespace e2d
 {
+    //
+    // vertex_declaration
+    //
+
     template < typename T >
-    vertex_declaration& vertex_declaration::add_attribute(str_view name) {
+    vertex_declaration& vertex_declaration::add_attribute(str_hash name) noexcept {
         E2D_UNUSED(name);
         static_assert(sizeof(T) == 0, "not implemented for this type");
         return *this;
@@ -22,7 +26,7 @@ namespace e2d
 
     #define DEFINE_ADD_ATTRIBUTE_SPECIALIZATION(t, rows, columns, type)\
         template <>\
-        inline vertex_declaration& vertex_declaration::add_attribute<t>(str_view name) {\
+        inline vertex_declaration& vertex_declaration::add_attribute<t>(str_hash name) noexcept {\
             return add_attribute(name, (rows), (columns), attribute_type::type, false);\
         }
 
@@ -70,6 +74,38 @@ namespace e2d
     DEFINE_ADD_ATTRIBUTE_SPECIALIZATION(color32, 1, 4, unsigned_byte)
 
     #undef DEFINE_ADD_ATTRIBUTE_SPECIALIZATION
+
+    //
+    // render::property_block
+    //
+
+    template < typename T >
+    render::property_block& render::property_block::property(str_hash name, T&& v) {
+        properties_[name] = std::forward<T>(v);
+        return *this;
+    }
+
+    template < typename T >
+    const T* render::property_block::property(str_hash name) const noexcept {
+        const auto iter = properties_.find(name);
+        return iter != properties_.end()
+            ? stdex::get_if<T>(&iter->second)
+            : nullptr;
+    }
+
+    template < typename F >
+    void render::property_block::foreach_by_samplers(F&& f) const {
+        for ( const auto& p : samplers_ ) {
+            stdex::invoke(f, p.first, p.second);
+        }
+    }
+
+    template < typename F >
+    void render::property_block::foreach_by_properties(F&& f) const {
+        for ( const auto& p : properties_ ) {
+            stdex::invoke(f, p.first, p.second);
+        }
+    }
 }
 
 #endif

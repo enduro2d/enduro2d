@@ -105,25 +105,25 @@ namespace e2d
     // vertex_declaration::attribute_info
     //
 
-    vertex_declaration::attribute_info::attribute_info() = default;
+    vertex_declaration::attribute_info::attribute_info() noexcept = default;
     vertex_declaration::attribute_info::~attribute_info() noexcept = default;
 
     vertex_declaration::attribute_info::attribute_info(
-        const attribute_info&) = default;
+        const attribute_info&) noexcept = default;
     vertex_declaration::attribute_info& vertex_declaration::attribute_info::operator=(
-        const attribute_info&) = default;
+        const attribute_info&) noexcept = default;
 
     vertex_declaration::attribute_info::attribute_info(
-        str_view nname,
-        std::size_t nrows,
-        std::size_t ncolumns,
         std::size_t nstride,
+        str_hash nname,
+        u8 nrows,
+        u8 ncolumns,
         attribute_type ntype,
-        bool nnormalized)
-    : name(nname)
+        bool nnormalized) noexcept
+    : stride(nstride)
+    , name(std::move(nname))
     , rows(nrows)
     , columns(ncolumns)
-    , stride(nstride)
     , type(ntype)
     , normalized(nnormalized) {}
 
@@ -135,13 +135,13 @@ namespace e2d
     // vertex_declaration
     //
 
-    vertex_declaration::vertex_declaration() = default;
+    vertex_declaration::vertex_declaration() noexcept = default;
     vertex_declaration::~vertex_declaration() noexcept = default;
 
     vertex_declaration::vertex_declaration(
-        const vertex_declaration&) = default;
+        const vertex_declaration&) noexcept  = default;
     vertex_declaration& vertex_declaration::operator=(
-        const vertex_declaration&) = default;
+        const vertex_declaration&) noexcept  = default;
 
     vertex_declaration& vertex_declaration::normalized() noexcept {
         E2D_ASSERT(attribute_count_ > 0);
@@ -155,19 +155,19 @@ namespace e2d
     }
 
     vertex_declaration& vertex_declaration::add_attribute(
-        str_view name,
-        std::size_t rows,
-        std::size_t columns,
+        str_hash name,
+        u8 rows,
+        u8 columns,
         attribute_type type,
-        bool normalized)
+        bool normalized) noexcept
     {
         E2D_ASSERT(attribute_count_ < attributes_.size());
         const std::size_t stride = vertex_size_;
         attributes_[attribute_count_] = attribute_info(
+            stride,
             name,
             rows,
             columns,
-            stride,
             type,
             normalized);
         vertex_size_ += attribute_element_size(type) * rows * columns;
@@ -211,10 +211,10 @@ namespace e2d
         const vertex_declaration::attribute_info& l,
         const vertex_declaration::attribute_info& r) noexcept
     {
-        return l.name == r.name
+        return l.stride == r.stride
+            && l.name == r.name
             && l.rows == r.rows
             && l.columns == r.columns
-            && l.stride == r.stride
             && l.type == r.type
             && l.normalized == r.normalized;
     }
@@ -243,30 +243,6 @@ namespace e2d
 
     render::depth_state& render::depth_state::func(compare_func func) noexcept {
         func_ = func;
-        return *this;
-    }
-
-    //
-    // render_state
-    //
-
-    render::capabilities_state& render::capabilities_state::culling(bool enable) noexcept {
-        culling_ = enable;
-        return *this;
-    }
-
-    render::capabilities_state& render::capabilities_state::blending(bool enable) noexcept {
-        blending_ = enable;
-        return *this;
-    }
-
-    render::capabilities_state& render::capabilities_state::depth_test(bool enable) noexcept {
-        depth_test_ = enable;
-        return *this;
-    }
-
-    render::capabilities_state& render::capabilities_state::stencil_test(bool enable) noexcept {
-        stencil_test_ = enable;
         return *this;
     }
 
@@ -316,20 +292,57 @@ namespace e2d
         return *this;
     }
 
+    render::blending_state& render::blending_state::color_mask(blending_color_mask mask) noexcept {
+        color_mask_ = mask;
+        return *this;
+    }
+
     render::blending_state& render::blending_state::factor(blending_factor src, blending_factor dst) noexcept {
         rgb_factor(src, dst);
         alpha_factor(src, dst);
         return *this;
     }
 
+    render::blending_state& render::blending_state::src_factor(blending_factor src) noexcept {
+        src_rgb_factor(src);
+        src_alpha_factor(src);
+        return *this;
+    }
+
+    render::blending_state& render::blending_state::dst_factor(blending_factor dst) noexcept {
+        dst_rgb_factor(dst);
+        dst_alpha_factor(dst);
+        return *this;
+    }
+
     render::blending_state& render::blending_state::rgb_factor(blending_factor src, blending_factor dst) noexcept {
+        src_rgb_factor(src);
+        dst_rgb_factor(dst);
+        return *this;
+    }
+
+    render::blending_state& render::blending_state::src_rgb_factor(blending_factor src) noexcept {
         src_rgb_factor_ = src;
+        return *this;
+    }
+
+    render::blending_state& render::blending_state::dst_rgb_factor(blending_factor dst) noexcept {
         dst_rgb_factor_ = dst;
         return *this;
     }
 
     render::blending_state& render::blending_state::alpha_factor(blending_factor src, blending_factor dst) noexcept {
+        src_alpha_factor(src);
+        dst_alpha_factor(dst);
+        return *this;
+    }
+
+    render::blending_state& render::blending_state::src_alpha_factor(blending_factor src) noexcept {
         src_alpha_factor_ = src;
+        return *this;
+    }
+
+    render::blending_state& render::blending_state::dst_alpha_factor(blending_factor dst) noexcept {
         dst_alpha_factor_ = dst;
         return *this;
     }
@@ -350,8 +363,349 @@ namespace e2d
         return *this;
     }
 
-    render::blending_state& render::blending_state::color_mask(blending_color_mask mask) noexcept {
-        color_mask_ = mask;
+    //
+    // capabilities_state
+    //
+
+    render::capabilities_state& render::capabilities_state::culling(bool enable) noexcept {
+        culling_ = enable;
         return *this;
+    }
+
+    render::capabilities_state& render::capabilities_state::blending(bool enable) noexcept {
+        blending_ = enable;
+        return *this;
+    }
+
+    render::capabilities_state& render::capabilities_state::depth_test(bool enable) noexcept {
+        depth_test_ = enable;
+        return *this;
+    }
+
+    render::capabilities_state& render::capabilities_state::stencil_test(bool enable) noexcept {
+        stencil_test_ = enable;
+        return *this;
+    }
+
+    //
+    // render_state
+    //
+
+    render::state_block& render::state_block::depth(const depth_state& state) noexcept {
+        depth_ = state;
+        return *this;
+    }
+
+    render::state_block& render::state_block::stencil(const stencil_state& state) noexcept {
+        stencil_ = state;
+        return *this;
+    }
+
+    render::state_block& render::state_block::culling(const culling_state& state) noexcept {
+        culling_ = state;
+        return *this;
+    }
+
+    render::state_block& render::state_block::blending(const blending_state& state) noexcept {
+        blending_ = state;
+        return *this;
+    }
+
+    render::state_block& render::state_block::capabilities(const capabilities_state& state) noexcept {
+        capabilities_ = state;
+        return *this;
+    }
+
+    render::depth_state& render::state_block::depth() noexcept {
+        return depth_;
+    }
+
+    render::stencil_state& render::state_block::stencil() noexcept {
+        return stencil_;
+    }
+
+    render::culling_state& render::state_block::culling() noexcept {
+        return culling_;
+    }
+
+    render::blending_state& render::state_block::blending() noexcept {
+        return blending_;
+    }
+
+    render::capabilities_state& render::state_block::capabilities() noexcept {
+        return capabilities_;
+    }
+
+    const render::depth_state& render::state_block::depth() const noexcept {
+        return depth_;
+    }
+
+    const render::stencil_state& render::state_block::stencil() const noexcept {
+        return stencil_;
+    }
+
+    const render::culling_state& render::state_block::culling() const noexcept {
+        return culling_;
+    }
+
+    const render::blending_state& render::state_block::blending() const noexcept {
+        return blending_;
+    }
+
+    const render::capabilities_state& render::state_block::capabilities() const noexcept {
+        return capabilities_;
+    }
+
+    //
+    // render::property_block::sampler
+    //
+
+    render::sampler_state& render::sampler_state::texture(const texture_ptr& texture) noexcept {
+        texture_ = texture;
+        return *this;
+    }
+
+    render::sampler_state& render::sampler_state::wrap(sampler_wrap st) noexcept {
+        s_wrap(st);
+        t_wrap(st);
+        return *this;
+    }
+
+    render::sampler_state& render::sampler_state::s_wrap(sampler_wrap s) noexcept {
+        s_wrap_ = s;
+        return *this;
+    }
+
+    render::sampler_state& render::sampler_state::t_wrap(sampler_wrap t) noexcept {
+        t_wrap_ = t;
+        return *this;
+    }
+
+    render::sampler_state& render::sampler_state::filter(sampler_min_filter min, sampler_mag_filter mag) noexcept {
+        min_filter(min);
+        mag_filter(mag);
+        return *this;
+    }
+
+    render::sampler_state& render::sampler_state::min_filter(sampler_min_filter min) noexcept {
+        min_filter_ = min;
+        return *this;
+    }
+
+    render::sampler_state& render::sampler_state::mag_filter(sampler_mag_filter mag) noexcept {
+        mag_filter_ = mag;
+        return *this;
+    }
+
+    const texture_ptr& render::sampler_state::texture() const noexcept {
+        return texture_;
+    }
+
+    render::sampler_wrap render::sampler_state::s_wrap() const noexcept {
+        return s_wrap_;
+    }
+
+    render::sampler_wrap render::sampler_state::t_wrap() const noexcept {
+        return t_wrap_;
+    }
+
+    render::sampler_min_filter render::sampler_state::min_filter() const noexcept {
+        return min_filter_;
+    }
+
+    render::sampler_mag_filter render::sampler_state::mag_filter() const noexcept {
+        return mag_filter_;
+    }
+
+    //
+    // render::property_block
+    //
+
+    render::property_block::property_block() noexcept = default;
+    render::property_block::~property_block() noexcept = default;
+
+    render::property_block::property_block(property_block&&) noexcept = default;
+    render::property_block& render::property_block::operator=(property_block&&) noexcept = default;
+
+    render::property_block::property_block(const property_block&) = default;
+    render::property_block& render::property_block::operator=(const property_block&) = default;
+
+    render::property_block& render::property_block::clear() noexcept {
+        properties_.clear();
+        samplers_.clear();
+        return *this;
+    }
+
+    render::property_block& render::property_block::merge(const property_block& pb) {
+        pb.foreach_by_properties([this](str_hash name, const property_value& v){
+            property(name, v);
+        });
+        pb.foreach_by_samplers([this](str_hash name, const sampler_state& s){
+            sampler(name, s);
+        });
+        return *this;
+    }
+
+    render::property_block& render::property_block::sampler(str_hash name, const sampler_state& s) {
+        samplers_[name] = s;
+        return *this;
+    }
+
+    const render::sampler_state* render::property_block::sampler(str_hash name) const noexcept {
+        const auto iter = samplers_.find(name);
+        return iter != samplers_.end()
+            ? &iter->second
+            : nullptr;
+    }
+
+    render::property_block& render::property_block::property(str_hash name, const property_value& v) {
+        properties_[name] = v;
+        return *this;
+    }
+
+    const render::property_value* render::property_block::property(str_hash name) const noexcept {
+        const auto iter = properties_.find(name);
+        return iter != properties_.end()
+            ? &iter->second
+            : nullptr;
+    }
+
+    std::size_t render::property_block::sampler_count() const noexcept {
+        return samplers_.size();
+    }
+
+    std::size_t render::property_block::property_count() const noexcept {
+        return properties_.size();
+    }
+
+    //
+    // pass_state
+    //
+
+    render::pass_state& render::pass_state::shader(const shader_ptr& shader) noexcept {
+        shader_ = shader;
+        return *this;
+    }
+
+    render::pass_state& render::pass_state::states(const state_block& render_state) noexcept {
+        states_ = render_state;
+        return *this;
+    }
+
+    render::pass_state& render::pass_state::properties(const property_block& properties) noexcept {
+        properties_ = properties;
+        return *this;
+    }
+
+    shader_ptr& render::pass_state::shader() noexcept {
+        return shader_;
+    }
+
+    render::state_block& render::pass_state::states() noexcept {
+        return states_;
+    }
+
+    render::property_block& render::pass_state::properties() noexcept {
+        return properties_;
+    }
+
+    const shader_ptr& render::pass_state::shader() const noexcept {
+        return shader_;
+    }
+
+    const render::state_block& render::pass_state::states() const noexcept {
+        return states_;
+    }
+
+    const render::property_block& render::pass_state::properties() const noexcept {
+        return properties_;
+    }
+
+    //
+    // material
+    //
+
+    render::material& render::material::add_pass(const pass_state& pass) noexcept {
+        E2D_ASSERT(pass_count_ < max_pass_count);
+        passes_[pass_count_] = pass;
+        ++pass_count_;
+        return *this;
+    }
+
+    std::size_t render::material::pass_count() const noexcept {
+        return pass_count_;
+    }
+
+    render::pass_state& render::material::pass(std::size_t index) noexcept {
+        return passes_[index];
+    }
+
+    const render::pass_state& render::material::pass(std::size_t index) const noexcept {
+        return passes_[index];
+    }
+
+    render::property_block& render::material::properties() noexcept {
+        return properties_;
+    }
+
+    const render::property_block& render::material::properties() const noexcept {
+        return properties_;
+    }
+
+    //
+    // geometry
+    //
+
+    render::geometry& render::geometry::add_vertices(const vertex_buffer_ptr& vb) noexcept {
+        E2D_ASSERT(vertices_count_ < max_vertices_count);
+        vertices_[vertices_count_] = vb;
+        ++vertices_count_;
+        return *this;
+    }
+
+    std::size_t render::geometry::vertices_count() const noexcept {
+        return vertices_count_;
+    }
+
+    render::geometry& render::geometry::topo(topology tp) noexcept {
+        topology_ = tp;
+        return *this;
+    }
+
+    render::geometry& render::geometry::indices(const index_buffer_ptr& ib) noexcept {
+        indices_ = ib;
+        return *this;
+    }
+
+    render::geometry& render::geometry::vertices(std::size_t index, const vertex_buffer_ptr& vb) noexcept {
+        E2D_ASSERT(index < vertices_count_);
+        vertices_[index] = vb;
+        return *this;
+    }
+
+    render::topology& render::geometry::topo() noexcept {
+        return topology_;
+    }
+
+    index_buffer_ptr& render::geometry::indices() noexcept {
+        return indices_;
+    }
+
+    vertex_buffer_ptr& render::geometry::vertices(std::size_t index) noexcept {
+        E2D_ASSERT(index < vertices_count_);
+        return vertices_[index];
+    }
+
+    const render::topology& render::geometry::topo() const noexcept {
+        return topology_;
+    }
+
+    const index_buffer_ptr& render::geometry::indices() const noexcept {
+        return indices_;
+    }
+
+    const vertex_buffer_ptr& render::geometry::vertices(std::size_t index) const noexcept {
+        E2D_ASSERT(index < vertices_count_);
+        return vertices_[index];
     }
 }

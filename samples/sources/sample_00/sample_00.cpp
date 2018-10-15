@@ -13,91 +13,181 @@ namespace
         "#version 120                                       \n"
         "                                                   \n"
         "attribute vec3 a_position;                         \n"
+        "attribute vec2 a_uv;                               \n"
         "attribute vec4 a_color;                            \n"
         "                                                   \n"
-        "uniform float u_time = 0.0;                        \n"
+        "uniform float u_time;                              \n"
+        "uniform mat4 u_MVP;                                \n"
         "                                                   \n"
-        "varying vec4 color;                                \n"
+        "varying vec4 v_color;                              \n"
+        "varying vec2 v_uv;                                 \n"
         "                                                   \n"
         "void main(){                                       \n"
-        "  color = a_color;                                 \n"
+        "  v_color = a_color;                               \n"
+        "  v_uv = a_uv;                                     \n"
         "                                                   \n"
         "  float s = 0.7 + 0.3 * (cos(u_time * 0.003) + 1); \n"
-        "  gl_Position = vec4(a_position * s, 1.0);         \n"
-        "}";
+        "  gl_Position = vec4(a_position * s, 1.0) * u_MVP; \n"
+        "}                                                  \n";
 
     const char* fs_source_cstr =
-        "#version 120            \n"
-        "                        \n"
-        "varying vec4 color;     \n"
-        "                        \n"
-        "void main(){            \n"
-        "  gl_FragColor = color; \n"
-        "}";
+        "#version 120                                             \n"
+        "                                                         \n"
+        "uniform float u_time;                                    \n"
+        "uniform sampler2D u_texture1;                            \n"
+        "uniform sampler2D u_texture2;                            \n"
+        "varying vec4 v_color;                                    \n"
+        "varying vec2 v_uv;                                       \n"
+        "                                                         \n"
+        "void main(){                                             \n"
+        "  vec2 uv = vec2(v_uv.s, 1.0 - v_uv.t);                  \n"
+        "  if ( u_time > 2000 ) {                                 \n"
+        "    gl_FragColor = v_color * texture2D(u_texture2, uv);  \n"
+        "  } else {                                               \n"
+        "    gl_FragColor = v_color * texture2D(u_texture1, uv);  \n"
+        "  }                                                      \n"
+        "}                                                        \n";
 
-    struct vertex {
+    struct vertex1 {
         v3f position;
-        color32 color;
+        v2hu uv;
+        static vertex_declaration decl() noexcept {
+            return vertex_declaration()
+                .add_attribute<v3f>("a_position")
+                .add_attribute<v2hu>("a_uv");
+        }
     };
 
-    u8 indices[] = {
-        0, 1, 2, 2, 1, 3};
+    struct vertex2 {
+        color32 color;
+        static vertex_declaration decl() noexcept {
+            return vertex_declaration()
+                .add_attribute<color32>("a_color").normalized();
+        }
+    };
 
-    const vertex vertices[] = {
-        {{-0.5f,  0.5f, 0.0f}, color32::red()},
-        {{-0.5f, -0.5f, 0.0f}, color32::green()},
-        {{ 0.5f,  0.5f, 0.0f}, color32::blue()},
-        {{ 0.5f, -0.5f, 0.0f}, color32::white()}};
+    array<u8,6> generate_quad_indices() noexcept {
+        return {0, 1, 2, 2, 1, 3};
+    }
+
+    array<vertex1,4> generate_quad_vertices(f32 w, f32 h) noexcept {
+        f32 hw = w * 0.5f;
+        f32 hh = h * 0.5f;
+        return {
+            vertex1{{-hw,  hh, 0.f}, {0, 1}},
+            vertex1{{-hw, -hh, 0.f}, {0, 0}},
+            vertex1{{ hw,  hh, 0.f}, {1, 1}},
+            vertex1{{ hw, -hh, 0.f}, {1, 0}}};
+    }
+
+    array<vertex2,4> generate_quad_colors() noexcept {
+        return {
+            vertex2{color32::red()},
+            vertex2{color32::green()},
+            vertex2{color32::blue()},
+            vertex2{color32::yellow()}};
+    }
 }
 
 int e2d_main() {
-    modules::initialize<debug>()
-        .register_sink<debug_console_sink>();
-    modules::initialize<input>();
-    modules::initialize<window>(v2u{640, 480}, "Enduro2D", false)
-        .register_event_listener<window_input_source>(the<input>());
-    modules::initialize<render>(the<debug>(), the<window>());
+    {
+        modules::initialize<vfs>()
+            .register_scheme<filesystem_file_source>("file");
+        modules::initialize<debug>()
+            .register_sink<debug_console_sink>();
+        modules::initialize<input>();
+        modules::initialize<window>(v2u{640, 480}, "Enduro2D", false)
+            .register_event_listener<window_input_source>(the<input>());
+        modules::initialize<render>(the<debug>(), the<window>());
+    }
+    {
+        str resources;
+        filesystem::extract_predef_path(resources, filesystem::predef_path::resources);
+        the<vfs>().register_scheme_alias(
+            "resources",
+            url{"file", resources});
+        the<vfs>().register_scheme<archive_file_source>(
+            "piratepack",
+            the<vfs>().open(url("resources://bin/kenney_piratepack.zip")));
+        the<vfs>().register_scheme_alias("ships", url("piratepack://PNG/Retina/Ships"));
+    }
 
-    auto index_decl = index_declaration(
-        index_declaration::index_type::unsigned_byte);
+    auto texture1 = the<render>().create_texture(
+        the<vfs>().open(url("ships://ship (2).png")));
+    auto texture2 = the<render>().create_texture(
+        the<vfs>().open(url("ships://ship (19).png")));
 
-    auto vertex_decl = vertex_declaration()
-        .add_attribute<v3f>("a_position")
-        .add_attribute<color32>("a_color").normalized();
-
-    const auto ps = the<render>().create_shader(
+    const auto shader = the<render>().create_shader(
         make_memory_stream(buffer(vs_source_cstr, std::strlen(vs_source_cstr))),
-        make_memory_stream(buffer(fs_source_cstr, std::strlen(fs_source_cstr))),
-        vertex_decl);
+        make_memory_stream(buffer(fs_source_cstr, std::strlen(fs_source_cstr))));
 
-    const auto ib = the<render>().create_index_buffer(
-        buffer(indices, E2D_COUNTOF(indices) * sizeof(indices[0])),
-        index_decl,
+    const auto indices = generate_quad_indices();
+    const auto index_buffer = the<render>().create_index_buffer(
+        buffer(indices.data(), indices.size() * sizeof(indices[0])),
+        index_declaration(index_declaration::index_type::unsigned_byte),
         index_buffer::usage::static_draw);
 
-    const auto vb = the<render>().create_vertex_buffer(
-        buffer(vertices, E2D_COUNTOF(vertices) * sizeof(vertices[0])),
-        vertex_decl,
+    const auto vertices1 = generate_quad_vertices(66.f, 113.f);
+    const auto vertex_buffer1 = the<render>().create_vertex_buffer(
+        buffer(vertices1.data(), vertices1.size() * sizeof(vertices1[0])),
+        vertex1::decl(),
         vertex_buffer::usage::static_draw);
 
-    const auto begin_time = time::now_ms();
+    const auto vertices2 = generate_quad_colors();
+    const auto vertex_buffer2 = the<render>().create_vertex_buffer(
+        buffer(vertices2.data(), vertices2.size() * sizeof(vertices2[0])),
+        vertex2::decl(),
+        vertex_buffer::usage::static_draw);
+
+    if ( !texture1 || !texture2 || !shader || !index_buffer || !vertex_buffer1 || !vertex_buffer2 ) {
+        return 1;
+    }
+
+    auto material = render::material()
+        .add_pass(render::pass_state()
+            .states(render::state_block()
+                .capabilities(render::capabilities_state()
+                    .blending(true))
+                .blending(render::blending_state()
+                    .src_factor(render::blending_factor::src_alpha)
+                    .dst_factor(render::blending_factor::one_minus_src_alpha)))
+            .shader(shader)
+            .properties(render::property_block()
+                .sampler("u_texture1", render::sampler_state()
+                    .texture(texture1)
+                    .min_filter(render::sampler_min_filter::linear)
+                    .mag_filter(render::sampler_mag_filter::linear))
+                .sampler("u_texture2", render::sampler_state()
+                    .texture(texture2)
+                    .min_filter(render::sampler_min_filter::linear)
+                    .mag_filter(render::sampler_mag_filter::linear))));
+
+    auto geometry = render::geometry()
+        .indices(index_buffer)
+        .add_vertices(vertex_buffer1)
+        .add_vertices(vertex_buffer2);
+
+    const auto begin_game_time = time::now_ms();
+    const auto framebuffer_size = the<window>().real_size().cast_to<f32>();
+    const auto projection = math::make_orthogonal_matrix4(framebuffer_size.x, framebuffer_size.y, 0.f, 1.f);
 
     const keyboard& k = the<input>().keyboard();
     while ( !the<window>().should_close() && !k.is_key_just_released(keyboard_key::escape) ) {
-        {
-            f32 t = (time::now_ms() - begin_time).cast_to<f32>().value;
-            ps->set_uniform("u_time", t);
-        }
-        {
-            the<render>()
-                .clear_depth_buffer(1.f)
-                .clear_stencil_buffer(0)
-                .clear_color_buffer({1.f, 0.4f, 0.f, 1.f})
-                .draw(render::topology::triangles, ps, ib, vb);
-        }
+
+        material.properties()
+            .property("u_time", (time::now_ms() - begin_game_time).cast_to<f32>().value)
+            .property("u_MVP", projection);
+
+        the<render>()
+            .clear_depth_buffer(1.f)
+            .clear_stencil_buffer(0)
+            .clear_color_buffer({1.f, 0.4f, 0.f, 1.f})
+            .draw(material, geometry);
+
         the<window>().swap_buffers(true);
         the<input>().frame_tick();
         window::poll_events();
     }
+
     return 0;
 }

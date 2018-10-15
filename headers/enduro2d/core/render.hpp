@@ -92,55 +92,55 @@ namespace e2d
 
         class attribute_info final {
         public:
-            str name;
-            std::size_t rows = 0;
-            std::size_t columns = 0;
             std::size_t stride = 0;
+            str_hash name;
+            u8 rows = 0;
+            u8 columns = 0;
             attribute_type type = attribute_type::floating_point;
             bool normalized = false;
         public:
-            attribute_info();
+            attribute_info() noexcept;
             ~attribute_info() noexcept;
 
-            attribute_info(const attribute_info&);
-            attribute_info& operator=(const attribute_info&);
+            attribute_info(const attribute_info&) noexcept;
+            attribute_info& operator=(const attribute_info&) noexcept;
 
             attribute_info(
-                str_view name,
-                std::size_t rows,
-                std::size_t columns,
                 std::size_t stride,
+                str_hash name,
+                u8 rows,
+                u8 columns,
                 attribute_type type,
-                bool normalized);
+                bool normalized) noexcept;
 
             std::size_t row_size() const noexcept;
         };
     public:
-        vertex_declaration();
+        vertex_declaration() noexcept;
         ~vertex_declaration() noexcept;
 
-        vertex_declaration(const vertex_declaration&);
-        vertex_declaration& operator=(const vertex_declaration&);
+        vertex_declaration(const vertex_declaration&) noexcept;
+        vertex_declaration& operator=(const vertex_declaration&) noexcept;
 
         template < typename T >
-        vertex_declaration& add_attribute(str_view name);
+        vertex_declaration& add_attribute(str_hash name) noexcept;
         vertex_declaration& normalized() noexcept;
 
         vertex_declaration& skip_bytes(
             std::size_t bytes) noexcept;
 
         vertex_declaration& add_attribute(
-            str_view name,
-            std::size_t rows,
-            std::size_t columns,
+            str_hash name,
+            u8 rows,
+            u8 columns,
             attribute_type type,
-            bool normalized);
+            bool normalized) noexcept;
 
         const attribute_info& attribute(std::size_t i) const noexcept;
         std::size_t attribute_count() const noexcept;
         std::size_t vertex_size() const noexcept;
     private:
-        constexpr static std::size_t max_attribute_count = 16;
+        constexpr static std::size_t max_attribute_count = 8;
         array<attribute_info, max_attribute_count> attributes_;
         std::size_t attribute_count_ = 0;
         std::size_t vertex_size_ = 0;
@@ -169,53 +169,8 @@ namespace e2d
         using internal_state_uptr = std::unique_ptr<internal_state>;
         const internal_state& state() const noexcept;
     public:
-        enum class uniform_type : u8 {
-            signed_integer,
-            floating_point,
-
-            v2i,
-            v3i,
-            v4i,
-
-            v2f,
-            v3f,
-            v4f,
-
-            m2f,
-            m3f,
-            m4f,
-
-            sampler_2d,
-            sampler_cube
-        };
-
-        enum class attribute_type : u8 {
-            floating_point,
-
-            v2f,
-            v3f,
-            v4f,
-
-            m2f,
-            m3f,
-            m4f
-        };
-    public:
         explicit shader(internal_state_uptr);
         ~shader() noexcept;
-        const vertex_declaration& decl() const noexcept;
-        void set_uniform(str_view name, i32 value) const noexcept;
-        void set_uniform(str_view name, f32 value) const noexcept;
-        void set_uniform(str_view name, const v2i& value) const noexcept;
-        void set_uniform(str_view name, const v3i& value) const noexcept;
-        void set_uniform(str_view name, const v4i& value) const noexcept;
-        void set_uniform(str_view name, const v2f& value) const noexcept;
-        void set_uniform(str_view name, const v3f& value) const noexcept;
-        void set_uniform(str_view name, const v4f& value) const noexcept;
-        void set_uniform(str_view name, const m2f& value) const noexcept;
-        void set_uniform(str_view name, const m3f& value) const noexcept;
-        void set_uniform(str_view name, const m4f& value) const noexcept;
-        void set_uniform(str_view name, const texture_ptr& value) const noexcept;
     private:
         internal_state_uptr state_;
     };
@@ -230,22 +185,8 @@ namespace e2d
         using internal_state_uptr = std::unique_ptr<internal_state>;
         const internal_state& state() const noexcept;
     public:
-        enum class wrap : u8 {
-            clamp,
-            repeat,
-            mirror
-        };
-
-        enum class filter : u8 {
-            linear,
-            nearest
-        };
-    public:
         explicit texture(internal_state_uptr);
         ~texture() noexcept;
-
-        void set_wrap(wrap u, wrap v) noexcept;
-        void set_filter(filter min, filter mag) noexcept;
     private:
         internal_state_uptr state_;
     };
@@ -270,7 +211,6 @@ namespace e2d
         ~index_buffer() noexcept;
         void update(const buffer& indices, std::size_t offset) noexcept;
         const index_declaration& decl() const noexcept;
-        usage buffer_usage() const noexcept;
         std::size_t buffer_size() const noexcept;
         std::size_t index_count() const noexcept;
     private:
@@ -297,7 +237,6 @@ namespace e2d
         ~vertex_buffer() noexcept;
         void update(const buffer& vertices, std::size_t offset) noexcept;
         const vertex_declaration& decl() const noexcept;
-        usage buffer_usage() const noexcept;
         std::size_t buffer_size() const noexcept;
         std::size_t vertex_count() const noexcept;
     private:
@@ -396,7 +335,27 @@ namespace e2d
             rgba = r | g | b | a
         };
 
-        class depth_state {
+        enum class sampler_wrap : u8 {
+            clamp,
+            repeat,
+            mirror
+        };
+
+        enum class sampler_min_filter : u8 {
+            nearest,
+            linear,
+            nearest_mipmap_nearest,
+            linear_mipmap_nearest,
+            nearest_mipmap_linear,
+            linear_mipmap_linear
+        };
+
+        enum class sampler_mag_filter : u8 {
+            nearest,
+            linear
+        };
+
+        class depth_state final {
         public:
             depth_state& range(f32 near, f32 far) noexcept;
             depth_state& write(bool enable) noexcept;
@@ -410,7 +369,7 @@ namespace e2d
             u8 _pad[2] = {0};
         };
 
-        class stencil_state {
+        class stencil_state final {
         public:
             stencil_state& write(u8 mask) noexcept;
             stencil_state& func(compare_func func, u8 ref, u8 mask) noexcept;
@@ -427,7 +386,7 @@ namespace e2d
             u8 _pad[1] = {0};
         };
 
-        class culling_state {
+        class culling_state final {
         public:
             culling_state& mode(culling_mode mode) noexcept;
             culling_state& face(culling_face face) noexcept;
@@ -438,30 +397,40 @@ namespace e2d
             u8 _pad[2] = {0};
         };
 
-        class blending_state {
+        class blending_state final {
         public:
             blending_state& constant_color(const color& c) noexcept;
+            blending_state& color_mask(blending_color_mask mask) noexcept;
+
             blending_state& factor(blending_factor src, blending_factor dst) noexcept;
+            blending_state& src_factor(blending_factor src) noexcept;
+            blending_state& dst_factor(blending_factor dst) noexcept;
+
             blending_state& rgb_factor(blending_factor src, blending_factor dst) noexcept;
+            blending_state& src_rgb_factor(blending_factor src) noexcept;
+            blending_state& dst_rgb_factor(blending_factor dst) noexcept;
+
             blending_state& alpha_factor(blending_factor src, blending_factor dst) noexcept;
+            blending_state& src_alpha_factor(blending_factor src) noexcept;
+            blending_state& dst_alpha_factor(blending_factor dst) noexcept;
+
             blending_state& equation(blending_equation equation) noexcept;
             blending_state& rgb_equation(blending_equation equation) noexcept;
             blending_state& alpha_equation(blending_equation equation) noexcept;
-            blending_state& color_mask(blending_color_mask mask) noexcept;
         private:
             friend class render;
             color constant_color_ = color::clear();
+            blending_color_mask color_mask_ = blending_color_mask::rgba;
             blending_factor src_rgb_factor_ = blending_factor::one;
             blending_factor dst_rgb_factor_ = blending_factor::zero;
             blending_equation rgb_equation_ = blending_equation::add;
             blending_factor src_alpha_factor_ = blending_factor::one;
             blending_factor dst_alpha_factor_ = blending_factor::zero;
             blending_equation alpha_equation_ = blending_equation::add;
-            blending_color_mask color_mask_ = blending_color_mask::rgba;
             u8 _pad[1] = {0};
         };
 
-        class capabilities_state {
+        class capabilities_state final {
         public:
             capabilities_state& culling(bool enable) noexcept;
             capabilities_state& blending(bool enable) noexcept;
@@ -474,21 +443,182 @@ namespace e2d
             bool depth_test_ = false;
             bool stencil_test_ = false;
         };
+
+        class state_block final {
+        public:
+            state_block& depth(const depth_state& state_block) noexcept;
+            state_block& stencil(const stencil_state& state_block) noexcept;
+            state_block& culling(const culling_state& state_block) noexcept;
+            state_block& blending(const blending_state& state_block) noexcept;
+            state_block& capabilities(const capabilities_state& state_block) noexcept;
+
+            depth_state& depth() noexcept;
+            stencil_state& stencil() noexcept;
+            culling_state& culling() noexcept;
+            blending_state& blending() noexcept;
+            capabilities_state& capabilities() noexcept;
+
+            const depth_state& depth() const noexcept;
+            const stencil_state& stencil() const noexcept;
+            const culling_state& culling() const noexcept;
+            const blending_state& blending() const noexcept;
+            const capabilities_state& capabilities() const noexcept;
+        private:
+            depth_state depth_;
+            stencil_state stencil_;
+            culling_state culling_;
+            blending_state blending_;
+            capabilities_state capabilities_;
+        };
+
+        class sampler_state {
+        public:
+            sampler_state& texture(const texture_ptr& texture) noexcept;
+
+            sampler_state& wrap(sampler_wrap st) noexcept;
+            sampler_state& s_wrap(sampler_wrap s) noexcept;
+            sampler_state& t_wrap(sampler_wrap t) noexcept;
+
+            sampler_state& filter(sampler_min_filter min, sampler_mag_filter mag) noexcept;
+            sampler_state& min_filter(sampler_min_filter min) noexcept;
+            sampler_state& mag_filter(sampler_mag_filter mag) noexcept;
+
+            const texture_ptr& texture() const noexcept;
+
+            sampler_wrap s_wrap() const noexcept;
+            sampler_wrap t_wrap() const noexcept;
+
+            sampler_min_filter min_filter() const noexcept;
+            sampler_mag_filter mag_filter() const noexcept;
+        private:
+            texture_ptr texture_;
+            sampler_wrap s_wrap_;
+            sampler_wrap t_wrap_;
+            sampler_min_filter min_filter_;
+            sampler_mag_filter mag_filter_;
+            u8 _pad[4] = {0};
+        };
+
+        using property_value = stdex::variant<
+            i32, f32,
+            v2i, v3i, v4i,
+            v2f, v3f, v4f,
+            m2f, m3f, m4f>;
+
+        class property_block final {
+        public:
+            property_block() noexcept;
+            ~property_block() noexcept;
+
+            property_block(property_block&&) noexcept;
+            property_block& operator=(property_block&&) noexcept;
+
+            property_block(const property_block&);
+            property_block& operator=(const property_block&);
+
+            property_block& clear() noexcept;
+            property_block& merge(const property_block& pb);
+
+            property_block& sampler(str_hash name, const sampler_state& s);
+            const sampler_state* sampler(str_hash name) const noexcept;
+
+            template < typename T >
+            property_block& property(str_hash name, T&& v);
+            template < typename T >
+            const T* property(str_hash name) const noexcept;
+
+            property_block& property(str_hash name, const property_value& v);
+            const property_value* property(str_hash name) const noexcept;
+
+            template < typename F >
+            void foreach_by_samplers(F&& f) const;
+
+            template < typename F >
+            void foreach_by_properties(F&& f) const;
+
+            std::size_t sampler_count() const noexcept;
+            std::size_t property_count() const noexcept;
+        private:
+            hash_map<str_hash, sampler_state> samplers_;
+            hash_map<str_hash, property_value> properties_;
+        };
+
+        class pass_state final {
+        public:
+            pass_state& shader(const shader_ptr& shader) noexcept;
+            pass_state& states(const state_block& states) noexcept;
+            pass_state& properties(const property_block& properties) noexcept;
+
+            shader_ptr& shader() noexcept;
+            state_block& states() noexcept;
+            property_block& properties() noexcept;
+
+            const shader_ptr& shader() const noexcept;
+            const state_block& states() const noexcept;
+            const property_block& properties() const noexcept;
+        private:
+            property_block properties_;
+            shader_ptr shader_;
+            state_block states_;
+            u8 _pad[4] = {0};
+        };
+
+        class material final {
+        public:
+            material& add_pass(const pass_state& pass) noexcept;
+            std::size_t pass_count() const noexcept;
+
+            material& properties(const property_block& properties) noexcept;
+
+            pass_state& pass(std::size_t index) noexcept;
+            const pass_state& pass(std::size_t index) const noexcept;
+
+            property_block& properties() noexcept;
+            const property_block& properties() const noexcept;
+        private:
+            constexpr static std::size_t max_pass_count = 8;
+            array<pass_state, max_pass_count> passes_;
+            std::size_t pass_count_ = 0;
+            property_block properties_;
+        };
+
+        class geometry final {
+        public:
+            geometry& add_vertices(const vertex_buffer_ptr& vb) noexcept;
+            std::size_t vertices_count() const noexcept;
+
+            geometry& topo(topology tp) noexcept;
+            geometry& indices(const index_buffer_ptr& ib) noexcept;
+            geometry& vertices(std::size_t index, const vertex_buffer_ptr& vb) noexcept;
+
+            topology& topo() noexcept;
+            index_buffer_ptr& indices() noexcept;
+            vertex_buffer_ptr& vertices(std::size_t index) noexcept;
+
+            const topology& topo() const noexcept;
+            const index_buffer_ptr& indices() const noexcept;
+            const vertex_buffer_ptr& vertices(std::size_t index) const noexcept;
+        private:
+            constexpr static std::size_t max_vertices_count = 8;
+            index_buffer_ptr indices_;
+            array<vertex_buffer_ptr, max_vertices_count> vertices_;
+            std::size_t vertices_count_ = 0;
+            topology topology_ = topology::triangles;
+            u8 _pad[7] = {0};
+        };
     public:
         render(debug& d, window& w);
         ~render() noexcept final;
 
         shader_ptr create_shader(
-            input_stream_uptr vertex,
-            input_stream_uptr fragment,
-            const vertex_declaration& decl);
+            input_stream_uptr vertex_stream,
+            input_stream_uptr fragment_stream);
 
         texture_ptr create_texture(
             const image& image);
 
         texture_ptr create_texture(
-            const v2u& size,
-            image_data_format format);
+            const input_stream_uptr& image_stream);
 
         index_buffer_ptr create_index_buffer(
             const buffer& indices,
@@ -501,25 +631,18 @@ namespace e2d
             vertex_buffer::usage usage);
 
         void draw(
-            topology tp,
-            const shader_ptr& ps,
-            const index_buffer_ptr& ib,
-            const vertex_buffer_ptr& vb) noexcept;
+            const material& mat,
+            const geometry& geo);
+
+        void draw(
+            const material& mat,
+            const geometry& geo,
+            const property_block& props);
 
         render& clear_depth_buffer(f32 value) noexcept;
         render& clear_stencil_buffer(u8 value) noexcept;
         render& clear_color_buffer(const color& value) noexcept;
-
-        render& set_model(const m4f& model) noexcept;
-        render& set_view(const m4f& view) noexcept;
-        render& set_projection(const m4f& projection) noexcept;
         render& set_viewport(u32 x, u32 y, u32 w, u32 h) noexcept;
-
-        render& set_depth_state(const depth_state& ds) noexcept;
-        render& set_stencil_state(const stencil_state& ss) noexcept;
-        render& set_culling_state(const culling_state& cs) noexcept;
-        render& set_blending_state(const blending_state& bs) noexcept;
-        render& set_capabilities_state(const capabilities_state& cs) noexcept;
     private:
         class internal_state;
         std::unique_ptr<internal_state> state_;
