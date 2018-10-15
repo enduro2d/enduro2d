@@ -70,9 +70,9 @@ namespace
         return {0, 1, 2, 2, 1, 3};
     }
 
-    array<vertex1,4> generate_quad_vertices(f32 w, f32 h) noexcept {
-        f32 hw = w * 0.5f;
-        f32 hh = h * 0.5f;
+    array<vertex1,4> generate_quad_vertices(const v2u& size) noexcept {
+        f32 hw = size.x * 0.5f;
+        f32 hh = size.y * 0.5f;
         return {
             vertex1{{-hw,  hh, 0.f}, {0, 1}},
             vertex1{{-hw, -hh, 0.f}, {0, 0}},
@@ -127,7 +127,7 @@ int e2d_main() {
         index_declaration(index_declaration::index_type::unsigned_byte),
         index_buffer::usage::static_draw);
 
-    const auto vertices1 = generate_quad_vertices(66.f, 113.f);
+    const auto vertices1 = generate_quad_vertices(texture1->size());
     const auto vertex_buffer1 = the<render>().create_vertex_buffer(
         buffer(vertices1.data(), vertices1.size() * sizeof(vertices1[0])),
         vertex1::decl(),

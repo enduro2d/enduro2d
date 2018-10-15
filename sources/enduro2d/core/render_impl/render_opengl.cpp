@@ -317,6 +317,14 @@ namespace e2d
     }
     texture::~texture() noexcept = default;
 
+    const v2u& texture::size() const noexcept {
+        return state_->size();
+    }
+
+    image_data_format texture::format() const noexcept {
+        return state_->format();
+    }
+
     //
     // index_buffer
     //
@@ -446,7 +454,7 @@ namespace e2d
         }
         return std::make_shared<texture>(
             std::make_unique<texture::internal_state>(
-                state_->dbg(), std::move(id)));
+                state_->dbg(), std::move(id), image.size(), image.format()));
     }
 
     texture_ptr render::create_texture(const input_stream_uptr& image_stream) {

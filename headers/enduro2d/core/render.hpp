@@ -187,6 +187,8 @@ namespace e2d
     public:
         explicit texture(internal_state_uptr);
         ~texture() noexcept;
+        const v2u& size() const noexcept;
+        image_data_format format() const noexcept;
     private:
         internal_state_uptr state_;
     };

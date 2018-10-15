@@ -62,14 +62,20 @@ namespace e2d
     public:
         internal_state(
             debug& debug,
-            opengl::gl_texture_id id);
+            opengl::gl_texture_id id,
+            const v2u& size,
+            image_data_format format);
         ~internal_state() noexcept = default;
     public:
         debug& dbg() const noexcept;
         const opengl::gl_texture_id& id() const noexcept;
+        const v2u& size() const noexcept;
+        image_data_format format() const noexcept;
     private:
         debug& debug_;
         opengl::gl_texture_id id_;
+        v2u size_;
+        image_data_format format_;
     };
 
     //

@@ -72,9 +72,15 @@ namespace e2d
     // texture::internal_state
     //
 
-    texture::internal_state::internal_state(debug& debug, gl_texture_id id)
+    texture::internal_state::internal_state(
+        debug& debug,
+        gl_texture_id id,
+        const v2u& size,
+        image_data_format format)
     : debug_(debug)
-    , id_(std::move(id)) {
+    , id_(std::move(id))
+    , size_(size)
+    , format_(format){
         E2D_ASSERT(!id_.empty());
     }
 
@@ -84,6 +90,14 @@ namespace e2d
 
     const gl_texture_id& texture::internal_state::id() const noexcept {
         return id_;
+    }
+
+    const v2u& texture::internal_state::size() const noexcept {
+        return size_;
+    }
+
+    image_data_format texture::internal_state::format() const noexcept {
+        return format_;
     }
 
     //
