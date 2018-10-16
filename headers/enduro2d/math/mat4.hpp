@@ -458,6 +458,46 @@ namespace e2d { namespace math
     }
 
     //
+    // make_loot_at_lh_matrix4
+    //
+
+    template < typename T >
+    std::enable_if_t<std::is_floating_point<T>::value, mat4<T>>
+    make_loot_at_lh_matrix4(const vec3<T>& eye, const vec3<T>& at, const vec3<T>& up) noexcept {
+        const vec3<T> az = normalized(at - eye);
+        const vec3<T> ax = normalized(math::cross(up, az));
+        const vec3<T> ay = math::cross(az, ax);
+        const T dx = math::dot(ax, eye);
+        const T dy = math::dot(ay, eye);
+        const T dz = math::dot(az, eye);
+        return {
+            ax.x, ay.x, az.x, T(0),
+            ax.y, ay.y, az.y, T(0),
+            ax.z, ay.z, az.z, T(0),
+            -dx,  -dy,  -dz,  T(1)};
+    }
+
+    //
+    // make_loot_at_rh_matrix4
+    //
+
+    template < typename T >
+    std::enable_if_t<std::is_floating_point<T>::value, mat4<T>>
+    make_loot_at_rh_matrix4(const vec3<T>& eye, const vec3<T>& at, const vec3<T>& up) noexcept {
+        const vec3<T> az = normalized(eye - at);
+        const vec3<T> ax = normalized(math::cross(up, az));
+        const vec3<T> ay = math::cross(az, ax);
+        const T dx = math::dot(ax, eye);
+        const T dy = math::dot(ay, eye);
+        const T dz = math::dot(az, eye);
+        return {
+            ax.x, ay.x, az.x, T(0),
+            ax.y, ay.y, az.y, T(0),
+            ax.z, ay.z, az.z, T(0),
+            dx,   dy,   dz,   T(1)};
+    }
+
+    //
     // make_orthogonal_lh_matrix4
     //
 
