@@ -906,16 +906,50 @@ namespace e2d { namespace opengl
                 : "(undefined)";
         };
         debug.trace("RENDER: opengl info:\n"
-            "--> VENDOR: %0\n"
-            "--> RENDERER: %1\n"
-            "--> VERSION: %2\n"
-            "--> LANGUAGE: %3\n"
-            "--> EXTENSIONS: %4",
+            "--> GL_VENDOR: %0\n"
+            "--> GL_RENDERER: %1\n"
+            "--> GL_VERSION: %2\n"
+            "--> GL_SHADING_LANGUAGE_VERSION: %3\n"
+            "--> GL_EXTENSIONS: %4",
             cstr_or_undefined(vendor),
             cstr_or_undefined(renderer),
             cstr_or_undefined(version),
             cstr_or_undefined(language),
             cstr_or_undefined(extensions));
+    }
+
+    void gl_trace_limits(debug& debug) noexcept {
+        GLint max_texture_size = 0;
+        GL_CHECK_CODE(debug, glGetIntegerv(
+            GL_MAX_TEXTURE_SIZE, &max_texture_size));
+        GLint max_renderbuffer_size = 0;
+        GL_CHECK_CODE(debug, glGetIntegerv(
+            GL_MAX_RENDERBUFFER_SIZE, &max_renderbuffer_size));
+        GLint max_cube_map_texture_size = 0;
+        GL_CHECK_CODE(debug, glGetIntegerv(
+            GL_MAX_CUBE_MAP_TEXTURE_SIZE, &max_cube_map_texture_size));
+        GLint max_texture_image_units = 0;
+        GL_CHECK_CODE(debug, glGetIntegerv(
+            GL_MAX_TEXTURE_IMAGE_UNITS, &max_texture_image_units));
+        GLint max_vertex_texture_image_units = 0;
+        GL_CHECK_CODE(debug, glGetIntegerv(
+            GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS, &max_vertex_texture_image_units));
+        GLint max_combined_texture_image_units = 0;
+        GL_CHECK_CODE(debug, glGetIntegerv(
+            GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &max_combined_texture_image_units));
+        debug.trace("RENDER: opengl limits:\n"
+            "--> GL_MAX_TEXTURE_SIZE: %0\n"
+            "--> GL_MAX_RENDERBUFFER_SIZE: %1\n"
+            "--> GL_MAX_CUBE_MAP_TEXTURE_SIZE: %2\n"
+            "--> GL_MAX_TEXTURE_IMAGE_UNITS: %3\n"
+            "--> GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS: %4\n"
+            "--> GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS: %5",
+            max_texture_size,
+            max_renderbuffer_size,
+            max_cube_map_texture_size,
+            max_texture_image_units,
+            max_vertex_texture_image_units,
+            max_combined_texture_image_units);
     }
 
     gl_shader_id gl_compile_shader(debug& debug, const str& source, GLenum type) noexcept {

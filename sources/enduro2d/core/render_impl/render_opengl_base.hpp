@@ -225,6 +225,7 @@ namespace e2d { namespace opengl
 namespace e2d { namespace opengl
 {
     void gl_trace_info(debug& debug) noexcept;
+    void gl_trace_limits(debug& debug) noexcept;
     gl_shader_id gl_compile_shader(debug& debug, const str& source, GLenum type) noexcept;
     gl_program_id gl_link_program(debug& debug, gl_shader_id vs, gl_shader_id fs) noexcept;
     gl_texture_id gl_compile_texture(debug& debug, const image& image);
