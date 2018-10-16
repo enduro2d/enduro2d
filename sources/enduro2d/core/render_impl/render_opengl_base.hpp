@@ -50,6 +50,9 @@ namespace e2d { namespace opengl
         explicit gl_buffer_id(debug& debug) noexcept;
         ~gl_buffer_id() noexcept;
         gl_buffer_id(gl_buffer_id&& other) noexcept;
+        gl_buffer_id& operator=(gl_buffer_id&& other) noexcept;
+        gl_buffer_id& swap(gl_buffer_id& other) noexcept;
+        void reset() noexcept;
         bool empty() const noexcept;
         GLuint operator*() const noexcept;
         GLenum target() const noexcept;
@@ -68,6 +71,9 @@ namespace e2d { namespace opengl
         explicit gl_shader_id(debug& debug) noexcept;
         ~gl_shader_id() noexcept;
         gl_shader_id(gl_shader_id&& other) noexcept;
+        gl_shader_id& operator=(gl_shader_id&& other) noexcept;
+        gl_shader_id& swap(gl_shader_id& other) noexcept;
+        void reset() noexcept;
         bool empty() const noexcept;
         GLuint operator*() const noexcept;
         GLenum type() const noexcept;
@@ -87,6 +93,9 @@ namespace e2d { namespace opengl
         explicit gl_program_id(debug& debug) noexcept;
         ~gl_program_id() noexcept;
         gl_program_id(gl_program_id&& other) noexcept;
+        gl_program_id& operator=(gl_program_id&& other) noexcept;
+        gl_program_id& swap(gl_program_id& other) noexcept;
+        void reset() noexcept;
         bool empty() const noexcept;
         GLuint operator*() const noexcept;
     private:
@@ -104,6 +113,9 @@ namespace e2d { namespace opengl
         explicit gl_texture_id(debug& debug) noexcept;
         ~gl_texture_id() noexcept;
         gl_texture_id(gl_texture_id&& other) noexcept;
+        gl_texture_id& operator=(gl_texture_id&& other) noexcept;
+        gl_texture_id& swap(gl_texture_id& other) noexcept;
+        void reset() noexcept;
         bool empty() const noexcept;
         GLuint operator*() const noexcept;
         GLenum target() const noexcept;
@@ -123,6 +135,31 @@ namespace e2d { namespace opengl
         explicit gl_framebuffer_id(debug& debug) noexcept;
         ~gl_framebuffer_id() noexcept;
         gl_framebuffer_id(gl_framebuffer_id&& other) noexcept;
+        gl_framebuffer_id& operator=(gl_framebuffer_id&& other) noexcept;
+        gl_framebuffer_id& swap(gl_framebuffer_id& other) noexcept;
+        void reset() noexcept;
+        bool empty() const noexcept;
+        GLuint operator*() const noexcept;
+        GLenum target() const noexcept;
+    private:
+        debug& debug_;
+        GLuint id_ = 0;
+        GLenum target_ = 0;
+        bool owned_ = false;
+    };
+
+    class gl_renderbuffer_id final : private noncopyable {
+        gl_renderbuffer_id(debug& debug, GLuint id, GLenum target, bool owned) noexcept;
+    public:
+        static gl_renderbuffer_id create(debug& debug, GLenum target) noexcept;
+        static gl_renderbuffer_id current(debug& debug, GLenum target) noexcept;
+    public:
+        explicit gl_renderbuffer_id(debug& debug) noexcept;
+        ~gl_renderbuffer_id() noexcept;
+        gl_renderbuffer_id(gl_renderbuffer_id&& other) noexcept;
+        gl_renderbuffer_id& operator=(gl_renderbuffer_id&& other) noexcept;
+        gl_renderbuffer_id& swap(gl_renderbuffer_id& other) noexcept;
+        void reset() noexcept;
         bool empty() const noexcept;
         GLuint operator*() const noexcept;
         GLenum target() const noexcept;
@@ -138,12 +175,14 @@ namespace e2d { namespace opengl
     bool operator==(const gl_program_id& l, const gl_program_id& r) noexcept;
     bool operator==(const gl_texture_id& l, const gl_texture_id& r) noexcept;
     bool operator==(const gl_framebuffer_id& l, const gl_framebuffer_id& r) noexcept;
+    bool operator==(const gl_renderbuffer_id& l, const gl_renderbuffer_id& r) noexcept;
 
     bool operator!=(const gl_buffer_id& l, const gl_buffer_id& r) noexcept;
     bool operator!=(const gl_shader_id& l, const gl_shader_id& r) noexcept;
     bool operator!=(const gl_program_id& l, const gl_program_id& r) noexcept;
     bool operator!=(const gl_texture_id& l, const gl_texture_id& r) noexcept;
     bool operator!=(const gl_framebuffer_id& l, const gl_framebuffer_id& r) noexcept;
+    bool operator!=(const gl_renderbuffer_id& l, const gl_renderbuffer_id& r) noexcept;
 }}
 
 namespace e2d { namespace opengl
@@ -390,6 +429,33 @@ namespace e2d { namespace opengl
     template < typename F, typename... Args >
     void with_gl_bind_framebuffer(debug& debug, const gl_framebuffer_id& framebuffer, F&& f, Args&&... args) {
         with_gl_bind_framebuffer(debug, framebuffer.target(), *framebuffer, std::forward<F>(f), std::forward<Args>(args)...);
+    }
+
+    //
+    // with_gl_bind_renderbuffer
+    //
+
+    template < typename F, typename... Args >
+    void with_gl_bind_renderbuffer(debug& debug, GLenum target, GLuint renderbuffer, F&& f, Args&&... args) {
+        GLint prev_renderbuffer = 0;
+        GL_CHECK_CODE(debug, glGetIntegerv(
+            gl_target_to_get_target(target), &prev_renderbuffer));
+        GL_CHECK_CODE(debug, glBindRenderbuffer(
+            target, renderbuffer));
+        try {
+            stdex::invoke(std::forward<F>(f), std::forward<Args>(args)...);
+        } catch (...) {
+            GL_CHECK_CODE(debug, glBindRenderbuffer(
+                target, math::numeric_cast<GLuint>(prev_renderbuffer)));
+            throw;
+        }
+        GL_CHECK_CODE(debug, glBindRenderbuffer(
+            target, math::numeric_cast<GLuint>(prev_renderbuffer)));
+    }
+
+    template < typename F, typename... Args >
+    void with_gl_bind_renderbuffer(debug& debug, const gl_renderbuffer_id& renderbuffer, F&& f, Args&&... args) {
+        with_gl_bind_renderbuffer(debug, renderbuffer.target(), *renderbuffer, std::forward<F>(f), std::forward<Args>(args)...);
     }
 }}
 

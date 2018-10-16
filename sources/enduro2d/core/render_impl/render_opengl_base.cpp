@@ -129,17 +129,39 @@ namespace e2d { namespace opengl
     : debug_(debug) {}
 
     gl_buffer_id::~gl_buffer_id() noexcept {
-        if ( id_ && owned_ ) {
-            GL_CHECK_CODE(debug_, glDeleteBuffers(1, &id_));
-        }
+        reset();
     }
 
     gl_buffer_id::gl_buffer_id(gl_buffer_id&& other) noexcept
-    : debug_(other.debug_)
-    , id_(other.id_)
-    , target_(other.target_){
-        other.id_ = 0;
-        other.target_ = 0;
+    : debug_(other.debug_) {
+        swap(other);
+    }
+
+    gl_buffer_id& gl_buffer_id::operator=(gl_buffer_id&& other) noexcept {
+        if ( this != &other ) {
+            swap(other);
+            other.reset();
+        }
+        return *this;
+    }
+
+    gl_buffer_id& gl_buffer_id::swap(gl_buffer_id& other) noexcept {
+        if ( this != &other ) {
+            using std::swap;
+            swap(id_, other.id_);
+            swap(target_, other.target_);
+            swap(owned_, other.owned_);
+        }
+        return *this;
+    }
+
+    void gl_buffer_id::reset() noexcept {
+        if ( id_ && owned_ ) {
+            GL_CHECK_CODE(debug_, glDeleteBuffers(1, &id_));
+        }
+        id_ = 0;
+        target_ = 0;
+        owned_ = false;
     }
 
     bool gl_buffer_id::empty() const noexcept {
@@ -181,22 +203,43 @@ namespace e2d { namespace opengl
         return gl_shader_id(debug, id, type, true);
     }
 
-
     gl_shader_id::gl_shader_id(debug& debug) noexcept
     : debug_(debug) {}
 
     gl_shader_id::~gl_shader_id() noexcept {
-        if ( id_ && owned_ ) {
-            GL_CHECK_CODE(debug_, glDeleteShader(id_));
-        }
+        reset();
     }
 
     gl_shader_id::gl_shader_id(gl_shader_id&& other) noexcept
-    : debug_(other.debug_)
-    , id_(other.id_)
-    , type_(other.type_){
-        other.id_ = 0;
-        other.type_ = 0;
+    : debug_(other.debug_) {
+        swap(other);
+    }
+
+    gl_shader_id& gl_shader_id::operator=(gl_shader_id&& other) noexcept {
+        if ( this != &other ) {
+            swap(other);
+            other.reset();
+        }
+        return *this;
+    }
+
+    gl_shader_id& gl_shader_id::swap(gl_shader_id& other) noexcept {
+        if ( this != &other ) {
+            using std::swap;
+            swap(id_, other.id_);
+            swap(type_, other.type_);
+            swap(owned_, other.owned_);
+        }
+        return *this;
+    }
+
+    void gl_shader_id::reset() noexcept {
+        if ( id_ && owned_ ) {
+            GL_CHECK_CODE(debug_, glDeleteShader(id_));
+        }
+        id_ = 0;
+        type_ = 0;
+        owned_ = false;
     }
 
     bool gl_shader_id::empty() const noexcept {
@@ -244,16 +287,37 @@ namespace e2d { namespace opengl
     : debug_(debug) {}
 
     gl_program_id::~gl_program_id() noexcept {
-        if ( id_ && owned_ ) {
-            GL_CHECK_CODE(debug_, glDeleteProgram(id_));
-            id_ = 0;
-        }
+        reset();
     }
 
     gl_program_id::gl_program_id(gl_program_id&& other) noexcept
-    : debug_(other.debug_)
-    , id_(other.id_) {
-        other.id_ = 0;
+    : debug_(other.debug_) {
+        swap(other);
+    }
+
+    gl_program_id& gl_program_id::operator=(gl_program_id&& other) noexcept {
+        if ( this != &other ) {
+            swap(other);
+            other.reset();
+        }
+        return *this;
+    }
+
+    gl_program_id& gl_program_id::swap(gl_program_id& other) noexcept {
+        if ( this != &other ) {
+            using std::swap;
+            swap(id_, other.id_);
+            swap(owned_, other.owned_);
+        }
+        return *this;
+    }
+
+    void gl_program_id::reset() noexcept {
+        if ( id_ && owned_ ) {
+            GL_CHECK_CODE(debug_, glDeleteProgram(id_));
+        }
+        id_ = 0;
+        owned_ = false;
     }
 
     bool gl_program_id::empty() const noexcept {
@@ -301,18 +365,39 @@ namespace e2d { namespace opengl
     : debug_(debug) {}
 
     gl_texture_id::~gl_texture_id() noexcept {
-        if ( id_ && owned_ ) {
-            GL_CHECK_CODE(debug_, glDeleteTextures(1, &id_));
-            id_ = 0;
-        }
+        reset();
     }
 
     gl_texture_id::gl_texture_id(gl_texture_id&& other) noexcept
-    : debug_(other.debug_)
-    , id_(other.id_)
-    , target_(other.target_){
-        other.id_ = 0;
-        other.target_ = 0;
+    : debug_(other.debug_) {
+        swap(other);
+    }
+
+    gl_texture_id& gl_texture_id::operator=(gl_texture_id&& other) noexcept {
+        if ( this != &other ) {
+            swap(other);
+            other.reset();
+        }
+        return *this;
+    }
+
+    gl_texture_id& gl_texture_id::swap(gl_texture_id& other) noexcept {
+        if ( this != &other ) {
+            using std::swap;
+            swap(id_, other.id_);
+            swap(target_, other.target_);
+            swap(owned_, other.owned_);
+        }
+        return *this;
+    }
+
+    void gl_texture_id::reset() noexcept {
+        if ( id_ && owned_ ) {
+            GL_CHECK_CODE(debug_, glDeleteTextures(1, &id_));
+        }
+        id_ = 0;
+        target_ = 0;
+        owned_ = false;
     }
 
     bool gl_texture_id::empty() const noexcept {
@@ -364,18 +449,39 @@ namespace e2d { namespace opengl
     : debug_(debug) {}
 
     gl_framebuffer_id::~gl_framebuffer_id() noexcept {
-        if ( id_ && owned_ ) {
-            GL_CHECK_CODE(debug_, glDeleteFramebuffers(1, &id_));
-            id_ = 0;
-        }
+        reset();
     }
 
     gl_framebuffer_id::gl_framebuffer_id(gl_framebuffer_id&& other) noexcept
-    : debug_(other.debug_)
-    , id_(other.id_)
-    , target_(other.target_){
-        other.id_ = 0;
-        other.target_ = 0;
+    : debug_(other.debug_) {
+        swap(other);
+    }
+
+    gl_framebuffer_id& gl_framebuffer_id::operator=(gl_framebuffer_id&& other) noexcept {
+        if ( this != &other ) {
+            swap(other);
+            other.reset();
+        }
+        return *this;
+    }
+
+    gl_framebuffer_id& gl_framebuffer_id::swap(gl_framebuffer_id& other) noexcept {
+        if ( this != &other ) {
+            using std::swap;
+            swap(id_, other.id_);
+            swap(target_, other.target_);
+            swap(owned_, other.owned_);
+        }
+        return *this;
+    }
+
+    void gl_framebuffer_id::reset() noexcept {
+        if ( id_ && owned_ ) {
+            GL_CHECK_CODE(debug_, glDeleteFramebuffers(1, &id_));
+        }
+        id_ = 0;
+        target_ = 0;
+        owned_ = false;
     }
 
     bool gl_framebuffer_id::empty() const noexcept {
@@ -388,6 +494,90 @@ namespace e2d { namespace opengl
     }
 
     GLenum gl_framebuffer_id::target() const noexcept {
+        E2D_ASSERT(!empty());
+        return target_;
+    }
+
+    //
+    // gl_renderbuffer_id
+    //
+
+    gl_renderbuffer_id::gl_renderbuffer_id(debug& debug, GLuint id, GLenum target, bool owned) noexcept
+    : debug_(debug)
+    , id_(id)
+    , target_(target)
+    , owned_(owned){
+        E2D_ASSERT(!id || glIsRenderbuffer(id));
+    }
+
+    gl_renderbuffer_id gl_renderbuffer_id::create(debug& debug, GLenum target) noexcept {
+        E2D_ASSERT(
+            target == GL_RENDERBUFFER);
+        GLuint id = 0;
+        GL_CHECK_CODE(debug, glGenRenderbuffers(1, &id));
+        if ( !id ) {
+            debug.error("RENDER: Failed to generate renderbuffer id");
+            return gl_renderbuffer_id(debug);
+        }
+        with_gl_bind_renderbuffer(debug, target, id, []() noexcept {});
+        return gl_renderbuffer_id(debug, id, target, true);
+    }
+
+    gl_renderbuffer_id gl_renderbuffer_id::current(debug& debug, GLenum target) noexcept {
+        GLint id = 0;
+        GL_CHECK_CODE(debug, glGetIntegerv(gl_target_to_get_target(target), &id));
+        return gl_renderbuffer_id(debug, math::numeric_cast<GLuint>(id), target, false);
+    }
+
+    gl_renderbuffer_id::gl_renderbuffer_id(debug& debug) noexcept
+    : debug_(debug) {}
+
+    gl_renderbuffer_id::~gl_renderbuffer_id() noexcept {
+        reset();
+    }
+
+    gl_renderbuffer_id::gl_renderbuffer_id(gl_renderbuffer_id&& other) noexcept
+    : debug_(other.debug_) {
+        swap(other);
+    }
+
+    gl_renderbuffer_id& gl_renderbuffer_id::operator=(gl_renderbuffer_id&& other) noexcept {
+        if ( this != &other ) {
+            swap(other);
+            other.reset();
+        }
+        return *this;
+    }
+
+    gl_renderbuffer_id& gl_renderbuffer_id::swap(gl_renderbuffer_id& other) noexcept {
+        if ( this != &other ) {
+            using std::swap;
+            swap(id_, other.id_);
+            swap(target_, other.target_);
+            swap(owned_, other.owned_);
+        }
+        return *this;
+    }
+
+    void gl_renderbuffer_id::reset() noexcept {
+        if ( id_ && owned_ ) {
+            GL_CHECK_CODE(debug_, glDeleteRenderbuffers(1, &id_));
+        }
+        id_ = 0;
+        target_ = 0;
+        owned_ = false;
+    }
+
+    bool gl_renderbuffer_id::empty() const noexcept {
+        return id_ == 0;
+    }
+
+    GLuint gl_renderbuffer_id::operator*() const noexcept {
+        E2D_ASSERT(!empty());
+        return id_;
+    }
+
+    GLenum gl_renderbuffer_id::target() const noexcept {
         E2D_ASSERT(!empty());
         return target_;
     }
@@ -425,6 +615,12 @@ namespace e2d { namespace opengl
             && (l.empty() || *l == *r);
     }
 
+    bool operator==(const gl_renderbuffer_id& l, const gl_renderbuffer_id& r) noexcept {
+        return l.target() == r.target()
+            && l.empty() == r.empty()
+            && (l.empty() || *l == *r);
+    }
+
     bool operator!=(const gl_buffer_id& l, const gl_buffer_id& r) noexcept {
         return !(l == r);
     }
@@ -442,6 +638,10 @@ namespace e2d { namespace opengl
     }
 
     bool operator!=(const gl_framebuffer_id& l, const gl_framebuffer_id& r) noexcept {
+        return !(l == r);
+    }
+
+    bool operator!=(const gl_renderbuffer_id& l, const gl_renderbuffer_id& r) noexcept {
         return !(l == r);
     }
 }}
@@ -879,6 +1079,7 @@ namespace e2d { namespace opengl
             DEFINE_CASE(GL_TEXTURE_2D, GL_TEXTURE_BINDING_2D);
             DEFINE_CASE(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_BINDING_CUBE_MAP);
             DEFINE_CASE(GL_FRAMEBUFFER, GL_FRAMEBUFFER_BINDING);
+            DEFINE_CASE(GL_RENDERBUFFER, GL_RENDERBUFFER_BINDING);
             default:
                 E2D_ASSERT_MSG(false, "unexpected gl target type");
                 return 0;
