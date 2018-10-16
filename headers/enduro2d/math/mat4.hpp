@@ -132,38 +132,22 @@ namespace e2d
 
     template < typename T >
     mat4<T>& mat4<T>::operator+=(T v) noexcept {
-        rows[0] += v;
-        rows[1] += v;
-        rows[2] += v;
-        rows[3] += v;
-        return *this;
+        return *this = *this + v;
     }
 
     template < typename T >
     mat4<T>& mat4<T>::operator*=(T v) noexcept {
-        rows[0] *= v;
-        rows[1] *= v;
-        rows[2] *= v;
-        rows[3] *= v;
-        return *this;
+        return *this = *this * v;
     }
 
     template < typename T >
     mat4<T>& mat4<T>::operator+=(const mat4& other) noexcept {
-        rows[0] += other.rows[0];
-        rows[1] += other.rows[1];
-        rows[2] += other.rows[2];
-        rows[3] += other.rows[3];
-        return *this;
+        return *this = *this + other;
     }
 
     template < typename T >
     mat4<T>& mat4<T>::operator*=(const mat4& other) noexcept {
-        rows[0] *= other.rows[0];
-        rows[1] *= other.rows[1];
-        rows[2] *= other.rows[2];
-        rows[3] *= other.rows[3];
-        return *this;
+        return *this = *this * other;
     }
 }
 
@@ -474,12 +458,52 @@ namespace e2d { namespace math
     }
 
     //
-    // make_orthogonal_matrix
+    // make_loot_at_lh_matrix4
     //
 
     template < typename T >
     std::enable_if_t<std::is_floating_point<T>::value, mat4<T>>
-    make_orthogonal_matrix4(T width, T height, T znear, T zfar) {
+    make_loot_at_lh_matrix4(const vec3<T>& eye, const vec3<T>& at, const vec3<T>& up) noexcept {
+        const vec3<T> az = normalized(at - eye);
+        const vec3<T> ax = normalized(math::cross(up, az));
+        const vec3<T> ay = math::cross(az, ax);
+        const T dx = math::dot(ax, eye);
+        const T dy = math::dot(ay, eye);
+        const T dz = math::dot(az, eye);
+        return {
+            ax.x, ay.x, az.x, T(0),
+            ax.y, ay.y, az.y, T(0),
+            ax.z, ay.z, az.z, T(0),
+            -dx,  -dy,  -dz,  T(1)};
+    }
+
+    //
+    // make_loot_at_rh_matrix4
+    //
+
+    template < typename T >
+    std::enable_if_t<std::is_floating_point<T>::value, mat4<T>>
+    make_loot_at_rh_matrix4(const vec3<T>& eye, const vec3<T>& at, const vec3<T>& up) noexcept {
+        const vec3<T> az = normalized(eye - at);
+        const vec3<T> ax = normalized(math::cross(up, az));
+        const vec3<T> ay = math::cross(az, ax);
+        const T dx = math::dot(ax, eye);
+        const T dy = math::dot(ay, eye);
+        const T dz = math::dot(az, eye);
+        return {
+            ax.x, ay.x, az.x, T(0),
+            ax.y, ay.y, az.y, T(0),
+            ax.z, ay.z, az.z, T(0),
+            dx,   dy,   dz,   T(1)};
+    }
+
+    //
+    // make_orthogonal_lh_matrix4
+    //
+
+    template < typename T >
+    std::enable_if_t<std::is_floating_point<T>::value, mat4<T>>
+    make_orthogonal_lh_matrix4(T width, T height, T znear, T zfar) noexcept {
         E2D_ASSERT(!math::is_near_zero(width, T(0)));
         E2D_ASSERT(!math::is_near_zero(height, T(0)));
         E2D_ASSERT(!math::approximately(znear, zfar, T(0)));
@@ -496,8 +520,77 @@ namespace e2d { namespace math
 
     template < typename T >
     std::enable_if_t<std::is_floating_point<T>::value, mat4<T>>
-    make_orthogonal_matrix4(const vec2<T>& size, T znear, T zfar) {
-        return make_orthogonal_matrix4(size.x, size.y, znear, zfar);
+    make_orthogonal_lh_matrix4(const vec2<T>& size, T znear, T zfar) {
+        return make_orthogonal_lh_matrix4(size.x, size.y, znear, zfar);
+    }
+
+    //
+    // make_orthogonal_rh_matrix4
+    //
+
+    template < typename T >
+    std::enable_if_t<std::is_floating_point<T>::value, mat4<T>>
+    make_orthogonal_rh_matrix4(T width, T height, T znear, T zfar) noexcept {
+        E2D_ASSERT(!math::is_near_zero(width, T(0)));
+        E2D_ASSERT(!math::is_near_zero(height, T(0)));
+        E2D_ASSERT(!math::approximately(znear, zfar, T(0)));
+        const T sx = T(2) / width;
+        const T sy = T(2) / height;
+        const T sz = T(1) / (znear - zfar);
+        const T tz = znear * sz;
+        return {
+            sx,   T(0), T(0), T(0),
+            T(0), sy,   T(0), T(0),
+            T(0), T(0), sz,   T(0),
+            T(0), T(0), tz,   T(1)};
+    }
+
+    template < typename T >
+    std::enable_if_t<std::is_floating_point<T>::value, mat4<T>>
+    make_orthogonal_rh_matrix4(const vec2<T>& size, T znear, T zfar) {
+        return make_orthogonal_rh_matrix4(size.x, size.y, znear, zfar);
+    }
+
+    //
+    // make_perspective_lh_matrix4
+    //
+
+    template < typename T, typename AngleTag >
+    std::enable_if_t<std::is_floating_point<T>::value, mat4<T>>
+    make_perspective_lh_matrix4(const unit<T, AngleTag>& fov, T aspect, T znear, T zfar) noexcept {
+        E2D_ASSERT(!math::is_near_zero(aspect, T(0)));
+        E2D_ASSERT(!math::approximately(znear, zfar, T(0)));
+        E2D_ASSERT(!math::approximately(to_rad(fov), make_rad<T>(0), T(0)));
+        const T sy = T(1) / math::tan(fov * T(0.5));
+        const T sx = sy / aspect;
+        const T sz = zfar / (zfar - znear);
+        const T tz = -znear * zfar / (zfar - znear);
+        return  {
+            sx,   T(0), T(0), T(0),
+            T(0), sy,   T(0), T(0),
+            T(0), T(0), sz,   T(1),
+            T(0), T(0), tz,   T(0)};
+    }
+
+    //
+    // make_perspective_rh_matrix4
+    //
+
+    template < typename T, typename AngleTag >
+    std::enable_if_t<std::is_floating_point<T>::value, mat4<T>>
+    make_perspective_rh_matrix4(const unit<T, AngleTag>& fov, T aspect, T znear, T zfar) noexcept {
+        E2D_ASSERT(!math::is_near_zero(aspect, T(0)));
+        E2D_ASSERT(!math::approximately(znear, zfar, T(0)));
+        E2D_ASSERT(!math::approximately(to_rad(fov), make_rad<T>(0), T(0)));
+        const T sy = T(1) / math::tan(fov * T(0.5));
+        const T sx = sy / aspect;
+        const T sz = zfar / (znear - zfar);
+        const T tz = znear * zfar / (znear - zfar);
+        return  {
+            sx,   T(0), T(0), T(0),
+            T(0), sy,   T(0), T(0),
+            T(0), T(0), sz,   T(-1),
+            T(0), T(0), tz,   T(0)};
     }
 
     //
