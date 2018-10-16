@@ -458,12 +458,12 @@ namespace e2d { namespace math
     }
 
     //
-    // make_orthogonal_matrix
+    // make_orthogonal_lh_matrix4
     //
 
     template < typename T >
     std::enable_if_t<std::is_floating_point<T>::value, mat4<T>>
-    make_orthogonal_matrix4(T width, T height, T znear, T zfar) {
+    make_orthogonal_lh_matrix4(T width, T height, T znear, T zfar) noexcept {
         E2D_ASSERT(!math::is_near_zero(width, T(0)));
         E2D_ASSERT(!math::is_near_zero(height, T(0)));
         E2D_ASSERT(!math::approximately(znear, zfar, T(0)));
@@ -480,8 +480,77 @@ namespace e2d { namespace math
 
     template < typename T >
     std::enable_if_t<std::is_floating_point<T>::value, mat4<T>>
-    make_orthogonal_matrix4(const vec2<T>& size, T znear, T zfar) {
-        return make_orthogonal_matrix4(size.x, size.y, znear, zfar);
+    make_orthogonal_lh_matrix4(const vec2<T>& size, T znear, T zfar) {
+        return make_orthogonal_lh_matrix4(size.x, size.y, znear, zfar);
+    }
+
+    //
+    // make_orthogonal_rh_matrix4
+    //
+
+    template < typename T >
+    std::enable_if_t<std::is_floating_point<T>::value, mat4<T>>
+    make_orthogonal_rh_matrix4(T width, T height, T znear, T zfar) noexcept {
+        E2D_ASSERT(!math::is_near_zero(width, T(0)));
+        E2D_ASSERT(!math::is_near_zero(height, T(0)));
+        E2D_ASSERT(!math::approximately(znear, zfar, T(0)));
+        const T sx = T(2) / width;
+        const T sy = T(2) / height;
+        const T sz = T(1) / (znear - zfar);
+        const T tz = znear * sz;
+        return {
+            sx,   T(0), T(0), T(0),
+            T(0), sy,   T(0), T(0),
+            T(0), T(0), sz,   T(0),
+            T(0), T(0), tz,   T(1)};
+    }
+
+    template < typename T >
+    std::enable_if_t<std::is_floating_point<T>::value, mat4<T>>
+    make_orthogonal_rh_matrix4(const vec2<T>& size, T znear, T zfar) {
+        return make_orthogonal_rh_matrix4(size.x, size.y, znear, zfar);
+    }
+
+    //
+    // make_perspective_lh_matrix4
+    //
+
+    template < typename T, typename AngleTag >
+    std::enable_if_t<std::is_floating_point<T>::value, mat4<T>>
+    make_perspective_lh_matrix4(const unit<T, AngleTag>& fov, T aspect, T znear, T zfar) noexcept {
+        E2D_ASSERT(!math::is_near_zero(aspect, T(0)));
+        E2D_ASSERT(!math::approximately(znear, zfar, T(0)));
+        E2D_ASSERT(!math::approximately(to_rad(fov), make_rad<T>(0), T(0)));
+        const T sy = T(1) / math::tan(fov * T(0.5));
+        const T sx = sy / aspect;
+        const T sz = zfar / (zfar - znear);
+        const T tz = -znear * zfar / (zfar - znear);
+        return  {
+            sx,   T(0), T(0), T(0),
+            T(0), sy,   T(0), T(0),
+            T(0), T(0), sz,   T(1),
+            T(0), T(0), tz,   T(0)};
+    }
+
+    //
+    // make_perspective_rh_matrix4
+    //
+
+    template < typename T, typename AngleTag >
+    std::enable_if_t<std::is_floating_point<T>::value, mat4<T>>
+    make_perspective_rh_matrix4(const unit<T, AngleTag>& fov, T aspect, T znear, T zfar) noexcept {
+        E2D_ASSERT(!math::is_near_zero(aspect, T(0)));
+        E2D_ASSERT(!math::approximately(znear, zfar, T(0)));
+        E2D_ASSERT(!math::approximately(to_rad(fov), make_rad<T>(0), T(0)));
+        const T sy = T(1) / math::tan(fov * T(0.5));
+        const T sx = sy / aspect;
+        const T sz = zfar / (znear - zfar);
+        const T tz = znear * zfar / (znear - zfar);
+        return  {
+            sx,   T(0), T(0), T(0),
+            T(0), sy,   T(0), T(0),
+            T(0), T(0), sz,   T(-1),
+            T(0), T(0), tz,   T(0)};
     }
 
     //
