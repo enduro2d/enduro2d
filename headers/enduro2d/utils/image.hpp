@@ -20,9 +20,7 @@ namespace e2d
         jpg,
         png,
         pvr,
-        tga,
-
-        unknown
+        tga
     };
 
     enum class image_data_format : u8 {
@@ -39,9 +37,7 @@ namespace e2d
         rgb_pvrtc4,
 
         rgba_pvrtc2,
-        rgba_pvrtc4,
-
-        unknown
+        rgba_pvrtc4
     };
 
     class bad_image_access final : public exception {
@@ -94,7 +90,7 @@ namespace e2d
     private:
         buffer data_;
         v2u size_;
-        image_data_format format_ = image_data_format::unknown;
+        image_data_format format_ = image_data_format::rgba8;
     };
 
     void swap(image& l, image& r) noexcept;

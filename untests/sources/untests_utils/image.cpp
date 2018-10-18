@@ -11,29 +11,7 @@ TEST_CASE("images") {
     {
         image i;
         REQUIRE(i.size() == v2u::zero());
-        REQUIRE(i.format() == image_data_format::unknown);
-        REQUIRE(i.data().empty());
-        REQUIRE(i.empty());
-    }
-    {
-        image i(v2u::zero(), image_data_format::unknown);
-        REQUIRE(i.size() == v2u::zero());
-        REQUIRE(i.format() == image_data_format::unknown);
-        REQUIRE(i.data().empty());
-        REQUIRE(i.empty());
-    }
-    {
-        image i(v2u::zero(), image_data_format::unknown, buffer());
-        REQUIRE(i.size() == v2u::zero());
-        REQUIRE(i.format() == image_data_format::unknown);
-        REQUIRE(i.data().empty());
-        REQUIRE(i.empty());
-    }
-    {
-        const buffer b{};
-        image i(v2u::zero(), image_data_format::unknown, b);
-        REQUIRE(i.size() == v2u::zero());
-        REQUIRE(i.format() == image_data_format::unknown);
+        REQUIRE(i.format() == image_data_format::rgba8);
         REQUIRE(i.data().empty());
         REQUIRE(i.empty());
     }

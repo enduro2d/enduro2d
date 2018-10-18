@@ -48,11 +48,13 @@ namespace
 
     image_data_format image_format_from_stb_channels(u32 channels) noexcept {
         switch ( channels ) {
-            case 1:  return image_data_format::g8;
-            case 2:  return image_data_format::ga8;
-            case 3:  return image_data_format::rgb8;
-            case 4:  return image_data_format::rgba8;
-            default: return image_data_format::unknown;
+            case 1: return image_data_format::g8;
+            case 2: return image_data_format::ga8;
+            case 3: return image_data_format::rgb8;
+            case 4: return image_data_format::rgba8;
+            default:
+                E2D_ASSERT_MSG(false, "unexpected stb channel count");
+                return image_data_format::rgba8;
         }
     }
 
@@ -61,7 +63,7 @@ namespace
     {
         try {
             const image_data_format img_format = image_format_from_stb_channels(img_channels);
-            if ( img && img_size.x > 0 && img_size.y > 0 && img_format != image_data_format::unknown ) {
+            if ( img && img_size.x > 0 && img_size.y > 0 ) {
                 buffer img_buffer(
                     img.get(),
                     math::numeric_cast<std::size_t>(img_size.x * img_size.y * img_channels));

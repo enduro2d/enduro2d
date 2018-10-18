@@ -32,9 +32,7 @@ namespace
         {8,  2, image_data_format::rgb_pvrtc2,  true,  true,  true},
         {8,  4, image_data_format::rgb_pvrtc4,  true,  true,  true},
         {8,  2, image_data_format::rgba_pvrtc2, true,  true,  true},
-        {8,  4, image_data_format::rgba_pvrtc4, true,  true,  true},
-
-        {0,  0, image_data_format::unknown,     false, false, false}
+        {8,  4, image_data_format::rgba_pvrtc4, true,  true,  true}
     };
 
     const data_format_description& get_data_format_description(image_data_format format) noexcept {
@@ -67,8 +65,7 @@ namespace
     }
 
     bool check_image_format(const v2u& size, image_data_format format) noexcept {
-        return size == adjust_image_size(size, format)
-            && (format != image_data_format::unknown || size == v2u::zero());
+        return size == adjust_image_size(size, format);
     }
 
     bool check_image_format(const v2u& size, image_data_format format, const buffer& data) noexcept {
@@ -164,7 +161,7 @@ namespace e2d
     void image::clear() noexcept {
         data_.clear();
         size_ = v2u::zero();
-        format_ = image_data_format::unknown;
+        format_ = image_data_format::rgba8;
     }
 
     bool image::empty() const noexcept {
@@ -183,9 +180,7 @@ namespace e2d
         const data_format_description& format_desc =
             get_data_format_description(format_);
 
-        if ( empty() || u >= size_.x || v >= size_.y ) {
-            throw bad_image_access();
-        } else if ( format_desc.format == image_data_format::unknown || format_desc.compressed ) {
+        if ( empty() || u >= size_.x || v >= size_.y || format_desc.compressed ) {
             throw bad_image_access();
         }
 
@@ -303,8 +298,6 @@ namespace e2d { namespace images
                 return impl::try_save_image_pvr(src, dst);
             case image_file_format::tga:
                 return impl::try_save_image_tga(src, dst);
-            case image_file_format::unknown:
-                return false;
             default:
                 E2D_ASSERT_MSG(false, "unexpected image file format");
                 return false;
