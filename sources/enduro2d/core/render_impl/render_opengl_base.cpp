@@ -38,6 +38,11 @@ namespace
         *loc = glGetAttribLocation(program, name);
     }
 
+    void gl_check_framebuffer_status(GLenum target, GLenum* res) noexcept {
+        E2D_ASSERT(res);
+        *res = glCheckFramebufferStatus(target);
+    }
+
     bool process_shader_compilation_result(debug& debug, GLuint shader) noexcept {
         E2D_ASSERT(glIsShader(shader));
         GLint success = GL_FALSE;
@@ -169,12 +174,10 @@ namespace e2d { namespace opengl
     }
 
     GLuint gl_buffer_id::operator*() const noexcept {
-        E2D_ASSERT(!empty());
         return id_;
     }
 
     GLenum gl_buffer_id::target() const noexcept {
-        E2D_ASSERT(!empty());
         return target_;
     }
 
@@ -247,12 +250,10 @@ namespace e2d { namespace opengl
     }
 
     GLuint gl_shader_id::operator*() const noexcept {
-        E2D_ASSERT(!empty());
         return id_;
     }
 
     GLenum gl_shader_id::type() const noexcept {
-        E2D_ASSERT(!empty());
         return type_;
     }
 
@@ -325,7 +326,6 @@ namespace e2d { namespace opengl
     }
 
     GLuint gl_program_id::operator*() const noexcept {
-        E2D_ASSERT(!empty());
         return id_;
     }
 
@@ -405,12 +405,10 @@ namespace e2d { namespace opengl
     }
 
     GLuint gl_texture_id::operator*() const noexcept {
-        E2D_ASSERT(!empty());
         return id_;
     }
 
     GLenum gl_texture_id::target() const noexcept {
-        E2D_ASSERT(!empty());
         return target_;
     }
 
@@ -489,12 +487,10 @@ namespace e2d { namespace opengl
     }
 
     GLuint gl_framebuffer_id::operator*() const noexcept {
-        E2D_ASSERT(!empty());
         return id_;
     }
 
     GLenum gl_framebuffer_id::target() const noexcept {
-        E2D_ASSERT(!empty());
         return target_;
     }
 
@@ -573,12 +569,10 @@ namespace e2d { namespace opengl
     }
 
     GLuint gl_renderbuffer_id::operator*() const noexcept {
-        E2D_ASSERT(!empty());
         return id_;
     }
 
     GLenum gl_renderbuffer_id::target() const noexcept {
-        E2D_ASSERT(!empty());
         return target_;
     }
 
@@ -693,44 +687,109 @@ namespace e2d { namespace opengl
 
 namespace e2d { namespace opengl
 {
-    GLint convert_format_to_internal_format(image_data_format idf) noexcept {
-        #define DEFINE_CASE(x,y) case image_data_format::x: return y;
-        switch ( idf ) {
-            DEFINE_CASE(g8, GL_ALPHA);
+    GLenum convert_image_data_format_to_external_format(image_data_format f) noexcept {
+        #define DEFINE_CASE(x,y) case image_data_format::x: return y
+        switch ( f ) {
+            DEFINE_CASE(g8, GL_LUMINANCE);
             DEFINE_CASE(ga8, GL_LUMINANCE_ALPHA);
             DEFINE_CASE(rgb8, GL_RGB);
             DEFINE_CASE(rgba8, GL_RGBA);
             default:
                 E2D_ASSERT_MSG(false, "unexpected image data format");
-                return 0;
+                return GL_RGBA;
         }
         #undef DEFINE_CASE
     }
 
-    GLenum convert_format_to_external_format(image_data_format idf) noexcept {
-        #define DEFINE_CASE(x,y) case image_data_format::x: return y;
-        switch ( idf ) {
-            DEFINE_CASE(g8, GL_ALPHA);
-            DEFINE_CASE(ga8, GL_LUMINANCE_ALPHA);
-            DEFINE_CASE(rgb8, GL_RGB);
-            DEFINE_CASE(rgba8, GL_RGBA);
-            default:
-                E2D_ASSERT_MSG(false, "unexpected image data format");
-                return 0;
-        }
-        #undef DEFINE_CASE
-    }
-
-    GLenum convert_format_to_external_data_type(image_data_format idf) noexcept {
-        #define DEFINE_CASE(x,y) case image_data_format::x: return y;
-        switch ( idf ) {
+    GLenum convert_image_data_format_to_external_data_type(image_data_format f) noexcept {
+        #define DEFINE_CASE(x,y) case image_data_format::x: return y
+        switch ( f ) {
             DEFINE_CASE(g8, GL_UNSIGNED_BYTE);
             DEFINE_CASE(ga8, GL_UNSIGNED_BYTE);
             DEFINE_CASE(rgb8, GL_UNSIGNED_BYTE);
             DEFINE_CASE(rgba8, GL_UNSIGNED_BYTE);
             default:
                 E2D_ASSERT_MSG(false, "unexpected image data format");
-                return 0;
+                return GL_UNSIGNED_BYTE;
+        }
+        #undef DEFINE_CASE
+    }
+
+    GLenum convert_pixel_type_to_external_format(pixel_declaration::pixel_type f) noexcept {
+        #define DEFINE_CASE(x,y) case pixel_declaration::pixel_type::x: return y
+        switch ( f ) {
+            DEFINE_CASE(rgba8, GL_RGBA);
+            DEFINE_CASE(depth24_stencil8, GL_DEPTH_STENCIL);
+            default:
+                E2D_ASSERT_MSG(false, "unexpected pixel type");
+                return GL_RGBA;
+        }
+        #undef DEFINE_CASE
+    }
+
+    GLenum convert_pixel_type_to_external_data_type(pixel_declaration::pixel_type f) noexcept {
+        #define DEFINE_CASE(x,y) case pixel_declaration::pixel_type::x: return y
+        switch ( f ) {
+            DEFINE_CASE(rgba8, GL_UNSIGNED_BYTE);
+            DEFINE_CASE(depth24_stencil8, GL_UNSIGNED_INT_24_8);
+            default:
+                E2D_ASSERT_MSG(false, "unexpected pixel type");
+                return GL_UNSIGNED_BYTE;
+        }
+        #undef DEFINE_CASE
+    }
+
+    GLint convert_pixel_type_to_internal_format(pixel_declaration::pixel_type f) noexcept {
+        #define DEFINE_CASE(x,y) case pixel_declaration::pixel_type::x: return y
+        switch ( f ) {
+            DEFINE_CASE(rgba8, GL_RGBA);
+            DEFINE_CASE(depth24_stencil8, GL_DEPTH24_STENCIL8);
+            default:
+                E2D_ASSERT_MSG(false, "unexpected pixel type");
+                return GL_RGBA;
+        }
+        #undef DEFINE_CASE
+    }
+
+    GLenum convert_pixel_type_to_compressed_format(pixel_declaration::pixel_type f) noexcept {
+        #define DEFINE_CASE(x,y) case pixel_declaration::pixel_type::x: return y
+        switch ( f ) {
+            DEFINE_CASE(dxt1, GL_COMPRESSED_RGBA_S3TC_DXT1_EXT);
+            DEFINE_CASE(dxt3, GL_COMPRESSED_RGBA_S3TC_DXT3_EXT);
+            DEFINE_CASE(dxt5, GL_COMPRESSED_RGBA_S3TC_DXT5_EXT);
+
+            DEFINE_CASE(rgb_pvrtc2, GL_COMPRESSED_RGB_PVRTC_2BPPV1_IMG);
+            DEFINE_CASE(rgb_pvrtc4, GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG);
+
+            DEFINE_CASE(rgba_pvrtc2, GL_COMPRESSED_RGBA_PVRTC_2BPPV1_IMG);
+            DEFINE_CASE(rgba_pvrtc4, GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG);
+            default:
+                E2D_ASSERT_MSG(false, "unexpected pixel type");
+                return GL_RGBA;
+        }
+        #undef DEFINE_CASE
+    }
+
+    pixel_declaration convert_image_data_format_to_pixel_declaration(image_data_format f) noexcept {
+        #define DEFINE_CASE(x,y) case image_data_format::x: return pixel_declaration(pixel_declaration::pixel_type::y)
+        switch ( f ) {
+            DEFINE_CASE(g8, rgba8);
+            DEFINE_CASE(ga8, rgba8);
+            DEFINE_CASE(rgb8, rgba8);
+            DEFINE_CASE(rgba8, rgba8);
+
+            DEFINE_CASE(dxt1, dxt1);
+            DEFINE_CASE(dxt3, dxt3);
+            DEFINE_CASE(dxt5, dxt5);
+
+            DEFINE_CASE(rgb_pvrtc2, rgb_pvrtc2);
+            DEFINE_CASE(rgb_pvrtc4, rgb_pvrtc4);
+
+            DEFINE_CASE(rgba_pvrtc2, rgba_pvrtc2);
+            DEFINE_CASE(rgba_pvrtc4, rgba_pvrtc4);
+            default:
+                E2D_ASSERT_MSG(false, "unexpected image data format");
+                return pixel_declaration(pixel_declaration::pixel_type::rgba8);
         }
         #undef DEFINE_CASE
     }
@@ -1071,6 +1130,19 @@ namespace e2d { namespace opengl
         #undef DEFINE_CASE
     }
 
+    const char* gl_framebuffer_status_to_cstr(GLenum s) noexcept {
+        #define DEFINE_CASE(x) case x: return #x
+        switch ( s ) {
+            DEFINE_CASE(GL_FRAMEBUFFER_COMPLETE);
+            DEFINE_CASE(GL_FRAMEBUFFER_UNSUPPORTED);
+            DEFINE_CASE(GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT);
+            DEFINE_CASE(GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT);
+            default:
+                return "GL_FRAMEBUFFER_UNKNOWN";
+        }
+        #undef DEFINE_CASE
+    }
+
     GLenum gl_target_to_get_target(GLenum t) noexcept {
         #define DEFINE_CASE(x,y) case x: return y
         switch ( t ) {
@@ -1181,31 +1253,6 @@ namespace e2d { namespace opengl
             : gl_program_id(debug);
     }
 
-    gl_texture_id gl_compile_texture(debug& debug, const image& image) {
-        gl_texture_id id = gl_texture_id::create(
-            debug, GL_TEXTURE_2D);
-        if ( id.empty() ) {
-            return id;
-        }
-        with_gl_bind_texture(debug, id, [&debug, &id, &image]() noexcept {
-            GL_CHECK_CODE(debug, glTexImage2D(
-                id.target(),
-                0,
-                convert_format_to_internal_format(image.format()),
-                math::numeric_cast<GLsizei>(image.size().x),
-                math::numeric_cast<GLsizei>(image.size().y),
-                0,
-                convert_format_to_external_format(image.format()),
-                convert_format_to_external_data_type(image.format()),
-                image.data().data()));
-            #if !defined(GL_ES_VERSION_2_0)
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
-            #endif
-        });
-        return id;
-    }
-
     gl_buffer_id gl_compile_index_buffer(
         debug& debug, const buffer& indices, index_buffer::usage usage)
     {
@@ -1238,6 +1285,76 @@ namespace e2d { namespace opengl
                 math::numeric_cast<GLsizeiptr>(vertices.size()),
                 vertices.data(),
                 convert_buffer_usage(usage)));
+        });
+        return id;
+    }
+
+    bool gl_check_framebuffer(
+        debug& debug,
+        const gl_framebuffer_id& fb,
+        GLenum* out_status) noexcept
+    {
+        E2D_ASSERT(!fb.empty());
+        GLenum status = GL_FRAMEBUFFER_COMPLETE;
+        with_gl_bind_framebuffer(debug, fb, [&debug, &fb, &status]() noexcept {
+            GL_CHECK_CODE(debug, gl_check_framebuffer_status(
+                fb.target(), &status));
+        });
+        if ( out_status ) {
+            *out_status = status;
+        }
+        return status == GL_FRAMEBUFFER_COMPLETE;
+    }
+
+    void gl_attach_texture(
+        debug& debug,
+        const gl_framebuffer_id& fb,
+        const gl_texture_id& tex,
+        GLenum attachment) noexcept
+    {
+        E2D_ASSERT(!fb.empty() && !tex.empty());
+        with_gl_bind_framebuffer(debug, fb, [&debug, &fb, &tex, &attachment]() noexcept {
+            GL_CHECK_CODE(debug, glFramebufferTexture2D(
+                fb.target(),
+                attachment,
+                tex.target(),
+                *tex,
+                0));
+        });
+    }
+
+    void gl_attach_renderbuffer(
+        debug& debug,
+        const gl_framebuffer_id& fb,
+        const gl_renderbuffer_id& rb,
+        GLenum attachment) noexcept
+    {
+        E2D_ASSERT(!fb.empty() && !rb.empty());
+        with_gl_bind_framebuffer(debug, fb, [&debug, &fb, &rb, &attachment]() noexcept {
+            GL_CHECK_CODE(debug, glFramebufferRenderbuffer(
+                fb.target(),
+                attachment,
+                rb.target(),
+                *rb));
+        });
+    }
+
+    gl_renderbuffer_id gl_compile_renderbuffer(
+        debug& debug,
+        const v2u& size,
+        GLenum format)
+    {
+        gl_renderbuffer_id id = gl_renderbuffer_id::create(
+            debug, GL_RENDERBUFFER);
+        if ( id.empty() ) {
+            return id;
+        }
+        with_gl_bind_renderbuffer(debug, id, [&debug, &id, &size, &format]() noexcept {
+            GL_CHECK_CODE(debug, glRenderbufferStorage(
+                id.target(),
+                format,
+                math::numeric_cast<GLsizei>(size.x),
+                math::numeric_cast<GLsizei>(size.y)));
         });
         return id;
     }

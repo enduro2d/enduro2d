@@ -17,6 +17,8 @@ namespace e2d
     class texture;
     class index_buffer;
     class vertex_buffer;
+    class render_target;
+    class pixel_declaration;
     class index_declaration;
     class vertex_declaration;
 
@@ -24,6 +26,50 @@ namespace e2d
     using texture_ptr = std::shared_ptr<texture>;
     using index_buffer_ptr = std::shared_ptr<index_buffer>;
     using vertex_buffer_ptr = std::shared_ptr<vertex_buffer>;
+    using render_target_ptr = std::shared_ptr<render_target>;
+
+    //
+    // pixel_declaration
+    //
+
+    class pixel_declaration final {
+    public:
+        enum class pixel_type : u8 {
+            rgba8,
+            depth24_stencil8,
+
+            dxt1,
+            dxt3,
+            dxt5,
+
+            rgb_pvrtc2,
+            rgb_pvrtc4,
+
+            rgba_pvrtc2,
+            rgba_pvrtc4
+        };
+    public:
+        pixel_declaration() = default;
+        ~pixel_declaration() noexcept = default;
+
+        pixel_declaration(const pixel_declaration&) noexcept = default;
+        pixel_declaration& operator=(const pixel_declaration&) noexcept = default;
+
+        pixel_declaration(pixel_type type) noexcept;
+
+        pixel_type type() const noexcept;
+        bool is_compressed() const noexcept;
+        std::size_t bits_per_pixel() const noexcept;
+    private:
+        pixel_type type_ = pixel_type::rgba8;
+    };
+
+    bool operator==(
+        const pixel_declaration& l,
+        const pixel_declaration& r) noexcept;
+    bool operator!=(
+        const pixel_declaration& l,
+        const pixel_declaration& r) noexcept;
 
     //
     // index_declaration
@@ -35,19 +81,6 @@ namespace e2d
             unsigned_byte,
             unsigned_short
         };
-
-        class index_info final {
-        public:
-            index_type type = index_type::unsigned_short;
-        public:
-            index_info() = default;
-            ~index_info() noexcept = default;
-
-            index_info(const index_info&) noexcept = default;
-            index_info& operator=(const index_info&) noexcept = default;
-
-            explicit index_info(index_type type) noexcept;
-        };
     public:
         index_declaration() = default;
         ~index_declaration() noexcept = default;
@@ -55,12 +88,12 @@ namespace e2d
         index_declaration(const index_declaration&) noexcept = default;
         index_declaration& operator=(const index_declaration&) noexcept = default;
 
-        explicit index_declaration(index_type index_type) noexcept;
+        index_declaration(index_type type) noexcept;
 
-        const index_info& index() const noexcept;
-        std::size_t index_size() const noexcept;
+        index_type type() const noexcept;
+        std::size_t bytes_per_index() const noexcept;
     private:
-        index_info index_;
+        index_type type_ = index_type::unsigned_short;
     };
 
     bool operator==(
@@ -69,12 +102,6 @@ namespace e2d
     bool operator!=(
         const index_declaration& l,
         const index_declaration& r) noexcept;
-    bool operator==(
-        const index_declaration::index_info& l,
-        const index_declaration::index_info& r) noexcept;
-    bool operator!=(
-        const index_declaration::index_info& l,
-        const index_declaration::index_info& r) noexcept;
 
     //
     // vertex_declaration
@@ -138,12 +165,12 @@ namespace e2d
 
         const attribute_info& attribute(std::size_t i) const noexcept;
         std::size_t attribute_count() const noexcept;
-        std::size_t vertex_size() const noexcept;
+        std::size_t bytes_per_vertex() const noexcept;
     private:
         constexpr static std::size_t max_attribute_count = 8;
         array<attribute_info, max_attribute_count> attributes_;
         std::size_t attribute_count_ = 0;
-        std::size_t vertex_size_ = 0;
+        std::size_t bytes_per_vertex_ = 0;
     };
 
     bool operator==(
@@ -187,8 +214,9 @@ namespace e2d
     public:
         explicit texture(internal_state_uptr);
         ~texture() noexcept;
+    public:
         const v2u& size() const noexcept;
-        image_data_format format() const noexcept;
+        const pixel_declaration& decl() const noexcept;
     private:
         internal_state_uptr state_;
     };
@@ -211,10 +239,11 @@ namespace e2d
     public:
         explicit index_buffer(internal_state_uptr);
         ~index_buffer() noexcept;
+    public:
         void update(const buffer& indices, std::size_t offset) noexcept;
-        const index_declaration& decl() const noexcept;
         std::size_t buffer_size() const noexcept;
         std::size_t index_count() const noexcept;
+        const index_declaration& decl() const noexcept;
     private:
         internal_state_uptr state_;
     };
@@ -229,7 +258,7 @@ namespace e2d
         using internal_state_uptr = std::unique_ptr<internal_state>;
         const internal_state& state() const noexcept;
     public:
-        enum class usage : u8{
+        enum class usage : u8 {
             static_draw,
             stream_draw,
             dynamic_draw
@@ -237,10 +266,37 @@ namespace e2d
     public:
         explicit vertex_buffer(internal_state_uptr);
         ~vertex_buffer() noexcept;
+    public:
         void update(const buffer& vertices, std::size_t offset) noexcept;
-        const vertex_declaration& decl() const noexcept;
         std::size_t buffer_size() const noexcept;
         std::size_t vertex_count() const noexcept;
+        const vertex_declaration& decl() const noexcept;
+    private:
+        internal_state_uptr state_;
+    };
+
+    //
+    // render target
+    //
+
+    class render_target final : noncopyable {
+    public:
+        class internal_state;
+        using internal_state_uptr = std::unique_ptr<internal_state>;
+        const internal_state& state() const noexcept;
+    public:
+        enum class type : u8 {
+            color = (1 << 0),
+            depth = (1 << 1),
+            color_and_depth = color | depth
+        };
+    public:
+        explicit render_target(internal_state_uptr);
+        ~render_target() noexcept;
+    public:
+        const v2u& size() const noexcept;
+        const texture_ptr& color() const noexcept;
+        const texture_ptr& depth() const noexcept;
     private:
         internal_state_uptr state_;
     };
@@ -285,9 +341,9 @@ namespace e2d
         };
 
         enum class culling_face : u8 {
-            back,
-            front,
-            back_and_front
+            back = (1 << 0),
+            front = (1 << 1),
+            back_and_front = back | front
         };
 
         enum class blending_factor : u8 {
@@ -647,6 +703,10 @@ namespace e2d
         texture_ptr create_texture(
             const input_stream_uptr& image_stream);
 
+        texture_ptr create_texture(
+            const v2u& size,
+            const pixel_declaration& decl);
+
         index_buffer_ptr create_index_buffer(
             const buffer& indices,
             const index_declaration& decl,
@@ -656,6 +716,10 @@ namespace e2d
             const buffer& vertices,
             const vertex_declaration& decl,
             vertex_buffer::usage usage);
+
+        render_target_ptr create_render_target(
+            const v2u& size,
+            render_target::type type);
 
         void draw(
             const material& mat,
@@ -670,6 +734,7 @@ namespace e2d
         render& clear_stencil_buffer(u8 value) noexcept;
         render& clear_color_buffer(const color& value) noexcept;
         render& set_viewport(u32 x, u32 y, u32 w, u32 h) noexcept;
+        render& set_render_target(const render_target_ptr& rt) noexcept;
     private:
         class internal_state;
         std::unique_ptr<internal_state> state_;

@@ -72,16 +72,16 @@ TEST_CASE("render"){
     }
     SECTION("index_declaration"){
         index_declaration id;
-        REQUIRE(id.index().type == index_declaration::index_type::unsigned_short);
-        REQUIRE(id.index_size() == 2);
+        REQUIRE(id.type() == index_declaration::index_type::unsigned_short);
+        REQUIRE(id.bytes_per_index() == 2);
 
         index_declaration id2(index_declaration::index_type::unsigned_short);
-        REQUIRE(id2.index().type == index_declaration::index_type::unsigned_short);
-        REQUIRE(id2.index_size() == 2);
+        REQUIRE(id2.type() == index_declaration::index_type::unsigned_short);
+        REQUIRE(id2.bytes_per_index() == 2);
 
         index_declaration id3(index_declaration::index_type::unsigned_byte);
-        REQUIRE(id3.index().type == index_declaration::index_type::unsigned_byte);
-        REQUIRE(id3.index_size() == 1);
+        REQUIRE(id3.type() == index_declaration::index_type::unsigned_byte);
+        REQUIRE(id3.bytes_per_index() == 1);
 
         REQUIRE(id == id2);
         REQUIRE_FALSE(id == id3);
@@ -98,11 +98,11 @@ TEST_CASE("render"){
     SECTION("vertex_declaration"){
         vertex_declaration vd;
         REQUIRE(vd.attribute_count() == 0);
-        REQUIRE(vd.vertex_size() == 0);
+        REQUIRE(vd.bytes_per_vertex() == 0);
 
         REQUIRE(&vd == &vd.add_attribute<v2f>("hello"));
         REQUIRE(vd.attribute_count() == 1);
-        REQUIRE(vd.vertex_size() == 8);
+        REQUIRE(vd.bytes_per_vertex() == 8);
 
         vertex_declaration::attribute_info ai = vd.attribute(0);
         REQUIRE(ai.name == make_hash("hello"));
@@ -112,11 +112,11 @@ TEST_CASE("render"){
         REQUIRE_FALSE(ai.normalized);
 
         REQUIRE(&vd == &vd.skip_bytes(4));
-        REQUIRE(vd.vertex_size() == 12);
+        REQUIRE(vd.bytes_per_vertex() == 12);
 
         REQUIRE(&vd == &vd.add_attribute<u16>("world").normalized());
         REQUIRE(vd.attribute_count() == 2);
-        REQUIRE(vd.vertex_size() == 14);
+        REQUIRE(vd.bytes_per_vertex() == 14);
 
         vertex_declaration::attribute_info ai2 = vd.attribute(1);
         REQUIRE(ai2.name == make_hash("world"));
@@ -138,9 +138,9 @@ TEST_CASE("render"){
         REQUIRE_FALSE(vd == vd3);
         REQUIRE(vd != vd3);
 
-        REQUIRE(vd3.vertex_size() == 16);
+        REQUIRE(vd3.bytes_per_vertex() == 16);
         vd3.skip_bytes(4);
-        REQUIRE(vd3.vertex_size() == 20);
+        REQUIRE(vd3.bytes_per_vertex() == 20);
 
         vertex_declaration vd4 = vd2;
         REQUIRE(vd4 == vd);

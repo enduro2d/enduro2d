@@ -64,18 +64,18 @@ namespace e2d
             debug& debug,
             opengl::gl_texture_id id,
             const v2u& size,
-            image_data_format format);
+            const pixel_declaration& decl);
         ~internal_state() noexcept = default;
     public:
         debug& dbg() const noexcept;
         const opengl::gl_texture_id& id() const noexcept;
         const v2u& size() const noexcept;
-        image_data_format format() const noexcept;
+        const pixel_declaration& decl() const noexcept;
     private:
         debug& debug_;
         opengl::gl_texture_id id_;
         v2u size_;
-        image_data_format format_;
+        pixel_declaration decl_;
     };
 
     //
@@ -127,6 +127,39 @@ namespace e2d
     };
 
     //
+    // render_target::internal_state
+    //
+
+    class render_target::internal_state final : private e2d::noncopyable {
+    public:
+        internal_state(
+            debug& debug,
+            opengl::gl_framebuffer_id id,
+            const v2u& size,
+            texture_ptr color,
+            texture_ptr depth,
+            opengl::gl_renderbuffer_id color_rb,
+            opengl::gl_renderbuffer_id depth_rb);
+        ~internal_state() noexcept = default;
+    public:
+        debug& dbg() const noexcept;
+        const opengl::gl_framebuffer_id& id() const noexcept;
+        const v2u& size() const noexcept;
+        const texture_ptr& color() const noexcept;
+        const texture_ptr& depth() const noexcept;
+        const opengl::gl_renderbuffer_id& color_rb() const noexcept;
+        const opengl::gl_renderbuffer_id& depth_rb() const noexcept;
+    private:
+        debug& debug_;
+        opengl::gl_framebuffer_id id_;
+        v2u size_;
+        texture_ptr color_;
+        texture_ptr depth_;
+        opengl::gl_renderbuffer_id color_rb_;
+        opengl::gl_renderbuffer_id depth_rb_;
+    };
+
+    //
     // render::internal_state
     //
 
@@ -139,6 +172,7 @@ namespace e2d
     public:
         debug& dbg() const noexcept;
         window& wnd() const noexcept;
+        const render_target_ptr& render_target() const noexcept;
     public:
         internal_state& set_states(const state_block& rs) noexcept;
         internal_state& set_depth_state(const depth_state& ds) noexcept;
@@ -146,9 +180,12 @@ namespace e2d
         internal_state& set_culling_state(const culling_state& cs) noexcept;
         internal_state& set_blending_state(const blending_state& bs) noexcept;
         internal_state& set_capabilities_state(const capabilities_state& cs) noexcept;
+        internal_state& set_render_target(const render_target_ptr& rt) noexcept;
     private:
         debug& debug_;
         window& window_;
+        render_target_ptr render_target_;
+        opengl::gl_framebuffer_id default_fb_;
     };
 }
 

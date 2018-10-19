@@ -10,6 +10,37 @@ namespace
 {
     using namespace e2d;
 
+    struct pixel_type_description {
+        u32 minimal_size;
+        u32 bits_per_pixel;
+        pixel_declaration::pixel_type type;
+        bool compressed;
+        bool must_be_square;
+        bool must_be_power_of_two;
+    };
+
+    const pixel_type_description pixel_type_descriptions[] = {
+        {1, 32, pixel_declaration::pixel_type::rgba8,            false, false, false},
+        {1, 32, pixel_declaration::pixel_type::depth24_stencil8, false, false, false},
+
+        {4,  4, pixel_declaration::pixel_type::dxt1,             true,  false, true},
+        {4,  8, pixel_declaration::pixel_type::dxt3,             true,  false, true},
+        {4,  8, pixel_declaration::pixel_type::dxt5,             true,  false, true},
+
+        {8,  2, pixel_declaration::pixel_type::rgb_pvrtc2,       true,  true,  true},
+        {8,  4, pixel_declaration::pixel_type::rgb_pvrtc4,       true,  true,  true},
+        {8,  2, pixel_declaration::pixel_type::rgba_pvrtc2,      true,  true,  true},
+        {8,  4, pixel_declaration::pixel_type::rgba_pvrtc4,      true,  true,  true}
+    };
+
+    const pixel_type_description& get_pixel_type_description(pixel_declaration::pixel_type type) noexcept {
+        const std::size_t index = math::numeric_cast<std::size_t>(math::enum_to_number(type));
+        E2D_ASSERT(index < E2D_COUNTOF(pixel_type_descriptions));
+        const pixel_type_description& desc = pixel_type_descriptions[index];
+        E2D_ASSERT(desc.type == type);
+        return desc;
+    }
+
     std::size_t index_element_size(index_declaration::index_type it) noexcept {
         #define DEFINE_CASE(x,y) case index_declaration::index_type::x: return y;
         switch ( it ) {
@@ -41,47 +72,52 @@ namespace
 namespace e2d
 {
     //
-    // index_declaration::index_info
+    // pixel_declaration
     //
 
-    index_declaration::index_info::index_info(index_type ntype) noexcept
-    : type(ntype) {}
+    pixel_declaration::pixel_declaration(pixel_type type) noexcept
+    : type_(type) {}
+
+    pixel_declaration::pixel_type pixel_declaration::type() const noexcept {
+        return type_;
+    }
+
+    bool pixel_declaration::is_compressed() const noexcept {
+        return get_pixel_type_description(type_).compressed;
+    }
+
+    std::size_t pixel_declaration::bits_per_pixel() const noexcept {
+        return get_pixel_type_description(type_).bits_per_pixel;
+    }
+
+    bool operator==(const pixel_declaration& l, const pixel_declaration& r) noexcept {
+        return l.type() == r.type();
+    }
+
+    bool operator!=(const pixel_declaration& l, const pixel_declaration& r) noexcept {
+        return !(l == r);
+    }
 
     //
     // index_declaration
     //
 
     index_declaration::index_declaration(index_type type) noexcept
-    : index_(type) {}
+    : type_(type) {}
 
-    const index_declaration::index_info& index_declaration::index() const noexcept {
-        return index_;
+    index_declaration::index_type index_declaration::type() const noexcept {
+        return type_;
     }
 
-    std::size_t index_declaration::index_size() const noexcept {
-        return index_element_size(index_.type);
+    std::size_t index_declaration::bytes_per_index() const noexcept {
+        return index_element_size(type_);
     }
 
     bool operator==(const index_declaration& l, const index_declaration& r) noexcept {
-        return l.index_size() == r.index_size()
-            && l.index() == r.index();
+        return l.type() == r.type();
     }
 
     bool operator!=(const index_declaration& l, const index_declaration& r) noexcept {
-        return !(l == r);
-    }
-
-    bool operator==(
-        const index_declaration::index_info& l,
-        const index_declaration::index_info& r) noexcept
-    {
-        return l.type == r.type;
-    }
-
-    bool operator!=(
-        const index_declaration::index_info& l,
-        const index_declaration::index_info& r) noexcept
-    {
         return !(l == r);
     }
 
@@ -118,7 +154,7 @@ namespace e2d
     }
 
     vertex_declaration& vertex_declaration::skip_bytes(std::size_t bytes) noexcept {
-        vertex_size_ += bytes;
+        bytes_per_vertex_ += bytes;
         return *this;
     }
 
@@ -130,7 +166,7 @@ namespace e2d
         bool normalized) noexcept
     {
         E2D_ASSERT(attribute_count_ < attributes_.size());
-        const std::size_t stride = vertex_size_;
+        const std::size_t stride = bytes_per_vertex_;
         attributes_[attribute_count_] = attribute_info(
             stride,
             name,
@@ -138,7 +174,7 @@ namespace e2d
             columns,
             type,
             normalized);
-        vertex_size_ += attribute_element_size(type) * rows * columns;
+        bytes_per_vertex_ += attribute_element_size(type) * rows * columns;
         ++attribute_count_;
         return *this;
     }
@@ -152,12 +188,12 @@ namespace e2d
         return attribute_count_;
     }
 
-    std::size_t vertex_declaration::vertex_size() const noexcept {
-        return vertex_size_;
+    std::size_t vertex_declaration::bytes_per_vertex() const noexcept {
+        return bytes_per_vertex_;
     }
 
     bool operator==(const vertex_declaration& l, const vertex_declaration& r) noexcept {
-        if ( l.vertex_size() != r.vertex_size() ) {
+        if ( l.bytes_per_vertex() != r.bytes_per_vertex() ) {
             return false;
         }
         if ( l.attribute_count() != r.attribute_count() ) {
@@ -693,6 +729,11 @@ namespace e2d
 
     std::size_t render::material::pass_count() const noexcept {
         return pass_count_;
+    }
+
+    render::material& render::material::properties(const property_block& properties) noexcept {
+        properties_ = properties;
+        return *this;
     }
 
     render::pass_state& render::material::pass(std::size_t index) noexcept {

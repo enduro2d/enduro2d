@@ -192,7 +192,7 @@ namespace
                             math::numeric_cast<GLint>(vai.columns),
                             convert_attribute_type(vai.type),
                             vai.normalized ? GL_TRUE : GL_FALSE,
-                            math::numeric_cast<GLsizei>(decl.vertex_size()),
+                            math::numeric_cast<GLsizei>(decl.bytes_per_vertex()),
                             reinterpret_cast<const GLvoid*>(vai.stride + row * vai.row_size())));
                     }
                 });
@@ -225,7 +225,7 @@ namespace
             GL_CHECK_CODE(debug, glDrawElements(
                 convert_topology(tp),
                 math::numeric_cast<GLsizei>(ib->index_count()),
-                convert_index_type(decl.index().type),
+                convert_index_type(decl.type()),
                 nullptr));
         });
     }
@@ -321,8 +321,8 @@ namespace e2d
         return state_->size();
     }
 
-    image_data_format texture::format() const noexcept {
-        return state_->format();
+    const pixel_declaration& texture::decl() const noexcept {
+        return state_->decl();
     }
 
     //
@@ -340,9 +340,9 @@ namespace e2d
     index_buffer::~index_buffer() noexcept = default;
 
     void index_buffer::update(const buffer& indices, std::size_t offset) noexcept {
-        const std::size_t buffer_offset = offset * state_->decl().index_size();
+        const std::size_t buffer_offset = offset * state_->decl().bytes_per_index();
         E2D_ASSERT(indices.size() + buffer_offset <= state_->size());
-        E2D_ASSERT(indices.size() % state_->decl().index_size() == 0);
+        E2D_ASSERT(indices.size() % state_->decl().bytes_per_index() == 0);
         opengl::with_gl_bind_buffer(state_->dbg(), state_->id(),
             [this, &indices, &buffer_offset]() noexcept {
                 GL_CHECK_CODE(state_->dbg(), glBufferSubData(
@@ -353,17 +353,17 @@ namespace e2d
             });
     }
 
-    const index_declaration& index_buffer::decl() const noexcept {
-        return state_->decl();
-    }
-
     std::size_t index_buffer::buffer_size() const noexcept {
         return state_->size();
     }
 
     std::size_t index_buffer::index_count() const noexcept {
-        E2D_ASSERT(state_->size() % state_->decl().index_size() == 0);
-        return state_->size() / state_->decl().index_size();
+        E2D_ASSERT(state_->size() % state_->decl().bytes_per_index() == 0);
+        return state_->size() / state_->decl().bytes_per_index();
+    }
+
+    const index_declaration& index_buffer::decl() const noexcept {
+        return state_->decl();
     }
 
     //
@@ -381,9 +381,9 @@ namespace e2d
     vertex_buffer::~vertex_buffer() noexcept = default;
 
     void vertex_buffer::update(const buffer& vertices, std::size_t offset) noexcept {
-        const std::size_t buffer_offset = offset * state_->decl().vertex_size();
+        const std::size_t buffer_offset = offset * state_->decl().bytes_per_vertex();
         E2D_ASSERT(vertices.size() + buffer_offset <= state_->size());
-        E2D_ASSERT(vertices.size() % state_->decl().vertex_size() == 0);
+        E2D_ASSERT(vertices.size() % state_->decl().bytes_per_vertex() == 0);
         opengl::with_gl_bind_buffer(state_->dbg(), state_->id(),
             [this, &vertices, &buffer_offset]() noexcept {
                 GL_CHECK_CODE(state_->dbg(), glBufferSubData(
@@ -394,17 +394,43 @@ namespace e2d
             });
     }
 
-    const vertex_declaration& vertex_buffer::decl() const noexcept {
-        return state_->decl();
-    }
-
     std::size_t vertex_buffer::buffer_size() const noexcept {
         return state_->size();
     }
 
     std::size_t vertex_buffer::vertex_count() const noexcept {
-        E2D_ASSERT(state_->size() % state_->decl().vertex_size() == 0);
-        return state_->size() / state_->decl().vertex_size();
+        E2D_ASSERT(state_->size() % state_->decl().bytes_per_vertex() == 0);
+        return state_->size() / state_->decl().bytes_per_vertex();
+    }
+
+    const vertex_declaration& vertex_buffer::decl() const noexcept {
+        return state_->decl();
+    }
+
+    //
+    // render_target
+    //
+
+    const render_target::internal_state& render_target::state() const noexcept {
+        return *state_;
+    }
+
+    render_target::render_target(internal_state_uptr state)
+    : state_(std::move(state)) {
+        E2D_ASSERT(state_);
+    }
+    render_target::~render_target() noexcept = default;
+
+    const v2u& render_target::size() const noexcept {
+        return state_->size();
+    }
+
+    const texture_ptr& render_target::color() const noexcept {
+        return state_->color();
+    }
+
+    const texture_ptr& render_target::depth() const noexcept {
+        return state_->depth();
     }
 
     //
@@ -448,17 +474,54 @@ namespace e2d
                 state_->dbg(), std::move(ps)));
     }
 
-    texture_ptr render::create_texture(const image& image) {
-        gl_texture_id id = gl_compile_texture(state_->dbg(), image);
+    texture_ptr render::create_texture(
+        const image& image)
+    {
+        gl_texture_id id = gl_texture_id::create(
+            state_->dbg(), GL_TEXTURE_2D);
         if ( id.empty() ) {
+            state_->dbg().error("RENDER: Failed to create texture: %0",
+                "failed to create texture id");
             return nullptr;
         }
+        const pixel_declaration decl =
+            convert_image_data_format_to_pixel_declaration(image.format());
+        with_gl_bind_texture(state_->dbg(), id, [this, &id, &image, &decl]() noexcept {
+            if ( decl.is_compressed() ) {
+                GL_CHECK_CODE(state_->dbg(), glCompressedTexImage2D(
+                    id.target(),
+                    0,
+                    convert_pixel_type_to_compressed_format(decl.type()),
+                    math::numeric_cast<GLsizei>(image.size().x),
+                    math::numeric_cast<GLsizei>(image.size().y),
+                    0,
+                    math::numeric_cast<GLsizei>(image.data().size()),
+                    image.data().data()));
+            } else {
+                GL_CHECK_CODE(state_->dbg(), glTexImage2D(
+                    id.target(),
+                    0,
+                    convert_pixel_type_to_internal_format(decl.type()),
+                    math::numeric_cast<GLsizei>(image.size().x),
+                    math::numeric_cast<GLsizei>(image.size().y),
+                    0,
+                    convert_image_data_format_to_external_format(image.format()),
+                    convert_image_data_format_to_external_data_type(image.format()),
+                    image.data().data()));
+            }
+        #if !defined(GL_ES_VERSION_2_0)
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+        #endif
+        });
         return std::make_shared<texture>(
             std::make_unique<texture::internal_state>(
-                state_->dbg(), std::move(id), image.size(), image.format()));
+                state_->dbg(), std::move(id), image.size(), decl));
     }
 
-    texture_ptr render::create_texture(const input_stream_uptr& image_stream) {
+    texture_ptr render::create_texture(
+        const input_stream_uptr& image_stream)
+    {
         image image;
         if ( !images::try_load_image(image, image_stream) ) {
             return nullptr;
@@ -466,13 +529,59 @@ namespace e2d
         return create_texture(image);
     }
 
+    texture_ptr render::create_texture(
+        const v2u& size,
+        const pixel_declaration& decl)
+    {
+        gl_texture_id id = gl_texture_id::create(
+            state_->dbg(), GL_TEXTURE_2D);
+        if ( id.empty() ) {
+            state_->dbg().error("RENDER: Failed to create texture: %0",
+                "failed to create texture id");
+            return nullptr;
+        }
+        with_gl_bind_texture(state_->dbg(), id, [this, &id, &size, &decl]() noexcept {
+            if ( decl.is_compressed() ) {
+                buffer empty_data(decl.bits_per_pixel() * size.x * size.y / 8);
+                GL_CHECK_CODE(state_->dbg(), glCompressedTexImage2D(
+                    id.target(),
+                    0,
+                    convert_pixel_type_to_compressed_format(decl.type()),
+                    math::numeric_cast<GLsizei>(size.x),
+                    math::numeric_cast<GLsizei>(size.y),
+                    0,
+                    math::numeric_cast<GLsizei>(empty_data.size()),
+                    empty_data.data()));
+            } else {
+                GL_CHECK_CODE(state_->dbg(), glTexImage2D(
+                    id.target(),
+                    0,
+                    convert_pixel_type_to_internal_format(decl.type()),
+                    math::numeric_cast<GLsizei>(size.x),
+                    math::numeric_cast<GLsizei>(size.y),
+                    0,
+                    convert_pixel_type_to_external_format(decl.type()),
+                    convert_pixel_type_to_external_data_type(decl.type()),
+                    nullptr));
+            }
+        #if !defined(GL_ES_VERSION_2_0)
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+        #endif
+        });
+        return std::make_shared<texture>(
+            std::make_unique<texture::internal_state>(
+                state_->dbg(), std::move(id), size, decl));
+    }
+
     index_buffer_ptr render::create_index_buffer(
         const buffer& indices,
         const index_declaration& decl,
         index_buffer::usage usage)
     {
-        E2D_ASSERT(indices.size() % decl.index_size() == 0);
-        gl_buffer_id id = gl_compile_index_buffer(state_->dbg(), indices, usage);
+        E2D_ASSERT(indices.size() % decl.bytes_per_index() == 0);
+        gl_buffer_id id = gl_compile_index_buffer(
+            state_->dbg(), indices, usage);
         if ( id.empty() ) {
             return nullptr;
         }
@@ -486,14 +595,92 @@ namespace e2d
         const vertex_declaration& decl,
         vertex_buffer::usage usage)
     {
-        E2D_ASSERT(vertices.size() % decl.vertex_size() == 0);
-        gl_buffer_id id = gl_compile_vertex_buffer(state_->dbg(), vertices, usage);
+        E2D_ASSERT(vertices.size() % decl.bytes_per_vertex() == 0);
+        gl_buffer_id id = gl_compile_vertex_buffer(
+            state_->dbg(), vertices, usage);
         if ( id.empty() ) {
             return nullptr;
         }
         return std::make_shared<vertex_buffer>(
             std::make_unique<vertex_buffer::internal_state>(
                 state_->dbg(), std::move(id), vertices.size(), decl));
+    }
+
+    render_target_ptr render::create_render_target(
+        const v2u& size,
+        render_target::type type)
+    {
+        gl_framebuffer_id id = gl_framebuffer_id::create(
+            state_->dbg(), GL_FRAMEBUFFER);
+        if ( id.empty() ) {
+            state_->dbg().error("RENDER: Failed to create framebuffer: %0",
+                "failed to create framebuffer id");
+            return nullptr;
+        }
+
+        bool need_color = math::enum_to_number(type) & math::enum_to_number(render_target::type::color);
+        bool need_depth = math::enum_to_number(type) & math::enum_to_number(render_target::type::depth);
+
+        texture_ptr color;
+        texture_ptr depth;
+
+        gl_renderbuffer_id color_rb(state_->dbg());
+        gl_renderbuffer_id depth_rb(state_->dbg());
+
+        if ( need_color ) {
+            color = create_texture(size, pixel_declaration::pixel_type::rgba8);
+            if ( !color ) {
+                state_->dbg().error("RENDER: Failed to create framebuffer: %0",
+                    "failed to create color texture");
+                return nullptr;
+            }
+            gl_attach_texture(state_->dbg(), id, color->state().id(), GL_COLOR_ATTACHMENT0);
+        } else {
+            color_rb = gl_compile_renderbuffer(state_->dbg(), size, GL_RGBA8);
+            if ( color_rb.empty() ) {
+                state_->dbg().error("RENDER: Failed to create framebuffer: %0",
+                    "failed to create color renderbuffer");
+                return nullptr;
+            }
+            gl_attach_renderbuffer(state_->dbg(), id, color_rb, GL_COLOR_ATTACHMENT0);
+        }
+
+        if ( need_depth ) {
+            depth = create_texture(size, pixel_declaration::pixel_type::depth24_stencil8);
+            if ( !depth ) {
+                state_->dbg().error("RENDER: Failed to create framebuffer: %0",
+                    "failed to create depth texture");
+                return nullptr;
+            }
+            gl_attach_texture(state_->dbg(), id, depth->state().id(), GL_DEPTH_ATTACHMENT);
+            gl_attach_texture(state_->dbg(), id, depth->state().id(), GL_STENCIL_ATTACHMENT);
+        } else {
+            depth_rb = gl_compile_renderbuffer(state_->dbg(), size, GL_DEPTH24_STENCIL8);
+            if ( depth_rb.empty() ) {
+                state_->dbg().error("RENDER: Failed to create framebuffer: %0",
+                    "failed to create depth renderbuffer");
+                return nullptr;
+            }
+            gl_attach_renderbuffer(state_->dbg(), id, depth_rb, GL_DEPTH_ATTACHMENT);
+            gl_attach_renderbuffer(state_->dbg(), id, depth_rb, GL_STENCIL_ATTACHMENT);
+        }
+
+        GLenum fb_status = GL_FRAMEBUFFER_COMPLETE;
+        if ( !gl_check_framebuffer(state_->dbg(), id, &fb_status) ) {
+            state_->dbg().error("RENDER: Failed to create framebuffer: %0",
+                gl_framebuffer_status_to_cstr(fb_status));
+            return nullptr;
+        }
+
+        return std::make_shared<render_target>(
+            std::make_unique<render_target::internal_state>(
+                state_->dbg(),
+                std::move(id),
+                size,
+                std::move(color),
+                std::move(depth),
+                std::move(color_rb),
+                std::move(depth_rb)));
     }
 
     void render::draw(
@@ -524,26 +711,35 @@ namespace e2d
     }
 
     render& render::clear_depth_buffer(f32 value) noexcept {
-        GL_CHECK_CODE(state_->dbg(), glClearDepth(
-            math::numeric_cast<GLclampd>(math::saturate(value))));
-        GL_CHECK_CODE(state_->dbg(), glClear(GL_DEPTH_BUFFER_BIT));
+        const render_target_ptr& rt = state_->render_target();
+        if ( !rt || rt->state().depth() || !rt->state().depth_rb().empty() ) {
+            GL_CHECK_CODE(state_->dbg(), glClearDepth(
+                math::numeric_cast<GLclampd>(math::saturate(value))));
+            GL_CHECK_CODE(state_->dbg(), glClear(GL_DEPTH_BUFFER_BIT));
+        }
         return *this;
     }
 
     render& render::clear_stencil_buffer(u8 value) noexcept {
-        GL_CHECK_CODE(state_->dbg(), glClearStencil(
-            math::numeric_cast<GLint>(value)));
-        GL_CHECK_CODE(state_->dbg(), glClear(GL_STENCIL_BUFFER_BIT));
+        const render_target_ptr& rt = state_->render_target();
+        if ( !rt || rt->state().depth() || !rt->state().depth_rb().empty() ) {
+            GL_CHECK_CODE(state_->dbg(), glClearStencil(
+                math::numeric_cast<GLint>(value)));
+            GL_CHECK_CODE(state_->dbg(), glClear(GL_STENCIL_BUFFER_BIT));
+        }
         return *this;
     }
 
     render& render::clear_color_buffer(const color& value) noexcept {
-        GL_CHECK_CODE(state_->dbg(), glClearColor(
-            math::numeric_cast<GLclampf>(math::saturate(value.r)),
-            math::numeric_cast<GLclampf>(math::saturate(value.g)),
-            math::numeric_cast<GLclampf>(math::saturate(value.b)),
-            math::numeric_cast<GLclampf>(math::saturate(value.a))));
-        GL_CHECK_CODE(state_->dbg(), glClear(GL_COLOR_BUFFER_BIT));
+        const render_target_ptr& rt = state_->render_target();
+        if ( !rt || rt->state().color() || !rt->state().color_rb().empty() ) {
+            GL_CHECK_CODE(state_->dbg(), glClearColor(
+                math::numeric_cast<GLclampf>(math::saturate(value.r)),
+                math::numeric_cast<GLclampf>(math::saturate(value.g)),
+                math::numeric_cast<GLclampf>(math::saturate(value.b)),
+                math::numeric_cast<GLclampf>(math::saturate(value.a))));
+            GL_CHECK_CODE(state_->dbg(), glClear(GL_COLOR_BUFFER_BIT));
+        }
         return *this;
     }
 
@@ -553,6 +749,11 @@ namespace e2d
             math::numeric_cast<GLint>(y),
             math::numeric_cast<GLsizei>(w),
             math::numeric_cast<GLsizei>(h)));
+        return *this;
+    }
+
+    render& render::set_render_target(const render_target_ptr& rt) noexcept {
+        state_->set_render_target(rt);
         return *this;
     }
 }

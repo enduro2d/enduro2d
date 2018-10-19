@@ -51,6 +51,16 @@ namespace e2d
     };
 
     //
+    // render_target::internal_state
+    //
+
+    class render_target::internal_state final : private e2d::noncopyable {
+    public:
+        internal_state() noexcept = default;
+        ~internal_state() noexcept = default;
+    };
+
+    //
     // render::internal_state
     //
 
@@ -94,8 +104,9 @@ namespace e2d
         return size;
     }
 
-    image_data_format texture::format() const noexcept {
-        return image_data_format::rgba8;
+    const pixel_declaration& texture::decl() const noexcept {
+        static pixel_declaration decl;
+        return decl;
     }
 
     //
@@ -123,6 +134,29 @@ namespace e2d
     vertex_buffer::~vertex_buffer() noexcept = default;
 
     //
+    // render_target
+    //
+
+    render_target::render_target(internal_state_uptr state)
+    : state_(std::move(state)) {}
+    render_target::~render_target() noexcept = default;
+
+    const v2u& render_target::size() const noexcept {
+        static v2u size;
+        return size;
+    }
+
+    const texture_ptr& render_target::color() const noexcept {
+        static texture_ptr color;
+        return color;
+    }
+
+    const texture_ptr& render_target::depth() const noexcept {
+        static texture_ptr depth;
+        return depth;
+    }
+
+    //
     // render
     //
 
@@ -148,6 +182,11 @@ namespace e2d
         return nullptr;
     }
 
+    texture_ptr render::create_texture(const v2u& size, const pixel_declaration& decl) {
+        E2D_UNUSED(size, decl);
+        return nullptr;
+    }
+
     index_buffer_ptr render::create_index_buffer(
         const buffer& indices,
         const index_declaration& decl,
@@ -163,6 +202,11 @@ namespace e2d
         vertex_buffer::usage usage)
     {
         E2D_UNUSED(vertices, decl, usage);
+        return nullptr;
+    }
+
+    render_target_ptr render::create_render_target(const v2u& size, render_target::type type) {
+        E2D_UNUSED(size, type);
         return nullptr;
     }
 
@@ -198,6 +242,11 @@ namespace e2d
 
     render& render::set_viewport(u32 x, u32 y, u32 w, u32 h) noexcept {
         E2D_UNUSED(x, y, w, h);
+        return *this;
+    }
+
+    render& render::set_render_target(const render_target_ptr& rt) noexcept {
+        E2D_UNUSED(rt);
         return *this;
     }
 }

@@ -76,11 +76,11 @@ namespace e2d
         debug& debug,
         gl_texture_id id,
         const v2u& size,
-        image_data_format format)
+        const pixel_declaration& decl)
     : debug_(debug)
     , id_(std::move(id))
     , size_(size)
-    , format_(format){
+    , decl_(decl){
         E2D_ASSERT(!id_.empty());
     }
 
@@ -96,8 +96,8 @@ namespace e2d
         return size_;
     }
 
-    image_data_format texture::internal_state::format() const noexcept {
-        return format_;
+    const pixel_declaration& texture::internal_state::decl() const noexcept {
+        return decl_;
     }
 
     //
@@ -165,12 +165,62 @@ namespace e2d
     }
 
     //
+    // render_target::internal_state
+    //
+    render_target::internal_state::internal_state(
+        debug& debug,
+        opengl::gl_framebuffer_id id,
+        const v2u& size,
+        texture_ptr color,
+        texture_ptr depth,
+        opengl::gl_renderbuffer_id color_rb,
+        opengl::gl_renderbuffer_id depth_rb)
+    : debug_(debug)
+    , id_(std::move(id))
+    , size_(size)
+    , color_(std::move(color))
+    , depth_(std::move(depth))
+    , color_rb_(std::move(color_rb))
+    , depth_rb_(std::move(depth_rb)){
+        E2D_ASSERT(!id_.empty());
+    }
+
+    debug& render_target::internal_state::dbg() const noexcept {
+        return debug_;
+    }
+
+    const gl_framebuffer_id& render_target::internal_state::id() const noexcept {
+        return id_;
+    }
+
+    const v2u& render_target::internal_state::size() const noexcept {
+        return size_;
+    }
+
+    const texture_ptr& render_target::internal_state::color() const noexcept {
+        return color_;
+    }
+
+    const texture_ptr& render_target::internal_state::depth() const noexcept {
+        return depth_;
+    }
+
+    const gl_renderbuffer_id& render_target::internal_state::color_rb() const noexcept {
+        return color_rb_;
+    }
+
+    const gl_renderbuffer_id& render_target::internal_state::depth_rb() const noexcept {
+        return depth_rb_;
+    }
+
+    //
     // render::internal_state
     //
 
     render::internal_state::internal_state(debug& debug, window& window)
     : debug_(debug)
-    , window_(window) {}
+    , window_(window)
+    , default_fb_(gl_framebuffer_id::current(debug, GL_FRAMEBUFFER)) {}
 
     debug& render::internal_state::dbg() const noexcept {
         return debug_;
@@ -178,6 +228,10 @@ namespace e2d
 
     window& render::internal_state::wnd() const noexcept {
         return window_;
+    }
+
+    const render_target_ptr& render::internal_state::render_target() const noexcept {
+        return render_target_;
     }
 
     render::internal_state& render::internal_state::set_states(const state_block& rs) noexcept {
@@ -256,6 +310,20 @@ namespace e2d
         GL_CHECK_CODE(debug_, enable_or_disable(GL_BLEND, cs.blending()));
         GL_CHECK_CODE(debug_, enable_or_disable(GL_DEPTH_TEST, cs.depth_test()));
         GL_CHECK_CODE(debug_, enable_or_disable(GL_STENCIL_TEST, cs.stencil_test()));
+        return *this;
+    }
+
+    render::internal_state& render::internal_state::set_render_target(const render_target_ptr& rt) noexcept {
+        if ( rt ) {
+            GL_CHECK_CODE(debug_, glBindFramebuffer(
+                rt->state().id().target(),
+                *rt->state().id()));
+        } else {
+            GL_CHECK_CODE(debug_, glBindFramebuffer(
+                default_fb_.target(),
+                *default_fb_));
+        }
+        render_target_ = rt;
         return *this;
     }
 }

@@ -9,44 +9,46 @@ using namespace e2d;
 
 namespace
 {
-    const char* vs_source_cstr =
-        "#version 120                                       \n"
-        "                                                   \n"
-        "attribute vec3 a_position;                         \n"
-        "attribute vec2 a_uv;                               \n"
-        "attribute vec4 a_color;                            \n"
-        "                                                   \n"
-        "uniform float u_time;                              \n"
-        "uniform mat4 u_MVP;                                \n"
-        "                                                   \n"
-        "varying vec4 v_color;                              \n"
-        "varying vec2 v_uv;                                 \n"
-        "                                                   \n"
-        "void main(){                                       \n"
-        "  v_color = a_color;                               \n"
-        "  v_uv = a_uv;                                     \n"
-        "                                                   \n"
-        "  float s = 0.7 + 0.3 * (cos(u_time * 0.003) + 1); \n"
-        "  gl_Position = vec4(a_position * s, 1.0) * u_MVP; \n"
-        "}                                                  \n";
+    const char* vs_source_cstr = R"glsl(
+        #version 120
 
-    const char* fs_source_cstr =
-        "#version 120                                             \n"
-        "                                                         \n"
-        "uniform float u_time;                                    \n"
-        "uniform sampler2D u_texture1;                            \n"
-        "uniform sampler2D u_texture2;                            \n"
-        "varying vec4 v_color;                                    \n"
-        "varying vec2 v_uv;                                       \n"
-        "                                                         \n"
-        "void main(){                                             \n"
-        "  vec2 uv = vec2(v_uv.s, 1.0 - v_uv.t);                  \n"
-        "  if ( u_time > 2000 ) {                                 \n"
-        "    gl_FragColor = v_color * texture2D(u_texture2, uv);  \n"
-        "  } else {                                               \n"
-        "    gl_FragColor = v_color * texture2D(u_texture1, uv);  \n"
-        "  }                                                      \n"
-        "}                                                        \n";
+        attribute vec3 a_position;
+        attribute vec2 a_uv;
+        attribute vec4 a_color;
+
+        uniform float u_time;
+        uniform mat4 u_MVP;
+
+        varying vec4 v_color;
+        varying vec2 v_uv;
+
+        void main(){
+          v_color = a_color;
+          v_uv = a_uv;
+
+          float s = 0.7 + 0.3 * (cos(u_time * 0.003) + 1);
+          gl_Position = vec4(a_position * s, 1.0) * u_MVP;
+        }
+    )glsl";
+
+    const char* fs_source_cstr = R"glsl(
+        #version 120
+
+        uniform float u_time;
+        uniform sampler2D u_texture1;
+        uniform sampler2D u_texture2;
+        varying vec4 v_color;
+        varying vec2 v_uv;
+
+        void main(){
+          vec2 uv = vec2(v_uv.s, 1.0 - v_uv.t);
+          if ( u_time > 2000 ) {
+            gl_FragColor = v_color * texture2D(u_texture2, uv);
+          } else {
+            gl_FragColor = v_color * texture2D(u_texture1, uv);
+          }
+        }
+    )glsl";
 
     struct vertex1 {
         v3f position;
@@ -124,7 +126,7 @@ int e2d_main() {
     const auto indices = generate_quad_indices();
     const auto index_buffer = the<render>().create_index_buffer(
         buffer(indices.data(), indices.size() * sizeof(indices[0])),
-        index_declaration(index_declaration::index_type::unsigned_byte),
+        index_declaration::index_type::unsigned_byte,
         index_buffer::usage::static_draw);
 
     const auto vertices1 = generate_quad_vertices(texture1->size());

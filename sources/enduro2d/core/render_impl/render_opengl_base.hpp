@@ -14,6 +14,91 @@
 #  include <OpenGL/gl.h>
 #endif
 
+//
+// https://www.khronos.org/registry/OpenGL/extensions/
+// OES/OES_rgb8_rgba8.txt
+//
+
+#ifndef GL_RGB8
+#  define GL_RGB8 0x8051
+#endif
+
+#ifndef GL_RGBA8
+#  define GL_RGBA8 0x8058
+#endif
+
+//
+// https://www.khronos.org/registry/OpenGL/extensions/
+// OES/OES_depth_texture.txt
+//
+
+#ifndef GL_UNSIGNED_INT
+#  define GL_UNSIGNED_INT 0x1405
+#endif
+
+#ifndef GL_UNSIGNED_SHORT
+#  define GL_UNSIGNED_SHORT 0x1403
+#endif
+
+#ifndef GL_DEPTH_COMPONENT
+#  define GL_DEPTH_COMPONENT 0x1902
+#endif
+
+//
+// https://www.khronos.org/registry/OpenGL/extensions/
+// OES/OES_packed_depth_stencil.txt
+//
+
+#ifndef GL_DEPTH_STENCIL
+#  define GL_DEPTH_STENCIL 0x84F9
+#endif
+
+#ifndef GL_DEPTH24_STENCIL8
+#  define GL_DEPTH24_STENCIL8 0x88F0
+#endif
+
+#ifndef GL_UNSIGNED_INT_24_8
+#  define GL_UNSIGNED_INT_24_8 0x84FA
+#endif
+
+//
+// https://www.khronos.org/registry/OpenGL/extensions/
+// EXT/EXT_texture_compression_s3tc.txt
+//
+
+#ifndef GL_COMPRESSED_RGBA_S3TC_DXT1_EXT
+#  define GL_COMPRESSED_RGBA_S3TC_DXT1_EXT 0x83F1
+#endif
+
+#ifndef GL_COMPRESSED_RGBA_S3TC_DXT3_EXT
+#  define GL_COMPRESSED_RGBA_S3TC_DXT3_EXT 0x83F2
+#endif
+
+#ifndef GL_COMPRESSED_RGBA_S3TC_DXT5_EXT
+#  define GL_COMPRESSED_RGBA_S3TC_DXT5_EXT 0x83F3
+#endif
+
+//
+// https://www.khronos.org/registry/OpenGL/extensions/
+// IMG/IMG_texture_compression_pvrtc.txt
+//
+
+#ifndef GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG
+#  define GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG 0x8C00
+#endif
+
+#ifndef GL_COMPRESSED_RGB_PVRTC_2BPPV1_IMG
+#  define GL_COMPRESSED_RGB_PVRTC_2BPPV1_IMG 0x8C01
+#endif
+
+#ifndef GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG
+#  define GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG 0x8C02
+#endif
+
+#ifndef GL_COMPRESSED_RGBA_PVRTC_2BPPV1_IMG
+#  define GL_COMPRESSED_RGBA_PVRTC_2BPPV1_IMG 0x8C03
+#endif
+
 #define GL_FLUSH_ERRORS(dbg)\
     for ( GLenum err = glGetError(); err != GL_NO_ERROR; err = glGetError() ) {\
         E2D_ASSERT_MSG(false, "RENDER: GL_FLUSH_ERRORS()");\
@@ -229,9 +314,15 @@ namespace e2d { namespace opengl
 
 namespace e2d { namespace opengl
 {
-    GLint convert_format_to_internal_format(image_data_format idf) noexcept;
-    GLenum convert_format_to_external_format(image_data_format idf) noexcept;
-    GLenum convert_format_to_external_data_type(image_data_format idf) noexcept;
+    GLenum convert_image_data_format_to_external_format(image_data_format f) noexcept;
+    GLenum convert_image_data_format_to_external_data_type(image_data_format f) noexcept;
+
+    GLenum convert_pixel_type_to_external_format(pixel_declaration::pixel_type f) noexcept;
+    GLenum convert_pixel_type_to_external_data_type(pixel_declaration::pixel_type f) noexcept;
+
+    GLint convert_pixel_type_to_internal_format(pixel_declaration::pixel_type f) noexcept;
+    GLenum convert_pixel_type_to_compressed_format(pixel_declaration::pixel_type f) noexcept;
+    pixel_declaration convert_image_data_format_to_pixel_declaration(image_data_format f) noexcept;
 
     GLenum convert_index_type(index_declaration::index_type it) noexcept;
     GLenum convert_attribute_type(vertex_declaration::attribute_type at) noexcept;
@@ -258,6 +349,7 @@ namespace e2d { namespace opengl
 
     const char* glsl_type_to_cstr(GLenum t) noexcept;
     const char* gl_error_code_to_cstr(GLenum e) noexcept;
+    const char* gl_framebuffer_status_to_cstr(GLenum s) noexcept;
     GLenum gl_target_to_get_target(GLenum t) noexcept;
 }}
 
@@ -267,9 +359,30 @@ namespace e2d { namespace opengl
     void gl_trace_limits(debug& debug) noexcept;
     gl_shader_id gl_compile_shader(debug& debug, const str& source, GLenum type) noexcept;
     gl_program_id gl_link_program(debug& debug, gl_shader_id vs, gl_shader_id fs) noexcept;
-    gl_texture_id gl_compile_texture(debug& debug, const image& image);
     gl_buffer_id gl_compile_index_buffer(debug& debug, const buffer& indices, index_buffer::usage usage);
     gl_buffer_id gl_compile_vertex_buffer(debug& debug, const buffer& vertices, vertex_buffer::usage usage);
+
+    bool gl_check_framebuffer(
+        debug& debug,
+        const gl_framebuffer_id& fb,
+        GLenum* out_status) noexcept;
+
+    void gl_attach_texture(
+        debug& debug,
+        const gl_framebuffer_id& fb,
+        const gl_texture_id& tex,
+        GLenum attachment) noexcept;
+
+    void gl_attach_renderbuffer(
+        debug& debug,
+        const gl_framebuffer_id& fb,
+        const gl_renderbuffer_id& rb,
+        GLenum attachment) noexcept;
+
+    gl_renderbuffer_id gl_compile_renderbuffer(
+        debug& debug,
+        const v2u& size,
+        GLenum format);
 }}
 
 namespace e2d { namespace opengl
