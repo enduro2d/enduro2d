@@ -11,6 +11,7 @@
 #if defined(E2D_RENDER_MODE) && E2D_RENDER_MODE == E2D_RENDER_MODE_OPENGL
 
 #if defined(E2D_PLATFORM) && E2D_PLATFORM == E2D_PLATFORM_MACOSX
+#  include <3rdparty/glew/glew.h>
 #  include <OpenGL/gl.h>
 #endif
 

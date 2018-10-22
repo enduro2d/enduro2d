@@ -101,6 +101,10 @@ set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 add_subdirectory(modules/glfw)
 
+set(glew-cmake_BUILD_SHARED OFF CACHE BOOL "" FORCE)
+set(glew-cmake_BUILD_MULTI_CONTEXT OFF CACHE BOOL "" FORCE)
+add_subdirectory(modules/glew)
+
 #
 # e2d library target
 #
@@ -132,6 +136,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 set(E2D_LIBRARIES
     enduro2d
     glfw
+    libglew_static
     ${OPENGL_gl_LIBRARY}
     ${CMAKE_THREAD_LIBS_INIT})
 

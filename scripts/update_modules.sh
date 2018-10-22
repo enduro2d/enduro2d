@@ -25,6 +25,9 @@ cp -fv $MODULES_DIR/catch2/single_include/catch2/catch.hpp $UNTESTS_DIR/catch/ca
 mkdir -p $SOURCES_RDPARTY_DIR/glfw
 cp -rfv $MODULES_DIR/glfw/include/GLFW/ $SOURCES_RDPARTY_DIR/glfw/
 
+mkdir -p $SOURCES_RDPARTY_DIR/glew
+cp -rfv $MODULES_DIR/glew/include/GL/ $SOURCES_RDPARTY_DIR/glew/
+
 mkdir -p $SOURCES_RDPARTY_DIR/stb
 cp -fv $MODULES_DIR/stb/stb_image.h $SOURCES_RDPARTY_DIR/stb/stb_image.h
 cp -fv $MODULES_DIR/stb/stb_image_resize.h $SOURCES_RDPARTY_DIR/stb/stb_image_resize.h

@@ -439,6 +439,9 @@ namespace e2d
 
     render::render(debug& debug, window& window)
     : state_(new internal_state(debug, window)) {
+        if ( glewInit() != GLEW_OK ) {
+            throw bad_render_operation();
+        }
         opengl::gl_trace_info(debug);
         opengl::gl_trace_limits(debug);
         GL_CHECK_CODE(state_->dbg(), glPixelStorei(GL_PACK_ALIGNMENT, 1));

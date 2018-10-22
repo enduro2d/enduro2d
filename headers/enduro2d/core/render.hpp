@@ -29,6 +29,17 @@ namespace e2d
     using render_target_ptr = std::shared_ptr<render_target>;
 
     //
+    // bad_render_operation
+    //
+
+    class bad_render_operation final : public exception {
+    public:
+        const char* what() const noexcept final {
+            return "bad render operation";
+        }
+    };
+
+    //
     // pixel_declaration
     //
 

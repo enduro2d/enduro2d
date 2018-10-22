@@ -13,3 +13,6 @@
 [submodule "modules/variant"]
 	path = modules/variant
 	url = https://github.com/mpark/variant
+[submodule "modules/glew"]
+	path = modules/glew
+	url = https://github.com/Perlmint/glew-cmake
