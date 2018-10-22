@@ -18,10 +18,6 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
     endif()
 endif()
 
-if(MSVC)
-    add_definitions(/MP)
-endif(MSVC)
-
 if(APPLE)
     add_compile_options(-Wno-deprecated-declarations)
 endif(APPLE)

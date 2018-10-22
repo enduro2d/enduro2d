@@ -239,7 +239,7 @@ namespace
         Args&&... args)
     {
         with_gl_use_program(debug, ps->state().id(),
-            [&debug, &ps, &pb](auto&& nf, auto&&... nargs) noexcept {
+            [&debug, &ps, &pb](auto&& nf, auto&&... nargs) {
                 bind_property_block(debug, ps, pb);
                 try {
                     stdex::invoke(

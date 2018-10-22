@@ -10,94 +10,15 @@
 
 #if defined(E2D_RENDER_MODE) && E2D_RENDER_MODE == E2D_RENDER_MODE_OPENGL
 
-#if defined(E2D_PLATFORM) && E2D_PLATFORM == E2D_PLATFORM_MACOSX
-#  include <3rdparty/glew/glew.h>
-#  include <OpenGL/gl.h>
-#endif
+#define GLEW_STATIC
+#include <3rdparty/glew/glew.h>
 
-//
-// https://www.khronos.org/registry/OpenGL/extensions/
-// OES/OES_rgb8_rgba8.txt
-//
-
-#ifndef GL_RGB8
-#  define GL_RGB8 0x8051
-#endif
-
-#ifndef GL_RGBA8
-#  define GL_RGBA8 0x8058
-#endif
-
-//
-// https://www.khronos.org/registry/OpenGL/extensions/
-// OES/OES_depth_texture.txt
-//
-
-#ifndef GL_UNSIGNED_INT
-#  define GL_UNSIGNED_INT 0x1405
-#endif
-
-#ifndef GL_UNSIGNED_SHORT
-#  define GL_UNSIGNED_SHORT 0x1403
-#endif
-
-#ifndef GL_DEPTH_COMPONENT
-#  define GL_DEPTH_COMPONENT 0x1902
-#endif
-
-//
-// https://www.khronos.org/registry/OpenGL/extensions/
-// OES/OES_packed_depth_stencil.txt
-//
-
-#ifndef GL_DEPTH_STENCIL
-#  define GL_DEPTH_STENCIL 0x84F9
-#endif
-
-#ifndef GL_DEPTH24_STENCIL8
-#  define GL_DEPTH24_STENCIL8 0x88F0
-#endif
-
-#ifndef GL_UNSIGNED_INT_24_8
-#  define GL_UNSIGNED_INT_24_8 0x84FA
-#endif
-
-//
-// https://www.khronos.org/registry/OpenGL/extensions/
-// EXT/EXT_texture_compression_s3tc.txt
-//
-
-#ifndef GL_COMPRESSED_RGBA_S3TC_DXT1_EXT
-#  define GL_COMPRESSED_RGBA_S3TC_DXT1_EXT 0x83F1
-#endif
-
-#ifndef GL_COMPRESSED_RGBA_S3TC_DXT3_EXT
-#  define GL_COMPRESSED_RGBA_S3TC_DXT3_EXT 0x83F2
-#endif
-
-#ifndef GL_COMPRESSED_RGBA_S3TC_DXT5_EXT
-#  define GL_COMPRESSED_RGBA_S3TC_DXT5_EXT 0x83F3
-#endif
-
-//
-// https://www.khronos.org/registry/OpenGL/extensions/
-// IMG/IMG_texture_compression_pvrtc.txt
-//
-
-#ifndef GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG
-#  define GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG 0x8C00
-#endif
-
-#ifndef GL_COMPRESSED_RGB_PVRTC_2BPPV1_IMG
-#  define GL_COMPRESSED_RGB_PVRTC_2BPPV1_IMG 0x8C01
-#endif
-
-#ifndef GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG
-#  define GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG 0x8C02
-#endif
-
-#ifndef GL_COMPRESSED_RGBA_PVRTC_2BPPV1_IMG
-#  define GL_COMPRESSED_RGBA_PVRTC_2BPPV1_IMG 0x8C03
+#if defined(E2D_PLATFORM)
+#  if E2D_PLATFORM == E2D_PLATFORM_MACOSX
+#    include <OpenGL/gl.h>
+#  elif E2D_PLATFORM == E2D_PLATFORM_WINDOWS
+#    include <gl/GL.h>
+#  endif
 #endif
 
 #define GL_FLUSH_ERRORS(dbg)\
