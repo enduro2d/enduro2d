@@ -245,8 +245,8 @@ namespace e2d
 
     render::internal_state& render::internal_state::set_depth_state(const depth_state& ds) noexcept {
         GL_CHECK_CODE(debug_, glDepthRange(
-            math::numeric_cast<GLclampd>(math::saturate(ds.near())),
-            math::numeric_cast<GLclampd>(math::saturate(ds.far()))));
+            math::numeric_cast<GLclampd>(math::saturate(ds.range_near())),
+            math::numeric_cast<GLclampd>(math::saturate(ds.range_far()))));
         GL_CHECK_CODE(debug_, glDepthMask(
             ds.write() ? GL_TRUE : GL_FALSE));
         GL_CHECK_CODE(debug_, glDepthFunc(

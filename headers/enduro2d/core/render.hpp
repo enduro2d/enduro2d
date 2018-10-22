@@ -419,13 +419,13 @@ namespace e2d
             depth_state& write(bool enable) noexcept;
             depth_state& func(compare_func func) noexcept;
 
-            f32 near() const noexcept;
-            f32 far() const noexcept;
+            f32 range_near() const noexcept;
+            f32 range_far() const noexcept;
             bool write() const noexcept;
             compare_func func() const noexcept;
         private:
-            f32 near_ = 0.0f;
-            f32 far_ = 1.0f;
+            f32 range_near_ = 0.0f;
+            f32 range_far_ = 1.0f;
             bool write_ = true;
             compare_func func_ = compare_func::less;
             u8 _pad[2] = {0};

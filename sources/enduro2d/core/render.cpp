@@ -235,8 +235,8 @@ namespace e2d
     //
 
     render::depth_state& render::depth_state::range(f32 near, f32 far) noexcept {
-        near_ = near;
-        far_ = far;
+        range_near_ = near;
+        range_far_ = far;
         return *this;
     }
 
@@ -250,12 +250,12 @@ namespace e2d
         return *this;
     }
 
-    f32 render::depth_state::near() const noexcept {
-        return near_;
+    f32 render::depth_state::range_near() const noexcept {
+        return range_near_;
     }
 
-    f32 render::depth_state::far() const noexcept {
-        return far_;
+    f32 render::depth_state::range_far() const noexcept {
+        return range_far_;
     }
 
     bool render::depth_state::write() const noexcept {
