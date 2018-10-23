@@ -285,6 +285,11 @@ namespace
             }
         }
     }
+
+    render::property_block& main_property_cache() {
+        static render::property_block props;
+        return props;
+    }
 }
 
 namespace e2d
@@ -785,7 +790,8 @@ namespace e2d
 
         for ( std::size_t i = 0; i < mat.pass_count(); ++i ) {
             const pass_state& pass = mat.pass(i);
-            const property_block main_props = property_block()
+            const property_block& main_props = main_property_cache()
+                .clear()
                 .merge(mat.properties())
                 .merge(pass.properties())
                 .merge(props);
