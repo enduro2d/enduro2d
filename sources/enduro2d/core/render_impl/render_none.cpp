@@ -165,10 +165,18 @@ namespace e2d
     render::~render() noexcept = default;
 
     shader_ptr render::create_shader(
-        input_stream_uptr vertex,
-        input_stream_uptr fragment)
+        const str& vertex_source,
+        const str& fragment_source)
     {
-        E2D_UNUSED(vertex, fragment);
+        E2D_UNUSED(vertex_source, fragment_source);
+        return nullptr;
+    }
+
+    shader_ptr render::create_shader(
+        const input_stream_uptr& vertex_stream,
+        const input_stream_uptr& fragment_stream)
+    {
+        E2D_UNUSED(vertex_stream, fragment_stream);
         return nullptr;
     }
 
@@ -205,8 +213,13 @@ namespace e2d
         return nullptr;
     }
 
-    render_target_ptr render::create_render_target(const v2u& size, render_target::type type) {
-        E2D_UNUSED(size, type);
+    render_target_ptr render::create_render_target(
+        const v2u& size,
+        const pixel_declaration& color_decl,
+        const pixel_declaration& depth_decl,
+        render_target::external_texture external_texture)
+    {
+        E2D_UNUSED(size, color_decl, depth_decl, external_texture);
         return nullptr;
     }
 
@@ -240,8 +253,8 @@ namespace e2d
         return *this;
     }
 
-    render& render::set_viewport(u32 x, u32 y, u32 w, u32 h) noexcept {
-        E2D_UNUSED(x, y, w, h);
+    render& render::set_viewport(const v2u& pos, const v2u& size) noexcept {
+        E2D_UNUSED(pos, size);
         return *this;
     }
 
