@@ -36,6 +36,7 @@ namespace e2d
                 throw module_already_initialized();
             }
             instance_ = std::make_unique<ImplT>(std::forward<Args>(args)...);
+            main_thread_ = std::this_thread::get_id();
             return static_cast<ImplT&>(*instance_);
         }
 
@@ -53,12 +54,23 @@ namespace e2d
             }
             return *instance_;
         }
+
+        static const std::thread::id& main_thread() {
+            if ( !is_initialized() ) {
+                throw module_not_initialized();
+            }
+            return main_thread_;
+        }
     private:
         static std::unique_ptr<BaseT> instance_;
+        static std::thread::id main_thread_;
     };
 
     template < typename BaseT >
     std::unique_ptr<BaseT> module<BaseT>::instance_;
+
+    template < typename BaseT >
+    std::thread::id module<BaseT>::main_thread_;
 }
 
 namespace e2d { namespace modules
@@ -85,5 +97,11 @@ namespace e2d { namespace modules
     ImplT& instance() {
         using BaseT = typename ImplT::base_type;
         return static_cast<ImplT&>(module<BaseT>::instance());
+    }
+
+    template < typename ImplT >
+    const std::thread::id& main_thread() {
+        using BaseT = typename ImplT::base_type;
+        return module<BaseT>::main_thread();
     }
 }}
