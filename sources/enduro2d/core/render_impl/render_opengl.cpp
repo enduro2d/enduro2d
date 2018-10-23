@@ -437,49 +437,78 @@ namespace e2d
     // render
     //
 
-    render::render(debug& debug, window& window)
-    : state_(new internal_state(debug, window)) {
+    render::render(debug& ndebug, window& nwindow)
+    : state_(new internal_state(ndebug, nwindow))
+    {
+        E2D_ASSERT(
+            std::this_thread::get_id() ==
+            modules::main_thread<window>());
+
         if ( glewInit() != GLEW_OK ) {
             throw bad_render_operation();
         }
-        opengl::gl_trace_info(debug);
-        opengl::gl_trace_limits(debug);
+
+        opengl::gl_trace_info(ndebug);
+        opengl::gl_trace_limits(ndebug);
+
         GL_CHECK_CODE(state_->dbg(), glPixelStorei(GL_PACK_ALIGNMENT, 1));
         GL_CHECK_CODE(state_->dbg(), glPixelStorei(GL_UNPACK_ALIGNMENT, 1));
     }
     render::~render() noexcept = default;
 
     shader_ptr render::create_shader(
-        input_stream_uptr vertex,
-        input_stream_uptr fragment)
+        const str& vertex_source,
+        const str& fragment_source)
     {
-        str vertex_str;
-        gl_shader_id vs = streams::try_read_tail(vertex_str, vertex)
-            ? gl_compile_shader(state_->dbg(), vertex_str, GL_VERTEX_SHADER)
-            : gl_shader_id(state_->dbg());
+        E2D_ASSERT(
+            std::this_thread::get_id() ==
+            modules::main_thread<render>());
+
+        gl_shader_id vs = gl_compile_shader(
+            state_->dbg(), vertex_source, GL_VERTEX_SHADER);
         if ( vs.empty() ) {
             return nullptr;
         }
-        str fragment_str;
-        gl_shader_id fs = streams::try_read_tail(fragment_str, fragment)
-            ? gl_compile_shader(state_->dbg(), fragment_str, GL_FRAGMENT_SHADER)
-            : gl_shader_id(state_->dbg());
+
+        gl_shader_id fs = gl_compile_shader(
+            state_->dbg(), fragment_source, GL_FRAGMENT_SHADER);
         if ( fs.empty() ) {
             return nullptr;
         }
+
         gl_program_id ps = gl_link_program(
             state_->dbg(), std::move(vs), std::move(fs));
         if ( ps.empty() ) {
             return nullptr;
         }
+
         return std::make_shared<shader>(
             std::make_unique<shader::internal_state>(
                 state_->dbg(), std::move(ps)));
     }
 
+    shader_ptr render::create_shader(
+        const input_stream_uptr& vertex,
+        const input_stream_uptr& fragment)
+    {
+        E2D_ASSERT(
+            std::this_thread::get_id() ==
+            modules::main_thread<render>());
+
+        str vertex_source, fragment_source;
+        return streams::try_read_tail(vertex_source, vertex)
+            && streams::try_read_tail(fragment_source, fragment)
+            ? create_shader(vertex_source, fragment_source)
+            : nullptr;
+    }
+
     texture_ptr render::create_texture(
         const image& image)
     {
+        E2D_ASSERT(
+            std::this_thread::get_id() ==
+            modules::main_thread<render>());
+
         gl_texture_id id = gl_texture_id::create(
             state_->dbg(), GL_TEXTURE_2D);
         if ( id.empty() ) {
@@ -487,6 +516,7 @@ namespace e2d
                 "failed to create texture id");
             return nullptr;
         }
+
         const pixel_declaration decl =
             convert_image_data_format_to_pixel_declaration(image.format());
         with_gl_bind_texture(state_->dbg(), id, [this, &id, &image, &decl]() noexcept {
@@ -517,6 +547,7 @@ namespace e2d
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
         #endif
         });
+
         return std::make_shared<texture>(
             std::make_unique<texture::internal_state>(
                 state_->dbg(), std::move(id), image.size(), decl));
@@ -525,6 +556,10 @@ namespace e2d
     texture_ptr render::create_texture(
         const input_stream_uptr& image_stream)
     {
+        E2D_ASSERT(
+            std::this_thread::get_id() ==
+            modules::main_thread<render>());
+
         image image;
         if ( !images::try_load_image(image, image_stream) ) {
             return nullptr;
@@ -536,6 +571,10 @@ namespace e2d
         const v2u& size,
         const pixel_declaration& decl)
     {
+        E2D_ASSERT(
+            std::this_thread::get_id() ==
+            modules::main_thread<render>());
+
         gl_texture_id id = gl_texture_id::create(
             state_->dbg(), GL_TEXTURE_2D);
         if ( id.empty() ) {
@@ -543,6 +582,7 @@ namespace e2d
                 "failed to create texture id");
             return nullptr;
         }
+
         with_gl_bind_texture(state_->dbg(), id, [this, &id, &size, &decl]() noexcept {
             if ( decl.is_compressed() ) {
                 buffer empty_data(decl.bits_per_pixel() * size.x * size.y / 8);
@@ -572,6 +612,7 @@ namespace e2d
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
         #endif
         });
+
         return std::make_shared<texture>(
             std::make_unique<texture::internal_state>(
                 state_->dbg(), std::move(id), size, decl));
@@ -582,12 +623,17 @@ namespace e2d
         const index_declaration& decl,
         index_buffer::usage usage)
     {
+        E2D_ASSERT(
+            std::this_thread::get_id() ==
+            modules::main_thread<render>());
         E2D_ASSERT(indices.size() % decl.bytes_per_index() == 0);
+
         gl_buffer_id id = gl_compile_index_buffer(
             state_->dbg(), indices, usage);
         if ( id.empty() ) {
             return nullptr;
         }
+
         return std::make_shared<index_buffer>(
             std::make_unique<index_buffer::internal_state>(
                 state_->dbg(), std::move(id), indices.size(), decl));
@@ -598,12 +644,17 @@ namespace e2d
         const vertex_declaration& decl,
         vertex_buffer::usage usage)
     {
+        E2D_ASSERT(
+            std::this_thread::get_id() ==
+            modules::main_thread<render>());
         E2D_ASSERT(vertices.size() % decl.bytes_per_vertex() == 0);
+
         gl_buffer_id id = gl_compile_vertex_buffer(
             state_->dbg(), vertices, usage);
         if ( id.empty() ) {
             return nullptr;
         }
+
         return std::make_shared<vertex_buffer>(
             std::make_unique<vertex_buffer::internal_state>(
                 state_->dbg(), std::move(id), vertices.size(), decl));
@@ -615,6 +666,10 @@ namespace e2d
         const pixel_declaration& depth_decl,
         render_target::external_texture external_texture)
     {
+        E2D_ASSERT(
+            std::this_thread::get_id() ==
+            modules::main_thread<render>());
+
         E2D_ASSERT(
             depth_decl.is_depth() &&
             color_decl.is_color() &&
@@ -712,6 +767,10 @@ namespace e2d
         const material& mat,
         const geometry& geo)
     {
+        E2D_ASSERT(
+            std::this_thread::get_id() ==
+            modules::main_thread<render>());
+
         draw(mat, geo, property_block());
     }
 
@@ -720,6 +779,10 @@ namespace e2d
         const geometry& geo,
         const property_block& props)
     {
+        E2D_ASSERT(
+            std::this_thread::get_id() ==
+            modules::main_thread<render>());
+
         for ( std::size_t i = 0; i < mat.pass_count(); ++i ) {
             const pass_state& pass = mat.pass(i);
             const property_block main_props = property_block()
@@ -736,6 +799,10 @@ namespace e2d
     }
 
     render& render::clear_depth_buffer(f32 value) noexcept {
+        E2D_ASSERT(
+            std::this_thread::get_id() ==
+            modules::main_thread<render>());
+
         const render_target_ptr& rt = state_->render_target();
         if ( !rt || rt->state().depth() || !rt->state().depth_rb().empty() ) {
             GL_CHECK_CODE(state_->dbg(), glClearDepth(
@@ -746,6 +813,10 @@ namespace e2d
     }
 
     render& render::clear_stencil_buffer(u8 value) noexcept {
+        E2D_ASSERT(
+            std::this_thread::get_id() ==
+            modules::main_thread<render>());
+
         const render_target_ptr& rt = state_->render_target();
         if ( !rt || rt->state().depth() || !rt->state().depth_rb().empty() ) {
             GL_CHECK_CODE(state_->dbg(), glClearStencil(
@@ -756,6 +827,10 @@ namespace e2d
     }
 
     render& render::clear_color_buffer(const color& value) noexcept {
+        E2D_ASSERT(
+            std::this_thread::get_id() ==
+            modules::main_thread<render>());
+
         const render_target_ptr& rt = state_->render_target();
         if ( !rt || rt->state().color() || !rt->state().color_rb().empty() ) {
             GL_CHECK_CODE(state_->dbg(), glClearColor(
@@ -768,16 +843,24 @@ namespace e2d
         return *this;
     }
 
-    render& render::set_viewport(u32 x, u32 y, u32 w, u32 h) noexcept {
+    render& render::set_viewport(const v2u& pos, const v2u& size) noexcept {
+        E2D_ASSERT(
+            std::this_thread::get_id() ==
+            modules::main_thread<render>());
+
         GL_CHECK_CODE(state_->dbg(), glViewport(
-            math::numeric_cast<GLint>(x),
-            math::numeric_cast<GLint>(y),
-            math::numeric_cast<GLsizei>(w),
-            math::numeric_cast<GLsizei>(h)));
+            math::numeric_cast<GLint>(pos.x),
+            math::numeric_cast<GLint>(pos.y),
+            math::numeric_cast<GLsizei>(size.x),
+            math::numeric_cast<GLsizei>(size.y)));
         return *this;
     }
 
     render& render::set_render_target(const render_target_ptr& rt) noexcept {
+        E2D_ASSERT(
+            std::this_thread::get_id() ==
+            modules::main_thread<render>());
+
         state_->set_render_target(rt);
         return *this;
     }

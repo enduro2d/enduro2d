@@ -214,7 +214,7 @@ int e2d_main() {
 
         the<render>()
             .set_render_target(rt)
-            .set_viewport(0, 0, rt->size().x, rt->size().y)
+            .set_viewport(v2u::zero(), rt->size())
             .clear_depth_buffer(1.f)
             .clear_stencil_buffer(0)
             .clear_color_buffer({0.f, 0.4f, 0.f, 1.f})
@@ -228,7 +228,7 @@ int e2d_main() {
 
         the<render>()
             .set_render_target(nullptr)
-            .set_viewport(0, 0, the<window>().real_size().x, the<window>().real_size().y)
+            .set_viewport(v2u::zero(), the<window>().real_size())
             .clear_depth_buffer(1.f)
             .clear_stencil_buffer(0)
             .clear_color_buffer({1.f, 0.4f, 0.f, 1.f})

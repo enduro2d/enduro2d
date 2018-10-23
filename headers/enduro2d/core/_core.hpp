@@ -21,6 +21,8 @@ namespace e2d
     class texture;
     class index_buffer;
     class vertex_buffer;
+    class render_target;
+    class pixel_declaration;
     class index_declaration;
     class vertex_declaration;
     class vfs;

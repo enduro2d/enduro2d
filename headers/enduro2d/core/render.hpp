@@ -712,8 +712,12 @@ namespace e2d
         ~render() noexcept final;
 
         shader_ptr create_shader(
-            input_stream_uptr vertex_stream,
-            input_stream_uptr fragment_stream);
+            const str& vertex_source,
+            const str& fragment_source);
+
+        shader_ptr create_shader(
+            const input_stream_uptr& vertex_stream,
+            const input_stream_uptr& fragment_stream);
 
         texture_ptr create_texture(
             const image& image);
@@ -753,7 +757,7 @@ namespace e2d
         render& clear_depth_buffer(f32 value) noexcept;
         render& clear_stencil_buffer(u8 value) noexcept;
         render& clear_color_buffer(const color& value) noexcept;
-        render& set_viewport(u32 x, u32 y, u32 w, u32 h) noexcept;
+        render& set_viewport(const v2u& pos, const v2u& size) noexcept;
         render& set_render_target(const render_target_ptr& rt) noexcept;
     private:
         class internal_state;
