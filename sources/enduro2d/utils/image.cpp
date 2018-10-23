@@ -25,9 +25,10 @@ namespace
         {1, 24, image_data_format::rgb8,        false, false, false},
         {1, 32, image_data_format::rgba8,       false, false, false},
 
-        {4,  4, image_data_format::dxt1,        true,  false, true},
-        {4,  8, image_data_format::dxt3,        true,  false, true},
-        {4,  8, image_data_format::dxt5,        true,  false, true},
+        {4,  4, image_data_format::rgb_dxt1,    true,  false, true},
+        {4,  4, image_data_format::rgba_dxt1,   true,  false, true},
+        {4,  8, image_data_format::rgba_dxt3,   true,  false, true},
+        {4,  8, image_data_format::rgba_dxt5,   true,  false, true},
 
         {8,  2, image_data_format::rgb_pvrtc2,  true,  true,  true},
         {8,  4, image_data_format::rgb_pvrtc4,  true,  true,  true},

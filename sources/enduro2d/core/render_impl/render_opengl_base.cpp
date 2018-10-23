@@ -755,9 +755,10 @@ namespace e2d { namespace opengl
             DEFINE_CASE(rgb8, GL_RGB);
             DEFINE_CASE(rgba8, GL_RGBA);
 
-            DEFINE_CASE(dxt1, GL_COMPRESSED_RGBA_S3TC_DXT1_EXT);
-            DEFINE_CASE(dxt3, GL_COMPRESSED_RGBA_S3TC_DXT3_EXT);
-            DEFINE_CASE(dxt5, GL_COMPRESSED_RGBA_S3TC_DXT5_EXT);
+            DEFINE_CASE(rgb_dxt1, GL_COMPRESSED_RGB_S3TC_DXT1_EXT);
+            DEFINE_CASE(rgba_dxt1, GL_COMPRESSED_RGBA_S3TC_DXT1_EXT);
+            DEFINE_CASE(rgba_dxt3, GL_COMPRESSED_RGBA_S3TC_DXT3_EXT);
+            DEFINE_CASE(rgba_dxt5, GL_COMPRESSED_RGBA_S3TC_DXT5_EXT);
 
             DEFINE_CASE(rgb_pvrtc2, GL_COMPRESSED_RGB_PVRTC_2BPPV1_IMG);
             DEFINE_CASE(rgb_pvrtc4, GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG);
@@ -783,9 +784,10 @@ namespace e2d { namespace opengl
             DEFINE_CASE(rgb8, rgb8);
             DEFINE_CASE(rgba8, rgba8);
 
-            DEFINE_CASE(dxt1, dxt1);
-            DEFINE_CASE(dxt3, dxt3);
-            DEFINE_CASE(dxt5, dxt5);
+            DEFINE_CASE(rgb_dxt1, rgb_dxt1);
+            DEFINE_CASE(rgba_dxt1, rgba_dxt1);
+            DEFINE_CASE(rgba_dxt3, rgba_dxt3);
+            DEFINE_CASE(rgba_dxt5, rgba_dxt5);
 
             DEFINE_CASE(rgb_pvrtc2, rgb_pvrtc2);
             DEFINE_CASE(rgb_pvrtc4, rgb_pvrtc4);

@@ -33,29 +33,11 @@ namespace e2d
         vector<attribute_info> attributes;
         grab_program_attributes(debug_, *id_, attributes);
 
-        debug.trace("RENDER: Program info:\n"
-            "--> active uniforms: %0\n"
-            "--> active attributes: %1",
-            uniforms.size(),
-            attributes.size());
-
         for ( const auto& info : uniforms ) {
-            debug.trace(
-                "uniform: size: %0, type: %1, location: %2, name: %3",
-                info.size,
-                uniform_type_to_cstr(info.type),
-                info.location,
-                info.name.hash());
             uniforms_.emplace(info.name, info);
         }
 
         for ( const auto& info : attributes ) {
-            debug.trace(
-                "attribute: size: %0, type: %1, location: %2, name: %3",
-                info.size,
-                attribute_type_to_cstr(info.type),
-                info.location,
-                info.name.hash());
             attributes_.emplace(info.name, info);
         }
     }

@@ -16,9 +16,10 @@ namespace
             case image_data_format::ga8:
             case image_data_format::rgb8:
             case image_data_format::rgba8:
-            case image_data_format::dxt1:
-            case image_data_format::dxt3:
-            case image_data_format::dxt5:
+            case image_data_format::rgb_dxt1:
+            case image_data_format::rgba_dxt1:
+            case image_data_format::rgba_dxt3:
+            case image_data_format::rgba_dxt5:
                 return true;
             default:
                 return false;

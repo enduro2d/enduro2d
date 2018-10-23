@@ -53,9 +53,10 @@ namespace e2d
             rgb8,
             rgba8,
 
-            dxt1,
-            dxt3,
-            dxt5,
+            rgb_dxt1,
+            rgba_dxt1,
+            rgba_dxt3,
+            rgba_dxt5,
 
             rgb_pvrtc2,
             rgb_pvrtc4,

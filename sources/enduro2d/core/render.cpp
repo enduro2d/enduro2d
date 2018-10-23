@@ -30,9 +30,10 @@ namespace
         {1, 24, true,  false, false, pixel_declaration::pixel_type::rgb8,             false, false, false},
         {1, 32, true,  false, false, pixel_declaration::pixel_type::rgba8,            false, false, false},
 
-        {4,  4, true,  false, false, pixel_declaration::pixel_type::dxt1,             true,  false, true},
-        {4,  8, true,  false, false, pixel_declaration::pixel_type::dxt3,             true,  false, true},
-        {4,  8, true,  false, false, pixel_declaration::pixel_type::dxt5,             true,  false, true},
+        {4,  4, true,  false, false, pixel_declaration::pixel_type::rgb_dxt1,         true,  false, true},
+        {4,  4, true,  false, false, pixel_declaration::pixel_type::rgba_dxt1,        true,  false, true},
+        {4,  8, true,  false, false, pixel_declaration::pixel_type::rgba_dxt3,        true,  false, true},
+        {4,  8, true,  false, false, pixel_declaration::pixel_type::rgba_dxt5,        true,  false, true},
 
         {8,  2, true,  false, false, pixel_declaration::pixel_type::rgb_pvrtc2,       true,  true,  true},
         {8,  4, true,  false, false, pixel_declaration::pixel_type::rgb_pvrtc4,       true,  true,  true},

@@ -26,11 +26,11 @@ TEST_CASE("images") {
         REQUIRE(image(v2u::unit(), image_data_format::rgb8).data().size() == 3);
         REQUIRE(image(v2u::unit(), image_data_format::rgba8).data().size() == 4);
 
-        REQUIRE_THROWS_AS(image(v2u::unit() * 1u, image_data_format::dxt1), bad_image_data_format);
-        REQUIRE_THROWS_AS(image(v2u::unit() * 2u, image_data_format::dxt1), bad_image_data_format);
-        REQUIRE_THROWS_AS(image(v2u::unit() * 3u, image_data_format::dxt1), bad_image_data_format);
-        REQUIRE(image(v2u::unit() * 4u, image_data_format::dxt1).data().size() == 8);
-        REQUIRE(image(v2u::unit() * 4u, image_data_format::dxt5).data().size() == 16);
+        REQUIRE_THROWS_AS(image(v2u::unit() * 1u, image_data_format::rgba_dxt1), bad_image_data_format);
+        REQUIRE_THROWS_AS(image(v2u::unit() * 2u, image_data_format::rgba_dxt1), bad_image_data_format);
+        REQUIRE_THROWS_AS(image(v2u::unit() * 3u, image_data_format::rgba_dxt1), bad_image_data_format);
+        REQUIRE(image(v2u::unit() * 4u, image_data_format::rgba_dxt1).data().size() == 8);
+        REQUIRE(image(v2u::unit() * 4u, image_data_format::rgba_dxt5).data().size() == 16);
     }
     {
         const u8 img[] = {1,2,3,4,5,6,7,8};
