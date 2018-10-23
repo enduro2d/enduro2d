@@ -46,8 +46,12 @@ namespace e2d
     class pixel_declaration final {
     public:
         enum class pixel_type : u8 {
-            rgba8,
+            depth16,
+            depth24,
             depth24_stencil8,
+
+            rgb8,
+            rgba8,
 
             dxt1,
             dxt3,
@@ -57,7 +61,7 @@ namespace e2d
             rgb_pvrtc4,
 
             rgba_pvrtc2,
-            rgba_pvrtc4
+            rgba_pvrtc4,
         };
     public:
         pixel_declaration() = default;
@@ -69,6 +73,9 @@ namespace e2d
         pixel_declaration(pixel_type type) noexcept;
 
         pixel_type type() const noexcept;
+        bool is_color() const noexcept;
+        bool is_depth() const noexcept;
+        bool is_stencil() const noexcept;
         bool is_compressed() const noexcept;
         std::size_t bits_per_pixel() const noexcept;
     private:
@@ -296,7 +303,7 @@ namespace e2d
         using internal_state_uptr = std::unique_ptr<internal_state>;
         const internal_state& state() const noexcept;
     public:
-        enum class type : u8 {
+        enum class external_texture : u8 {
             color = (1 << 0),
             depth = (1 << 1),
             color_and_depth = color | depth
@@ -730,7 +737,9 @@ namespace e2d
 
         render_target_ptr create_render_target(
             const v2u& size,
-            render_target::type type);
+            const pixel_declaration& color_decl,
+            const pixel_declaration& depth_decl,
+            render_target::external_texture external_texture);
 
         void draw(
             const material& mat,

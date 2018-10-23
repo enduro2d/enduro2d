@@ -718,8 +718,11 @@ namespace e2d { namespace opengl
     GLenum convert_pixel_type_to_external_format(pixel_declaration::pixel_type f) noexcept {
         #define DEFINE_CASE(x,y) case pixel_declaration::pixel_type::x: return y
         switch ( f ) {
-            DEFINE_CASE(rgba8, GL_RGBA);
+            DEFINE_CASE(depth16, GL_DEPTH_COMPONENT);
+            DEFINE_CASE(depth24, GL_DEPTH_COMPONENT);
             DEFINE_CASE(depth24_stencil8, GL_DEPTH_STENCIL);
+            DEFINE_CASE(rgb8, GL_RGB);
+            DEFINE_CASE(rgba8, GL_RGBA);
             default:
                 E2D_ASSERT_MSG(false, "unexpected pixel type");
                 return GL_RGBA;
@@ -730,8 +733,11 @@ namespace e2d { namespace opengl
     GLenum convert_pixel_type_to_external_data_type(pixel_declaration::pixel_type f) noexcept {
         #define DEFINE_CASE(x,y) case pixel_declaration::pixel_type::x: return y
         switch ( f ) {
-            DEFINE_CASE(rgba8, GL_UNSIGNED_BYTE);
+            DEFINE_CASE(depth16, GL_UNSIGNED_SHORT);
+            DEFINE_CASE(depth24, GL_UNSIGNED_INT);
             DEFINE_CASE(depth24_stencil8, GL_UNSIGNED_INT_24_8);
+            DEFINE_CASE(rgb8, GL_UNSIGNED_BYTE);
+            DEFINE_CASE(rgba8, GL_UNSIGNED_BYTE);
             default:
                 E2D_ASSERT_MSG(false, "unexpected pixel type");
                 return GL_UNSIGNED_BYTE;
@@ -742,18 +748,13 @@ namespace e2d { namespace opengl
     GLint convert_pixel_type_to_internal_format(pixel_declaration::pixel_type f) noexcept {
         #define DEFINE_CASE(x,y) case pixel_declaration::pixel_type::x: return y
         switch ( f ) {
-            DEFINE_CASE(rgba8, GL_RGBA);
+            DEFINE_CASE(depth16, GL_DEPTH_COMPONENT16);
+            DEFINE_CASE(depth24, GL_DEPTH_COMPONENT24);
             DEFINE_CASE(depth24_stencil8, GL_DEPTH24_STENCIL8);
-            default:
-                E2D_ASSERT_MSG(false, "unexpected pixel type");
-                return GL_RGBA;
-        }
-        #undef DEFINE_CASE
-    }
 
-    GLenum convert_pixel_type_to_compressed_format(pixel_declaration::pixel_type f) noexcept {
-        #define DEFINE_CASE(x,y) case pixel_declaration::pixel_type::x: return y
-        switch ( f ) {
+            DEFINE_CASE(rgb8, GL_RGB);
+            DEFINE_CASE(rgba8, GL_RGBA);
+
             DEFINE_CASE(dxt1, GL_COMPRESSED_RGBA_S3TC_DXT1_EXT);
             DEFINE_CASE(dxt3, GL_COMPRESSED_RGBA_S3TC_DXT3_EXT);
             DEFINE_CASE(dxt5, GL_COMPRESSED_RGBA_S3TC_DXT5_EXT);
@@ -770,12 +771,16 @@ namespace e2d { namespace opengl
         #undef DEFINE_CASE
     }
 
+    GLenum convert_pixel_type_to_internal_format_e(pixel_declaration::pixel_type f) noexcept {
+        return math::numeric_cast<GLenum>(convert_pixel_type_to_internal_format(f));
+    }
+
     pixel_declaration convert_image_data_format_to_pixel_declaration(image_data_format f) noexcept {
-        #define DEFINE_CASE(x,y) case image_data_format::x: return pixel_declaration(pixel_declaration::pixel_type::y)
+        #define DEFINE_CASE(x,y) case image_data_format::x: return pixel_declaration::pixel_type::y
         switch ( f ) {
-            DEFINE_CASE(g8, rgba8);
+            DEFINE_CASE(g8, rgb8);
             DEFINE_CASE(ga8, rgba8);
-            DEFINE_CASE(rgb8, rgba8);
+            DEFINE_CASE(rgb8, rgb8);
             DEFINE_CASE(rgba8, rgba8);
 
             DEFINE_CASE(dxt1, dxt1);

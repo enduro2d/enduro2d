@@ -243,7 +243,7 @@ namespace e2d { namespace opengl
     GLenum convert_pixel_type_to_external_data_type(pixel_declaration::pixel_type f) noexcept;
 
     GLint convert_pixel_type_to_internal_format(pixel_declaration::pixel_type f) noexcept;
-    GLenum convert_pixel_type_to_compressed_format(pixel_declaration::pixel_type f) noexcept;
+    GLenum convert_pixel_type_to_internal_format_e(pixel_declaration::pixel_type f) noexcept;
     pixel_declaration convert_image_data_format_to_pixel_declaration(image_data_format f) noexcept;
 
     GLenum convert_index_type(index_declaration::index_type it) noexcept;

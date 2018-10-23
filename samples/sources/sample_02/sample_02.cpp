@@ -186,7 +186,9 @@ int e2d_main() {
 
     const auto rt = the<render>().create_render_target(
         the<window>().real_size() / 10u,
-        render_target::type::color_and_depth);
+        pixel_declaration::pixel_type::rgba8,
+        pixel_declaration::pixel_type::depth16,
+        render_target::external_texture::color_and_depth);
 
     const keyboard& k = the<input>().keyboard();
     while ( !the<window>().should_close() && !k.is_key_just_released(keyboard_key::escape) ) {

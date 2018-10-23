@@ -13,6 +13,9 @@ namespace
     struct pixel_type_description {
         u32 minimal_size;
         u32 bits_per_pixel;
+        bool color;
+        bool depth;
+        bool stencil;
         pixel_declaration::pixel_type type;
         bool compressed;
         bool must_be_square;
@@ -20,17 +23,21 @@ namespace
     };
 
     const pixel_type_description pixel_type_descriptions[] = {
-        {1, 32, pixel_declaration::pixel_type::rgba8,            false, false, false},
-        {1, 32, pixel_declaration::pixel_type::depth24_stencil8, false, false, false},
+        {1, 16, false, true,  false, pixel_declaration::pixel_type::depth16,          false, false, false},
+        {1, 24, false, true,  false, pixel_declaration::pixel_type::depth24,          false, false, false},
+        {1, 32, false, true,  true,  pixel_declaration::pixel_type::depth24_stencil8, false, false, false},
 
-        {4,  4, pixel_declaration::pixel_type::dxt1,             true,  false, true},
-        {4,  8, pixel_declaration::pixel_type::dxt3,             true,  false, true},
-        {4,  8, pixel_declaration::pixel_type::dxt5,             true,  false, true},
+        {1, 24, true,  false, false, pixel_declaration::pixel_type::rgb8,             false, false, false},
+        {1, 32, true,  false, false, pixel_declaration::pixel_type::rgba8,            false, false, false},
 
-        {8,  2, pixel_declaration::pixel_type::rgb_pvrtc2,       true,  true,  true},
-        {8,  4, pixel_declaration::pixel_type::rgb_pvrtc4,       true,  true,  true},
-        {8,  2, pixel_declaration::pixel_type::rgba_pvrtc2,      true,  true,  true},
-        {8,  4, pixel_declaration::pixel_type::rgba_pvrtc4,      true,  true,  true}
+        {4,  4, true,  false, false, pixel_declaration::pixel_type::dxt1,             true,  false, true},
+        {4,  8, true,  false, false, pixel_declaration::pixel_type::dxt3,             true,  false, true},
+        {4,  8, true,  false, false, pixel_declaration::pixel_type::dxt5,             true,  false, true},
+
+        {8,  2, true,  false, false, pixel_declaration::pixel_type::rgb_pvrtc2,       true,  true,  true},
+        {8,  4, true,  false, false, pixel_declaration::pixel_type::rgb_pvrtc4,       true,  true,  true},
+        {8,  2, true,  false, false, pixel_declaration::pixel_type::rgba_pvrtc2,      true,  true,  true},
+        {8,  4, true,  false, false, pixel_declaration::pixel_type::rgba_pvrtc4,      true,  true,  true}
     };
 
     const pixel_type_description& get_pixel_type_description(pixel_declaration::pixel_type type) noexcept {
@@ -80,6 +87,18 @@ namespace e2d
 
     pixel_declaration::pixel_type pixel_declaration::type() const noexcept {
         return type_;
+    }
+
+    bool pixel_declaration::is_color() const noexcept {
+        return get_pixel_type_description(type_).color;
+    }
+
+    bool pixel_declaration::is_depth() const noexcept {
+        return get_pixel_type_description(type_).depth;
+    }
+
+    bool pixel_declaration::is_stencil() const noexcept {
+        return get_pixel_type_description(type_).stencil;
     }
 
     bool pixel_declaration::is_compressed() const noexcept {

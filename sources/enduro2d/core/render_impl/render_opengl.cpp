@@ -494,7 +494,7 @@ namespace e2d
                 GL_CHECK_CODE(state_->dbg(), glCompressedTexImage2D(
                     id.target(),
                     0,
-                    convert_pixel_type_to_compressed_format(decl.type()),
+                    convert_pixel_type_to_internal_format_e(decl.type()),
                     math::numeric_cast<GLsizei>(image.size().x),
                     math::numeric_cast<GLsizei>(image.size().y),
                     0,
@@ -549,7 +549,7 @@ namespace e2d
                 GL_CHECK_CODE(state_->dbg(), glCompressedTexImage2D(
                     id.target(),
                     0,
-                    convert_pixel_type_to_compressed_format(decl.type()),
+                    convert_pixel_type_to_internal_format_e(decl.type()),
                     math::numeric_cast<GLsizei>(size.x),
                     math::numeric_cast<GLsizei>(size.y),
                     0,
@@ -611,8 +611,15 @@ namespace e2d
 
     render_target_ptr render::create_render_target(
         const v2u& size,
-        render_target::type type)
+        const pixel_declaration& color_decl,
+        const pixel_declaration& depth_decl,
+        render_target::external_texture external_texture)
     {
+        E2D_ASSERT(
+            depth_decl.is_depth() &&
+            color_decl.is_color() &&
+            !color_decl.is_compressed());
+
         gl_framebuffer_id id = gl_framebuffer_id::create(
             state_->dbg(), GL_FRAMEBUFFER);
         if ( id.empty() ) {
@@ -621,8 +628,13 @@ namespace e2d
             return nullptr;
         }
 
-        bool need_color = math::enum_to_number(type) & math::enum_to_number(render_target::type::color);
-        bool need_depth = math::enum_to_number(type) & math::enum_to_number(render_target::type::depth);
+        bool need_color =
+            math::enum_to_number(external_texture)
+            & math::enum_to_number(render_target::external_texture::color);
+
+        bool need_depth =
+            math::enum_to_number(external_texture)
+            & math::enum_to_number(render_target::external_texture::depth);
 
         texture_ptr color;
         texture_ptr depth;
@@ -631,7 +643,7 @@ namespace e2d
         gl_renderbuffer_id depth_rb(state_->dbg());
 
         if ( need_color ) {
-            color = create_texture(size, pixel_declaration::pixel_type::rgba8);
+            color = create_texture(size, color_decl);
             if ( !color ) {
                 state_->dbg().error("RENDER: Failed to create framebuffer: %0",
                     "failed to create color texture");
@@ -639,7 +651,10 @@ namespace e2d
             }
             gl_attach_texture(state_->dbg(), id, color->state().id(), GL_COLOR_ATTACHMENT0);
         } else {
-            color_rb = gl_compile_renderbuffer(state_->dbg(), size, GL_RGBA8);
+            color_rb = gl_compile_renderbuffer(
+                state_->dbg(),
+                size,
+                convert_pixel_type_to_internal_format_e(color_decl.type()));
             if ( color_rb.empty() ) {
                 state_->dbg().error("RENDER: Failed to create framebuffer: %0",
                     "failed to create color renderbuffer");
@@ -649,23 +664,30 @@ namespace e2d
         }
 
         if ( need_depth ) {
-            depth = create_texture(size, pixel_declaration::pixel_type::depth24_stencil8);
+            depth = create_texture(size, depth_decl);
             if ( !depth ) {
                 state_->dbg().error("RENDER: Failed to create framebuffer: %0",
                     "failed to create depth texture");
                 return nullptr;
             }
             gl_attach_texture(state_->dbg(), id, depth->state().id(), GL_DEPTH_ATTACHMENT);
-            gl_attach_texture(state_->dbg(), id, depth->state().id(), GL_STENCIL_ATTACHMENT);
+            if ( depth_decl.is_stencil() ) {
+                gl_attach_texture(state_->dbg(), id, depth->state().id(), GL_STENCIL_ATTACHMENT);
+            }
         } else {
-            depth_rb = gl_compile_renderbuffer(state_->dbg(), size, GL_DEPTH24_STENCIL8);
+            depth_rb = gl_compile_renderbuffer(
+                state_->dbg(),
+                size,
+                convert_pixel_type_to_internal_format_e(depth_decl.type()));
             if ( depth_rb.empty() ) {
                 state_->dbg().error("RENDER: Failed to create framebuffer: %0",
                     "failed to create depth renderbuffer");
                 return nullptr;
             }
             gl_attach_renderbuffer(state_->dbg(), id, depth_rb, GL_DEPTH_ATTACHMENT);
-            gl_attach_renderbuffer(state_->dbg(), id, depth_rb, GL_STENCIL_ATTACHMENT);
+            if ( depth_decl.is_stencil() ) {
+                gl_attach_renderbuffer(state_->dbg(), id, depth_rb, GL_STENCIL_ATTACHMENT);
+            }
         }
 
         GLenum fb_status = GL_FRAMEBUFFER_COMPLETE;
