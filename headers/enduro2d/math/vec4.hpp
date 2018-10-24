@@ -602,8 +602,7 @@ namespace e2d { namespace math
     //
 
     template < typename T >
-    std::enable_if_t<std::is_floating_point<T>::value, vec4<T>>
-    lerp(const vec4<T>& l, const vec4<T>& r, T v) noexcept {
+    vec4<T> lerp(const vec4<T>& l, const vec4<T>& r, T v) noexcept {
         return {
             math::lerp(l.x, r.x, v),
             math::lerp(l.y, r.y, v),
@@ -612,8 +611,7 @@ namespace e2d { namespace math
     }
 
     template < typename T >
-    std::enable_if_t<std::is_floating_point<T>::value, vec4<T>>
-    lerp(const vec4<T>& l, const vec4<T>& r, const vec4<T>& v) noexcept {
+    vec4<T> lerp(const vec4<T>& l, const vec4<T>& r, const vec4<T>& v) noexcept {
         return {
             math::lerp(l.x, r.x, v.x),
             math::lerp(l.y, r.y, v.y),
@@ -622,8 +620,7 @@ namespace e2d { namespace math
     }
 
     template < typename T >
-    std::enable_if_t<std::is_floating_point<T>::value, vec4<T>>
-    inverse_lerp(const vec4<T>& l, const vec4<T>& r, const vec4<T>& v) noexcept {
+    vec4<T> inverse_lerp(const vec4<T>& l, const vec4<T>& r, const vec4<T>& v) noexcept {
         return {
             math::inverse_lerp(l.x, r.x, v.x),
             math::inverse_lerp(l.y, r.y, v.y),

@@ -758,7 +758,7 @@ namespace e2d
         render& clear_depth_buffer(f32 value) noexcept;
         render& clear_stencil_buffer(u8 value) noexcept;
         render& clear_color_buffer(const color& value) noexcept;
-        render& set_viewport(const r4u& rect) noexcept;
+        render& set_viewport(const b2u& rect) noexcept;
         render& set_render_target(const render_target_ptr& rt) noexcept;
     private:
         class internal_state;
