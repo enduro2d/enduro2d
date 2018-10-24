@@ -218,6 +218,22 @@ namespace e2d { namespace math
     }
 
     //
+    // overlaps
+    //
+
+    template < typename T >
+    bool overlaps(const rect<T>& l, const rect<T>& r) noexcept {
+        const vec2<T> min_l = minimum(l);
+        const vec2<T> max_l = maximum(l);
+        const vec2<T> min_r = minimum(r);
+        const vec2<T> max_r = maximum(r);
+        return max_l.x > min_r.x
+            && min_l.x < max_r.x
+            && max_l.y > min_r.y
+            && min_l.y < max_r.y;
+    }
+
+    //
     // contains_nan
     //
 
