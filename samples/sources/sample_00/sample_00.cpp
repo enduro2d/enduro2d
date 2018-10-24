@@ -120,8 +120,7 @@ int e2d_main() {
         the<vfs>().open(url("ships://ship (19).png")));
 
     const auto shader = the<render>().create_shader(
-        make_memory_stream(buffer(vs_source_cstr, std::strlen(vs_source_cstr))),
-        make_memory_stream(buffer(fs_source_cstr, std::strlen(fs_source_cstr))));
+        vs_source_cstr, fs_source_cstr);
 
     const auto indices = generate_quad_indices();
     const auto index_buffer = the<render>().create_index_buffer(

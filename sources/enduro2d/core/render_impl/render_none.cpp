@@ -253,8 +253,8 @@ namespace e2d
         return *this;
     }
 
-    render& render::set_viewport(const v2u& pos, const v2u& size) noexcept {
-        E2D_UNUSED(pos, size);
+    render& render::set_viewport(const r4u& rect) noexcept {
+        E2D_UNUSED(rect);
         return *this;
     }
 

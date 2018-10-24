@@ -133,8 +133,7 @@ int e2d_main() {
         the<vfs>().open(url("ships://ship (3).png")));
 
     const auto shader = the<render>().create_shader(
-        make_memory_stream(buffer(vs_source_cstr, std::strlen(vs_source_cstr))),
-        make_memory_stream(buffer(fs_source_cstr, std::strlen(fs_source_cstr))));
+        vs_source_cstr, fs_source_cstr);
 
     const auto indices = generate_cube_indices();
     const auto index_buffer = the<render>().create_index_buffer(
@@ -214,7 +213,7 @@ int e2d_main() {
 
         the<render>()
             .set_render_target(rt)
-            .set_viewport(v2u::zero(), rt->size())
+            .set_viewport(rt->size())
             .clear_depth_buffer(1.f)
             .clear_stencil_buffer(0)
             .clear_color_buffer({0.f, 0.4f, 0.f, 1.f})
@@ -228,7 +227,7 @@ int e2d_main() {
 
         the<render>()
             .set_render_target(nullptr)
-            .set_viewport(v2u::zero(), the<window>().real_size())
+            .set_viewport(the<window>().real_size())
             .clear_depth_buffer(1.f)
             .clear_stencil_buffer(0)
             .clear_color_buffer({1.f, 0.4f, 0.f, 1.f})

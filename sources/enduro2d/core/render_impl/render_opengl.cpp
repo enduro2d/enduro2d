@@ -849,16 +849,17 @@ namespace e2d
         return *this;
     }
 
-    render& render::set_viewport(const v2u& pos, const v2u& size) noexcept {
+    render& render::set_viewport(const r4u& rect) noexcept {
         E2D_ASSERT(
             std::this_thread::get_id() ==
             modules::main_thread<render>());
 
+        const r4u vp = make_minmax_rect(rect);
         GL_CHECK_CODE(state_->dbg(), glViewport(
-            math::numeric_cast<GLint>(pos.x),
-            math::numeric_cast<GLint>(pos.y),
-            math::numeric_cast<GLsizei>(size.x),
-            math::numeric_cast<GLsizei>(size.y)));
+            math::numeric_cast<GLint>(vp.position.x),
+            math::numeric_cast<GLint>(vp.position.y),
+            math::numeric_cast<GLsizei>(vp.size.x),
+            math::numeric_cast<GLsizei>(vp.size.y)));
         return *this;
     }
 
