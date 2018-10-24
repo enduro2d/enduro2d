@@ -31,6 +31,9 @@ namespace e2d
     template < typename T >
     class rect;
 
+    template < typename T >
+    class aabb;
+
     template < typename T, typename Tag >
     class unit;
 
@@ -82,12 +85,19 @@ namespace e2d
     using m4hi = mat4<i16>;
     using m4hu = mat4<u16>;
 
-    using r4d = rect<f64>;
-    using r4f = rect<f32>;
-    using r4i = rect<i32>;
-    using r4u = rect<u32>;
-    using r4hi = rect<i16>;
-    using r4hu = rect<u16>;
+    using b2d = rect<f64>;
+    using b2f = rect<f32>;
+    using b2i = rect<i32>;
+    using b2u = rect<u32>;
+    using b2hi = rect<i16>;
+    using b2hu = rect<u16>;
+
+    using b3d = aabb<f64>;
+    using b3f = aabb<f32>;
+    using b3i = aabb<i32>;
+    using b3u = aabb<u32>;
+    using b3hi = aabb<i16>;
+    using b3hu = aabb<u16>;
 
     struct deg_tag {};
     struct rad_tag {};
