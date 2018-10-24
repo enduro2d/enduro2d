@@ -119,15 +119,6 @@ TEST_CASE("color32") {
         REQUIRE(c0 == color32(1,2,3,4));
     }
     {
-        REQUIRE_FALSE(math::contains(color32(1,1,1,1), 0));
-        REQUIRE(math::contains(color32(1,1,1,1), 0, 1));
-        REQUIRE(math::contains(color32(0,1,1,1), 0));
-        REQUIRE(math::contains(color32(1,0,1,1), 0));
-        REQUIRE(math::contains(color32(1,1,0,1), 0));
-        REQUIRE(math::contains(color32(1,1,1,0), 0));
-        REQUIRE(math::contains(color32(0,0,0,0), 0));
-    }
-    {
         REQUIRE(colors::pack_color32(color32(1,2,3,4)) == 0x04010203);
         REQUIRE(colors::pack_color32(color32(0x12,0x34,0x56,0x78)) == 0x78123456);
         REQUIRE(colors::unpack_color32(0x04010203) == color32(1,2,3,4));

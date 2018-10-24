@@ -85,11 +85,6 @@ namespace e2d { namespace math
     color32 minimized(const color32& c, const color32& cmin) noexcept;
     color32 maximized(const color32& c, const color32& cmax) noexcept;
     color32 clamped(const color32& c, const color32& cmin, const color32& cmax) noexcept;
-
-    bool contains(
-        const color32& c,
-        u8 value,
-        u8 precision = math::default_precision<u8>()) noexcept;
 }}
 
 namespace e2d { namespace colors
