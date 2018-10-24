@@ -11,6 +11,7 @@
 #include "mat2.hpp"
 #include "mat3.hpp"
 #include "mat4.hpp"
+#include "rect.hpp"
 #include "trig.hpp"
 #include "unit.hpp"
 #include "vec2.hpp"
