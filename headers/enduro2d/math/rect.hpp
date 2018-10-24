@@ -93,6 +93,23 @@ namespace e2d
         return {position, size};
     }
 
+    template < typename T >
+    rect<T> make_minmax_rect(T x1, T y1, T x2, T y2) noexcept {
+        const vec2<T> min = {math::min(x1, x2), math::min(y1, y2)};
+        const vec2<T> max = {math::max(x1, x2), math::max(y1, y2)};
+        return {min, max - min};
+    }
+
+    template < typename T >
+    rect<T> make_minmax_rect(const vec2<T>& p1, const vec2<T>& p2) noexcept {
+        return make_minmax_rect(p1.x, p1.y, p2.x, p2.y);
+    }
+
+    template < typename T >
+    rect<T> make_minmax_rect(const rect<T>& r) noexcept {
+        return make_minmax_rect(r.position, r.position + r.size);
+    }
+
     //
     // rect (==,!=) rect
     //
@@ -183,9 +200,9 @@ namespace e2d { namespace math
 
     template < typename T >
     rect<T> merged(const rect<T>& l, const rect<T>& r) noexcept {
-        const vec2<T> min = math::minimized(minimum(l), minimum(r));
-        const vec2<T> max = math::maximized(maximum(l), maximum(r));
-        return { min, max - min };
+        return make_minmax_rect(
+            math::minimized(minimum(l), minimum(r)),
+            math::maximized(maximum(l), maximum(r)));
     }
 
     //
@@ -198,6 +215,38 @@ namespace e2d { namespace math
         const vec2<T> max = maximum(r);
         return p.x >= min.x && p.x <= max.x
             && p.y >= min.y && p.y <= max.y;
+    }
+
+    //
+    // overlaps
+    //
+
+    template < typename T >
+    bool overlaps(const rect<T>& l, const rect<T>& r) noexcept {
+        const vec2<T> min_l = minimum(l);
+        const vec2<T> max_l = maximum(l);
+        const vec2<T> min_r = minimum(r);
+        const vec2<T> max_r = maximum(r);
+        return max_l.x > min_r.x && min_l.x < max_r.x
+            && max_l.y > min_r.y && min_l.y < max_r.y;
+    }
+
+    //
+    // normalized_to_point/point_to_normalized
+    //
+
+    template < typename T >
+    vec2<T> normalized_to_point(const rect<T>& r, const vec2<T>& p) noexcept {
+        const vec2<T> min = minimum(r);
+        const vec2<T> max = maximum(r);
+        return math::lerp(min, max, p);
+    }
+
+    template < typename T >
+    vec2<T> point_to_normalized(const rect<T>& r, const vec2<T>& p) noexcept {
+        const vec2<T> min = minimum(r);
+        const vec2<T> max = maximum(r);
+        return math::inverse_lerp(min, max, p);
     }
 
     //

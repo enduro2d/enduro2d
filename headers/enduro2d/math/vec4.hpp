@@ -598,6 +598,37 @@ namespace e2d { namespace math
     }
 
     //
+    // lerp/inverse_lerp
+    //
+
+    template < typename T >
+    vec4<T> lerp(const vec4<T>& l, const vec4<T>& r, T v) noexcept {
+        return {
+            math::lerp(l.x, r.x, v),
+            math::lerp(l.y, r.y, v),
+            math::lerp(l.z, r.z, v),
+            math::lerp(l.w, r.w, v)};
+    }
+
+    template < typename T >
+    vec4<T> lerp(const vec4<T>& l, const vec4<T>& r, const vec4<T>& v) noexcept {
+        return {
+            math::lerp(l.x, r.x, v.x),
+            math::lerp(l.y, r.y, v.y),
+            math::lerp(l.z, r.z, v.z),
+            math::lerp(l.w, r.w, v.w)};
+    }
+
+    template < typename T >
+    vec4<T> inverse_lerp(const vec4<T>& l, const vec4<T>& r, const vec4<T>& v) noexcept {
+        return {
+            math::inverse_lerp(l.x, r.x, v.x),
+            math::inverse_lerp(l.y, r.y, v.y),
+            math::inverse_lerp(l.z, r.z, v.z),
+            math::inverse_lerp(l.w, r.w, v.w)};
+    }
+
+    //
     // contains_nan
     //
 
