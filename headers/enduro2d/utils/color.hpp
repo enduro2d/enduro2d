@@ -87,10 +87,6 @@ namespace e2d { namespace math
     color clamped(const color& c, const color& cmin, const color& cmax) noexcept;
     color saturated(const color& c) noexcept;
 
-    bool contains(
-        const color& c,
-        f32 value,
-        f32 precision = math::default_precision<f32>()) noexcept;
     bool contains_nan(const color& c) noexcept;
 }}
 

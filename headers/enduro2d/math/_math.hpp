@@ -28,6 +28,9 @@ namespace e2d
     template < typename T >
     class mat4;
 
+    template < typename T >
+    class rect;
+
     template < typename T, typename Tag >
     class unit;
 
@@ -37,35 +40,54 @@ namespace e2d
 
 namespace e2d
 {
+    using v2d = vec2<f64>;
+    using v2f = vec2<f32>;
     using v2i = vec2<i32>;
     using v2u = vec2<u32>;
-    using v2f = vec2<f32>;
-    using v2d = vec2<f64>;
+    using v2hi = vec2<i16>;
+    using v2hu = vec2<u16>;
 
+    using v3d = vec3<f64>;
+    using v3f = vec3<f32>;
     using v3i = vec3<i32>;
     using v3u = vec3<u32>;
-    using v3f = vec3<f32>;
-    using v3d = vec3<f64>;
+    using v3hi = vec3<i16>;
+    using v3hu = vec3<u16>;
 
+    using v4d = vec4<f64>;
+    using v4f = vec4<f32>;
     using v4i = vec4<i32>;
     using v4u = vec4<u32>;
-    using v4f = vec4<f32>;
-    using v4d = vec4<f64>;
+    using v4hi = vec4<i16>;
+    using v4hu = vec4<u16>;
 
+    using m2d = mat2<f64>;
+    using m2f = mat2<f32>;
     using m2i = mat2<i32>;
     using m2u = mat2<u32>;
-    using m2f = mat2<f32>;
-    using m2d = mat2<f64>;
+    using m2hi = mat2<i16>;
+    using m2hu = mat2<u16>;
 
+    using m3d = mat3<f64>;
+    using m3f = mat3<f32>;
     using m3i = mat3<i32>;
     using m3u = mat3<u32>;
-    using m3f = mat3<f32>;
-    using m3d = mat3<f64>;
+    using m3hi = mat3<i16>;
+    using m3hu = mat3<u16>;
 
+    using m4d = mat4<f64>;
+    using m4f = mat4<f32>;
     using m4i = mat4<i32>;
     using m4u = mat4<u32>;
-    using m4f = mat4<f32>;
-    using m4d = mat4<f64>;
+    using m4hi = mat4<i16>;
+    using m4hu = mat4<u16>;
+
+    using r4d = rect<f64>;
+    using r4f = rect<f32>;
+    using r4i = rect<i32>;
+    using r4u = rect<u32>;
+    using r4hi = rect<i16>;
+    using r4hu = rect<u16>;
 
     struct deg_tag {};
     struct rad_tag {};
@@ -463,5 +485,14 @@ namespace e2d { namespace math
     std::enable_if_t<std::is_arithmetic<T>::value, bool>
     is_near_zero(T v, T precision = default_precision<T>()) noexcept {
         return approximately(v, T(0), precision);
+    }
+
+    //
+    // enum_to_number
+    //
+
+    template < typename E >
+    constexpr std::underlying_type_t<E> enum_to_number(E e) noexcept {
+        return static_cast<std::underlying_type_t<E>>(e);
     }
 }}

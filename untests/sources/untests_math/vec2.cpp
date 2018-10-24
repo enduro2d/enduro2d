@@ -253,17 +253,5 @@ TEST_CASE("vec2") {
         REQUIRE_FALSE(math::contains_nan(v2f(0.f,1.f)));
         REQUIRE(math::contains_nan(v2f(0.f,std::numeric_limits<f32>::quiet_NaN())));
         REQUIRE(math::contains_nan(v2f(std::numeric_limits<f32>::infinity(),1.f)));
-
-        REQUIRE_FALSE(math::contains(v2i(1,1), 0));
-        REQUIRE(math::contains(v2i(1,1), 0, 1));
-        REQUIRE(math::contains(v2i(0,1), 0));
-        REQUIRE(math::contains(v2i(1,0), 0));
-        REQUIRE(math::contains(v2i(0,0), 0));
-
-        REQUIRE_FALSE(math::contains(v2f(0.1f,0.2f), 0.f));
-        REQUIRE(math::contains(v2f(0.1f,0.2f), 0.f, 0.25f));
-        REQUIRE(math::contains(v2f(0,1.f), 0.f));
-        REQUIRE(math::contains(v2f(1.f,0), 0.f));
-        REQUIRE(math::contains(v2f(0,0), 0.f));
     }
 }

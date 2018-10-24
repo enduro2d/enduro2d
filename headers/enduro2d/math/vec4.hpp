@@ -598,21 +598,8 @@ namespace e2d { namespace math
     }
 
     //
-    // contains
+    // contains_nan
     //
-
-    template < typename T >
-    bool contains(
-        const vec4<T>& v,
-        T value,
-        T precision = math::default_precision<T>()) noexcept
-    {
-        return
-            math::approximately(v.x, value, precision) ||
-            math::approximately(v.y, value, precision) ||
-            math::approximately(v.z, value, precision) ||
-            math::approximately(v.w, value, precision);
-    }
 
     template < typename T >
     bool contains_nan(const vec4<T>& v) noexcept {

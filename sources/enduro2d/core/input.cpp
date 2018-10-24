@@ -24,11 +24,6 @@ namespace
             state = button_state::released;
         }
     }
-
-    template < typename E >
-    constexpr std::underlying_type_t<E> enum_to_number(E e) noexcept {
-        return static_cast<std::underlying_type_t<E>>(e);
-    }
 }
 
 namespace e2d
@@ -42,8 +37,11 @@ namespace e2d
         mutable std::mutex mutex;
         v2f cursor_pos;
         v2f scroll_delta;
-        std::array<button_state, enum_to_number(mouse_button::unknown) + 1> button_states;
-        char _pad[2];
+        std::array<
+            button_state,
+            math::enum_to_number(mouse_button::unknown) + 1
+        > button_states{};
+        u8 _pad[2] = {0};
     public:
         state() noexcept {
             std::fill(
@@ -53,7 +51,7 @@ namespace e2d
         }
 
         std::size_t button_index(mouse_button btn) const noexcept {
-            const auto index = enum_to_number(btn);
+            const auto index = math::enum_to_number(btn);
             E2D_ASSERT(index < button_states.size());
             return math::numeric_cast<std::size_t>(index);
         }
@@ -109,7 +107,10 @@ namespace e2d
     public:
         mutable std::mutex mutex;
         str32 input_text;
-        std::array<button_state, enum_to_number(keyboard_key::unknown) + 1> key_states;
+        std::array<
+            button_state,
+            math::enum_to_number(keyboard_key::unknown) + 1
+        > key_states{};
     public:
         state() noexcept {
             std::fill(
@@ -119,7 +120,7 @@ namespace e2d
         }
 
         std::size_t key_index(keyboard_key key) const noexcept {
-            const auto index = enum_to_number(key);
+            const auto index = math::enum_to_number(key);
             E2D_ASSERT(index < key_states.size());
             return math::numeric_cast<std::size_t>(index);
         }

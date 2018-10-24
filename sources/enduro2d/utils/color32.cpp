@@ -125,7 +125,10 @@ namespace e2d
     }
 
     color32& color32::operator/=(const color32& other) noexcept {
-        E2D_ASSERT(!math::contains(other, u8(0), u8(0)));
+        E2D_ASSERT(!math::is_near_zero(other.r, u8(0)));
+        E2D_ASSERT(!math::is_near_zero(other.g, u8(0)));
+        E2D_ASSERT(!math::is_near_zero(other.b, u8(0)));
+        E2D_ASSERT(!math::is_near_zero(other.a, u8(0)));
         r /= other.r;
         g /= other.g;
         b /= other.b;
@@ -293,17 +296,6 @@ namespace e2d { namespace math
             math::clamp(c.g, cmin.g, cmax.g),
             math::clamp(c.b, cmin.b, cmax.b),
             math::clamp(c.a, cmin.a, cmax.a));
-    }
-
-    //
-    // contains
-    //
-
-    bool contains(const color32& c, u8 value, u8 precision) noexcept {
-        return math::approximately(c.r, value, precision)
-            || math::approximately(c.g, value, precision)
-            || math::approximately(c.b, value, precision)
-            || math::approximately(c.a, value, precision);
     }
 }}
 

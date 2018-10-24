@@ -295,21 +295,5 @@ TEST_CASE("vec4") {
         REQUIRE(math::contains_nan(v4f(0.f,1.f,std::numeric_limits<f32>::quiet_NaN(),2.f)));
         REQUIRE(math::contains_nan(v4f(std::numeric_limits<f32>::infinity(),1.f,2.f,3.f)));
         REQUIRE(math::contains_nan(v4f(1.f,std::numeric_limits<f32>::infinity(),2.f,3.f)));
-
-        REQUIRE_FALSE(math::contains(v4i(1,1,1,1), 0));
-        REQUIRE(math::contains(v4i(1,1,1,1), 0, 1));
-        REQUIRE(math::contains(v4i(0,1,1,1), 0));
-        REQUIRE(math::contains(v4i(1,0,1,1), 0));
-        REQUIRE(math::contains(v4i(1,1,0,1), 0));
-        REQUIRE(math::contains(v4i(1,1,1,0), 0));
-        REQUIRE(math::contains(v4i(0,0,0,0), 0));
-
-        REQUIRE_FALSE(math::contains(v4f(0.1f,0.2f,0.3f,0.4f), 0.f));
-        REQUIRE(math::contains(v4f(0.1f,0.2f,0.3f,0.4f), 0.f, 0.45f));
-        REQUIRE(math::contains(v4f(0,1.f,2.f,3.f), 0.f));
-        REQUIRE(math::contains(v4f(1.f,0,2.f,3.f), 0.f));
-        REQUIRE(math::contains(v4f(1.f,2.f,0,3.f), 0.f));
-        REQUIRE(math::contains(v4f(1.f,2.f,3.f,0), 0.f));
-        REQUIRE(math::contains(v4f(0,0,0,0), 0.f));
     }
 }
