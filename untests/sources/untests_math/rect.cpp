@@ -32,6 +32,15 @@ TEST_CASE("rect") {
         REQUIRE(make_rect(4,3,2,1) == r4i(4,3,2,1));
         REQUIRE(make_rect(v2i{2,1}) == r4i(0,0,2,1));
         REQUIRE(make_rect(v2i{4,3},v2i{2,1}) == r4i(4,3,2,1));
+
+        REQUIRE(make_minmax_rect(1,2,3,4) == r4i(1,2,2,2));
+        REQUIRE(make_minmax_rect(3,4,1,2) == r4i(1,2,2,2));
+
+        REQUIRE(make_minmax_rect(v2i{1,2}, v2i{3,4}) == r4i(1,2,2,2));
+        REQUIRE(make_minmax_rect(v2i{3,4}, v2i{1,2}) == r4i(1,2,2,2));
+
+        REQUIRE(make_minmax_rect(r4i(1,2,3,4)) == r4i(1,2,3,4));
+        REQUIRE(make_minmax_rect(r4i(1,2,-3,4)) == r4i(-2,2,3,4));
     }
     {
         auto r0 = r4i(1,2,3,4);

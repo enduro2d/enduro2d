@@ -93,6 +93,23 @@ namespace e2d
         return {position, size};
     }
 
+    template < typename T >
+    rect<T> make_minmax_rect(T x1, T y1, T x2, T y2) noexcept {
+        const vec2<T> min = {math::min(x1, x2), math::min(y1, y2)};
+        const vec2<T> max = {math::max(x1, x2), math::max(y1, y2)};
+        return {min, max - min};
+    }
+
+    template < typename T >
+    rect<T> make_minmax_rect(const vec2<T>& p1, const vec2<T>& p2) noexcept {
+        return make_minmax_rect(p1.x, p1.y, p2.x, p2.y);
+    }
+
+    template < typename T >
+    rect<T> make_minmax_rect(const rect<T>& r) noexcept {
+        return make_minmax_rect(r.position, r.position + r.size);
+    }
+
     //
     // rect (==,!=) rect
     //
