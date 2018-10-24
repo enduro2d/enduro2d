@@ -125,4 +125,39 @@ TEST_CASE("rect") {
         REQUIRE(math::contains_nan(r4f(1.f,std::numeric_limits<f32>::quiet_NaN())));
         REQUIRE(math::contains_nan(r4f(std::numeric_limits<f32>::infinity(), 1.f)));
     }
+    {
+        REQUIRE(math::normalized_to_point(r4f(10.f, 20.f), v2f(0.f, 0.f)) == v2f(0.f, 0.f));
+        REQUIRE(math::normalized_to_point(r4f(10.f, 20.f), v2f(0.5f, 0.5f)) == v2f(5.f, 10.f));
+        REQUIRE(math::normalized_to_point(r4f(10.f, 20.f), v2f(0.25f, 0.75f)) == v2f(2.5f, 15.f));
+        REQUIRE(math::normalized_to_point(r4f(10.f, 20.f), v2f(1.f, 1.f)) == v2f(10.f, 20.f));
+
+        REQUIRE(math::normalized_to_point(r4f(1.f, 2.f, 10.f, 20.f), v2f(0.f, 0.f)) == v2f(1.f, 2.f));
+        REQUIRE(math::normalized_to_point(r4f(1.f, 2.f, 10.f, 20.f), v2f(0.5f, 0.5f)) == v2f(6.f, 12.f));
+        REQUIRE(math::normalized_to_point(r4f(1.f, 2.f, 10.f, 20.f), v2f(0.25f, 0.75f)) == v2f(3.5f, 17.f));
+        REQUIRE(math::normalized_to_point(r4f(1.f, 2.f, 10.f, 20.f), v2f(1.f, 1.f)) == v2f(11.f, 22.f));
+
+        REQUIRE(math::normalized_to_point(r4f(1.f, 2.f, -11.f, -22.f), v2f(0.f, 0.f)) == v2f(-10.f, -20.f));
+        REQUIRE(math::normalized_to_point(r4f(1.f, 2.f, -11.f, -22.f), v2f(0.5f, 0.5f)) == v2f(-4.5f, -9.f));
+        REQUIRE(math::normalized_to_point(r4f(1.f, 2.f, -11.f, -22.f), v2f(1.f, 1.f)) == v2f(1.f, 2.f));
+
+        REQUIRE(math::normalized_to_point(r4f(0.f,0.f), v2f(0.f,0.f)) == v2f(0.f,0.f));
+        REQUIRE(math::normalized_to_point(r4f(0.f,0.f), v2f(1.f,1.f)) == v2f(0.f,0.f));
+        REQUIRE(math::normalized_to_point(r4f(1.f,2.f,0.f,0.f), v2f(0.f,0.f)) == v2f(1.f,2.f));
+        REQUIRE(math::normalized_to_point(r4f(1.f,2.f,0.f,0.f), v2f(1.f,1.f)) == v2f(1.f,2.f));
+    }
+    {
+        REQUIRE(math::point_to_normalized(r4f(10.f, 20.f), v2f(0.f, 0.f)) == v2f(0.f, 0.f));
+        REQUIRE(math::point_to_normalized(r4f(10.f, 20.f), v2f(5.f, 10.f)) == v2f(0.5f,0.5f));
+        REQUIRE(math::point_to_normalized(r4f(10.f, 20.f), v2f(2.5f, 15.f)) == v2f(0.25f, 0.75f));
+        REQUIRE(math::point_to_normalized(r4f(10.f, 20.f), v2f(10.f, 20.f)) == v2f(1.f, 1.f));
+
+        REQUIRE(math::point_to_normalized(r4f(1.f, 2.f, 10.f, 20.f), v2f(1.f, 2.f)) == v2f(0.f, 0.f));
+        REQUIRE(math::point_to_normalized(r4f(1.f, 2.f, 10.f, 20.f), v2f(6.f, 12.f)) == v2f(0.5f, 0.5f));
+        REQUIRE(math::point_to_normalized(r4f(1.f, 2.f, 10.f, 20.f), v2f(3.5f, 17.f)) == v2f(0.25f, 0.75f));
+        REQUIRE(math::point_to_normalized(r4f(1.f, 2.f, 10.f, 20.f), v2f(11.f, 22.f)) == v2f(1.f, 1.f));
+
+        REQUIRE(math::point_to_normalized(r4f(1.f, 2.f, -11.f, -22.f), v2f(-10.f, -20.f)) == v2f(0.f, 0.f));
+        REQUIRE(math::point_to_normalized(r4f(1.f, 2.f, -11.f, -22.f), v2f(-4.5f, -9.f)) == v2f(0.5f, 0.5f));
+        REQUIRE(math::point_to_normalized(r4f(1.f, 2.f, -11.f, -22.f), v2f(1.f, 2.f)) == v2f(1.f, 1.f));
+    }
 }

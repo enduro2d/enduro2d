@@ -495,4 +495,21 @@ namespace e2d { namespace math
     constexpr std::underlying_type_t<E> enum_to_number(E e) noexcept {
         return static_cast<std::underlying_type_t<E>>(e);
     }
+
+    //
+    // lerp/inverse_lerp
+    //
+
+    template < typename T >
+    std::enable_if_t<std::is_floating_point<T>::value, T>
+    lerp(T l, T r, T v) noexcept {
+        return l + (r - l) * v;
+    }
+
+    template < typename T >
+    std::enable_if_t<std::is_floating_point<T>::value, T>
+    inverse_lerp(T l, T r, T v) noexcept {
+        E2D_ASSERT(!is_near_zero(r - l, T(0)));
+        return (v - l) / (r - l);
+    }
 }}

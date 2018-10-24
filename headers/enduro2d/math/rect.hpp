@@ -234,6 +234,32 @@ namespace e2d { namespace math
     }
 
     //
+    // normalized_to_point/point_to_normalized
+    //
+
+    template < typename T >
+    std::enable_if_t<std::is_floating_point<T>::value, vec2<T>>
+    normalized_to_point(const rect<T>& r, const vec2<T>& p) noexcept {
+        const vec2<T> min = minimum(r);
+        const vec2<T> max = maximum(r);
+        return {
+            math::lerp(min.x, max.x, p.x),
+            math::lerp(min.y, max.y, p.y)};
+    }
+
+    template < typename T >
+    std::enable_if_t<std::is_floating_point<T>::value, vec2<T>>
+    point_to_normalized(const rect<T>& r, const vec2<T>& p) noexcept {
+        E2D_ASSERT(!math::is_near_zero(r.size.x, T(0)));
+        E2D_ASSERT(!math::is_near_zero(r.size.y, T(0)));
+        const vec2<T> min = minimum(r);
+        const vec2<T> max = maximum(r);
+        return {
+            math::inverse_lerp(min.x, max.x, p.x),
+            math::inverse_lerp(min.y, max.y, p.y)};
+    }
+
+    //
     // contains_nan
     //
 
