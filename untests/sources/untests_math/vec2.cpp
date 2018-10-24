@@ -249,6 +249,25 @@ TEST_CASE("vec2") {
         REQUIRE(math::saturated(v2f(0.5f,2.f)) == v2f(0.5f,1.f));
     }
     {
+        REQUIRE(math::lerp(v2f(1,2), v2f(10,20), 0.f) == v2f(1,2));
+        REQUIRE(math::lerp(v2f(1,2), v2f(10,20), 0.5f) == v2f(5.5f,11));
+        REQUIRE(math::lerp(v2f(1,2), v2f(10,20), 1.f) == v2f(10,20));
+        REQUIRE(math::lerp(v2f(1,2), v2f(10,20), 2.f) == v2f(19,38));
+
+        REQUIRE(math::lerp(v2f(1,2), v2f(10,20), v2f(0.f)) == v2f(1,2));
+        REQUIRE(math::lerp(v2f(1,2), v2f(10,20), v2f(0.5f)) == v2f(5.5f,11));
+        REQUIRE(math::lerp(v2f(1,2), v2f(10,20), v2f(1.f)) == v2f(10,20));
+        REQUIRE(math::lerp(v2f(1,2), v2f(10,20), v2f(2.f)) == v2f(19,38));
+
+        REQUIRE(math::lerp(v2f(1,2), v2f(10,20), v2f(0.f,1.f)) == v2f(1,20));
+        REQUIRE(math::lerp(v2f(1,2), v2f(10,20), v2f(0.5f,2.f)) == v2f(5.5f,38));
+        REQUIRE(math::lerp(v2f(1,2), v2f(10,20), v2f(1.f,0.5f)) == v2f(10,11));
+        REQUIRE(math::lerp(v2f(1,2), v2f(10,20), v2f(2.f,0.f)) == v2f(19,2));
+
+        REQUIRE(math::inverse_lerp(v2f(1,2), v2f(10,20), v2f(5.5f,11)) == v2f(0.5f));
+        REQUIRE(math::inverse_lerp(v2f(1,2), v2f(10,20), v2f(5.5f,38)) == v2f(0.5f,2.f));
+    }
+    {
         REQUIRE_FALSE(math::contains_nan(v2i(0,1)));
         REQUIRE_FALSE(math::contains_nan(v2f(0.f,1.f)));
         REQUIRE(math::contains_nan(v2f(0.f,std::numeric_limits<f32>::quiet_NaN())));

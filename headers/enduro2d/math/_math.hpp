@@ -501,15 +501,13 @@ namespace e2d { namespace math
     //
 
     template < typename T >
-    std::enable_if_t<std::is_floating_point<T>::value, T>
-    lerp(T l, T r, T v) noexcept {
+    T lerp(T l, T r, T v) noexcept {
         return l + (r - l) * v;
     }
 
     template < typename T >
-    std::enable_if_t<std::is_floating_point<T>::value, T>
-    inverse_lerp(T l, T r, T v) noexcept {
-        E2D_ASSERT(!is_near_zero(r - l, T(0)));
+    T inverse_lerp(T l, T r, T v) noexcept {
+        E2D_ASSERT(!approximately(l, r, T(0)));
         return (v - l) / (r - l);
     }
 }}

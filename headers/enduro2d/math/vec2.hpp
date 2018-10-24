@@ -506,6 +506,34 @@ namespace e2d { namespace math
     }
 
     //
+    // lerp/inverse_lerp
+    //
+
+    template < typename T >
+    std::enable_if_t<std::is_floating_point<T>::value, vec2<T>>
+    lerp(const vec2<T>& l, const vec2<T>& r, T v) noexcept {
+        return {
+            math::lerp(l.x, r.x, v),
+            math::lerp(l.y, r.y, v)};
+    }
+
+    template < typename T >
+    std::enable_if_t<std::is_floating_point<T>::value, vec2<T>>
+    lerp(const vec2<T>& l, const vec2<T>& r, const vec2<T>& v) noexcept {
+        return {
+            math::lerp(l.x, r.x, v.x),
+            math::lerp(l.y, r.y, v.y)};
+    }
+
+    template < typename T >
+    std::enable_if_t<std::is_floating_point<T>::value, vec2<T>>
+    inverse_lerp(const vec2<T>& l, const vec2<T>& r, const vec2<T>& v) noexcept {
+        return {
+            math::inverse_lerp(l.x, r.x, v.x),
+            math::inverse_lerp(l.y, r.y, v.y)};
+    }
+
+    //
     // contains_nan
     //
 
