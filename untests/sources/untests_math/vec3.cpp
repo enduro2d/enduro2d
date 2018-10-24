@@ -277,19 +277,5 @@ TEST_CASE("vec3") {
         REQUIRE(math::contains_nan(v3f(0.f,1.f,std::numeric_limits<f32>::quiet_NaN())));
         REQUIRE(math::contains_nan(v3f(std::numeric_limits<f32>::infinity(),1.f,2.f)));
         REQUIRE(math::contains_nan(v3f(1.f,std::numeric_limits<f32>::infinity(),2.f)));
-
-        REQUIRE_FALSE(math::contains(v3i(1,1,1), 0));
-        REQUIRE(math::contains(v3i(1,1,1), 0, 1));
-        REQUIRE(math::contains(v3i(0,1,1), 0));
-        REQUIRE(math::contains(v3i(1,0,1), 0));
-        REQUIRE(math::contains(v3i(1,1,0), 0));
-        REQUIRE(math::contains(v3i(0,0,0), 0));
-
-        REQUIRE_FALSE(math::contains(v3f(0.1f,0.2f,0.3f), 0.f));
-        REQUIRE(math::contains(v3f(0.1f,0.2f,0.3f), 0.f, 0.35f));
-        REQUIRE(math::contains(v3f(0,1.f,2.f), 0.f));
-        REQUIRE(math::contains(v3f(1.f,0,2.f), 0.f));
-        REQUIRE(math::contains(v3f(1.f,2.f,0), 0.f));
-        REQUIRE(math::contains(v3f(0,0,0), 0.f));
     }
 }

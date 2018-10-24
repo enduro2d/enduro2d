@@ -131,14 +131,6 @@ TEST_CASE("color") {
             REQUIRE(math::contains_nan(color(0.f,1.f,std::numeric_limits<f32>::quiet_NaN(),2.f)));
             REQUIRE(math::contains_nan(color(std::numeric_limits<f32>::infinity(),1.f,2.f,3.f)));
             REQUIRE(math::contains_nan(color(1.f,std::numeric_limits<f32>::infinity(),2.f,3.f)));
-
-            REQUIRE_FALSE(math::contains(color(0.1f,0.2f,0.3f,0.4f), 0.f));
-            REQUIRE(math::contains(color(0.1f,0.2f,0.3f,0.4f), 0.f, 0.45f));
-            REQUIRE(math::contains(color(0,1.f,2.f,3.f), 0.f));
-            REQUIRE(math::contains(color(1.f,0,2.f,3.f), 0.f));
-            REQUIRE(math::contains(color(1.f,2.f,0,3.f), 0.f));
-            REQUIRE(math::contains(color(1.f,2.f,3.f,0), 0.f));
-            REQUIRE(math::contains(color(0,0,0,0), 0.f));
         }
     }
     {
