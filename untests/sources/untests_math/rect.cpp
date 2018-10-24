@@ -110,6 +110,16 @@ TEST_CASE("rect") {
         REQUIRE_FALSE(math::inside(r4i(1,2,-3,-4), v2i(-3,2)));
         REQUIRE_FALSE(math::inside(r4i(1,2,-3,-4), v2i(1,-3)));
 
+        REQUIRE_FALSE(math::overlaps(r4i(0,0,10,10), r4i(10,0,10,10)));
+        REQUIRE_FALSE(math::overlaps(r4i(0,0,10,10), r4i(0,10,10,10)));
+        REQUIRE_FALSE(math::overlaps(r4i(0,0,10,10), r4i(10,10,10,10)));
+        REQUIRE(math::overlaps(r4i(0,0,10,10), r4i(9,0,10,10)));
+        REQUIRE(math::overlaps(r4i(0,0,10,10), r4i(0,9,10,10)));
+        REQUIRE(math::overlaps(r4i(0,0,10,10), r4i(9,9,10,10)));
+        REQUIRE(math::overlaps(r4i(0,0,10,10), r4i(-9,0,10,10)));
+        REQUIRE(math::overlaps(r4i(0,0,10,10), r4i(0,-9,10,10)));
+        REQUIRE(math::overlaps(r4i(0,0,10,10), r4i(-9,-9,10,10)));
+
         REQUIRE_FALSE(math::contains_nan(r4i(1,2,3,4)));
         REQUIRE_FALSE(math::contains_nan(r4f(1.f,2.f,3.f,4.f)));
         REQUIRE(math::contains_nan(r4f(1.f,std::numeric_limits<f32>::quiet_NaN())));
