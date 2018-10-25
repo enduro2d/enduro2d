@@ -445,9 +445,7 @@ namespace e2d
     render::render(debug& ndebug, window& nwindow)
     : state_(new internal_state(ndebug, nwindow))
     {
-        E2D_ASSERT(
-            std::this_thread::get_id() ==
-            modules::main_thread<window>());
+        E2D_ASSERT(main_thread() == nwindow.main_thread());
 
         if ( glewInit() != GLEW_OK ) {
             throw bad_render_operation();
@@ -465,9 +463,7 @@ namespace e2d
         const str& vertex_source,
         const str& fragment_source)
     {
-        E2D_ASSERT(
-            std::this_thread::get_id() ==
-            modules::main_thread<render>());
+        E2D_ASSERT(main_thread() == std::this_thread::get_id());
 
         gl_shader_id vs = gl_compile_shader(
             state_->dbg(), vertex_source, GL_VERTEX_SHADER);
@@ -496,9 +492,7 @@ namespace e2d
         const input_stream_uptr& vertex,
         const input_stream_uptr& fragment)
     {
-        E2D_ASSERT(
-            std::this_thread::get_id() ==
-            modules::main_thread<render>());
+        E2D_ASSERT(main_thread() == std::this_thread::get_id());
 
         str vertex_source, fragment_source;
         return streams::try_read_tail(vertex_source, vertex)
@@ -510,9 +504,7 @@ namespace e2d
     texture_ptr render::create_texture(
         const image& image)
     {
-        E2D_ASSERT(
-            std::this_thread::get_id() ==
-            modules::main_thread<render>());
+        E2D_ASSERT(main_thread() == std::this_thread::get_id());
 
         gl_texture_id id = gl_texture_id::create(
             state_->dbg(), GL_TEXTURE_2D);
@@ -561,9 +553,7 @@ namespace e2d
     texture_ptr render::create_texture(
         const input_stream_uptr& image_stream)
     {
-        E2D_ASSERT(
-            std::this_thread::get_id() ==
-            modules::main_thread<render>());
+        E2D_ASSERT(main_thread() == std::this_thread::get_id());
 
         image image;
         if ( !images::try_load_image(image, image_stream) ) {
@@ -576,9 +566,7 @@ namespace e2d
         const v2u& size,
         const pixel_declaration& decl)
     {
-        E2D_ASSERT(
-            std::this_thread::get_id() ==
-            modules::main_thread<render>());
+        E2D_ASSERT(main_thread() == std::this_thread::get_id());
 
         gl_texture_id id = gl_texture_id::create(
             state_->dbg(), GL_TEXTURE_2D);
@@ -628,9 +616,7 @@ namespace e2d
         const index_declaration& decl,
         index_buffer::usage usage)
     {
-        E2D_ASSERT(
-            std::this_thread::get_id() ==
-            modules::main_thread<render>());
+        E2D_ASSERT(main_thread() == std::this_thread::get_id());
         E2D_ASSERT(indices.size() % decl.bytes_per_index() == 0);
 
         gl_buffer_id id = gl_compile_index_buffer(
@@ -649,9 +635,7 @@ namespace e2d
         const vertex_declaration& decl,
         vertex_buffer::usage usage)
     {
-        E2D_ASSERT(
-            std::this_thread::get_id() ==
-            modules::main_thread<render>());
+        E2D_ASSERT(main_thread() == std::this_thread::get_id());
         E2D_ASSERT(vertices.size() % decl.bytes_per_vertex() == 0);
 
         gl_buffer_id id = gl_compile_vertex_buffer(
@@ -671,9 +655,7 @@ namespace e2d
         const pixel_declaration& depth_decl,
         render_target::external_texture external_texture)
     {
-        E2D_ASSERT(
-            std::this_thread::get_id() ==
-            modules::main_thread<render>());
+        E2D_ASSERT(main_thread() == std::this_thread::get_id());
 
         E2D_ASSERT(
             depth_decl.is_depth() &&
@@ -769,19 +751,13 @@ namespace e2d
     }
 
     render& render::execute(const swap_command& command) {
-        E2D_ASSERT(
-            std::this_thread::get_id() ==
-            modules::main_thread<render>());
-
+        E2D_ASSERT(main_thread() == std::this_thread::get_id());
         state_->wnd().swap_buffers(command.vsync());
         return *this;
     }
 
     render& render::execute(const draw_command& command) {
-        E2D_ASSERT(
-            std::this_thread::get_id() ==
-            modules::main_thread<render>());
-
+        E2D_ASSERT(main_thread() == std::this_thread::get_id());
         E2D_ASSERT_MSG(command.material(), "draw command with empty material");
         E2D_ASSERT_MSG(command.geometry(), "draw command with empty geometry");
 
@@ -807,9 +783,7 @@ namespace e2d
     }
 
     render& render::execute(const clear_command& command) {
-        E2D_ASSERT(
-            std::this_thread::get_id() ==
-            modules::main_thread<render>());
+        E2D_ASSERT(main_thread() == std::this_thread::get_id());
 
         bool clear_color =
             math::enum_to_number(command.clear_buffer())
@@ -851,10 +825,7 @@ namespace e2d
     }
 
     render& render::execute(const viewport_command& command) {
-        E2D_ASSERT(
-            std::this_thread::get_id() ==
-            modules::main_thread<render>());
-
+        E2D_ASSERT(main_thread() == std::this_thread::get_id());
         const b2u vp = make_minmax_rect(command.rect());
         GL_CHECK_CODE(state_->dbg(), glViewport(
             math::numeric_cast<GLint>(vp.position.x),
@@ -865,10 +836,7 @@ namespace e2d
     }
 
     render& render::execute(const render_target_command& command) {
-        E2D_ASSERT(
-            std::this_thread::get_id() ==
-            modules::main_thread<render>());
-
+        E2D_ASSERT(main_thread() == std::this_thread::get_id());
         state_->set_render_target(command.render_target());
         return *this;
     }

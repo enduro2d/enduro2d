@@ -1039,10 +1039,7 @@ namespace e2d
     //
 
     render& render::execute(const command_value& command) {
-        E2D_ASSERT(
-            std::this_thread::get_id() ==
-            modules::main_thread<render>());
-
+        E2D_ASSERT(main_thread() == std::this_thread::get_id());
         E2D_ASSERT(!command.valueless_by_exception());
         stdex::visit(command_value_visitor(*this), command);
         return *this;
