@@ -180,11 +180,10 @@ int e2d_main() {
             .property("u_time", game_time)
             .property("u_MVP", projection);
 
-        the<render>()
-            .clear_depth_buffer(1.f)
-            .clear_stencil_buffer(0)
-            .clear_color_buffer({1.f, 0.4f, 0.f, 1.f})
-            .draw(material, geometry);
+        the<render>().execute(render::command_block<64>()
+            .add_command(render::clear_command()
+                .color_value({1.f, 0.4f, 0.f, 1.f}))
+            .add_command(render::draw_command(material, geometry)));
 
         the<window>().swap_buffers(true);
         the<input>().frame_tick();

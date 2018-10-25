@@ -17,7 +17,7 @@ namespace
 
     class property_block_value_visitor : private noncopyable {
     public:
-        property_block_value_visitor(debug& debug, uniform_info ui)
+        property_block_value_visitor(debug& debug, uniform_info ui) noexcept
         : debug_(debug)
         , ui_(std::move(ui)) {}
 
@@ -768,25 +768,23 @@ namespace e2d
                 std::move(depth_rb)));
     }
 
-    void render::draw(
-        const material& mat,
-        const geometry& geo)
-    {
+    render& render::execute(const swap_command& command) {
         E2D_ASSERT(
             std::this_thread::get_id() ==
             modules::main_thread<render>());
 
-        draw(mat, geo, property_block());
+        state_->wnd().swap_buffers(command.vsync());
+        return *this;
     }
 
-    void render::draw(
-        const material& mat,
-        const geometry& geo,
-        const property_block& props)
-    {
+    render& render::execute(const draw_command& command) {
         E2D_ASSERT(
             std::this_thread::get_id() ==
             modules::main_thread<render>());
+
+        const material& mat = command.material_ref();
+        const geometry& geo = command.geometry_ref();
+        const property_block& props = command.properties();
 
         for ( std::size_t i = 0; i < mat.pass_count(); ++i ) {
             const pass_state& pass = mat.pass(i);
@@ -802,59 +800,59 @@ namespace e2d
                 });
             });
         }
-    }
-
-    render& render::clear_depth_buffer(f32 value) noexcept {
-        E2D_ASSERT(
-            std::this_thread::get_id() ==
-            modules::main_thread<render>());
-
-        const render_target_ptr& rt = state_->render_target();
-        if ( !rt || rt->state().depth() || !rt->state().depth_rb().empty() ) {
-            GL_CHECK_CODE(state_->dbg(), glClearDepth(
-                math::numeric_cast<GLclampd>(math::saturate(value))));
-            GL_CHECK_CODE(state_->dbg(), glClear(GL_DEPTH_BUFFER_BIT));
-        }
         return *this;
     }
 
-    render& render::clear_stencil_buffer(u8 value) noexcept {
+    render& render::execute(const clear_command& command) {
         E2D_ASSERT(
             std::this_thread::get_id() ==
             modules::main_thread<render>());
 
-        const render_target_ptr& rt = state_->render_target();
-        if ( !rt || rt->state().depth() || !rt->state().depth_rb().empty() ) {
-            GL_CHECK_CODE(state_->dbg(), glClearStencil(
-                math::numeric_cast<GLint>(value)));
-            GL_CHECK_CODE(state_->dbg(), glClear(GL_STENCIL_BUFFER_BIT));
-        }
-        return *this;
-    }
-
-    render& render::clear_color_buffer(const color& value) noexcept {
-        E2D_ASSERT(
-            std::this_thread::get_id() ==
-            modules::main_thread<render>());
+        bool clear_color =
+            math::enum_to_number(command.clear_buffer())
+            & math::enum_to_number(clear_command::buffer::color);
+        bool clear_depth =
+            math::enum_to_number(command.clear_buffer())
+            & math::enum_to_number(clear_command::buffer::depth);
+        bool clear_stencil =
+            math::enum_to_number(command.clear_buffer())
+            & math::enum_to_number(clear_command::buffer::stencil);
 
         const render_target_ptr& rt = state_->render_target();
-        if ( !rt || rt->state().color() || !rt->state().color_rb().empty() ) {
+        bool has_color = !rt || rt->state().color() || !rt->state().color_rb().empty();
+        bool has_depth = !rt || rt->state().depth() || !rt->state().depth_rb().empty();
+
+        GLbitfield clear_mask = 0;
+        if ( has_color && clear_color  ) {
+            clear_mask |= GL_COLOR_BUFFER_BIT;
             GL_CHECK_CODE(state_->dbg(), glClearColor(
-                math::numeric_cast<GLclampf>(math::saturate(value.r)),
-                math::numeric_cast<GLclampf>(math::saturate(value.g)),
-                math::numeric_cast<GLclampf>(math::saturate(value.b)),
-                math::numeric_cast<GLclampf>(math::saturate(value.a))));
-            GL_CHECK_CODE(state_->dbg(), glClear(GL_COLOR_BUFFER_BIT));
+                math::numeric_cast<GLclampf>(math::saturate(command.color_value().r)),
+                math::numeric_cast<GLclampf>(math::saturate(command.color_value().g)),
+                math::numeric_cast<GLclampf>(math::saturate(command.color_value().b)),
+                math::numeric_cast<GLclampf>(math::saturate(command.color_value().a))));
         }
+        if ( has_depth ) {
+            if ( clear_depth ) {
+                clear_mask |= GL_DEPTH_BUFFER_BIT;
+                GL_CHECK_CODE(state_->dbg(), glClearDepth(
+                    math::numeric_cast<GLclampd>(math::saturate(command.depth_value()))));
+            }
+            if ( clear_stencil ) {
+                clear_mask |= GL_STENCIL_BUFFER_BIT;
+                GL_CHECK_CODE(state_->dbg(), glClearStencil(
+                    math::numeric_cast<GLint>(command.stencil_value())));
+            }
+        }
+        GL_CHECK_CODE(state_->dbg(), glClear(clear_mask));
         return *this;
     }
 
-    render& render::set_viewport(const b2u& rect) noexcept {
+    render& render::execute(const viewport_command& command) {
         E2D_ASSERT(
             std::this_thread::get_id() ==
             modules::main_thread<render>());
 
-        const b2u vp = make_minmax_rect(rect);
+        const b2u vp = make_minmax_rect(command.rect());
         GL_CHECK_CODE(state_->dbg(), glViewport(
             math::numeric_cast<GLint>(vp.position.x),
             math::numeric_cast<GLint>(vp.position.y),
@@ -863,12 +861,12 @@ namespace e2d
         return *this;
     }
 
-    render& render::set_render_target(const render_target_ptr& rt) noexcept {
+    render& render::execute(const render_target_command& command) {
         E2D_ASSERT(
             std::this_thread::get_id() ==
             modules::main_thread<render>());
 
-        state_->set_render_target(rt);
+        state_->set_render_target(command.render_target());
         return *this;
     }
 }

@@ -106,6 +106,59 @@ namespace e2d
             stdex::invoke(f, p.first, p.second);
         }
     }
+
+    //
+    // render::command_block
+    //
+
+    template < std::size_t N >
+    render::command_block<N>& render::command_block<N>::clear() noexcept {
+        commands_.clear();
+        return *this;
+    }
+
+    template < std::size_t N >
+    render::command_block<N>& render::command_block<N>::add_command(command_value&& value) {
+        E2D_ASSERT(command_count_ < commands_.size());
+        commands_[command_count_] = std::move(value);
+        ++command_count_;
+        return *this;
+    }
+
+    template < std::size_t N >
+    render::command_block<N>& render::command_block<N>::add_command(const command_value& value) {
+        E2D_ASSERT(command_count_ < commands_.size());
+        commands_[command_count_] = value;
+        ++command_count_;
+        return *this;
+    }
+
+    template < std::size_t N >
+    const render::command_value& render::command_block<N>::command(std::size_t index) const noexcept {
+        E2D_ASSERT(index < command_count_);
+        return commands_[index];
+    }
+
+    template < std::size_t N >
+    std::size_t render::command_block<N>::command_count() const noexcept {
+        return command_count_;
+    }
+
+    //
+    // render
+    //
+
+    template < std::size_t N >
+    render& render::execute(const command_block<N>& commands) {
+        E2D_ASSERT(
+            std::this_thread::get_id() ==
+            modules::main_thread<render>());
+
+        for ( std::size_t i = 0; i < commands.command_count(); ++i ) {
+            execute(commands.command(i));
+        }
+        return *this;
+    }
 }
 
 #endif

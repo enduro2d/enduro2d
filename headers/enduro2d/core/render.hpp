@@ -182,7 +182,7 @@ namespace e2d
             attribute_type type,
             bool normalized) noexcept;
 
-        const attribute_info& attribute(std::size_t i) const noexcept;
+        const attribute_info& attribute(std::size_t index) const noexcept;
         std::size_t attribute_count() const noexcept;
         std::size_t bytes_per_vertex() const noexcept;
     private:
@@ -708,6 +708,118 @@ namespace e2d
             topology topology_ = topology::triangles;
             u8 _pad[7] = {0};
         };
+
+        class swap_command final {
+        public:
+            swap_command() = default;
+            swap_command(bool vsync);
+            swap_command& vsync(bool value) noexcept;
+            bool& vsync() noexcept;
+            bool vsync() const noexcept;
+        private:
+            bool vsync_ = true;
+        };
+
+        class draw_command final {
+        public:
+            draw_command() = delete;
+            draw_command(const material& mat, const geometry& geo) noexcept;
+
+            draw_command& material_ref(const material& value) noexcept;
+            draw_command& geometry_ref(const geometry& value) noexcept;
+
+            const material& material_ref() const noexcept;
+            const geometry& geometry_ref() const noexcept;
+
+            draw_command& properties(const property_block& value);
+            property_block& properties() noexcept;
+            const property_block& properties() const noexcept;
+        private:
+            const material* material_ = nullptr;
+            const geometry* geometry_ = nullptr;
+            property_block properties_;
+        };
+
+        class clear_command final {
+        public:
+            enum class buffer : u8 {
+                color = (1 << 0),
+                depth = (1 << 1),
+                stencil = (1 << 2),
+                color_depth = color | depth,
+                color_stencil = color | stencil,
+                depth_stencil = depth | stencil,
+                color_depth_stencil = color | depth | stencil
+            };
+        public:
+            clear_command() = default;
+            clear_command(buffer clear_buffer) noexcept;
+
+            clear_command& color_value(const color& value) noexcept;
+            clear_command& depth_value(f32 value) noexcept;
+            clear_command& stencil_value(u8 value) noexcept;
+
+            color& color_value() noexcept;
+            f32& depth_value() noexcept;
+            u8& stencil_value() noexcept;
+
+            const color& color_value() const noexcept;
+            f32 depth_value() const noexcept;
+            u8 stencil_value() const noexcept;
+
+            buffer& clear_buffer() noexcept;
+            buffer clear_buffer() const noexcept;
+        private:
+            color color_value_ = color::clear();
+            f32 depth_value_ = 1.f;
+            u8 stencil_value_ = 0;
+            buffer clear_buffer_ = buffer::color_depth_stencil;
+            u8 _pad[2] = {0};
+        };
+
+        class viewport_command final {
+        public:
+            viewport_command() = default;
+            viewport_command(const b2u& rect) noexcept;
+            viewport_command& rect(const b2u& value) noexcept;
+            b2u& rect() noexcept;
+            const b2u& rect() const noexcept;
+        private:
+            b2u rect_;
+        };
+
+        class render_target_command final {
+        public:
+            render_target_command() = default;
+            render_target_command(const render_target_ptr& rt) noexcept;
+            render_target_command& render_target(const render_target_ptr& value) noexcept;
+            render_target_ptr& render_target() noexcept;
+            const render_target_ptr& render_target() const noexcept;
+        private:
+            render_target_ptr render_target_;
+        };
+
+        using command_value = stdex::variant<
+            swap_command,
+            draw_command,
+            clear_command,
+            viewport_command,
+            render_target_command>;
+
+        template < std::size_t N >
+        class command_block final {
+        public:
+            command_block() = default;
+
+            command_block& clear() noexcept;
+            command_block& add_command(command_value&& value);
+            command_block& add_command(const command_value& value);
+            const command_value& command(std::size_t index) const noexcept;
+            std::size_t command_count() const noexcept;
+        private:
+            array<command_value, N> commands_;
+            std::size_t command_count_ = 0;
+        };
     public:
         render(debug& d, window& w);
         ~render() noexcept final;
@@ -746,20 +858,15 @@ namespace e2d
             const pixel_declaration& depth_decl,
             render_target::external_texture external_texture);
 
-        void draw(
-            const material& mat,
-            const geometry& geo);
+        template < std::size_t N >
+        render& execute(const command_block<N>& commands);
+        render& execute(const command_value& command);
 
-        void draw(
-            const material& mat,
-            const geometry& geo,
-            const property_block& props);
-
-        render& clear_depth_buffer(f32 value) noexcept;
-        render& clear_stencil_buffer(u8 value) noexcept;
-        render& clear_color_buffer(const color& value) noexcept;
-        render& set_viewport(const b2u& rect) noexcept;
-        render& set_render_target(const render_target_ptr& rt) noexcept;
+        render& execute(const swap_command& command);
+        render& execute(const draw_command& command);
+        render& execute(const clear_command& command);
+        render& execute(const viewport_command& command);
+        render& execute(const render_target_command& command);
     private:
         class internal_state;
         std::unique_ptr<internal_state> state_;

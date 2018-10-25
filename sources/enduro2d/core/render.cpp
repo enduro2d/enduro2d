@@ -75,6 +75,34 @@ namespace
         }
         #undef DEFINE_CASE
     }
+
+    class command_value_visitor final : private noncopyable {
+    public:
+        command_value_visitor(render& render) noexcept
+        : render_(render) {}
+
+        void operator()(const render::swap_command& command) const {
+            render_.execute(command);
+        }
+
+        void operator()(const render::draw_command& command) const {
+            render_.execute(command);
+        }
+
+        void operator()(const render::clear_command& command) const {
+            render_.execute(command);
+        }
+
+        void operator()(const render::viewport_command& command) const {
+            render_.execute(command);
+        }
+
+        void operator()(const render::render_target_command& command) const {
+            render_.execute(command);
+        }
+    private:
+        render& render_;
+    };
 }
 
 namespace e2d
@@ -199,9 +227,9 @@ namespace e2d
         return *this;
     }
 
-    const vertex_declaration::attribute_info& vertex_declaration::attribute(std::size_t i) const noexcept {
-        E2D_ASSERT(i < attribute_count_);
-        return attributes_[i];
+    const vertex_declaration::attribute_info& vertex_declaration::attribute(std::size_t index) const noexcept {
+        E2D_ASSERT(index < attribute_count_);
+        return attributes_[index];
     }
 
     std::size_t vertex_declaration::attribute_count() const noexcept {
@@ -827,5 +855,174 @@ namespace e2d
     const vertex_buffer_ptr& render::geometry::vertices(std::size_t index) const noexcept {
         E2D_ASSERT(index < vertices_count_);
         return vertices_[index];
+    }
+
+    //
+    // swap_command
+    //
+
+    render::swap_command::swap_command(bool vsync)
+    : vsync_(vsync) {}
+
+    render::swap_command& render::swap_command::vsync(bool value) noexcept {
+        vsync_ = value;
+        return *this;
+    }
+
+    bool& render::swap_command::vsync() noexcept {
+        return vsync_;
+    }
+
+    bool render::swap_command::vsync() const noexcept {
+        return vsync_;
+    }
+
+    //
+    // draw_command
+    //
+
+    render::draw_command::draw_command(const material& mat, const geometry& geo) noexcept
+    : material_(&mat)
+    , geometry_(&geo) {}
+
+    render::draw_command& render::draw_command::material_ref(const material& value) noexcept {
+        material_ = &value;
+        return *this;
+    }
+
+    render::draw_command& render::draw_command::geometry_ref(const geometry& value) noexcept {
+        geometry_ = &value;
+        return *this;
+    }
+
+    const render::material& render::draw_command::material_ref() const noexcept {
+        E2D_ASSERT(material_);
+        return *material_;
+    }
+
+    const render::geometry& render::draw_command::geometry_ref() const noexcept {
+        E2D_ASSERT(geometry_);
+        return *geometry_;
+    }
+
+    render::draw_command& render::draw_command::properties(const property_block& value) {
+        properties_ = value;
+        return *this;
+    }
+
+    render::property_block& render::draw_command::properties() noexcept {
+        return properties_;
+    }
+
+    const render::property_block& render::draw_command::properties() const noexcept {
+        return properties_;
+    }
+
+    //
+    // clear_command
+    //
+
+    render::clear_command::clear_command(buffer clear_buffer) noexcept
+    : clear_buffer_(clear_buffer) {}
+
+    render::clear_command& render::clear_command::color_value(const color& value) noexcept {
+        color_value_ = value;
+        return *this;
+    }
+
+    render::clear_command& render::clear_command::depth_value(f32 value) noexcept {
+        depth_value_ = value;
+        return *this;
+    }
+
+    render::clear_command& render::clear_command::stencil_value(u8 value) noexcept {
+        stencil_value_ = value;
+        return *this;
+    }
+
+    color& render::clear_command::color_value() noexcept {
+        return color_value_;
+    }
+
+    f32& render::clear_command::depth_value() noexcept {
+        return depth_value_;
+    }
+
+    u8& render::clear_command::stencil_value() noexcept {
+        return stencil_value_;
+    }
+
+    const color& render::clear_command::color_value() const noexcept {
+        return color_value_;
+    }
+
+    f32 render::clear_command::depth_value() const noexcept {
+        return depth_value_;
+    }
+
+    u8 render::clear_command::stencil_value() const noexcept {
+        return stencil_value_;
+    }
+
+    render::clear_command::buffer& render::clear_command::clear_buffer() noexcept {
+        return clear_buffer_;
+    }
+
+    render::clear_command::buffer render::clear_command::clear_buffer() const noexcept {
+        return clear_buffer_;
+    }
+
+    //
+    // viewport_command
+    //
+
+    render::viewport_command::viewport_command(const b2u& rect) noexcept
+    : rect_(rect) {}
+
+    render::viewport_command& render::viewport_command::rect(const b2u& value) noexcept {
+        rect_ = value;
+        return *this;
+    }
+
+    b2u& render::viewport_command::rect() noexcept {
+        return rect_;
+    }
+
+    const b2u& render::viewport_command::rect() const noexcept {
+        return rect_;
+    }
+
+    //
+    // render_target_command
+    //
+
+    render::render_target_command::render_target_command(const render_target_ptr& rt) noexcept
+    : render_target_(rt) {}
+
+    render::render_target_command& render::render_target_command::render_target(const render_target_ptr& value) noexcept {
+        render_target_ = value;
+        return *this;
+    }
+
+    render_target_ptr& render::render_target_command::render_target() noexcept {
+        return render_target_;
+    }
+
+    const render_target_ptr& render::render_target_command::render_target() const noexcept {
+        return render_target_;
+    }
+
+    //
+    // render
+    //
+
+    render& render::execute(const command_value& command) {
+        E2D_ASSERT(
+            std::this_thread::get_id() ==
+            modules::main_thread<render>());
+
+        E2D_ASSERT(!command.valueless_by_exception());
+        stdex::visit(command_value_visitor(*this), command);
+        return *this;
     }
 }
