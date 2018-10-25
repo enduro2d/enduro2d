@@ -151,7 +151,7 @@ int e2d_main() {
         return 1;
     }
 
-    auto material = render::material()
+    auto material = render::material::create(render::material()
         .add_pass(render::pass_state()
             .states(render::state_block()
                 .capabilities(render::capabilities_state()
@@ -169,11 +169,11 @@ int e2d_main() {
             .sampler("u_texture", render::sampler_state()
                 .texture(texture)
                 .min_filter(render::sampler_min_filter::linear)
-                .mag_filter(render::sampler_mag_filter::linear)));
+                .mag_filter(render::sampler_mag_filter::linear))));
 
-    auto geometry = render::geometry()
+    auto geometry = render::geometry::create(render::geometry()
         .indices(index_buffer)
-        .add_vertices(vertex_buffer);
+        .add_vertices(vertex_buffer));
 
     const auto begin_game_time = time::now_ms();
     const auto framebuffer_size = the<window>().real_size().cast_to<f32>();
@@ -201,7 +201,7 @@ int e2d_main() {
             math::make_loot_at_lh_matrix4({0.f,0.f,-2.f}, v3f::zero(), v3f::unit_y()) *
             projection;
 
-        material.properties()
+        material->properties()
             .property("u_time", game_time)
             .property("u_MVP", MVP);
 

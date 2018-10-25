@@ -180,7 +180,7 @@ namespace
         E2D_ASSERT(ps && vb);
         opengl::with_gl_bind_buffer(debug, vb->state().id(), [&debug, &ps, &vb]() noexcept {
             const vertex_declaration& decl = vb->decl();
-            for ( std::size_t i = 0; i < decl.attribute_count(); ++i ) {
+            for ( std::size_t i = 0, e = decl.attribute_count(); i < e; ++i ) {
                 const vertex_declaration::attribute_info& vai = decl.attribute(i);
                 ps->state().with_attribute_location(vai.name, [&debug, &decl, &vai](const attribute_info& ai) noexcept {
                     const GLuint rows = math::numeric_cast<GLuint>(vai.rows);
@@ -207,7 +207,7 @@ namespace
     {
         E2D_ASSERT(ps && vb);
         const vertex_declaration& decl = vb->decl();
-        for ( std::size_t i = 0; i < decl.attribute_count(); ++i ) {
+        for ( std::size_t i = 0, e = decl.attribute_count(); i < e; ++i ) {
             const vertex_declaration::attribute_info& vai = decl.attribute(i);
             ps->state().with_attribute_location(vai.name, [&debug, &vai](const attribute_info& ai) noexcept {
                 const GLuint rows = math::numeric_cast<GLuint>(vai.rows);
@@ -261,7 +261,7 @@ namespace
         F&& f,
         Args&&... args)
     {
-        for ( std::size_t i = 0; i < geo.vertices_count(); ++i ) {
+        for ( std::size_t i = 0, e = geo.vertices_count(); i < e; ++i ) {
             const vertex_buffer_ptr& vb = geo.vertices(i);
             if ( vb ) {
                 bind_vertex_declaration(debug, ps, vb);
@@ -270,7 +270,7 @@ namespace
         try {
             stdex::invoke(std::forward<F>(f), std::forward<Args>(args)...);
         } catch (...) {
-            for ( std::size_t i = 0; i < geo.vertices_count(); ++i ) {
+            for ( std::size_t i = 0, e = geo.vertices_count(); i < e; ++i ) {
                 const vertex_buffer_ptr& vb = geo.vertices(i);
                 if ( vb ) {
                     unbind_vertex_declaration(debug, ps, vb);
@@ -278,7 +278,7 @@ namespace
             }
             throw;
         }
-        for ( std::size_t i = 0; i < geo.vertices_count(); ++i ) {
+        for ( std::size_t i = 0, e = geo.vertices_count(); i < e; ++i ) {
             const vertex_buffer_ptr& vb = geo.vertices(i);
             if ( vb ) {
                 unbind_vertex_declaration(debug, ps, vb);
@@ -782,11 +782,14 @@ namespace e2d
             std::this_thread::get_id() ==
             modules::main_thread<render>());
 
-        const material& mat = command.material_ref();
-        const geometry& geo = command.geometry_ref();
+        E2D_ASSERT_MSG(command.material(), "draw command with empty material");
+        E2D_ASSERT_MSG(command.geometry(), "draw command with empty geometry");
+
+        const material& mat = *command.material();
+        const geometry& geo = *command.geometry();
         const property_block& props = command.properties();
 
-        for ( std::size_t i = 0; i < mat.pass_count(); ++i ) {
+        for ( std::size_t i = 0, e = mat.pass_count(); i < e; ++i ) {
             const pass_state& pass = mat.pass(i);
             const property_block& main_props = main_property_cache()
                 .clear()

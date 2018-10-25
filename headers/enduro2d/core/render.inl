@@ -154,7 +154,7 @@ namespace e2d
             std::this_thread::get_id() ==
             modules::main_thread<render>());
 
-        for ( std::size_t i = 0; i < commands.command_count(); ++i ) {
+        for ( std::size_t i = 0, e = commands.command_count(); i < e; ++i ) {
             execute(commands.command(i));
         }
         return *this;

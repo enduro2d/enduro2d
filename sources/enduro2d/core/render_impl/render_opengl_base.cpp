@@ -1390,7 +1390,7 @@ namespace e2d { namespace opengl
         uniforms.reserve(uniforms.size() +
             math::numeric_cast<std::size_t>(uniform_count));
 
-        for ( GLuint i = 0; i < math::numeric_cast<GLuint>(uniform_count); ++i ) {
+        for ( GLuint i = 0, e = math::numeric_cast<GLuint>(uniform_count); i < e; ++i ) {
             GLint size = 0;
             GLenum type = 0;
             GL_CHECK_CODE(debug, glGetActiveUniform(
@@ -1428,7 +1428,7 @@ namespace e2d { namespace opengl
         attributes.reserve(attributes.size() +
             math::numeric_cast<std::size_t>(attribute_count));
 
-        for ( GLuint i = 0; i < math::numeric_cast<GLuint>(attribute_count); ++i ) {
+        for ( GLuint i = 0, e = math::numeric_cast<GLuint>(attribute_count); i < e; ++i ) {
             GLint size = 0;
             GLenum type = 0;
             GL_CHECK_CODE(debug, glGetActiveAttrib(
