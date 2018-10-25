@@ -223,43 +223,28 @@ namespace e2d
         return nullptr;
     }
 
-    void render::draw(
-        const material& mat,
-        const geometry& geo)
-    {
-        E2D_UNUSED(mat, geo);
-    }
-
-    void render::draw(
-        const material& mat,
-        const geometry& geo,
-        const property_block& props)
-    {
-        E2D_UNUSED(mat, geo, props);
-    }
-
-    render& render::clear_depth_buffer(f32 value) noexcept {
-        E2D_UNUSED(value);
+    render& render::execute(const swap_command& command) {
+        E2D_UNUSED(command);
         return *this;
     }
 
-    render& render::clear_stencil_buffer(u8 value) noexcept {
-        E2D_UNUSED(value);
+    render& render::execute(const draw_command& command) {
+        E2D_UNUSED(command);
         return *this;
     }
 
-    render& render::clear_color_buffer(const color& value) noexcept {
-        E2D_UNUSED(value);
+    render& render::execute(const clear_command& command) {
+        E2D_UNUSED(command);
         return *this;
     }
 
-    render& render::set_viewport(const r4u& rect) noexcept {
-        E2D_UNUSED(rect);
+    render& render::execute(const viewport_command& command) {
+        E2D_UNUSED(command);
         return *this;
     }
 
-    render& render::set_render_target(const render_target_ptr& rt) noexcept {
-        E2D_UNUSED(rt);
+    render& render::execute(const render_target_command& command) {
+        E2D_UNUSED(command);
         return *this;
     }
 }
