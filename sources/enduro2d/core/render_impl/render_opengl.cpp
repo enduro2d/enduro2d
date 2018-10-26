@@ -443,19 +443,8 @@ namespace e2d
     //
 
     render::render(debug& ndebug, window& nwindow)
-    : state_(new internal_state(ndebug, nwindow))
-    {
+    : state_(new internal_state(ndebug, nwindow)) {
         E2D_ASSERT(main_thread() == nwindow.main_thread());
-
-        if ( glewInit() != GLEW_OK ) {
-            throw bad_render_operation();
-        }
-
-        opengl::gl_trace_info(ndebug);
-        opengl::gl_trace_limits(ndebug);
-
-        GL_CHECK_CODE(state_->dbg(), glPixelStorei(GL_PACK_ALIGNMENT, 1));
-        GL_CHECK_CODE(state_->dbg(), glPixelStorei(GL_UNPACK_ALIGNMENT, 1));
     }
     render::~render() noexcept = default;
 

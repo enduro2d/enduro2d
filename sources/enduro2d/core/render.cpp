@@ -1045,3 +1045,78 @@ namespace e2d
         return *this;
     }
 }
+
+namespace e2d
+{
+    bool operator==(const render::state_block& l, const render::state_block& r) noexcept {
+        return l.depth() == r.depth()
+            && l.stencil() == r.stencil()
+            && l.culling() == r.culling()
+            && l.blending() == r.blending()
+            && l.capabilities() == r.capabilities();
+    }
+
+    bool operator!=(const render::state_block& l, const render::state_block& r) noexcept {
+        return !(l == r);
+    }
+
+    bool operator==(const render::depth_state& l, const render::depth_state& r) noexcept {
+        return math::approximately(l.range_near(), r.range_near())
+            && math::approximately(l.range_far(), r.range_far())
+            && l.write() == r.write()
+            && l.func() == r.func();
+    }
+
+    bool operator!=(const render::depth_state& l, const render::depth_state& r) noexcept {
+        return !(l == r);
+    }
+
+    bool operator==(const render::stencil_state& l, const render::stencil_state& r) noexcept {
+        return l.write() == r.write()
+            && l.ref() == r.ref()
+            && l.mask() == r.mask()
+            && l.pass() == r.pass()
+            && l.sfail() == r.sfail()
+            && l.zfail() == r.zfail()
+            && l.func() == r.func();
+    }
+
+    bool operator!=(const render::stencil_state& l, const render::stencil_state& r) noexcept {
+        return !(l == r);
+    }
+
+    bool operator==(const render::culling_state& l, const render::culling_state& r) noexcept {
+        return l.mode() == r.mode()
+            && l.face() == r.face();
+    }
+
+    bool operator!=(const render::culling_state& l, const render::culling_state& r) noexcept {
+        return !(l == r);
+    }
+
+    bool operator==(const render::blending_state& l, const render::blending_state& r) noexcept {
+        return l.constant_color() == r.constant_color()
+            && l.color_mask() == r.color_mask()
+            && l.src_rgb_factor() == r.src_rgb_factor()
+            && l.dst_rgb_factor() == r.dst_rgb_factor()
+            && l.rgb_equation() == r.rgb_equation()
+            && l.src_alpha_factor() == r.src_alpha_factor()
+            && l.dst_alpha_factor() == r.dst_alpha_factor()
+            && l.alpha_equation() == r.alpha_equation();
+    }
+
+    bool operator!=(const render::blending_state& l, const render::blending_state& r) noexcept {
+        return !(l == r);
+    }
+
+    bool operator==(const render::capabilities_state& l, const render::capabilities_state& r) noexcept {
+        return l.culling() == r.culling()
+            && l.blending() == r.blending()
+            && l.depth_test() == r.depth_test()
+            && l.stencil_test() == r.stencil_test();
+    }
+
+    bool operator!=(const render::capabilities_state& l, const render::capabilities_state& r) noexcept {
+        return !(l == r);
+    }
+}

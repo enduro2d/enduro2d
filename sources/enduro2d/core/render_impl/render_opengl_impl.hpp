@@ -174,7 +174,7 @@ namespace e2d
         window& wnd() const noexcept;
         const render_target_ptr& render_target() const noexcept;
     public:
-        internal_state& set_states(const state_block& rs) noexcept;
+        internal_state& set_states(const state_block& sb) noexcept;
         internal_state& set_depth_state(const depth_state& ds) noexcept;
         internal_state& set_stencil_state(const stencil_state& ss) noexcept;
         internal_state& set_culling_state(const culling_state& cs) noexcept;
@@ -184,6 +184,7 @@ namespace e2d
     private:
         debug& debug_;
         window& window_;
+        state_block state_block_;
         render_target_ptr render_target_;
         opengl::gl_framebuffer_id default_fb_;
     };

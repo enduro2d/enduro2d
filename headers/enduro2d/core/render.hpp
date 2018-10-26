@@ -887,5 +887,26 @@ namespace e2d
     };
 }
 
+namespace e2d
+{
+    bool operator==(const render::state_block& l, const render::state_block& r) noexcept;
+    bool operator!=(const render::state_block& l, const render::state_block& r) noexcept;
+
+    bool operator==(const render::depth_state& l, const render::depth_state& r) noexcept;
+    bool operator!=(const render::depth_state& l, const render::depth_state& r) noexcept;
+
+    bool operator==(const render::stencil_state& l, const render::stencil_state& r) noexcept;
+    bool operator!=(const render::stencil_state& l, const render::stencil_state& r) noexcept;
+
+    bool operator==(const render::culling_state& l, const render::culling_state& r) noexcept;
+    bool operator!=(const render::culling_state& l, const render::culling_state& r) noexcept;
+
+    bool operator==(const render::blending_state& l, const render::blending_state& r) noexcept;
+    bool operator!=(const render::blending_state& l, const render::blending_state& r) noexcept;
+
+    bool operator==(const render::capabilities_state& l, const render::capabilities_state& r) noexcept;
+    bool operator!=(const render::capabilities_state& l, const render::capabilities_state& r) noexcept;
+}
+
 #include "render.inl"
 #endif
