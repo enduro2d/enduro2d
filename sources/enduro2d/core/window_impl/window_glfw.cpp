@@ -257,16 +257,18 @@ namespace e2d
         window_uptr window;
         v2u virtual_size;
         str title;
+        bool vsync = false;
         bool fullscreen = false;
         bool cursor_hidden = false;
     public:
         state(const v2u& size, str_view ntitle, bool nfullscreen)
         : shared_state(glfw_state::get_shared_state())
-        , window(open_window_(size, make_utf8(ntitle), nfullscreen))
+        , window(nullptr, glfwDestroyWindow)
         , virtual_size(size)
         , title(ntitle)
         , fullscreen(nfullscreen)
         {
+            window = open_window_(size, make_utf8(ntitle), vsync, fullscreen);
             if ( !window ) {
                 throw bad_window_operation();
             }
@@ -305,7 +307,7 @@ namespace e2d
         }
     private:
         static window_uptr open_window_(
-            const v2u& virtual_size, const str& title, bool fullscreen) noexcept
+            const v2u& virtual_size, const str& title, bool vsync, bool fullscreen) noexcept
         {
             GLFWmonitor* monitor = glfwGetPrimaryMonitor();
             if ( !monitor ) {
@@ -332,7 +334,10 @@ namespace e2d
                 title.c_str(),
                 fullscreen ? monitor : nullptr,
                 nullptr);
-            glfwMakeContextCurrent(w);
+            if ( w ) {
+                glfwMakeContextCurrent(w);
+                glfwSwapInterval(vsync ? 1 : 0);
+            }
             return {w, glfwDestroyWindow};
         }
 
@@ -569,8 +574,13 @@ namespace e2d
 
     void window::swap_buffers(bool vsync) noexcept {
         std::lock_guard<std::recursive_mutex> guard(state_->rmutex);
-        E2D_ASSERT(state_->window);
-        glfwSwapInterval(vsync ? 1 : 0);
+        E2D_ASSERT(
+            state_->window &&
+            state_->window.get() == glfwGetCurrentContext());
+        if ( state_->vsync != vsync ) {
+            glfwSwapInterval(vsync ? 1 : 0);
+            state_->vsync = vsync;
+        }
         glfwSwapBuffers(state_->window.get());
     }
 
