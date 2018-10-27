@@ -238,19 +238,16 @@ namespace
         F&& f,
         Args&&... args)
     {
-        with_gl_use_program(debug, ps->state().id(),
-            [&debug, &ps, &pb](auto&& nf, auto&&... nargs) {
-                bind_property_block(debug, ps, pb);
-                try {
-                    stdex::invoke(
-                        std::forward<decltype(nf)>(nf),
-                        std::forward<decltype(nargs)>(nargs)...);
-                } catch (...) {
-                    unbind_property_block(debug, ps, pb);
-                    throw;
-                }
-                unbind_property_block(debug, ps, pb);
-            }, std::forward<F>(f), std::forward<Args>(args)...);
+        bind_property_block(debug, ps, pb);
+        try {
+            stdex::invoke(
+                std::forward<F>(f),
+                std::forward<Args>(args)...);
+        } catch (...) {
+            unbind_property_block(debug, ps, pb);
+            throw;
+        }
+        unbind_property_block(debug, ps, pb);
     }
 
     template < typename F, typename... Args >
@@ -762,6 +759,7 @@ namespace e2d
                 .merge(pass.properties())
                 .merge(props);
             state_->set_states(pass.states());
+            state_->set_shader_program(pass.shader());
             with_material_shader(state_->dbg(), pass.shader(), main_props, [this, &pass, &geo]() noexcept {
                 with_geometry_vertices(state_->dbg(), pass.shader(), geo, [this, &geo]() noexcept {
                     draw_indexed_primitive(state_->dbg(), geo.topo(), geo.indices());

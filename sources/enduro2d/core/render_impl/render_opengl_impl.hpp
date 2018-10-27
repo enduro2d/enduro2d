@@ -180,12 +180,16 @@ namespace e2d
         internal_state& set_culling_state(const culling_state& cs) noexcept;
         internal_state& set_blending_state(const blending_state& bs) noexcept;
         internal_state& set_capabilities_state(const capabilities_state& cs) noexcept;
+
+        internal_state& set_shader_program(const shader_ptr& sp) noexcept;
         internal_state& set_render_target(const render_target_ptr& rt) noexcept;
     private:
         debug& debug_;
         window& window_;
         state_block state_block_;
+        shader_ptr shader_program_;
         render_target_ptr render_target_;
+        opengl::gl_program_id default_sp_;
         opengl::gl_framebuffer_id default_fb_;
     };
 }

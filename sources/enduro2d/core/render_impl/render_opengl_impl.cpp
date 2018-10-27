@@ -202,6 +202,7 @@ namespace e2d
     render::internal_state::internal_state(debug& debug, window& window)
     : debug_(debug)
     , window_(window)
+    , default_sp_(gl_program_id::current(debug))
     , default_fb_(gl_framebuffer_id::current(debug, GL_FRAMEBUFFER))
     {
         if ( glewInit() != GLEW_OK ) {
@@ -215,6 +216,7 @@ namespace e2d
         GL_CHECK_CODE(debug_, glPixelStorei(GL_UNPACK_ALIGNMENT, 1));
 
         set_states(state_block_);
+        set_shader_program(shader_program_);
         set_render_target(render_target_);
     }
 
@@ -337,6 +339,20 @@ namespace e2d
         GL_CHECK_CODE(debug_, enable_or_disable(GL_STENCIL_TEST, cs.stencil_test()));
 
         state_block_.capabilities(cs);
+        return *this;
+    }
+
+    render::internal_state& render::internal_state::set_shader_program(const shader_ptr& sp) noexcept {
+        if ( sp == shader_program_ ) {
+            return *this;
+        }
+
+        const gl_program_id& sp_id = sp
+            ? sp->state().id()
+            : default_sp_;
+        GL_CHECK_CODE(debug_, glUseProgram(*sp_id));
+
+        shader_program_ = sp;
         return *this;
     }
 
