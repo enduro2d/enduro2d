@@ -768,14 +768,6 @@ namespace e2d
     // material
     //
 
-    render::material_ptr render::material::create() {
-        return std::make_shared<material>();
-    }
-
-    render::material_ptr render::material::create(const material& mat) {
-        return std::make_shared<material>(mat);
-    }
-
     render::material& render::material::add_pass(const pass_state& pass) noexcept {
         E2D_ASSERT(pass_count_ < max_pass_count);
         passes_[pass_count_] = pass;
@@ -811,14 +803,6 @@ namespace e2d
     //
     // geometry
     //
-
-    render::geometry_ptr render::geometry::create() {
-        return std::make_shared<geometry>();
-    }
-
-    render::geometry_ptr render::geometry::create(const geometry& geo) {
-        return std::make_shared<geometry>(geo);
-    }
 
     render::geometry& render::geometry::add_vertices(const vertex_buffer_ptr& vb) noexcept {
         E2D_ASSERT(vertices_count_ < max_vertices_count);
@@ -897,47 +881,43 @@ namespace e2d
     // draw_command
     //
 
-    render::draw_command::draw_command(const material_ptr& mat, const geometry_ptr& geo) noexcept
-    : material_(mat)
-    , geometry_(geo) {}
+    render::draw_command::draw_command(const material& mat, const geometry& geo) noexcept
+    : material_(&mat)
+    , geometry_(&geo) {}
 
-    render::draw_command& render::draw_command::material(const material_ptr& value) noexcept {
-        material_ = value;
+    render::draw_command::draw_command(const material& mat, const geometry& geo, const property_block& props) noexcept
+    : material_(&mat)
+    , geometry_(&geo)
+    , properties_(&props) {}
+
+    render::draw_command& render::draw_command::material_ref(const material& value) noexcept {
+        material_ = &value;
         return *this;
     }
 
-    render::draw_command& render::draw_command::geometry(const geometry_ptr& value) noexcept {
-        geometry_ = value;
+    render::draw_command& render::draw_command::geometry_ref(const geometry& value) noexcept {
+        geometry_ = &value;
         return *this;
     }
 
-    render::draw_command& render::draw_command::properties(const property_block& value) {
-        properties_ = value;
+    render::draw_command& render::draw_command::properties_ref(const property_block& value) {
+        properties_ = &value;
         return *this;
     }
 
-    render::material_ptr& render::draw_command::material() noexcept {
-        return material_;
+    const render::material& render::draw_command::material_ref() const noexcept {
+        E2D_ASSERT_MSG(material_, "draw command with empty material");
+        return *material_;
     }
 
-    render::geometry_ptr& render::draw_command::geometry() noexcept {
-        return geometry_;
+    const render::geometry& render::draw_command::geometry_ref() const noexcept {
+        E2D_ASSERT_MSG(material_, "draw command with empty geometry");
+        return *geometry_;
     }
 
-    render::property_block& render::draw_command::properties() noexcept {
-        return properties_;
-    }
-
-    const render::material_ptr& render::draw_command::material() const noexcept {
-        return material_;
-    }
-
-    const render::geometry_ptr& render::draw_command::geometry() const noexcept {
-        return geometry_;
-    }
-
-    const render::property_block& render::draw_command::properties() const noexcept {
-        return properties_;
+    const render::property_block& render::draw_command::properties_ref() const noexcept {
+        static property_block empty_property_block;
+        return properties_ ? *properties_ : empty_property_block;
     }
 
     //

@@ -665,14 +665,8 @@ namespace e2d
             u8 _pad[4] = {0};
         };
 
-        class material;
-        using material_ptr = std::shared_ptr<material>;
-
         class material final {
         public:
-            static material_ptr create();
-            static material_ptr create(const material& mat);
-
             material& add_pass(const pass_state& pass) noexcept;
             std::size_t pass_count() const noexcept;
 
@@ -690,14 +684,8 @@ namespace e2d
             property_block properties_;
         };
 
-        class geometry;
-        using geometry_ptr = std::shared_ptr<geometry>;
-
         class geometry final {
         public:
-            static geometry_ptr create();
-            static geometry_ptr create(const geometry& geo);
-
             geometry& add_vertices(const vertex_buffer_ptr& vb) noexcept;
             std::size_t vertices_count() const noexcept;
 
@@ -734,24 +722,21 @@ namespace e2d
 
         class draw_command final {
         public:
-            draw_command() = default;
-            draw_command(const material_ptr& mat, const geometry_ptr& geo) noexcept;
+            draw_command() = delete;
+            draw_command(const material& mat, const geometry& geo) noexcept;
+            draw_command(const material& mat, const geometry& geo, const property_block& props) noexcept;
 
-            draw_command& material(const material_ptr& value) noexcept;
-            draw_command& geometry(const geometry_ptr& value) noexcept;
-            draw_command& properties(const property_block& value);
+            draw_command& material_ref(const material& value) noexcept;
+            draw_command& geometry_ref(const geometry& value) noexcept;
+            draw_command& properties_ref(const property_block& value);
 
-            material_ptr& material() noexcept;
-            geometry_ptr& geometry() noexcept;
-            property_block& properties() noexcept;
-
-            const material_ptr& material() const noexcept;
-            const geometry_ptr& geometry() const noexcept;
-            const property_block& properties() const noexcept;
+            const material& material_ref() const noexcept;
+            const geometry& geometry_ref() const noexcept;
+            const property_block& properties_ref() const noexcept;
         private:
-            material_ptr material_;
-            geometry_ptr geometry_;
-            property_block properties_;
+            const material* material_ = nullptr;
+            const geometry* geometry_ = nullptr;
+            const property_block* properties_ = nullptr;
         };
 
         class clear_command final {

@@ -744,17 +744,14 @@ namespace e2d
 
     render& render::execute(const draw_command& command) {
         E2D_ASSERT(main_thread() == std::this_thread::get_id());
-        E2D_ASSERT_MSG(command.material(), "draw command with empty material");
-        E2D_ASSERT_MSG(command.geometry(), "draw command with empty geometry");
 
-        const material& mat = *command.material();
-        const geometry& geo = *command.geometry();
-        const property_block& props = command.properties();
+        const material& mat = command.material_ref();
+        const geometry& geo = command.geometry_ref();
+        const property_block& props = command.properties_ref();
 
         for ( std::size_t i = 0, e = mat.pass_count(); i < e; ++i ) {
             const pass_state& pass = mat.pass(i);
             const property_block& main_props = main_property_cache()
-                .clear()
                 .merge(mat.properties())
                 .merge(pass.properties())
                 .merge(props);
@@ -765,6 +762,7 @@ namespace e2d
                     draw_indexed_primitive(state_->dbg(), geo.topo(), geo.indices());
                 });
             });
+            main_property_cache().clear();
         }
         return *this;
     }

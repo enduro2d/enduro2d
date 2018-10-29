@@ -151,7 +151,7 @@ int e2d_main() {
         return 1;
     }
 
-    auto material = render::material::create(render::material()
+    auto material = render::material()
         .add_pass(render::pass_state()
             .states(render::state_block()
                 .capabilities(render::capabilities_state()
@@ -169,11 +169,11 @@ int e2d_main() {
             .sampler("u_texture", render::sampler_state()
                 .texture(texture)
                 .min_filter(render::sampler_min_filter::linear)
-                .mag_filter(render::sampler_mag_filter::linear))));
+                .mag_filter(render::sampler_mag_filter::linear)));
 
-    auto geometry = render::geometry::create(render::geometry()
+    auto geometry = render::geometry()
         .indices(index_buffer)
-        .add_vertices(vertex_buffer));
+        .add_vertices(vertex_buffer);
 
     const auto begin_game_time = time::now_ms();
     const auto framebuffer_size = the<window>().real_size().cast_to<f32>();
@@ -189,6 +189,18 @@ int e2d_main() {
         pixel_declaration::pixel_type::depth16,
         render_target::external_texture::color_and_depth);
 
+    auto rt_props = render::property_block()
+        .sampler("u_texture", render::sampler_state()
+            .texture(rt->color())
+            .min_filter(render::sampler_min_filter::linear)
+            .mag_filter(render::sampler_mag_filter::linear));
+
+    auto texture_props = render::property_block()
+        .sampler("u_texture", render::sampler_state()
+            .texture(texture)
+            .min_filter(render::sampler_min_filter::linear)
+            .mag_filter(render::sampler_mag_filter::linear));
+
     const keyboard& k = the<input>().keyboard();
     while ( !the<window>().should_close() && !k.is_key_just_released(keyboard_key::escape) ) {
         const auto game_time = (time::now_ms() - begin_game_time).cast_to<f32>().value;
@@ -201,7 +213,7 @@ int e2d_main() {
             math::make_loot_at_lh_matrix4({0.f,0.f,-2.f}, v3f::zero(), v3f::unit_y()) *
             projection;
 
-        material->properties()
+        material.properties()
             .property("u_time", game_time)
             .property("u_MVP", MVP);
 
@@ -210,26 +222,19 @@ int e2d_main() {
             .add_command(render::viewport_command(rt->size()))
             .add_command(render::clear_command()
                 .color_value({0.f, 0.4f, 0.f, 1.f}))
-            .add_command(render::draw_command(material, geometry)
-                .properties(render::property_block()
-                    .sampler("u_texture", render::sampler_state()
-                        .texture(texture)
-                        .min_filter(render::sampler_min_filter::linear)
-                        .mag_filter(render::sampler_mag_filter::linear))))
+            .add_command(render::draw_command(material, geometry, texture_props)));
+
+        the<render>().execute(render::command_block<64>()
             .add_command(render::render_target_command(nullptr))
             .add_command(render::viewport_command(the<window>().real_size()))
             .add_command(render::clear_command()
-                .color_value({1.f, 0.4f, 0.f, 1.f}))
-            .add_command(render::draw_command(material, geometry)
-                .properties(render::property_block()
-                    .sampler("u_texture", render::sampler_state()
-                        .texture(rt->color())
-                        .min_filter(render::sampler_min_filter::linear)
-                        .mag_filter(render::sampler_mag_filter::linear))))
-            .add_command(render::swap_command(true)));
+                .color_value({1.f, 0.4f, 0.f, 1.f})));
 
-        std::this_thread::sleep_for(
-            time::to_chrono(make_milliseconds(10)));
+        for ( std::size_t i = 0; i < 5000; ++i ) {
+            the<render>().execute(render::draw_command(material, geometry, rt_props));
+        }
+
+        the<render>().execute(render::swap_command(true));
 
         the<input>().frame_tick();
         window::poll_events();

@@ -144,7 +144,7 @@ int e2d_main() {
         return 1;
     }
 
-    auto material = render::material::create(render::material()
+    auto material = render::material()
         .add_pass(render::pass_state()
             .states(render::state_block()
                 .capabilities(render::capabilities_state()
@@ -161,12 +161,12 @@ int e2d_main() {
                 .sampler("u_texture2", render::sampler_state()
                     .texture(texture2)
                     .min_filter(render::sampler_min_filter::linear)
-                    .mag_filter(render::sampler_mag_filter::linear)))));
+                    .mag_filter(render::sampler_mag_filter::linear))));
 
-    auto geometry = render::geometry::create(render::geometry()
+    auto geometry = render::geometry()
         .indices(index_buffer)
         .add_vertices(vertex_buffer1)
-        .add_vertices(vertex_buffer2));
+        .add_vertices(vertex_buffer2);
 
     const auto begin_game_time = time::now_ms();
     const auto framebuffer_size = the<window>().real_size().cast_to<f32>();
@@ -176,16 +176,16 @@ int e2d_main() {
     while ( !the<window>().should_close() && !k.is_key_just_released(keyboard_key::escape) ) {
         const auto game_time = (time::now_ms() - begin_game_time).cast_to<f32>().value;
 
-        material->properties()
+        material.properties()
             .property("u_time", game_time)
             .property("u_MVP", projection);
 
         the<render>().execute(render::command_block<64>()
             .add_command(render::clear_command()
                 .color_value({1.f, 0.4f, 0.f, 1.f}))
-            .add_command(render::draw_command(material, geometry)));
+            .add_command(render::draw_command(material, geometry))
+            .add_command(render::swap_command(true)));
 
-        the<window>().swap_buffers(true);
         the<input>().frame_tick();
         window::poll_events();
     }
