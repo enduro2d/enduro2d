@@ -20,6 +20,8 @@
 #include <future>
 #include <condition_variable>
 
+#include <set>
+#include <map>
 #include <tuple>
 #include <array>
 #include <string>
