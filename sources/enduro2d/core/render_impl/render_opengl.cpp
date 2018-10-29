@@ -809,6 +809,12 @@ namespace e2d
         return *this;
     }
 
+    render& render::execute(const target_command& command) {
+        E2D_ASSERT(main_thread() == std::this_thread::get_id());
+        state_->set_render_target(command.target());
+        return *this;
+    }
+
     render& render::execute(const viewport_command& command) {
         E2D_ASSERT(main_thread() == std::this_thread::get_id());
         const b2u vp = make_minmax_rect(command.rect());
@@ -817,12 +823,6 @@ namespace e2d
             math::numeric_cast<GLint>(vp.position.y),
             math::numeric_cast<GLsizei>(vp.size.x),
             math::numeric_cast<GLsizei>(vp.size.y)));
-        return *this;
-    }
-
-    render& render::execute(const render_target_command& command) {
-        E2D_ASSERT(main_thread() == std::this_thread::get_id());
-        state_->set_render_target(command.render_target());
         return *this;
     }
 }

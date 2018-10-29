@@ -93,11 +93,11 @@ namespace
             render_.execute(command);
         }
 
-        void operator()(const render::viewport_command& command) const {
+        void operator()(const render::target_command& command) const {
             render_.execute(command);
         }
 
-        void operator()(const render::render_target_command& command) const {
+        void operator()(const render::viewport_command& command) const {
             render_.execute(command);
         }
     private:
@@ -975,6 +975,26 @@ namespace e2d
     }
 
     //
+    // target_command
+    //
+
+    render::target_command::target_command(const render_target_ptr& rt) noexcept
+    : target_(rt) {}
+
+    render::target_command& render::target_command::target(const render_target_ptr& value) noexcept {
+        target_ = value;
+        return *this;
+    }
+
+    render_target_ptr& render::target_command::target() noexcept {
+        return target_;
+    }
+
+    const render_target_ptr& render::target_command::target() const noexcept {
+        return target_;
+    }
+
+    //
     // viewport_command
     //
 
@@ -992,26 +1012,6 @@ namespace e2d
 
     const b2u& render::viewport_command::rect() const noexcept {
         return rect_;
-    }
-
-    //
-    // render_target_command
-    //
-
-    render::render_target_command::render_target_command(const render_target_ptr& rt) noexcept
-    : render_target_(rt) {}
-
-    render::render_target_command& render::render_target_command::render_target(const render_target_ptr& value) noexcept {
-        render_target_ = value;
-        return *this;
-    }
-
-    render_target_ptr& render::render_target_command::render_target() noexcept {
-        return render_target_;
-    }
-
-    const render_target_ptr& render::render_target_command::render_target() const noexcept {
-        return render_target_;
     }
 
     //

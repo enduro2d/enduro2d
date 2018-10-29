@@ -218,14 +218,14 @@ int e2d_main() {
             .property("u_MVP", MVP);
 
         the<render>().execute(render::command_block<64>()
-            .add_command(render::render_target_command(rt))
+            .add_command(render::target_command(rt))
             .add_command(render::viewport_command(rt->size()))
             .add_command(render::clear_command()
                 .color_value({0.f, 0.4f, 0.f, 1.f}))
             .add_command(render::draw_command(material, geometry, texture_props)));
 
         the<render>().execute(render::command_block<64>()
-            .add_command(render::render_target_command(nullptr))
+            .add_command(render::target_command(nullptr))
             .add_command(render::viewport_command(the<window>().real_size()))
             .add_command(render::clear_command()
                 .color_value({1.f, 0.4f, 0.f, 1.f})));

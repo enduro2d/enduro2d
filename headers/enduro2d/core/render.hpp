@@ -776,6 +776,17 @@ namespace e2d
             u8 _pad[2] = {0};
         };
 
+        class target_command final {
+        public:
+            target_command() = default;
+            target_command(const render_target_ptr& rt) noexcept;
+            target_command& target(const render_target_ptr& value) noexcept;
+            render_target_ptr& target() noexcept;
+            const render_target_ptr& target() const noexcept;
+        private:
+            render_target_ptr target_;
+        };
+
         class viewport_command final {
         public:
             viewport_command() = default;
@@ -787,23 +798,12 @@ namespace e2d
             b2u rect_;
         };
 
-        class render_target_command final {
-        public:
-            render_target_command() = default;
-            render_target_command(const render_target_ptr& rt) noexcept;
-            render_target_command& render_target(const render_target_ptr& value) noexcept;
-            render_target_ptr& render_target() noexcept;
-            const render_target_ptr& render_target() const noexcept;
-        private:
-            render_target_ptr render_target_;
-        };
-
         using command_value = stdex::variant<
             swap_command,
             draw_command,
             clear_command,
-            viewport_command,
-            render_target_command>;
+            target_command,
+            viewport_command>;
 
         template < std::size_t N >
         class command_block final {
@@ -864,8 +864,8 @@ namespace e2d
         render& execute(const swap_command& command);
         render& execute(const draw_command& command);
         render& execute(const clear_command& command);
+        render& execute(const target_command& command);
         render& execute(const viewport_command& command);
-        render& execute(const render_target_command& command);
     private:
         class internal_state;
         std::unique_ptr<internal_state> state_;
