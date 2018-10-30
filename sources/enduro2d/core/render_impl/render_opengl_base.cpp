@@ -6,7 +6,8 @@
 
 #include "render_opengl_base.hpp"
 
-#if defined(E2D_RENDER_MODE) && E2D_RENDER_MODE == E2D_RENDER_MODE_OPENGL
+#if defined(E2D_RENDER_MODE)
+#if E2D_RENDER_MODE == E2D_RENDER_MODE_OPENGL || E2D_RENDER_MODE == E2D_RENDER_MODE_OPENGLES
 
 namespace
 {
@@ -1200,23 +1201,18 @@ namespace e2d { namespace opengl
 
     void gl_trace_limits(debug& debug) noexcept {
         GLint max_texture_size = 0;
-        GL_CHECK_CODE(debug, glGetIntegerv(
-            GL_MAX_TEXTURE_SIZE, &max_texture_size));
         GLint max_renderbuffer_size = 0;
-        GL_CHECK_CODE(debug, glGetIntegerv(
-            GL_MAX_RENDERBUFFER_SIZE, &max_renderbuffer_size));
         GLint max_cube_map_texture_size = 0;
-        GL_CHECK_CODE(debug, glGetIntegerv(
-            GL_MAX_CUBE_MAP_TEXTURE_SIZE, &max_cube_map_texture_size));
         GLint max_texture_image_units = 0;
-        GL_CHECK_CODE(debug, glGetIntegerv(
-            GL_MAX_TEXTURE_IMAGE_UNITS, &max_texture_image_units));
         GLint max_vertex_texture_image_units = 0;
-        GL_CHECK_CODE(debug, glGetIntegerv(
-            GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS, &max_vertex_texture_image_units));
         GLint max_combined_texture_image_units = 0;
-        GL_CHECK_CODE(debug, glGetIntegerv(
-            GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &max_combined_texture_image_units));
+
+        GL_CHECK_CODE(debug, glGetIntegerv(GL_MAX_TEXTURE_SIZE, &max_texture_size));
+        GL_CHECK_CODE(debug, glGetIntegerv(GL_MAX_RENDERBUFFER_SIZE, &max_renderbuffer_size));
+        GL_CHECK_CODE(debug, glGetIntegerv(GL_MAX_CUBE_MAP_TEXTURE_SIZE, &max_cube_map_texture_size));
+        GL_CHECK_CODE(debug, glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &max_texture_image_units));
+        GL_CHECK_CODE(debug, glGetIntegerv(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS, &max_vertex_texture_image_units));
+        GL_CHECK_CODE(debug, glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &max_combined_texture_image_units));
         debug.trace("RENDER: opengl limits:\n"
             "--> GL_MAX_TEXTURE_SIZE: %0\n"
             "--> GL_MAX_RENDERBUFFER_SIZE: %1\n"
@@ -1230,6 +1226,61 @@ namespace e2d { namespace opengl
             max_texture_image_units,
             max_vertex_texture_image_units,
             max_combined_texture_image_units);
+    }
+
+    void gl_fill_device_caps(debug& debug, render::device_caps& caps) noexcept {
+        GLint max_texture_size = 0;
+        GLint max_renderbuffer_size = 0;
+        GLint max_cube_map_texture_size = 0;
+
+        GL_CHECK_CODE(debug, glGetIntegerv(GL_MAX_TEXTURE_SIZE, &max_texture_size));
+        GL_CHECK_CODE(debug, glGetIntegerv(GL_MAX_RENDERBUFFER_SIZE, &max_renderbuffer_size));
+        GL_CHECK_CODE(debug, glGetIntegerv(GL_MAX_CUBE_MAP_TEXTURE_SIZE, &max_cube_map_texture_size));
+
+        GLint max_texture_image_units = 0;
+        GLint max_combined_texture_image_units = 0;
+
+        GL_CHECK_CODE(debug, glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &max_texture_image_units));
+        GL_CHECK_CODE(debug, glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &max_combined_texture_image_units));
+
+        GLint max_vertex_attributes = 0;
+        GLint max_vertex_texture_image_units = 0;
+
+        GL_CHECK_CODE(debug, glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &max_vertex_attributes));
+        GL_CHECK_CODE(debug, glGetIntegerv(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS, &max_vertex_texture_image_units));
+
+        GLint max_varying_vectors = 0;
+        GLint max_vertex_uniform_vectors = 0;
+        GLint max_fragment_uniform_vectors = 0;
+
+    #if E2D_RENDER_MODE == E2D_RENDER_MODE_OPENGLES
+        GL_CHECK_CODE(debug, glGetIntegerv(GL_MAX_VARYING_VECTORS, &max_varying_vectors));
+        GL_CHECK_CODE(debug, glGetIntegerv(GL_MAX_VERTEX_UNIFORM_VECTORS, &max_vertex_uniform_vectors));
+        GL_CHECK_CODE(debug, glGetIntegerv(GL_MAX_FRAGMENT_UNIFORM_VECTORS, &max_fragment_uniform_vectors));
+    #elif E2D_RENDER_MODE == E2D_RENDER_MODE_OPENGL
+        GL_CHECK_CODE(debug, glGetIntegerv(GL_MAX_VARYING_COMPONENTS, &max_varying_vectors));
+        GL_CHECK_CODE(debug, glGetIntegerv(GL_MAX_VERTEX_UNIFORM_COMPONENTS, &max_vertex_uniform_vectors));
+        GL_CHECK_CODE(debug, glGetIntegerv(GL_MAX_FRAGMENT_UNIFORM_COMPONENTS, &max_fragment_uniform_vectors));
+        max_varying_vectors *= 4;
+        max_vertex_uniform_vectors *= 4;
+        max_fragment_uniform_vectors *= 4;
+    #else
+    #   error unknown render mode
+    #endif
+
+        caps.max_texture_size = math::numeric_cast<u32>(max_texture_size);
+        caps.max_renderbuffer_size = math::numeric_cast<u32>(max_renderbuffer_size);
+        caps.max_cube_map_texture_size = math::numeric_cast<u32>(max_cube_map_texture_size);
+
+        caps.max_texture_image_units = math::numeric_cast<u32>(max_texture_image_units);
+        caps.max_combined_texture_image_units = math::numeric_cast<u32>(max_combined_texture_image_units);
+
+        caps.max_vertex_attributes = math::numeric_cast<u32>(max_vertex_attributes);
+        caps.max_vertex_texture_image_units = math::numeric_cast<u32>(max_vertex_texture_image_units);
+
+        caps.max_varying_vectors = math::numeric_cast<u32>(max_varying_vectors);
+        caps.max_vertex_uniform_vectors = math::numeric_cast<u32>(max_vertex_uniform_vectors);
+        caps.max_fragment_uniform_vectors = math::numeric_cast<u32>(max_fragment_uniform_vectors);
     }
 
     gl_shader_id gl_compile_shader(debug& debug, const str& source, GLenum type) noexcept {
@@ -1446,4 +1497,5 @@ namespace e2d { namespace opengl
     }
 }}
 
+#endif
 #endif

@@ -6,7 +6,8 @@
 
 #include "render_opengl_impl.hpp"
 
-#if defined(E2D_RENDER_MODE) && E2D_RENDER_MODE == E2D_RENDER_MODE_OPENGL
+#if defined(E2D_RENDER_MODE)
+#if E2D_RENDER_MODE == E2D_RENDER_MODE_OPENGL || E2D_RENDER_MODE == E2D_RENDER_MODE_OPENGLES
 
 namespace
 {
@@ -209,8 +210,9 @@ namespace e2d
             throw bad_render_operation();
         }
 
-        opengl::gl_trace_info(debug_);
-        opengl::gl_trace_limits(debug_);
+        gl_trace_info(debug_);
+        gl_trace_limits(debug_);
+        gl_fill_device_caps(debug_, device_caps_);
 
         GL_CHECK_CODE(debug_, glPixelStorei(GL_PACK_ALIGNMENT, 1));
         GL_CHECK_CODE(debug_, glPixelStorei(GL_UNPACK_ALIGNMENT, 1));
@@ -226,6 +228,10 @@ namespace e2d
 
     window& render::internal_state::wnd() const noexcept {
         return window_;
+    }
+
+    const render::device_caps& render::internal_state::device_capabilities() const noexcept {
+        return device_caps_;
     }
 
     const render_target_ptr& render::internal_state::render_target() const noexcept {
@@ -370,4 +376,6 @@ namespace e2d
         return *this;
     }
 }
+
+#endif
 #endif

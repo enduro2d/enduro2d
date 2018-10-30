@@ -8,7 +8,8 @@
 #include "render_opengl_base.hpp"
 #include "render_opengl_impl.hpp"
 
-#if defined(E2D_RENDER_MODE) && E2D_RENDER_MODE == E2D_RENDER_MODE_OPENGL
+#if defined(E2D_RENDER_MODE)
+#if E2D_RENDER_MODE == E2D_RENDER_MODE_OPENGL || E2D_RENDER_MODE == E2D_RENDER_MODE_OPENGLES
 
 namespace
 {
@@ -825,6 +826,12 @@ namespace e2d
             math::numeric_cast<GLsizei>(vp.size.y)));
         return *this;
     }
+
+    const render::device_caps& render::device_capabilities() const noexcept {
+        E2D_ASSERT(main_thread() == std::this_thread::get_id());
+        return state_->device_capabilities();
+    }
 }
 
+#endif
 #endif

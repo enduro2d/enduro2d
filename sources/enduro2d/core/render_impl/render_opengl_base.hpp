@@ -8,7 +8,8 @@
 
 #include "render.hpp"
 
-#if defined(E2D_RENDER_MODE) && E2D_RENDER_MODE == E2D_RENDER_MODE_OPENGL
+#if defined(E2D_RENDER_MODE)
+#if E2D_RENDER_MODE == E2D_RENDER_MODE_OPENGL || E2D_RENDER_MODE == E2D_RENDER_MODE_OPENGLES
 
 #define GLEW_STATIC
 #include <3rdparty/glew/glew.h>
@@ -283,6 +284,8 @@ namespace e2d { namespace opengl
 {
     void gl_trace_info(debug& debug) noexcept;
     void gl_trace_limits(debug& debug) noexcept;
+    void gl_fill_device_caps(debug& debug, render::device_caps& caps) noexcept;
+
     gl_shader_id gl_compile_shader(debug& debug, const str& source, GLenum type) noexcept;
     gl_program_id gl_link_program(debug& debug, gl_shader_id vs, gl_shader_id fs) noexcept;
     gl_buffer_id gl_compile_index_buffer(debug& debug, const buffer& indices, index_buffer::usage usage);
@@ -498,4 +501,5 @@ namespace e2d { namespace opengl
     }
 }}
 
+#endif
 #endif

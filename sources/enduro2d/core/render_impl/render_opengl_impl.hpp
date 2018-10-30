@@ -9,7 +9,8 @@
 #include "render.hpp"
 #include "render_opengl_base.hpp"
 
-#if defined(E2D_RENDER_MODE) && E2D_RENDER_MODE == E2D_RENDER_MODE_OPENGL
+#if defined(E2D_RENDER_MODE)
+#if E2D_RENDER_MODE == E2D_RENDER_MODE_OPENGL || E2D_RENDER_MODE == E2D_RENDER_MODE_OPENGLES
 
 namespace e2d
 {
@@ -172,6 +173,7 @@ namespace e2d
     public:
         debug& dbg() const noexcept;
         window& wnd() const noexcept;
+        const device_caps& device_capabilities() const noexcept;
         const render_target_ptr& render_target() const noexcept;
     public:
         internal_state& set_states(const state_block& sb) noexcept;
@@ -186,6 +188,7 @@ namespace e2d
     private:
         debug& debug_;
         window& window_;
+        device_caps device_caps_;
         state_block state_block_;
         shader_ptr shader_program_;
         render_target_ptr render_target_;
@@ -194,4 +197,5 @@ namespace e2d
     };
 }
 
+#endif
 #endif

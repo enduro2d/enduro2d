@@ -113,7 +113,7 @@ namespace e2d
 
     template < std::size_t N >
     render::command_block<N>& render::command_block<N>::clear() noexcept {
-        commands_.clear();
+        command_count_ = 0;
         return *this;
     }
 

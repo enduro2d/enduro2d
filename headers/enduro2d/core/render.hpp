@@ -819,6 +819,22 @@ namespace e2d
             array<command_value, N> commands_;
             std::size_t command_count_ = 0;
         };
+
+        struct device_caps {
+            u32 max_texture_size = 0;
+            u32 max_renderbuffer_size = 0;
+            u32 max_cube_map_texture_size = 0;
+
+            u32 max_texture_image_units = 0;
+            u32 max_combined_texture_image_units = 0;
+
+            u32 max_vertex_attributes = 0;
+            u32 max_vertex_texture_image_units = 0;
+
+            u32 max_varying_vectors = 0;
+            u32 max_vertex_uniform_vectors = 0;
+            u32 max_fragment_uniform_vectors = 0;
+        };
     public:
         render(debug& d, window& w);
         ~render() noexcept final;
@@ -866,6 +882,8 @@ namespace e2d
         render& execute(const clear_command& command);
         render& execute(const target_command& command);
         render& execute(const viewport_command& command);
+
+        const device_caps& device_capabilities() const noexcept;
     private:
         class internal_state;
         std::unique_ptr<internal_state> state_;
