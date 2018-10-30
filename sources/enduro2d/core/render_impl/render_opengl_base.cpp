@@ -810,6 +810,7 @@ namespace e2d { namespace opengl
         switch ( it ) {
             DEFINE_CASE(unsigned_byte, GL_UNSIGNED_BYTE);
             DEFINE_CASE(unsigned_short, GL_UNSIGNED_SHORT);
+            DEFINE_CASE(unsigned_int, GL_UNSIGNED_INT);
             default:
                 E2D_ASSERT_MSG(false, "unexpected index type");
                 return 0;
@@ -1206,6 +1207,7 @@ namespace e2d { namespace opengl
         GLint max_texture_size = 0;
         GLint max_renderbuffer_size = 0;
         GLint max_cube_map_texture_size = 0;
+        GLint max_vertex_attributes = 0;
         GLint max_texture_image_units = 0;
         GLint max_vertex_texture_image_units = 0;
         GLint max_combined_texture_image_units = 0;
@@ -1213,6 +1215,7 @@ namespace e2d { namespace opengl
         GL_CHECK_CODE(debug, glGetIntegerv(GL_MAX_TEXTURE_SIZE, &max_texture_size));
         GL_CHECK_CODE(debug, glGetIntegerv(GL_MAX_RENDERBUFFER_SIZE, &max_renderbuffer_size));
         GL_CHECK_CODE(debug, glGetIntegerv(GL_MAX_CUBE_MAP_TEXTURE_SIZE, &max_cube_map_texture_size));
+        GL_CHECK_CODE(debug, glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &max_vertex_attributes));
         GL_CHECK_CODE(debug, glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &max_texture_image_units));
         GL_CHECK_CODE(debug, glGetIntegerv(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS, &max_vertex_texture_image_units));
         GL_CHECK_CODE(debug, glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &max_combined_texture_image_units));
@@ -1220,12 +1223,14 @@ namespace e2d { namespace opengl
             "--> GL_MAX_TEXTURE_SIZE: %0\n"
             "--> GL_MAX_RENDERBUFFER_SIZE: %1\n"
             "--> GL_MAX_CUBE_MAP_TEXTURE_SIZE: %2\n"
-            "--> GL_MAX_TEXTURE_IMAGE_UNITS: %3\n"
-            "--> GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS: %4\n"
-            "--> GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS: %5",
+            "--> GL_MAX_VERTEX_ATTRIBS: %3\n"
+            "--> GL_MAX_TEXTURE_IMAGE_UNITS: %4\n"
+            "--> GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS: %5\n"
+            "--> GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS: %6",
             max_texture_size,
             max_renderbuffer_size,
             max_cube_map_texture_size,
+            max_vertex_attributes,
             max_texture_image_units,
             max_vertex_texture_image_units,
             max_combined_texture_image_units);
@@ -1323,42 +1328,6 @@ namespace e2d { namespace opengl
             && process_program_validation_result(debug, *id)
             ? std::move(id)
             : gl_program_id(debug);
-    }
-
-    gl_buffer_id gl_compile_index_buffer(
-        debug& debug, const buffer& indices, index_buffer::usage usage)
-    {
-        gl_buffer_id id = gl_buffer_id::create(
-            debug, GL_ELEMENT_ARRAY_BUFFER);
-        if ( id.empty() ) {
-            return id;
-        }
-        with_gl_bind_buffer(debug, id, [&debug, &id, &indices, &usage]() {
-            GL_CHECK_CODE(debug, glBufferData(
-                id.target(),
-                math::numeric_cast<GLsizeiptr>(indices.size()),
-                indices.data(),
-                convert_buffer_usage(usage)));
-        });
-        return id;
-    }
-
-    gl_buffer_id gl_compile_vertex_buffer(
-        debug& debug, const buffer& vertices, vertex_buffer::usage usage)
-    {
-        gl_buffer_id id = gl_buffer_id::create(
-            debug, GL_ARRAY_BUFFER);
-        if ( id.empty() ) {
-            return id;
-        }
-        with_gl_bind_buffer(debug, id, [&debug, &id, &vertices, &usage]() {
-            GL_CHECK_CODE(debug, glBufferData(
-                id.target(),
-                math::numeric_cast<GLsizeiptr>(vertices.size()),
-                vertices.data(),
-                convert_buffer_usage(usage)));
-        });
-        return id;
     }
 
     bool gl_check_framebuffer(

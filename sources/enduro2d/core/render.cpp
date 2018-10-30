@@ -56,6 +56,7 @@ namespace
         switch ( it ) {
             DEFINE_CASE(unsigned_byte);
             DEFINE_CASE(unsigned_short);
+            DEFINE_CASE(unsigned_int);
             default:
                 E2D_ASSERT_MSG(false, "unexpected index type");
                 return "";
@@ -68,6 +69,7 @@ namespace
         switch ( it ) {
             DEFINE_CASE(unsigned_byte, sizeof(u8));
             DEFINE_CASE(unsigned_short, sizeof(u16));
+            DEFINE_CASE(unsigned_int, sizeof(u32));
             default:
                 E2D_ASSERT_MSG(false, "unexpected index type");
                 return 0;

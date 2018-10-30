@@ -100,7 +100,8 @@ namespace e2d
     public:
         enum class index_type : u8 {
             unsigned_byte,
-            unsigned_short
+            unsigned_short,
+            unsigned_int
         };
         static const char* index_type_to_cstr(index_type it) noexcept;
     public:
@@ -892,6 +893,8 @@ namespace e2d
 
         const device_caps& device_capabilities() const noexcept;
         bool is_pixel_supported(const pixel_declaration& decl) const noexcept;
+        bool is_index_supported(const index_declaration& decl) const noexcept;
+        bool is_vertex_supported(const vertex_declaration& decl) const noexcept;
     private:
         class internal_state;
         std::unique_ptr<internal_state> state_;

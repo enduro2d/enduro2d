@@ -288,8 +288,6 @@ namespace e2d { namespace opengl
 
     gl_shader_id gl_compile_shader(debug& debug, const str& source, GLenum type) noexcept;
     gl_program_id gl_link_program(debug& debug, gl_shader_id vs, gl_shader_id fs) noexcept;
-    gl_buffer_id gl_compile_index_buffer(debug& debug, const buffer& indices, index_buffer::usage usage);
-    gl_buffer_id gl_compile_vertex_buffer(debug& debug, const buffer& vertices, vertex_buffer::usage usage);
 
     bool gl_check_framebuffer(
         debug& debug,

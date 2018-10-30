@@ -665,11 +665,28 @@ namespace e2d
         E2D_ASSERT(main_thread() == std::this_thread::get_id());
         E2D_ASSERT(indices.size() % decl.bytes_per_index() == 0);
 
-        gl_buffer_id id = gl_compile_index_buffer(
-            state_->dbg(), indices, usage);
-        if ( id.empty() ) {
+        if ( !is_index_supported(decl) ) {
+            state_->dbg().error("RENDER: Failed to create index buffer:\n"
+                "--> Info: unsupported index declaration\n"
+                "--> Index type: %0",
+                index_declaration::index_type_to_cstr(decl.type()));
             return nullptr;
         }
+
+        gl_buffer_id id = gl_buffer_id::create(state_->dbg(), GL_ELEMENT_ARRAY_BUFFER);
+        if ( id.empty() ) {
+            state_->dbg().error("RENDER: Failed to create index buffer:\n"
+                "--> Info: failed to create index buffer id");
+            return nullptr;
+        }
+
+        with_gl_bind_buffer(state_->dbg(), id, [this, &id, &indices, &usage]() {
+            GL_CHECK_CODE(state_->dbg(), glBufferData(
+                id.target(),
+                math::numeric_cast<GLsizeiptr>(indices.size()),
+                indices.data(),
+                convert_buffer_usage(usage)));
+        });
 
         return std::make_shared<index_buffer>(
             std::make_unique<index_buffer::internal_state>(
@@ -684,11 +701,26 @@ namespace e2d
         E2D_ASSERT(main_thread() == std::this_thread::get_id());
         E2D_ASSERT(vertices.size() % decl.bytes_per_vertex() == 0);
 
-        gl_buffer_id id = gl_compile_vertex_buffer(
-            state_->dbg(), vertices, usage);
-        if ( id.empty() ) {
+        if ( !is_vertex_supported(decl) ) {
+            state_->dbg().error("RENDER: Failed to create vertex buffer:\n"
+                "--> Info: unsupported vertex declaration");
             return nullptr;
         }
+
+        gl_buffer_id id = gl_buffer_id::create(state_->dbg(), GL_ARRAY_BUFFER);
+        if ( id.empty() ) {
+            state_->dbg().error("RENDER: Failed to create vertex buffer:\n"
+                "--> Info: failed to create vertex buffer id");
+            return nullptr;
+        }
+
+        with_gl_bind_buffer(state_->dbg(), id, [this, &id, &vertices, &usage]() {
+            GL_CHECK_CODE(state_->dbg(), glBufferData(
+                id.target(),
+                math::numeric_cast<GLsizeiptr>(vertices.size()),
+                vertices.data(),
+                convert_buffer_usage(usage)));
+        });
 
         return std::make_shared<vertex_buffer>(
             std::make_unique<vertex_buffer::internal_state>(
@@ -871,8 +903,15 @@ namespace e2d
         if ( has_depth ) {
             if ( clear_depth ) {
                 clear_mask |= GL_DEPTH_BUFFER_BIT;
+            #if E2D_RENDER_MODE == E2D_RENDER_MODE_OPENGL
                 GL_CHECK_CODE(state_->dbg(), glClearDepth(
                     math::numeric_cast<GLclampd>(math::saturate(command.depth_value()))));
+            #elif E2D_RENDER_MODE == E2D_RENDER_MODE_OPENGLES
+                GL_CHECK_CODE(state_->dbg(), glClearDepthf(
+                    math::numeric_cast<GLclampf>(math::saturate(command.depth_value()))));
+            #else
+            #   error unknown render mode
+            #endif
             }
             if ( clear_stencil ) {
                 clear_mask |= GL_STENCIL_BUFFER_BIT;
@@ -944,6 +983,31 @@ namespace e2d
                 E2D_ASSERT_MSG(false, "unexpected pixel type");
                 return false;
         }
+    }
+
+    bool render::is_index_supported(const index_declaration& decl) const noexcept {
+        E2D_ASSERT(main_thread() == std::this_thread::get_id());
+        switch ( decl.type() ) {
+            case index_declaration::index_type::unsigned_byte:
+            case index_declaration::index_type::unsigned_short:
+                return true;
+            case index_declaration::index_type::unsigned_int:
+        #if E2D_RENDER_MODE == E2D_RENDER_MODE_OPENGL
+                return true;
+        #elif E2D_RENDER_MODE == E2D_RENDER_MODE_OPENGLES
+                return __GLEW_OES_element_index_uint;
+        #else
+        #   error unknown render mode
+        #endif
+            default:
+                E2D_ASSERT_MSG(false, "unexpected index type");
+                return false;
+        }
+    }
+
+    bool render::is_vertex_supported(const vertex_declaration& decl) const noexcept {
+        E2D_ASSERT(main_thread() == std::this_thread::get_id());
+        return decl.attribute_count() <= device_capabilities().max_vertex_attributes;
     }
 }
 
