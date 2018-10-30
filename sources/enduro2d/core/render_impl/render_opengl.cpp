@@ -520,6 +520,15 @@ namespace e2d
             return nullptr;
         }
 
+        if ( !device_capabilities().npot_texture_supported ) {
+            if ( !math::is_power_of_2(image.size().x) || !math::is_power_of_2(image.size().y) ) {
+                state_->dbg().error("RENDER: Failed to create texture:\n"
+                    "--> Info: non power of two texture is unsupported\n"
+                    "--> Size: %0",
+                    image.size());
+            }
+        }
+
         gl_texture_id id = gl_texture_id::create(state_->dbg(), GL_TEXTURE_2D);
         if ( id.empty() ) {
             state_->dbg().error("RENDER: Failed to create texture:\n"
@@ -607,6 +616,15 @@ namespace e2d
                 "--> Max size: %1",
                 size, device_capabilities().max_texture_size);
             return nullptr;
+        }
+
+        if ( !device_capabilities().npot_texture_supported ) {
+            if ( !math::is_power_of_2(size.x) || !math::is_power_of_2(size.y) ) {
+                state_->dbg().error("RENDER: Failed to create texture:\n"
+                    "--> Info: non power of two texture is unsupported\n"
+                    "--> Size: %0",
+                    size);
+            }
         }
 
         gl_texture_id id = gl_texture_id::create(state_->dbg(), GL_TEXTURE_2D);
@@ -752,6 +770,15 @@ namespace e2d
                 "--> Max size: %1",
                 size, device_capabilities().max_renderbuffer_size);
             return nullptr;
+        }
+
+        if ( !device_capabilities().npot_texture_supported ) {
+            if ( !math::is_power_of_2(size.x) || !math::is_power_of_2(size.y) ) {
+                state_->dbg().error("RENDER: Failed to create framebuffer:\n"
+                    "--> Info: non power of two render target is unsupported\n"
+                    "--> Size: %0",
+                    size);
+            }
         }
 
         gl_framebuffer_id id = gl_framebuffer_id::create(state_->dbg(), GL_FRAMEBUFFER);

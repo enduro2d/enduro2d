@@ -1290,6 +1290,10 @@ namespace e2d { namespace opengl
         caps.max_vertex_uniform_vectors = math::numeric_cast<u32>(max_vertex_uniform_vectors);
         caps.max_fragment_uniform_vectors = math::numeric_cast<u32>(max_fragment_uniform_vectors);
 
+        caps.npot_texture_supported =
+            __GLEW_OES_texture_npot ||
+            __GLEW_ARB_texture_non_power_of_two;
+
         caps.depth_texture_supported =
             __GLEW_OES_depth_texture ||
             __GLEW_ARB_depth_texture ||
