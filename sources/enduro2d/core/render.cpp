@@ -11,6 +11,7 @@ namespace
     using namespace e2d;
 
     struct pixel_type_description {
+        const char* cstr;
         u32 minimal_size;
         u32 bits_per_pixel;
         bool color;
@@ -23,22 +24,23 @@ namespace
     };
 
     const pixel_type_description pixel_type_descriptions[] = {
-        {1, 16, false, true,  false, pixel_declaration::pixel_type::depth16,          false, false, false},
-        {1, 24, false, true,  false, pixel_declaration::pixel_type::depth24,          false, false, false},
-        {1, 32, false, true,  true,  pixel_declaration::pixel_type::depth24_stencil8, false, false, false},
+        {"depth16",          1, 16, false, true,  false, pixel_declaration::pixel_type::depth16,          false, false, false},
+        {"depth24",          1, 24, false, true,  false, pixel_declaration::pixel_type::depth24,          false, false, false},
+        {"depth32",          1, 32, false, true,  false, pixel_declaration::pixel_type::depth32,          false, false, false},
+        {"depth24_stencil8", 1, 32, false, true,  true,  pixel_declaration::pixel_type::depth24_stencil8, false, false, false},
 
-        {1, 24, true,  false, false, pixel_declaration::pixel_type::rgb8,             false, false, false},
-        {1, 32, true,  false, false, pixel_declaration::pixel_type::rgba8,            false, false, false},
+        {"rgb8",             1, 24, true,  false, false, pixel_declaration::pixel_type::rgb8,             false, false, false},
+        {"rgba8",            1, 32, true,  false, false, pixel_declaration::pixel_type::rgba8,            false, false, false},
 
-        {4,  4, true,  false, false, pixel_declaration::pixel_type::rgb_dxt1,         true,  false, true},
-        {4,  4, true,  false, false, pixel_declaration::pixel_type::rgba_dxt1,        true,  false, true},
-        {4,  8, true,  false, false, pixel_declaration::pixel_type::rgba_dxt3,        true,  false, true},
-        {4,  8, true,  false, false, pixel_declaration::pixel_type::rgba_dxt5,        true,  false, true},
+        {"rgb_dxt1",         4,  4, true,  false, false, pixel_declaration::pixel_type::rgb_dxt1,         true,  false, true},
+        {"rgba_dxt1",        4,  4, true,  false, false, pixel_declaration::pixel_type::rgba_dxt1,        true,  false, true},
+        {"rgba_dxt3",        4,  8, true,  false, false, pixel_declaration::pixel_type::rgba_dxt3,        true,  false, true},
+        {"rgba_dxt5",        4,  8, true,  false, false, pixel_declaration::pixel_type::rgba_dxt5,        true,  false, true},
 
-        {8,  2, true,  false, false, pixel_declaration::pixel_type::rgb_pvrtc2,       true,  true,  true},
-        {8,  4, true,  false, false, pixel_declaration::pixel_type::rgb_pvrtc4,       true,  true,  true},
-        {8,  2, true,  false, false, pixel_declaration::pixel_type::rgba_pvrtc2,      true,  true,  true},
-        {8,  4, true,  false, false, pixel_declaration::pixel_type::rgba_pvrtc4,      true,  true,  true}
+        {"rgb_pvrtc2",       8,  2, true,  false, false, pixel_declaration::pixel_type::rgb_pvrtc2,       true,  true,  true},
+        {"rgb_pvrtc4",       8,  4, true,  false, false, pixel_declaration::pixel_type::rgb_pvrtc4,       true,  true,  true},
+        {"rgba_pvrtc2",      8,  2, true,  false, false, pixel_declaration::pixel_type::rgba_pvrtc2,      true,  true,  true},
+        {"rgba_pvrtc4",      8,  4, true,  false, false, pixel_declaration::pixel_type::rgba_pvrtc4,      true,  true,  true}
     };
 
     const pixel_type_description& get_pixel_type_description(pixel_declaration::pixel_type type) noexcept {
@@ -47,6 +49,18 @@ namespace
         const pixel_type_description& desc = pixel_type_descriptions[index];
         E2D_ASSERT(desc.type == type);
         return desc;
+    }
+
+    const char* index_element_cstr(index_declaration::index_type it) noexcept {
+        #define DEFINE_CASE(x) case index_declaration::index_type::x: return #x;
+        switch ( it ) {
+            DEFINE_CASE(unsigned_byte);
+            DEFINE_CASE(unsigned_short);
+            default:
+                E2D_ASSERT_MSG(false, "unexpected index type");
+                return "";
+        }
+        #undef DEFINE_CASE
     }
 
     std::size_t index_element_size(index_declaration::index_type it) noexcept {
@@ -111,6 +125,10 @@ namespace e2d
     // pixel_declaration
     //
 
+    const char* pixel_declaration::pixel_type_to_cstr(pixel_type pt) noexcept {
+        return get_pixel_type_description(pt).cstr;
+    }
+
     pixel_declaration::pixel_declaration(pixel_type type) noexcept
     : type_(type) {}
 
@@ -149,6 +167,10 @@ namespace e2d
     //
     // index_declaration
     //
+
+    const char* index_declaration::index_type_to_cstr(index_type it) noexcept {
+        return index_element_cstr(it);
+    }
 
     index_declaration::index_declaration(index_type type) noexcept
     : type_(type) {}

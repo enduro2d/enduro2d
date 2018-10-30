@@ -493,16 +493,40 @@ namespace e2d
     {
         E2D_ASSERT(main_thread() == std::this_thread::get_id());
 
-        gl_texture_id id = gl_texture_id::create(
-            state_->dbg(), GL_TEXTURE_2D);
-        if ( id.empty() ) {
-            state_->dbg().error("RENDER: Failed to create texture: %0",
-                "failed to create texture id");
+        const pixel_declaration decl =
+            convert_image_data_format_to_pixel_declaration(image.format());
+
+        if ( !is_pixel_supported(decl) ) {
+            state_->dbg().error("RENDER: Failed to create texture:\n"
+                "--> Info: unsupported pixel declaration\n"
+                "--> Pixel type: %0",
+                pixel_declaration::pixel_type_to_cstr(decl.type()));
             return nullptr;
         }
 
-        const pixel_declaration decl =
-            convert_image_data_format_to_pixel_declaration(image.format());
+        if ( decl.is_depth() && !device_capabilities().depth_texture_supported ) {
+            state_->dbg().error("RENDER: Failed to create texture:\n"
+                "--> Info: depth textures is unsupported\n"
+                "--> Pixel type: %0",
+                pixel_declaration::pixel_type_to_cstr(decl.type()));
+            return nullptr;
+        }
+
+        if ( math::maximum(image.size()) > device_capabilities().max_texture_size ) {
+            state_->dbg().error("RENDER: Failed to create texture:\n"
+                "--> Info: unsupported texture size: %0\n"
+                "--> Max size: %1",
+                image.size(), device_capabilities().max_texture_size);
+            return nullptr;
+        }
+
+        gl_texture_id id = gl_texture_id::create(state_->dbg(), GL_TEXTURE_2D);
+        if ( id.empty() ) {
+            state_->dbg().error("RENDER: Failed to create texture:\n"
+                "--> Info: failed to create texture id");
+            return nullptr;
+        }
+
         with_gl_bind_texture(state_->dbg(), id, [this, &id, &image, &decl]() noexcept {
             if ( decl.is_compressed() ) {
                 GL_CHECK_CODE(state_->dbg(), glCompressedTexImage2D(
@@ -526,9 +550,15 @@ namespace e2d
                     convert_image_data_format_to_external_data_type(image.format()),
                     image.data().data()));
             }
-        #if !defined(GL_ES_VERSION_2_0)
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+        #if E2D_RENDER_MODE == E2D_RENDER_MODE_OPENGL
+            GL_CHECK_CODE(state_->dbg(), glTexParameteri(
+                id.target(),
+                GL_TEXTURE_MAX_LEVEL,
+                0));
+            GL_CHECK_CODE(state_->dbg(), glTexParameteri(
+                id.target(),
+                GL_TEXTURE_BASE_LEVEL,
+                0));
         #endif
         });
 
@@ -555,11 +585,34 @@ namespace e2d
     {
         E2D_ASSERT(main_thread() == std::this_thread::get_id());
 
-        gl_texture_id id = gl_texture_id::create(
-            state_->dbg(), GL_TEXTURE_2D);
+        if ( !is_pixel_supported(decl) ) {
+            state_->dbg().error("RENDER: Failed to create texture:\n"
+                "--> Info: unsupported pixel declaration\n"
+                "--> Pixel type: %0",
+                pixel_declaration::pixel_type_to_cstr(decl.type()));
+            return nullptr;
+        }
+
+        if ( decl.is_depth() && !device_capabilities().depth_texture_supported ) {
+            state_->dbg().error("RENDER: Failed to create texture:\n"
+                "--> Info: depth textures is unsupported\n"
+                "--> Pixel type: %0",
+                pixel_declaration::pixel_type_to_cstr(decl.type()));
+            return nullptr;
+        }
+
+        if ( math::maximum(size) > device_capabilities().max_texture_size ) {
+            state_->dbg().error("RENDER: Failed to create texture:\n"
+                "--> Info: unsupported texture size: %0\n"
+                "--> Max size: %1",
+                size, device_capabilities().max_texture_size);
+            return nullptr;
+        }
+
+        gl_texture_id id = gl_texture_id::create(state_->dbg(), GL_TEXTURE_2D);
         if ( id.empty() ) {
-            state_->dbg().error("RENDER: Failed to create texture: %0",
-                "failed to create texture id");
+            state_->dbg().error("RENDER: Failed to create texture:\n"
+                "--> Info: failed to create texture id");
             return nullptr;
         }
 
@@ -587,9 +640,15 @@ namespace e2d
                     convert_pixel_type_to_external_data_type(decl.type()),
                     nullptr));
             }
-        #if !defined(GL_ES_VERSION_2_0)
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+        #if E2D_RENDER_MODE == E2D_RENDER_MODE_OPENGL
+            GL_CHECK_CODE(state_->dbg(), glTexParameteri(
+                id.target(),
+                GL_TEXTURE_MAX_LEVEL,
+                0));
+            GL_CHECK_CODE(state_->dbg(), glTexParameteri(
+                id.target(),
+                GL_TEXTURE_BASE_LEVEL,
+                0));
         #endif
         });
 
@@ -649,11 +708,24 @@ namespace e2d
             color_decl.is_color() &&
             !color_decl.is_compressed());
 
-        gl_framebuffer_id id = gl_framebuffer_id::create(
-            state_->dbg(), GL_FRAMEBUFFER);
+        if ( !device_capabilities().render_target_supported ) {
+            state_->dbg().error("RENDER: Failed to create framebuffer:\n"
+                "--> Info: render target is unsupported");
+            return nullptr;
+        }
+
+        if ( math::maximum(size) > device_capabilities().max_renderbuffer_size ) {
+            state_->dbg().error("RENDER: Failed to create framebuffer:\n"
+                "--> Info: unsupported render target size: %0\n"
+                "--> Max size: %1",
+                size, device_capabilities().max_renderbuffer_size);
+            return nullptr;
+        }
+
+        gl_framebuffer_id id = gl_framebuffer_id::create(state_->dbg(), GL_FRAMEBUFFER);
         if ( id.empty() ) {
-            state_->dbg().error("RENDER: Failed to create framebuffer: %0",
-                "failed to create framebuffer id");
+            state_->dbg().error("RENDER: Failed to create framebuffer:\n",
+                "--> Info: failed to create framebuffer id");
             return nullptr;
         }
 
@@ -674,8 +746,8 @@ namespace e2d
         if ( need_color ) {
             color = create_texture(size, color_decl);
             if ( !color ) {
-                state_->dbg().error("RENDER: Failed to create framebuffer: %0",
-                    "failed to create color texture");
+                state_->dbg().error("RENDER: Failed to create framebuffer:\n"
+                    "--> Info: failed to create color texture");
                 return nullptr;
             }
             gl_attach_texture(state_->dbg(), id, color->state().id(), GL_COLOR_ATTACHMENT0);
@@ -685,8 +757,8 @@ namespace e2d
                 size,
                 convert_pixel_type_to_internal_format_e(color_decl.type()));
             if ( color_rb.empty() ) {
-                state_->dbg().error("RENDER: Failed to create framebuffer: %0",
-                    "failed to create color renderbuffer");
+                state_->dbg().error("RENDER: Failed to create framebuffer:\n"
+                    "--> Info: failed to create color renderbuffer");
                 return nullptr;
             }
             gl_attach_renderbuffer(state_->dbg(), id, color_rb, GL_COLOR_ATTACHMENT0);
@@ -695,8 +767,8 @@ namespace e2d
         if ( need_depth ) {
             depth = create_texture(size, depth_decl);
             if ( !depth ) {
-                state_->dbg().error("RENDER: Failed to create framebuffer: %0",
-                    "failed to create depth texture");
+                state_->dbg().error("RENDER: Failed to create framebuffer:\n"
+                    "--> Info: failed to create depth texture");
                 return nullptr;
             }
             gl_attach_texture(state_->dbg(), id, depth->state().id(), GL_DEPTH_ATTACHMENT);
@@ -709,8 +781,8 @@ namespace e2d
                 size,
                 convert_pixel_type_to_internal_format_e(depth_decl.type()));
             if ( depth_rb.empty() ) {
-                state_->dbg().error("RENDER: Failed to create framebuffer: %0",
-                    "failed to create depth renderbuffer");
+                state_->dbg().error("RENDER: Failed to create framebuffer:\n"
+                    "--> Info: failed to create depth renderbuffer");
                 return nullptr;
             }
             gl_attach_renderbuffer(state_->dbg(), id, depth_rb, GL_DEPTH_ATTACHMENT);
@@ -721,7 +793,9 @@ namespace e2d
 
         GLenum fb_status = GL_FRAMEBUFFER_COMPLETE;
         if ( !gl_check_framebuffer(state_->dbg(), id, &fb_status) ) {
-            state_->dbg().error("RENDER: Failed to create framebuffer: %0",
+            state_->dbg().error("RENDER: Failed to create framebuffer:\n"
+                "--> Info: framebuffer is incomplete\n"
+                "--> Status: %0",
                 gl_framebuffer_status_to_cstr(fb_status));
             return nullptr;
         }
@@ -830,6 +904,46 @@ namespace e2d
     const render::device_caps& render::device_capabilities() const noexcept {
         E2D_ASSERT(main_thread() == std::this_thread::get_id());
         return state_->device_capabilities();
+    }
+
+    bool render::is_pixel_supported(const pixel_declaration& decl) const noexcept {
+        E2D_ASSERT(main_thread() == std::this_thread::get_id());
+        switch ( decl.type() ) {
+            case pixel_declaration::pixel_type::depth16:
+                return true;
+            case pixel_declaration::pixel_type::depth24:
+                return __GLEW_OES_depth24;
+            case pixel_declaration::pixel_type::depth32:
+                return __GLEW_OES_depth32;
+            case pixel_declaration::pixel_type::depth24_stencil8:
+                return __GLEW_OES_packed_depth_stencil
+                    || __GLEW_EXT_packed_depth_stencil;
+            case pixel_declaration::pixel_type::rgb8:
+            case pixel_declaration::pixel_type::rgba8:
+                return true;
+            case pixel_declaration::pixel_type::rgb_dxt1:
+            case pixel_declaration::pixel_type::rgba_dxt1:
+                return __GLEW_ANGLE_texture_compression_dxt1
+                    || __GLEW_EXT_texture_compression_dxt1
+                    || __GLEW_EXT_texture_compression_s3tc
+                    || __GLEW_NV_texture_compression_s3tc;
+            case pixel_declaration::pixel_type::rgba_dxt3:
+                return __GLEW_ANGLE_texture_compression_dxt3
+                    || __GLEW_EXT_texture_compression_s3tc
+                    || __GLEW_NV_texture_compression_s3tc;
+            case pixel_declaration::pixel_type::rgba_dxt5:
+                return __GLEW_ANGLE_texture_compression_dxt5
+                    || __GLEW_EXT_texture_compression_s3tc
+                    || __GLEW_NV_texture_compression_s3tc;
+            case pixel_declaration::pixel_type::rgb_pvrtc2:
+            case pixel_declaration::pixel_type::rgb_pvrtc4:
+            case pixel_declaration::pixel_type::rgba_pvrtc2:
+            case pixel_declaration::pixel_type::rgba_pvrtc4:
+                return __GLEW_IMG_texture_compression_pvrtc;
+            default:
+                E2D_ASSERT_MSG(false, "unexpected pixel type");
+                return false;
+        }
     }
 }
 

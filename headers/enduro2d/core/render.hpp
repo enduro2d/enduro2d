@@ -48,6 +48,7 @@ namespace e2d
         enum class pixel_type : u8 {
             depth16,
             depth24,
+            depth32,
             depth24_stencil8,
 
             rgb8,
@@ -62,8 +63,9 @@ namespace e2d
             rgb_pvrtc4,
 
             rgba_pvrtc2,
-            rgba_pvrtc4,
+            rgba_pvrtc4
         };
+        static const char* pixel_type_to_cstr(pixel_type pt) noexcept;
     public:
         pixel_declaration() = default;
         ~pixel_declaration() noexcept = default;
@@ -100,6 +102,7 @@ namespace e2d
             unsigned_byte,
             unsigned_short
         };
+        static const char* index_type_to_cstr(index_type it) noexcept;
     public:
         index_declaration() = default;
         ~index_declaration() noexcept = default;
@@ -834,6 +837,10 @@ namespace e2d
             u32 max_varying_vectors = 0;
             u32 max_vertex_uniform_vectors = 0;
             u32 max_fragment_uniform_vectors = 0;
+
+            bool depth_texture_supported = false;
+            bool render_target_supported = false;
+            u8 _pad[2] = {0};
         };
     public:
         render(debug& d, window& w);
@@ -884,6 +891,7 @@ namespace e2d
         render& execute(const viewport_command& command);
 
         const device_caps& device_capabilities() const noexcept;
+        bool is_pixel_supported(const pixel_declaration& decl) const noexcept;
     private:
         class internal_state;
         std::unique_ptr<internal_state> state_;

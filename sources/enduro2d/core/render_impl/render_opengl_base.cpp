@@ -721,6 +721,7 @@ namespace e2d { namespace opengl
         switch ( f ) {
             DEFINE_CASE(depth16, GL_DEPTH_COMPONENT);
             DEFINE_CASE(depth24, GL_DEPTH_COMPONENT);
+            DEFINE_CASE(depth32, GL_DEPTH_COMPONENT);
             DEFINE_CASE(depth24_stencil8, GL_DEPTH_STENCIL);
             DEFINE_CASE(rgb8, GL_RGB);
             DEFINE_CASE(rgba8, GL_RGBA);
@@ -736,6 +737,7 @@ namespace e2d { namespace opengl
         switch ( f ) {
             DEFINE_CASE(depth16, GL_UNSIGNED_SHORT);
             DEFINE_CASE(depth24, GL_UNSIGNED_INT);
+            DEFINE_CASE(depth32, GL_UNSIGNED_INT);
             DEFINE_CASE(depth24_stencil8, GL_UNSIGNED_INT_24_8);
             DEFINE_CASE(rgb8, GL_UNSIGNED_BYTE);
             DEFINE_CASE(rgba8, GL_UNSIGNED_BYTE);
@@ -751,6 +753,7 @@ namespace e2d { namespace opengl
         switch ( f ) {
             DEFINE_CASE(depth16, GL_DEPTH_COMPONENT16);
             DEFINE_CASE(depth24, GL_DEPTH_COMPONENT24);
+            DEFINE_CASE(depth32, GL_DEPTH_COMPONENT32);
             DEFINE_CASE(depth24_stencil8, GL_DEPTH24_STENCIL8);
 
             DEFINE_CASE(rgb8, GL_RGB);
@@ -1281,6 +1284,17 @@ namespace e2d { namespace opengl
         caps.max_varying_vectors = math::numeric_cast<u32>(max_varying_vectors);
         caps.max_vertex_uniform_vectors = math::numeric_cast<u32>(max_vertex_uniform_vectors);
         caps.max_fragment_uniform_vectors = math::numeric_cast<u32>(max_fragment_uniform_vectors);
+
+        caps.depth_texture_supported =
+            __GLEW_OES_depth_texture ||
+            __GLEW_ARB_depth_texture ||
+            __GLEW_ANGLE_depth_texture ||
+            __GLEW_SGIX_depth_texture;
+
+        caps.render_target_supported =
+            __GLEW_OES_framebuffer_object ||
+            __GLEW_ARB_framebuffer_object ||
+            __GLEW_EXT_framebuffer_object;
     }
 
     gl_shader_id gl_compile_shader(debug& debug, const str& source, GLenum type) noexcept {
