@@ -38,20 +38,16 @@ namespace e2d
         rgb_pvrtc4,
 
         rgba_pvrtc2,
-        rgba_pvrtc4
+        rgba_pvrtc4,
+
+        rgba_pvrtc2_v2,
+        rgba_pvrtc4_v2
     };
 
     class bad_image_access final : public exception {
     public:
         const char* what() const noexcept final {
             return "bad image access";
-        }
-    };
-
-    class bad_image_data_format final : public exception {
-    public:
-        const char* what() const noexcept final {
-            return "bad image data format";
         }
     };
 
@@ -65,14 +61,12 @@ namespace e2d
         image(const image& other);
         image& operator=(const image& other);
 
-        image(const v2u& size, image_data_format format);
         image(const v2u& size, image_data_format format, buffer&& data);
         image(const v2u& size, image_data_format format, const buffer& data);
 
         image& assign(image&& other) noexcept;
         image& assign(const image& other);
 
-        image& assign(const v2u& size, image_data_format format);
         image& assign(const v2u& size, image_data_format format, buffer&& data);
         image& assign(const v2u& size, image_data_format format, const buffer& data);
 

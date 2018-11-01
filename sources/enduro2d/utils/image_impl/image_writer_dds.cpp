@@ -32,7 +32,7 @@ namespace e2d { namespace images { namespace impl
     bool try_save_image_dds(const image& src, buffer& dst) noexcept {
         E2D_UNUSED(src, dst);
         if ( is_save_image_dds_supported(src.format()) ) {
-            //TODO: implme
+            //TODO(BlackMat): implme
             E2D_ASSERT_MSG(false, "implme");
         }
         return false;

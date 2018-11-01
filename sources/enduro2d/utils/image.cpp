@@ -11,29 +11,29 @@ namespace
     using namespace e2d;
 
     struct data_format_description {
-        u32 minimal_size;
         u32 bits_per_pixel;
         image_data_format format;
         bool compressed;
-        bool must_be_square;
-        bool must_be_power_of_two;
     };
 
     const data_format_description data_format_descriptions[] = {
-        {1,  8, image_data_format::g8,          false, false, false},
-        {1, 16, image_data_format::ga8,         false, false, false},
-        {1, 24, image_data_format::rgb8,        false, false, false},
-        {1, 32, image_data_format::rgba8,       false, false, false},
+        { 8, image_data_format::g8,             false},
+        {16, image_data_format::ga8,            false},
+        {24, image_data_format::rgb8,           false},
+        {32, image_data_format::rgba8,          false},
 
-        {4,  4, image_data_format::rgb_dxt1,    true,  false, true},
-        {4,  4, image_data_format::rgba_dxt1,   true,  false, true},
-        {4,  8, image_data_format::rgba_dxt3,   true,  false, true},
-        {4,  8, image_data_format::rgba_dxt5,   true,  false, true},
+        { 4, image_data_format::rgb_dxt1,       true},
+        { 4, image_data_format::rgba_dxt1,      true},
+        { 8, image_data_format::rgba_dxt3,      true},
+        { 8, image_data_format::rgba_dxt5,      true},
 
-        {8,  2, image_data_format::rgb_pvrtc2,  true,  true,  true},
-        {8,  4, image_data_format::rgb_pvrtc4,  true,  true,  true},
-        {8,  2, image_data_format::rgba_pvrtc2, true,  true,  true},
-        {8,  4, image_data_format::rgba_pvrtc4, true,  true,  true}
+        { 2, image_data_format::rgb_pvrtc2,     true},
+        { 4, image_data_format::rgb_pvrtc4,     true},
+        { 2, image_data_format::rgba_pvrtc2,    true},
+        { 4, image_data_format::rgba_pvrtc4,    true},
+
+        { 2, image_data_format::rgba_pvrtc2_v2, true},
+        { 4, image_data_format::rgba_pvrtc4_v2, true}
     };
 
     const data_format_description& get_data_format_description(image_data_format format) noexcept {
@@ -42,36 +42,6 @@ namespace
         const data_format_description& fdesc = data_format_descriptions[findex];
         E2D_ASSERT(fdesc.format == format);
         return fdesc;
-    }
-
-    v2u adjust_image_size(const v2u& size, image_data_format format) noexcept {
-        const data_format_description& format_desc = get_data_format_description(format);
-        v2u nsize = math::maximized(size, v2u(format_desc.minimal_size));
-        if ( format_desc.must_be_square ) {
-            nsize = v2u(math::maximum(nsize));
-        }
-        if ( format_desc.must_be_power_of_two ) {
-            nsize = v2u(math::next_power_of_2(nsize.x),
-                        math::next_power_of_2(nsize.y));
-        }
-        return nsize;
-    }
-
-    std::size_t buffer_size_for_image(const v2u& size, image_data_format format) noexcept {
-        const v2u nsize = adjust_image_size(size, format);
-        const std::size_t bpp = get_data_format_description(format).bits_per_pixel;
-        const std::size_t bits = nsize.x * nsize.y * bpp;
-        E2D_ASSERT(bits % 8 == 0);
-        return bits / 8;
-    }
-
-    bool check_image_format(const v2u& size, image_data_format format) noexcept {
-        return size == adjust_image_size(size, format);
-    }
-
-    bool check_image_format(const v2u& size, image_data_format format, const buffer& data) noexcept {
-        return check_image_format(size, format)
-            && data.size() == buffer_size_for_image(size, format);
     }
 }
 
@@ -91,10 +61,6 @@ namespace e2d
 
     image& image::operator=(const image& other) {
         return assign(other);
-    }
-
-    image::image(const v2u& size, image_data_format format) {
-        assign(size, format);
     }
 
     image::image(const v2u& size, image_data_format format, buffer&& data) {
@@ -122,20 +88,7 @@ namespace e2d
         return *this;
     }
 
-    image& image::assign(const v2u& size, image_data_format format) {
-        if ( !check_image_format(size, format) ) {
-            throw bad_image_data_format();
-        }
-        data_.resize(buffer_size_for_image(size, format));
-        size_ = size;
-        format_ = format;
-        return *this;
-    }
-
     image& image::assign(const v2u& size, image_data_format format, buffer&& data) {
-        if ( !check_image_format(size, format, data) ) {
-            throw bad_image_data_format();
-        }
         data_.assign(std::move(data));
         size_ = size;
         format_ = format;
@@ -143,9 +96,6 @@ namespace e2d
     }
 
     image& image::assign(const v2u& size, image_data_format format, const buffer& data) {
-        if ( !check_image_format(size, format, data) ) {
-            throw bad_image_data_format();
-        }
         data_.assign(data);
         size_ = size;
         format_ = format;
