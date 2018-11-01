@@ -14,14 +14,6 @@
 #define GLEW_STATIC
 #include <3rdparty/glew/glew.h>
 
-#if defined(E2D_PLATFORM)
-#  if E2D_PLATFORM == E2D_PLATFORM_MACOSX
-#    include <OpenGL/gl.h>
-#  elif E2D_PLATFORM == E2D_PLATFORM_WINDOWS
-#    include <gl/GL.h>
-#  endif
-#endif
-
 #if defined(E2D_BUILD_MODE) && E2D_BUILD_MODE == E2D_BUILD_MODE_DEBUG
 #   define GL_FLUSH_ERRORS(dbg)\
         for ( GLenum err = glGetError(); err != GL_NO_ERROR; err = glGetError() ) {\
