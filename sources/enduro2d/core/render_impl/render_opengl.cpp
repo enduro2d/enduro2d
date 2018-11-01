@@ -1006,6 +1006,9 @@ namespace e2d
             case pixel_declaration::pixel_type::rgba_pvrtc2:
             case pixel_declaration::pixel_type::rgba_pvrtc4:
                 return __GLEW_IMG_texture_compression_pvrtc;
+            case pixel_declaration::pixel_type::rgba_pvrtc2_v2:
+            case pixel_declaration::pixel_type::rgba_pvrtc4_v2:
+                return __GLEW_IMG_texture_compression_pvrtc2;
             default:
                 E2D_ASSERT_MSG(false, "unexpected pixel type");
                 return false;

@@ -769,6 +769,9 @@ namespace e2d { namespace opengl
 
             DEFINE_CASE(rgba_pvrtc2, GL_COMPRESSED_RGBA_PVRTC_2BPPV1_IMG);
             DEFINE_CASE(rgba_pvrtc4, GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG);
+
+            DEFINE_CASE(rgba_pvrtc2_v2, GL_COMPRESSED_RGBA_PVRTC_2BPPV2_IMG);
+            DEFINE_CASE(rgba_pvrtc4_v2, GL_COMPRESSED_RGBA_PVRTC_4BPPV2_IMG);
             default:
                 E2D_ASSERT_MSG(false, "unexpected pixel type");
                 return GL_RGBA;
@@ -798,6 +801,9 @@ namespace e2d { namespace opengl
 
             DEFINE_CASE(rgba_pvrtc2, rgba_pvrtc2);
             DEFINE_CASE(rgba_pvrtc4, rgba_pvrtc4);
+
+            DEFINE_CASE(rgba_pvrtc2_v2, rgba_pvrtc2_v2);
+            DEFINE_CASE(rgba_pvrtc4_v2, rgba_pvrtc4_v2);
             default:
                 E2D_ASSERT_MSG(false, "unexpected image data format");
                 return pixel_declaration(pixel_declaration::pixel_type::rgba8);

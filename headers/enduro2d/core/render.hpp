@@ -63,7 +63,10 @@ namespace e2d
             rgb_pvrtc4,
 
             rgba_pvrtc2,
-            rgba_pvrtc4
+            rgba_pvrtc4,
+
+            rgba_pvrtc2_v2,
+            rgba_pvrtc4_v2
         };
         static const char* pixel_type_to_cstr(pixel_type pt) noexcept;
     public:

@@ -238,14 +238,34 @@ namespace e2d
         return *this;
     }
 
+    render& render::execute(const target_command& command) {
+        E2D_UNUSED(command);
+        return *this;
+    }
+
     render& render::execute(const viewport_command& command) {
         E2D_UNUSED(command);
         return *this;
     }
 
-    render& render::execute(const render_target_command& command) {
-        E2D_UNUSED(command);
-        return *this;
+    const render::device_caps& render::device_capabilities() const noexcept {
+        static device_caps caps;
+        return caps;
+    }
+
+    bool render::is_pixel_supported(const pixel_declaration& decl) const noexcept {
+        E2D_UNUSED(decl);
+        return false;
+    }
+
+    bool render::is_index_supported(const index_declaration& decl) const noexcept {
+        E2D_UNUSED(decl);
+        return false;
+    }
+
+    bool render::is_vertex_supported(const vertex_declaration& decl) const noexcept {
+        E2D_UNUSED(decl);
+        return false;
     }
 }
 

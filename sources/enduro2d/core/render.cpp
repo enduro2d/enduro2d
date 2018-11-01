@@ -12,35 +12,38 @@ namespace
 
     struct pixel_type_description {
         const char* cstr;
-        u32 minimal_size;
         u32 bits_per_pixel;
         bool color;
         bool depth;
         bool stencil;
         pixel_declaration::pixel_type type;
         bool compressed;
-        bool must_be_square;
-        bool must_be_power_of_two;
     };
 
     const pixel_type_description pixel_type_descriptions[] = {
-        {"depth16",          1, 16, false, true,  false, pixel_declaration::pixel_type::depth16,          false, false, false},
-        {"depth24",          1, 24, false, true,  false, pixel_declaration::pixel_type::depth24,          false, false, false},
-        {"depth32",          1, 32, false, true,  false, pixel_declaration::pixel_type::depth32,          false, false, false},
-        {"depth24_stencil8", 1, 32, false, true,  true,  pixel_declaration::pixel_type::depth24_stencil8, false, false, false},
+        {"depth16",          16, false, true,  false, pixel_declaration::pixel_type::depth16,          false},
+        {"depth24",          24, false, true,  false, pixel_declaration::pixel_type::depth24,          false},
+        {"depth32",          32, false, true,  false, pixel_declaration::pixel_type::depth32,          false},
+        {"depth24_stencil8", 32, false, true,  true,  pixel_declaration::pixel_type::depth24_stencil8, false},
 
-        {"rgb8",             1, 24, true,  false, false, pixel_declaration::pixel_type::rgb8,             false, false, false},
-        {"rgba8",            1, 32, true,  false, false, pixel_declaration::pixel_type::rgba8,            false, false, false},
+        {"rgb8",             24, true,  false, false, pixel_declaration::pixel_type::rgb8,             false},
+        {"rgba8",            32, true,  false, false, pixel_declaration::pixel_type::rgba8,            false},
 
-        {"rgb_dxt1",         4,  4, true,  false, false, pixel_declaration::pixel_type::rgb_dxt1,         true,  false, true},
-        {"rgba_dxt1",        4,  4, true,  false, false, pixel_declaration::pixel_type::rgba_dxt1,        true,  false, true},
-        {"rgba_dxt3",        4,  8, true,  false, false, pixel_declaration::pixel_type::rgba_dxt3,        true,  false, true},
-        {"rgba_dxt5",        4,  8, true,  false, false, pixel_declaration::pixel_type::rgba_dxt5,        true,  false, true},
+        {"rgb_dxt1",          4, true,  false, false, pixel_declaration::pixel_type::rgb_dxt1,         true},
+        {"rgba_dxt1",         4, true,  false, false, pixel_declaration::pixel_type::rgba_dxt1,        true},
+        {"rgba_dxt3",         8, true,  false, false, pixel_declaration::pixel_type::rgba_dxt3,        true},
+        {"rgba_dxt5",         8, true,  false, false, pixel_declaration::pixel_type::rgba_dxt5,        true},
 
-        {"rgb_pvrtc2",       8,  2, true,  false, false, pixel_declaration::pixel_type::rgb_pvrtc2,       true,  true,  true},
-        {"rgb_pvrtc4",       8,  4, true,  false, false, pixel_declaration::pixel_type::rgb_pvrtc4,       true,  true,  true},
-        {"rgba_pvrtc2",      8,  2, true,  false, false, pixel_declaration::pixel_type::rgba_pvrtc2,      true,  true,  true},
-        {"rgba_pvrtc4",      8,  4, true,  false, false, pixel_declaration::pixel_type::rgba_pvrtc4,      true,  true,  true}
+        {"rgb_pvrtc2",        2, true,  false, false, pixel_declaration::pixel_type::rgb_pvrtc2,       true},
+        {"rgb_pvrtc4",        4, true,  false, false, pixel_declaration::pixel_type::rgb_pvrtc4,       true},
+        {"rgba_pvrtc2",       2, true,  false, false, pixel_declaration::pixel_type::rgba_pvrtc2,      true},
+        {"rgba_pvrtc4",       4, true,  false, false, pixel_declaration::pixel_type::rgba_pvrtc4,      true},
+
+        {"rgba_pvrtc2",       2, true,  false, false, pixel_declaration::pixel_type::rgba_pvrtc2,      true},
+        {"rgba_pvrtc4",       4, true,  false, false, pixel_declaration::pixel_type::rgba_pvrtc4,      true},
+
+        {"rgba_pvrtc2_v2",    2, true,  false, false, pixel_declaration::pixel_type::rgba_pvrtc2_v2,   true},
+        {"rgba_pvrtc4_v2",    4, true,  false, false, pixel_declaration::pixel_type::rgba_pvrtc4_v2,   true}
     };
 
     const pixel_type_description& get_pixel_type_description(pixel_declaration::pixel_type type) noexcept {
