@@ -23,10 +23,10 @@ mkdir -p $UNTESTS_DIR/catch
 cp -fv $MODULES_DIR/catch2/single_include/catch2/catch.hpp $UNTESTS_DIR/catch/catch.hpp
 
 mkdir -p $SOURCES_RDPARTY_DIR/glfw
-cp -rfv $MODULES_DIR/glfw/include/GLFW/ $SOURCES_RDPARTY_DIR/glfw/
+cp -rfv $MODULES_DIR/glfw/include/GLFW/. $SOURCES_RDPARTY_DIR/glfw/
 
 mkdir -p $SOURCES_RDPARTY_DIR/glew
-cp -rfv $MODULES_DIR/glew/include/GL/ $SOURCES_RDPARTY_DIR/glew/
+cp -rfv $MODULES_DIR/glew/include/GL/. $SOURCES_RDPARTY_DIR/glew/
 
 mkdir -p $SOURCES_RDPARTY_DIR/stb
 cp -fv $MODULES_DIR/stb/stb_image.h $SOURCES_RDPARTY_DIR/stb/stb_image.h
@@ -37,7 +37,7 @@ cp -fv $MODULES_DIR/stb/stb_sprintf.h $SOURCES_RDPARTY_DIR/stb/stb_sprintf.h
 cp -fv $MODULES_DIR/stb/stb_truetype.h $SOURCES_RDPARTY_DIR/stb/stb_truetype.h
 
 mkdir -p $SOURCES_RDPARTY_DIR/utfcpp
-cp -rfv $MODULES_DIR/utfcpp/source/ $SOURCES_RDPARTY_DIR/utfcpp/
+cp -rfv $MODULES_DIR/utfcpp/source/. $SOURCES_RDPARTY_DIR/utfcpp/
 
 mkdir -p $HEADERS_RDPARTY_DIR/variant
-cp -rfv $MODULES_DIR/variant/include/mpark/ $HEADERS_RDPARTY_DIR/variant/
+cp -rfv $MODULES_DIR/variant/include/mpark/. $HEADERS_RDPARTY_DIR/variant/
