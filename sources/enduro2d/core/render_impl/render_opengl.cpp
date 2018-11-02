@@ -978,37 +978,37 @@ namespace e2d
             case pixel_declaration::pixel_type::depth16:
                 return true;
             case pixel_declaration::pixel_type::depth24:
-                return __GLEW_OES_depth24;
+                return GLEW_OES_depth24;
             case pixel_declaration::pixel_type::depth32:
-                return __GLEW_OES_depth32;
+                return GLEW_OES_depth32;
             case pixel_declaration::pixel_type::depth24_stencil8:
-                return __GLEW_OES_packed_depth_stencil
-                    || __GLEW_EXT_packed_depth_stencil;
+                return GLEW_OES_packed_depth_stencil
+                    || GLEW_EXT_packed_depth_stencil;
             case pixel_declaration::pixel_type::rgb8:
             case pixel_declaration::pixel_type::rgba8:
                 return true;
             case pixel_declaration::pixel_type::rgb_dxt1:
             case pixel_declaration::pixel_type::rgba_dxt1:
-                return __GLEW_ANGLE_texture_compression_dxt1
-                    || __GLEW_EXT_texture_compression_dxt1
-                    || __GLEW_EXT_texture_compression_s3tc
-                    || __GLEW_NV_texture_compression_s3tc;
+                return GLEW_ANGLE_texture_compression_dxt1
+                    || GLEW_EXT_texture_compression_dxt1
+                    || GLEW_EXT_texture_compression_s3tc
+                    || GLEW_NV_texture_compression_s3tc;
             case pixel_declaration::pixel_type::rgba_dxt3:
-                return __GLEW_ANGLE_texture_compression_dxt3
-                    || __GLEW_EXT_texture_compression_s3tc
-                    || __GLEW_NV_texture_compression_s3tc;
+                return GLEW_ANGLE_texture_compression_dxt3
+                    || GLEW_EXT_texture_compression_s3tc
+                    || GLEW_NV_texture_compression_s3tc;
             case pixel_declaration::pixel_type::rgba_dxt5:
-                return __GLEW_ANGLE_texture_compression_dxt5
-                    || __GLEW_EXT_texture_compression_s3tc
-                    || __GLEW_NV_texture_compression_s3tc;
+                return GLEW_ANGLE_texture_compression_dxt5
+                    || GLEW_EXT_texture_compression_s3tc
+                    || GLEW_NV_texture_compression_s3tc;
             case pixel_declaration::pixel_type::rgb_pvrtc2:
             case pixel_declaration::pixel_type::rgb_pvrtc4:
             case pixel_declaration::pixel_type::rgba_pvrtc2:
             case pixel_declaration::pixel_type::rgba_pvrtc4:
-                return __GLEW_IMG_texture_compression_pvrtc;
+                return GLEW_IMG_texture_compression_pvrtc;
             case pixel_declaration::pixel_type::rgba_pvrtc2_v2:
             case pixel_declaration::pixel_type::rgba_pvrtc4_v2:
-                return __GLEW_IMG_texture_compression_pvrtc2;
+                return GLEW_IMG_texture_compression_pvrtc2;
             default:
                 E2D_ASSERT_MSG(false, "unexpected pixel type");
                 return false;
@@ -1025,7 +1025,7 @@ namespace e2d
         #if E2D_RENDER_MODE == E2D_RENDER_MODE_OPENGL
                 return true;
         #elif E2D_RENDER_MODE == E2D_RENDER_MODE_OPENGLES
-                return __GLEW_OES_element_index_uint;
+                return GLEW_OES_element_index_uint;
         #else
         #   error unknown render mode
         #endif

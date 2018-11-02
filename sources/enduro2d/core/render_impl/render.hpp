@@ -25,3 +25,7 @@
 #    define E2D_RENDER_MODE E2D_RENDER_MODE_OPENGL
 #  endif
 #endif
+
+#ifndef E2D_RENDER_MODE
+#  error E2D_RENDER_MODE not detected
+#endif

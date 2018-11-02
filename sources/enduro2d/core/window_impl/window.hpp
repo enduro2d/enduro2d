@@ -23,3 +23,7 @@
 #    define E2D_WINDOW_MODE E2D_WINDOW_MODE_GLFW
 #  endif
 #endif
+
+#ifndef E2D_WINDOW_MODE
+#  error E2D_WINDOW_MODE not detected
+#endif

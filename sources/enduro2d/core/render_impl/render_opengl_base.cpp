@@ -1297,19 +1297,19 @@ namespace e2d { namespace opengl
         caps.max_fragment_uniform_vectors = math::numeric_cast<u32>(max_fragment_uniform_vectors);
 
         caps.npot_texture_supported =
-            __GLEW_OES_texture_npot ||
-            __GLEW_ARB_texture_non_power_of_two;
+            GLEW_OES_texture_npot ||
+            GLEW_ARB_texture_non_power_of_two;
 
         caps.depth_texture_supported =
-            __GLEW_OES_depth_texture ||
-            __GLEW_ARB_depth_texture ||
-            __GLEW_ANGLE_depth_texture ||
-            __GLEW_SGIX_depth_texture;
+            GLEW_OES_depth_texture ||
+            GLEW_ARB_depth_texture ||
+            GLEW_ANGLE_depth_texture ||
+            GLEW_SGIX_depth_texture;
 
         caps.render_target_supported =
-            __GLEW_OES_framebuffer_object ||
-            __GLEW_ARB_framebuffer_object ||
-            __GLEW_EXT_framebuffer_object;
+            GLEW_OES_framebuffer_object ||
+            GLEW_ARB_framebuffer_object ||
+            GLEW_EXT_framebuffer_object;
     }
 
     gl_shader_id gl_compile_shader(debug& debug, const str& source, GLenum type) noexcept {

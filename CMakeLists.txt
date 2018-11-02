@@ -137,7 +137,7 @@ set(E2D_LIBRARIES
     ${CMAKE_THREAD_LIBS_INIT})
 
 if(APPLE)
-    list(APPEND ${E2D_LIBRARIES}
+    list(APPEND E2D_LIBRARIES
         ${Cocoa}
         ${IOKit}
         ${CoreVideo}
