@@ -228,13 +228,9 @@ int e2d_main() {
             .add_command(render::target_command(nullptr))
             .add_command(render::viewport_command(the<window>().real_size()))
             .add_command(render::clear_command()
-                .color_value({1.f, 0.4f, 0.f, 1.f})));
-
-        for ( std::size_t i = 0; i < 5000; ++i ) {
-            the<render>().execute(render::draw_command(material, geometry, rt_props));
-        }
-
-        the<render>().execute(render::swap_command(true));
+                .color_value({1.f, 0.4f, 0.f, 1.f}))
+            .add_command(render::draw_command(material, geometry, rt_props))
+            .add_command(render::swap_command(true)));
 
         the<input>().frame_tick();
         window::poll_events();
