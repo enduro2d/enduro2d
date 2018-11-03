@@ -4,14 +4,15 @@
  * Copyright (C) 2018 Matvey Cherevko
  ******************************************************************************/
 
-#pragma once
+#include <enduro2d/core/engine.hpp>
 
-#include "_core.hpp"
+namespace
+{
+    using namespace e2d;
+}
 
-#include "debug.hpp"
-#include "engine.hpp"
-#include "input.hpp"
-#include "render.hpp"
-#include "render.inl"
-#include "vfs.hpp"
-#include "window.hpp"
+namespace e2d
+{
+    engine::engine() = default;
+    engine::~engine() noexcept = default;
+}

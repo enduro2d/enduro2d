@@ -13,6 +13,7 @@
 namespace e2d
 {
     class debug;
+    class engine;
     class mouse;
     class keyboard;
     class input;

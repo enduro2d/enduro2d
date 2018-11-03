@@ -8,10 +8,11 @@
 
 #include "_core.hpp"
 
-#include "debug.hpp"
-#include "engine.hpp"
-#include "input.hpp"
-#include "render.hpp"
-#include "render.inl"
-#include "vfs.hpp"
-#include "window.hpp"
+namespace e2d
+{
+    class engine final : public module<engine> {
+    public:
+        engine();
+        ~engine() noexcept final;
+    };
+}
