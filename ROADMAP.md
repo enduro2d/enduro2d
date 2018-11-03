@@ -52,7 +52,7 @@
     GLFW, Windows, Linux, Mac OS X
     windowed and fullscreen modes
     ```
-  - [ ] `basic render system`
+  - [x] `basic render system`
     ```
     OpenGL only
     index and vertex buffers, render state,
