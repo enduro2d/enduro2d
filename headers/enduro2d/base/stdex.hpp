@@ -212,6 +212,15 @@ namespace e2d { namespace stdex
 }}
 
 //
+// variant
+//
+
+namespace e2d { namespace stdex
+{
+    using namespace mpark;
+}}
+
+//
 // basic_string_view
 //
 
@@ -524,21 +533,3 @@ namespace e2d { namespace stdex
         return !(l == r);
     }
 }}
-
-namespace std
-{
-    template < typename Char, typename Traits >
-    struct hash<e2d::stdex::basic_string_view<Char, Traits>>
-        : std::unary_function<e2d::stdex::basic_string_view<Char, Traits>, std::size_t>
-    {
-        // Inspired by:
-        // http://www.cse.yorku.ca/~oz/hash.html
-        std::size_t operator()(e2d::stdex::basic_string_view<Char, Traits> sv) const noexcept {
-            std::size_t hash = 0;
-            for ( Char c : sv ) {
-                hash = c + (hash << 6u) + (hash << 16u) - hash;
-            }
-            return hash;
-        }
-    };
-}

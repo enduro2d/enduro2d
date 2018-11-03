@@ -14,12 +14,6 @@
 namespace e2d
 {
     template < typename Char >
-    std::size_t basic_string_hash<Char>::empty_hash() noexcept {
-        static std::size_t hash = calculate_hash(basic_string_view<Char>());
-        return hash;
-    }
-
-    template < typename Char >
     basic_string_hash<Char>::basic_string_hash() noexcept = default;
 
     template < typename Char >
@@ -55,6 +49,13 @@ namespace e2d
 
     template < typename Char >
     basic_string_hash<Char>::basic_string_hash(
+        const Char* str) noexcept
+    {
+        assign(str);
+    }
+
+    template < typename Char >
+    basic_string_hash<Char>::basic_string_hash(
         basic_string_view<Char> str) noexcept
     {
         assign(str);
@@ -83,6 +84,14 @@ namespace e2d
 
     template < typename Char >
     basic_string_hash<Char>& basic_string_hash<Char>::assign(
+        const Char* str) noexcept
+    {
+        hash_ = calculate_hash(str);
+        return *this;
+    }
+
+    template < typename Char >
+    basic_string_hash<Char>& basic_string_hash<Char>::assign(
         basic_string_view<Char> str) noexcept
     {
         hash_ = calculate_hash(str);
@@ -106,27 +115,34 @@ namespace e2d
     }
 
     template < typename Char >
-    std::size_t basic_string_hash<Char>::hash() const noexcept {
+    u32 basic_string_hash<Char>::hash() const noexcept {
         return hash_;
     }
 
     template < typename Char >
-    std::size_t basic_string_hash<Char>::calculate_hash(
-        basic_string_view<Char> str) noexcept
-    {
-        std::size_t hash = std::hash<basic_string_view<Char>>()(str);
+    u32 basic_string_hash<Char>::empty_hash() noexcept {
+        static u32 hash = calculate_hash(basic_string_view<Char>());
+        return hash;
+    }
+
+    template < typename Char >
+    u32 basic_string_hash<Char>::calculate_hash(basic_string_view<Char> str) noexcept {
+        // Inspired by:
+        // http://www.cse.yorku.ca/~oz/hash.html
+        u32 hash = 0;
+        for ( Char c : str ) {
+            hash = c + (hash << 6u) + (hash << 16u) - hash;
+        }
         debug_check_collisions(hash, str);
         return hash;
     }
 
     template < typename Char >
-    void basic_string_hash<Char>::debug_check_collisions(
-        std::size_t hash, basic_string_view<Char> str) noexcept
-    {
+    void basic_string_hash<Char>::debug_check_collisions(u32 hash, basic_string_view<Char> str) noexcept {
     #if defined(E2D_BUILD_MODE) && E2D_BUILD_MODE == E2D_BUILD_MODE_DEBUG
         try {
             static std::mutex mutex;
-            static hash_map<std::size_t, basic_string<Char>> table;
+            static hash_map<u32, basic_string<Char>> table;
             std::lock_guard<std::mutex> guard(mutex);
             const auto iter = table.find(hash);
             if ( iter != table.end() ) {
@@ -137,8 +153,7 @@ namespace e2d
                 table.insert(std::make_pair(hash, str));
             }
         } catch (...) {
-            E2D_ASSERT_MSG(false, "basic_string_hash: unexpected exception");
-            throw;
+            E2D_ASSERT_MSG(false, "basic_string_hash: unexpected debug exception");
         }
     #else
         E2D_UNUSED(hash, str);
@@ -176,7 +191,7 @@ namespace std
         : std::unary_function<e2d::basic_string_hash<Char>, std::size_t>
     {
         std::size_t operator()(e2d::basic_string_hash<Char> hs) const noexcept {
-            return hs.hash();
+            return e2d::math::numeric_cast<std::size_t>(hs.hash());
         }
     };
 }

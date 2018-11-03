@@ -28,7 +28,15 @@ namespace e2d
     class module : private noncopyable {
     public:
         using base_type = BaseT;
+    public:
+        module() noexcept {
+            main_thread_ = std::this_thread::get_id();
+        }
         virtual ~module() noexcept = default;
+
+        const std::thread::id& main_thread() const noexcept {
+            return main_thread_;
+        }
     public:
         template < typename ImplT, typename... Args >
         static ImplT& initialize(Args&&... args) {
@@ -55,6 +63,7 @@ namespace e2d
         }
     private:
         static std::unique_ptr<BaseT> instance_;
+        std::thread::id main_thread_;
     };
 
     template < typename BaseT >

@@ -15,8 +15,6 @@ namespace e2d
     template < typename Char >
     class basic_string_hash final {
     public:
-        static std::size_t empty_hash() noexcept;
-    public:
         basic_string_hash() noexcept;
         ~basic_string_hash() noexcept;
 
@@ -26,24 +24,25 @@ namespace e2d
         basic_string_hash(const basic_string_hash& other) noexcept;
         basic_string_hash& operator=(const basic_string_hash& other) noexcept;
 
-        explicit basic_string_hash(basic_string_view<Char> str) noexcept;
+        basic_string_hash(const Char* str) noexcept;
+        basic_string_hash(basic_string_view<Char> str) noexcept;
 
         basic_string_hash& assign(basic_string_hash&& other) noexcept;
         basic_string_hash& assign(const basic_string_hash& other) noexcept;
+        basic_string_hash& assign(const Char* str) noexcept;
         basic_string_hash& assign(basic_string_view<Char> str) noexcept;
 
         void swap(basic_string_hash& other) noexcept;
         void clear() noexcept;
         bool empty() const noexcept;
 
-        std::size_t hash() const noexcept;
+        u32 hash() const noexcept;
     private:
-        static std::size_t calculate_hash(
-            basic_string_view<Char> str) noexcept;
-        static void debug_check_collisions(
-            std::size_t hash, basic_string_view<Char> str) noexcept;
+        static u32 empty_hash() noexcept;
+        static u32 calculate_hash(basic_string_view<Char> str) noexcept;
+        static void debug_check_collisions(u32 hash, basic_string_view<Char> str) noexcept;
     private:
-        std::size_t hash_ = empty_hash();
+        u32 hash_ = empty_hash();
     };
 
     template < typename Char >

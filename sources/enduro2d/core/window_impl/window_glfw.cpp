@@ -260,17 +260,15 @@ namespace e2d
         bool vsync = false;
         bool fullscreen = false;
         bool cursor_hidden = false;
-        char _pad[5];
     public:
-        state(const v2u& size, str_view title, bool vsync, bool fullscreen)
+        state(const v2u& size, str_view ntitle, bool nfullscreen)
         : shared_state(glfw_state::get_shared_state())
-        , window(open_window_(size, make_utf8(title), vsync, fullscreen))
+        , window(nullptr, glfwDestroyWindow)
         , virtual_size(size)
-        , title(title)
-        , vsync(vsync)
-        , fullscreen(fullscreen)
-        , cursor_hidden(false)
+        , title(ntitle)
+        , fullscreen(nfullscreen)
         {
+            window = open_window_(size, make_utf8(ntitle), vsync, fullscreen);
             if ( !window ) {
                 throw bad_window_operation();
             }
@@ -319,11 +317,21 @@ namespace e2d
             if ( !video_mode ) {
                 return {nullptr, glfwDestroyWindow};
             }
+            glfwWindowHint(GLFW_RED_BITS, 8);
+            glfwWindowHint(GLFW_GREEN_BITS, 8);
+            glfwWindowHint(GLFW_BLUE_BITS, 8);
+            glfwWindowHint(GLFW_ALPHA_BITS, 0);
+            glfwWindowHint(GLFW_DEPTH_BITS, 24);
+            glfwWindowHint(GLFW_STENCIL_BITS, 8);
             glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
             glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
-            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
             glfwWindowHint(GLFW_SCALE_TO_MONITOR, GLFW_FALSE);
+            glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, GLFW_FALSE);
             glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_FALSE);
+        #if defined(E2D_BUILD_MODE) && E2D_BUILD_MODE == E2D_BUILD_MODE_DEBUG
+            glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
+        #endif
             v2i real_size = fullscreen
                 ? make_vec2(video_mode->width, video_mode->height)
                 : virtual_size.cast_to<i32>();
@@ -421,8 +429,8 @@ namespace e2d
     // class window
     //
 
-    window::window(const v2u& size, str_view title, bool vsync, bool fullscreen)
-    : state_(new state(size, title, vsync, fullscreen)) {}
+    window::window(const v2u& size, str_view title, bool fullscreen)
+    : state_(new state(size, title, fullscreen)) {}
     window::~window() noexcept = default;
 
     void window::hide() noexcept {
@@ -467,23 +475,9 @@ namespace e2d
         return GLFW_TRUE == glfwGetWindowAttrib(state_->window.get(), GLFW_ICONIFIED);
     }
 
-    bool window::vsync() const noexcept {
-        std::lock_guard<std::recursive_mutex> guard(state_->rmutex);
-        return state_->vsync;
-    }
-
     bool window::fullscreen() const noexcept {
         std::lock_guard<std::recursive_mutex> guard(state_->rmutex);
         return state_->fullscreen;
-    }
-
-    bool window::toggle_vsync(bool yesno) noexcept {
-        std::lock_guard<std::recursive_mutex> guard(state_->rmutex);
-        E2D_ASSERT(state_->window);
-        glfwMakeContextCurrent(state_->window.get());
-        glfwSwapInterval(yesno ? 1 : 0);
-        state_->vsync = yesno;
-        return true;
     }
 
     bool window::toggle_fullscreen(bool yesno) noexcept {
@@ -579,13 +573,25 @@ namespace e2d
         glfwSetWindowShouldClose(state_->window.get(), yesno ? GLFW_TRUE : GLFW_FALSE);
     }
 
-    void window::swap_buffers() noexcept {
+    void window::bind_context() noexcept {
         std::lock_guard<std::recursive_mutex> guard(state_->rmutex);
         E2D_ASSERT(state_->window);
+        glfwMakeContextCurrent(state_->window.get());
+    }
+
+    void window::swap_buffers(bool vsync) noexcept {
+        std::lock_guard<std::recursive_mutex> guard(state_->rmutex);
+        E2D_ASSERT(
+            state_->window &&
+            state_->window.get() == glfwGetCurrentContext());
+        if ( state_->vsync != vsync ) {
+            glfwSwapInterval(vsync ? 1 : 0);
+            state_->vsync = vsync;
+        }
         glfwSwapBuffers(state_->window.get());
     }
 
-    bool window::frame_tick() noexcept {
+    bool window::poll_events() noexcept {
         return glfw_state::poll_events();
     }
 

@@ -20,6 +20,8 @@
 #include <future>
 #include <condition_variable>
 
+#include <set>
+#include <map>
 #include <tuple>
 #include <array>
 #include <string>
@@ -39,3 +41,5 @@
 #include <algorithm>
 #include <functional>
 #include <type_traits>
+
+#include <3rdparty/variant/variant.hpp>

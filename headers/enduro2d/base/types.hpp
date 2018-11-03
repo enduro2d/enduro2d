@@ -37,6 +37,17 @@ namespace e2d
              , typename Allocator = std::allocator<Value> >
     using vector = std::vector<Value, Allocator>;
 
+    template < typename Key
+             , typename Comp = std::less<Key>
+             , typename Allocator = std::allocator<Key> >
+    using set = std::set<Key, Comp, Allocator>;
+
+    template < typename Key
+             , typename Value
+             , typename Comp = std::less<Key>
+             , typename Allocator = std::allocator<std::pair<const Key, Value>> >
+    using map = std::map<Key, Value, Comp, Allocator>;
+
     template < typename Value
              , typename Hash = std::hash<Value>
              , typename Pred = std::equal_to<Value>

@@ -18,6 +18,10 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
     endif()
 endif()
 
+if(APPLE)
+    add_compile_options(-Wno-deprecated-declarations)
+endif(APPLE)
+
 #
 # linking mode
 #
@@ -70,6 +74,7 @@ endif()
 #
 
 file(GLOB_RECURSE E2D_3RDPARTY
+    headers/3rdparty/*.*
     sources/3rdparty/*.*)
 
 #
@@ -86,10 +91,15 @@ if(APPLE)
     find_library(Foundation Foundation)
 endif(APPLE)
 
+set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 add_subdirectory(modules/glfw)
+
+set(glew-cmake_BUILD_SHARED OFF CACHE BOOL "" FORCE)
+set(glew-cmake_BUILD_MULTI_CONTEXT OFF CACHE BOOL "" FORCE)
+add_subdirectory(modules/glew)
 
 #
 # e2d library target
@@ -105,9 +115,10 @@ source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES
     ${E2D_SOURCES}
     ${E2D_3RDPARTY})
 
-target_include_directories(${PROJECT_NAME} PRIVATE
-    headers
-    sources)
+target_include_directories(${PROJECT_NAME}
+    PRIVATE headers
+    PRIVATE sources
+    PRIVATE ${OPENGL_INCLUDE_DIR})
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
     CXX_STANDARD 14
@@ -121,11 +132,12 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 set(E2D_LIBRARIES
     enduro2d
     glfw
+    libglew_static
     ${OPENGL_gl_LIBRARY}
     ${CMAKE_THREAD_LIBS_INIT})
 
 if(APPLE)
-    list(APPEND ${E2D_LIBRARIES}
+    list(APPEND E2D_LIBRARIES
         ${Cocoa}
         ${IOKit}
         ${CoreVideo}

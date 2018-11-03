@@ -14,15 +14,12 @@ namespace
 
         attribute vec3 a_position;
         attribute vec2 a_uv;
-        attribute vec4 a_color;
 
         uniform mat4 u_MVP;
 
-        varying vec4 v_color;
         varying vec2 v_uv;
 
         void main(){
-          v_color = a_color;
           v_uv = a_uv;
 
           gl_Position = vec4(a_position, 1.0) * u_MVP;
@@ -33,30 +30,21 @@ namespace
         #version 120
 
         uniform sampler2D u_texture;
-        varying vec4 v_color;
         varying vec2 v_uv;
 
         void main(){
           vec2 uv = vec2(v_uv.s, 1.0 - v_uv.t);
-          gl_FragColor = v_color * texture2D(u_texture, uv);
+          gl_FragColor = texture2D(u_texture, uv);
         }
     )glsl";
 
-    struct vertex1 {
+    struct vertex {
         v3f position;
         v2hu uv;
         static vertex_declaration decl() noexcept {
             return vertex_declaration()
                 .add_attribute<v3f>("a_position")
                 .add_attribute<v2hu>("a_uv");
-        }
-    };
-
-    struct vertex2 {
-        color32 color;
-        static vertex_declaration decl() noexcept {
-            return vertex_declaration()
-                .add_attribute<color32>("a_color").normalized();
         }
     };
 
@@ -81,73 +69,40 @@ namespace
             22, 23, 20};
     }
 
-    array<vertex1,24> generate_cube_vertices(const v3f& size) noexcept {
+    array<vertex,24> generate_cube_vertices(const v3f& size) noexcept {
         f32 x = size.x * 0.5f;
         f32 y = size.y * 0.5f;
         f32 z = size.z * 0.5f;
         return {
-            vertex1{{-x, -y, -z}, {0, 1}},
-            vertex1{{ x, -y, -z}, {1, 1}},
-            vertex1{{ x,  y, -z}, {1, 0}},
-            vertex1{{-x,  y, -z}, {0, 0}},
+            vertex{{-x, -y, -z}, {0, 1}},
+            vertex{{ x, -y, -z}, {1, 1}},
+            vertex{{ x,  y, -z}, {1, 0}},
+            vertex{{-x,  y, -z}, {0, 0}},
 
-            vertex1{{-x, -y,  z}, {0, 1}},
-            vertex1{{ x, -y,  z}, {1, 1}},
-            vertex1{{ x, -y, -z}, {1, 0}},
-            vertex1{{-x, -y, -z}, {0, 0}},
+            vertex{{-x, -y,  z}, {0, 1}},
+            vertex{{ x, -y,  z}, {1, 1}},
+            vertex{{ x, -y, -z}, {1, 0}},
+            vertex{{-x, -y, -z}, {0, 0}},
 
-            vertex1{{ x, -y,  z}, {0, 1}},
-            vertex1{{-x, -y,  z}, {1, 1}},
-            vertex1{{-x,  y,  z}, {1, 0}},
-            vertex1{{ x,  y,  z}, {0, 0}},
+            vertex{{ x, -y,  z}, {0, 1}},
+            vertex{{-x, -y,  z}, {1, 1}},
+            vertex{{-x,  y,  z}, {1, 0}},
+            vertex{{ x,  y,  z}, {0, 0}},
 
-            vertex1{{-x,  y, -z}, {0, 1}},
-            vertex1{{ x,  y, -z}, {1, 1}},
-            vertex1{{ x,  y,  z}, {1, 0}},
-            vertex1{{-x,  y,  z}, {0, 0}},
+            vertex{{-x,  y, -z}, {0, 1}},
+            vertex{{ x,  y, -z}, {1, 1}},
+            vertex{{ x,  y,  z}, {1, 0}},
+            vertex{{-x,  y,  z}, {0, 0}},
 
-            vertex1{{ x, -y, -z}, {0, 1}},
-            vertex1{{ x, -y,  z}, {1, 1}},
-            vertex1{{ x,  y,  z}, {1, 0}},
-            vertex1{{ x,  y, -z}, {0, 0}},
+            vertex{{ x, -y, -z}, {0, 1}},
+            vertex{{ x, -y,  z}, {1, 1}},
+            vertex{{ x,  y,  z}, {1, 0}},
+            vertex{{ x,  y, -z}, {0, 0}},
 
-            vertex1{{-x, -y,  z}, {0, 1}},
-            vertex1{{-x, -y, -z}, {1, 1}},
-            vertex1{{-x,  y, -z}, {1, 0}},
-            vertex1{{-x,  y,  z}, {0, 0}}};
-    }
-
-    array<vertex2,24> generate_cube_colors() noexcept {
-        return {
-            vertex2{color32::red()},
-            vertex2{color32::green()},
-            vertex2{color32::blue()},
-            vertex2{color32::yellow()},
-
-            vertex2{color32::red()},
-            vertex2{color32::green()},
-            vertex2{color32::blue()},
-            vertex2{color32::yellow()},
-
-            vertex2{color32::red()},
-            vertex2{color32::green()},
-            vertex2{color32::blue()},
-            vertex2{color32::yellow()},
-
-            vertex2{color32::red()},
-            vertex2{color32::green()},
-            vertex2{color32::blue()},
-            vertex2{color32::yellow()},
-
-            vertex2{color32::red()},
-            vertex2{color32::green()},
-            vertex2{color32::blue()},
-            vertex2{color32::yellow()},
-
-            vertex2{color32::red()},
-            vertex2{color32::green()},
-            vertex2{color32::blue()},
-            vertex2{color32::yellow()}};
+            vertex{{-x, -y,  z}, {0, 1}},
+            vertex{{-x, -y, -z}, {1, 1}},
+            vertex{{-x,  y, -z}, {1, 0}},
+            vertex{{-x,  y,  z}, {0, 0}}};
     }
 }
 
@@ -186,19 +141,13 @@ int e2d_main() {
         index_declaration::index_type::unsigned_byte,
         index_buffer::usage::static_draw);
 
-    const auto vertices1 = generate_cube_vertices(make_vec3(1.f));
-    const auto vertex_buffer1 = the<render>().create_vertex_buffer(
-        buffer(vertices1.data(), vertices1.size() * sizeof(vertices1[0])),
-        vertex1::decl(),
+    const auto vertices = generate_cube_vertices(make_vec3(1.f));
+    const auto vertex_buffer = the<render>().create_vertex_buffer(
+        buffer(vertices.data(), vertices.size() * sizeof(vertices[0])),
+        vertex::decl(),
         vertex_buffer::usage::static_draw);
 
-    const auto vertices2 = generate_cube_colors();
-    const auto vertex_buffer2 = the<render>().create_vertex_buffer(
-        buffer(vertices2.data(), vertices2.size() * sizeof(vertices2[0])),
-        vertex2::decl(),
-        vertex_buffer::usage::static_draw);
-
-    if ( !texture || !shader || !index_buffer || !vertex_buffer1 || !vertex_buffer2 ) {
+    if ( !texture || !shader || !index_buffer || !vertex_buffer ) {
         return 1;
     }
 
@@ -206,22 +155,25 @@ int e2d_main() {
         .add_pass(render::pass_state()
             .states(render::state_block()
                 .capabilities(render::capabilities_state()
+                    .blending(true)
                     .culling(true)
                     .depth_test(true))
+                .blending(render::blending_state()
+                    .src_factor(render::blending_factor::src_alpha)
+                    .dst_factor(render::blending_factor::one_minus_src_alpha))
                 .culling(render::culling_state()
                     .mode(render::culling_mode::ccw)
                     .face(render::culling_face::back)))
-            .shader(shader)
-            .properties(render::property_block()
-                .sampler("u_texture", render::sampler_state()
-                    .texture(texture)
-                    .min_filter(render::sampler_min_filter::linear)
-                    .mag_filter(render::sampler_mag_filter::linear))));
+            .shader(shader))
+        .properties(render::property_block()
+            .sampler("u_texture", render::sampler_state()
+                .texture(texture)
+                .min_filter(render::sampler_min_filter::linear)
+                .mag_filter(render::sampler_mag_filter::linear)));
 
     auto geometry = render::geometry()
         .indices(index_buffer)
-        .add_vertices(vertex_buffer1)
-        .add_vertices(vertex_buffer2);
+        .add_vertices(vertex_buffer);
 
     const auto begin_game_time = time::now_ms();
     const auto framebuffer_size = the<window>().real_size().cast_to<f32>();
@@ -230,6 +182,24 @@ int e2d_main() {
         framebuffer_size.x / framebuffer_size.y,
         0.1f,
         100.f);
+
+    const auto rt = the<render>().create_render_target(
+        the<window>().real_size() / 10u,
+        pixel_declaration::pixel_type::rgba8,
+        pixel_declaration::pixel_type::depth16,
+        render_target::external_texture::color_and_depth);
+
+    auto rt_props = render::property_block()
+        .sampler("u_texture", render::sampler_state()
+            .texture(rt->color())
+            .min_filter(render::sampler_min_filter::linear)
+            .mag_filter(render::sampler_mag_filter::linear));
+
+    auto texture_props = render::property_block()
+        .sampler("u_texture", render::sampler_state()
+            .texture(texture)
+            .min_filter(render::sampler_min_filter::linear)
+            .mag_filter(render::sampler_mag_filter::linear));
 
     const keyboard& k = the<input>().keyboard();
     while ( !the<window>().should_close() && !k.is_key_just_released(keyboard_key::escape) ) {
@@ -240,7 +210,7 @@ int e2d_main() {
             math::make_rotation_matrix4(make_rad(game_time) * 0.001f, 0.f, 1.f, 0.f) *
             math::make_rotation_matrix4(make_rad(game_time) * 0.001f, 0.f, 0.f, 1.f) *
             math::make_translation_matrix4(0.f, 0.f, 0.f) *
-            math::make_loot_at_lh_matrix4({0.f,0.f,-3.f}, v3f::zero(), v3f::unit_y()) *
+            math::make_loot_at_lh_matrix4({0.f,0.f,-2.f}, v3f::zero(), v3f::unit_y()) *
             projection;
 
         material.properties()
@@ -248,9 +218,18 @@ int e2d_main() {
             .property("u_MVP", MVP);
 
         the<render>().execute(render::command_block<64>()
+            .add_command(render::target_command(rt))
+            .add_command(render::viewport_command(rt->size()))
+            .add_command(render::clear_command()
+                .color_value({0.f, 0.4f, 0.f, 1.f}))
+            .add_command(render::draw_command(material, geometry, texture_props)));
+
+        the<render>().execute(render::command_block<64>()
+            .add_command(render::target_command(nullptr))
+            .add_command(render::viewport_command(the<window>().real_size()))
             .add_command(render::clear_command()
                 .color_value({1.f, 0.4f, 0.f, 1.f}))
-            .add_command(render::draw_command(material, geometry))
+            .add_command(render::draw_command(material, geometry, rt_props))
             .add_command(render::swap_command(true)));
 
         the<input>().frame_tick();

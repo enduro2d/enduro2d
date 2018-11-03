@@ -16,9 +16,10 @@ namespace
             case image_data_format::ga8:
             case image_data_format::rgb8:
             case image_data_format::rgba8:
-            case image_data_format::dxt1:
-            case image_data_format::dxt3:
-            case image_data_format::dxt5:
+            case image_data_format::rgb_dxt1:
+            case image_data_format::rgba_dxt1:
+            case image_data_format::rgba_dxt3:
+            case image_data_format::rgba_dxt5:
                 return true;
             default:
                 return false;
@@ -31,7 +32,7 @@ namespace e2d { namespace images { namespace impl
     bool try_save_image_dds(const image& src, buffer& dst) noexcept {
         E2D_UNUSED(src, dst);
         if ( is_save_image_dds_supported(src.format()) ) {
-            //TODO: implme
+            //TODO(BlackMat): implme
             E2D_ASSERT_MSG(false, "implme");
         }
         return false;

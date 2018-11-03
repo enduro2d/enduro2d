@@ -45,3 +45,4 @@ endfunction(add_e2d_sample)
 
 add_e2d_sample(00)
 add_e2d_sample(01)
+add_e2d_sample(02)

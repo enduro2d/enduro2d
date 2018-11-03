@@ -20,9 +20,7 @@ namespace e2d
         jpg,
         png,
         pvr,
-        tga,
-
-        unknown
+        tga
     };
 
     enum class image_data_format : u8 {
@@ -31,9 +29,10 @@ namespace e2d
         rgb8,
         rgba8,
 
-        dxt1,
-        dxt3,
-        dxt5,
+        rgb_dxt1,
+        rgba_dxt1,
+        rgba_dxt3,
+        rgba_dxt5,
 
         rgb_pvrtc2,
         rgb_pvrtc4,
@@ -41,20 +40,14 @@ namespace e2d
         rgba_pvrtc2,
         rgba_pvrtc4,
 
-        unknown
+        rgba_pvrtc2_v2,
+        rgba_pvrtc4_v2
     };
 
     class bad_image_access final : public exception {
     public:
         const char* what() const noexcept final {
             return "bad image access";
-        }
-    };
-
-    class bad_image_data_format final : public exception {
-    public:
-        const char* what() const noexcept final {
-            return "bad image data format";
         }
     };
 
@@ -68,14 +61,12 @@ namespace e2d
         image(const image& other);
         image& operator=(const image& other);
 
-        image(const v2u& size, image_data_format format);
         image(const v2u& size, image_data_format format, buffer&& data);
         image(const v2u& size, image_data_format format, const buffer& data);
 
         image& assign(image&& other) noexcept;
         image& assign(const image& other);
 
-        image& assign(const v2u& size, image_data_format format);
         image& assign(const v2u& size, image_data_format format, buffer&& data);
         image& assign(const v2u& size, image_data_format format, const buffer& data);
 
@@ -94,7 +85,7 @@ namespace e2d
     private:
         buffer data_;
         v2u size_;
-        image_data_format format_ = image_data_format::unknown;
+        image_data_format format_ = image_data_format::rgba8;
     };
 
     void swap(image& l, image& r) noexcept;

@@ -10,5 +10,7 @@
 
 #include "debug.hpp"
 #include "input.hpp"
+#include "render.hpp"
+#include "render.inl"
 #include "vfs.hpp"
 #include "window.hpp"

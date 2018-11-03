@@ -10,3 +10,9 @@
 [submodule "modules/glfw"]
 	path = modules/glfw
 	url = https://github.com/glfw/glfw
+[submodule "modules/glew"]
+	path = modules/glew
+	url = https://github.com/Perlmint/glew-cmake
+[submodule "modules/variant"]
+	path = modules/variant
+	url = https://github.com/mpark/variant

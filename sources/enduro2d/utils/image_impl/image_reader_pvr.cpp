@@ -9,7 +9,7 @@
 namespace e2d { namespace images { namespace impl
 {
     bool try_load_image_pvr(image& dst, const buffer& src) noexcept {
-        //TODO: implme
+        //TODO(BlackMat): implme
         E2D_UNUSED(dst, src);
         return false;
     }

@@ -11,48 +11,9 @@ TEST_CASE("images") {
     {
         image i;
         REQUIRE(i.size() == v2u::zero());
-        REQUIRE(i.format() == image_data_format::unknown);
+        REQUIRE(i.format() == image_data_format::rgba8);
         REQUIRE(i.data().empty());
         REQUIRE(i.empty());
-    }
-    {
-        image i(v2u::zero(), image_data_format::unknown);
-        REQUIRE(i.size() == v2u::zero());
-        REQUIRE(i.format() == image_data_format::unknown);
-        REQUIRE(i.data().empty());
-        REQUIRE(i.empty());
-    }
-    {
-        image i(v2u::zero(), image_data_format::unknown, buffer());
-        REQUIRE(i.size() == v2u::zero());
-        REQUIRE(i.format() == image_data_format::unknown);
-        REQUIRE(i.data().empty());
-        REQUIRE(i.empty());
-    }
-    {
-        const buffer b{};
-        image i(v2u::zero(), image_data_format::unknown, b);
-        REQUIRE(i.size() == v2u::zero());
-        REQUIRE(i.format() == image_data_format::unknown);
-        REQUIRE(i.data().empty());
-        REQUIRE(i.empty());
-    }
-    {
-        REQUIRE_THROWS_AS(image(v2u::zero(), image_data_format::g8), bad_image_data_format);
-        REQUIRE_THROWS_AS(image(v2u::zero(), image_data_format::ga8), bad_image_data_format);
-        REQUIRE_THROWS_AS(image(v2u::zero(), image_data_format::rgb8), bad_image_data_format);
-        REQUIRE_THROWS_AS(image(v2u::zero(), image_data_format::rgba8), bad_image_data_format);
-
-        REQUIRE(image(v2u::unit(), image_data_format::g8).data().size() == 1);
-        REQUIRE(image(v2u::unit(), image_data_format::ga8).data().size() == 2);
-        REQUIRE(image(v2u::unit(), image_data_format::rgb8).data().size() == 3);
-        REQUIRE(image(v2u::unit(), image_data_format::rgba8).data().size() == 4);
-
-        REQUIRE_THROWS_AS(image(v2u::unit() * 1u, image_data_format::dxt1), bad_image_data_format);
-        REQUIRE_THROWS_AS(image(v2u::unit() * 2u, image_data_format::dxt1), bad_image_data_format);
-        REQUIRE_THROWS_AS(image(v2u::unit() * 3u, image_data_format::dxt1), bad_image_data_format);
-        REQUIRE(image(v2u::unit() * 4u, image_data_format::dxt1).data().size() == 8);
-        REQUIRE(image(v2u::unit() * 4u, image_data_format::dxt5).data().size() == 16);
     }
     {
         const u8 img[] = {1,2,3,4,5,6,7,8};

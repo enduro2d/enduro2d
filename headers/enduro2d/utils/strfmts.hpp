@@ -8,6 +8,7 @@
 
 #include "_utils.hpp"
 
+#include "url.hpp"
 #include "color.hpp"
 #include "color32.hpp"
 #include "strings.hpp"
@@ -331,6 +332,26 @@ namespace e2d { namespace strings
             return math::numeric_cast<std::ptrdiff_t>(
                 format(dst, size, "%0deg",
                     make_format_arg(value_.value, width_, precision_)));
+        }
+    };
+
+    //
+    // url
+    //
+
+    template <>
+    class format_arg<url> {
+        url value_;
+    public:
+        template < typename U >
+        explicit format_arg(U&& value)
+            noexcept(noexcept(std::is_nothrow_constructible<url, U>::value))
+        : value_(std::forward<U>(value)) {}
+
+        std::ptrdiff_t write(char* dst, size_t size) const {
+            return math::numeric_cast<std::ptrdiff_t>(
+                format(dst, size, "%0://%1",
+                    value_.scheme(), value_.path()));
         }
     };
 

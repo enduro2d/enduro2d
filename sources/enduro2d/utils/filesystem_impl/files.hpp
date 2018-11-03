@@ -25,6 +25,10 @@
 #  endif
 #endif
 
+#ifndef E2D_FILES_MODE
+#  error E2D_FILES_MODE not detected
+#endif
+
 namespace e2d { namespace impl
 {
     read_file_uptr make_read_file(str_view path) noexcept;
