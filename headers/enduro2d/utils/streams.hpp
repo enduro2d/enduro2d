@@ -4,6 +4,8 @@
  * Copyright (C) 2018 Matvey Cherevko
  ******************************************************************************/
 
+#ifndef E2D_INCLUDE_GUARD_271E0872955E4A59980866CBF737BDC1
+#define E2D_INCLUDE_GUARD_271E0872955E4A59980866CBF737BDC1
 #pragma once
 
 #include "_utils.hpp"
@@ -33,6 +35,7 @@ namespace e2d
         virtual std::size_t write(const void* src, std::size_t size) = 0;
         virtual std::size_t seek(std::ptrdiff_t offset, bool relative) = 0;
         virtual std::size_t tell() const = 0;
+        virtual void flush() const = 0;
     };
     using output_stream_uptr = std::unique_ptr<output_stream>;
 }
@@ -56,11 +59,7 @@ namespace e2d
         std::enable_if_t<
             std::is_arithmetic<T>::value,
             input_sequence&>
-        read(T& v) noexcept {
-            return success_
-                ? read(&v, sizeof(v))
-                : *this;
-        }
+        read(T& v) noexcept;
     private:
         input_stream& stream_;
         bool success_ = true;
@@ -80,15 +79,14 @@ namespace e2d
         output_sequence& write_all(const str& src) noexcept;
         output_sequence& write_all(const buffer& src) noexcept;
 
+        output_sequence& flush() noexcept;
+        output_sequence& flush_if(bool yesno) noexcept;
+
         template < typename T >
         std::enable_if_t<
             std::is_arithmetic<T>::value,
             output_sequence&>
-        write(T v) noexcept {
-            return success_
-                ? write(&v, sizeof(v))
-                : *this;
-        }
+        write(T v) noexcept;
     private:
         output_stream& stream_;
         bool success_ = true;
@@ -119,3 +117,6 @@ namespace e2d { namespace streams
         const buffer& src,
         const output_stream_uptr& stream) noexcept;
 }}
+
+#include "streams.inl"
+#endif

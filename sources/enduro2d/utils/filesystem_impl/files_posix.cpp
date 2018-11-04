@@ -139,6 +139,13 @@ namespace
                 : throw bad_stream_operation();
         }
 
+        void flush() const final {
+            E2D_ASSERT(is_opened_());
+            if ( 0 != ::fsync(handle_) ) {
+                throw bad_stream_operation();
+            }
+        }
+
         const str& path() const noexcept final {
             return path_;
         }
