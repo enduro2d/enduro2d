@@ -156,6 +156,14 @@ namespace e2d
             }, std::make_pair(buffer(), false));
     }
 
+    output_stream_uptr vfs::write(const url& url, bool append) const {
+        std::lock_guard<std::mutex> guard(state_->mutex);
+        return state_->with_file_source(url,
+            [&append](const file_source_uptr& source, const str& path) {
+                return source->write(path, append);
+            }, output_stream_uptr());
+    }
+
     std::future<std::pair<buffer,bool>> vfs::load_async(const url& url) const {
         return state_->worker.async([](input_stream_uptr stream){
             buffer buf;
@@ -182,9 +190,9 @@ namespace e2d
         stream_ptr stream;
         jobber worker{1};
     public:
-        state(input_stream_uptr stream)
-        : archive(open_archive_(stream))
-        , stream(std::move(stream)) {}
+        state(input_stream_uptr nstream)
+        : archive(open_archive_(nstream))
+        , stream(std::move(nstream)) {}
         ~state() noexcept = default;
     private:
         static archive_ptr open_archive_(const input_stream_uptr& stream) noexcept {
@@ -263,6 +271,11 @@ namespace e2d
             : std::make_pair(buffer(), false);
     }
 
+    output_stream_uptr archive_file_source::write(str_view path, bool append) const {
+        E2D_UNUSED(path, append);
+        return nullptr;
+    }
+
     //
     // filesystem_file_source
     //
@@ -287,5 +300,9 @@ namespace e2d
         return filesystem::try_read_all(buf, path)
             ? std::make_pair(std::move(buf), true)
             : std::make_pair(buffer(), false);
+    }
+
+    output_stream_uptr filesystem_file_source::write(str_view path, bool append) const {
+        return make_write_file(path, append);
     }
 }

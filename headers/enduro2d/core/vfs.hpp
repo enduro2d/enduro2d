@@ -20,7 +20,7 @@ namespace e2d
     class vfs final : public module<vfs> {
     public:
         vfs();
-        ~vfs() noexcept;
+        ~vfs() noexcept final;
 
         class file_source : private e2d::noncopyable {
         public:
@@ -29,6 +29,7 @@ namespace e2d
             virtual bool exists(str_view path) const = 0;
             virtual input_stream_uptr open(str_view path) const = 0;
             virtual std::pair<buffer,bool> load(str_view path) const = 0;
+            virtual output_stream_uptr write(str_view path, bool append) const = 0;
         };
         using file_source_uptr = std::unique_ptr<file_source>;
 
@@ -43,6 +44,7 @@ namespace e2d
         bool exists(const url& url) const;
         input_stream_uptr open(const url& url) const;
         std::pair<buffer,bool> load(const url& url) const;
+        output_stream_uptr write(const url& url, bool append) const;
         std::future<std::pair<buffer,bool>> load_async(const url& url) const;
 
         url resolve_scheme_aliases(const url& url) const;
@@ -59,6 +61,7 @@ namespace e2d
         bool exists(str_view path) const final;
         input_stream_uptr open(str_view path) const final;
         std::pair<buffer,bool> load(str_view path) const final;
+        output_stream_uptr write(str_view path, bool append) const final;
     private:
         class state;
         std::unique_ptr<state> state_;
@@ -72,6 +75,7 @@ namespace e2d
         bool exists(str_view path) const final;
         input_stream_uptr open(str_view path) const final;
         std::pair<buffer,bool> load(str_view path) const final;
+        output_stream_uptr write(str_view path, bool append) const final;
     };
 }
 
