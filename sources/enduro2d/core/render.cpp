@@ -917,6 +917,22 @@ namespace e2d
     , geometry_(&geo)
     , properties_(&props) {}
 
+    render::draw_command& render::draw_command::index_range(std::size_t first, std::size_t count) noexcept {
+        first_index_ = first;
+        index_count_ = count;
+        return *this;
+    }
+
+    render::draw_command& render::draw_command::first_index(std::size_t value) noexcept {
+        first_index_ = value;
+        return *this;
+    }
+
+    render::draw_command& render::draw_command::index_count(std::size_t value) noexcept {
+        index_count_ = value;
+        return *this;
+    }
+
     render::draw_command& render::draw_command::material_ref(const material& value) noexcept {
         material_ = &value;
         return *this;
@@ -930,6 +946,14 @@ namespace e2d
     render::draw_command& render::draw_command::properties_ref(const property_block& value) {
         properties_ = &value;
         return *this;
+    }
+
+    std::size_t render::draw_command::first_index() const noexcept {
+        return first_index_;
+    }
+
+    std::size_t render::draw_command::index_count() const noexcept {
+        return index_count_;
     }
 
     const render::material& render::draw_command::material_ref() const noexcept {

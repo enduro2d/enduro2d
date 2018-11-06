@@ -220,14 +220,22 @@ namespace
         }
     }
 
-    void draw_indexed_primitive(debug& debug, render::topology tp, const index_buffer_ptr& ib) noexcept {
-        with_gl_bind_buffer(debug, ib->state().id(), [&debug, &tp, &ib]() noexcept {
+    void draw_indexed_primitive(
+        debug& debug,
+        render::topology tp,
+        const index_buffer_ptr& ib,
+        std::size_t first,
+        std::size_t count) noexcept
+    {
+        with_gl_bind_buffer(debug, ib->state().id(), [&debug, &tp, &ib, &first, &count]() noexcept {
             const index_declaration& decl = ib->decl();
-            GL_CHECK_CODE(debug, glDrawElements(
-                convert_topology(tp),
-                math::numeric_cast<GLsizei>(ib->index_count()),
-                convert_index_type(decl.type()),
-                nullptr));
+            if ( first < ib->index_count() ) {
+                GL_CHECK_CODE(debug, glDrawElements(
+                    convert_topology(tp),
+                    math::numeric_cast<GLsizei>(math::min(count, ib->index_count() - first)),
+                    convert_index_type(decl.type()),
+                    reinterpret_cast<const GLvoid*>(first * decl.bytes_per_index())));
+            }
         });
     }
 
@@ -891,9 +899,14 @@ namespace e2d
                 .merge(props);
             state_->set_states(pass.states());
             state_->set_shader_program(pass.shader());
-            with_material_shader(state_->dbg(), pass.shader(), main_props, [this, &pass, &geo]() noexcept {
-                with_geometry_vertices(state_->dbg(), pass.shader(), geo, [this, &geo]() noexcept {
-                    draw_indexed_primitive(state_->dbg(), geo.topo(), geo.indices());
+            with_material_shader(state_->dbg(), pass.shader(), main_props, [this, &command, &pass, &geo]() noexcept {
+                with_geometry_vertices(state_->dbg(), pass.shader(), command.geometry_ref(), [this, &command, &geo]() noexcept {
+                    draw_indexed_primitive(
+                        state_->dbg(),
+                        geo.topo(),
+                        geo.indices(),
+                        command.first_index(),
+                        command.index_count());
                 });
             });
             main_property_cache().clear();
