@@ -32,10 +32,9 @@ namespace
                 const std::size_t uoffset = math::abs_to_unsigned(offset);
                 if ( !relative || uoffset > pos_ ) {
                     throw bad_stream_operation();
-                } else {
-                    pos_ -= uoffset;
-                    return pos_;
                 }
+                pos_ -= uoffset;
+                return pos_;
             } else {
                 const std::size_t uoffset = math::abs_to_unsigned(offset);
                 const std::size_t available_bytes = relative
@@ -43,10 +42,9 @@ namespace
                     : data_.size();
                 if ( uoffset > available_bytes ) {
                     throw bad_stream_operation();
-                } else {
-                    pos_ = uoffset + (data_.size() - available_bytes);
-                    return pos_;
                 }
+                pos_ = uoffset + (data_.size() - available_bytes);
+                return pos_;
             }
         }
 
@@ -183,6 +181,22 @@ namespace e2d
         return success_
             ? write(src.c_str(), src.size())
             : *this;
+    }
+
+    output_sequence& output_sequence::flush() noexcept {
+        try {
+            if ( success_ ) {
+                stream_.flush();
+            }
+        } catch (...) {
+            success_ = false;
+            exception_ = std::current_exception();
+        }
+        return *this;
+    }
+
+    output_sequence& output_sequence::flush_if(bool yesno) noexcept {
+        return yesno ? flush() : *this;
     }
 }
 
