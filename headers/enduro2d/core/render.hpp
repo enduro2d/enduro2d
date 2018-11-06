@@ -733,14 +733,22 @@ namespace e2d
             draw_command(const material& mat, const geometry& geo) noexcept;
             draw_command(const material& mat, const geometry& geo, const property_block& props) noexcept;
 
+            draw_command& index_range(std::size_t first, std::size_t count) noexcept;
+
+            draw_command& first_index(std::size_t value) noexcept;
+            draw_command& index_count(std::size_t value) noexcept;
             draw_command& material_ref(const material& value) noexcept;
             draw_command& geometry_ref(const geometry& value) noexcept;
             draw_command& properties_ref(const property_block& value);
 
+            std::size_t first_index() const noexcept;
+            std::size_t index_count() const noexcept;
             const material& material_ref() const noexcept;
             const geometry& geometry_ref() const noexcept;
             const property_block& properties_ref() const noexcept;
         private:
+            std::size_t first_index_ = 0;
+            std::size_t index_count_ = std::size_t(-1);
             const material* material_ = nullptr;
             const geometry* geometry_ = nullptr;
             const property_block* properties_ = nullptr;
