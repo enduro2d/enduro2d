@@ -4,4 +4,8 @@
  * Copyright (C) 2018 Matvey Cherevko
  ******************************************************************************/
 
-#include <enduro2d/enduro2d.hpp>
+#include <enduro2d/base/_all.hpp>
+
+int main(int argc, char *argv[]) {
+    return e2d_main(argc, argv);
+}
