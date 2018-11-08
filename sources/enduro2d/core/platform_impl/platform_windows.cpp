@@ -8,14 +8,30 @@
 
 #if defined(E2D_PLATFORM_MODE) && E2D_PLATFORM_MODE == E2D_PLATFORM_MODE_WINDOWS
 
+#include <windows.h>
+
 namespace
 {
     using namespace e2d;
 
     class platform_internal_state_impl_windows final : public platform_internal_state_impl {
     public:
-        platform_internal_state_impl_windows() = default;
-        ~platform_internal_state_impl_windows() noexcept = default;
+        platform_internal_state_impl_windows() {
+            TIMECAPS tc;
+            if ( MMSYSERR_NOERROR == ::timeGetDevCaps(&tc, sizeof(tc)) ) {
+                if ( TIMERR_NOERROR == ::timeBeginPeriod(tc.wPeriodMin) ) {
+                    timers_resolution_ = tc.wPeriodMin;
+                }
+            }
+        }
+
+        ~platform_internal_state_impl_windows() noexcept {
+            if ( timers_resolution_ > 0 ) {
+                ::timeEndPeriod(timers_resolution_);
+            }
+        }
+    private:
+        UINT timers_resolution_{0u};
     };
 }
 
