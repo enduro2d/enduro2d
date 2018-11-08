@@ -8,27 +8,6 @@
 
 #include "_utils.hpp"
 
-namespace e2d { namespace time
-{
-    template < typename T >
-    const seconds<T>& second() noexcept {
-        static seconds<T> second = seconds<T>(T(1));
-        return second;
-    }
-
-    template < typename T >
-    const seconds<T>& minute() noexcept {
-        static seconds<T> minute = second<T>() * T(60);
-        return minute;
-    }
-
-    template < typename T >
-    const seconds<T>& hour() noexcept {
-        static seconds<T> hour = minute<T>() * T(60);
-        return hour;
-    }
-}}
-
 namespace e2d
 {
     template < typename T >
@@ -140,6 +119,63 @@ namespace e2d { namespace time
     template < typename T, typename Tag >
     microseconds<T> to_microseconds(const unit<T, Tag>& u) noexcept {
         return u.template convert_to<microseconds_tag>();
+    }
+}}
+
+namespace e2d { namespace time
+{
+    template < typename T >
+    const seconds<T>& second() noexcept {
+        static seconds<T> second = seconds<T>(T(1));
+        return second;
+    }
+
+    template < typename T >
+    const milliseconds<T>& second_ms() noexcept {
+        static milliseconds<T> second_ms = to_milliseconds(second<T>());
+        return second_ms;
+    }
+
+    template < typename T >
+    const microseconds<T>& second_us() noexcept {
+        static microseconds<T> second_us = to_microseconds(second<T>());
+        return second_us;
+    }
+
+    template < typename T >
+    const seconds<T>& minute() noexcept {
+        static seconds<T> minute = second<T>() * T(60);
+        return minute;
+    }
+
+    template < typename T >
+    const milliseconds<T>& minute_ms() noexcept {
+        static milliseconds<T> minute_ms = to_milliseconds(minute<T>());
+        return minute_ms;
+    }
+
+    template < typename T >
+    const microseconds<T>& minute_us() noexcept {
+        static microseconds<T> minute_us = to_microseconds(minute<T>());
+        return minute_us;
+    }
+
+    template < typename T >
+    const seconds<T>& hour() noexcept {
+        static seconds<T> hour = minute<T>() * T(60);
+        return hour;
+    }
+
+    template < typename T >
+    const milliseconds<T>& hour_ms() noexcept {
+        static milliseconds<T> hour_ms = to_milliseconds(hour<T>());
+        return hour_ms;
+    }
+
+    template < typename T >
+    const microseconds<T>& hour_us() noexcept {
+        static microseconds<T> hour_us = to_microseconds(hour<T>());
+        return hour_us;
     }
 }}
 

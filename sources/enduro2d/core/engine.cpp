@@ -84,6 +84,28 @@ namespace e2d
     }
 
     //
+    // engine::timer_parameters
+    //
+
+    engine::timer_parameters& engine::timer_parameters::minimal_framerate(u32 value) noexcept {
+        minimal_framerate_ = value;
+        return *this;
+    }
+
+    engine::timer_parameters& engine::timer_parameters::maximal_framerate(u32 value) noexcept {
+        maximal_framerate_ = value;
+        return *this;
+    }
+
+    u32 engine::timer_parameters::minimal_framerate() const noexcept {
+        return minimal_framerate_;
+    }
+
+    u32 engine::timer_parameters::maximal_framerate() const noexcept {
+        return maximal_framerate_;
+    }
+
+    //
     // engine::window_parameters
     //
 
@@ -142,6 +164,11 @@ namespace e2d
         return *this;
     }
 
+    engine::parameters& engine::parameters::timer_params(const timer_parameters& value) {
+        timer_params_ = value;
+        return *this;
+    }
+
     str& engine::parameters::game_name() noexcept {
         return game_name_;
     }
@@ -156,6 +183,10 @@ namespace e2d
 
     engine::window_parameters& engine::parameters::window_params() noexcept {
         return window_params_;
+    }
+
+    engine::timer_parameters& engine::parameters::timer_params() noexcept {
+        return timer_params_;
     }
 
     const str& engine::parameters::game_name() const noexcept {
@@ -174,14 +205,93 @@ namespace e2d
         return window_params_;
     }
 
+    const engine::timer_parameters& engine::parameters::timer_params() const noexcept {
+        return timer_params_;
+    }
+
     //
-    // engine::internal_state
+    // engine
     //
 
     class engine::internal_state final : private e2d::noncopyable {
     public:
-        internal_state() = default;
+        internal_state(const parameters& params)
+        : timer_params_(params.timer_params())
+        {
+            const auto first_frame_time = math::clamp(
+                math::max(timer_params_.minimal_framerate(), timer_params_.maximal_framerate()),
+                1u,
+                1000u);
+            delta_time_us_.store(
+                (time::second_us<u64>() / math::numeric_cast<u64>(first_frame_time)).value);
+        }
         ~internal_state() noexcept = default;
+    public:
+        f32 time() const noexcept {
+            return time::to_seconds(
+                make_microseconds(time_us_.load()).cast_to<f32>()).value;
+        }
+
+        f32 delta_time() const noexcept {
+            return time::to_seconds(
+                make_microseconds(delta_time_us_.load()).cast_to<f32>()).value;
+        }
+
+        u32 frame_rate() const noexcept {
+            return frame_rate_.load();
+        }
+
+        u32 frame_count() const noexcept {
+            return frame_count_.load();
+        }
+
+        f32 realtime_time() const noexcept {
+            const auto delta_us = time::now_us().cast_to<u64>() - init_time_;
+            return time::to_seconds(delta_us.cast_to<f32>()).value;
+        }
+    public:
+        void calculate_end_frame_timers() noexcept {
+            const auto second_us = time::second_us<u64>();
+
+            const auto minimal_delta_time_us =
+                second_us / math::numeric_cast<u64>(math::clamp(
+                    timer_params_.maximal_framerate(), 1u, 1000u));
+
+            const auto maximal_delta_time_us =
+                second_us / math::numeric_cast<u64>(math::clamp(
+                    timer_params_.minimal_framerate(), 1u, 1000u));
+
+            auto now_us = time::now_us().cast_to<u64>();
+            while ( now_us - prev_frame_time_ < minimal_delta_time_us ) {
+                std::this_thread::yield();
+                now_us = time::now_us().cast_to<u64>();
+            }
+
+            delta_time_us_.store(math::minimized(
+                now_us - prev_frame_time_,
+                maximal_delta_time_us).value);
+
+            time_us_.store((now_us - init_time_).value);
+            prev_frame_time_ = now_us;
+
+            frame_count_.fetch_add(1);
+            frame_rate_counter_.fetch_add(1);
+            while ( now_us - prev_frame_rate_time_ >= second_us ) {
+                prev_frame_rate_time_ += second_us;
+                frame_rate_.store(frame_rate_counter_.exchange(0));
+            }
+        }
+    private:
+        timer_parameters timer_params_;
+        microseconds<u64> init_time_{time::now_us().cast_to<u64>()};
+        microseconds<u64> prev_frame_time_{time::now_us().cast_to<u64>()};
+        microseconds<u64> prev_frame_rate_time_{time::now_us().cast_to<u64>()};
+        std::atomic_uint64_t time_us_{0};
+        std::atomic_uint64_t delta_time_us_{0};
+        std::atomic_uint32_t frame_rate_{0};
+        std::atomic_uint32_t frame_count_{0};
+        std::atomic_uint32_t frame_rate_counter_{0};
+        u8 _pad[4] = {0};
     };
 
     //
@@ -189,7 +299,7 @@ namespace e2d
     //
 
     engine::engine(const parameters& params)
-    : state_(new internal_state())
+    : state_(new internal_state(params))
     {
         // setup debug
 
@@ -244,20 +354,48 @@ namespace e2d
     engine::~engine() noexcept = default;
 
     bool engine::start(application_uptr app) {
+        E2D_ASSERT(main_thread() == std::this_thread::get_id());
+
         if ( !app || !app->initialize() ) {
             the<debug>().error("ENGINE: Failed to initialize application");
             return false;
         }
-        try {
-            while ( app->frame_tick() ) {
-                the<input>().frame_tick();
-                window::poll_events();
+
+        while ( true ) {
+            try {
+                if ( !app->frame_tick() ) {
+                    break;
+                }
+                state_->calculate_end_frame_timers();
+            } catch ( ... ) {
+                app->shutdown();
+                throw;
             }
-        } catch ( ... ) {
-            app->shutdown();
-            throw;
+            the<input>().frame_tick();
+            window::poll_events();
         }
+
         app->shutdown();
         return true;
+    }
+
+    f32 engine::time() const noexcept {
+        return state_->time();
+    }
+
+    f32 engine::delta_time() const noexcept {
+        return state_->delta_time();
+    }
+
+    u32 engine::frame_rate() const noexcept {
+        return state_->frame_rate();
+    }
+
+    u32 engine::frame_count() const noexcept {
+        return state_->frame_count();
+    }
+
+    f32 engine::realtime_time() const noexcept {
+        return state_->realtime_time();
     }
 }

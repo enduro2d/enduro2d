@@ -70,6 +70,18 @@ namespace e2d
             bool fullscreen_{false};
         };
 
+        class timer_parameters {
+        public:
+            timer_parameters& minimal_framerate(u32 value) noexcept;
+            timer_parameters& maximal_framerate(u32 value) noexcept;
+
+            u32 minimal_framerate() const noexcept;
+            u32 maximal_framerate() const noexcept;
+        private:
+            u32 minimal_framerate_{30u};
+            u32 maximal_framerate_{1000u};
+        };
+
         class parameters {
         public:
             parameters() = delete;
@@ -79,21 +91,25 @@ namespace e2d
             parameters& company_name(str_view value) noexcept;
             parameters& debug_params(const debug_parameters& value);
             parameters& window_params(const window_parameters& value);
+            parameters& timer_params(const timer_parameters& value);
 
             str& game_name() noexcept;
             str& company_name() noexcept;
             debug_parameters& debug_params() noexcept;
             window_parameters& window_params() noexcept;
+            timer_parameters& timer_params() noexcept;
 
             const str& game_name() const noexcept;
             const str& company_name() const noexcept;
             const debug_parameters& debug_params() const noexcept;
             const window_parameters& window_params() const noexcept;
+            const timer_parameters& timer_params() const noexcept;
         private:
             str game_name_{"noname"};
             str company_name_{"noname"};
             debug_parameters debug_params_;
             window_parameters window_params_;
+            timer_parameters timer_params_;
         };
     public:
         engine(const parameters& params);
@@ -102,6 +118,13 @@ namespace e2d
         template < typename Application, typename... Args >
         bool start(Args&&... args);
         bool start(application_uptr app);
+
+        f32 time() const noexcept;
+        f32 delta_time() const noexcept;
+
+        u32 frame_rate() const noexcept;
+        u32 frame_count() const noexcept;
+        f32 realtime_time() const noexcept;
     private:
         class internal_state;
         std::unique_ptr<internal_state> state_;
