@@ -246,7 +246,7 @@ namespace e2d
         }
 
         f32 realtime_time() const noexcept {
-            const auto delta_us = time::now_us().cast_to<u64>() - init_time_;
+            const auto delta_us = time::now_us<u64>() - init_time_;
             return time::to_seconds(delta_us.cast_to<f32>()).value;
         }
     public:
@@ -261,10 +261,16 @@ namespace e2d
                 second_us / math::numeric_cast<u64>(math::clamp(
                     timer_params_.minimal_framerate(), 1u, 1000u));
 
-            auto now_us = time::now_us().cast_to<u64>();
+            auto now_us = time::now_us<u64>();
             while ( now_us - prev_frame_time_ < minimal_delta_time_us ) {
-                std::this_thread::yield();
-                now_us = time::now_us().cast_to<u64>();
+                const auto sleep_us = minimal_delta_time_us - (now_us - prev_frame_time_);
+                const auto microsecond = make_microseconds<u64>(1000u);
+                if ( sleep_us > microsecond ) {
+                    std::this_thread::sleep_for(time::to_chrono(sleep_us - microsecond));
+                } else {
+                    std::this_thread::yield();
+                }
+                now_us = time::now_us<u64>();
             }
 
             delta_time_us_.store(math::minimized(
@@ -283,9 +289,9 @@ namespace e2d
         }
     private:
         timer_parameters timer_params_;
-        microseconds<u64> init_time_{time::now_us().cast_to<u64>()};
-        microseconds<u64> prev_frame_time_{time::now_us().cast_to<u64>()};
-        microseconds<u64> prev_frame_rate_time_{time::now_us().cast_to<u64>()};
+        microseconds<u64> init_time_{time::now_us<u64>()};
+        microseconds<u64> prev_frame_time_{time::now_us<u64>()};
+        microseconds<u64> prev_frame_rate_time_{time::now_us<u64>()};
         std::atomic<u64> time_us_{0};
         std::atomic<u64> delta_time_us_{0};
         std::atomic<u32> frame_rate_{0};

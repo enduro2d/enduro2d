@@ -26,7 +26,7 @@ namespace
           v_color = a_color;
           v_uv = a_uv;
 
-          float s = 0.7 + 0.3 * (cos(u_time * 0.003) + 1);
+          float s = 0.7 + 0.3 * (cos(u_time * 3.0) + 1.0);
           gl_Position = vec4(a_position * s, 1.0) * u_MVP;
         }
     )glsl";
@@ -42,7 +42,7 @@ namespace
 
         void main(){
           vec2 uv = vec2(v_uv.s, 1.0 - v_uv.t);
-          if ( u_time > 2000 ) {
+          if ( u_time > 2.0 ) {
             gl_FragColor = v_color * texture2D(u_texture2, uv);
           } else {
             gl_FragColor = v_color * texture2D(u_texture1, uv);
@@ -158,22 +158,22 @@ namespace
                 .add_vertices(vertex_buffer1_)
                 .add_vertices(vertex_buffer2_);
 
-            begin_game_time_ = time::now_ms();
             return true;
         }
 
         bool frame_tick() final {
+            the<window>().set_title(strings::rformat("FPS: %0", the<engine>().frame_rate()));
+
             const keyboard& k = the<input>().keyboard();
             if ( the<window>().should_close() || k.is_key_just_released(keyboard_key::escape) ) {
                 return false;
             }
 
-            const auto game_time = (time::now_ms() - begin_game_time_).cast_to<f32>().value;
             const auto framebuffer_size = the<window>().real_size().cast_to<f32>();
             const auto projection = math::make_orthogonal_lh_matrix4(framebuffer_size, 0.f, 1.f);
 
             material_.properties()
-                .property("u_time", game_time)
+                .property("u_time", the<engine>().time())
                 .property("u_MVP", projection);
 
             the<render>().execute(render::command_block<64>()
@@ -193,12 +193,13 @@ namespace
         vertex_buffer_ptr vertex_buffer2_;
         render::material material_;
         render::geometry geometry_;
-        milliseconds<i64> begin_game_time_;
     };
 }
 
 int e2d_main() {
-    auto params = engine::parameters("sample_00", "enduro2d");
+    auto params = engine::parameters("sample_00", "enduro2d")
+        .timer_params(engine::timer_parameters()
+            .maximal_framerate(100));
     modules::initialize<engine>(params).start<game>();
     return 0;
 }

@@ -184,7 +184,6 @@ namespace
                 .indices(index_buffer_)
                 .add_vertices(vertex_buffer_);
 
-            begin_game_time_ = time::now_ms();
             return true;
         }
 
@@ -194,7 +193,6 @@ namespace
                 return false;
             }
 
-            const auto game_time = (time::now_ms() - begin_game_time_).cast_to<f32>().value;
             const auto framebuffer_size = the<window>().real_size().cast_to<f32>();
             const auto projection = math::make_perspective_lh_matrix4(
                 make_deg(45.f),
@@ -203,15 +201,14 @@ namespace
                 100.f);
 
             const auto MVP =
-                math::make_rotation_matrix4(make_rad(game_time) * 0.001f, 1.f, 0.f, 0.f) *
-                math::make_rotation_matrix4(make_rad(game_time) * 0.001f, 0.f, 1.f, 0.f) *
-                math::make_rotation_matrix4(make_rad(game_time) * 0.001f, 0.f, 0.f, 1.f) *
+                math::make_rotation_matrix4(make_rad(the<engine>().time()), 1.f, 0.f, 0.f) *
+                math::make_rotation_matrix4(make_rad(the<engine>().time()), 0.f, 1.f, 0.f) *
+                math::make_rotation_matrix4(make_rad(the<engine>().time()), 0.f, 0.f, 1.f) *
                 math::make_translation_matrix4(0.f, 0.f, 0.f) *
                 math::make_loot_at_lh_matrix4({0.f,0.f,-2.f}, v3f::zero(), v3f::unit_y()) *
                 projection;
 
             material_.properties()
-                .property("u_time", game_time)
                 .property("u_MVP", MVP);
 
             the<render>().execute(render::command_block<64>()
@@ -241,12 +238,13 @@ namespace
         render::property_block tex_props_;
         render::material material_;
         render::geometry geometry_;
-        milliseconds<i64> begin_game_time_;
     };
 }
 
 int e2d_main() {
-    auto params = engine::parameters("sample_02", "enduro2d");
+    auto params = engine::parameters("sample_02", "enduro2d")
+        .timer_params(engine::timer_parameters()
+            .maximal_framerate(100));
     modules::initialize<engine>(params).start<game>();
     return 0;
 }
