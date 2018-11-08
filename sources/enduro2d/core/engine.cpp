@@ -286,11 +286,11 @@ namespace e2d
         microseconds<u64> init_time_{time::now_us().cast_to<u64>()};
         microseconds<u64> prev_frame_time_{time::now_us().cast_to<u64>()};
         microseconds<u64> prev_frame_rate_time_{time::now_us().cast_to<u64>()};
-        std::atomic_uint64_t time_us_{0};
-        std::atomic_uint64_t delta_time_us_{0};
-        std::atomic_uint32_t frame_rate_{0};
-        std::atomic_uint32_t frame_count_{0};
-        std::atomic_uint32_t frame_rate_counter_{0};
+        std::atomic<u64> time_us_{0};
+        std::atomic<u64> delta_time_us_{0};
+        std::atomic<u32> frame_rate_{0};
+        std::atomic<u32> frame_count_{0};
+        std::atomic<u32> frame_rate_counter_{0};
         u8 _pad[4] = {0};
     };
 
