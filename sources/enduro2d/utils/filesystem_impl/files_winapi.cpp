@@ -170,7 +170,7 @@ namespace
 
         void flush() const final {
             E2D_ASSERT(is_opened_());
-            if ( FALSE == ::FlushFileBuffers() ) {
+            if ( FALSE == ::FlushFileBuffers(handle_) ) {
                 throw bad_stream_operation();
             }
         }
