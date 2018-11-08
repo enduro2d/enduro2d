@@ -260,10 +260,10 @@ namespace
     };
 }
 
-int e2d_main() {
+int e2d_main(int argc, char *argv[]) {
     auto params = engine::parameters("sample_01", "enduro2d")
         .timer_params(engine::timer_parameters()
             .maximal_framerate(100));
-    modules::initialize<engine>(params).start<game>();
+    modules::initialize<engine>(argc, argv, params).start<game>();
     return 0;
 }

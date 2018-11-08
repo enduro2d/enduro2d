@@ -8,6 +8,7 @@
 
 #include <enduro2d/core/debug.hpp>
 #include <enduro2d/core/input.hpp>
+#include <enduro2d/core/platform.hpp>
 #include <enduro2d/core/render.hpp>
 #include <enduro2d/core/vfs.hpp>
 #include <enduro2d/core/window.hpp>
@@ -304,9 +305,13 @@ namespace e2d
     // engine
     //
 
-    engine::engine(const parameters& params)
+    engine::engine(int argc, char *argv[], const parameters& params)
     : state_(new internal_state(params))
     {
+        // setup platform
+
+        safe_module_initialize<platform>(argc, argv);
+
         // setup debug
 
         safe_module_initialize<debug>();

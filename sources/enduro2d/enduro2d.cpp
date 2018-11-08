@@ -7,6 +7,5 @@
 #include <enduro2d/enduro2d.hpp>
 
 int main(int argc, char *argv[]) {
-    E2D_UNUSED(argc, argv);
-    return e2d_main();
+    return e2d_main(argc, argv);
 }

@@ -9,4 +9,4 @@
 #include "math/_all.hpp"
 #include "utils/_all.hpp"
 
-e2d::i32 e2d_main();
+e2d::i32 e2d_main(int argc, char *argv[]);

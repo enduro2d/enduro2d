@@ -112,7 +112,7 @@ namespace e2d
             timer_parameters timer_params_;
         };
     public:
-        engine(const parameters& params);
+        engine(int argc, char *argv[], const parameters& params);
         ~engine() noexcept final;
 
         template < typename Application, typename... Args >
