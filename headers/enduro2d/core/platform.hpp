@@ -8,11 +8,14 @@
 
 #include "_core.hpp"
 
-#include "debug.hpp"
-#include "engine.hpp"
-#include "input.hpp"
-#include "platform.hpp"
-#include "render.hpp"
-#include "render.inl"
-#include "vfs.hpp"
-#include "window.hpp"
+namespace e2d
+{
+    class platform final : public module<platform> {
+    public:
+        platform();
+        ~platform() noexcept final;
+    private:
+        class internal_state;
+        std::unique_ptr<internal_state> state_;
+    };
+}
