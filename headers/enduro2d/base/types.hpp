@@ -33,6 +33,9 @@ namespace e2d
              , std::size_t Size >
     using array = std::array<Value, Size>;
 
+    template < std::size_t Size >
+    using bitset = std::bitset<Size>;
+
     template < typename Value
              , typename Allocator = std::allocator<Value> >
     using vector = std::vector<Value, Allocator>;

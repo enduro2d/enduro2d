@@ -24,6 +24,7 @@
 #include <map>
 #include <tuple>
 #include <array>
+#include <bitset>
 #include <string>
 #include <vector>
 #include <unordered_set>

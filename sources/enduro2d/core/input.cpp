@@ -6,63 +6,35 @@
 
 #include <enduro2d/core/input.hpp>
 
-namespace
-{
-    using namespace e2d;
-
-    enum class button_state : u8 {
-        pressed,
-        released,
-        just_pressed,
-        just_released
-    };
-
-    void update_button_state(button_state& state) noexcept {
-        if ( state == button_state::just_pressed ) {
-            state = button_state::pressed;
-        } else if ( state == button_state::just_released ) {
-            state = button_state::released;
-        }
-    }
-}
-
 namespace e2d
 {
     //
     // class mouse::state
     //
 
-    class mouse::state final : private e2d::noncopyable {
+    class mouse::internal_state final : private e2d::noncopyable {
     public:
         mutable std::mutex mutex;
         v2f cursor_pos;
         v2f scroll_delta;
-        std::array<
-            button_state,
-            math::enum_to_number(mouse_button::unknown) + 1
-        > button_states{};
-        u8 _pad[2] = {0};
+        bitset<
+            math::enum_to_number(mouse_button::unknown) + 1> pressed;
+        bitset<
+            math::enum_to_number(mouse_button::unknown) + 1> just_pressed;
+        bitset<
+            math::enum_to_number(mouse_button::unknown) + 1> just_released;
     public:
-        state() noexcept {
-            std::fill(
-                button_states.begin(),
-                button_states.end(),
-                button_state::released);
-        }
-
         std::size_t button_index(mouse_button btn) const noexcept {
             const auto index = math::enum_to_number(btn);
-            E2D_ASSERT(index < button_states.size());
+            E2D_ASSERT(index < pressed.size());
             return math::numeric_cast<std::size_t>(index);
         }
 
         void frame_tick() noexcept {
             std::lock_guard<std::mutex> guard(mutex);
             scroll_delta = v2f::zero();
-            std::for_each(
-                button_states.begin(),
-                button_states.end(),
-                &update_button_state);
+            just_pressed.reset();
+            just_released.reset();
         }
 
         void post_event(input::move_cursor_event evt) noexcept {
@@ -78,16 +50,17 @@ namespace e2d
         void post_event(input::mouse_button_event evt) noexcept {
             std::lock_guard<std::mutex> guard(mutex);
             const std::size_t index = button_index(evt.button);
-            const button_state ms = button_states[index];
             switch ( evt.action ) {
                 case mouse_button_action::press:
-                    if ( ms == button_state::released || ms == button_state::just_released ) {
-                        button_states[index] = button_state::just_pressed;
+                    if ( !pressed.test(index) ) {
+                        pressed.set(index);
+                        just_pressed.set(index);
                     }
                     break;
                 case mouse_button_action::release:
-                    if ( ms == button_state::just_pressed || ms == button_state::pressed ) {
-                        button_states[index] = button_state::just_released;
+                    if ( pressed.test(index) ) {
+                        pressed.reset(index);
+                        just_released.set(index);
                     }
                     break;
                 case mouse_button_action::unknown:
@@ -103,35 +76,28 @@ namespace e2d
     // class keyboard::state
     //
 
-    class keyboard::state final : private e2d::noncopyable {
+    class keyboard::internal_state final : private e2d::noncopyable {
     public:
         mutable std::mutex mutex;
         str32 input_text;
-        std::array<
-            button_state,
-            math::enum_to_number(keyboard_key::unknown) + 1
-        > key_states{};
+        bitset<
+            math::enum_to_number(keyboard_key::unknown) + 1> pressed;
+        bitset<
+            math::enum_to_number(keyboard_key::unknown) + 1> just_pressed;
+        bitset<
+            math::enum_to_number(keyboard_key::unknown) + 1> just_released;
     public:
-        state() noexcept {
-            std::fill(
-                key_states.begin(),
-                key_states.end(),
-                button_state::released);
-        }
-
         std::size_t key_index(keyboard_key key) const noexcept {
             const auto index = math::enum_to_number(key);
-            E2D_ASSERT(index < key_states.size());
+            E2D_ASSERT(index < pressed.size());
             return math::numeric_cast<std::size_t>(index);
         }
 
         void frame_tick() noexcept {
             std::lock_guard<std::mutex> guard(mutex);
             input_text.clear();
-            std::for_each(
-                key_states.begin(),
-                key_states.end(),
-                &update_button_state);
+            just_pressed.reset();
+            just_released.reset();
         }
 
         void post_event(input::input_char_event evt) noexcept {
@@ -142,17 +108,18 @@ namespace e2d
         void post_event(input::keyboard_key_event evt) noexcept {
             std::lock_guard<std::mutex> guard(mutex);
             const std::size_t index = key_index(evt.key);
-            const button_state ks = key_states[index];
             switch ( evt.action ) {
                 case keyboard_key_action::press:
                 case keyboard_key_action::repeat:
-                    if ( ks == button_state::released || ks == button_state::just_released ) {
-                        key_states[index] = button_state::just_pressed;
+                    if ( !pressed.test(index) ) {
+                        pressed.set(index);
+                        just_pressed.set(index);
                     }
                     break;
                 case keyboard_key_action::release:
-                    if ( ks == button_state::pressed || ks == button_state::just_pressed ) {
-                        key_states[index] = button_state::just_released;
+                    if ( pressed.test(index) ) {
+                        pressed.reset(index);
+                        just_released.set(index);
                     }
                     break;
                 case keyboard_key_action::unknown:
@@ -169,7 +136,7 @@ namespace e2d
     //
 
     mouse::mouse()
-    : state_(new state()) {}
+    : state_(new internal_state()) {}
     mouse::~mouse() noexcept = default;
 
     v2f mouse::cursor_pos() const noexcept {
@@ -184,82 +151,59 @@ namespace e2d
 
     bool mouse::is_any_button_pressed() const noexcept {
         std::lock_guard<std::mutex> guard(state_->mutex);
-        return std::any_of(
-            state_->button_states.cbegin(),
-            state_->button_states.cend(),
-            [](button_state s) noexcept {
-                return s == button_state::just_pressed
-                    || s == button_state::pressed;
-            });
+        return state_->pressed.any();
     }
 
     bool mouse::is_any_button_just_pressed() const noexcept {
         std::lock_guard<std::mutex> guard(state_->mutex);
-        return std::any_of(
-            state_->button_states.cbegin(),
-            state_->button_states.cend(),
-            [](button_state s) noexcept {
-                return s == button_state::just_pressed;
-            });
+        return state_->just_pressed.any();
     }
 
     bool mouse::is_any_button_just_released() const noexcept {
         std::lock_guard<std::mutex> guard(state_->mutex);
-        return std::any_of(
-            state_->button_states.cbegin(),
-            state_->button_states.cend(),
-            [](button_state s) noexcept {
-                return s == button_state::just_released;
-            });
+        return state_->just_released.any();
     }
 
     bool mouse::is_button_pressed(mouse_button btn) const noexcept {
         std::lock_guard<std::mutex> guard(state_->mutex);
         const std::size_t index = state_->button_index(btn);
-        const button_state ms = state_->button_states[index];
-        return ms == button_state::just_pressed
-            || ms == button_state::pressed;
+        return state_->pressed.test(index);
     }
 
     bool mouse::is_button_just_pressed(mouse_button btn) const noexcept {
         std::lock_guard<std::mutex> guard(state_->mutex);
         const std::size_t index = state_->button_index(btn);
-        const button_state ms = state_->button_states[index];
-        return ms == button_state::just_pressed;
+        return state_->just_pressed.test(index);
     }
 
     bool mouse::is_button_just_released(mouse_button btn) const noexcept {
         std::lock_guard<std::mutex> guard(state_->mutex);
         const std::size_t index = state_->button_index(btn);
-        const button_state ms = state_->button_states[index];
-        return ms == button_state::just_released;
+        return state_->just_released.test(index);
     }
 
-    void mouse::extract_pressed_buttons(std::vector<mouse_button>& dst) const {
+    void mouse::extract_pressed_buttons(vector<mouse_button>& dst) const {
         std::lock_guard<std::mutex> guard(state_->mutex);
-        for ( std::size_t i = 0; i < state_->button_states.size(); ++i ) {
-            button_state ks = state_->button_states[i];
-            if ( ks == button_state::just_pressed || ks == button_state::pressed ) {
+        for ( std::size_t i = 0; i < state_->pressed.size(); ++i ) {
+            if ( state_->pressed.test(i) ) {
                 dst.push_back(static_cast<mouse_button>(i));
             }
         }
     }
 
-    void mouse::extract_just_pressed_buttons(std::vector<mouse_button>& dst) const {
+    void mouse::extract_just_pressed_buttons(vector<mouse_button>& dst) const {
         std::lock_guard<std::mutex> guard(state_->mutex);
-        for ( std::size_t i = 0; i < state_->button_states.size(); ++i ) {
-            button_state ks = state_->button_states[i];
-            if ( ks == button_state::just_pressed ) {
+        for ( std::size_t i = 0; i < state_->just_pressed.size(); ++i ) {
+            if ( state_->just_pressed.test(i) ) {
                 dst.push_back(static_cast<mouse_button>(i));
             }
         }
     }
 
-    void mouse::extract_just_released_buttons(std::vector<mouse_button>& dst) const {
+    void mouse::extract_just_released_buttons(vector<mouse_button>& dst) const {
         std::lock_guard<std::mutex> guard(state_->mutex);
-        for ( std::size_t i = 0; i < state_->button_states.size(); ++i ) {
-            button_state ks = state_->button_states[i];
-            if ( ks == button_state::just_released ) {
+        for ( std::size_t i = 0; i < state_->just_released.size(); ++i ) {
+            if ( state_->just_released.test(i) ) {
                 dst.push_back(static_cast<mouse_button>(i));
             }
         }
@@ -270,7 +214,7 @@ namespace e2d
     //
 
     keyboard::keyboard()
-    : state_(new state()) {}
+    : state_(new internal_state()) {}
     keyboard::~keyboard() noexcept = default;
 
     str32 keyboard::input_text() const {
@@ -285,62 +229,41 @@ namespace e2d
 
     bool keyboard::is_any_key_pressed() const noexcept {
         std::lock_guard<std::mutex> guard(state_->mutex);
-        return std::any_of(
-            state_->key_states.cbegin(),
-            state_->key_states.cend(),
-            [](button_state s) noexcept {
-                return s == button_state::just_pressed
-                    || s == button_state::pressed;
-            });
+        return state_->pressed.any();
     }
 
     bool keyboard::is_any_key_just_pressed() const noexcept {
         std::lock_guard<std::mutex> guard(state_->mutex);
-        return std::any_of(
-            state_->key_states.cbegin(),
-            state_->key_states.cend(),
-            [](button_state s) noexcept {
-                return s == button_state::just_pressed;
-            });
+        return state_->just_pressed.any();
     }
 
     bool keyboard::is_any_key_just_released() const noexcept {
         std::lock_guard<std::mutex> guard(state_->mutex);
-        return std::any_of(
-            state_->key_states.cbegin(),
-            state_->key_states.cend(),
-            [](button_state s) noexcept {
-                return s == button_state::just_released;
-            });
+        return state_->just_released.any();
     }
 
     bool keyboard::is_key_pressed(keyboard_key key) const noexcept {
         std::lock_guard<std::mutex> guard(state_->mutex);
         const std::size_t index = state_->key_index(key);
-        const button_state ks = state_->key_states[index];
-        return ks == button_state::just_pressed
-            || ks == button_state::pressed;
+        return state_->pressed.test(index);
     }
 
     bool keyboard::is_key_just_pressed(keyboard_key key) const noexcept {
         std::lock_guard<std::mutex> guard(state_->mutex);
         const std::size_t index = state_->key_index(key);
-        const button_state ks = state_->key_states[index];
-        return ks == button_state::just_pressed;
+        return state_->just_pressed.test(index);
     }
 
     bool keyboard::is_key_just_released(keyboard_key key) const noexcept {
         std::lock_guard<std::mutex> guard(state_->mutex);
         const std::size_t index = state_->key_index(key);
-        const button_state ks = state_->key_states[index];
-        return ks == button_state::just_released;
+        return state_->just_released.test(index);
     }
 
     void keyboard::extract_pressed_keys(std::vector<keyboard_key>& dst) const {
         std::lock_guard<std::mutex> guard(state_->mutex);
-        for ( std::size_t i = 0; i < state_->key_states.size(); ++i ) {
-            button_state ks = state_->key_states[i];
-            if ( ks == button_state::just_pressed || ks == button_state::pressed ) {
+        for ( std::size_t i = 0; i < state_->pressed.size(); ++i ) {
+            if ( state_->pressed.test(i) ) {
                 dst.push_back(static_cast<keyboard_key>(i));
             }
         }
@@ -348,9 +271,8 @@ namespace e2d
 
     void keyboard::extract_just_pressed_keys(std::vector<keyboard_key>& dst) const {
         std::lock_guard<std::mutex> guard(state_->mutex);
-        for ( std::size_t i = 0; i < state_->key_states.size(); ++i ) {
-            button_state ks = state_->key_states[i];
-            if ( ks == button_state::just_pressed ) {
+        for ( std::size_t i = 0; i < state_->just_pressed.size(); ++i ) {
+            if ( state_->just_pressed.test(i) ) {
                 dst.push_back(static_cast<keyboard_key>(i));
             }
         }
@@ -358,9 +280,8 @@ namespace e2d
 
     void keyboard::extract_just_released_keys(std::vector<keyboard_key>& dst) const {
         std::lock_guard<std::mutex> guard(state_->mutex);
-        for ( std::size_t i = 0; i < state_->key_states.size(); ++i ) {
-            button_state ks = state_->key_states[i];
-            if ( ks == button_state::just_released ) {
+        for ( std::size_t i = 0; i < state_->just_released.size(); ++i ) {
+            if ( state_->just_released.test(i) ) {
                 dst.push_back(static_cast<keyboard_key>(i));
             }
         }
@@ -370,7 +291,7 @@ namespace e2d
     // class input::state
     //
 
-    class input::state final : private e2d::noncopyable {
+    class input::internal_state final : private e2d::noncopyable {
     public:
         class mouse mouse;
         class keyboard keyboard;
@@ -381,7 +302,7 @@ namespace e2d
     //
 
     input::input()
-    : state_(new state()) {}
+    : state_(new internal_state()) {}
     input::~input() noexcept = default;
 
     const class mouse& input::mouse() const noexcept {
