@@ -15,7 +15,7 @@ namespace
     class platform_internal_state_impl_linux final : public platform_internal_state_impl {
     public:
         platform_internal_state_impl_linux() = default;
-        ~platform_internal_state_impl_linux() noexcept = default;
+        ~platform_internal_state_impl_linux() noexcept final = default;
     };
 }
 

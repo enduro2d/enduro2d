@@ -25,7 +25,7 @@ namespace
             }
         }
 
-        ~platform_internal_state_impl_windows() noexcept {
+        ~platform_internal_state_impl_windows() noexcept final {
             if ( timers_resolution_ > 0 ) {
                 ::timeEndPeriod(timers_resolution_);
             }

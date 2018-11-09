@@ -15,7 +15,7 @@ namespace
     class platform_internal_state_impl_ios final : public platform_internal_state_impl {
     public:
         platform_internal_state_impl_ios() = default;
-        ~platform_internal_state_impl_ios() noexcept = default;
+        ~platform_internal_state_impl_ios() noexcept final = default;
     };
 }
 

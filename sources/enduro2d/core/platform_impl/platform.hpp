@@ -37,8 +37,9 @@ namespace e2d
 
     class platform_internal_state_impl : private e2d::noncopyable {
     public:
-        platform_internal_state_impl() = default;
-        ~platform_internal_state_impl() noexcept = default;
         static platform_internal_state_impl_uptr create();
+    public:
+        platform_internal_state_impl() = default;
+        virtual ~platform_internal_state_impl() noexcept = default;
     };
 }

@@ -15,7 +15,7 @@ namespace
     class platform_internal_state_impl_macosx final : public platform_internal_state_impl {
     public:
         platform_internal_state_impl_macosx() = default;
-        ~platform_internal_state_impl_macosx() noexcept = default;
+        ~platform_internal_state_impl_macosx() noexcept final = default;
     };
 }
 
