@@ -58,9 +58,9 @@ namespace e2d
         vector<std::pair<priority, task_ptr>> tasks_;
         std::mutex tasks_mutex_;
         std::condition_variable cond_var_;
-        std::atomic_bool paused_{false};
-        std::atomic_bool cancelled_{false};
-        std::atomic_size_t active_task_count_{0};
+        std::atomic<bool> paused_{false};
+        std::atomic<bool> cancelled_{false};
+        std::atomic<size_t> active_task_count_{0};
     };
 
     class jobber::task : private noncopyable {

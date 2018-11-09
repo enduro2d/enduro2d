@@ -10,8 +10,16 @@ using namespace e2d;
 TEST_CASE("time") {
     {
         REQUIRE(time::second<i32>().value == 1);
+        REQUIRE(time::second_ms<i32>().value == 1000);
+        REQUIRE(time::second_us<i32>().value == 1'000'000);
+
         REQUIRE(time::minute<i32>().value == 60);
+        REQUIRE(time::minute_ms<i32>().value == 60000);
+        REQUIRE(time::minute_us<i32>().value == 60'000'000);
+
         REQUIRE(time::hour<i32>().value == 60 * 60);
+        REQUIRE(time::hour_ms<i32>().value == 60 * 60 * 1000);
+        REQUIRE(time::hour_us<i64>().value == 60 * 60 * i64(1'000'000));
     }
     {
         REQUIRE(make_seconds(1).convert_to<milliseconds_tag>().value == 1000);

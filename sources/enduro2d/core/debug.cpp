@@ -56,9 +56,10 @@ namespace e2d
         return *sinks_.back().second;
     }
 
-    void debug::set_min_level(level lvl) noexcept {
+    debug& debug::set_min_level(level lvl) noexcept {
         std::lock_guard<std::mutex> guard(mutex_);
         min_level_ = lvl;
+        return *this;
     }
 
     debug::level debug::min_level() const noexcept {
@@ -67,21 +68,21 @@ namespace e2d
     }
 
     //
-    // debug_file_sink
+    // debug_stream_sink
     //
 
-    debug_file_sink::debug_file_sink(str_view path)
-    : path_(path) {
-        const auto file = make_write_file(path, false);
-        E2D_UNUSED(file);
-        E2D_ASSERT_MSG(file, "DEBUG: ignored failed sink file cleaning");
-    }
+    debug_stream_sink::debug_stream_sink(output_stream_uptr stream)
+    : stream_(std::move(stream)) {}
 
-    bool debug_file_sink::on_message(debug::level lvl, str_view text) noexcept {
+    debug_stream_sink::debug_stream_sink(output_stream_uptr stream, debug::level flush_level)
+    : stream_(std::move(stream))
+    , flush_level_(flush_level) {}
+
+    bool debug_stream_sink::on_message(debug::level lvl, str_view text) noexcept {
         try {
-            const auto file = make_write_file(path_, true);
-            return file && output_sequence(*file)
+            return stream_ && output_sequence(*stream_)
                 .write_all(log_text_format(lvl, text))
+                .flush_if(lvl >= flush_level_)
                 .success();
         } catch (...) {
             return false;

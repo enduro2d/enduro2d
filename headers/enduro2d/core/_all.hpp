@@ -9,7 +9,9 @@
 #include "_core.hpp"
 
 #include "debug.hpp"
+#include "engine.hpp"
 #include "input.hpp"
+#include "platform.hpp"
 #include "render.hpp"
 #include "render.inl"
 #include "vfs.hpp"

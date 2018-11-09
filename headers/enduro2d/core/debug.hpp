@@ -26,7 +26,7 @@ namespace e2d
         using sink_uptr = std::unique_ptr<sink>;
     public:
         debug();
-        ~debug() noexcept;
+        ~debug() noexcept final;
 
         template < typename T, typename... Args >
         T& register_sink(Args&&... args);
@@ -37,7 +37,7 @@ namespace e2d
         T& register_sink_ex(level min_lvl, Args&&... args);
         sink& register_sink_ex(level min_lvl, sink_uptr sink);
 
-        void set_min_level(level lvl) noexcept;
+        debug& set_min_level(level lvl) noexcept;
         level min_level() const noexcept;
 
         template < typename... Args >
@@ -60,12 +60,14 @@ namespace e2d
         level min_level_ = level::trace;
     };
 
-    class debug_file_sink final : public debug::sink {
+    class debug_stream_sink final : public debug::sink {
     public:
-        debug_file_sink(str_view path);
+        debug_stream_sink(output_stream_uptr stream);
+        debug_stream_sink(output_stream_uptr stream, debug::level flush_level);
         bool on_message(debug::level lvl, str_view text) noexcept final;
     private:
-        str path_;
+        output_stream_uptr stream_;
+        debug::level flush_level_ = debug::level::warning;
     };
 
     class debug_console_sink final : public debug::sink {

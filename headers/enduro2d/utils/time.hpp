@@ -8,27 +8,6 @@
 
 #include "_utils.hpp"
 
-namespace e2d { namespace time
-{
-    template < typename T >
-    const seconds<T>& second() noexcept {
-        static seconds<T> second = seconds<T>(T(1));
-        return second;
-    }
-
-    template < typename T >
-    const seconds<T>& minute() noexcept {
-        static seconds<T> minute = second<T>() * T(60);
-        return minute;
-    }
-
-    template < typename T >
-    const seconds<T>& hour() noexcept {
-        static seconds<T> hour = minute<T>() * T(60);
-        return hour;
-    }
-}}
-
 namespace e2d
 {
     template < typename T >
@@ -145,24 +124,84 @@ namespace e2d { namespace time
 
 namespace e2d { namespace time
 {
-    template < typename TimeTag >
-    unit<i64, TimeTag> now() noexcept {
+    template < typename T >
+    const seconds<T>& second() noexcept {
+        static seconds<T> second = seconds<T>(T(1));
+        return second;
+    }
+
+    template < typename T >
+    const milliseconds<T>& second_ms() noexcept {
+        static milliseconds<T> second_ms = to_milliseconds(second<T>());
+        return second_ms;
+    }
+
+    template < typename T >
+    const microseconds<T>& second_us() noexcept {
+        static microseconds<T> second_us = to_microseconds(second<T>());
+        return second_us;
+    }
+
+    template < typename T >
+    const seconds<T>& minute() noexcept {
+        static seconds<T> minute = second<T>() * T(60);
+        return minute;
+    }
+
+    template < typename T >
+    const milliseconds<T>& minute_ms() noexcept {
+        static milliseconds<T> minute_ms = to_milliseconds(minute<T>());
+        return minute_ms;
+    }
+
+    template < typename T >
+    const microseconds<T>& minute_us() noexcept {
+        static microseconds<T> minute_us = to_microseconds(minute<T>());
+        return minute_us;
+    }
+
+    template < typename T >
+    const seconds<T>& hour() noexcept {
+        static seconds<T> hour = minute<T>() * T(60);
+        return hour;
+    }
+
+    template < typename T >
+    const milliseconds<T>& hour_ms() noexcept {
+        static milliseconds<T> hour_ms = to_milliseconds(hour<T>());
+        return hour_ms;
+    }
+
+    template < typename T >
+    const microseconds<T>& hour_us() noexcept {
+        static microseconds<T> hour_us = to_microseconds(hour<T>());
+        return hour_us;
+    }
+}}
+
+namespace e2d { namespace time
+{
+    template < typename TimeTag, typename T = i64 >
+    unit<T, TimeTag> now() noexcept {
         namespace ch = std::chrono;
         const auto n = ch::high_resolution_clock::now();
         const auto m = ch::time_point_cast<ch::microseconds>(n);
         const auto c = m.time_since_epoch().count();
-        return make_microseconds(c).cast_to<i64>().convert_to<TimeTag>();
+        return make_microseconds(c).cast_to<T>().template convert_to<TimeTag>();
     }
 
-    inline unit<i64, seconds_tag> now_s() noexcept {
-        return now<seconds_tag>();
+    template < typename T = i64 >
+    unit<T, seconds_tag> now_s() noexcept {
+        return now<seconds_tag, T>();
     }
 
-    inline unit<i64, milliseconds_tag> now_ms() noexcept {
-        return now<milliseconds_tag>();
+    template < typename T = i64 >
+    inline unit<T, milliseconds_tag> now_ms() noexcept {
+        return now<milliseconds_tag, T>();
     }
 
-    inline unit<i64, microseconds_tag> now_us() noexcept {
-        return now<microseconds_tag>();
+    template < typename T = i64 >
+    unit<T, microseconds_tag> now_us() noexcept {
+        return now<microseconds_tag, T>();
     }
 }}

@@ -149,113 +149,121 @@ namespace
             vertex2{color32::blue()},
             vertex2{color32::yellow()}};
     }
+
+    class game final : public application {
+    public:
+        bool initialize() final {
+            the<vfs>().register_scheme<archive_file_source>(
+                "piratepack",
+                the<vfs>().open(url("resources://bin/kenney_piratepack.zip")));
+
+            the<vfs>().register_scheme_alias(
+                "ships",
+                url("piratepack://PNG/Retina/Ships"));
+
+            shader_ = the<render>().create_shader(
+                vs_source_cstr, fs_source_cstr);
+
+            texture_ = the<render>().create_texture(
+                the<vfs>().open(url("ships://ship (3).png")));
+
+            if ( !shader_ || !texture_ ) {
+                return false;
+            }
+
+            const auto indices = generate_cube_indices();
+            index_buffer_ = the<render>().create_index_buffer(
+                buffer(indices.data(), indices.size() * sizeof(indices[0])),
+                index_declaration::index_type::unsigned_byte,
+                index_buffer::usage::static_draw);
+
+            const auto vertices1 = generate_cube_vertices(make_vec3(1.f));
+            vertex_buffer1_ = the<render>().create_vertex_buffer(
+                buffer(vertices1.data(), vertices1.size() * sizeof(vertices1[0])),
+                vertex1::decl(),
+                vertex_buffer::usage::static_draw);
+
+            const auto vertices2 = generate_cube_colors();
+            vertex_buffer2_ = the<render>().create_vertex_buffer(
+                buffer(vertices2.data(), vertices2.size() * sizeof(vertices2[0])),
+                vertex2::decl(),
+                vertex_buffer::usage::static_draw);
+
+            if ( !index_buffer_ || !vertex_buffer1_ || !vertex_buffer2_ ) {
+                return false;
+            }
+
+            material_ = render::material()
+                .add_pass(render::pass_state()
+                    .states(render::state_block()
+                        .capabilities(render::capabilities_state()
+                            .culling(true)
+                            .depth_test(true))
+                        .culling(render::culling_state()
+                            .mode(render::culling_mode::ccw)
+                            .face(render::culling_face::back)))
+                    .shader(shader_)
+                    .properties(render::property_block()
+                        .sampler("u_texture", render::sampler_state()
+                            .texture(texture_)
+                            .min_filter(render::sampler_min_filter::linear)
+                            .mag_filter(render::sampler_mag_filter::linear))));
+
+            geometry_ = render::geometry()
+                .indices(index_buffer_)
+                .add_vertices(vertex_buffer1_)
+                .add_vertices(vertex_buffer2_);
+
+            return true;
+        }
+
+        bool frame_tick() final {
+            const keyboard& k = the<input>().keyboard();
+            if ( the<window>().should_close() || k.is_key_just_released(keyboard_key::escape) ) {
+                return false;
+            }
+
+            const auto framebuffer_size = the<window>().real_size().cast_to<f32>();
+            const auto projection = math::make_perspective_lh_matrix4(
+                make_deg(45.f),
+                framebuffer_size.x / framebuffer_size.y,
+                0.1f,
+                100.f);
+
+            const auto MVP =
+                math::make_rotation_matrix4(make_rad(the<engine>().time()), 1.f, 0.f, 0.f) *
+                math::make_rotation_matrix4(make_rad(the<engine>().time()), 0.f, 1.f, 0.f) *
+                math::make_rotation_matrix4(make_rad(the<engine>().time()), 0.f, 0.f, 1.f) *
+                math::make_translation_matrix4(0.f, 0.f, 0.f) *
+                math::make_loot_at_lh_matrix4({0.f,0.f,-3.f}, v3f::zero(), v3f::unit_y()) *
+                projection;
+
+            material_.properties()
+                .property("u_MVP", MVP);
+
+            the<render>().execute(render::command_block<64>()
+                .add_command(render::clear_command()
+                    .color_value({1.f, 0.4f, 0.f, 1.f}))
+                .add_command(render::draw_command(material_, geometry_))
+                .add_command(render::swap_command(true)));
+
+            return true;
+        }
+    private:
+        shader_ptr shader_;
+        texture_ptr texture_;
+        index_buffer_ptr  index_buffer_;
+        vertex_buffer_ptr vertex_buffer1_;
+        vertex_buffer_ptr vertex_buffer2_;
+        render::material material_;
+        render::geometry geometry_;
+    };
 }
 
-int e2d_main() {
-    {
-        modules::initialize<vfs>()
-            .register_scheme<filesystem_file_source>("file");
-        modules::initialize<debug>()
-            .register_sink<debug_console_sink>();
-        modules::initialize<input>();
-        modules::initialize<window>(v2u{640, 480}, "Enduro2D", false)
-            .register_event_listener<window_input_source>(the<input>());
-        modules::initialize<render>(the<debug>(), the<window>());
-    }
-    {
-        str resources;
-        filesystem::extract_predef_path(resources, filesystem::predef_path::resources);
-        the<vfs>().register_scheme_alias(
-            "resources",
-            url{"file", resources});
-        the<vfs>().register_scheme<archive_file_source>(
-            "piratepack",
-            the<vfs>().open(url("resources://bin/kenney_piratepack.zip")));
-        the<vfs>().register_scheme_alias("ships", url("piratepack://PNG/Retina/Ships"));
-    }
-
-    auto texture = the<render>().create_texture(
-        the<vfs>().open(url("ships://ship (3).png")));
-
-    const auto shader = the<render>().create_shader(
-        vs_source_cstr, fs_source_cstr);
-
-    const auto indices = generate_cube_indices();
-    const auto index_buffer = the<render>().create_index_buffer(
-        buffer(indices.data(), indices.size() * sizeof(indices[0])),
-        index_declaration::index_type::unsigned_byte,
-        index_buffer::usage::static_draw);
-
-    const auto vertices1 = generate_cube_vertices(make_vec3(1.f));
-    const auto vertex_buffer1 = the<render>().create_vertex_buffer(
-        buffer(vertices1.data(), vertices1.size() * sizeof(vertices1[0])),
-        vertex1::decl(),
-        vertex_buffer::usage::static_draw);
-
-    const auto vertices2 = generate_cube_colors();
-    const auto vertex_buffer2 = the<render>().create_vertex_buffer(
-        buffer(vertices2.data(), vertices2.size() * sizeof(vertices2[0])),
-        vertex2::decl(),
-        vertex_buffer::usage::static_draw);
-
-    if ( !texture || !shader || !index_buffer || !vertex_buffer1 || !vertex_buffer2 ) {
-        return 1;
-    }
-
-    auto material = render::material()
-        .add_pass(render::pass_state()
-            .states(render::state_block()
-                .capabilities(render::capabilities_state()
-                    .culling(true)
-                    .depth_test(true))
-                .culling(render::culling_state()
-                    .mode(render::culling_mode::ccw)
-                    .face(render::culling_face::back)))
-            .shader(shader)
-            .properties(render::property_block()
-                .sampler("u_texture", render::sampler_state()
-                    .texture(texture)
-                    .min_filter(render::sampler_min_filter::linear)
-                    .mag_filter(render::sampler_mag_filter::linear))));
-
-    auto geometry = render::geometry()
-        .indices(index_buffer)
-        .add_vertices(vertex_buffer1)
-        .add_vertices(vertex_buffer2);
-
-    const auto begin_game_time = time::now_ms();
-    const auto framebuffer_size = the<window>().real_size().cast_to<f32>();
-    const auto projection = math::make_perspective_lh_matrix4(
-        make_deg(45.f),
-        framebuffer_size.x / framebuffer_size.y,
-        0.1f,
-        100.f);
-
-    const keyboard& k = the<input>().keyboard();
-    while ( !the<window>().should_close() && !k.is_key_just_released(keyboard_key::escape) ) {
-        const auto game_time = (time::now_ms() - begin_game_time).cast_to<f32>().value;
-
-        const auto MVP =
-            math::make_rotation_matrix4(make_rad(game_time) * 0.001f, 1.f, 0.f, 0.f) *
-            math::make_rotation_matrix4(make_rad(game_time) * 0.001f, 0.f, 1.f, 0.f) *
-            math::make_rotation_matrix4(make_rad(game_time) * 0.001f, 0.f, 0.f, 1.f) *
-            math::make_translation_matrix4(0.f, 0.f, 0.f) *
-            math::make_loot_at_lh_matrix4({0.f,0.f,-3.f}, v3f::zero(), v3f::unit_y()) *
-            projection;
-
-        material.properties()
-            .property("u_time", game_time)
-            .property("u_MVP", MVP);
-
-        the<render>().execute(render::command_block<64>()
-            .add_command(render::clear_command()
-                .color_value({1.f, 0.4f, 0.f, 1.f}))
-            .add_command(render::draw_command(material, geometry))
-            .add_command(render::swap_command(true)));
-
-        the<input>().frame_tick();
-        window::poll_events();
-    }
-
+int e2d_main(int argc, char *argv[]) {
+    auto params = engine::parameters("sample_01", "enduro2d")
+        .timer_params(engine::timer_parameters()
+            .maximal_framerate(100));
+    modules::initialize<engine>(argc, argv, params).start<game>();
     return 0;
 }

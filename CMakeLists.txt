@@ -144,6 +144,11 @@ if(APPLE)
         ${Foundation})
 endif(APPLE)
 
+if(WIN32)
+    list(APPEND E2D_LIBRARIES
+        winmm.lib)
+endif(WIN32)
+
 set(E2D_INCLUDE_DIRS
     ${CMAKE_CURRENT_SOURCE_DIR}/headers)
 

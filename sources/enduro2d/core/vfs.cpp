@@ -303,6 +303,9 @@ namespace e2d
     }
 
     output_stream_uptr filesystem_file_source::write(str_view path, bool append) const {
+        if ( !filesystem::create_directory_recursive(path::parent_path(path)) ) {
+            return nullptr;
+        }
         return make_write_file(path, append);
     }
 }

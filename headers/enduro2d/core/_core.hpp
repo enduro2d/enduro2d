@@ -13,9 +13,12 @@
 namespace e2d
 {
     class debug;
+    class application;
+    class engine;
     class mouse;
     class keyboard;
     class input;
+    class platform;
     class render;
     class shader;
     class texture;
