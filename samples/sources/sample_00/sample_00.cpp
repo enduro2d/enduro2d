@@ -162,8 +162,6 @@ namespace
         }
 
         bool frame_tick() final {
-            the<window>().set_title(strings::rformat("FPS: %0", the<engine>().frame_rate()));
-
             const keyboard& k = the<input>().keyboard();
             if ( the<window>().should_close() || k.is_key_just_released(keyboard_key::escape) ) {
                 return false;
