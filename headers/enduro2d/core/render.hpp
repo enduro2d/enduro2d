@@ -454,7 +454,6 @@ namespace e2d
             f32 range_far_ = 1.0f;
             bool write_ = true;
             compare_func func_ = compare_func::less;
-            u8 _pad[2] = {0};
         };
 
         class stencil_state final {
@@ -478,7 +477,6 @@ namespace e2d
             stencil_op sfail_ = stencil_op::keep;
             stencil_op zfail_ = stencil_op::keep;
             compare_func func_ = compare_func::always;
-            u8 _pad[1] = {0};
         };
 
         class culling_state final {
@@ -491,7 +489,6 @@ namespace e2d
         private:
             culling_mode mode_ = culling_mode::ccw;
             culling_face face_ = culling_face::back;
-            u8 _pad[2] = {0};
         };
 
         class blending_state final {
@@ -535,7 +532,6 @@ namespace e2d
             blending_factor src_alpha_factor_ = blending_factor::one;
             blending_factor dst_alpha_factor_ = blending_factor::zero;
             blending_equation alpha_equation_ = blending_equation::add;
-            u8 _pad[1] = {0};
         };
 
         class capabilities_state final {
@@ -608,7 +604,6 @@ namespace e2d
             sampler_wrap t_wrap_;
             sampler_min_filter min_filter_;
             sampler_mag_filter mag_filter_;
-            u8 _pad[4] = {0};
         };
 
         using property_value = stdex::variant<
@@ -669,7 +664,6 @@ namespace e2d
             property_block properties_;
             shader_ptr shader_;
             state_block states_;
-            u8 _pad[4] = {0};
         };
 
         class material final {
@@ -713,7 +707,6 @@ namespace e2d
             array<vertex_buffer_ptr, max_vertices_count> vertices_;
             std::size_t vertices_count_ = 0;
             topology topology_ = topology::triangles;
-            u8 _pad[7] = {0};
         };
 
         class swap_command final {
@@ -788,7 +781,6 @@ namespace e2d
             f32 depth_value_ = 1.f;
             u8 stencil_value_ = 0;
             buffer clear_buffer_ = buffer::color_depth_stencil;
-            u8 _pad[2] = {0};
         };
 
         class target_command final {
@@ -804,13 +796,25 @@ namespace e2d
 
         class viewport_command final {
         public:
-            viewport_command() = default;
-            viewport_command(const b2u& rect) noexcept;
-            viewport_command& rect(const b2u& value) noexcept;
-            b2u& rect() noexcept;
-            const b2u& rect() const noexcept;
+            viewport_command() = delete;
+            viewport_command(const b2u& viewport_rect) noexcept;
+            viewport_command(const b2u& viewport_rect, const b2u& scissor_rect) noexcept;
+
+            viewport_command& viewport_rect(const b2u& value) noexcept;
+            viewport_command& scissor_rect(const b2u& value) noexcept;
+            viewport_command& scissoring(bool value) noexcept;
+
+            b2u& viewport_rect() noexcept;
+            b2u& scissor_rect() noexcept;
+            bool& scissoring() noexcept;
+
+            const b2u& viewport_rect() const noexcept;
+            const b2u& scissor_rect() const noexcept;
+            bool scissoring() const noexcept;
         private:
-            b2u rect_;
+            b2u viewport_rect_ = b2u::zero();
+            b2u scissor_rect_ = b2u::zero();
+            bool scissoring_ = false;
         };
 
         using command_value = stdex::variant<
@@ -853,7 +857,6 @@ namespace e2d
             bool npot_texture_supported = false;
             bool depth_texture_supported = false;
             bool render_target_supported = false;
-            u8 _pad[1] = {0};
         };
     public:
         render(debug& d, window& w);

@@ -311,7 +311,6 @@ namespace e2d { namespace opengl
         GLint size = 0;
         GLint location = -1;
         uniform_type type = uniform_type::floating_point;
-        u8 _pad[3] = {0};
     public:
         uniform_info(
             str_hash nname,
@@ -329,7 +328,6 @@ namespace e2d { namespace opengl
         GLint size = 0;
         GLint location = -1;
         attribute_type type = attribute_type::floating_point;
-        u8 _pad[3] = {0};
     public:
         attribute_info(
             str_hash nname,

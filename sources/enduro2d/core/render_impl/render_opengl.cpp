@@ -971,12 +971,26 @@ namespace e2d
 
     render& render::execute(const viewport_command& command) {
         E2D_ASSERT(main_thread() == std::this_thread::get_id());
-        const b2u vp = make_minmax_rect(command.rect());
+
+        const b2u viewport = make_minmax_rect(command.viewport_rect());
         GL_CHECK_CODE(state_->dbg(), glViewport(
-            math::numeric_cast<GLint>(vp.position.x),
-            math::numeric_cast<GLint>(vp.position.y),
-            math::numeric_cast<GLsizei>(vp.size.x),
-            math::numeric_cast<GLsizei>(vp.size.y)));
+            math::numeric_cast<GLint>(viewport.position.x),
+            math::numeric_cast<GLint>(viewport.position.y),
+            math::numeric_cast<GLsizei>(viewport.size.x),
+            math::numeric_cast<GLsizei>(viewport.size.y)));
+
+        if ( command.scissoring() ) {
+            const b2u scissor = make_minmax_rect(command.scissor_rect());
+            GL_CHECK_CODE(state_->dbg(), glScissor(
+                math::numeric_cast<GLint>(scissor.position.x),
+                math::numeric_cast<GLint>(scissor.position.y),
+                math::numeric_cast<GLsizei>(scissor.size.x),
+                math::numeric_cast<GLsizei>(scissor.size.y)));
+            GL_CHECK_CODE(state_->dbg(), glEnable(GL_SCISSOR_TEST));
+        } else {
+            GL_CHECK_CODE(state_->dbg(), glDisable(GL_SCISSOR_TEST));
+        }
+
         return *this;
     }
 
