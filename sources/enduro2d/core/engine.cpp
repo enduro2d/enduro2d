@@ -298,7 +298,6 @@ namespace e2d
         std::atomic<u32> frame_rate_{0};
         std::atomic<u32> frame_count_{0};
         std::atomic<u32> frame_rate_counter_{0};
-        u8 _pad[4] = {0};
     };
 
     //

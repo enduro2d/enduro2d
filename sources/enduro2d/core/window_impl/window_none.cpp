@@ -24,7 +24,6 @@ namespace e2d
         bool visible = true;
         bool focused = true;
         bool minimized = false;
-        char _pad[2];
     public:
         state(const v2u& size, str_view title, bool fullscreen)
         : virtual_size(size)

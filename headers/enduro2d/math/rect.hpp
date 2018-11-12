@@ -23,6 +23,9 @@ namespace e2d
         vec2<T> position;
         vec2<T> size;
     public:
+        static const rect& zero() noexcept;
+        static const rect& unit() noexcept;
+    public:
         rect() noexcept = default;
         rect(const rect& other) noexcept = default;
         rect& operator=(const rect& other) noexcept = default;
@@ -40,6 +43,18 @@ namespace e2d
 
 namespace e2d
 {
+    template < typename T >
+    const rect<T>& rect<T>::zero() noexcept {
+        static const rect<T> zero{0, 0, 0, 0};
+        return zero;
+    }
+
+    template < typename T >
+    const rect<T>& rect<T>::unit() noexcept {
+        static const rect<T> unit{0, 0, 1, 1};
+        return unit;
+    }
+
     template < typename T >
     rect<T>::rect(T w, T h) noexcept
     : size(w, h) {}
