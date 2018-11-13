@@ -18,25 +18,30 @@
 #   define GL_FLUSH_ERRORS(dbg)\
         for ( GLenum err = glGetError(); err != GL_NO_ERROR; err = glGetError() ) {\
             E2D_ASSERT_MSG(false, "RENDER: GL_FLUSH_ERRORS()");\
-            (dbg).error("RENDER: GL_FLUSH_ERRORS():\n"\
+            (dbg).log(err == GL_OUT_OF_MEMORY\
+                ? debug::level::fatal\
+                : debug::level::error,\
+                "RENDER: GL_FLUSH_ERRORS():\n"\
                 "--> File: %0\n"\
                 "--> Line: %1\n"\
                 "--> Code: %2",\
                 __FILE__, __LINE__, e2d::opengl::gl_error_code_to_cstr(err));\
-            if ( err == GL_OUT_OF_MEMORY ) throw std::bad_alloc();\
+            if ( err == GL_OUT_OF_MEMORY ) std::terminate();\
         }
 #   define GL_CHECK_CODE(dbg, code)\
         GL_FLUSH_ERRORS(dbg);\
         code;\
         for ( GLenum err = glGetError(); err != GL_NO_ERROR; err = glGetError() ) {\
             E2D_ASSERT_MSG(false, #code);\
-            (dbg).error(\
+            (dbg).log(err == GL_OUT_OF_MEMORY\
+                ? debug::level::fatal\
+                : debug::level::error,\
                 "RENDER: GL_CHECK(%0):\n"\
                 "--> File: %1\n"\
                 "--> Line: %2\n"\
                 "--> Code: %3",\
                 #code, __FILE__, __LINE__, e2d::opengl::gl_error_code_to_cstr(err));\
-            if ( err == GL_OUT_OF_MEMORY ) throw std::bad_alloc();\
+            if ( err == GL_OUT_OF_MEMORY ) std::terminate();\
         }
 #else
 #   define GL_FLUSH_ERRORS(dbg) E2D_UNUSED(dbg);
