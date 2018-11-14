@@ -39,5 +39,8 @@ cp -fv $MODULES_DIR/stb/stb_truetype.h $SOURCES_RDPARTY_DIR/stb/stb_truetype.h
 mkdir -p $SOURCES_RDPARTY_DIR/utfcpp
 cp -rfv $MODULES_DIR/utfcpp/source/. $SOURCES_RDPARTY_DIR/utfcpp/
 
+mkdir -p $SOURCES_RDPARTY_DIR/pugixml
+cp -rfv $MODULES_DIR/pugixml/src/. $SOURCES_RDPARTY_DIR/pugixml/
+
 mkdir -p $HEADERS_RDPARTY_DIR/variant
 cp -rfv $MODULES_DIR/variant/include/mpark/. $HEADERS_RDPARTY_DIR/variant/

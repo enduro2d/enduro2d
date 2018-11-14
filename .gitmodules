@@ -16,3 +16,6 @@
 [submodule "modules/variant"]
 	path = modules/variant
 	url = https://github.com/mpark/variant
+[submodule "modules/pugixml"]
+	path = modules/pugixml
+	url = https://github.com/zeux/pugixml
