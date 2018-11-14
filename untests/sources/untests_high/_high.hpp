@@ -6,6 +6,4 @@
 
 #pragma once
 
-#include "_high.hpp"
-
-#include "library.hpp"
+#include "../common.hpp"

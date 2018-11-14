@@ -4,8 +4,8 @@
  * Copyright (C) 2018 Matvey Cherevko
  ******************************************************************************/
 
-#pragma once
-
 #include "_high.hpp"
+using namespace e2d;
 
-#include "library.hpp"
+TEST_CASE("library"){
+}

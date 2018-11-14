@@ -4,8 +4,8 @@
  * Copyright (C) 2018 Matvey Cherevko
  ******************************************************************************/
 
-#pragma once
-
+#define CATCH_CONFIG_MAIN
 #include "_high.hpp"
 
-#include "library.hpp"
+TEST_CASE("high") {
+}

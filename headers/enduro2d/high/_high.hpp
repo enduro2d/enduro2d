@@ -10,4 +10,5 @@
 
 namespace e2d
 {
+    class library;
 }

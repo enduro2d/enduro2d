@@ -4,8 +4,22 @@
  * Copyright (C) 2018 Matvey Cherevko
  ******************************************************************************/
 
-#pragma once
+#include <enduro2d/high/library.hpp>
 
-#include "_high.hpp"
+namespace e2d
+{
+    //
+    // library::internal_state
+    //
 
-#include "library.hpp"
+    class library::internal_state final : private e2d::noncopyable {
+    };
+
+    //
+    // library
+    //
+
+    library::library()
+    : state_(new internal_state()){}
+    library::~library() noexcept = default;
+}
