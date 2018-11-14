@@ -647,6 +647,7 @@ namespace e2d
     render::sampler_state& render::sampler_state::wrap(sampler_wrap st) noexcept {
         s_wrap(st);
         t_wrap(st);
+        r_wrap(st);
         return *this;
     }
 
@@ -657,6 +658,11 @@ namespace e2d
 
     render::sampler_state& render::sampler_state::t_wrap(sampler_wrap t) noexcept {
         t_wrap_ = t;
+        return *this;
+    }
+
+    render::sampler_state& render::sampler_state::r_wrap(sampler_wrap r) noexcept {
+        r_wrap_ = r;
         return *this;
     }
 
@@ -686,6 +692,10 @@ namespace e2d
 
     render::sampler_wrap render::sampler_state::t_wrap() const noexcept {
         return t_wrap_;
+    }
+
+    render::sampler_wrap render::sampler_state::r_wrap() const noexcept {
+        return r_wrap_;
     }
 
     render::sampler_min_filter render::sampler_state::min_filter() const noexcept {

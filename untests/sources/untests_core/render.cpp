@@ -8,6 +8,27 @@
 using namespace e2d;
 
 TEST_CASE("render"){
+    SECTION("sampler_state"){
+        {
+            const auto ss = render::sampler_state();
+            REQUIRE_FALSE(ss.texture());
+            REQUIRE(ss.s_wrap() == render::sampler_wrap::repeat);
+            REQUIRE(ss.t_wrap() == render::sampler_wrap::repeat);
+            REQUIRE(ss.r_wrap() == render::sampler_wrap::repeat);
+            REQUIRE(ss.min_filter() == render::sampler_min_filter::nearest_mipmap_linear);
+            REQUIRE(ss.mag_filter() == render::sampler_mag_filter::linear);
+        }
+        {
+            const auto ss = render::sampler_state()
+                .wrap(render::sampler_wrap::clamp)
+                .filter(render::sampler_min_filter::linear, render::sampler_mag_filter::nearest);
+            REQUIRE(ss.s_wrap() == render::sampler_wrap::clamp);
+            REQUIRE(ss.t_wrap() == render::sampler_wrap::clamp);
+            REQUIRE(ss.r_wrap() == render::sampler_wrap::clamp);
+            REQUIRE(ss.min_filter() == render::sampler_min_filter::linear);
+            REQUIRE(ss.mag_filter() == render::sampler_mag_filter::nearest);
+        }
+    }
     SECTION("property_block"){
         {
             const auto pb1 = render::property_block()
