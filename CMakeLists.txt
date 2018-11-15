@@ -91,15 +91,50 @@ if(APPLE)
     find_library(Foundation Foundation)
 endif(APPLE)
 
-set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
-set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
-set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
-add_subdirectory(modules/glfw)
+#
+# fetch 3rd party
+#
 
-set(glew-cmake_BUILD_SHARED OFF CACHE BOOL "" FORCE)
-set(glew-cmake_BUILD_MULTI_CONTEXT OFF CACHE BOOL "" FORCE)
-add_subdirectory(modules/glew)
+include(FetchContent)
+
+FetchContent_Declare(
+    assimp
+    GIT_REPOSITORY https://github.com/assimp/assimp)
+FetchContent_Declare(
+    glew
+    GIT_REPOSITORY https://github.com/Perlmint/glew-cmake)
+FetchContent_Declare(
+    glfw
+    GIT_REPOSITORY https://github.com/glfw/glfw)
+
+FetchContent_GetProperties(assimp)
+FetchContent_GetProperties(glew)
+FetchContent_GetProperties(glfw)
+
+if(NOT assimp_POPULATED)
+    FetchContent_Populate(assimp)
+    set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+    set(ASSIMP_NO_EXPORT ON CACHE BOOL "" FORCE)
+    set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+    set(ASSIMP_BUILD_ASSIMP_TOOLS OFF CACHE BOOL "" FORCE)
+    add_subdirectory(${assimp_SOURCE_DIR} ${assimp_BINARY_DIR})
+endif()
+
+if(NOT glew_POPULATED)
+    FetchContent_Populate(glew)
+    set(glew-cmake_BUILD_SHARED OFF CACHE BOOL "" FORCE)
+    set(glew-cmake_BUILD_MULTI_CONTEXT OFF CACHE BOOL "" FORCE)
+    add_subdirectory(${glew_SOURCE_DIR} ${glew_BINARY_DIR})
+endif()
+
+if(NOT glfw_POPULATED)
+    FetchContent_Populate(glfw)
+    set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
+    set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+    set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+    set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+    add_subdirectory(${glfw_SOURCE_DIR} ${glfw_BINARY_DIR})
+endif()
 
 #
 # e2d library target
@@ -118,9 +153,10 @@ source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES
 target_include_directories(${PROJECT_NAME}
     PRIVATE headers
     PRIVATE sources
-    PRIVATE modules/glew/include
-    PRIVATE modules/glfw/include
-    PRIVATE ${OPENGL_INCLUDE_DIR})
+    PRIVATE ${assimp_SOURCE_DIR}/include
+    PRIVATE ${assimp_BINARY_DIR}/include
+    PRIVATE ${glew_SOURCE_DIR}/include
+    PRIVATE ${glfw_SOURCE_DIR}/include)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
     CXX_STANDARD 14
