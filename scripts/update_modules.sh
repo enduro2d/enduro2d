@@ -42,5 +42,8 @@ cp -rfv $MODULES_DIR/utfcpp/source/. $SOURCES_RDPARTY_DIR/utfcpp/
 mkdir -p $SOURCES_RDPARTY_DIR/pugixml
 cp -rfv $MODULES_DIR/pugixml/src/. $SOURCES_RDPARTY_DIR/pugixml/
 
+mkdir -p $SOURCES_RDPARTY_DIR/rapidjson
+cp -rfv $MODULES_DIR/rapidjson/include/rapidjson/. $SOURCES_RDPARTY_DIR/rapidjson
+
 mkdir -p $HEADERS_RDPARTY_DIR/variant
 cp -rfv $MODULES_DIR/variant/include/mpark/. $HEADERS_RDPARTY_DIR/variant/
