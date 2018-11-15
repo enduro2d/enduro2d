@@ -118,6 +118,8 @@ source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES
 target_include_directories(${PROJECT_NAME}
     PRIVATE headers
     PRIVATE sources
+    PRIVATE modules/glew/include
+    PRIVATE modules/glfw/include
     PRIVATE ${OPENGL_INCLUDE_DIR})
 
 set_target_properties(${PROJECT_NAME} PROPERTIES

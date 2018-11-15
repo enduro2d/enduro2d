@@ -22,11 +22,11 @@ git submodule update --remote --recursive
 mkdir -p $UNTESTS_DIR/catch
 cp -fv $MODULES_DIR/catch2/single_include/catch2/catch.hpp $UNTESTS_DIR/catch/catch.hpp
 
-mkdir -p $SOURCES_RDPARTY_DIR/glfw
-cp -rfv $MODULES_DIR/glfw/include/GLFW/. $SOURCES_RDPARTY_DIR/glfw/
+mkdir -p $SOURCES_RDPARTY_DIR/pugixml
+cp -rfv $MODULES_DIR/pugixml/src/. $SOURCES_RDPARTY_DIR/pugixml/
 
-mkdir -p $SOURCES_RDPARTY_DIR/glew
-cp -rfv $MODULES_DIR/glew/include/GL/. $SOURCES_RDPARTY_DIR/glew/
+mkdir -p $SOURCES_RDPARTY_DIR/rapidjson
+cp -rfv $MODULES_DIR/rapidjson/include/rapidjson/. $SOURCES_RDPARTY_DIR/rapidjson
 
 mkdir -p $SOURCES_RDPARTY_DIR/stb
 cp -fv $MODULES_DIR/stb/stb_image.h $SOURCES_RDPARTY_DIR/stb/stb_image.h
@@ -38,12 +38,6 @@ cp -fv $MODULES_DIR/stb/stb_truetype.h $SOURCES_RDPARTY_DIR/stb/stb_truetype.h
 
 mkdir -p $SOURCES_RDPARTY_DIR/utfcpp
 cp -rfv $MODULES_DIR/utfcpp/source/. $SOURCES_RDPARTY_DIR/utfcpp/
-
-mkdir -p $SOURCES_RDPARTY_DIR/pugixml
-cp -rfv $MODULES_DIR/pugixml/src/. $SOURCES_RDPARTY_DIR/pugixml/
-
-mkdir -p $SOURCES_RDPARTY_DIR/rapidjson
-cp -rfv $MODULES_DIR/rapidjson/include/rapidjson/. $SOURCES_RDPARTY_DIR/rapidjson
 
 mkdir -p $HEADERS_RDPARTY_DIR/variant
 cp -rfv $MODULES_DIR/variant/include/mpark/. $HEADERS_RDPARTY_DIR/variant/

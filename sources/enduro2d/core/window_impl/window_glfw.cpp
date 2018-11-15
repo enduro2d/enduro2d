@@ -8,7 +8,7 @@
 
 #if defined(E2D_WINDOW_MODE) && E2D_WINDOW_MODE == E2D_WINDOW_MODE_GLFW
 
-#include <3rdparty/glfw/glfw3.h>
+#include <GLFW/glfw3.h>
 
 namespace
 {
