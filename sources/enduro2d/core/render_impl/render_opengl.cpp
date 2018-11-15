@@ -138,6 +138,10 @@ namespace
                         convert_sampler_wrap(sampler.t_wrap())));
                     GL_CHECK_CODE(debug, glTexParameteri(
                         texture_id.target(),
+                        GL_TEXTURE_WRAP_R,
+                        convert_sampler_wrap(sampler.r_wrap())));
+                    GL_CHECK_CODE(debug, glTexParameteri(
+                        texture_id.target(),
                         GL_TEXTURE_MIN_FILTER,
                         convert_sampler_filter(sampler.min_filter())));
                     GL_CHECK_CODE(debug, glTexParameteri(

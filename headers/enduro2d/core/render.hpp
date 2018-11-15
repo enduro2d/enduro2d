@@ -586,6 +586,7 @@ namespace e2d
             sampler_state& wrap(sampler_wrap st) noexcept;
             sampler_state& s_wrap(sampler_wrap s) noexcept;
             sampler_state& t_wrap(sampler_wrap t) noexcept;
+            sampler_state& r_wrap(sampler_wrap t) noexcept;
 
             sampler_state& filter(sampler_min_filter min, sampler_mag_filter mag) noexcept;
             sampler_state& min_filter(sampler_min_filter min) noexcept;
@@ -595,15 +596,17 @@ namespace e2d
 
             sampler_wrap s_wrap() const noexcept;
             sampler_wrap t_wrap() const noexcept;
+            sampler_wrap r_wrap() const noexcept;
 
             sampler_min_filter min_filter() const noexcept;
             sampler_mag_filter mag_filter() const noexcept;
         private:
             texture_ptr texture_;
-            sampler_wrap s_wrap_;
-            sampler_wrap t_wrap_;
-            sampler_min_filter min_filter_;
-            sampler_mag_filter mag_filter_;
+            sampler_wrap s_wrap_ = sampler_wrap::repeat;
+            sampler_wrap t_wrap_ = sampler_wrap::repeat;
+            sampler_wrap r_wrap_ = sampler_wrap::repeat;
+            sampler_min_filter min_filter_ = sampler_min_filter::nearest_mipmap_linear;
+            sampler_mag_filter mag_filter_ = sampler_mag_filter::linear;
         };
 
         using property_value = stdex::variant<
