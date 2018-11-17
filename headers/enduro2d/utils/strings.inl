@@ -127,12 +127,7 @@ namespace e2d
 
     template < typename Char >
     u32 basic_string_hash<Char>::calculate_hash(basic_string_view<Char> str) noexcept {
-        // Inspired by:
-        // http://www.cse.yorku.ca/~oz/hash.html
-        u32 hash = 0;
-        for ( Char c : str ) {
-            hash = c + (hash << 6u) + (hash << 16u) - hash;
-        }
+        u32 hash = utils::sdbm_hash(str.cbegin(), str.cend());
         debug_check_collisions(hash, str);
         return hash;
     }
