@@ -56,3 +56,17 @@ namespace e2d
     url operator+(const url& l, str_view r);
     url operator/(const url& l, str_view r);
 }
+
+namespace std
+{
+    template <>
+    struct hash<e2d::url>
+        : std::unary_function<e2d::url, std::size_t>
+    {
+        std::size_t operator()(const e2d::url& u) const noexcept {
+            return e2d::math::numeric_cast<std::size_t>(
+                e2d::utils::sdbm_hash(
+                    e2d::utils::sdbm_hash(u.scheme().c_str()), u.path().c_str()));
+        }
+    };
+}
