@@ -13,7 +13,7 @@ TEST_CASE("vfs"){
     {
         REQUIRE(filesystem::remove_file(nofile_path));
         REQUIRE(filesystem::create_file(file_path));
-        REQUIRE(filesystem::try_write_all({"hello", 5}, file_path, false));
+        REQUIRE(filesystem::try_write_all(buffer{"hello", 5}, file_path, false));
     }
     {
         vfs v;
@@ -115,11 +115,11 @@ TEST_CASE("vfs"){
 
                 auto r = v.load(url("archive://TEst.txt"));
                 REQUIRE_FALSE(r.second);
-                REQUIRE(r.first == buffer());
+                REQUIRE(r.first.empty());
 
                 auto r2 = v.load_async(url("archive://TEst.txt")).get();
                 REQUIRE_FALSE(r2.second);
-                REQUIRE(r2.first == buffer());
+                REQUIRE(r2.first.empty());
             }
             {
                 auto f = v.open(url("archive://test.txt"));

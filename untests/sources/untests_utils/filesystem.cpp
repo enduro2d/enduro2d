@@ -121,12 +121,72 @@ TEST_CASE("filesystem") {
             REQUIRE(filesystem::directory_exists(child_dir_path));
             REQUIRE_FALSE(filesystem::file_exists(child_dir_path));
 
-            REQUIRE_FALSE(filesystem::remove(parent_dir_path));
-
             REQUIRE(filesystem::remove_directory(child_dir_path));
             REQUIRE(filesystem::remove_directory(parent_dir_path));
             REQUIRE_FALSE(filesystem::exists(child_dir_path));
             REQUIRE_FALSE(filesystem::exists(parent_dir_path));
+        }
+        {
+            const str parent_dir_path = "test_filesystem_parent_dir";
+            const str noparent_dir_path = "test_filesystem_noparent_dir";
+
+            const str child1_dir_path = path::combine(parent_dir_path, "child1");
+            const str child2_dir_path = path::combine(parent_dir_path, "child2");
+
+            const str subchild1_dir_path_a = path::combine(child1_dir_path, "subchild_a");
+            const str subchild1_dir_path_b = path::combine(child1_dir_path, "subchild_b");
+
+            const str subchild2_dir_path_a = path::combine(child2_dir_path, "subchild_a");
+            const str subchild2_dir_path_b = path::combine(child2_dir_path, "subchild_b");
+
+            REQUIRE(filesystem::create_file(subchild1_dir_path_a));
+            REQUIRE(filesystem::create_file(subchild1_dir_path_b));
+            REQUIRE(filesystem::create_file(subchild2_dir_path_a));
+            REQUIRE(filesystem::create_file(subchild2_dir_path_b));
+
+            REQUIRE(filesystem::file_exists(subchild1_dir_path_a));
+            REQUIRE(filesystem::file_exists(subchild1_dir_path_b));
+            REQUIRE(filesystem::file_exists(subchild2_dir_path_a));
+            REQUIRE(filesystem::file_exists(subchild2_dir_path_b));
+
+            REQUIRE(filesystem::directory_exists(child1_dir_path));
+            REQUIRE(filesystem::directory_exists(child2_dir_path));
+            REQUIRE(filesystem::directory_exists(parent_dir_path));
+
+            REQUIRE(filesystem::remove(noparent_dir_path));
+            REQUIRE_FALSE(filesystem::exists(noparent_dir_path));
+            REQUIRE_FALSE(filesystem::trace_directory(noparent_dir_path, [](str_view relative, bool directory) {
+                E2D_UNUSED(relative, directory);
+                return true;
+            }));
+
+            vector<std::pair<str,bool>> result;
+            REQUIRE(filesystem::extract_directory(parent_dir_path, std::back_inserter(result)));
+            std::sort(result.begin(), result.end(), [](const auto& a, const auto& b){
+                return a.first < b.first;
+            });
+            REQUIRE(result == vector<std::pair<str,bool>>{
+                {"child1", true},
+                {"child2", true}
+            });
+
+            vector<std::pair<str,bool>> result_recursive;
+            REQUIRE(filesystem::extract_directory_recursive(parent_dir_path, std::back_inserter(result_recursive)));
+            std::sort(result_recursive.begin(), result_recursive.end(), [](const auto& a, const auto& b){
+                return a.first < b.first;
+            });
+            REQUIRE(result_recursive == vector<std::pair<str,bool>>{
+                {"child1", true},
+                {"child1/subchild_a", false},
+                {"child1/subchild_b", false},
+                {"child2", true},
+                {"child2/subchild_a", false},
+                {"child2/subchild_b", false}
+            });
+
+            REQUIRE(filesystem::remove_directory(parent_dir_path));
+            REQUIRE_FALSE(filesystem::file_exists(subchild1_dir_path_a));
+            REQUIRE_FALSE(filesystem::file_exists(subchild2_dir_path_b));
         }
     }
 }

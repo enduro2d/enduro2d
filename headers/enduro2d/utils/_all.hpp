@@ -12,6 +12,7 @@
 #include "color.hpp"
 #include "color32.hpp"
 #include "filesystem.hpp"
+#include "filesystem.inl"
 #include "image.hpp"
 #include "jobber.hpp"
 #include "module.hpp"
