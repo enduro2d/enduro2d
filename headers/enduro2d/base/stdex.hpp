@@ -385,6 +385,50 @@ namespace e2d { namespace stdex
                 : cr;
         }
 
+        int compare(size_type pos1, size_type n1, basic_string_view other) const noexcept {
+            return substr(pos1, n1).compare(other);
+        }
+
+        int compare(size_type pos1, size_type n1, basic_string_view other, size_type pos2, size_type n2) const noexcept {
+            return substr(pos1, n1).compare(other.substr(pos2, n2));
+        }
+
+        int compare(const Char* other) const noexcept {
+            return compare(basic_string_view(other));
+        }
+
+        int compare(size_type pos1, size_type n1, const Char* other) const noexcept {
+            return substr(pos1, n1).compare(basic_string_view(other));
+        }
+
+        int compare(size_type pos1, size_type n1, const Char* other, size_type n2) const noexcept {
+            return substr(pos1, n1).compare(basic_string_view(other, n2));
+        }
+
+        bool starts_with(basic_string_view other) const noexcept {
+            return size() >= other.size() && 0 == compare(0, other.size(), other);
+        }
+
+        bool starts_with(Char other) const noexcept {
+            return starts_with(basic_string_view(&other, 1));
+        }
+
+        bool starts_with(const Char* other) const noexcept {
+            return starts_with(basic_string_view(other));
+        }
+
+        bool ends_with(basic_string_view other) const noexcept {
+            return size() >= other.size() && 0 == compare(size() - other.size(), npos, other);
+        }
+
+        bool ends_with(Char other) const noexcept {
+            return ends_with(basic_string_view(&other, 1));
+        }
+
+        bool ends_with(const Char* other) const noexcept {
+            return ends_with(basic_string_view(other));
+        }
+
         size_type copy(Char* dst, size_type size, size_type index = 0) const {
             if ( index > size_ ) {
                 throw std::out_of_range("basic_string_view::copy");
