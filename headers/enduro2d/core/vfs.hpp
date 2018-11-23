@@ -30,6 +30,7 @@ namespace e2d
             virtual input_stream_uptr open(str_view path) const = 0;
             virtual std::pair<buffer,bool> load(str_view path) const = 0;
             virtual output_stream_uptr write(str_view path, bool append) const = 0;
+            virtual bool trace(str_view path, filesystem::trace_func func) const = 0;
         };
         using file_source_uptr = std::unique_ptr<file_source>;
 
@@ -47,6 +48,10 @@ namespace e2d
         output_stream_uptr write(const url& url, bool append) const;
         std::future<std::pair<buffer,bool>> load_async(const url& url) const;
 
+        template < typename Iter >
+        bool extract(const url& url, Iter result_iter) const;
+        bool trace(const url& url, filesystem::trace_func func) const;
+
         url resolve_scheme_aliases(const url& url) const;
     private:
         class state;
@@ -62,6 +67,7 @@ namespace e2d
         input_stream_uptr open(str_view path) const final;
         std::pair<buffer,bool> load(str_view path) const final;
         output_stream_uptr write(str_view path, bool append) const final;
+        bool trace(str_view path, filesystem::trace_func func) const final;
     private:
         class state;
         std::unique_ptr<state> state_;
@@ -76,6 +82,7 @@ namespace e2d
         input_stream_uptr open(str_view path) const final;
         std::pair<buffer,bool> load(str_view path) const final;
         output_stream_uptr write(str_view path, bool append) const final;
+        bool trace(str_view path, filesystem::trace_func func) const final;
     };
 }
 
@@ -86,5 +93,13 @@ namespace e2d
         return register_scheme(
             scheme,
             std::make_unique<T>(std::forward<Args>(args)...));
+    }
+
+    template < typename Iter >
+    bool vfs::extract(const url& url, Iter result_iter) const {
+        return trace(url, [&result_iter](str_view filename, bool directory){
+            *result_iter++ = std::pair<str,bool>{filename, directory};
+            return true;
+        });
     }
 }

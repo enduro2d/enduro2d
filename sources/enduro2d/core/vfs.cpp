@@ -173,6 +173,14 @@ namespace e2d
         }, open(url));
     }
 
+    bool vfs::trace(const url& url, filesystem::trace_func func) const {
+        std::lock_guard<std::mutex> guard(state_->mutex);
+        return state_->with_file_source(url,
+            [&func](const file_source_uptr& source, const str& path) {
+                return source->trace(path, func);
+            }, false);
+    }
+
     url vfs::resolve_scheme_aliases(const url& url) const {
         std::lock_guard<std::mutex> guard(state_->mutex);
         return state_->resolve_url(url);
@@ -276,6 +284,46 @@ namespace e2d
         return nullptr;
     }
 
+    bool archive_file_source::trace(str_view path, filesystem::trace_func func) const {
+        str parent = make_utf8(path);
+        if ( !parent.empty() ) {
+            if ( parent.back() != '/' ) {
+                parent += '/';
+            }
+            mz_uint32 dir_index = 0;
+            if ( !mz_zip_reader_locate_file_v2(
+                state_->archive.get(),
+                parent.c_str(),
+                nullptr,
+                MZ_ZIP_FLAG_CASE_SENSITIVE,
+                &dir_index) )
+            {
+                return false;
+            }
+            mz_zip_archive_file_stat dir_stat;
+            if ( !mz_zip_reader_file_stat(
+                state_->archive.get(),
+                dir_index, &dir_stat) )
+            {
+                return false;
+            }
+            if ( !dir_stat.m_is_directory ) {
+                return false;
+            }
+        }
+        mz_uint num_files = mz_zip_reader_get_num_files(state_->archive.get());
+        for ( mz_uint i = 0; i < num_files; ++i ) {
+            mz_zip_archive_file_stat file_stat;
+            if ( mz_zip_reader_file_stat(state_->archive.get(), i, &file_stat) ) {
+                const str_view filename{file_stat.m_filename};
+                if ( filename.length() > parent.length() && filename.starts_with(parent) ) {
+                    func(file_stat.m_filename, file_stat.m_is_directory);
+                }
+            }
+        }
+        return true;
+    }
+
     //
     // filesystem_file_source
     //
@@ -307,5 +355,9 @@ namespace e2d
             return nullptr;
         }
         return make_write_file(path, append);
+    }
+
+    bool filesystem_file_source::trace(str_view path, filesystem::trace_func func) const {
+        return filesystem::trace_directory_recursive(path, func);
     }
 }

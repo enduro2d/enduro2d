@@ -79,6 +79,49 @@ TEST_CASE("vfs"){
             REQUIRE_FALSE(v.exists({"archive", "test2.txt"}));
             REQUIRE_FALSE(v.exists({"archive", "folder/file2.txt"}));
             {
+                vector<std::pair<str,bool>> result;
+                REQUIRE(v.extract(url("archive://"), std::back_inserter(result)));
+                REQUIRE(result == vector<std::pair<str, bool>>{
+                    {"folder/", true},
+                    {"folder/file.txt", false},
+                    {"test.txt", false},
+                    {"folder/subfolder/", true},
+                    {"folder/subfolder/file.txt", false},
+                    {"folder2/", true},
+                    {"folder2/file.txt", false},
+                    {"folder2/subfolder2/", true},
+                    {"folder2/subfolder2/file.txt", false}
+                });
+            }
+            {
+                vector<std::pair<str,bool>> result;
+                REQUIRE(v.extract(url("archive://folder"), std::back_inserter(result)));
+                REQUIRE(result == vector<std::pair<str, bool>>{
+                    {"folder/file.txt", false},
+                    {"folder/subfolder/", true},
+                    {"folder/subfolder/file.txt", false}
+                });
+            }
+            {
+                vector<std::pair<str,bool>> result;
+                REQUIRE(v.extract(url("archive://folder2/subfolder2"), std::back_inserter(result)));
+                REQUIRE(result == vector<std::pair<str, bool>>{
+                    {"folder2/subfolder2/file.txt", false}
+                });
+            }
+            {
+                vector<std::pair<str,bool>> result, result2;
+                REQUIRE(v.extract(url("archive://folder"), std::back_inserter(result)));
+                REQUIRE(v.extract(url("archive://folder/"), std::back_inserter(result2)));
+                REQUIRE(result == result2);
+            }
+            {
+                vector<std::pair<str,bool>> result;
+                REQUIRE_FALSE(v.extract(url("archive://fold"), std::back_inserter(result)));
+                REQUIRE_FALSE(v.extract(url("archive://folder3"), std::back_inserter(result)));
+                REQUIRE_FALSE(v.extract(url("archive://test.txt"), std::back_inserter(result)));
+            }
+            {
                 auto f = v.open(url("archive://test.txt"));
                 REQUIRE(f);
                 buffer b;
