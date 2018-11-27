@@ -10,8 +10,6 @@ using namespace e2d;
 TEST_CASE("library"){
     modules::initialize<vfs>();
     modules::initialize<debug>();
-    modules::initialize<window>(v2u{640, 480}, "Enduro2D", false);
-    modules::initialize<render>(the<debug>(), the<window>());
     modules::initialize<library>(url{"resources://bin/library"});
     modules::initialize<asset_cache<text_asset>>(the<library>());
     modules::initialize<asset_cache<image_asset>>(the<library>());
@@ -89,8 +87,6 @@ TEST_CASE("library"){
     modules::shutdown<asset_cache<image_asset>>();
     modules::shutdown<asset_cache<text_asset>>();
     modules::shutdown<library>();
-    modules::shutdown<render>();
-    modules::shutdown<window>();
     modules::shutdown<debug>();
     modules::shutdown<vfs>();
 }
