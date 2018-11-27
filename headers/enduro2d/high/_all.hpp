@@ -8,4 +8,6 @@
 
 #include "_high.hpp"
 
+#include "assets.hpp"
 #include "library.hpp"
+#include "library.inl"

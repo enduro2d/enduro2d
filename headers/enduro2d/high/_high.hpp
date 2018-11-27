@@ -6,9 +6,15 @@
 
 #pragma once
 
-#include "../core/_core.hpp"
+#include "../core/_all.hpp"
 
 namespace e2d
 {
+    class asset;
     class library;
+    class text_asset;
+    class binary_asset;
+
+    template < typename T >
+    class asset_cache;
 }

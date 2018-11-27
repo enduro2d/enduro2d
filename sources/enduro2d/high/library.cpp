@@ -6,20 +6,26 @@
 
 #include <enduro2d/high/library.hpp>
 
+namespace
+{
+    using namespace e2d;
+}
+
 namespace e2d
 {
     //
-    // library::internal_state
+    // asset
     //
 
-    class library::internal_state final : private e2d::noncopyable {
-    };
+    asset::asset() = default;
+    asset::~asset() noexcept = default;
 
     //
     // library
     //
 
-    library::library()
-    : state_(new internal_state()){}
+    library::library(const url& root)
+    : root_(root) {}
+
     library::~library() noexcept = default;
 }
