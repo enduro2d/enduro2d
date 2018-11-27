@@ -45,6 +45,7 @@ namespace e2d
 
         template < typename T >
         std::shared_ptr<T> load_asset(str_view address);
+        const url& root() const noexcept;
     private:
         url root_;
     };

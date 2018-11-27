@@ -14,6 +14,7 @@ TEST_CASE("library"){
     modules::initialize<render>(the<debug>(), the<window>());
     modules::initialize<library>(url{"resources://bin/library"});
     modules::initialize<asset_cache<text_asset>>(the<library>());
+    modules::initialize<asset_cache<image_asset>>(the<library>());
     modules::initialize<asset_cache<binary_asset>>(the<library>());
     {
         the<debug>().register_sink<debug_console_sink>();
@@ -66,7 +67,26 @@ TEST_CASE("library"){
         the<asset_cache<binary_asset>>().unload_unused_assets();
         REQUIRE(the<asset_cache<binary_asset>>().asset_count() == 0);
     }
+    {
+        library& l = the<library>();
+        auto image_res = l.load_asset<image_asset>("image.png");
+        REQUIRE(image_res);
+        REQUIRE(!image_res->content().empty());
+
+        REQUIRE(the<asset_cache<image_asset>>().find("image.png"));
+        REQUIRE(the<asset_cache<binary_asset>>().find("image.png"));
+
+        the<asset_cache<binary_asset>>().unload_unused_assets();
+        REQUIRE(the<asset_cache<image_asset>>().find("image.png"));
+        REQUIRE_FALSE(the<asset_cache<binary_asset>>().find("image.png"));
+
+        image_res.reset();
+        the<asset_cache<image_asset>>().unload_unused_assets();
+        REQUIRE_FALSE(the<asset_cache<image_asset>>().find("image.png"));
+        REQUIRE_FALSE(the<asset_cache<binary_asset>>().find("image.png"));
+    }
     modules::shutdown<asset_cache<binary_asset>>();
+    modules::shutdown<asset_cache<image_asset>>();
     modules::shutdown<asset_cache<text_asset>>();
     modules::shutdown<library>();
     modules::shutdown<render>();

@@ -19,10 +19,8 @@ namespace e2d
 
     template < typename T >
     std::shared_ptr<T> library::load_asset(str_view address) {
-        const auto asset_url = root_ / address;
-
         if ( !modules::is_initialized<asset_cache<T>>() ) {
-            return T::load(*this, asset_url);
+            return T::load(*this, address);
         }
 
         auto& cache = the<asset_cache<T>>();
@@ -32,7 +30,7 @@ namespace e2d
             return cached_asset;
         }
 
-        const auto new_asset = T::load(*this, asset_url);
+        const auto new_asset = T::load(*this, address);
         if ( new_asset ) {
             cache.store(address, new_asset);
             return new_asset;

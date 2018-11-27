@@ -27,12 +27,18 @@ namespace e2d
     class text_asset final : public content_asset<str> {
     public:
         using content_asset<str>::content_asset;
-        static std::shared_ptr<text_asset> load(library& library, const url& url);
+        static std::shared_ptr<text_asset> load(library& library, str_view address);
+    };
+
+    class image_asset final : public content_asset<image> {
+    public:
+        using content_asset<image>::content_asset;
+        static std::shared_ptr<image_asset> load(library& library, str_view address);
     };
 
     class binary_asset final : public content_asset<buffer> {
     public:
         using content_asset<buffer>::content_asset;
-        static std::shared_ptr<binary_asset> load(library& library, const url& url);
+        static std::shared_ptr<binary_asset> load(library& library, str_view address);
     };
 }

@@ -17,14 +17,15 @@ namespace e2d
     // text_asset
     //
 
-    std::shared_ptr<text_asset> text_asset::load(library& library, const url& url) {
+    std::shared_ptr<text_asset> text_asset::load(library& library, str_view address) {
         E2D_UNUSED(library);
 
-        input_stream_uptr stream = the<vfs>().open(url);
+        const auto asset_url = library.root() / address;
+        input_stream_uptr stream = the<vfs>().open(asset_url);
         if ( !stream ) {
             the<debug>().error("ASSETS: Failed to open text asset file:\n"
                 "--> Url: %0",
-                url);
+                asset_url);
             return nullptr;
         }
 
@@ -32,7 +33,7 @@ namespace e2d
         if ( !streams::try_read_tail(content, stream) ) {
             the<debug>().error("ASSETS: Failed to read text asset file:\n"
                 "--> Url: %0",
-                url);
+                asset_url);
             return nullptr;
         }
 
@@ -40,17 +41,39 @@ namespace e2d
     }
 
     //
+    // image_asset
+    //
+
+    std::shared_ptr<image_asset> image_asset::load(library& library, str_view address) {
+        const auto image_data = library.load_asset<binary_asset>(address);
+        if ( !image_data) {
+            return nullptr;
+        }
+
+        image content;
+        if ( !images::try_load_image(content, image_data->content()) ) {
+            the<debug>().error("ASSETS: Failed to load image asset:\n"
+                "--> Address: %0",
+                address);
+            return nullptr;
+        }
+
+        return std::make_shared<image_asset>(std::move(content));
+    }
+
+    //
     // binary_asset
     //
 
-    std::shared_ptr<binary_asset> binary_asset::load(library& library, const url& url) {
+    std::shared_ptr<binary_asset> binary_asset::load(library& library, str_view address) {
         E2D_UNUSED(library);
 
-        input_stream_uptr stream = the<vfs>().open(url);
+        const auto asset_url = library.root() / address;
+        input_stream_uptr stream = the<vfs>().open(asset_url);
         if ( !stream ) {
             the<debug>().error("ASSETS: Failed to open binary asset file:\n"
                 "--> Url: %0",
-                url);
+                asset_url);
             return nullptr;
         }
 
@@ -58,7 +81,7 @@ namespace e2d
         if ( !streams::try_read_tail(content, stream) ) {
             the<debug>().error("ASSETS: Failed to read binary asset file:\n"
                 "--> Url: %0",
-                url);
+                asset_url);
             return nullptr;
         }
 

@@ -28,4 +28,8 @@ namespace e2d
     : root_(root) {}
 
     library::~library() noexcept = default;
+
+    const url& library::root() const noexcept {
+        return root_;
+    }
 }
