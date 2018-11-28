@@ -15,6 +15,7 @@ namespace e2d
     class text_asset;
     class image_asset;
     class binary_asset;
+    class shader_asset;
     class texture_asset;
 
     template < typename T >
