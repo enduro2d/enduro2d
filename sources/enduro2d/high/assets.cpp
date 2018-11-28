@@ -46,13 +46,13 @@ namespace e2d
 
     std::shared_ptr<image_asset> image_asset::load(library& library, str_view address) {
         const auto image_data = library.load_asset<binary_asset>(address);
-        if ( !image_data) {
+        if ( !image_data ) {
             return nullptr;
         }
 
         image content;
         if ( !images::try_load_image(content, image_data->content()) ) {
-            the<debug>().error("ASSETS: Failed to load image asset:\n"
+            the<debug>().error("ASSETS: Failed to create image asset:\n"
                 "--> Address: %0",
                 address);
             return nullptr;
@@ -86,5 +86,26 @@ namespace e2d
         }
 
         return std::make_shared<binary_asset>(std::move(content));
+    }
+
+    //
+    // texture_asset
+    //
+
+    std::shared_ptr<texture_asset> texture_asset::load(library& library, str_view address) {
+        const auto texture_data = library.load_asset<image_asset>(address);
+        if ( !texture_data ) {
+            return nullptr;
+        }
+
+        const auto content = the<render>().create_texture(texture_data->content());
+        if ( !content ) {
+            the<debug>().error("ASSETS: Failed to create texture asset:\n"
+                "--> Address: %0",
+                address);
+            return nullptr;
+        }
+
+        return std::make_shared<texture_asset>(content);
     }
 }
