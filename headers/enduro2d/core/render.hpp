@@ -460,7 +460,7 @@ namespace e2d
         public:
             stencil_state& write(u8 mask) noexcept;
             stencil_state& func(compare_func func, u8 ref, u8 mask) noexcept;
-            stencil_state& op(stencil_op sfail, stencil_op zfail, stencil_op pass) noexcept;
+            stencil_state& op(stencil_op pass, stencil_op sfail, stencil_op zfail) noexcept;
 
             u8 write() const noexcept;
             compare_func func() const noexcept;

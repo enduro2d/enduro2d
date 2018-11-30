@@ -53,4 +53,10 @@ namespace e2d
         using content_asset<texture_ptr>::content_asset;
         static std::shared_ptr<texture_asset> load(library& library, str_view address);
     };
+
+    class material_asset final : public content_asset<render::material> {
+    public:
+        using content_asset<render::material>::content_asset;
+        static std::shared_ptr<material_asset> load(library& library, str_view address);
+    };
 }

@@ -1,0 +1,64 @@
+{
+    "passes" : [{
+        "shader" : "shader.json",
+        "state_block" : {
+            "depth_state" : {
+                "range" : { "near" : 1, "far" : 2 },
+                "write" : false,
+                "func" : "greater"
+            },
+            "stencil_state" : {
+                "write" : 2,
+                "func" : "never",
+                "ref" : 4,
+                "mask" : 5,
+                "pass" : "incr",
+                "sfail" : "decr",
+                "zfail" : "invert"
+            },
+            "culling_state" : {
+                "mode" : "cw",
+                "face" : "front"
+            },
+            "blending_state" : {
+                "constant_color" : { "r" : 1, "g" : 1, "b" : 1, "a" : 1 },
+                "color_mask" : "gba",
+                "src_factor" : "dst_alpha",
+                "dst_factor" : { "rgb" : "dst_color", "alpha" : "src_color" },
+                "equation" : { "rgb" : "subtract", "alpha" : "reverse_subtract" }
+            },
+            "capabilities_state" : {
+                "culling" : true,
+                "blending" : true,
+                "depth_test" : true,
+                "stencil_test" : true
+            }
+        },
+        "property_block" : {
+            "properties" : [
+                { "name" : "f", "type" : "f32", "value" : 4.2 },
+                { "name" : "v1", "type" : "v2i", "value" : { "x" : 1, "y" : 2 } },
+                { "name" : "v2", "type" : "v3f", "value" : 3.0 },
+                { "name" : "v3", "type" : "v4i", "value" : [1,2,3,4] }
+            ]
+        }
+    }],
+    "property_block" : {
+        "samplers" : [{
+            "name" : "s",
+            "texture" : "image.png",
+            "wrap" : {
+                "s" : "clamp",
+                "t" : "repeat",
+                "r" : "mirror"
+            },
+            "filter" : {
+                "min" : "linear_mipmap_linear",
+                "mag" : "linear"
+            }
+        }],
+        "properties" : [
+            { "name" : "i", "type" : "i32", "value" : 42 }
+        ]
+    }
+}
