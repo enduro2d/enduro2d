@@ -15,6 +15,7 @@
 #include "filesystem.inl"
 #include "image.hpp"
 #include "jobber.hpp"
+#include "mesh.hpp"
 #include "module.hpp"
 #include "path.hpp"
 #include "streams.hpp"

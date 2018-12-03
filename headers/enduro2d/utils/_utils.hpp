@@ -16,6 +16,7 @@ namespace e2d
     class color32;
     class image;
     class jobber;
+    class mesh;
     class input_stream;
     class output_stream;
     class input_sequence;
