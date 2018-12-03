@@ -30,6 +30,12 @@ namespace e2d
         static std::shared_ptr<text_asset> load(library& library, str_view address);
     };
 
+    class mesh_asset final : public content_asset<mesh> {
+    public:
+        using content_asset<mesh>::content_asset;
+        static std::shared_ptr<mesh_asset> load(library& library, str_view address);
+    };
+
     class image_asset final : public content_asset<image> {
     public:
         using content_asset<image>::content_asset;

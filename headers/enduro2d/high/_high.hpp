@@ -13,6 +13,7 @@ namespace e2d
     class asset;
     class library;
     class text_asset;
+    class mesh_asset;
     class image_asset;
     class binary_asset;
     class shader_asset;

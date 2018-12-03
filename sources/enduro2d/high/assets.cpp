@@ -1412,6 +1412,27 @@ namespace e2d
     }
 
     //
+    // mesh_asset
+    //
+
+    std::shared_ptr<mesh_asset> mesh_asset::load(library& library, str_view address) {
+        const auto mesh_data = library.load_asset<binary_asset>(address);
+        if ( !mesh_data ) {
+            return nullptr;
+        }
+
+        mesh content;
+        if ( !meshes::try_load_mesh(content, mesh_data->content()) ) {
+            the<debug>().error("ASSETS: Failed to create mesh asset:\n"
+                "--> Address: %0",
+                address);
+            return nullptr;
+        }
+
+        return std::make_shared<mesh_asset>(std::move(content));
+    }
+
+    //
     // image_asset
     //
 
