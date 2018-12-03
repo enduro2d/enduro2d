@@ -98,27 +98,14 @@ endif(APPLE)
 include(FetchContent)
 
 FetchContent_Declare(
-    assimp
-    GIT_REPOSITORY https://github.com/assimp/assimp)
-FetchContent_Declare(
     glew
     GIT_REPOSITORY https://github.com/Perlmint/glew-cmake)
 FetchContent_Declare(
     glfw
     GIT_REPOSITORY https://github.com/glfw/glfw)
 
-FetchContent_GetProperties(assimp)
 FetchContent_GetProperties(glew)
 FetchContent_GetProperties(glfw)
-
-if(NOT assimp_POPULATED)
-    FetchContent_Populate(assimp)
-    set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
-    set(ASSIMP_NO_EXPORT ON CACHE BOOL "" FORCE)
-    set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-    set(ASSIMP_BUILD_ASSIMP_TOOLS OFF CACHE BOOL "" FORCE)
-    add_subdirectory(${assimp_SOURCE_DIR} ${assimp_BINARY_DIR})
-endif()
 
 if(NOT glew_POPULATED)
     FetchContent_Populate(glew)
@@ -153,8 +140,6 @@ source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES
 target_include_directories(${PROJECT_NAME}
     PRIVATE headers
     PRIVATE sources
-    PRIVATE ${assimp_SOURCE_DIR}/include
-    PRIVATE ${assimp_BINARY_DIR}/include
     PRIVATE ${glew_SOURCE_DIR}/include
     PRIVATE ${glfw_SOURCE_DIR}/include)
 
