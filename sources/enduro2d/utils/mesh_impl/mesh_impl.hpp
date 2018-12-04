@@ -11,5 +11,5 @@
 
 namespace e2d { namespace meshes { namespace impl
 {
-    bool try_load_mesh_assimp(mesh& dst, const buffer& src) noexcept;
+    bool try_load_mesh_e2d(mesh& dst, const buffer& src) noexcept;
 }}}
