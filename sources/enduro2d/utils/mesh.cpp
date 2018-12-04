@@ -36,9 +36,9 @@ namespace e2d
         if ( this != &other ) {
             mesh m;
             m.uvs_channels_ = other.uvs_channels_;
-            m.indices_submeshes_ = other.indices_submeshes_;
+            m.colors_channels_ = other.colors_channels_;
             m.vertices_ = other.vertices_;
-            m.colors_ = other.colors_;
+            m.indices_submeshes_ = other.indices_submeshes_;
             m.normals_ = other.normals_;
             m.tangents_ = other.tangents_;
             m.bitangents_ = other.bitangents_;
@@ -50,9 +50,9 @@ namespace e2d
     void mesh::swap(mesh& other) noexcept {
         using std::swap;
         swap(uvs_channels_, other.uvs_channels_);
-        swap(indices_submeshes_, other.indices_submeshes_);
+        swap(colors_channels_, other.colors_channels_);
         swap(vertices_, other.vertices_);
-        swap(colors_, other.colors_);
+        swap(indices_submeshes_, other.indices_submeshes_);
         swap(normals_, other.normals_);
         swap(tangents_, other.tangents_);
         swap(bitangents_, other.bitangents_);
@@ -60,9 +60,9 @@ namespace e2d
 
     void mesh::clear() noexcept {
         uvs_channels_.clear();
-        indices_submeshes_.clear();
+        colors_channels_.clear();
         vertices_.clear();
-        colors_.clear();
+        indices_submeshes_.clear();
         normals_.clear();
         tangents_.clear();
         bitangents_.clear();
@@ -92,24 +92,24 @@ namespace e2d
             : set_uvs(channel, vector<v2f>());
     }
 
-    mesh& mesh::set_indices(std::size_t submesh, vector<u32>&& indices) {
-        if ( indices_submeshes_.size() <= submesh ) {
-            indices_submeshes_.resize(submesh + 1);
+    mesh& mesh::set_colors(std::size_t channel, vector<color32>&& colors) {
+        if ( colors_channels_.size() <= channel ) {
+            colors_channels_.resize(channel + 1);
         }
-        indices_submeshes_[submesh] = std::move(indices);
+        colors_channels_[channel] = std::move(colors);
         return *this;
     }
 
-    mesh& mesh::set_indices(std::size_t submesh, const vector<u32>& indices) {
-        return set_indices(submesh, indices.data(), indices.size());
+    mesh& mesh::set_colors(std::size_t channel, const vector<color32>& colors) {
+        return set_colors(channel, colors.data(), colors.size());
     }
 
-    mesh& mesh::set_indices(std::size_t submesh, const u32* indices, std::size_t count) {
+    mesh& mesh::set_colors(std::size_t channel, const color32* colors, std::size_t count) {
         return count
-            ? set_indices(submesh, indices
-                ? vector<u32>(indices, indices + count)
-                : vector<u32>(count))
-            : set_indices(submesh, vector<u32>());
+            ? set_colors(channel, colors
+                ? vector<color32>(colors, colors + count)
+                : vector<color32>(count))
+            : set_colors(channel, vector<color32>());
     }
 
     mesh& mesh::set_vertices(vector<v3f>&& vertices) noexcept {
@@ -129,21 +129,24 @@ namespace e2d
             : set_vertices(vector<v3f>());
     }
 
-    mesh& mesh::set_colors(vector<color32>&& colors) noexcept {
-        colors_ = std::move(colors);
+    mesh& mesh::set_indices(std::size_t submesh, vector<u32>&& indices) {
+        if ( indices_submeshes_.size() <= submesh ) {
+            indices_submeshes_.resize(submesh + 1);
+        }
+        indices_submeshes_[submesh] = std::move(indices);
         return *this;
     }
 
-    mesh& mesh::set_colors(const vector<color32>& colors) {
-        return set_colors(colors.data(), colors.size());
+    mesh& mesh::set_indices(std::size_t submesh, const vector<u32>& indices) {
+        return set_indices(submesh, indices.data(), indices.size());
     }
 
-    mesh& mesh::set_colors(const color32* colors, std::size_t count) {
+    mesh& mesh::set_indices(std::size_t submesh, const u32* indices, std::size_t count) {
         return count
-            ? set_colors(colors
-                ? vector<color32>(colors, colors + count)
-                : vector<color32>(count))
-            : set_colors(vector<color32>());
+            ? set_indices(submesh, indices
+                ? vector<u32>(indices, indices + count)
+                : vector<u32>(count))
+            : set_indices(submesh, vector<u32>());
     }
 
     mesh& mesh::set_normals(vector<v3f>&& normals) noexcept {
@@ -208,6 +211,21 @@ namespace e2d
         return uvs_channels_.size();
     }
 
+    const vector<color32>& mesh::colors(std::size_t channel) const {
+        if ( channel < colors_channels_.size() ) {
+            return colors_channels_[channel];
+        }
+        throw bad_mesh_access();
+    }
+
+    std::size_t mesh::colors_channel_count() const noexcept {
+        return colors_channels_.size();
+    }
+
+    const vector<v3f>& mesh::vertices() const noexcept {
+        return vertices_;
+    }
+
     const vector<u32>& mesh::indices(std::size_t submesh) const {
         if ( submesh < indices_submeshes_.size() ) {
             return indices_submeshes_[submesh];
@@ -217,14 +235,6 @@ namespace e2d
 
     std::size_t mesh::indices_submesh_count() const noexcept {
         return indices_submeshes_.size();
-    }
-
-    const vector<v3f>& mesh::vertices() const noexcept {
-        return vertices_;
-    }
-
-    const vector<color32>& mesh::colors() const noexcept {
-        return colors_;
     }
 
     const vector<v3f>& mesh::normals() const noexcept {
@@ -250,11 +260,19 @@ namespace e2d
         if ( l.uvs_channel_count() != r.uvs_channel_count() ) {
             return false;
         }
+        if ( l.colors_channel_count() != r.colors_channel_count() ) {
+            return false;
+        }
         if ( l.indices_submesh_count() != r.indices_submesh_count() ) {
             return false;
         }
         for ( std::size_t i = 0; i < l.uvs_channel_count(); ++i ) {
             if ( l.uvs(i) != r.uvs(i) ) {
+                return false;
+            }
+        }
+        for ( std::size_t i = 0; i < l.colors_channel_count(); ++i ) {
+            if ( l.colors(i) != r.colors(i) ) {
                 return false;
             }
         }
@@ -264,7 +282,6 @@ namespace e2d
             }
         }
         return l.vertices() == r.vertices()
-            && l.colors() == r.colors()
             && l.normals() == r.normals()
             && l.tangents() == r.tangents()
             && l.bitangents() == r.bitangents();
@@ -281,7 +298,7 @@ namespace e2d { namespace meshes
         mesh& dst,
         const buffer& src) noexcept
     {
-        return impl::try_load_mesh_assimp(dst, src);
+        return impl::try_load_mesh_e2d(dst, src);
     }
 
     bool try_load_mesh(

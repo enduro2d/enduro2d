@@ -42,17 +42,17 @@ namespace e2d
         mesh& set_uvs(std::size_t channel, const vector<v2f>& uvs);
         mesh& set_uvs(std::size_t channel, const v2f* uvs, std::size_t count);
 
-        mesh& set_indices(std::size_t submesh, vector<u32>&& indices);
-        mesh& set_indices(std::size_t submesh, const vector<u32>& indices);
-        mesh& set_indices(std::size_t submesh, const u32* indices, std::size_t count);
+        mesh& set_colors(std::size_t channel, vector<color32>&& colors);
+        mesh& set_colors(std::size_t channel, const vector<color32>& colors);
+        mesh& set_colors(std::size_t channel, const color32* colors, std::size_t count);
 
         mesh& set_vertices(vector<v3f>&& vertices) noexcept;
         mesh& set_vertices(const vector<v3f>& vertices);
         mesh& set_vertices(const v3f* vertices, std::size_t count);
 
-        mesh& set_colors(vector<color32>&& colors) noexcept;
-        mesh& set_colors(const vector<color32>& colors);
-        mesh& set_colors(const color32* colors, std::size_t count);
+        mesh& set_indices(std::size_t submesh, vector<u32>&& indices);
+        mesh& set_indices(std::size_t submesh, const vector<u32>& indices);
+        mesh& set_indices(std::size_t submesh, const u32* indices, std::size_t count);
 
         mesh& set_normals(vector<v3f>&& normals) noexcept;
         mesh& set_normals(const vector<v3f>& normals);
@@ -69,21 +69,23 @@ namespace e2d
         const vector<v2f>& uvs(std::size_t channel) const;
         std::size_t uvs_channel_count() const noexcept;
 
-        const vector<u32>& indices(std::size_t submesh) const;
-        std::size_t indices_submesh_count() const noexcept;
+        const vector<color32>& colors(std::size_t channel) const;
+        std::size_t colors_channel_count() const noexcept;
 
         const vector<v3f>& vertices() const noexcept;
-        const vector<color32>& colors() const noexcept;
+
+        const vector<u32>& indices(std::size_t submesh) const;
+        std::size_t indices_submesh_count() const noexcept;
 
         const vector<v3f>& normals() const noexcept;
         const vector<v3f>& tangents() const noexcept;
         const vector<v3f>& bitangents() const noexcept;
     private:
         vector<vector<v2f>> uvs_channels_;
-        vector<vector<u32>> indices_submeshes_;
+        vector<vector<color32>> colors_channels_;
 
         vector<v3f> vertices_;
-        vector<color32> colors_;
+        vector<vector<u32>> indices_submeshes_;
 
         vector<v3f> normals_;
         vector<v3f> tangents_;
