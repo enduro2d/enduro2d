@@ -36,6 +36,9 @@
 #  define E2D_ALLOCA(size) alloca((size))
 #endif
 
+#define E2D_CLEAR_ALLOCA(size)\
+    std::memset(E2D_ALLOCA(size), 0, size)
+
 //
 // E2D_UNUSED
 //
