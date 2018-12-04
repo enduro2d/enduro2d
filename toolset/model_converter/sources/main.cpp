@@ -24,7 +24,7 @@
 namespace
 {
     const std::uint32_t mesh_file_version = 1;
-    const char* mesh_file_signature = "e2d_mesh";
+    const std::string mesh_file_signature = "e2d_mesh";
 
     struct opts {
         bool timers = false;
@@ -110,6 +110,16 @@ namespace
             static_cast<std::uint32_t>(bb) <<  0;
     }
 
+    void write_u32_to_ofstream(std::ofstream& s, const std::uint32_t v) {
+        s.write(
+            reinterpret_cast<const char*>(&v),
+            sizeof(v));
+    }
+
+    void write_str_to_ofstream(std::ofstream& s, const std::string& v) {
+        s.write(v.data(), static_cast<std::ptrdiff_t>(v.length()));
+    }
+
     template < typename T >
     std::size_t write_vector_to_ofstream(std::ofstream& s, const std::vector<T>& v) {
         if ( !v.empty() ) {
@@ -165,18 +175,18 @@ namespace
             return false;
         }
 
-        stream << mesh_file_signature;
-        stream << mesh_file_version;
+        write_str_to_ofstream(stream, mesh_file_signature);
+        write_u32_to_ofstream(stream, mesh_file_version);
 
-        stream << static_cast<std::uint32_t>(mesh.vertices.size());
-        stream << static_cast<std::uint32_t>(mesh.indices.size());
+        write_u32_to_ofstream(stream, static_cast<std::uint32_t>(mesh.vertices.size()));
+        write_u32_to_ofstream(stream, static_cast<std::uint32_t>(mesh.indices.size()));
 
-        stream << static_cast<std::uint32_t>(mesh.uvs_channels.size());
-        stream << static_cast<std::uint32_t>(mesh.colors_channels.size());
+        write_u32_to_ofstream(stream, static_cast<std::uint32_t>(mesh.uvs_channels.size()));
+        write_u32_to_ofstream(stream, static_cast<std::uint32_t>(mesh.colors_channels.size()));
 
-        stream << static_cast<std::uint32_t>(mesh.normals.size());
-        stream << static_cast<std::uint32_t>(mesh.tangents.size());
-        stream << static_cast<std::uint32_t>(mesh.bitangents.size());
+        write_u32_to_ofstream(stream, static_cast<std::uint32_t>(mesh.normals.size()));
+        write_u32_to_ofstream(stream, static_cast<std::uint32_t>(mesh.tangents.size()));
+        write_u32_to_ofstream(stream, static_cast<std::uint32_t>(mesh.bitangents.size()));
 
         std::size_t vertices_bytes = write_vector_to_ofstream(stream, mesh.vertices);
         std::size_t indices_bytes = write_vector_to_ofstream(stream, mesh.indices);
@@ -354,7 +364,7 @@ namespace
 
             std::string mesh_out_path = std::string()
                 .append(path)
-                .append("_")
+                .append(".")
                 .append(mesh_name)
                 .append(".e2d_mesh");
 
