@@ -1,23 +1,11 @@
 #
-# fetch 3rd party
+# external 3rd party
 #
 
-include(FetchContent)
-
-FetchContent_Declare(
-    assimp
-    GIT_REPOSITORY https://github.com/assimp/assimp)
-
-FetchContent_GetProperties(assimp)
-
-if(NOT assimp_POPULATED)
-    FetchContent_Populate(assimp)
-    set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
-    set(ASSIMP_NO_EXPORT ON CACHE BOOL "" FORCE)
-    set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-    set(ASSIMP_BUILD_ASSIMP_TOOLS OFF CACHE BOOL "" FORCE)
-    add_subdirectory(${assimp_SOURCE_DIR} ${assimp_BINARY_DIR})
-endif()
+set(ASSIMP_NO_EXPORT ON CACHE BOOL "" FORCE)
+set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(ASSIMP_BUILD_ASSIMP_TOOLS OFF CACHE BOOL "" FORCE)
+add_subdirectory(modules/assimp)
 
 #
 # model converter executable
@@ -34,10 +22,6 @@ add_executable(model_converter
 
 target_link_libraries(model_converter
     assimp)
-
-target_include_directories(model_converter
-    PRIVATE ${assimp_SOURCE_DIR}/include
-    PRIVATE ${assimp_BINARY_DIR}/include)
 
 set_target_properties(model_converter PROPERTIES
     CXX_STANDARD 14

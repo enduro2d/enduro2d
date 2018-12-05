@@ -16,3 +16,12 @@
 [submodule "modules/rapidjson"]
 	path = modules/rapidjson
 	url = https://github.com/Tencent/rapidjson
+[submodule "modules/glew"]
+	path = modules/glew
+	url = https://github.com/Perlmint/glew-cmake
+[submodule "modules/glfw"]
+	path = modules/glfw
+	url = https://github.com/glfw/glfw
+[submodule "toolset/model_converter/modules/assimp"]
+	path = toolset/model_converter/modules/assimp
+	url = https://github.com/assimp/assimp
