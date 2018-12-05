@@ -17,6 +17,7 @@ namespace e2d
     class image;
     class jobber;
     class mesh;
+    class scheduler;
     class input_stream;
     class output_stream;
     class input_sequence;
