@@ -15,6 +15,7 @@
 #include <iostream>
 #include <iterator>
 #include <exception>
+#include <stdexcept>
 #include <algorithm>
 
 #include <assimp/Importer.hpp>
@@ -130,7 +131,7 @@ namespace
             return data_size;
         }
         return 0;
-    };
+    }
 
     bool validate_mesh(const mesh& mesh) noexcept {
         if ( mesh.vertices.empty() ) {

@@ -19,6 +19,7 @@ namespace e2d
     class binary_asset;
     class shader_asset;
     class texture_asset;
+    class material_asset;
 
     template < typename T >
     class asset_cache;
