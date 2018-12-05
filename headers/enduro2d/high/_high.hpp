@@ -12,6 +12,7 @@ namespace e2d
 {
     class asset;
     class library;
+    class starter;
     class text_asset;
     class mesh_asset;
     class image_asset;

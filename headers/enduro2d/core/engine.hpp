@@ -87,8 +87,8 @@ namespace e2d
             parameters() = delete;
             parameters(str_view game_name, str_view company_name);
 
-            parameters& game_name(str_view value) noexcept;
-            parameters& company_name(str_view value) noexcept;
+            parameters& game_name(str_view value);
+            parameters& company_name(str_view value);
             parameters& debug_params(const debug_parameters& value);
             parameters& window_params(const window_parameters& value);
             parameters& timer_params(const timer_parameters& value);

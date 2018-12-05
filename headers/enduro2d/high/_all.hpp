@@ -11,3 +11,4 @@
 #include "assets.hpp"
 #include "library.hpp"
 #include "library.inl"
+#include "starter.hpp"

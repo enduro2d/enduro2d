@@ -145,12 +145,12 @@ namespace e2d
     : game_name_(game_name)
     , company_name_(company_name) {}
 
-    engine::parameters& engine::parameters::game_name(str_view value) noexcept {
+    engine::parameters& engine::parameters::game_name(str_view value) {
         game_name_ = value;
         return *this;
     }
 
-    engine::parameters& engine::parameters::company_name(str_view value) noexcept {
+    engine::parameters& engine::parameters::company_name(str_view value) {
         company_name_ = value;
         return *this;
     }
