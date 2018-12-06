@@ -70,6 +70,35 @@ TEST_CASE("jobber") {
         j.wait_all();
     }
     {
+        jobber j(1);
+        i32 counter = 0;
+        j.pause();
+        for ( std::size_t i = 0; i < 10; ++i ) {
+            j.async([&counter](){
+                ++counter;
+                std::this_thread::sleep_for(std::chrono::milliseconds(15));
+            });
+        }
+
+        const auto b = time::now_ms();
+
+        j.wait_for(make_milliseconds(15));
+        REQUIRE(time::now_ms() - b > make_milliseconds<i64>(10));
+        REQUIRE(counter == 0);
+
+        j.wait_until(time::now_ms() + make_milliseconds<i64>(15));
+        REQUIRE(time::now_ms() - b > make_milliseconds<i64>(20));
+        REQUIRE(counter == 0);
+
+        j.active_wait_for(make_milliseconds(60));
+        REQUIRE(time::now_ms() - b > make_milliseconds<i64>(70));
+        REQUIRE(counter > 2);
+        REQUIRE(counter < 10);
+
+        j.active_wait_until(time::now_s() + make_seconds<i64>(1));
+        REQUIRE(counter == 10);
+    }
+    {
         jobber j(2);
         jobber g(2);
 

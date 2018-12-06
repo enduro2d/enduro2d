@@ -29,13 +29,13 @@ TEST_CASE("scheduler") {
                 std::this_thread::sleep_for(std::chrono::milliseconds(15));
             });
         }
-        s.process_all_tasks_for(make_milliseconds(-1));
-        s.process_all_tasks_for(make_milliseconds(0));
+        s.process_tasks_for(make_milliseconds(-1));
+        s.process_tasks_for(make_milliseconds(0));
         REQUIRE(counter == 0);
-        s.process_all_tasks_for(make_milliseconds(60));
+        s.process_tasks_for(make_milliseconds(60));
         REQUIRE(counter > 2);
         REQUIRE(counter < 10);
-        s.process_all_tasks_for(make_seconds(1));
+        s.process_tasks_for(make_seconds(1));
         REQUIRE(counter == 10);
     }
     {
@@ -47,13 +47,13 @@ TEST_CASE("scheduler") {
                 std::this_thread::sleep_for(std::chrono::milliseconds(15));
             });
         }
-        s.process_all_tasks_until(time::now_ms() - make_milliseconds<i64>(1));
-        s.process_all_tasks_until(time::now_ms());
+        s.process_tasks_until(time::now_ms() - make_milliseconds<i64>(1));
+        s.process_tasks_until(time::now_ms());
         REQUIRE(counter == 0);
-        s.process_all_tasks_until(time::now_ms() + make_milliseconds<i64>(60));
+        s.process_tasks_until(time::now_ms() + make_milliseconds<i64>(60));
         REQUIRE(counter > 2);
         REQUIRE(counter < 10);
-        s.process_all_tasks_until(time::now_s() + make_seconds<i64>(1));
+        s.process_tasks_until(time::now_s() + make_seconds<i64>(1));
         REQUIRE(counter == 10);
     }
     {

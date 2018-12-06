@@ -7,6 +7,7 @@
 #pragma once
 
 #include "_utils.hpp"
+#include "time.hpp"
 
 namespace e2d
 {
@@ -42,6 +43,18 @@ namespace e2d
 
         void wait_all() const noexcept;
         void active_wait_all() noexcept;
+
+        template < typename T, typename TimeTag >
+        void wait_for(const unit<T, TimeTag>& time_for) const noexcept;
+
+        template < typename T, typename TimeTag >
+        void wait_until(const unit<T, TimeTag>& time_until) const noexcept;
+
+        template < typename T, typename TimeTag >
+        void active_wait_for(const unit<T, TimeTag>& time_for) noexcept;
+
+        template < typename T, typename TimeTag >
+        void active_wait_until(const unit<T, TimeTag>& time_until) noexcept;
     private:
         class task;
         using task_ptr = std::unique_ptr<task>;
@@ -121,6 +134,55 @@ namespace e2d
         std::lock_guard<std::mutex> guard(tasks_mutex_);
         push_task_(priority, std::move(task));
         return future;
+    }
+
+    //
+    // wait
+    //
+
+    template < typename T, typename TimeTag >
+    void jobber::wait_for(const unit<T, TimeTag>& time_for) const noexcept {
+        if ( time_for.value > T(0) ) {
+            wait_until(
+                time::now<TimeTag, u64>() +
+                time_for.template cast_to<u64>());
+        }
+    }
+
+    template < typename T, typename TimeTag >
+    void jobber::wait_until(const unit<T, TimeTag>& time_until) const noexcept {
+        while ( active_task_count_ ) {
+            const auto time_now = time::now<TimeTag, u64>();
+            if ( time_now >= time_until.template cast_to<u64>() ) {
+                break;
+            }
+            std::this_thread::yield();
+        }
+    }
+
+    //
+    // active_wait
+    //
+
+    template < typename T, typename TimeTag >
+    void jobber::active_wait_for(const unit<T, TimeTag>& time_for) noexcept {
+        if ( time_for.value > T(0) ) {
+            active_wait_until(
+                time::now<TimeTag, u64>() +
+                time_for.template cast_to<u64>());
+        }
+    }
+
+    template < typename T, typename TimeTag >
+    void jobber::active_wait_until(const unit<T, TimeTag>& time_until) noexcept {
+        while ( active_task_count_ ) {
+            const auto time_now = time::now<TimeTag, u64>();
+            if ( time_now >= time_until.template cast_to<u64>() ) {
+                break;
+            }
+            std::unique_lock<std::mutex> lock(tasks_mutex_);
+            process_task_(std::move(lock));
+        }
     }
 
     //

@@ -40,10 +40,10 @@ namespace e2d
         void process_all_tasks() noexcept;
 
         template < typename T, typename TimeTag >
-        void process_all_tasks_for(const unit<T, TimeTag>& time_for) noexcept;
+        void process_tasks_for(const unit<T, TimeTag>& time_for) noexcept;
 
         template < typename T, typename TimeTag >
-        void process_all_tasks_until(const unit<T, TimeTag>& time_until) noexcept;
+        void process_tasks_until(const unit<T, TimeTag>& time_until) noexcept;
     private:
         class task;
         using task_ptr = std::unique_ptr<task>;
@@ -119,17 +119,21 @@ namespace e2d
         return future;
     }
 
+    //
+    // process_all_tasks
+    //
+
     template < typename T, typename TimeTag >
-    void scheduler::process_all_tasks_for(const unit<T, TimeTag>& time_for) noexcept {
+    void scheduler::process_tasks_for(const unit<T, TimeTag>& time_for) noexcept {
         if ( time_for.value > T(0) ) {
-            process_all_tasks_until(
+            process_tasks_until(
                 time::now<TimeTag, u64>() +
                 time_for.template cast_to<u64>());
         }
     }
 
     template < typename T, typename TimeTag >
-    void scheduler::process_all_tasks_until(const unit<T, TimeTag>& time_until) noexcept {
+    void scheduler::process_tasks_until(const unit<T, TimeTag>& time_until) noexcept {
         while ( active_task_count_ ) {
             const auto time_now = time::now<TimeTag, u64>();
             if ( time_now >= time_until.template cast_to<u64>() ) {
