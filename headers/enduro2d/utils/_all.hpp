@@ -18,6 +18,7 @@
 #include "mesh.hpp"
 #include "module.hpp"
 #include "path.hpp"
+#include "scheduler.hpp"
 #include "streams.hpp"
 #include "strfmts.hpp"
 #include "strings.hpp"
