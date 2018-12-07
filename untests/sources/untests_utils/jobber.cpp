@@ -73,10 +73,10 @@ TEST_CASE("jobber") {
         jobber j(1);
         i32 counter = 0;
         j.pause();
-        for ( std::size_t i = 0; i < 10; ++i ) {
+        for ( std::size_t i = 0; i < 50; ++i ) {
             j.async([&counter](){
                 ++counter;
-                std::this_thread::sleep_for(std::chrono::milliseconds(15));
+                std::this_thread::sleep_for(std::chrono::milliseconds(5));
             });
         }
 
@@ -93,10 +93,10 @@ TEST_CASE("jobber") {
         j.active_wait_for(make_milliseconds(60));
         REQUIRE(time::now_ms() - b > make_milliseconds<i64>(70));
         REQUIRE(counter > 2);
-        REQUIRE(counter < 10);
+        REQUIRE(counter < 50);
 
-        j.active_wait_until(time::now_s() + make_seconds<i64>(1));
-        REQUIRE(counter == 10);
+        j.active_wait_until(time::now_s() + make_seconds<i64>(3));
+        REQUIRE(counter == 50);
     }
     {
         jobber j(2);

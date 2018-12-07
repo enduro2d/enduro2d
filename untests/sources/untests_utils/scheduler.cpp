@@ -23,10 +23,10 @@ TEST_CASE("scheduler") {
     {
         scheduler s;
         i32 counter = 0;
-        for ( std::size_t i = 0; i < 10; ++i ) {
+        for ( std::size_t i = 0; i < 50; ++i ) {
             s.schedule([&counter](){
                 ++counter;
-                std::this_thread::sleep_for(std::chrono::milliseconds(15));
+                std::this_thread::sleep_for(std::chrono::milliseconds(5));
             });
         }
         s.process_tasks_for(make_milliseconds(-1));
@@ -34,17 +34,17 @@ TEST_CASE("scheduler") {
         REQUIRE(counter == 0);
         s.process_tasks_for(make_milliseconds(60));
         REQUIRE(counter > 2);
-        REQUIRE(counter < 10);
-        s.process_tasks_for(make_seconds(1));
-        REQUIRE(counter == 10);
+        REQUIRE(counter < 50);
+        s.process_tasks_for(make_seconds(3));
+        REQUIRE(counter == 50);
     }
     {
         scheduler s;
         i32 counter = 0;
-        for ( std::size_t i = 0; i < 10; ++i ) {
+        for ( std::size_t i = 0; i < 50; ++i ) {
             s.schedule([&counter](){
                 ++counter;
-                std::this_thread::sleep_for(std::chrono::milliseconds(15));
+                std::this_thread::sleep_for(std::chrono::milliseconds(5));
             });
         }
         s.process_tasks_until(time::now_ms() - make_milliseconds<i64>(1));
@@ -52,9 +52,9 @@ TEST_CASE("scheduler") {
         REQUIRE(counter == 0);
         s.process_tasks_until(time::now_ms() + make_milliseconds<i64>(60));
         REQUIRE(counter > 2);
-        REQUIRE(counter < 10);
-        s.process_tasks_until(time::now_s() + make_seconds<i64>(1));
-        REQUIRE(counter == 10);
+        REQUIRE(counter < 50);
+        s.process_tasks_until(time::now_s() + make_seconds<i64>(3));
+        REQUIRE(counter == 50);
     }
     {
         scheduler s;
