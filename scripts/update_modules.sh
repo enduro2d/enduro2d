@@ -22,6 +22,12 @@ git submodule update --remote --recursive
 mkdir -p $UNTESTS_DIR/catch
 cp -fv $MODULES_DIR/catch2/single_include/catch2/catch.hpp $UNTESTS_DIR/catch/catch.hpp
 
+mkdir -p $HEADERS_RDPARTY_DIR/invoke.hpp
+cp -rfv $MODULES_DIR/invoke.hpp/invoke.hpp $HEADERS_RDPARTY_DIR/invoke.hpp/invoke.hpp
+
+mkdir -p $HEADERS_RDPARTY_DIR/promise.hpp
+cp -rfv $MODULES_DIR/promise.hpp/promise.hpp $HEADERS_RDPARTY_DIR/promise.hpp/promise.hpp
+
 mkdir -p $SOURCES_RDPARTY_DIR/pugixml
 cp -rfv $MODULES_DIR/pugixml/src/. $SOURCES_RDPARTY_DIR/pugixml/
 
