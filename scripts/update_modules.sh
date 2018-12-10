@@ -26,7 +26,9 @@ mkdir -p $HEADERS_RDPARTY_DIR/invoke.hpp
 cp -rfv $MODULES_DIR/invoke.hpp/invoke.hpp $HEADERS_RDPARTY_DIR/invoke.hpp/invoke.hpp
 
 mkdir -p $HEADERS_RDPARTY_DIR/promise.hpp
+cp -rfv $MODULES_DIR/promise.hpp/jobber.hpp $HEADERS_RDPARTY_DIR/promise.hpp/jobber.hpp
 cp -rfv $MODULES_DIR/promise.hpp/promise.hpp $HEADERS_RDPARTY_DIR/promise.hpp/promise.hpp
+cp -rfv $MODULES_DIR/promise.hpp/scheduler.hpp $HEADERS_RDPARTY_DIR/promise.hpp/scheduler.hpp
 
 mkdir -p $SOURCES_RDPARTY_DIR/pugixml
 cp -rfv $MODULES_DIR/pugixml/src/. $SOURCES_RDPARTY_DIR/pugixml/

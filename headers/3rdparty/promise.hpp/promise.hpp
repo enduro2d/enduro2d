@@ -12,6 +12,7 @@
 #include <new>
 #include <mutex>
 #include <atomic>
+#include <chrono>
 #include <memory>
 #include <vector>
 #include <utility>
@@ -20,6 +21,7 @@
 #include <stdexcept>
 #include <functional>
 #include <type_traits>
+#include <condition_variable>
 
 //
 // invoke.hpp
@@ -369,6 +371,15 @@ namespace promise_hpp
     }
 
     //
+    // promise_wait_status
+    //
+
+    enum class promise_wait_status {
+        no_timeout,
+        timeout
+    };
+
+    //
     // promise<T>
     //
 
@@ -376,12 +387,6 @@ namespace promise_hpp
     class promise final {
     public:
         using value_type = T;
-
-        enum class status : std::uint8_t {
-            pending,
-            resolved,
-            rejected
-        };
     public:
         promise()
         : state_(std::make_shared<state>()) {}
@@ -535,6 +540,28 @@ namespace promise_hpp
             return state_->reject(
                 std::make_exception_ptr(std::forward<E>(e)));
         }
+
+        const T& get() const {
+            return state_->get();
+        }
+
+        void wait() const noexcept {
+            state_->wait();
+        }
+
+        template < typename Rep, typename Period >
+        promise_wait_status wait_for(
+            const std::chrono::duration<Rep, Period>& timeout_duration) const
+        {
+            return state_->wait_for(timeout_duration);
+        }
+
+        template < typename Clock, typename Duration >
+        promise_wait_status wait_until(
+            const std::chrono::time_point<Clock, Duration>& timeout_time) const
+        {
+            return state_->wait_until(timeout_time);
+        }
     private:
         class state;
         std::shared_ptr<state> state_;
@@ -552,6 +579,7 @@ namespace promise_hpp
                 storage_.set(std::forward<U>(value));
                 status_ = status::resolved;
                 invoke_resolve_handlers_();
+                cond_var_.notify_all();
                 return true;
             }
 
@@ -563,7 +591,49 @@ namespace promise_hpp
                 exception_ = e;
                 status_ = status::rejected;
                 invoke_reject_handlers_();
+                cond_var_.notify_all();
                 return true;
+            }
+
+            const T& get() {
+                std::unique_lock<std::mutex> lock(mutex_);
+                cond_var_.wait(lock, [this](){
+                    return status_ != status::pending;
+                });
+                if ( status_ == status::rejected ) {
+                    std::rethrow_exception(exception_);
+                }
+                assert(status_ == status::resolved);
+                return storage_.value();
+            }
+
+            void wait() const noexcept {
+                std::unique_lock<std::mutex> lock(mutex_);
+                cond_var_.wait(lock, [this](){
+                    return status_ != status::pending;
+                });
+            }
+
+            template < typename Rep, typename Period >
+            promise_wait_status wait_for(
+                const std::chrono::duration<Rep, Period>& timeout_duration) const
+            {
+                std::unique_lock<std::mutex> lock(mutex_);
+                return cond_var_.wait_for(lock, timeout_duration, [this](){
+                    return status_ != status::pending;
+                })  ? promise_wait_status::no_timeout
+                    : promise_wait_status::timeout;
+            }
+
+            template < typename Clock, typename Duration >
+            promise_wait_status wait_until(
+                const std::chrono::time_point<Clock, Duration>& timeout_time) const
+            {
+                std::unique_lock<std::mutex> lock(mutex_);
+                return cond_var_.wait_until(lock, timeout_time, [this](){
+                    return status_ != status::pending;
+                })  ? promise_wait_status::no_timeout
+                    : promise_wait_status::timeout;
             }
 
             template < typename U, typename ResolveF, typename RejectF >
@@ -674,11 +744,17 @@ namespace promise_hpp
                 handlers_.clear();
             }
         private:
-            detail::storage<T> storage_;
-            status status_ = status::pending;
-            std::exception_ptr exception_ = nullptr;
+            enum class status {
+                pending,
+                resolved,
+                rejected
+            };
 
-            std::mutex mutex_;
+            status status_{status::pending};
+            std::exception_ptr exception_{nullptr};
+
+            mutable std::mutex mutex_;
+            mutable std::condition_variable cond_var_;
 
             struct handler {
                 using resolve_t = std::function<void(const T&)>;
@@ -694,6 +770,7 @@ namespace promise_hpp
             };
 
             std::vector<handler> handlers_;
+            detail::storage<T> storage_;
         };
     };
 
@@ -705,12 +782,6 @@ namespace promise_hpp
     class promise<void> final {
     public:
         using value_type = void;
-
-        enum class status : std::uint8_t {
-            pending,
-            resolved,
-            rejected
-        };
     public:
         promise()
         : state_(std::make_shared<state>()) {}
@@ -858,6 +929,28 @@ namespace promise_hpp
             return state_->reject(
                 std::make_exception_ptr(std::forward<E>(e)));
         }
+
+        void get() const {
+            state_->get();
+        }
+
+        void wait() const noexcept {
+            state_->wait();
+        }
+
+        template < typename Rep, typename Period >
+        promise_wait_status wait_for(
+            const std::chrono::duration<Rep, Period>& timeout_duration) const
+        {
+            return state_->wait_for(timeout_duration);
+        }
+
+        template < typename Clock, typename Duration >
+        promise_wait_status wait_until(
+            const std::chrono::time_point<Clock, Duration>& timeout_time) const
+        {
+            return state_->wait_until(timeout_time);
+        }
     private:
         class state;
         std::shared_ptr<state> state_;
@@ -873,6 +966,7 @@ namespace promise_hpp
                 }
                 status_ = status::resolved;
                 invoke_resolve_handlers_();
+                cond_var_.notify_all();
                 return true;
             }
 
@@ -884,7 +978,48 @@ namespace promise_hpp
                 exception_ = e;
                 status_ = status::rejected;
                 invoke_reject_handlers_();
+                cond_var_.notify_all();
                 return true;
+            }
+
+            void get() {
+                std::unique_lock<std::mutex> lock(mutex_);
+                cond_var_.wait(lock, [this](){
+                    return status_ != status::pending;
+                });
+                if ( status_ == status::rejected ) {
+                    std::rethrow_exception(exception_);
+                }
+                assert(status_ == status::resolved);
+            }
+
+            void wait() const noexcept {
+                std::unique_lock<std::mutex> lock(mutex_);
+                cond_var_.wait(lock, [this](){
+                    return status_ != status::pending;
+                });
+            }
+
+            template < typename Rep, typename Period >
+            promise_wait_status wait_for(
+                const std::chrono::duration<Rep, Period>& timeout_duration) const
+            {
+                std::unique_lock<std::mutex> lock(mutex_);
+                return cond_var_.wait_for(lock, timeout_duration, [this](){
+                    return status_ != status::pending;
+                })  ? promise_wait_status::no_timeout
+                    : promise_wait_status::timeout;
+            }
+
+            template < typename Clock, typename Duration >
+            promise_wait_status wait_until(
+                const std::chrono::time_point<Clock, Duration>& timeout_time) const
+            {
+                std::unique_lock<std::mutex> lock(mutex_);
+                return cond_var_.wait_until(lock, timeout_time, [this](){
+                    return status_ != status::pending;
+                })  ? promise_wait_status::no_timeout
+                    : promise_wait_status::timeout;
             }
 
             template < typename U, typename ResolveF, typename RejectF >
@@ -991,10 +1126,17 @@ namespace promise_hpp
                 handlers_.clear();
             }
         private:
-            status status_ = status::pending;
-            std::exception_ptr exception_ = nullptr;
+            enum class status {
+                pending,
+                resolved,
+                rejected
+            };
 
-            std::mutex mutex_;
+            status status_{status::pending};
+            std::exception_ptr exception_{nullptr};
+
+            mutable std::mutex mutex_;
+            mutable std::condition_variable cond_var_;
 
             struct handler {
                 using resolve_t = std::function<void()>;
