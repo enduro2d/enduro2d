@@ -25,9 +25,6 @@
 [submodule "toolset/model_converter/modules/assimp"]
 	path = toolset/model_converter/modules/assimp
 	url = https://github.com/assimp/assimp
-[submodule "modules/invoke.hpp"]
-	path = modules/invoke.hpp
-	url = https://github.com/BlackMATov/invoke.hpp
 [submodule "modules/promise.hpp"]
 	path = modules/promise.hpp
 	url = https://github.com/BlackMATov/promise.hpp

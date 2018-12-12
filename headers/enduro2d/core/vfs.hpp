@@ -46,7 +46,7 @@ namespace e2d
         input_stream_uptr open(const url& url) const;
         std::pair<buffer,bool> load(const url& url) const;
         output_stream_uptr write(const url& url, bool append) const;
-        std::future<std::pair<buffer,bool>> load_async(const url& url) const;
+        stdex::promise<std::pair<buffer,bool>> load_async(const url& url) const;
 
         template < typename Iter >
         bool extract(const url& url, Iter result_iter) const;

@@ -251,11 +251,11 @@ namespace e2d
             return time::to_seconds(delta_us.cast_to<f32>()).value;
         }
 
-        scheduler& main_thread_scheduler() noexcept {
+        stdex::scheduler& main_thread_scheduler() noexcept {
             return main_thread_scheduler_;
         }
 
-        const scheduler& main_thread_scheduler() const noexcept {
+        const stdex::scheduler& main_thread_scheduler() const noexcept {
             return main_thread_scheduler_;
         }
     public:
@@ -298,7 +298,7 @@ namespace e2d
         }
     private:
         timer_parameters timer_params_;
-        scheduler main_thread_scheduler_;
+        stdex::scheduler main_thread_scheduler_;
         microseconds<u64> init_time_{time::now_us<u64>()};
         microseconds<u64> prev_frame_time_{time::now_us<u64>()};
         microseconds<u64> prev_frame_rate_time_{time::now_us<u64>()};
@@ -422,11 +422,11 @@ namespace e2d
         return state_->realtime_time();
     }
 
-    scheduler& engine::main_thread_scheduler() noexcept {
+    stdex::scheduler& engine::main_thread_scheduler() noexcept {
         return state_->main_thread_scheduler();
     }
 
-    const scheduler& engine::main_thread_scheduler() const noexcept {
+    const stdex::scheduler& engine::main_thread_scheduler() const noexcept {
         return state_->main_thread_scheduler();
     }
 }

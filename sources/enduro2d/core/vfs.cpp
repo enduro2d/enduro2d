@@ -79,7 +79,7 @@ namespace e2d
     class vfs::state final : private e2d::noncopyable {
     public:
         std::mutex mutex;
-        jobber worker{1};
+        stdex::jobber worker{1};
         hash_map<str, url> aliases;
         hash_map<str, file_source_uptr> schemes;
     public:
@@ -164,7 +164,7 @@ namespace e2d
             }, output_stream_uptr());
     }
 
-    std::future<std::pair<buffer,bool>> vfs::load_async(const url& url) const {
+    stdex::promise<std::pair<buffer,bool>> vfs::load_async(const url& url) const {
         return state_->worker.async([](input_stream_uptr stream){
             buffer buf;
             return streams::try_read_tail(buf, stream)
@@ -196,7 +196,6 @@ namespace e2d
         using stream_ptr = std::shared_ptr<input_stream>;
         archive_ptr archive;
         stream_ptr stream;
-        jobber worker{1};
     public:
         state(input_stream_uptr nstream)
         : archive(open_archive_(nstream))

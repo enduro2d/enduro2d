@@ -126,8 +126,8 @@ namespace e2d
         u32 frame_count() const noexcept;
         f32 realtime_time() const noexcept;
 
-        scheduler& main_thread_scheduler() noexcept;
-        const scheduler& main_thread_scheduler() const noexcept;
+        stdex::scheduler& main_thread_scheduler() noexcept;
+        const stdex::scheduler& main_thread_scheduler() const noexcept;
     private:
         class internal_state;
         std::unique_ptr<internal_state> state_;

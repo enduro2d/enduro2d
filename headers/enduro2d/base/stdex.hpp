@@ -9,7 +9,7 @@
 #include "macros.hpp"
 
 //
-// variant
+// https://github.com/mpark/variant
 //
 
 namespace e2d { namespace stdex
@@ -18,21 +18,15 @@ namespace e2d { namespace stdex
 }}
 
 //
-// invoke
+// https://github.com/blackmatov/promise.hpp
 //
 
 namespace e2d { namespace stdex
 {
     using namespace invoke_hpp;
-}}
-
-//
-// promise
-//
-
-namespace e2d { namespace stdex
-{
+    using namespace jobber_hpp;
     using namespace promise_hpp;
+    using namespace scheduler_hpp;
 }}
 
 //

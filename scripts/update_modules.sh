@@ -22,10 +22,8 @@ git submodule update --remote --recursive
 mkdir -p $UNTESTS_DIR/catch
 cp -fv $MODULES_DIR/catch2/single_include/catch2/catch.hpp $UNTESTS_DIR/catch/catch.hpp
 
-mkdir -p $HEADERS_RDPARTY_DIR/invoke.hpp
-cp -rfv $MODULES_DIR/invoke.hpp/invoke.hpp $HEADERS_RDPARTY_DIR/invoke.hpp/invoke.hpp
-
 mkdir -p $HEADERS_RDPARTY_DIR/promise.hpp
+cp -rfv $MODULES_DIR/promise.hpp/invoke.hpp $HEADERS_RDPARTY_DIR/promise.hpp/invoke.hpp
 cp -rfv $MODULES_DIR/promise.hpp/jobber.hpp $HEADERS_RDPARTY_DIR/promise.hpp/jobber.hpp
 cp -rfv $MODULES_DIR/promise.hpp/promise.hpp $HEADERS_RDPARTY_DIR/promise.hpp/promise.hpp
 cp -rfv $MODULES_DIR/promise.hpp/scheduler.hpp $HEADERS_RDPARTY_DIR/promise.hpp/scheduler.hpp
