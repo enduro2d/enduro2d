@@ -1390,7 +1390,7 @@ namespace e2d
 
         const auto asset_url = library.root() / address;
         input_stream_uptr stream = modules::is_initialized<vfs>()
-            ? the<vfs>().open(asset_url)
+            ? the<vfs>().read(asset_url)
             : input_stream_uptr();
 
         if ( !stream ) {
@@ -1462,7 +1462,7 @@ namespace e2d
 
         const auto asset_url = library.root() / address;
         input_stream_uptr stream = modules::is_initialized<vfs>()
-            ? the<vfs>().open(asset_url)
+            ? the<vfs>().read(asset_url)
             : input_stream_uptr();
 
         if ( !stream ) {

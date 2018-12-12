@@ -98,7 +98,10 @@ namespace e2d
             const auto resolved_url = resolve_url(url);
             const auto scheme_iter = schemes.find(resolved_url.scheme());
             return (scheme_iter != schemes.cend() && scheme_iter->second)
-                ? stdex::invoke(std::forward<F>(f), scheme_iter->second, resolved_url.path())
+                ? stdex::invoke(
+                    std::forward<F>(f),
+                    scheme_iter->second,
+                    resolved_url.path())
                 : std::forward<R>(fallback_result);
         }
     };
@@ -140,20 +143,12 @@ namespace e2d
             }, false);
     }
 
-    input_stream_uptr vfs::open(const url& url) const {
+    input_stream_uptr vfs::read(const url& url) const {
         std::lock_guard<std::mutex> guard(state_->mutex);
         return state_->with_file_source(url,
             [](const file_source_uptr& source, const str& path) {
-                return source->open(path);
+                return source->read(path);
             }, input_stream_uptr());
-    }
-
-    std::pair<buffer,bool> vfs::load(const url& url) const {
-        std::lock_guard<std::mutex> guard(state_->mutex);
-        return state_->with_file_source(url,
-            [](const file_source_uptr& source, const str& path) {
-                return source->load(path);
-            }, std::make_pair(buffer(), false));
     }
 
     output_stream_uptr vfs::write(const url& url, bool append) const {
@@ -164,13 +159,40 @@ namespace e2d
             }, output_stream_uptr());
     }
 
-    stdex::promise<std::pair<buffer,bool>> vfs::load_async(const url& url) const {
-        return state_->worker.async([](input_stream_uptr stream){
-            buffer buf;
-            return streams::try_read_tail(buf, stream)
-                ? std::make_pair(std::move(buf), true)
-                : std::make_pair(buffer(), false);
-        }, open(url));
+    bool vfs::load(const url& url, buffer& dst) const {
+        return load_async(url)
+            .then([&dst](auto&& src){
+                dst = std::forward<decltype(src)>(src);
+                return true;
+            }).get_or_default(false);
+    }
+
+    stdex::promise<buffer> vfs::load_async(const url& url) const {
+        return state_->worker.async([this](auto&& url_copy){
+            buffer content;
+            if ( !streams::try_read_tail(content, read(url_copy)) ) {
+                throw vfs_load_async_exception();
+            }
+            return content;
+        }, url);
+    }
+
+    bool vfs::load_as_string(const url& url, str& dst) const {
+        return load_as_string_async(url)
+            .then([&dst](auto&& src){
+                dst = std::forward<decltype(src)>(src);
+                return true;
+            }).get_or_default(false);
+    }
+
+    stdex::promise<str> vfs::load_as_string_async(const url& url) const {
+        return state_->worker.async([this](auto&& url_copy){
+            str content;
+            if ( !streams::try_read_tail(content, read(url_copy)) ) {
+                throw vfs_load_async_exception();
+            }
+            return content;
+        }, url);
     }
 
     bool vfs::trace(const url& url, filesystem::trace_func func) const {
@@ -250,7 +272,7 @@ namespace e2d
             MZ_ZIP_FLAG_CASE_SENSITIVE);
     }
 
-    input_stream_uptr archive_file_source::open(str_view path) const {
+    input_stream_uptr archive_file_source::read(str_view path) const {
         try {
             struct owned_state_t {
                 state::archive_ptr archive;
@@ -263,19 +285,6 @@ namespace e2d
         } catch (...) {
             return nullptr;
         }
-    }
-
-    std::pair<buffer,bool> archive_file_source::load(str_view path) const {
-        std::size_t mem_size = 0;
-        void* mem = mz_zip_reader_extract_file_to_heap(
-            state_->archive.get(),
-            make_utf8(path).c_str(),
-            &mem_size,
-            MZ_ZIP_FLAG_CASE_SENSITIVE);
-        std::unique_ptr<void, decltype(&mz_free)> mem_uptr(mem, mz_free);
-        return mem
-            ? std::make_pair(buffer(mem, mem_size), true)
-            : std::make_pair(buffer(), false);
     }
 
     output_stream_uptr archive_file_source::write(str_view path, bool append) const {
@@ -338,15 +347,8 @@ namespace e2d
         return filesystem::file_exists(path);
     }
 
-    input_stream_uptr filesystem_file_source::open(str_view path) const {
+    input_stream_uptr filesystem_file_source::read(str_view path) const {
         return make_read_file(path);
-    }
-
-    std::pair<buffer,bool> filesystem_file_source::load(str_view path) const {
-        buffer buf;
-        return filesystem::try_read_all(buf, path)
-            ? std::make_pair(std::move(buf), true)
-            : std::make_pair(buffer(), false);
     }
 
     output_stream_uptr filesystem_file_source::write(str_view path, bool append) const {

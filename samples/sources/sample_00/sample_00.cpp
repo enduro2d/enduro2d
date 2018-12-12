@@ -95,7 +95,7 @@ namespace
         bool initialize() final {
             the<vfs>().register_scheme<archive_file_source>(
                 "piratepack",
-                the<vfs>().open(url("resources://bin/kenney_piratepack.zip")));
+                the<vfs>().read(url("resources://bin/kenney_piratepack.zip")));
 
             the<vfs>().register_scheme_alias(
                 "ships",
@@ -104,9 +104,9 @@ namespace
             shader_ = the<render>().create_shader(
                 vs_source_cstr, fs_source_cstr);
             texture1_ = the<render>().create_texture(
-                the<vfs>().open(url("ships://ship (2).png")));
+                the<vfs>().read(url("ships://ship (2).png")));
             texture2_ = the<render>().create_texture(
-                the<vfs>().open(url("ships://ship (19).png")));
+                the<vfs>().read(url("ships://ship (19).png")));
 
             if ( !shader_ || !texture1_ || !texture2_ ) {
                 return false;
