@@ -217,7 +217,8 @@ namespace e2d
     class engine::internal_state final : private e2d::noncopyable {
     public:
         internal_state(const parameters& params)
-        : timer_params_(params.timer_params())
+        : worker_(math::max(2u, std::thread::hardware_concurrency()) - 1u)
+        , timer_params_(params.timer_params())
         {
             const auto first_frame_time = math::clamp(
                 math::max(timer_params_.minimal_framerate(), timer_params_.maximal_framerate()),
@@ -251,12 +252,20 @@ namespace e2d
             return time::to_seconds(delta_us.cast_to<f32>()).value;
         }
 
-        stdex::scheduler& main_thread_scheduler() noexcept {
-            return main_thread_scheduler_;
+        stdex::jobber& worker() noexcept {
+            return worker_;
         }
 
-        const stdex::scheduler& main_thread_scheduler() const noexcept {
-            return main_thread_scheduler_;
+        const stdex::jobber& worker() const noexcept {
+            return worker_;
+        }
+
+        stdex::scheduler& scheduler() noexcept {
+            return scheduler_;
+        }
+
+        const stdex::scheduler& scheduler() const noexcept {
+            return scheduler_;
         }
     public:
         void calculate_end_frame_timers() noexcept {
@@ -297,8 +306,9 @@ namespace e2d
             }
         }
     private:
+        stdex::jobber worker_;
+        stdex::scheduler scheduler_;
         timer_parameters timer_params_;
-        stdex::scheduler main_thread_scheduler_;
         microseconds<u64> init_time_{time::now_us<u64>()};
         microseconds<u64> prev_frame_time_{time::now_us<u64>()};
         microseconds<u64> prev_frame_rate_time_{time::now_us<u64>()};
@@ -382,7 +392,7 @@ namespace e2d
 
         while ( true ) {
             try {
-                state_->main_thread_scheduler()
+                state_->scheduler()
                     .process_all_tasks();
 
                 if ( !app->frame_tick() ) {
@@ -422,11 +432,19 @@ namespace e2d
         return state_->realtime_time();
     }
 
-    stdex::scheduler& engine::main_thread_scheduler() noexcept {
-        return state_->main_thread_scheduler();
+    stdex::jobber& engine::worker() noexcept {
+        return state_->worker();
     }
 
-    const stdex::scheduler& engine::main_thread_scheduler() const noexcept {
-        return state_->main_thread_scheduler();
+    const stdex::jobber& engine::worker() const noexcept {
+        return state_->worker();
+    }
+
+    stdex::scheduler& engine::scheduler() noexcept {
+        return state_->scheduler();
+    }
+
+    const stdex::scheduler& engine::scheduler() const noexcept {
+        return state_->scheduler();
     }
 }
