@@ -10,6 +10,7 @@
 #include <cassert>
 
 #include <new>
+#include <tuple>
 #include <mutex>
 #include <atomic>
 #include <chrono>
@@ -92,17 +93,28 @@ namespace promise_hpp
         public:
             storage() = default;
 
-            ~storage() noexcept(std::is_nothrow_destructible<T>::value) {
+            ~storage()
+            noexcept(std::is_nothrow_destructible<T>::value)
+            {
                 if ( initialized_ ) {
                     ptr_()->~T();
                 }
             }
 
             template < typename U >
-            void set(U&& value) noexcept(std::is_nothrow_constructible<T,U&&>::value) {
+            void set(U&& value)
+            noexcept(std::is_nothrow_constructible<T,U&&>::value)
+            {
                 assert(!initialized_);
                 ::new(ptr_()) T(std::forward<U>(value));
                 initialized_ = true;
+            }
+
+            T get()
+            noexcept(std::is_nothrow_move_constructible<T>::value)
+            {
+                assert(initialized_);
+                return std::move(*ptr_());
             }
 
             const T& value() const noexcept {
@@ -242,6 +254,18 @@ namespace promise_hpp
                     std::forward<decltype(f)>(f),
                     std::forward<decltype(v)>(v));
                 return make_any_promise(std::move(r));
+            });
+        }
+
+        template < typename ResolveF >
+        auto then_tuple(ResolveF&& on_resolve) {
+            return then([
+                f = std::forward<ResolveF>(on_resolve)
+            ](auto&& v) mutable {
+                auto r = invoke_hpp::invoke(
+                    std::forward<decltype(f)>(f),
+                    std::forward<decltype(v)>(v));
+                return make_tuple_promise(std::move(r));
             });
         }
 
@@ -637,6 +661,17 @@ namespace promise_hpp
             });
         }
 
+        template < typename ResolveF >
+        auto then_tuple(ResolveF&& on_resolve) {
+            return then([
+                f = std::forward<ResolveF>(on_resolve)
+            ]() mutable {
+                auto r = invoke_hpp::invoke(
+                    std::forward<decltype(f)>(f));
+                return make_tuple_promise(std::move(r));
+            });
+        }
+
         template < typename ResolveF
                  , typename RejectF
                  , typename ResolveFR = invoke_hpp::invoke_result_t<ResolveF> >
@@ -992,40 +1027,55 @@ namespace promise_hpp
     // make_all_promise
     //
 
-    template < typename Iter >
-    auto make_all_promise(Iter begin, Iter end) {
-        using child_promise_t = typename Iter::value_type;
-        using child_promise_value_t = typename child_promise_t::value_type;
-        using promise_out_container_t = std::vector<child_promise_value_t>;
+    namespace impl
+    {
+        template < typename ResultType >
+        class all_promise_context_t final : private detail::noncopyable {
+        public:
+            all_promise_context_t(std::size_t count)
+            : results_(count) {}
 
-        struct context_t {
-            promise_out_container_t results;
-            std::atomic_size_t counter = ATOMIC_VAR_INIT(0);
-
-            context_t(std::size_t count)
-            : results(count) {}
-
-            bool apply_result(std::size_t index, const child_promise_value_t& value) {
-                results[index] = value;
-                return ++counter == results.size();
+            template < typename T >
+            bool apply_result(std::size_t index, T&& value) {
+                results_[index].set(std::forward<T>(value));
+                return ++counter_ == results_.size();
             }
+
+            std::vector<ResultType> get_results() {
+                std::vector<ResultType> ret;
+                ret.reserve(results_.size());
+                for ( auto&& v : results_ ) {
+                    ret.emplace_back(v.get());
+                }
+                return ret;
+            }
+        private:
+            std::atomic_size_t counter_{0};
+            std::vector<detail::storage<ResultType>> results_;
         };
+    }
 
+    template < typename Iter
+             , typename SubPromise = typename Iter::value_type
+             , typename SubPromiseResult = typename SubPromise::value_type
+             , typename ResultPromiseValueType = std::vector<SubPromiseResult> >
+    promise<ResultPromiseValueType>
+    make_all_promise(Iter begin, Iter end) {
         if ( begin == end ) {
-            return make_resolved_promise(promise_out_container_t());
+            return make_resolved_promise(ResultPromiseValueType());
         }
-
-        return make_promise<promise_out_container_t>([begin, end](auto&& resolver, auto&& rejector){
+        return make_promise<ResultPromiseValueType>([begin, end](auto&& resolver, auto&& rejector){
             std::size_t result_index = 0;
-            auto context = std::make_shared<context_t>(std::distance(begin, end));
-            for ( auto iter = begin; iter != end; ++iter, ++result_index ) {
+            auto context = std::make_shared<impl::all_promise_context_t<
+                SubPromiseResult>>(std::distance(begin, end));
+            for ( Iter iter = begin; iter != end; ++iter, ++result_index ) {
                 (*iter).then([
                     context,
                     resolver,
                     result_index
                 ](auto&& v) mutable {
                     if ( context->apply_result(result_index, std::forward<decltype(v)>(v)) ) {
-                        resolver(std::move(context->results));
+                        resolver(context->get_results());
                     }
                 }).except(rejector);
             }
@@ -1043,18 +1093,18 @@ namespace promise_hpp
     // make_any_promise
     //
 
-    template < typename Iter >
+    template < typename Iter
+             , typename SubPromise = typename Iter::value_type
+             , typename SubPromiseResult = typename SubPromise::value_type >
     auto make_any_promise(Iter begin, Iter end) {
-        using child_promise_t = typename Iter::value_type;
-        using child_promise_value_t = typename child_promise_t::value_type;
-
         if ( begin == end ) {
             throw std::logic_error("at least one input promise must be provided for make_any_promise");
         }
-
-        return make_promise<child_promise_value_t>([begin, end](auto&& resolver, auto&& rejector){
-            for ( auto iter = begin; iter != end; ++iter ) {
-                (*iter).then(resolver).except(rejector);
+        return make_promise<SubPromiseResult>([begin, end](auto&& resolver, auto&& rejector){
+            for ( Iter iter = begin; iter != end; ++iter ) {
+                (*iter)
+                .then(resolver)
+                .except(rejector);
             }
         });
     }
@@ -1064,6 +1114,128 @@ namespace promise_hpp
         return make_any_promise(
             std::begin(container),
             std::end(container));
+    }
+
+    //
+    // make_tuple_promise
+    //
+
+    namespace impl
+    {
+        template < typename Tuple >
+        struct tuple_promise_result_impl {};
+
+        template < typename... Args >
+        struct tuple_promise_result_impl<std::tuple<promise<Args>...>> {
+            using type = std::tuple<Args...>;
+        };
+
+        template < typename Tuple >
+        struct tuple_promise_result {
+            using type = typename tuple_promise_result_impl<std::remove_cv_t<Tuple>>::type;
+        };
+
+        template < typename Tuple >
+        using tuple_promise_result_t = typename tuple_promise_result<Tuple>::type;
+
+        template < typename... ResultTypes >
+        class tuple_promise_context_t {
+        public:
+            template < std::size_t N, typename T >
+            bool apply_result(T&& value) {
+                std::get<N>(results_).set(std::forward<T>(value));
+                return ++counter_ == sizeof...(ResultTypes);
+            }
+
+            std::tuple<ResultTypes...> get_results() {
+                return get_results_impl(
+                    std::make_index_sequence<sizeof...(ResultTypes)>());
+            }
+        private:
+            template < std::size_t... Is >
+            std::tuple<ResultTypes...> get_results_impl(std::index_sequence<Is...>) {
+                return std::make_tuple(std::get<Is>(results_).get()...);
+            }
+        private:
+            std::atomic_size_t counter_{0};
+            std::tuple<detail::storage<ResultTypes>...> results_;
+        };
+
+        template < typename... ResultTypes >
+        using tuple_promise_context_ptr = std::shared_ptr<
+            tuple_promise_context_t<ResultTypes...>>;
+
+        template < std::size_t I
+                 , typename Tuple
+                 , typename Resolver
+                 , typename Rejector
+                 , typename... ResultTypes >
+        promise<void> make_tuple_sub_promise_impl(
+            Tuple&& tuple,
+            Resolver&& resolver,
+            Rejector&& rejector,
+            const tuple_promise_context_ptr<ResultTypes...>& context)
+        {
+            return std::get<I>(tuple).then([
+                context,
+                resolver
+            ](auto&& v) mutable {
+                if (context->template apply_result<I>(std::forward<decltype(v)>(v))) {
+                    resolver(context->get_results());
+                }
+            }).except(rejector);
+        }
+
+        template < typename Tuple
+                 , std::size_t... Is
+                 , typename ResultTuple = tuple_promise_result_t<std::decay_t<Tuple>> >
+        std::enable_if_t<
+            sizeof...(Is) == 0,
+            promise<ResultTuple>>
+        make_tuple_promise_impl(Tuple&&, std::index_sequence<Is...>) {
+            return make_resolved_promise(ResultTuple());
+        }
+
+        template < typename Tuple
+                 , std::size_t... Is
+                 , typename ResultTuple = tuple_promise_result_t<std::decay_t<Tuple>> >
+        std::enable_if_t<
+            sizeof...(Is) != 0,
+            promise<ResultTuple>>
+        make_tuple_promise_impl(Tuple&& tuple, std::index_sequence<Is...>) {
+            auto result = promise<ResultTuple>();
+
+            auto resolver = [result](auto&& v) mutable {
+                return result.resolve(std::forward<decltype(v)>(v));
+            };
+
+            auto rejector = [result](auto&& e) mutable {
+                return result.reject(std::forward<decltype(e)>(e));
+            };
+
+            try {
+                auto context = std::make_shared<tuple_promise_context_t<
+                    std::tuple_element_t<Is, ResultTuple>...>>();
+                std::make_tuple(make_tuple_sub_promise_impl<Is>(
+                    tuple,
+                    resolver,
+                    rejector,
+                    context)...);
+            } catch (...) {
+                result.reject(std::current_exception());
+            }
+
+            return result;
+        }
+    }
+
+    template < typename Tuple
+             , typename ResultTuple = impl::tuple_promise_result_t<std::decay_t<Tuple>> >
+    promise<ResultTuple>
+    make_tuple_promise(Tuple&& tuple) {
+        return impl::make_tuple_promise_impl(
+            std::forward<Tuple>(tuple),
+            std::make_index_sequence<std::tuple_size<ResultTuple>::value>());
     }
 }
 

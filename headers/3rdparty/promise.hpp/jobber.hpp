@@ -329,6 +329,7 @@ namespace jobber_hpp
         if ( task ) {
             lock.unlock();
             task->run();
+            lock.lock();
             --active_task_count_;
             cond_var_.notify_all();
         }
