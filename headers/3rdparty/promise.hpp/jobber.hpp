@@ -277,7 +277,7 @@ namespace jobber_hpp
         tasks_.emplace_back(priority, std::move(task));
         std::push_heap(tasks_.begin(), tasks_.end());
         ++active_task_count_;
-        cond_var_.notify_all();
+        cond_var_.notify_one();
     }
 
     inline jobber::task_ptr jobber::pop_task_() noexcept {

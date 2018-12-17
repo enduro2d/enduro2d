@@ -280,7 +280,8 @@ namespace promise_hpp
             state_->attach(
                 next,
                 std::forward<ResolveF>(on_resolve),
-                std::forward<RejectF>(on_reject));
+                std::forward<RejectF>(on_reject),
+                true);
             return next;
         }
 
@@ -290,9 +291,15 @@ namespace promise_hpp
             !is_promise<ResolveFR>::value,
             promise<ResolveFR>>
         then(ResolveF&& on_resolve) {
-            return then(
+            promise<ResolveFR> next;
+            state_->attach(
+                next,
                 std::forward<ResolveF>(on_resolve),
-                [](std::exception_ptr){});
+                [](std::exception_ptr e) -> ResolveFR {
+                    std::rethrow_exception(e);
+                },
+                false);
+            return next;
         }
 
         template < typename RejectF >
@@ -422,18 +429,28 @@ namespace promise_hpp
 
             template < typename U, typename ResolveF, typename RejectF >
             std::enable_if_t<std::is_void<U>::value, void>
-            attach(promise<U>& next, ResolveF&& on_resolve, RejectF&& on_reject) {
+            attach(
+                promise<U>& next,
+                ResolveF&& on_resolve,
+                RejectF&& on_reject,
+                bool has_reject)
+            {
                 auto reject_h = [
                     n = next,
-                    f = std::forward<RejectF>(on_reject)
+                    f = std::forward<RejectF>(on_reject),
+                    has_reject
                 ](std::exception_ptr e) mutable {
-                    try {
-                        invoke_hpp::invoke(
-                            std::forward<decltype(f)>(f),
-                            e);
+                    if ( has_reject ) {
+                        try {
+                            invoke_hpp::invoke(
+                                std::forward<decltype(f)>(f),
+                                e);
+                            n.resolve();
+                        } catch (...) {
+                            n.reject(std::current_exception());
+                        }
+                    } else {
                         n.reject(e);
-                    } catch (...) {
-                        n.reject(std::current_exception());
                     }
                 };
 
@@ -457,18 +474,28 @@ namespace promise_hpp
 
             template < typename U, typename ResolveF, typename RejectF >
             std::enable_if_t<!std::is_void<U>::value, void>
-            attach(promise<U>& next, ResolveF&& on_resolve, RejectF&& on_reject) {
+            attach(
+                promise<U>& next,
+                ResolveF&& on_resolve,
+                RejectF&& on_reject,
+                bool has_reject)
+            {
                 auto reject_h = [
                     n = next,
-                    f = std::forward<RejectF>(on_reject)
+                    f = std::forward<RejectF>(on_reject),
+                    has_reject
                 ](std::exception_ptr e) mutable {
-                    try {
-                        invoke_hpp::invoke(
-                            std::forward<decltype(f)>(f),
-                            e);
+                    if ( has_reject ) {
+                        try {
+                            auto r = invoke_hpp::invoke(
+                                std::forward<decltype(f)>(f),
+                                e);
+                            n.resolve(std::move(r));
+                        } catch (...) {
+                            n.reject(std::current_exception());
+                        }
+                    } else {
                         n.reject(e);
-                    } catch (...) {
-                        n.reject(std::current_exception());
                     }
                 };
 
@@ -683,7 +710,8 @@ namespace promise_hpp
             state_->attach(
                 next,
                 std::forward<ResolveF>(on_resolve),
-                std::forward<RejectF>(on_reject));
+                std::forward<RejectF>(on_reject),
+                true);
             return next;
         }
 
@@ -693,9 +721,15 @@ namespace promise_hpp
             !is_promise<ResolveFR>::value,
             promise<ResolveFR>>
         then(ResolveF&& on_resolve) {
-            return then(
+            promise<ResolveFR> next;
+            state_->attach(
+                next,
                 std::forward<ResolveF>(on_resolve),
-                [](std::exception_ptr){});
+                [](std::exception_ptr e) -> ResolveFR {
+                    std::rethrow_exception(e);
+                },
+                false);
+            return next;
         }
 
         template < typename RejectF >
@@ -821,18 +855,28 @@ namespace promise_hpp
 
             template < typename U, typename ResolveF, typename RejectF >
             std::enable_if_t<std::is_void<U>::value, void>
-            attach(promise<U>& next, ResolveF&& on_resolve, RejectF&& on_reject) {
+            attach(
+                promise<U>& next,
+                ResolveF&& on_resolve,
+                RejectF&& on_reject,
+                bool has_reject)
+            {
                 auto reject_h = [
                     n = next,
-                    f = std::forward<RejectF>(on_reject)
+                    f = std::forward<RejectF>(on_reject),
+                    has_reject
                 ](std::exception_ptr e) mutable {
-                    try {
-                        invoke_hpp::invoke(
-                            std::forward<decltype(f)>(f),
-                            e);
+                    if ( has_reject ) {
+                        try {
+                            invoke_hpp::invoke(
+                                std::forward<decltype(f)>(f),
+                                e);
+                            n.resolve();
+                        } catch (...) {
+                            n.reject(std::current_exception());
+                        }
+                    } else {
                         n.reject(e);
-                    } catch (...) {
-                        n.reject(std::current_exception());
                     }
                 };
 
@@ -855,18 +899,28 @@ namespace promise_hpp
 
             template < typename U, typename ResolveF, typename RejectF >
             std::enable_if_t<!std::is_void<U>::value, void>
-            attach(promise<U>& next, ResolveF&& on_resolve, RejectF&& on_reject) {
+            attach(
+                promise<U>& next,
+                ResolveF&& on_resolve,
+                RejectF&& on_reject,
+                bool has_reject)
+            {
                 auto reject_h = [
                     n = next,
-                    f = std::forward<RejectF>(on_reject)
+                    f = std::forward<RejectF>(on_reject),
+                    has_reject
                 ](std::exception_ptr e) mutable {
-                    try {
-                        invoke_hpp::invoke(
-                            std::forward<decltype(f)>(f),
-                            e);
+                    if ( has_reject ) {
+                        try {
+                            auto r = invoke_hpp::invoke(
+                                std::forward<decltype(f)>(f),
+                                e);
+                            n.resolve(std::move(r));
+                        } catch (...) {
+                            n.reject(std::current_exception());
+                        }
+                    } else {
                         n.reject(e);
-                    } catch (...) {
-                        n.reject(std::current_exception());
                     }
                 };
 
