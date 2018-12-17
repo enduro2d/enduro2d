@@ -168,13 +168,14 @@ namespace e2d
     }
 
     stdex::promise<buffer> vfs::load_async(const url& url) const {
-        return state_->worker.async([this](auto&& url_copy){
+        return state_->worker.async([this, url](){
             buffer content;
-            if ( !streams::try_read_tail(content, read(url_copy)) ) {
+            const input_stream_uptr stream = read(url);
+            if ( !stream || !streams::try_read_tail(content, stream) ) {
                 throw vfs_load_async_exception();
             }
             return content;
-        }, url);
+        });
     }
 
     bool vfs::load_as_string(const url& url, str& dst) const {
@@ -186,13 +187,14 @@ namespace e2d
     }
 
     stdex::promise<str> vfs::load_as_string_async(const url& url) const {
-        return state_->worker.async([this](auto&& url_copy){
+        return state_->worker.async([this, url](){
             str content;
-            if ( !streams::try_read_tail(content, read(url_copy)) ) {
+            const input_stream_uptr stream = read(url);
+            if ( !stream || !streams::try_read_tail(content, stream) ) {
                 throw vfs_load_async_exception();
             }
             return content;
-        }, url);
+        });
     }
 
     bool vfs::trace(const url& url, filesystem::trace_func func) const {
