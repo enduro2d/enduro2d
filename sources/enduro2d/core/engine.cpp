@@ -383,7 +383,7 @@ namespace e2d
     engine::~engine() noexcept = default;
 
     bool engine::start(application_uptr app) {
-        E2D_ASSERT(main_thread() == std::this_thread::get_id());
+        E2D_ASSERT(is_in_main_thread());
 
         if ( !app || !app->initialize() ) {
             the<debug>().error("ENGINE: Failed to initialize application");

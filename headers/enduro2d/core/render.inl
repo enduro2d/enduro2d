@@ -150,7 +150,7 @@ namespace e2d
 
     template < std::size_t N >
     render& render::execute(const command_block<N>& commands) {
-        E2D_ASSERT(main_thread() == std::this_thread::get_id());
+        E2D_ASSERT(is_in_main_thread());
         for ( std::size_t i = 0, e = commands.command_count(); i < e; ++i ) {
             execute(commands.command(i));
         }
