@@ -7,6 +7,7 @@
 #include <enduro2d/core/engine.hpp>
 
 #include <enduro2d/core/debug.hpp>
+#include <enduro2d/core/deferrer.hpp>
 #include <enduro2d/core/input.hpp>
 #include <enduro2d/core/platform.hpp>
 #include <enduro2d/core/render.hpp>
@@ -217,8 +218,7 @@ namespace e2d
     class engine::internal_state final : private e2d::noncopyable {
     public:
         internal_state(const parameters& params)
-        : worker_(math::max(2u, std::thread::hardware_concurrency()) - 1u)
-        , timer_params_(params.timer_params())
+        : timer_params_(params.timer_params())
         {
             const auto first_frame_time = math::clamp(
                 math::max(timer_params_.minimal_framerate(), timer_params_.maximal_framerate()),
@@ -250,22 +250,6 @@ namespace e2d
         f32 realtime_time() const noexcept {
             const auto delta_us = time::now_us<u64>() - init_time_;
             return time::to_seconds(delta_us.cast_to<f32>()).value;
-        }
-
-        stdex::jobber& worker() noexcept {
-            return worker_;
-        }
-
-        const stdex::jobber& worker() const noexcept {
-            return worker_;
-        }
-
-        stdex::scheduler& scheduler() noexcept {
-            return scheduler_;
-        }
-
-        const stdex::scheduler& scheduler() const noexcept {
-            return scheduler_;
         }
     public:
         void calculate_end_frame_timers() noexcept {
@@ -306,8 +290,6 @@ namespace e2d
             }
         }
     private:
-        stdex::jobber worker_;
-        stdex::scheduler scheduler_;
         timer_parameters timer_params_;
         microseconds<u64> init_time_{time::now_us<u64>()};
         microseconds<u64> prev_frame_time_{time::now_us<u64>()};
@@ -329,6 +311,10 @@ namespace e2d
         // setup platform
 
         safe_module_initialize<platform>(argc, argv);
+
+        // setup deferrer
+
+        safe_module_initialize<deferrer>();
 
         // setup debug
 
@@ -392,8 +378,7 @@ namespace e2d
 
         while ( true ) {
             try {
-                state_->scheduler()
-                    .process_all_tasks();
+                the<deferrer>().scheduler().process_all_tasks();
 
                 if ( !app->frame_tick() ) {
                     break;
@@ -430,21 +415,5 @@ namespace e2d
 
     f32 engine::realtime_time() const noexcept {
         return state_->realtime_time();
-    }
-
-    stdex::jobber& engine::worker() noexcept {
-        return state_->worker();
-    }
-
-    const stdex::jobber& engine::worker() const noexcept {
-        return state_->worker();
-    }
-
-    stdex::scheduler& engine::scheduler() noexcept {
-        return state_->scheduler();
-    }
-
-    const stdex::scheduler& engine::scheduler() const noexcept {
-        return state_->scheduler();
     }
 }

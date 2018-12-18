@@ -125,22 +125,6 @@ namespace e2d
         u32 frame_rate() const noexcept;
         u32 frame_count() const noexcept;
         f32 realtime_time() const noexcept;
-
-        stdex::jobber& worker() noexcept;
-        const stdex::jobber& worker() const noexcept;
-
-        stdex::scheduler& scheduler() noexcept;
-        const stdex::scheduler& scheduler() const noexcept;
-
-        template < typename F
-                 , typename... Args
-                 , typename R = stdex::scheduler::schedule_invoke_result_t<F, Args...> >
-        stdex::promise<R> do_in_main_thread(F&& f, Args&&... args);
-
-        template < typename F
-                 , typename... Args
-                 , typename R = stdex::jobber::async_invoke_result_t<F, Args...> >
-        stdex::promise<R> do_in_worker_thread(F&& f, Args&&... args);
     private:
         class internal_state;
         std::unique_ptr<internal_state> state_;
@@ -152,15 +136,5 @@ namespace e2d
     template < typename Application, typename... Args >
     bool engine::start(Args&&... args) {
         return start(std::make_unique<Application>(std::forward<Args>(args)...));
-    }
-
-    template < typename F , typename... Args , typename R >
-    stdex::promise<R> engine::do_in_main_thread(F&& f, Args&&... args) {
-        return scheduler().schedule(std::forward<F>(f), std::forward<Args>(args)...);
-    }
-
-    template < typename F , typename... Args , typename R >
-    stdex::promise<R> engine::do_in_worker_thread(F&& f, Args&&... args) {
-        return worker().async(std::forward<F>(f), std::forward<Args>(args)...);
     }
 }

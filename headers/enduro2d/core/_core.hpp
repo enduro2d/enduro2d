@@ -13,6 +13,7 @@
 namespace e2d
 {
     class debug;
+    class deferrer;
     class application;
     class engine;
     class mouse;
