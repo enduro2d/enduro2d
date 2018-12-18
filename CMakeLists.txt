@@ -47,7 +47,20 @@ if(MSVC)
             endif()
         endforeach()
     endif()
-endif()
+endif(MSVC)
+
+#
+# sanitizer mode
+#
+
+option(E2D_BUILD_WITH_SANITIZER "Build with sanitizer" OFF)
+if(E2D_BUILD_WITH_SANITIZER AND (CMAKE_CXX_COMPILER_ID MATCHES "Clang"))
+    add_definitions(-DE2D_BUILD_WITH_SANITIZER)
+    set(E2D_SANITIZER_FLAGS "-fno-omit-frame-pointer -fsanitize=address")
+    set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} ${E2D_SANITIZER_FLAGS}")
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${E2D_SANITIZER_FLAGS}")
+    set(CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG} ${E2D_SANITIZER_FLAGS}")
+endif(E2D_BUILD_WITH_SANITIZER)
 
 #
 # e2d sources
