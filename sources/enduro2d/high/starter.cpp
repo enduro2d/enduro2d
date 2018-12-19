@@ -19,6 +19,28 @@ namespace
             modules::initialize<Module>(std::forward<Args>(args)...);
         }
     }
+
+    class starter_application final : public application {
+    public:
+        starter_application(application_uptr application)
+        : application_(std::move(application)) {}
+
+        bool initialize() final {
+            return application_ && application_->initialize();
+        }
+
+        void shutdown() noexcept final {
+            if ( application_ ) {
+                application_->shutdown();
+            }
+        }
+
+        bool frame_tick() final {
+            return application_ && application_->frame_tick();
+        }
+    private:
+        application_uptr application_;
+    };
 }
 
 namespace e2d
@@ -74,9 +96,21 @@ namespace e2d
         safe_module_initialize<asset_cache<material_asset>>(the<library>());
     }
 
-    starter::~starter() noexcept = default;
+    starter::~starter() noexcept {
+        modules::shutdown<asset_cache<material_asset>>();
+        modules::shutdown<asset_cache<texture_asset>>();
+        modules::shutdown<asset_cache<shader_asset>>();
+        modules::shutdown<asset_cache<binary_asset>>();
+        modules::shutdown<asset_cache<image_asset>>();
+        modules::shutdown<asset_cache<mesh_asset>>();
+        modules::shutdown<asset_cache<text_asset>>();
+        modules::shutdown<library>();
+        modules::shutdown<engine>();
+    }
 
     bool starter::start(application_uptr app) {
-        return the<engine>().start(std::move(app));
+        return the<engine>().start(
+            std::make_unique<starter_application>(
+                std::move(app)));
     }
 }

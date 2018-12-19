@@ -33,7 +33,7 @@ namespace
 
 int e2d_main(int argc, char *argv[]) {
     const auto starter_params = starter::parameters(
-        engine::parameters("sample_03", "enduro3d")
+        engine::parameters("sample_03", "enduro2d")
             .timer_params(engine::timer_parameters()
                 .maximal_framerate(100)));
     modules::initialize<starter>(
