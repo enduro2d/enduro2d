@@ -43,9 +43,13 @@ namespace e2d
         library(const url& root);
         ~library() noexcept final;
 
+        const url& root() const noexcept;
+
         template < typename T >
         std::shared_ptr<T> load_asset(str_view address);
-        const url& root() const noexcept;
+
+        template < typename T >
+        stdex::promise<std::shared_ptr<T>> load_asset_async(str_view address);
     private:
         url root_;
     };
@@ -63,8 +67,8 @@ namespace e2d
         std::shared_ptr<T> find(str_hash address) const;
         void store(str_hash address, const std::shared_ptr<T>& asset);
 
-        void clear();
-        void unload_unused_assets();
+        void clear() noexcept;
+        void unload_unused_assets() noexcept;
         std::size_t asset_count() const noexcept;
     private:
         library& library_;

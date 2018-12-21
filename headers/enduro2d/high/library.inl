@@ -19,24 +19,41 @@ namespace e2d
 
     template < typename T >
     std::shared_ptr<T> library::load_asset(str_view address) {
+        auto p = load_asset_async<T>(address);
+
+        if ( modules::is_initialized<deferrer>() && the<deferrer>().is_in_main_thread() ) {
+            const auto zero_us = time::to_chrono(make_microseconds(0));
+            while ( p.wait_for(zero_us) == stdex::promise_wait_status::timeout ) {
+                if ( 0 == the<deferrer>().scheduler().process_one_task().second ) {
+                    std::this_thread::yield();
+                }
+            }
+        }
+
+        return p.get_or_default(nullptr);
+    }
+
+    template < typename T >
+    stdex::promise<std::shared_ptr<T>> library::load_asset_async(str_view address) {
         if ( !modules::is_initialized<asset_cache<T>>() ) {
-            return T::load(*this, address);
+            return T::load_async(*this, address);
         }
 
         auto& cache = the<asset_cache<T>>();
 
-        const auto cached_asset = cache.find(address);
+        auto cached_asset = cache.find(address);
         if ( cached_asset ) {
-            return cached_asset;
+            return stdex::make_resolved_promise(std::move(cached_asset));
         }
 
-        const auto new_asset = T::load(*this, address);
-        if ( new_asset ) {
-            cache.store(address, new_asset);
-            return new_asset;
-        }
-
-        return nullptr;
+        return T::load_async(*this, address)
+            .then([
+                &cache,
+                address_hash = make_hash(address)
+            ](const std::shared_ptr<T>& new_asset){
+                cache.store(address_hash, new_asset);
+                return new_asset;
+            });
     }
 
     //
@@ -66,16 +83,16 @@ namespace e2d
     }
 
     template < typename T >
-    void asset_cache<T>::clear() {
+    void asset_cache<T>::clear() noexcept {
         std::lock_guard<std::mutex> guard(mutex_);
         assets_.clear();
     }
 
     template < typename T >
-    void asset_cache<T>::unload_unused_assets() {
+    void asset_cache<T>::unload_unused_assets() noexcept {
         std::lock_guard<std::mutex> guard(mutex_);
         for ( auto iter = assets_.begin(); iter != assets_.end(); ) {
-            if ( iter->second.unique() ) {
+            if ( 1 == iter->second.use_count() ) {
                 iter = assets_.erase(iter);
             } else {
                 ++iter;

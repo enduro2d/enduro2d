@@ -84,9 +84,7 @@ namespace e2d
 
     starter::starter(int argc, char *argv[], const parameters& params) {
         safe_module_initialize<engine>(argc, argv, params.engine_params());
-
         safe_module_initialize<library>(params.library_root());
-
         safe_module_initialize<asset_cache<text_asset>>(the<library>());
         safe_module_initialize<asset_cache<mesh_asset>>(the<library>());
         safe_module_initialize<asset_cache<image_asset>>(the<library>());

@@ -4,40 +4,20 @@
  * Copyright (C) 2018 Matvey Cherevko
  ******************************************************************************/
 
-#include <enduro2d/high/assets.hpp>
-
-#include <3rdparty/rapidjson/schema.h>
-#include <3rdparty/rapidjson/document.h>
+#include "assets.hpp"
 
 namespace
 {
     using namespace e2d;
 
-    template < typename T >
-    const char* asset_schema_source() noexcept;
+    class material_asset_loading_exception final : public asset_loading_exception {
+        const char* what() const noexcept final {
+            return "material asset loading exception";
+        }
+    };
 
-    template <>
-    const char* asset_schema_source<shader_asset>() noexcept {
-        return R"json({
-            "type" : "object",
-            "required" : [ "vertex", "fragment" ],
-            "additionalProperties" : false,
-            "properties" : {
-                "vertex" : { "$ref": "#/definitions/generic_address" },
-                "fragment" : { "$ref": "#/definitions/generic_address" }
-            },
-            "definitions" : {
-                "generic_address" : {
-                    "type" : "string",
-                    "minLength" : 1
-                }
-            }
-        })json";
-    }
-
-    template <>
-    const char* asset_schema_source<material_asset>() noexcept {
-        return R"json({
+    const char* material_asset_schema_source = R"json(
+        {
             "type" : "object",
             "additionalProperties" : false,
             "properties" : {
@@ -387,45 +367,22 @@ namespace
                 }
             }
         })json";
-    }
 
-    template < typename T >
-    const rapidjson::SchemaDocument& asset_file_schema() {
+    const rapidjson::SchemaDocument& material_asset_schema() {
+        static std::mutex mutex;
         static std::unique_ptr<rapidjson::SchemaDocument> schema;
+
+        std::lock_guard<std::mutex> guard(mutex);
         if ( !schema ) {
             rapidjson::Document doc;
-            if ( doc.Parse(asset_schema_source<T>()).HasParseError() ) {
-                the<debug>().error("ASSETS: Failed to parse asset file schema");
-                throw bad_library_operation();
+            if ( doc.Parse(material_asset_schema_source).HasParseError() ) {
+                the<debug>().error("ASSETS: Failed to parse material asset schema");
+                throw material_asset_loading_exception();
             }
             schema = std::make_unique<rapidjson::SchemaDocument>(doc);
         }
+
         return *schema;
-    }
-
-    template < typename T >
-    bool load_json_asset_file(library& library, str_view address, rapidjson::Document& doc) {
-        const auto json_data = library.load_asset<text_asset>(address);
-        if ( !json_data ) {
-            return false;
-        }
-
-        if ( doc.Parse(json_data->content().c_str()).HasParseError() ) {
-            the<debug>().error("ASSETS: Failed to parse json asset file:\n"
-                "--> Address: %0",
-                address);
-            return false;
-        }
-
-        rapidjson::SchemaValidator validator(asset_file_schema<T>());
-        if ( !doc.Accept(validator) ) {
-            the<debug>().error("ASSETS: Failed to validate json asset file:\n"
-                "--> Address: %0",
-                address);
-            return false;
-        }
-
-        return true;
     }
 
     bool parse_stencil_op(str_view str, render::stencil_op& op) noexcept {
@@ -741,222 +698,266 @@ namespace
         return false;
     }
 
-    bool parse_property_block_samplers(
+    stdex::promise<shader_ptr> parse_shader_block(
         library& library,
-        str_view address,
-        const rapidjson::Value& root,
-        render::property_block& props)
+        str_view parent_address,
+        const rapidjson::Value& root)
     {
-        const auto parent_address = path::parent_path(address);
+        E2D_ASSERT(root.IsString());
+        const auto shader_address =
+            path::combine(parent_address, root.GetString());
+        return library.load_asset_async<shader_asset>(shader_address)
+            .then([](const shader_asset::ptr& shader){
+                return shader->content();
+            });
+    }
 
-        if ( root.HasMember("samplers") ) {
-            E2D_ASSERT(root["samplers"].IsArray());
-            const auto& samplers_json = root["samplers"];
+    stdex::promise<texture_ptr> parse_texture_block(
+        library& library,
+        str_view parent_address,
+        const rapidjson::Value& root)
+    {
+        E2D_ASSERT(root.IsString());
+        const auto texture_address =
+            path::combine(parent_address, root.GetString());
+        return library.load_asset_async<texture_asset>(texture_address)
+            .then([](const texture_asset::ptr& texture){
+                return texture->content();
+            });
+    }
 
-            for ( rapidjson::SizeType i = 0; i < samplers_json.Size(); ++i ) {
-                E2D_ASSERT(samplers_json[i].IsObject());
-                const auto& sampler_json = samplers_json[i];
+    stdex::promise<std::pair<str_hash,render::sampler_state>> parse_sampler_state(
+        library& library,
+        str_view parent_address,
+        const rapidjson::Value& root)
+    {
+        render::sampler_state content;
 
-                E2D_ASSERT(sampler_json.HasMember("name") && sampler_json["name"].IsString());
-                E2D_ASSERT(sampler_json.HasMember("texture") && sampler_json["texture"].IsString());
+        E2D_ASSERT(root.HasMember("name") && root["name"].IsString());
+        E2D_ASSERT(root.HasMember("texture") && root["texture"].IsString());
 
-                const auto texture = library.load_asset<texture_asset>(
-                    path::combine(parent_address, sampler_json["texture"].GetString()));
+        auto name_hash = make_hash(root["name"].GetString());
 
-                auto sampler = render::sampler_state()
-                    .texture(texture ? texture->content() : texture_ptr());
+        auto texture_p = root.HasMember("texture")
+            ? parse_texture_block(library, parent_address, root["texture"])
+            : stdex::make_resolved_promise<texture_ptr>(nullptr);
 
-                if ( sampler_json.HasMember("wrap") ) {
-                    if ( sampler_json["wrap"].IsObject() ) {
-                        const auto& sampler_wrap_json = sampler_json["wrap"];
-
-                        if ( sampler_wrap_json.HasMember("s") ) {
-                            E2D_ASSERT(sampler_wrap_json["s"].IsString());
-                            auto wrap = sampler.s_wrap();
-                            if ( parse_sampler_wrap(sampler_wrap_json["s"].GetString(), wrap) ) {
-                                sampler.s_wrap(wrap);
-                            } else {
-                                E2D_ASSERT_MSG(false, "unexpected sampler wrap");
-                            }
-                        }
-
-                        if ( sampler_wrap_json.HasMember("t") ) {
-                            E2D_ASSERT(sampler_wrap_json["t"].IsString());
-                            auto wrap = sampler.t_wrap();
-                            if ( parse_sampler_wrap(sampler_wrap_json["t"].GetString(), wrap) ) {
-                                sampler.t_wrap(wrap);
-                            } else {
-                                E2D_ASSERT_MSG(false, "unexpected sampler wrap");
-                            }
-                        }
-
-                        if ( sampler_wrap_json.HasMember("r") ) {
-                            E2D_ASSERT(sampler_wrap_json["r"].IsString());
-                            auto wrap = sampler.r_wrap();
-                            if ( parse_sampler_wrap(sampler_wrap_json["r"].GetString(), wrap) ) {
-                                sampler.r_wrap(wrap);
-                            } else {
-                                E2D_ASSERT_MSG(false, "unexpected sampler wrap");
-                            }
-                        }
-                    } else if ( sampler_json["wrap"].IsString() ) {
-                        auto wrap = sampler.s_wrap();
-                        if ( parse_sampler_wrap(sampler_json["wrap"].GetString(), wrap) ) {
-                            sampler.wrap(wrap);
-                        } else {
-                            E2D_ASSERT_MSG(false, "unexpected sampler wrap");
-                        }
+        if ( root.HasMember("wrap") ) {
+            const auto& wrap_json = root["wrap"];
+            if ( wrap_json.IsObject() ) {
+                if ( wrap_json.HasMember("s") ) {
+                    E2D_ASSERT(wrap_json["s"].IsString());
+                    auto wrap = content.s_wrap();
+                    if ( parse_sampler_wrap(wrap_json["s"].GetString(), wrap) ) {
+                        content.s_wrap(wrap);
+                    } else {
+                        E2D_ASSERT_MSG(false, "unexpected sampler wrap");
                     }
                 }
 
-                if ( sampler_json.HasMember("filter") ) {
-                    if ( sampler_json["filter"].IsObject() ) {
-                        const auto& sampler_filter_json = sampler_json["filter"];
-
-                        if ( sampler_filter_json.HasMember("min") ) {
-                            E2D_ASSERT(sampler_filter_json["min"].IsString());
-                            auto filter = sampler.min_filter();
-                            if ( parse_sampler_min_filter(sampler_filter_json["min"].GetString(), filter) ) {
-                                sampler.min_filter(filter);
-                            } else {
-                                E2D_ASSERT_MSG(false, "unexpected sampler min filter");
-                            }
-                        }
-
-                        if ( sampler_filter_json.HasMember("mag") ) {
-                            E2D_ASSERT(sampler_filter_json["mag"].IsString());
-                            auto filter = sampler.mag_filter();
-                            if ( parse_sampler_mag_filter(sampler_filter_json["mag"].GetString(), filter) ) {
-                                sampler.mag_filter(filter);
-                            } else {
-                                E2D_ASSERT_MSG(false, "unexpected sampler mag filter");
-                            }
-                        }
-                    } else if ( sampler_json["filter"].IsString() ) {
-                        auto min_filter = sampler.min_filter();
-                        if ( parse_sampler_min_filter(sampler_json["filter"].GetString(), min_filter) ) {
-                            sampler.min_filter(min_filter);
-                        } else {
-                            E2D_ASSERT_MSG(false, "unexpected sampler filter");
-                        }
-
-                        auto mag_filter = sampler.mag_filter();
-                        if ( parse_sampler_mag_filter(sampler_json["filter"].GetString(), mag_filter) ) {
-                            sampler.mag_filter(mag_filter);
-                        } else {
-                            E2D_ASSERT_MSG(false, "unexpected sampler filter");
-                        }
+                if ( wrap_json.HasMember("t") ) {
+                    E2D_ASSERT(wrap_json["t"].IsString());
+                    auto wrap = content.t_wrap();
+                    if ( parse_sampler_wrap(wrap_json["t"].GetString(), wrap) ) {
+                        content.t_wrap(wrap);
+                    } else {
+                        E2D_ASSERT_MSG(false, "unexpected sampler wrap");
                     }
                 }
 
-                props.sampler(
-                    sampler_json["name"].GetString(),
-                    sampler);
+                if ( wrap_json.HasMember("r") ) {
+                    E2D_ASSERT(wrap_json["r"].IsString());
+                    auto wrap = content.r_wrap();
+                    if ( parse_sampler_wrap(wrap_json["r"].GetString(), wrap) ) {
+                        content.r_wrap(wrap);
+                    } else {
+                        E2D_ASSERT_MSG(false, "unexpected sampler wrap");
+                    }
+                }
+            } else if ( wrap_json.IsString() ) {
+                auto wrap = content.s_wrap();
+                if ( parse_sampler_wrap(wrap_json.GetString(), wrap) ) {
+                    content.wrap(wrap);
+                } else {
+                    E2D_ASSERT_MSG(false, "unexpected sampler wrap");
+                }
             }
         }
-        return true;
+
+        if ( root.HasMember("filter") ) {
+            const auto& filter_json = root["filter"];
+            if ( filter_json.IsObject() ) {
+                if ( filter_json.HasMember("min") ) {
+                    E2D_ASSERT(filter_json["min"].IsString());
+                    auto filter = content.min_filter();
+                    if ( parse_sampler_min_filter(filter_json["min"].GetString(), filter) ) {
+                        content.min_filter(filter);
+                    } else {
+                        E2D_ASSERT_MSG(false, "unexpected sampler min filter");
+                    }
+                }
+
+                if ( filter_json.HasMember("mag") ) {
+                    E2D_ASSERT(filter_json["mag"].IsString());
+                    auto filter = content.mag_filter();
+                    if ( parse_sampler_mag_filter(filter_json["mag"].GetString(), filter) ) {
+                        content.mag_filter(filter);
+                    } else {
+                        E2D_ASSERT_MSG(false, "unexpected sampler mag filter");
+                    }
+                }
+            } else if ( filter_json.IsString() ) {
+                auto min_filter = content.min_filter();
+                if ( parse_sampler_min_filter(filter_json.GetString(), min_filter) ) {
+                    content.min_filter(min_filter);
+                } else {
+                    E2D_ASSERT_MSG(false, "unexpected sampler filter");
+                }
+
+                auto mag_filter = content.mag_filter();
+                if ( parse_sampler_mag_filter(filter_json.GetString(), mag_filter) ) {
+                    content.mag_filter(mag_filter);
+                } else {
+                    E2D_ASSERT_MSG(false, "unexpected sampler filter");
+                }
+            }
+        }
+
+        return texture_p
+            .then([name_hash, content](const texture_ptr& texture) mutable {
+                content.texture(texture);
+                return std::make_pair(name_hash, content);
+            });
     }
 
     bool parse_property_block_properties(
         const rapidjson::Value& root,
         render::property_block& props)
     {
-        if ( root.HasMember("properties") ) {
-            E2D_ASSERT(root["properties"].IsArray());
-            const auto& root_properties = root["properties"];
+        E2D_ASSERT(root.IsArray());
+        for ( rapidjson::SizeType i = 0; i < root.Size(); ++i ) {
+            E2D_ASSERT(root[i].IsObject());
+            const auto& property_json = root[i];
 
-            for ( rapidjson::SizeType i = 0; i < root_properties.Size(); ++i ) {
-                E2D_ASSERT(root_properties[i].IsObject());
-                const auto& property_json = root_properties[i];
+            E2D_ASSERT(property_json.HasMember("name") && property_json["name"].IsString());
+            E2D_ASSERT(property_json.HasMember("type") && property_json["type"].IsString());
 
-                E2D_ASSERT(property_json.HasMember("name") && property_json["name"].IsString());
-                E2D_ASSERT(property_json.HasMember("type") && property_json["type"].IsString());
-
-                if ( 0 == std::strcmp(property_json["type"].GetString(), "i32") ) {
-                    i32 value = 0;
-                    if ( property_json.HasMember("value") ) {
-                        E2D_ASSERT(property_json["value"].IsNumber());
-                        value = property_json["value"].GetInt();
-                    }
-                    props.property(property_json["name"].GetString(), value);
-                } else if ( 0 == std::strcmp(property_json["type"].GetString(), "f32") ) {
-                    f32 value = 0;
-                    if ( property_json.HasMember("value") ) {
-                        E2D_ASSERT(property_json["value"].IsNumber());
-                        value = property_json["value"].GetFloat();
-                    }
-                    props.property(property_json["name"].GetString(), value);
-                } else if ( 0 == std::strcmp(property_json["type"].GetString(), "v2i") ) {
-                    v2i value;
-                    if ( property_json.HasMember("value") ) {
-                        if ( !parse_property_value(property_json["value"], value) ) {
-                            E2D_ASSERT_MSG(false, "unexpected property value");
-                            return false;
-                        }
-                    }
-                    props.property(property_json["name"].GetString(), value);
-                } else if ( 0 == std::strcmp(property_json["type"].GetString(), "v3i") ) {
-                    v3i value;
-                    if ( property_json.HasMember("value") ) {
-                        if ( !parse_property_value(property_json["value"], value) ) {
-                            E2D_ASSERT_MSG(false, "unexpected property value");
-                            return false;
-                        }
-                    }
-                    props.property(property_json["name"].GetString(), value);
-                } else if ( 0 == std::strcmp(property_json["type"].GetString(), "v4i") ) {
-                    v4i value;
-                    if ( property_json.HasMember("value") ) {
-                        if ( !parse_property_value(property_json["value"], value) ) {
-                            E2D_ASSERT_MSG(false, "unexpected property value");
-                            return false;
-                        }
-                    }
-                    props.property(property_json["name"].GetString(), value);
-                } else if ( 0 == std::strcmp(property_json["type"].GetString(), "v2f") ) {
-                    v2f value;
-                    if ( property_json.HasMember("value") ) {
-                        if ( !parse_property_value(property_json["value"], value) ) {
-                            E2D_ASSERT_MSG(false, "unexpected property value");
-                            return false;
-                        }
-                    }
-                    props.property(property_json["name"].GetString(), value);
-                } else if ( 0 == std::strcmp(property_json["type"].GetString(), "v3f") ) {
-                    v3f value;
-                    if ( property_json.HasMember("value") ) {
-                        if ( !parse_property_value(property_json["value"], value) ) {
-                            E2D_ASSERT_MSG(false, "unexpected property value");
-                            return false;
-                        }
-                    }
-                    props.property(property_json["name"].GetString(), value);
-                } else if ( 0 == std::strcmp(property_json["type"].GetString(), "v4f") ) {
-                    v4f value;
-                    if ( property_json.HasMember("value") ) {
-                        if ( !parse_property_value(property_json["value"], value) ) {
-                            E2D_ASSERT_MSG(false, "unexpected property value");
-                            return false;
-                        }
-                    }
-                    props.property(property_json["name"].GetString(), value);
-                } else {
-                    E2D_ASSERT_MSG(false, "unexpected property type");
-                    return false;
+            if ( 0 == std::strcmp(property_json["type"].GetString(), "i32") ) {
+                i32 value = 0;
+                if ( property_json.HasMember("value") ) {
+                    E2D_ASSERT(property_json["value"].IsNumber());
+                    value = property_json["value"].GetInt();
                 }
+                props.property(property_json["name"].GetString(), value);
+            } else if ( 0 == std::strcmp(property_json["type"].GetString(), "f32") ) {
+                f32 value = 0;
+                if ( property_json.HasMember("value") ) {
+                    E2D_ASSERT(property_json["value"].IsNumber());
+                    value = property_json["value"].GetFloat();
+                }
+                props.property(property_json["name"].GetString(), value);
+            } else if ( 0 == std::strcmp(property_json["type"].GetString(), "v2i") ) {
+                v2i value;
+                if ( property_json.HasMember("value") ) {
+                    if ( !parse_property_value(property_json["value"], value) ) {
+                        E2D_ASSERT_MSG(false, "unexpected property value");
+                        return false;
+                    }
+                }
+                props.property(property_json["name"].GetString(), value);
+            } else if ( 0 == std::strcmp(property_json["type"].GetString(), "v3i") ) {
+                v3i value;
+                if ( property_json.HasMember("value") ) {
+                    if ( !parse_property_value(property_json["value"], value) ) {
+                        E2D_ASSERT_MSG(false, "unexpected property value");
+                        return false;
+                    }
+                }
+                props.property(property_json["name"].GetString(), value);
+            } else if ( 0 == std::strcmp(property_json["type"].GetString(), "v4i") ) {
+                v4i value;
+                if ( property_json.HasMember("value") ) {
+                    if ( !parse_property_value(property_json["value"], value) ) {
+                        E2D_ASSERT_MSG(false, "unexpected property value");
+                        return false;
+                    }
+                }
+                props.property(property_json["name"].GetString(), value);
+            } else if ( 0 == std::strcmp(property_json["type"].GetString(), "v2f") ) {
+                v2f value;
+                if ( property_json.HasMember("value") ) {
+                    if ( !parse_property_value(property_json["value"], value) ) {
+                        E2D_ASSERT_MSG(false, "unexpected property value");
+                        return false;
+                    }
+                }
+                props.property(property_json["name"].GetString(), value);
+            } else if ( 0 == std::strcmp(property_json["type"].GetString(), "v3f") ) {
+                v3f value;
+                if ( property_json.HasMember("value") ) {
+                    if ( !parse_property_value(property_json["value"], value) ) {
+                        E2D_ASSERT_MSG(false, "unexpected property value");
+                        return false;
+                    }
+                }
+                props.property(property_json["name"].GetString(), value);
+            } else if ( 0 == std::strcmp(property_json["type"].GetString(), "v4f") ) {
+                v4f value;
+                if ( property_json.HasMember("value") ) {
+                    if ( !parse_property_value(property_json["value"], value) ) {
+                        E2D_ASSERT_MSG(false, "unexpected property value");
+                        return false;
+                    }
+                }
+                props.property(property_json["name"].GetString(), value);
+            } else {
+                E2D_ASSERT_MSG(false, "unexpected property type");
+                return false;
             }
         }
         return true;
     }
 
-    bool parse_property_block(
+    stdex::promise<render::property_block> parse_property_block(
         library& library,
-        str_view address,
-        const rapidjson::Value& root,
-        render::property_block& props)
+        str_view parent_address,
+        const rapidjson::Value& root)
     {
-        return parse_property_block_samplers(library, address, root, props)
-            && parse_property_block_properties(root, props);
+        render::property_block content;
+
+        vector<stdex::promise<std::pair<str_hash, render::sampler_state>>> samplers_p;
+
+        if ( root.HasMember("samplers") ) {
+            E2D_ASSERT(root["samplers"].IsArray());
+            const auto& samplers_json = root["samplers"];
+
+            samplers_p.reserve(samplers_json.Size());
+            for ( rapidjson::SizeType i = 0; i < samplers_json.Size(); ++i ) {
+                E2D_ASSERT(samplers_json[i].IsObject());
+                const auto& sampler_json = samplers_json[i];
+                samplers_p.emplace_back(
+                    parse_sampler_state(library, parent_address, sampler_json));
+            }
+        }
+
+        if ( root.HasMember("properties") ) {
+            E2D_ASSERT(root["properties"].IsArray());
+            const auto& properties_json = root["properties"];
+            if ( !parse_property_block_properties(properties_json, content) ) {
+                return stdex::make_rejected_promise<render::property_block>(
+                    material_asset_loading_exception());
+            }
+        }
+
+        return stdex::make_all_promise(samplers_p)
+            .then([content](auto&& results) mutable {
+                for ( auto& result : results ) {
+                    content.sampler(
+                        std::move(result.first),
+                        std::move(result.second));
+                }
+                return content;
+            });
     }
 
     bool parse_depth_state(
@@ -1292,306 +1293,156 @@ namespace
         return true;
     }
 
-    bool parse_state_block(
-        const rapidjson::Value& root,
-        render::state_block& states)
+    stdex::promise<render::state_block> parse_state_block(
+        const rapidjson::Value& root)
     {
+        render::state_block content;
+
         if ( root.HasMember("depth_state") ) {
             E2D_ASSERT(root["depth_state"].IsObject());
-            if ( !parse_depth_state(root["depth_state"], states.depth()) ) {
-                return false;
+            if ( !parse_depth_state(root["depth_state"], content.depth()) ) {
+                return stdex::make_rejected_promise<render::state_block>(
+                    material_asset_loading_exception());
             }
         }
 
         if ( root.HasMember("stencil_state") ) {
             E2D_ASSERT(root["stencil_state"].IsObject());
-            if ( !parse_stencil_state(root["stencil_state"], states.stencil()) ) {
-                return false;
+            if ( !parse_stencil_state(root["stencil_state"], content.stencil()) ) {
+                return stdex::make_rejected_promise<render::state_block>(
+                    material_asset_loading_exception());
             }
         }
 
         if ( root.HasMember("culling_state") ) {
             E2D_ASSERT(root["culling_state"].IsObject());
-            if ( !parse_culling_state(root["culling_state"], states.culling()) ) {
-                return false;
+            if ( !parse_culling_state(root["culling_state"], content.culling()) ) {
+                return stdex::make_rejected_promise<render::state_block>(
+                    material_asset_loading_exception());
             }
         }
 
         if ( root.HasMember("blending_state") ) {
             E2D_ASSERT(root["blending_state"].IsObject());
-            if ( !parse_blending_state(root["blending_state"], states.blending()) ) {
-                return false;
+            if ( !parse_blending_state(root["blending_state"], content.blending()) ) {
+                return stdex::make_rejected_promise<render::state_block>(
+                    material_asset_loading_exception());
             }
         }
 
         if ( root.HasMember("capabilities_state") ) {
             E2D_ASSERT(root["capabilities_state"].IsObject());
-            if ( !parse_capabilities_state(root["capabilities_state"], states.capabilities()) ) {
-                return false;
+            if ( !parse_capabilities_state(root["capabilities_state"], content.capabilities()) ) {
+                return stdex::make_rejected_promise<render::state_block>(
+                    material_asset_loading_exception());
             }
         }
 
-        return true;
+        return stdex::make_resolved_promise(content);
     }
 
-    bool parse_pass_state(
+    stdex::promise<render::pass_state> parse_pass_state(
         library& library,
-        str_view address,
-        const rapidjson::Value& root,
-        render::pass_state& pass)
+        str_view parent_address,
+        const rapidjson::Value& root)
     {
-        const auto parent_address = path::parent_path(address);
+        auto shader_p = root.HasMember("shader")
+            ? parse_shader_block(library, parent_address, root["shader"])
+            : stdex::make_resolved_promise<shader_ptr>(nullptr);
 
-        if ( root.HasMember("shader") ) {
-            E2D_ASSERT(root["shader"].IsString());
+        auto state_block_p = root.HasMember("state_block")
+            ? parse_state_block(root["state_block"])
+            : stdex::make_resolved_promise<render::state_block>(render::state_block());
 
-            const auto shader = library.load_asset<shader_asset>(
-                path::combine(parent_address, root["shader"].GetString()));
+        auto property_block_p = root.HasMember("property_block")
+            ? parse_property_block(library, parent_address, root["property_block"])
+            : stdex::make_resolved_promise<render::property_block>(render::property_block());
 
-            pass.shader(shader ? shader->content() : shader_ptr());
-        }
+        return stdex::make_tuple_promise(std::make_tuple(
+            std::move(shader_p),
+            std::move(state_block_p),
+            std::move(property_block_p)
+        )).then([](const std::tuple<
+            shader_ptr,
+            render::state_block,
+            render::property_block
+        >& result) {
+            render::pass_state content;
+            content.shader(std::get<0>(result));
+            content.states(std::get<1>(result));
+            content.properties(std::get<2>(result));
+            return content;
+        });
+    }
 
-        if ( root.HasMember("state_block") ) {
-            E2D_ASSERT(root["state_block"].IsObject());
-            const auto& state_block_json = root["state_block"];
+    stdex::promise<render::material> parse_material(
+        library& library,
+        str_view parent_address,
+        const rapidjson::Value& root)
+    {
+        vector<stdex::promise<render::pass_state>> passes_p;
 
-            render::state_block states;
-            if ( !parse_state_block(state_block_json, states) ) {
-                return false;
+        if ( root.HasMember("passes") ) {
+            E2D_ASSERT(root["passes"].IsArray());
+            const auto& passes_json = root["passes"];
+
+            passes_p.reserve(passes_json.Size());
+            for ( rapidjson::SizeType i = 0; i < passes_json.Size(); ++i ) {
+                E2D_ASSERT(passes_json[i].IsObject());
+                const auto& pass_json = passes_json[i];
+                passes_p.emplace_back(
+                    parse_pass_state(library, parent_address, pass_json));
             }
-
-            pass.states(states);
         }
 
-        if ( root.HasMember("property_block") ) {
-            E2D_ASSERT(root["property_block"].IsObject());
-            const auto& property_block_json = root["property_block"];
+        auto property_block_p = root.HasMember("property_block")
+            ? parse_property_block(library, parent_address, root["property_block"])
+            : stdex::make_resolved_promise(render::property_block());
 
-            render::property_block props;
-            if ( !parse_property_block(library, address, property_block_json, props) ) {
-                return false;
+        return stdex::make_tuple_promise(std::make_tuple(
+            stdex::make_all_promise(passes_p),
+            std::move(property_block_p)))
+        .then([](const std::tuple<
+            vector<render::pass_state>,
+            render::property_block
+        >& results) {
+            render::material content;
+            for ( auto& pass : std::get<0>(results) ) {
+                content.add_pass(pass);
             }
-
-            pass.properties(props);
-        }
-
-        return true;
+            content.properties(std::get<1>(results));
+            return content;
+        });
     }
 }
 
 namespace e2d
 {
-    //
-    // text_asset
-    //
-
-    std::shared_ptr<text_asset> text_asset::load(library& library, str_view address) {
-        E2D_UNUSED(library);
-
-        const auto asset_url = library.root() / address;
-        input_stream_uptr stream = modules::is_initialized<vfs>()
-            ? the<vfs>().read(asset_url)
-            : input_stream_uptr();
-
-        if ( !stream ) {
-            the<debug>().error("ASSETS: Failed to open text asset file:\n"
-                "--> Url: %0",
-                asset_url);
-            return nullptr;
-        }
-
-        str content;
-        if ( !streams::try_read_tail(content, stream) ) {
-            the<debug>().error("ASSETS: Failed to read text asset file:\n"
-                "--> Url: %0",
-                asset_url);
-            return nullptr;
-        }
-
-        return std::make_shared<text_asset>(std::move(content));
-    }
-
-    //
-    // mesh_asset
-    //
-
-    std::shared_ptr<mesh_asset> mesh_asset::load(library& library, str_view address) {
-        const auto mesh_data = library.load_asset<binary_asset>(address);
-        if ( !mesh_data ) {
-            return nullptr;
-        }
-
-        mesh content;
-        if ( !meshes::try_load_mesh(content, mesh_data->content()) ) {
-            the<debug>().error("ASSETS: Failed to create mesh asset:\n"
-                "--> Address: %0",
-                address);
-            return nullptr;
-        }
-
-        return std::make_shared<mesh_asset>(std::move(content));
-    }
-
-    //
-    // image_asset
-    //
-
-    std::shared_ptr<image_asset> image_asset::load(library& library, str_view address) {
-        const auto image_data = library.load_asset<binary_asset>(address);
-        if ( !image_data ) {
-            return nullptr;
-        }
-
-        image content;
-        if ( !images::try_load_image(content, image_data->content()) ) {
-            the<debug>().error("ASSETS: Failed to create image asset:\n"
-                "--> Address: %0",
-                address);
-            return nullptr;
-        }
-
-        return std::make_shared<image_asset>(std::move(content));
-    }
-
-    //
-    // binary_asset
-    //
-
-    std::shared_ptr<binary_asset> binary_asset::load(library& library, str_view address) {
-        E2D_UNUSED(library);
-
-        const auto asset_url = library.root() / address;
-        input_stream_uptr stream = modules::is_initialized<vfs>()
-            ? the<vfs>().read(asset_url)
-            : input_stream_uptr();
-
-        if ( !stream ) {
-            the<debug>().error("ASSETS: Failed to open binary asset file:\n"
-                "--> Url: %0",
-                asset_url);
-            return nullptr;
-        }
-
-        buffer content;
-        if ( !streams::try_read_tail(content, stream) ) {
-            the<debug>().error("ASSETS: Failed to read binary asset file:\n"
-                "--> Url: %0",
-                asset_url);
-            return nullptr;
-        }
-
-        return std::make_shared<binary_asset>(std::move(content));
-    }
-
-    //
-    // shader_asset
-    //
-
-    std::shared_ptr<shader_asset> shader_asset::load(library& library, str_view address) {
-        rapidjson::Document doc;
-        if ( !load_json_asset_file<shader_asset>(library, address, doc) ) {
-            return nullptr;
-        }
-
-        const auto parent_address = path::parent_path(address);
-
-        E2D_ASSERT(doc.HasMember("vertex") && doc["vertex"].IsString());
-        const auto vertex_source_data = library.load_asset<text_asset>(
-            path::combine(parent_address, doc["vertex"].GetString()));
-
-        if ( !vertex_source_data ) {
-            return nullptr;
-        }
-
-        E2D_ASSERT(doc.HasMember("fragment") && doc["fragment"].IsString());
-        const auto fragment_source_data = library.load_asset<text_asset>(
-            path::combine(parent_address, doc["fragment"].GetString()));
-
-        if ( !fragment_source_data ) {
-            return nullptr;
-        }
-
-        const auto content = modules::is_initialized<render>()
-            ? the<render>().create_shader(
-                vertex_source_data->content(),
-                fragment_source_data->content())
-            : shader_ptr();
-
-        if ( !content ) {
-            the<debug>().error("ASSETS: Failed to create shader asset:\n"
-                "--> Address: %0",
-                address);
-            return nullptr;
-        }
-
-        return std::make_shared<shader_asset>(content);
-    }
-
-    //
-    // texture_asset
-    //
-
-    std::shared_ptr<texture_asset> texture_asset::load(library& library, str_view address) {
-        const auto texture_data = library.load_asset<image_asset>(address);
-        if ( !texture_data ) {
-            return nullptr;
-        }
-
-        const auto content = modules::is_initialized<render>()
-            ? the<render>().create_texture(texture_data->content())
-            : texture_ptr();
-
-        if ( !content ) {
-            the<debug>().error("ASSETS: Failed to create texture asset:\n"
-                "--> Address: %0",
-                address);
-            return nullptr;
-        }
-
-        return std::make_shared<texture_asset>(content);
-    }
-
-    //
-    // material_asset
-    //
-
-    std::shared_ptr<material_asset> material_asset::load(library& library, str_view address) {
-        rapidjson::Document doc;
-        if ( !load_json_asset_file<material_asset>(library, address, doc) ) {
-            return nullptr;
-        }
-
-        render::material content;
-
-        if ( doc.HasMember("passes") ) {
-            E2D_ASSERT(doc["passes"].IsArray());
-            const auto& passes_json = doc["passes"];
-
-            for ( rapidjson::SizeType i = 0; i < passes_json.Size(); ++i ) {
-                E2D_ASSERT(passes_json[i].IsObject());
-                const auto& pass_json = passes_json[i];
-
-                render::pass_state pass;
-                if ( !parse_pass_state(library, address, pass_json, pass) ) {
-                    return nullptr;
+    material_asset::load_async_result material_asset::load_async(
+        library& library, str_view address)
+    {
+        return library.load_asset_async<json_asset>(address)
+            .then([
+                &library,
+                parent_address = path::parent_path(address)
+            ](const json_asset::ptr& material_data){
+                if ( !modules::is_initialized<deferrer>() ) {
+                    throw material_asset_loading_exception();
                 }
-
-                content.add_pass(pass);
-            }
-        }
-
-        if ( doc.HasMember("property_block") ) {
-            E2D_ASSERT(doc["property_block"].IsObject());
-            const auto& property_block_json = doc["property_block"];
-
-            render::property_block props;
-            if ( !parse_property_block(library, address, property_block_json, props) ) {
-                return nullptr;
-            }
-
-            content.properties(props);
-        }
-
-        return std::make_shared<material_asset>(content);
+                return the<deferrer>().do_in_worker_thread([material_data](){
+                    const rapidjson::Document& doc = material_data->content();
+                    rapidjson::SchemaValidator validator(material_asset_schema());
+                    if ( !doc.Accept(validator) ) {
+                        throw material_asset_loading_exception();
+                    }
+                })
+                .then([&library, parent_address, material_data](){
+                    return parse_material(
+                        library, parent_address, material_data->content());
+                })
+                .then([](const render::material& material){
+                    return std::make_shared<material_asset>(material);
+                });
+            });
     }
 }
