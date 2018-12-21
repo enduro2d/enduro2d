@@ -21,13 +21,8 @@ namespace e2d
     std::shared_ptr<T> library::load_asset(str_view address) {
         auto p = load_asset_async<T>(address);
 
-        if ( modules::is_initialized<deferrer>() && the<deferrer>().is_in_main_thread() ) {
-            const auto zero_us = time::to_chrono(make_microseconds(0));
-            while ( p.wait_for(zero_us) == stdex::promise_wait_status::timeout ) {
-                if ( 0 == the<deferrer>().scheduler().process_one_task().second ) {
-                    std::this_thread::yield();
-                }
-            }
+        if ( modules::is_initialized<deferrer>() ) {
+            the<deferrer>().active_safe_wait_promise(p);
         }
 
         return p.get_or_default(nullptr);
