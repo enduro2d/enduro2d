@@ -50,6 +50,18 @@ if(MSVC)
 endif(MSVC)
 
 #
+# coverage mode
+#
+
+option(E2D_BUILD_WITH_COVERAGE "Build with coverage" OFF)
+if(E2D_BUILD_WITH_COVERAGE AND (CMAKE_CXX_COMPILER_ID MATCHES "Clang"))
+    add_definitions(-DE2D_BUILD_WITH_COVERAGE)
+    set(E2D_COVERAGE_FLAGS "--coverage")
+    set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} ${E2D_COVERAGE_FLAGS}")
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${E2D_COVERAGE_FLAGS}")
+endif()
+
+#
 # sanitizer mode
 #
 
