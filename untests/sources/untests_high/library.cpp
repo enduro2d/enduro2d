@@ -36,20 +36,31 @@ TEST_CASE("library"){
         REQUIRE(text_res_from_cache);
         REQUIRE(text_res_from_cache.get() == text_res.get());
 
-        the<asset_cache<text_asset>>().unload_unused_assets();
+        REQUIRE(0u == the<asset_cache<text_asset>>().unload_self_unused_assets());
         REQUIRE(the<asset_cache<text_asset>>().asset_count() == 1);
 
         text_res.reset();
         text_res_from_cache.reset();
 
         the<deferrer>().worker().wait_all();
-        the<asset_cache<text_asset>>().unload_unused_assets();
+        REQUIRE(1u == the<asset_cache<text_asset>>().unload_self_unused_assets());
         REQUIRE(the<asset_cache<text_asset>>().asset_count() == 0);
     }
     {
+        auto text_res = l.load_asset<text_asset>("text_asset.txt");
+        REQUIRE(text_res);
+        REQUIRE(text_res->content() == "hello");
+
         auto binary_res = l.load_asset<binary_asset>("binary_asset.bin");
         REQUIRE(binary_res);
         REQUIRE(binary_res->content() == buffer("world", 5));
+
+        REQUIRE(0u == l.unload_unused_assets());
+
+        text_res.reset();
+        binary_res.reset();
+        the<deferrer>().worker().wait_all();
+        REQUIRE(2u == l.unload_unused_assets());
     }
     {
         auto empty_res = l.load_asset<binary_asset>("empty_asset");
@@ -64,13 +75,13 @@ TEST_CASE("library"){
         REQUIRE(the<asset_cache<binary_asset>>().find("image.png"));
 
         the<deferrer>().worker().wait_all();
-        the<asset_cache<binary_asset>>().unload_unused_assets();
+        the<asset_cache<binary_asset>>().unload_self_unused_assets();
         REQUIRE(the<asset_cache<image_asset>>().find("image.png"));
         REQUIRE_FALSE(the<asset_cache<binary_asset>>().find("image.png"));
 
         image_res.reset();
         the<deferrer>().worker().wait_all();
-        the<asset_cache<image_asset>>().unload_unused_assets();
+        the<asset_cache<image_asset>>().unload_self_unused_assets();
         REQUIRE_FALSE(the<asset_cache<image_asset>>().find("image.png"));
         REQUIRE_FALSE(the<asset_cache<binary_asset>>().find("image.png"));
     }

@@ -44,6 +44,7 @@ namespace e2d
         ~library() noexcept final;
 
         const url& root() const noexcept;
+        std::size_t unload_unused_assets() noexcept;
 
         template < typename T >
         std::shared_ptr<T> load_asset(str_view address);
@@ -55,11 +56,28 @@ namespace e2d
     };
 
     //
+    // asset_cache_base
+    //
+
+    class asset_cache_base : private noncopyable {
+    public:
+        asset_cache_base();
+        virtual ~asset_cache_base() noexcept;
+
+        static std::size_t unload_all_unused_assets() noexcept;
+        virtual std::size_t unload_self_unused_assets() noexcept = 0;
+    private:
+        static std::mutex mutex_;
+        static hash_set<asset_cache_base*> caches_;
+    };
+
+    //
     // asset_cache
     //
 
     template < typename T >
-    class asset_cache : public module<asset_cache<T>> {
+    class asset_cache : public asset_cache_base
+                      , public module<asset_cache<T>> {
     public:
         asset_cache(library& l);
         ~asset_cache() noexcept final;
@@ -68,8 +86,9 @@ namespace e2d
         void store(str_hash address, const std::shared_ptr<T>& asset);
 
         void clear() noexcept;
-        void unload_unused_assets() noexcept;
         std::size_t asset_count() const noexcept;
+
+        std::size_t unload_self_unused_assets() noexcept override;
     private:
         library& library_;
         mutable std::mutex mutex_;

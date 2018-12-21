@@ -89,21 +89,24 @@ namespace e2d
     }
 
     template < typename T >
-    void asset_cache<T>::unload_unused_assets() noexcept {
+    std::size_t asset_cache<T>::asset_count() const noexcept {
         std::lock_guard<std::mutex> guard(mutex_);
+        return assets_.size();
+    }
+
+    template < typename T >
+    std::size_t asset_cache<T>::unload_self_unused_assets() noexcept {
+        std::lock_guard<std::mutex> guard(mutex_);
+        std::size_t result = 0u;
         for ( auto iter = assets_.begin(); iter != assets_.end(); ) {
             if ( 1 == iter->second.use_count() ) {
                 iter = assets_.erase(iter);
+                ++result;
             } else {
                 ++iter;
             }
         }
-    }
-
-    template < typename T >
-    std::size_t asset_cache<T>::asset_count() const noexcept {
-        std::lock_guard<std::mutex> guard(mutex_);
-        return assets_.size();
+        return result;
     }
 }
 
