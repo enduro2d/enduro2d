@@ -9,6 +9,7 @@
 #include "_core.hpp"
 
 #include "debug.hpp"
+#include "deferrer.hpp"
 #include "engine.hpp"
 #include "input.hpp"
 #include "platform.hpp"

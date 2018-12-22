@@ -6,5 +6,6 @@
 
 #include "base/_all.hpp"
 #include "core/_all.hpp"
+#include "high/_all.hpp"
 #include "math/_all.hpp"
 #include "utils/_all.hpp"

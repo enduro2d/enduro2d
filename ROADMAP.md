@@ -91,13 +91,13 @@
 
 - ### `basic high`
 
-  - [ ] `library`
+  - [x] `library`
     ```
     resource management, abstract loaders
     groups, dependencies, async loading
     ```
 
-  - [ ] `resources`
+  - [x] `resources`
     ```
     meshes, shaders, textures, materials
     ```

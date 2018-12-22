@@ -61,13 +61,13 @@ namespace e2d
         image(const image& other);
         image& operator=(const image& other);
 
-        image(const v2u& size, image_data_format format, buffer&& data);
+        image(const v2u& size, image_data_format format, buffer&& data) noexcept;
         image(const v2u& size, image_data_format format, const buffer& data);
 
         image& assign(image&& other) noexcept;
         image& assign(const image& other);
 
-        image& assign(const v2u& size, image_data_format format, buffer&& data);
+        image& assign(const v2u& size, image_data_format format, buffer&& data) noexcept;
         image& assign(const v2u& size, image_data_format format, const buffer& data);
 
         void swap(image& other) noexcept;
@@ -89,7 +89,6 @@ namespace e2d
     };
 
     void swap(image& l, image& r) noexcept;
-    bool operator<(const image& l, const image& r) noexcept;
     bool operator==(const image& l, const image& r) noexcept;
     bool operator!=(const image& l, const image& r) noexcept;
 }

@@ -7,6 +7,7 @@
 #include <enduro2d/core/engine.hpp>
 
 #include <enduro2d/core/debug.hpp>
+#include <enduro2d/core/deferrer.hpp>
 #include <enduro2d/core/input.hpp>
 #include <enduro2d/core/platform.hpp>
 #include <enduro2d/core/render.hpp>
@@ -145,13 +146,18 @@ namespace e2d
     : game_name_(game_name)
     , company_name_(company_name) {}
 
-    engine::parameters& engine::parameters::game_name(str_view value) noexcept {
+    engine::parameters& engine::parameters::game_name(str_view value) {
         game_name_ = value;
         return *this;
     }
 
-    engine::parameters& engine::parameters::company_name(str_view value) noexcept {
+    engine::parameters& engine::parameters::company_name(str_view value) {
         company_name_ = value;
+        return *this;
+    }
+
+    engine::parameters& engine::parameters::without_graphics(bool value) {
+        without_graphics_ = value;
         return *this;
     }
 
@@ -178,6 +184,10 @@ namespace e2d
         return company_name_;
     }
 
+    bool& engine::parameters::without_graphics() noexcept {
+        return without_graphics_;
+    }
+
     engine::debug_parameters& engine::parameters::debug_params() noexcept {
         return debug_params_;
     }
@@ -196,6 +206,10 @@ namespace e2d
 
     const str& engine::parameters::company_name() const noexcept {
         return company_name_;
+    }
+
+    const bool& engine::parameters::without_graphics() const noexcept {
+        return without_graphics_;
     }
 
     const engine::debug_parameters& engine::parameters::debug_params() const noexcept {
@@ -311,6 +325,10 @@ namespace e2d
 
         safe_module_initialize<platform>(argc, argv);
 
+        // setup deferrer
+
+        safe_module_initialize<deferrer>();
+
         // setup debug
 
         safe_module_initialize<debug>();
@@ -341,30 +359,41 @@ namespace e2d
             the<debug>().register_sink<debug_stream_sink>(std::move(log_stream));
         }
 
-        // setup input
+        if ( !params.without_graphics() )
+        {
+            // setup input
 
-        safe_module_initialize<input>();
+            safe_module_initialize<input>();
 
-        // setup window
+            // setup window
 
-        safe_module_initialize<window>(
-            params.window_params().size(),
-            params.window_params().caption(),
-            params.window_params().fullscreen());
+            safe_module_initialize<window>(
+                params.window_params().size(),
+                params.window_params().caption(),
+                params.window_params().fullscreen());
 
-        the<window>().register_event_listener<window_input_source>(the<input>());
+            the<window>().register_event_listener<window_input_source>(the<input>());
 
-        // setup render
+            // setup render
 
-        safe_module_initialize<render>(
-            the<debug>(),
-            the<window>());
+            safe_module_initialize<render>(
+                the<debug>(),
+                the<window>());
+        }
     }
 
-    engine::~engine() noexcept = default;
+    engine::~engine() noexcept {
+        modules::shutdown<render>();
+        modules::shutdown<window>();
+        modules::shutdown<input>();
+        modules::shutdown<vfs>();
+        modules::shutdown<debug>();
+        modules::shutdown<deferrer>();
+        modules::shutdown<platform>();
+    }
 
     bool engine::start(application_uptr app) {
-        E2D_ASSERT(main_thread() == std::this_thread::get_id());
+        E2D_ASSERT(is_in_main_thread());
 
         if ( !app || !app->initialize() ) {
             the<debug>().error("ENGINE: Failed to initialize application");
@@ -373,9 +402,12 @@ namespace e2d
 
         while ( true ) {
             try {
+                the<deferrer>().scheduler().process_all_tasks();
+
                 if ( !app->frame_tick() ) {
                     break;
                 }
+
                 state_->calculate_end_frame_timers();
             } catch ( ... ) {
                 app->shutdown();

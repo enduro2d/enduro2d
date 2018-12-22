@@ -7,12 +7,24 @@
 [submodule "modules/utfcpp"]
 	path = modules/utfcpp
 	url = https://github.com/nemtrif/utfcpp
-[submodule "modules/glfw"]
-	path = modules/glfw
-	url = https://github.com/glfw/glfw
-[submodule "modules/glew"]
-	path = modules/glew
-	url = https://github.com/Perlmint/glew-cmake
 [submodule "modules/variant"]
 	path = modules/variant
 	url = https://github.com/mpark/variant
+[submodule "modules/pugixml"]
+	path = modules/pugixml
+	url = https://github.com/zeux/pugixml
+[submodule "modules/rapidjson"]
+	path = modules/rapidjson
+	url = https://github.com/Tencent/rapidjson
+[submodule "modules/glew"]
+	path = modules/glew
+	url = https://github.com/Perlmint/glew-cmake
+[submodule "modules/glfw"]
+	path = modules/glfw
+	url = https://github.com/glfw/glfw
+[submodule "toolset/model_converter/modules/assimp"]
+	path = toolset/model_converter/modules/assimp
+	url = https://github.com/assimp/assimp
+[submodule "modules/promise.hpp"]
+	path = modules/promise.hpp
+	url = https://github.com/BlackMATov/promise.hpp

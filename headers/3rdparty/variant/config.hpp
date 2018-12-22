@@ -30,7 +30,11 @@
 #define MPARK_BUILTIN_ADDRESSOF
 #endif
 
-#if __has_builtin(__builtin_unreachable)
+#if __has_builtin(__builtin_unreachable) || defined(__GNUC__)
+#define MPARK_BUILTIN_UNREACHABLE __builtin_unreachable()
+#elif defined(_MSC_VER)
+#define MPARK_BUILTIN_UNREACHABLE __assume(false)
+#else
 #define MPARK_BUILTIN_UNREACHABLE
 #endif
 
@@ -39,7 +43,7 @@
 #endif
 
 #if defined(__cpp_constexpr) && __cpp_constexpr >= 201304 && \
-    (defined(_MSC_VER) && _MSC_VER != 1915)
+    !(defined(_MSC_VER) && _MSC_VER <= 1915)
 #define MPARK_CPP14_CONSTEXPR
 #endif
 

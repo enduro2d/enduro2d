@@ -20,5 +20,7 @@ namespace e2d { namespace filesystem { namespace impl
 
     bool create_directory(str_view path);
 
+    bool trace_directory(str_view path, const trace_func& func);
+
     bool extract_predef_path(str& dst, predef_path path_type);
 }}}

@@ -15,7 +15,7 @@ namespace e2d
     class color;
     class color32;
     class image;
-    class jobber;
+    class mesh;
     class input_stream;
     class output_stream;
     class input_sequence;
@@ -69,3 +69,56 @@ namespace e2d
         ~noncopyable() = default;
     };
 }
+
+namespace e2d { namespace utils
+{
+    //
+    // sdbm_hash
+    //
+
+    namespace impl
+    {
+        // Inspired by:
+        // http://www.cse.yorku.ca/~oz/hash.html
+
+        template < typename Char >
+        u32 sdbm_hash_impl(u32 init, const Char* str) noexcept {
+            while ( Char c = *str++ ) {
+                init = c + (init << 6u) + (init << 16u) - init;
+            }
+            return init;
+        }
+
+        template < typename Char >
+        u32 sdbm_hash_impl(u32 init, const Char* begin, const Char* const end) noexcept {
+            while ( begin != end ) {
+                init = (*begin++) + (init << 6u) + (init << 16u) - init;
+            }
+            return init;
+        }
+    }
+
+    template < typename Char >
+    u32 sdbm_hash(const Char* str) noexcept {
+        E2D_ASSERT(str);
+        return impl::sdbm_hash_impl(0u, str);
+    }
+
+    template < typename Char >
+    u32 sdbm_hash(const Char* begin, const Char* const end) noexcept {
+        E2D_ASSERT(begin <= end);
+        return impl::sdbm_hash_impl(0u, begin, end);
+    }
+
+    template < typename Char >
+    u32 sdbm_hash(u32 init, const Char* str) noexcept {
+        E2D_ASSERT(str);
+        return impl::sdbm_hash_impl(init, str);
+    }
+
+    template < typename Char >
+    u32 sdbm_hash(u32 init, const Char* begin, const Char* const end) noexcept {
+        E2D_ASSERT(begin <= end);
+        return impl::sdbm_hash_impl(init, begin, end);
+    }
+}}

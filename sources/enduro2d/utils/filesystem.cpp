@@ -21,13 +21,13 @@ namespace e2d
 namespace e2d { namespace filesystem
 {
     bool remove(str_view path) {
-        return impl::remove_file(path)
-            || impl::remove_directory(path);
+        return remove_file(path)
+            || remove_directory(path);
     }
 
     bool exists(str_view path) {
-        return impl::file_exists(path)
-            || impl::directory_exists(path);
+        return file_exists(path)
+            || directory_exists(path);
     }
 
     bool remove_file(str_view path) {
@@ -35,7 +35,14 @@ namespace e2d { namespace filesystem
     }
 
     bool remove_directory(str_view path) {
-        return impl::remove_directory(path);
+        const std::function<bool(str_view, bool)> rfunc =
+        [&path](str_view relative, bool directory){
+            const str fullpath = path::combine(path, relative);
+            return (directory && remove_directory(fullpath))
+                || (!directory && remove_file(fullpath));
+        };
+        return trace_directory(path, rfunc)
+            && impl::remove_directory(path);
     }
 
     bool file_exists(str_view path) {
@@ -58,16 +65,49 @@ namespace e2d { namespace filesystem
     bool create_directory_recursive(str_view path) {
         if ( path.empty() || directory_exists(path) ) {
             return true;
-        } else if ( !create_directory(path::parent_path(path)) ) {
-            return false;
-        } else {
-            return impl::create_directory(path);
         }
+        if ( !create_directory_recursive(path::parent_path(path)) ) {
+            return false;
+        }
+        return impl::create_directory(path);
+    }
+
+    bool trace_directory(str_view path, const trace_func& func) {
+        return impl::trace_directory(path, func);
+    }
+
+    bool trace_directory_recursive(str_view path, const trace_func& func) {
+        const std::function<bool(str_view, str_view, bool)> rfunc =
+        [&path, &func, &rfunc](str_view parent, str_view relative, bool directory) {
+            const str filename = path::combine(parent, relative);
+            if ( !func || !func(filename, directory) ) {
+                return false;
+            }
+            if ( directory ) {
+                return impl::trace_directory(
+                    path::combine(path, filename),
+                    std::bind(rfunc, filename, std::placeholders::_1, std::placeholders::_2));
+            }
+            return true;
+        };
+        return impl::trace_directory(
+            path,
+            std::bind(rfunc, "", std::placeholders::_1, std::placeholders::_2));
+    }
+
+    bool try_read_all(str& dst, str_view path) noexcept {
+        return streams::try_read_tail(
+            dst, make_read_file(path));
     }
 
     bool try_read_all(buffer& dst, str_view path) noexcept {
         return streams::try_read_tail(
             dst, make_read_file(path));
+    }
+
+    bool try_write_all(const str& src, str_view path, bool append) noexcept {
+        return streams::try_write_tail(
+            src, make_write_file(path, append));
     }
 
     bool try_write_all(const buffer& src, str_view path, bool append) noexcept {

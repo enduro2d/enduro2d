@@ -22,11 +22,17 @@ git submodule update --remote --recursive
 mkdir -p $UNTESTS_DIR/catch
 cp -fv $MODULES_DIR/catch2/single_include/catch2/catch.hpp $UNTESTS_DIR/catch/catch.hpp
 
-mkdir -p $SOURCES_RDPARTY_DIR/glfw
-cp -rfv $MODULES_DIR/glfw/include/GLFW/. $SOURCES_RDPARTY_DIR/glfw/
+mkdir -p $HEADERS_RDPARTY_DIR/promise.hpp
+cp -rfv $MODULES_DIR/promise.hpp/invoke.hpp $HEADERS_RDPARTY_DIR/promise.hpp/invoke.hpp
+cp -rfv $MODULES_DIR/promise.hpp/jobber.hpp $HEADERS_RDPARTY_DIR/promise.hpp/jobber.hpp
+cp -rfv $MODULES_DIR/promise.hpp/promise.hpp $HEADERS_RDPARTY_DIR/promise.hpp/promise.hpp
+cp -rfv $MODULES_DIR/promise.hpp/scheduler.hpp $HEADERS_RDPARTY_DIR/promise.hpp/scheduler.hpp
 
-mkdir -p $SOURCES_RDPARTY_DIR/glew
-cp -rfv $MODULES_DIR/glew/include/GL/. $SOURCES_RDPARTY_DIR/glew/
+mkdir -p $SOURCES_RDPARTY_DIR/pugixml
+cp -rfv $MODULES_DIR/pugixml/src/. $SOURCES_RDPARTY_DIR/pugixml/
+
+mkdir -p $SOURCES_RDPARTY_DIR/rapidjson
+cp -rfv $MODULES_DIR/rapidjson/include/rapidjson/. $SOURCES_RDPARTY_DIR/rapidjson
 
 mkdir -p $SOURCES_RDPARTY_DIR/stb
 cp -fv $MODULES_DIR/stb/stb_image.h $SOURCES_RDPARTY_DIR/stb/stb_image.h

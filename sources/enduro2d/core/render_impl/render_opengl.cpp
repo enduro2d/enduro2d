@@ -462,7 +462,7 @@ namespace e2d
         const str& vertex_source,
         const str& fragment_source)
     {
-        E2D_ASSERT(main_thread() == std::this_thread::get_id());
+        E2D_ASSERT(is_in_main_thread());
 
         gl_shader_id vs = gl_compile_shader(
             state_->dbg(), vertex_source, GL_VERTEX_SHADER);
@@ -491,7 +491,7 @@ namespace e2d
         const input_stream_uptr& vertex,
         const input_stream_uptr& fragment)
     {
-        E2D_ASSERT(main_thread() == std::this_thread::get_id());
+        E2D_ASSERT(is_in_main_thread());
 
         str vertex_source, fragment_source;
         return streams::try_read_tail(vertex_source, vertex)
@@ -503,7 +503,7 @@ namespace e2d
     texture_ptr render::create_texture(
         const image& image)
     {
-        E2D_ASSERT(main_thread() == std::this_thread::get_id());
+        E2D_ASSERT(is_in_main_thread());
 
         const pixel_declaration decl =
             convert_image_data_format_to_pixel_declaration(image.format());
@@ -591,7 +591,7 @@ namespace e2d
     texture_ptr render::create_texture(
         const input_stream_uptr& image_stream)
     {
-        E2D_ASSERT(main_thread() == std::this_thread::get_id());
+        E2D_ASSERT(is_in_main_thread());
 
         image image;
         if ( !images::try_load_image(image, image_stream) ) {
@@ -604,7 +604,7 @@ namespace e2d
         const v2u& size,
         const pixel_declaration& decl)
     {
-        E2D_ASSERT(main_thread() == std::this_thread::get_id());
+        E2D_ASSERT(is_in_main_thread());
 
         if ( !is_pixel_supported(decl) ) {
             state_->dbg().error("RENDER: Failed to create texture:\n"
@@ -692,7 +692,7 @@ namespace e2d
         const index_declaration& decl,
         index_buffer::usage usage)
     {
-        E2D_ASSERT(main_thread() == std::this_thread::get_id());
+        E2D_ASSERT(is_in_main_thread());
         E2D_ASSERT(indices.size() % decl.bytes_per_index() == 0);
 
         if ( !is_index_supported(decl) ) {
@@ -728,7 +728,7 @@ namespace e2d
         const vertex_declaration& decl,
         vertex_buffer::usage usage)
     {
-        E2D_ASSERT(main_thread() == std::this_thread::get_id());
+        E2D_ASSERT(is_in_main_thread());
         E2D_ASSERT(vertices.size() % decl.bytes_per_vertex() == 0);
 
         if ( !is_vertex_supported(decl) ) {
@@ -763,7 +763,7 @@ namespace e2d
         const pixel_declaration& depth_decl,
         render_target::external_texture external_texture)
     {
-        E2D_ASSERT(main_thread() == std::this_thread::get_id());
+        E2D_ASSERT(is_in_main_thread());
 
         E2D_ASSERT(
             depth_decl.is_depth() &&
@@ -883,13 +883,13 @@ namespace e2d
     }
 
     render& render::execute(const swap_command& command) {
-        E2D_ASSERT(main_thread() == std::this_thread::get_id());
+        E2D_ASSERT(is_in_main_thread());
         state_->wnd().swap_buffers(command.vsync());
         return *this;
     }
 
     render& render::execute(const draw_command& command) {
-        E2D_ASSERT(main_thread() == std::this_thread::get_id());
+        E2D_ASSERT(is_in_main_thread());
 
         const material& mat = command.material_ref();
         const geometry& geo = command.geometry_ref();
@@ -919,7 +919,7 @@ namespace e2d
     }
 
     render& render::execute(const clear_command& command) {
-        E2D_ASSERT(main_thread() == std::this_thread::get_id());
+        E2D_ASSERT(is_in_main_thread());
 
         bool clear_color =
             math::enum_to_number(command.clear_buffer())
@@ -968,13 +968,13 @@ namespace e2d
     }
 
     render& render::execute(const target_command& command) {
-        E2D_ASSERT(main_thread() == std::this_thread::get_id());
+        E2D_ASSERT(is_in_main_thread());
         state_->set_render_target(command.target());
         return *this;
     }
 
     render& render::execute(const viewport_command& command) {
-        E2D_ASSERT(main_thread() == std::this_thread::get_id());
+        E2D_ASSERT(is_in_main_thread());
 
         const b2u viewport = make_minmax_rect(command.viewport_rect());
         GL_CHECK_CODE(state_->dbg(), glViewport(
@@ -999,12 +999,12 @@ namespace e2d
     }
 
     const render::device_caps& render::device_capabilities() const noexcept {
-        E2D_ASSERT(main_thread() == std::this_thread::get_id());
+        E2D_ASSERT(is_in_main_thread());
         return state_->device_capabilities();
     }
 
     bool render::is_pixel_supported(const pixel_declaration& decl) const noexcept {
-        E2D_ASSERT(main_thread() == std::this_thread::get_id());
+        E2D_ASSERT(is_in_main_thread());
         switch ( decl.type() ) {
             case pixel_declaration::pixel_type::depth16:
                 return true;
@@ -1047,7 +1047,7 @@ namespace e2d
     }
 
     bool render::is_index_supported(const index_declaration& decl) const noexcept {
-        E2D_ASSERT(main_thread() == std::this_thread::get_id());
+        E2D_ASSERT(is_in_main_thread());
         switch ( decl.type() ) {
             case index_declaration::index_type::unsigned_byte:
             case index_declaration::index_type::unsigned_short:
@@ -1067,7 +1067,7 @@ namespace e2d
     }
 
     bool render::is_vertex_supported(const vertex_declaration& decl) const noexcept {
-        E2D_ASSERT(main_thread() == std::this_thread::get_id());
+        E2D_ASSERT(is_in_main_thread());
         return decl.attribute_count() <= device_capabilities().max_vertex_attributes;
     }
 }

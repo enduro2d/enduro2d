@@ -51,5 +51,6 @@ endfunction(add_e2d_tests)
 
 add_e2d_tests(base)
 add_e2d_tests(core)
+add_e2d_tests(high)
 add_e2d_tests(math)
 add_e2d_tests(utils)

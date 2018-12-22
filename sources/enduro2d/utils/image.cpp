@@ -63,7 +63,7 @@ namespace e2d
         return assign(other);
     }
 
-    image::image(const v2u& size, image_data_format format, buffer&& data) {
+    image::image(const v2u& size, image_data_format format, buffer&& data) noexcept {
         assign(size, format, std::move(data));
     }
 
@@ -88,7 +88,7 @@ namespace e2d
         return *this;
     }
 
-    image& image::assign(const v2u& size, image_data_format format, buffer&& data) {
+    image& image::assign(const v2u& size, image_data_format format, buffer&& data) noexcept {
         data_.assign(std::move(data));
         size_ = size;
         format_ = format;
@@ -194,12 +194,6 @@ namespace e2d
 {
     void swap(image& l, image& r) noexcept {
         l.swap(r);
-    }
-
-    bool operator<(const image& l, const image& r) noexcept {
-        return l.format() < r.format()
-            || (l.format() == r.format() && l.size() < r.size())
-            || (l.format() == r.format() && l.size() == r.size() && l.data() < r.data());
     }
 
     bool operator==(const image& l, const image& r) noexcept {

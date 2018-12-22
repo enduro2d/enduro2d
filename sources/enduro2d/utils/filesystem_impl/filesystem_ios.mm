@@ -9,6 +9,7 @@
 #if defined(E2D_PLATFORM) && E2D_PLATFORM == E2D_PLATFORM_IOS
 
 #include <unistd.h>
+#include <dirent.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 
@@ -100,13 +101,13 @@ namespace e2d { namespace filesystem { namespace impl
     }
 
     bool file_exists(str_view path) {
-        struct stat st;
+        struct stat st{};
         return 0 == ::stat(make_utf8(path).c_str(), &st)
             && S_ISREG(st.st_mode);
     }
 
     bool directory_exists(str_view path) {
-        struct stat st;
+        struct stat st{};
         return 0 == ::stat(make_utf8(path).c_str(), &st)
             && S_ISDIR(st.st_mode);
     }
@@ -114,6 +115,23 @@ namespace e2d { namespace filesystem { namespace impl
     bool create_directory(str_view path) {
         return 0 == ::mkdir(make_utf8(path).c_str(), default_directory_mode)
             || errno == EEXIST;
+    }
+
+    bool trace_directory(str_view path, const trace_func& func) {
+        std::unique_ptr<DIR, decltype(&::closedir)> dir{
+            ::opendir(make_utf8(path).c_str()),
+            ::closedir};
+        if ( !dir ) {
+            return false;
+        }
+        while ( dirent* ent = ::readdir(dir.get()) ) {
+            if ( 0 != std::strcmp(ent->d_name, ".") && 0 != std::strcmp(ent->d_name, "..") ) {
+                if ( !func || !func(ent->d_name, DT_DIR == ent->d_type) ) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     bool extract_predef_path(str& dst, predef_path path_type) {

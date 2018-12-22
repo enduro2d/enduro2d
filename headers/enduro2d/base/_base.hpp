@@ -44,3 +44,7 @@
 #include <type_traits>
 
 #include <3rdparty/variant/variant.hpp>
+#include <3rdparty/promise.hpp/invoke.hpp>
+#include <3rdparty/promise.hpp/jobber.hpp>
+#include <3rdparty/promise.hpp/promise.hpp>
+#include <3rdparty/promise.hpp/scheduler.hpp>

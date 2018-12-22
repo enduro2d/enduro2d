@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.9.2 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.11 FATAL_ERROR)
 project(enduro2d)
 
 #
@@ -47,6 +47,31 @@ if(MSVC)
             endif()
         endforeach()
     endif()
+endif(MSVC)
+
+#
+# coverage mode
+#
+
+option(E2D_BUILD_WITH_COVERAGE "Build with coverage" OFF)
+if(E2D_BUILD_WITH_COVERAGE AND (CMAKE_CXX_COMPILER_ID MATCHES "Clang"))
+    add_definitions(-DE2D_BUILD_WITH_COVERAGE)
+    set(E2D_COVERAGE_FLAGS "--coverage")
+    set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} ${E2D_COVERAGE_FLAGS}")
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${E2D_COVERAGE_FLAGS}")
+endif()
+
+#
+# sanitizer mode
+#
+
+option(E2D_BUILD_WITH_SANITIZER "Build with sanitizer" OFF)
+if(E2D_BUILD_WITH_SANITIZER AND (CMAKE_CXX_COMPILER_ID MATCHES "Clang"))
+    add_definitions(-DE2D_BUILD_WITH_SANITIZER)
+    set(E2D_SANITIZER_FLAGS "-fno-omit-frame-pointer -fsanitize=address")
+    set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} ${E2D_SANITIZER_FLAGS}")
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${E2D_SANITIZER_FLAGS}")
+    set(CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG} ${E2D_SANITIZER_FLAGS}")
 endif()
 
 #
@@ -91,15 +116,15 @@ if(APPLE)
     find_library(Foundation Foundation)
 endif(APPLE)
 
+set(glew-cmake_BUILD_SHARED OFF CACHE BOOL "" FORCE)
+set(glew-cmake_BUILD_MULTI_CONTEXT OFF CACHE BOOL "" FORCE)
+add_subdirectory(modules/glew)
+
 set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 add_subdirectory(modules/glfw)
-
-set(glew-cmake_BUILD_SHARED OFF CACHE BOOL "" FORCE)
-set(glew-cmake_BUILD_MULTI_CONTEXT OFF CACHE BOOL "" FORCE)
-add_subdirectory(modules/glew)
 
 #
 # e2d library target
@@ -118,7 +143,8 @@ source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES
 target_include_directories(${PROJECT_NAME}
     PRIVATE headers
     PRIVATE sources
-    PRIVATE ${OPENGL_INCLUDE_DIR})
+    PRIVATE modules/glew/include
+    PRIVATE modules/glfw/include)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
     CXX_STANDARD 14
@@ -166,6 +192,11 @@ endif(E2D_PARENT_DIRECTORY)
 option(E2D_BUILD_SAMPLES "Build samples" ON)
 if(E2D_BUILD_SAMPLES)
     add_subdirectory(samples)
+endif()
+
+option(E2D_BUILD_TOOLSET "Build toolset" ON)
+if(E2D_BUILD_TOOLSET)
+    add_subdirectory(toolset)
 endif()
 
 option(E2D_BUILD_UNTESTS "Build untests" ON)

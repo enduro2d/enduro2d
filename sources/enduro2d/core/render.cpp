@@ -357,10 +357,10 @@ namespace e2d
         return *this;
     }
 
-    render::stencil_state& render::stencil_state::op(stencil_op sfail, stencil_op zfail, stencil_op pass) noexcept {
+    render::stencil_state& render::stencil_state::op(stencil_op pass, stencil_op sfail, stencil_op zfail) noexcept {
+        pass_ = pass;
         sfail_ = sfail;
         zfail_ = zfail;
-        pass_ = pass;
         return *this;
     }
 
@@ -1112,7 +1112,7 @@ namespace e2d
     //
 
     render& render::execute(const command_value& command) {
-        E2D_ASSERT(main_thread() == std::this_thread::get_id());
+        E2D_ASSERT(is_in_main_thread());
         E2D_ASSERT(!command.valueless_by_exception());
         stdex::visit(command_value_visitor(*this), command);
         return *this;

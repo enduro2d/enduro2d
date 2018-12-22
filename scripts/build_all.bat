@@ -1,7 +1,7 @@
 @echo off
 set SCRIPT_DIR=%~dp0%
-%SCRIPT_DIR%\build_debug.bat || goto :error
-%SCRIPT_DIR%\build_release.bat || goto :error
+call %SCRIPT_DIR%\build_debug.bat || goto :error
+call %SCRIPT_DIR%\build_release.bat || goto :error
 
 goto :EOF
 

@@ -13,7 +13,7 @@ TEST_CASE("vfs"){
     {
         REQUIRE(filesystem::remove_file(nofile_path));
         REQUIRE(filesystem::create_file(file_path));
-        REQUIRE(filesystem::try_write_all({"hello", 5}, file_path, false));
+        REQUIRE(filesystem::try_write_all(buffer{"hello", 5}, file_path, false));
     }
     {
         vfs v;
@@ -25,21 +25,27 @@ TEST_CASE("vfs"){
         }
         {
             buffer b;
-            auto r = v.open({"file", file_path});
+            auto r = v.read({"file", file_path});
             REQUIRE(r);
             REQUIRE(streams::try_read_tail(b, r));
             REQUIRE(b == buffer{"hello", 5});
-            REQUIRE(v.open({"file2", file_path}) == input_stream_uptr());
-            REQUIRE(v.open({"file", nofile_path}) == input_stream_uptr());
+            REQUIRE(v.read({"file2", file_path}) == input_stream_uptr());
+            REQUIRE(v.read({"file", nofile_path}) == input_stream_uptr());
         }
         {
-            auto r = v.load({"file", file_path});
-            REQUIRE(r.second);
-            REQUIRE(r.first == buffer{"hello", 5});
+            buffer b0;
+            REQUIRE(v.load({"file", file_path}, b0));
+            REQUIRE(b0 == buffer{"hello", 5});
 
-            auto r2 = v.load_async({"file", file_path}).get();
-            REQUIRE(r2.second);
-            REQUIRE(r2.first == buffer{"hello", 5});
+            auto b1 = v.load_async({"file", file_path}).get();
+            REQUIRE(b1 == buffer{"hello", 5});
+
+            str b2;
+            REQUIRE(v.load_as_string({"file", file_path}, b2));
+            REQUIRE(b2 == "hello");
+
+            auto b3 = v.load_as_string_async({"file", file_path}).get();
+            REQUIRE(b3 == "hello");
         }
     }
     {
@@ -58,17 +64,17 @@ TEST_CASE("vfs"){
 
             REQUIRE_FALSE(v.register_scheme<archive_file_source>(
                 "archive",
-                v.open(url("resources://bin/noresources.zip"))));
+                v.read(url("resources://bin/noresources.zip"))));
 
             REQUIRE(v.register_scheme<filesystem_file_source>("file"));
 
             REQUIRE_FALSE(v.register_scheme<archive_file_source>(
                 "archive",
-                v.open(url("resources://bin/noresources.zip"))));
+                v.read(url("resources://bin/noresources.zip"))));
 
             REQUIRE(v.register_scheme<archive_file_source>(
                 "archive",
-                v.open(url("resources://bin/resources.zip"))));
+                v.read(url("resources://bin/resources.zip"))));
 
             REQUIRE(v.exists({"archive", "test.txt"}));
             REQUIRE_FALSE(v.exists({"archive", "TEst.txt"}));
@@ -79,50 +85,113 @@ TEST_CASE("vfs"){
             REQUIRE_FALSE(v.exists({"archive", "test2.txt"}));
             REQUIRE_FALSE(v.exists({"archive", "folder/file2.txt"}));
             {
-                auto f = v.open(url("archive://test.txt"));
+                vector<std::pair<str,bool>> result;
+                REQUIRE(v.extract(url("archive://"), std::back_inserter(result)));
+                REQUIRE(result == vector<std::pair<str, bool>>{
+                    {"folder/", true},
+                    {"folder/file.txt", false},
+                    {"test.txt", false},
+                    {"folder/subfolder/", true},
+                    {"folder/subfolder/file.txt", false},
+                    {"folder2/", true},
+                    {"folder2/file.txt", false},
+                    {"folder2/subfolder2/", true},
+                    {"folder2/subfolder2/file.txt", false}
+                });
+            }
+            {
+                vector<std::pair<str,bool>> result;
+                REQUIRE(v.extract(url("archive://folder"), std::back_inserter(result)));
+                REQUIRE(result == vector<std::pair<str, bool>>{
+                    {"folder/file.txt", false},
+                    {"folder/subfolder/", true},
+                    {"folder/subfolder/file.txt", false}
+                });
+            }
+            {
+                vector<std::pair<str,bool>> result;
+                REQUIRE(v.extract(url("archive://folder2/subfolder2"), std::back_inserter(result)));
+                REQUIRE(result == vector<std::pair<str, bool>>{
+                    {"folder2/subfolder2/file.txt", false}
+                });
+            }
+            {
+                vector<std::pair<str,bool>> result, result2;
+                REQUIRE(v.extract(url("archive://folder"), std::back_inserter(result)));
+                REQUIRE(v.extract(url("archive://folder/"), std::back_inserter(result2)));
+                REQUIRE(result == result2);
+            }
+            {
+                vector<std::pair<str,bool>> result;
+                REQUIRE_FALSE(v.extract(url("archive://fold"), std::back_inserter(result)));
+                REQUIRE_FALSE(v.extract(url("archive://folder3"), std::back_inserter(result)));
+                REQUIRE_FALSE(v.extract(url("archive://test.txt"), std::back_inserter(result)));
+            }
+            {
+                auto f = v.read(url("archive://test.txt"));
                 REQUIRE(f);
                 buffer b;
                 REQUIRE(streams::try_read_tail(b, f));
                 REQUIRE(b == buffer("hello", 5));
             }
             {
-                auto r = v.load(url("archive://test.txt"));
-                REQUIRE(r.second);
-                REQUIRE(r.first == buffer("hello", 5));
+                buffer b0;
+                REQUIRE(v.load(url("archive://test.txt"), b0));
+                REQUIRE(b0 == buffer("hello", 5));
 
-                auto r2 = v.load_async(url("archive://test.txt")).get();
-                REQUIRE(r2.second);
-                REQUIRE(r2.first == buffer("hello", 5));
+                auto b1 = v.load_async(url("archive://test.txt")).get();
+                REQUIRE(b1 == buffer("hello", 5));
+
+                str b2;
+                REQUIRE(v.load_as_string(url("archive://test.txt"), b2));
+                REQUIRE(b2 == "hello");
+
+                auto b3 = v.load_as_string_async(url("archive://test.txt")).get();
+                REQUIRE(b3 == "hello");
             }
             {
-                auto f = v.open(url("archive://folder/file.txt"));
+                auto f = v.read(url("archive://folder/file.txt"));
                 REQUIRE(f);
                 buffer b;
                 REQUIRE(streams::try_read_tail(b, f));
                 REQUIRE(b == buffer("world", 5));
             }
             {
-                auto r = v.load(url("archive://folder/file.txt"));
-                REQUIRE(r.second);
-                REQUIRE(r.first == buffer("world", 5));
+                buffer b0;
+                REQUIRE(v.load(url("archive://folder/file.txt"), b0));
+                REQUIRE(b0 == buffer("world", 5));
 
-                auto r2 = v.load_async(url("archive://folder/file.txt")).get();
-                REQUIRE(r2.second);
-                REQUIRE(r2.first == buffer("world", 5));
+                auto b1 = v.load_async(url("archive://folder/file.txt")).get();
+                REQUIRE(b1 == buffer("world", 5));
+
+                str b2;
+                REQUIRE(v.load_as_string(url("archive://folder/file.txt"), b2));
+                REQUIRE(b2 == "world");
+
+                auto b3 = v.load_as_string_async(url("archive://folder/file.txt")).get();
+                REQUIRE(b3 == "world");
             }
             {
-                REQUIRE(v.open(url("archive://TEst.txt")) == input_stream_uptr());
+                REQUIRE(v.read(url("archive://TEst.txt")) == input_stream_uptr());
 
-                auto r = v.load(url("archive://TEst.txt"));
-                REQUIRE_FALSE(r.second);
-                REQUIRE(r.first == buffer());
+                buffer b0;
+                REQUIRE_FALSE(v.load(url("archive://TEst.txt"), b0));
+                REQUIRE(b0.empty());
 
-                auto r2 = v.load_async(url("archive://TEst.txt")).get();
-                REQUIRE_FALSE(r2.second);
-                REQUIRE(r2.first == buffer());
+                REQUIRE_THROWS_AS(
+                    v.load_async(url("archive://TEst.txt")).get(),
+                    vfs_load_async_exception);
+
+                str b2;
+                REQUIRE_FALSE(v.load_as_string(url("archive://TEst.txt"), b2));
+                REQUIRE(b2.empty());
+
+                REQUIRE_THROWS_AS(
+                    v.load_as_string_async(url("archive://TEst.txt")).get(),
+                    vfs_load_async_exception);
             }
             {
-                auto f = v.open(url("archive://test.txt"));
+                auto f = v.read(url("archive://test.txt"));
                 REQUIRE(f);
                 REQUIRE(v.unregister_scheme("archive"));
                 buffer b;
