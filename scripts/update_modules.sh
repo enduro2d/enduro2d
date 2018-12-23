@@ -17,7 +17,7 @@ mkdir -p $SOURCES_RDPARTY_DIR
 git submodule init
 git submodule update
 git pull --recurse-submodules
-git submodule update --remote --recursive
+git submodule update --init --remote --recursive
 
 mkdir -p $UNTESTS_DIR/catch
 cp -fv $MODULES_DIR/catch2/single_include/catch2/catch.hpp $UNTESTS_DIR/catch/catch.hpp
