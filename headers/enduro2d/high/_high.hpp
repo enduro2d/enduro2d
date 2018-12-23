@@ -12,7 +12,6 @@ namespace e2d
 {
     class asset;
     class library;
-    class starter;
 
     class text_asset;
     class mesh_asset;
@@ -28,4 +27,8 @@ namespace e2d
     template < typename T >
     class asset_cache;
     class asset_cache_base;
+
+    class node;
+    class scene;
+    class starter;
 }

@@ -8,8 +8,17 @@
 
 #include "_high.hpp"
 
-#include "assets.hpp"
-#include "library.hpp"
-#include "library.inl"
-#include "scene.hpp"
-#include "starter.hpp"
+namespace e2d
+{
+    class node final : private noncopyable {
+    public:
+        node();
+        ~node() noexcept;
+    };
+
+    class scene final : private noncopyable {
+    public:
+        scene();
+        ~scene() noexcept;
+    };
+}

@@ -4,12 +4,18 @@
  * Copyright (C) 2018 Matvey Cherevko
  ******************************************************************************/
 
-#pragma once
+#include <enduro2d/high/scene.hpp>
 
-#include "_high.hpp"
+namespace
+{
+    using namespace e2d;
+}
 
-#include "assets.hpp"
-#include "library.hpp"
-#include "library.inl"
-#include "scene.hpp"
-#include "starter.hpp"
+namespace e2d
+{
+    node::node() = default;
+    node::~node() noexcept = default;
+
+    scene::scene() = default;
+    scene::~scene() noexcept = default;
+}
