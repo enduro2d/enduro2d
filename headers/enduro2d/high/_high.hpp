@@ -31,4 +31,5 @@ namespace e2d
     class node;
     class scene;
     class starter;
+    class world;
 }

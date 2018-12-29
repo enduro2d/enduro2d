@@ -8,9 +8,11 @@
 
 #include "_high.hpp"
 
-#include "assets.hpp"
-#include "library.hpp"
-#include "library.inl"
-#include "scene.hpp"
-#include "starter.hpp"
-#include "world.hpp"
+namespace e2d
+{
+    class world final : public module<world> {
+    public:
+        world();
+        ~world() noexcept final;
+    };
+}

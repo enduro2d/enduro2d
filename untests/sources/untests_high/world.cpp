@@ -4,13 +4,8 @@
  * Copyright (C) 2018 Matvey Cherevko
  ******************************************************************************/
 
-#pragma once
-
 #include "_high.hpp"
+using namespace e2d;
 
-#include "assets.hpp"
-#include "library.hpp"
-#include "library.inl"
-#include "scene.hpp"
-#include "starter.hpp"
-#include "world.hpp"
+TEST_CASE("world"){
+}

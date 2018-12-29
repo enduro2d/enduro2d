@@ -11,7 +11,7 @@ lcov -d . -z
 ctest --verbose
 
 lcov -d . -c -o "coverage.info"
-lcov -r "coverage.info" "*/usr/*" "*/Xcode.app/*" "*/untests/*" "*/3rdparty/*" "*/modules/*" -o "coverage.info"
+lcov -r "coverage.info" "*/usr/*" "*/Xcode.app/*" "*/untests/*" "*/samples/*" "*/3rdparty/*" "*/modules/*" -o "coverage.info"
 lcov -l "coverage.info"
 
 bash <(curl -s https://codecov.io/bash) || echo "Codecov did not collect coverage reports"
