@@ -1,4 +1,4 @@
-# Build Instructions 
+# Build Instructions
 
 ## * Requirements
 
@@ -46,7 +46,7 @@ $ start enduro2d.sln
 ## * Running
 
 ```bash
-$ cd your_engine_build_folder
+$ cd your_engine_build_directory
 $ ctest
 $ ./samples/sample_00
 ```
@@ -56,4 +56,3 @@ $ ./samples/sample_00
 - CMake: https://cmake.org/
 - CMake documentation: https://cmake.org/documentation/
 - CMake FAQ: https://gitlab.kitware.com/cmake/community/wikis/FAQ
-
