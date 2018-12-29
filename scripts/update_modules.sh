@@ -22,6 +22,9 @@ git submodule update --init --remote --recursive
 mkdir -p $UNTESTS_DIR/catch
 cp -fv $MODULES_DIR/catch2/single_include/catch2/catch.hpp $UNTESTS_DIR/catch/catch.hpp
 
+mkdir -p $HEADERS_RDPARTY_DIR/ecs.hpp
+cp -rfv $MODULES_DIR/ecs.hpp/ecs.hpp $HEADERS_RDPARTY_DIR/ecs.hpp/ecs.hpp
+
 mkdir -p $HEADERS_RDPARTY_DIR/promise.hpp
 cp -rfv $MODULES_DIR/promise.hpp/invoke.hpp $HEADERS_RDPARTY_DIR/promise.hpp/invoke.hpp
 cp -rfv $MODULES_DIR/promise.hpp/jobber.hpp $HEADERS_RDPARTY_DIR/promise.hpp/jobber.hpp

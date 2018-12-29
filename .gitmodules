@@ -28,3 +28,6 @@
 [submodule "modules/promise.hpp"]
 	path = modules/promise.hpp
 	url = https://github.com/BlackMATov/promise.hpp
+[submodule "modules/ecs.hpp"]
+	path = modules/ecs.hpp
+	url = https://github.com/BlackMATov/ecs.hpp
