@@ -6,11 +6,12 @@ mkdir -p $BUILD_DIR/coverage
 cd $BUILD_DIR/coverage
 cmake -DCMAKE_BUILD_TYPE=Debug -DE2D_BUILD_WITH_COVERAGE=ON ../..
 cmake --build . -- -j8
+
+lcov -d . -z
 ctest --verbose
 
 lcov -d . -c -o "coverage.info"
-lcov -r "coverage.info" "*/Xcode.app/*" "*/untests/*" "*/3rdparty/*" "*/modules/*" -o "coverage-filtered.info"
-lcov -d . -z
+lcov -r "coverage.info" "*/usr/*" "*/Xcode.app/*" "*/untests/*" "*/3rdparty/*" "*/modules/*" -o "coverage.info"
+lcov -l "coverage.info"
 
-genhtml -o "html" "coverage-filtered.info"
-open html/index.html
+bash <(curl -s https://codecov.io/bash) || echo "Codecov did not collect coverage reports"
