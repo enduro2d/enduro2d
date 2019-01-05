@@ -43,7 +43,6 @@
 #include <functional>
 #include <type_traits>
 
-#include <3rdparty/ecs.hpp/ecs.hpp>
 #include <3rdparty/variant/variant.hpp>
 #include <3rdparty/promise.hpp/invoke.hpp>
 #include <3rdparty/promise.hpp/jobber.hpp>

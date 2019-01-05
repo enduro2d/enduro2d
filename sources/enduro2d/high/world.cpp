@@ -15,4 +15,12 @@ namespace e2d
 {
     world::world() = default;
     world::~world() noexcept = default;
+
+    ecs::registry& world::registry() noexcept {
+        return registry_;
+    }
+
+    const ecs::registry& world::registry() const noexcept {
+        return registry_;
+    }
 }

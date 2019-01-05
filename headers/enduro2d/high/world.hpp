@@ -14,5 +14,10 @@ namespace e2d
     public:
         world();
         ~world() noexcept final;
+
+        ecs::registry& registry() noexcept;
+        const ecs::registry& registry() const noexcept;
+    private:
+        ecs::registry registry_;
     };
 }

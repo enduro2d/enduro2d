@@ -8,6 +8,7 @@
 
 #include <enduro2d/high/assets.hpp>
 #include <enduro2d/high/library.hpp>
+#include <enduro2d/high/world.hpp>
 
 namespace
 {
@@ -92,9 +93,11 @@ namespace e2d
         safe_module_initialize<asset_cache<shader_asset>>(the<library>());
         safe_module_initialize<asset_cache<texture_asset>>(the<library>());
         safe_module_initialize<asset_cache<material_asset>>(the<library>());
+        safe_module_initialize<world>();
     }
 
     starter::~starter() noexcept {
+        modules::shutdown<world>();
         modules::shutdown<asset_cache<material_asset>>();
         modules::shutdown<asset_cache<texture_asset>>();
         modules::shutdown<asset_cache<shader_asset>>();

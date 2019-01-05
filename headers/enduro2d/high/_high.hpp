@@ -8,6 +8,8 @@
 
 #include "../core/_all.hpp"
 
+#include <3rdparty/ecs.hpp/ecs.hpp>
+
 namespace e2d
 {
     class asset;
@@ -30,4 +32,9 @@ namespace e2d
 
     class starter;
     class world;
+
+    namespace ecs
+    {
+        using namespace ecs_hpp;
+    }
 }

@@ -18,15 +18,6 @@ namespace e2d { namespace stdex
 }}
 
 //
-// https://github.com/blackmatov/ecs.hpp
-//
-
-namespace e2d { namespace stdex
-{
-    using namespace ecs_hpp;
-}}
-
-//
 // https://github.com/blackmatov/promise.hpp
 //
 
