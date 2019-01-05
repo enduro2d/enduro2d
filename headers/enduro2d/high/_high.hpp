@@ -12,6 +12,11 @@
 
 namespace e2d
 {
+    namespace ecs
+    {
+        using namespace ecs_hpp;
+    }
+
     class asset;
     class library;
 
@@ -32,9 +37,4 @@ namespace e2d
 
     class starter;
     class world;
-
-    namespace ecs
-    {
-        using namespace ecs_hpp;
-    }
 }

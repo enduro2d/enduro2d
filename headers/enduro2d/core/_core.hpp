@@ -10,8 +10,21 @@
 #include "../math/_all.hpp"
 #include "../utils/_all.hpp"
 
+#include <3rdparty/promise.hpp/invoke.hpp>
+#include <3rdparty/promise.hpp/jobber.hpp>
+#include <3rdparty/promise.hpp/promise.hpp>
+#include <3rdparty/promise.hpp/scheduler.hpp>
+
 namespace e2d
 {
+    namespace stdex
+    {
+        using namespace invoke_hpp;
+        using namespace jobber_hpp;
+        using namespace promise_hpp;
+        using namespace scheduler_hpp;
+    }
+
     class debug;
     class deferrer;
     class application;

@@ -8,25 +8,15 @@
 
 #include "macros.hpp"
 
+#include <3rdparty/variant/variant.hpp>
+
 //
-// https://github.com/mpark/variant
+// variant
 //
 
 namespace e2d { namespace stdex
 {
     using namespace mpark;
-}}
-
-//
-// https://github.com/blackmatov/promise.hpp
-//
-
-namespace e2d { namespace stdex
-{
-    using namespace invoke_hpp;
-    using namespace jobber_hpp;
-    using namespace promise_hpp;
-    using namespace scheduler_hpp;
 }}
 
 //
