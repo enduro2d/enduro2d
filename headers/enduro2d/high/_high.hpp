@@ -28,8 +28,6 @@ namespace e2d
     class asset_cache;
     class asset_cache_base;
 
-    class node;
-    class scene;
     class starter;
     class world;
 }

@@ -11,6 +11,5 @@
 #include "assets.hpp"
 #include "library.hpp"
 #include "library.inl"
-#include "scene.hpp"
 #include "starter.hpp"
 #include "world.hpp"
