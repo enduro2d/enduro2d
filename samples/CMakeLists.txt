@@ -30,17 +30,10 @@ function(add_e2d_sample NAME)
     # resources
     #
 
-    if(MSVC)
-        add_custom_command(TARGET ${SAMPLE_NAME} POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_directory
-            ${CMAKE_CURRENT_SOURCE_DIR}/bin
-            ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/bin)
-    else(MSVC)
-        add_custom_command(TARGET ${SAMPLE_NAME} POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_directory
-            ${CMAKE_CURRENT_SOURCE_DIR}/bin
-            ${CMAKE_CURRENT_BINARY_DIR}/bin)
-    endif(MSVC)
+    add_custom_command(TARGET ${SAMPLE_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_CURRENT_SOURCE_DIR}/bin
+        $<TARGET_FILE_DIR:${SAMPLE_NAME}>/bin)
 endfunction(add_e2d_sample)
 
 add_e2d_sample(00)

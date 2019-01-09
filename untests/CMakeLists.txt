@@ -30,17 +30,10 @@ function(add_e2d_tests NAME)
     # resources
     #
 
-    if(MSVC)
-        add_custom_command(TARGET ${TESTS_NAME} POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_directory
-            ${CMAKE_CURRENT_SOURCE_DIR}/bin
-            ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/bin)
-    else(MSVC)
-        add_custom_command(TARGET ${TESTS_NAME} POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_directory
-            ${CMAKE_CURRENT_SOURCE_DIR}/bin
-            ${CMAKE_CURRENT_BINARY_DIR}/bin)
-    endif(MSVC)
+    add_custom_command(TARGET ${TESTS_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_CURRENT_SOURCE_DIR}/bin
+        $<TARGET_FILE_DIR:${TESTS_NAME}>/bin)
 
     #
     # tests
