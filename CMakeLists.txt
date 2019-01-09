@@ -2,28 +2,14 @@ cmake_minimum_required(VERSION 3.11 FATAL_ERROR)
 project(enduro2d)
 
 #
-# warning mode
+# global warning mode
 #
 
-if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    add_compile_options(-Wall -Wextra -Wpedantic)
-elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-    add_compile_options(-Wall -Wextra -Wpedantic)
-elseif(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
-    add_definitions(-D_CRT_SECURE_NO_WARNINGS)
-    if(CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
-        string(REGEX REPLACE "/W[0-4]" "/W4" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-    else()
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
-    endif()
-endif()
-
-if(APPLE)
-    add_compile_options(-Wno-deprecated-declarations)
-endif(APPLE)
+add_compile_options(
+    $<$<PLATFORM_ID:Darwin>:-Wno-deprecated-declarations>)
 
 #
-# linking mode
+# global linking mode
 #
 
 if(MSVC)
@@ -50,7 +36,7 @@ if(MSVC)
 endif(MSVC)
 
 #
-# coverage mode
+# global coverage mode
 #
 
 option(E2D_BUILD_WITH_COVERAGE "Build with coverage" OFF)
@@ -63,7 +49,7 @@ if(E2D_BUILD_WITH_COVERAGE AND (CMAKE_CXX_COMPILER_ID MATCHES "Clang"))
 endif()
 
 #
-# sanitizer mode
+# global sanitizer mode
 #
 
 option(E2D_BUILD_WITH_SANITIZER "Build with sanitizer" OFF)
@@ -151,6 +137,14 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
     CXX_STANDARD 14
     CXX_STANDARD_REQUIRED YES
     CXX_EXTENSIONS NO)
+
+target_compile_options(${PROJECT_NAME}
+    PRIVATE
+    $<$<CXX_COMPILER_ID:MSVC>:
+        /W4>
+    PRIVATE
+    $<$<OR:$<CXX_COMPILER_ID:GNU>,$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>>:
+        -Wall -Wextra -Wpedantic>)
 
 #
 # e2d public variables

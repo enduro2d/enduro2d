@@ -9,6 +9,14 @@
 [![license][badge.license]][license]
 [![paypal][badge.paypal]][paypal]
 
+## [Build Instructions](./BUILD_INSTRUCTIONS.md)
+
+## [Bootstrap](https://github.com/enduro2d/enduro2d-bootstrap)
+
+## [Roadmap](./ROADMAP.md)
+
+## [License (MIT)](./LICENSE.md)
+
 [badge.travis]: https://img.shields.io/travis/enduro2d/enduro2d/master.svg?logo=travis
 [badge.appveyor]: https://img.shields.io/appveyor/ci/BlackMATov/enduro2d/master.svg?logo=appveyor
 [badge.codecov]: https://img.shields.io/codecov/c/github/enduro2d/enduro2d/master.svg?logo=codecov
@@ -22,7 +30,3 @@
 [language]: https://en.wikipedia.org/wiki/C%2B%2B14
 [license]: https://en.wikipedia.org/wiki/MIT_License
 [paypal]: https://www.paypal.me/matov
-
-## [Roadmap](./ROADMAP.md)
-
-## [License (MIT)](./LICENSE.md)
