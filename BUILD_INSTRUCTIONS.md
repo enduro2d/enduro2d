@@ -46,7 +46,7 @@ $ start enduro2d.sln
 ## * Running
 
 ```bash
-$ cd your_engine_build_folder
+$ cd your_engine_build_directory
 $ ctest
 $ ./samples/sample_00
 ```
