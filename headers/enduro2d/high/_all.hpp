@@ -15,4 +15,5 @@
 #include "world.hpp"
 
 #include "components/camera.hpp"
+#include "components/sprite.hpp"
 #include "components/transform.hpp"

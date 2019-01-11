@@ -20,6 +20,7 @@ namespace e2d
     namespace components
     {
         class camera;
+        class sprite;
         class transform2d;
     }
 
