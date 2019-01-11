@@ -37,7 +37,11 @@ namespace
         }
 
         bool frame_tick() final {
-            return application_ && application_->frame_tick();
+            if ( !application_ || !application_->frame_tick() ) {
+                return false;
+            }
+            the<world>().registry().process_systems();
+            return true;
         }
     private:
         application_uptr application_;

@@ -17,6 +17,12 @@ namespace e2d
         using namespace ecs_hpp;
     }
 
+    namespace components
+    {
+        class camera;
+        class transform2d;
+    }
+
     class asset;
     class library;
 

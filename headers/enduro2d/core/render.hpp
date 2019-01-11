@@ -620,6 +620,9 @@ namespace e2d
             property_block() = default;
             ~property_block() noexcept = default;
 
+            property_block(property_block&&) noexcept = default;
+            property_block& operator=(property_block&&) noexcept = default;
+
             property_block(const property_block&) = default;
             property_block& operator=(const property_block&) = default;
 

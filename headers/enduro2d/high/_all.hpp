@@ -13,3 +13,6 @@
 #include "library.inl"
 #include "starter.hpp"
 #include "world.hpp"
+
+#include "components/camera.hpp"
+#include "components/transform.hpp"
