@@ -49,6 +49,8 @@ namespace e2d
 
         template < typename To >
         mat4<To> cast_to() const noexcept;
+
+        T* data() noexcept;
         const T* data() const noexcept;
 
         vec4<T>& operator[](std::size_t row) noexcept;
@@ -111,6 +113,11 @@ namespace e2d
             rows[1].template cast_to<To>(),
             rows[2].template cast_to<To>(),
             rows[3].template cast_to<To>()};
+    }
+
+    template < typename T >
+    T* mat4<T>::data() noexcept {
+        return rows[0].data();
     }
 
     template < typename T >

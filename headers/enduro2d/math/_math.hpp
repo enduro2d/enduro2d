@@ -189,7 +189,8 @@ namespace e2d { namespace math
         std::enable_if_t<
             std::is_integral<From>::value && std::is_floating_point<To>::value,
             bool>
-        check_numeric_cast(From) noexcept {
+        check_numeric_cast(From v) noexcept {
+            E2D_UNUSED(v);
             return true;
         }
 

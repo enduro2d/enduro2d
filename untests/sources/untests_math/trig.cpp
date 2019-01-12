@@ -61,6 +61,7 @@ TEST_CASE("trig") {
         REQUIRE(math::approximately(math::pi<f32>(), make_rad(3.14f), 0.01f));
         REQUIRE(math::approximately(math::inv_pi<f32>(), 1.f / make_rad(3.14f), 0.01f));
         REQUIRE(math::approximately(math::two_pi<f32>(), 2.f * make_rad(3.14f), 0.01f));
+        REQUIRE(math::approximately(math::four_pi<f32>(), 4.f * make_rad(3.14f), 0.01f));
         REQUIRE(math::approximately(math::half_pi<f32>(), 0.5f * make_rad(3.14f), 0.01f));
         REQUIRE(math::approximately(math::quarter_pi<f32>(), 0.25f * make_rad(3.14f), 0.01f));
     }
@@ -146,11 +147,32 @@ TEST_CASE("trig") {
     }
     {
         using namespace e2d::math;
-        REQUIRE(math::approximately(cos(make_deg(90.f)), std::cos(half_pi<f32>().value)));
-        REQUIRE(math::approximately(sin(make_deg(90.f)), std::sin(half_pi<f32>().value)));
-        REQUIRE(math::approximately(tan(make_deg(90.f)), std::tan(half_pi<f32>().value)));
-        REQUIRE(acos(make_deg(45.f)) == make_rad(std::acos(quarter_pi<f32>().value)));
-        REQUIRE(asin(make_deg(45.f)) == make_rad(std::asin(quarter_pi<f32>().value)));
-        REQUIRE(atan(make_deg(45.f)) == make_rad(std::atan(quarter_pi<f32>().value)));
+        REQUIRE(math::approximately(math::cos(make_deg(90.f)), std::cos(half_pi<f32>().value)));
+        REQUIRE(math::approximately(math::sin(make_deg(90.f)), std::sin(half_pi<f32>().value)));
+        REQUIRE(math::approximately(math::tan(make_deg(90.f)), std::tan(half_pi<f32>().value)));
+        REQUIRE(math::acos(make_deg(45.f)) == make_rad(std::acos(quarter_pi<f32>().value)));
+        REQUIRE(math::asin(make_deg(45.f)) == make_rad(std::asin(quarter_pi<f32>().value)));
+        REQUIRE(math::atan(make_deg(45.f)) == make_rad(std::atan(quarter_pi<f32>().value)));
+        REQUIRE(math::atan2(10.f, 20.f) == make_rad(std::atan2(10.f, 20.f)));
+    }
+    {
+        using namespace e2d::math;
+
+        REQUIRE(normalized_angle(make_rad(0.f)) == make_rad(0.f));
+
+        REQUIRE(normalized_angle(half_pi<f32>()) == half_pi<f32>());
+        REQUIRE(normalized_angle(-half_pi<f32>()) == -half_pi<f32>());
+
+        REQUIRE(normalized_angle(pi<f32>()) == pi<f32>());
+        REQUIRE(normalized_angle(-pi<f32>()) == -pi<f32>());
+
+        REQUIRE(normalized_angle(two_pi<f32>()) == -two_pi<f32>());
+        REQUIRE(normalized_angle(-two_pi<f32>()) == -two_pi<f32>());
+
+        REQUIRE(normalized_angle(2.f * two_pi<f32>()) == make_rad(0.f));
+        REQUIRE(normalized_angle(-2.f * two_pi<f32>()) == make_rad(0.f));
+
+        REQUIRE(normalized_angle(two_pi<f32>() + pi<f32>()) == -pi<f32>());
+        REQUIRE(normalized_angle(-two_pi<f32>() - pi<f32>()) == pi<f32>());
     }
 }
