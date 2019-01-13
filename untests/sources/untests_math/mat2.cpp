@@ -80,17 +80,17 @@ TEST_CASE("mat2") {
         REQUIRE(v2f(2,3) * math::make_scale_matrix2(3.f,4.f) == v2f(6,12));
         REQUIRE(math::approximately(
             v2f(20,30) * math::make_rotation_matrix2(math::half_pi<f32>()),
-            v2f(30.f,-20.f)));
+            v2f(-30.f,20.f)));
 
         REQUIRE(v2f(2,3) * math::make_scale_matrix2(3.f,4.f) == v2f(6.f,12.f));
         REQUIRE(math::approximately(
             v2f(20,30) * math::make_rotation_matrix2(math::half_pi<f32>()),
-            v2f(30.f,-20.f)));
+            v2f(-30.f,20.f)));
 
         REQUIRE(v2f(2,3) * math::make_scale_matrix2(3.f,4.f) == v2f(6.f,12.f));
         REQUIRE(math::approximately(
             v2f(20,30) * math::make_rotation_matrix2(math::half_pi<f32>()),
-            v2f(30.f,-20.f)));
+            v2f(-30.f,20.f)));
     }
     {
         auto v2 = v2f(2,3);
@@ -99,8 +99,8 @@ TEST_CASE("mat2") {
         REQUIRE(v2 * sm == v2 * sm);
     }
     {
-        REQUIRE(v2f::unit_x() * math::make_rotation_matrix2(math::half_pi<f32>()) == v2f(0,-1));
-        REQUIRE(-v2f::unit_x() * math::make_rotation_matrix2(math::half_pi<f32>()) == v2f(0,1));
+        REQUIRE(v2f::unit_x() * math::make_rotation_matrix2(math::half_pi<f32>()) == v2f(0,1));
+        REQUIRE(-v2f::unit_x() * math::make_rotation_matrix2(math::half_pi<f32>()) == v2f(0,-1));
     }
     {
         REQUIRE(math::transposed(m2f::identity()) == m2f::identity());

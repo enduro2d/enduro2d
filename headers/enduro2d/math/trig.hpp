@@ -42,6 +42,15 @@ namespace e2d { namespace math
     std::enable_if_t<
         std::is_floating_point<T>::value,
         const rad<T>&>
+    four_pi() noexcept {
+        static const rad<T> four_pi = pi<T>() * T(4);
+        return four_pi;
+    }
+
+    template < typename T >
+    std::enable_if_t<
+        std::is_floating_point<T>::value,
+        const rad<T>&>
     half_pi() noexcept {
         static const rad<T> half_pi = pi<T>() / T(2);
         return half_pi;
@@ -163,5 +172,26 @@ namespace e2d { namespace math
     std::enable_if_t<std::is_floating_point<T>::value, rad<T>>
     atan(const unit<T, Tag>& u) noexcept {
         return rad<T>(std::atan(to_rad(u).value));
+    }
+
+    //
+    // atan2
+    //
+
+    template < typename T >
+    std::enable_if_t<std::is_floating_point<T>::value, rad<T>>
+    atan2(T y, T x) noexcept {
+        return rad<T>(std::atan2(y, x));
+    }
+
+    //
+    // normalized_angle
+    //
+
+    template < typename T, typename Tag >
+    std::enable_if_t<std::is_floating_point<T>::value, unit<T, Tag>>
+    normalized_angle(const unit<T, Tag>& u) noexcept {
+        const auto four_pi = math::four_pi<T>().template convert_to<Tag>();
+        return u - four_pi * math::floor((u + T(0.5) * four_pi).value / four_pi.value);
     }
 }}
