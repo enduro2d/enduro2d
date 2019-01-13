@@ -22,6 +22,7 @@ namespace e2d
         class camera;
         class sprite;
         class transform2d;
+        class transform3d;
     }
 
     class asset;

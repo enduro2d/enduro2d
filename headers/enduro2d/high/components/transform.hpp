@@ -33,5 +33,27 @@ namespace e2d
             mutable m4f matrix_ = m4f::identity();
             mutable bool dirty_matrix_ = true;
         };
+
+        class transform3d {
+        public:
+            transform3d() = default;
+
+            transform3d& position(const v3f& value) noexcept;
+            transform3d& rotation(const q4f& value) noexcept;
+            transform3d& scale(const v3f& value) noexcept;
+
+            const v3f& position() const noexcept;
+            const q4f& rotation() const noexcept;
+            const v3f& scale() const noexcept;
+
+            const m4f& as_matrix() const noexcept;
+        private:
+            v3f position_ = v3f::zero();
+            q4f rotation_ = q4f::identity();
+            v3f scale_ = v3f::unit();
+        private:
+            mutable m4f matrix_ = m4f::identity();
+            mutable bool dirty_matrix_ = true;
+        };
     }
 }
