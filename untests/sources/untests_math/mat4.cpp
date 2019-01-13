@@ -96,7 +96,7 @@ TEST_CASE("mat4") {
         REQUIRE(v4d(2,3,4,2) * math::make_translation_matrix4(3.0,4.0,5.0) == v4d(2+3*2,3+4*2,4+5*2,2));
         REQUIRE(math::approximately(
             v4f(20,30,10,1) * math::make_rotation_matrix4(math::half_pi<f32>(), v3f::unit_z()),
-            v4f(30.f,-20.f,10,1)));
+            v4f(-30.f,20.f,10,1)));
     }
     {
         auto m = math::make_scale_matrix4(2.f,3.f,4.f);

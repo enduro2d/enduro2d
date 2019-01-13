@@ -7,6 +7,7 @@
 #pragma once
 
 #include "_math.hpp"
+#include "quat.hpp"
 #include "trig.hpp"
 #include "unit.hpp"
 #include "vec2.hpp"
@@ -339,14 +340,14 @@ namespace e2d { namespace math
         T axis_y,
         T axis_z) noexcept
     {
-        const T x   = axis_x;
-        const T y   = axis_y;
-        const T z   = axis_z;
-        const T px  = x * x;
-        const T py  = y * y;
-        const T pz  = z * z;
-        const T cs  = math::cos(angle);
-        const T sn  = math::sin(angle);
+        const T x = axis_x;
+        const T y = axis_y;
+        const T z = axis_z;
+        const T px = x * x;
+        const T py = y * y;
+        const T pz = z * z;
+        const T cs = math::cos(angle);
+        const T sn = math::sin(angle);
         const T ics = T(1) - cs;
         const T xym = x * y * ics;
         const T xzm = x * z * ics;
@@ -355,9 +356,9 @@ namespace e2d { namespace math
         const T ysn = y * sn;
         const T zsn = z * sn;
         return {
-            px * ics + cs, xym - zsn,     xzm + ysn,
-            xym + zsn,     py * ics + cs, yzm - xsn,
-            xzm - ysn,     yzm + xsn,     pz * ics + cs};
+            px * ics + cs, xym + zsn,     xzm - ysn,
+            xym - zsn,     py * ics + cs, yzm + xsn,
+            xzm + ysn,     yzm - xsn,     pz * ics + cs};
     }
 
     template < typename T, typename AngleTag >
@@ -395,6 +396,31 @@ namespace e2d { namespace math
             axis_xy.x,
             axis_xy.y,
             axis_z);
+    }
+
+    template < typename T >
+    mat3<T> make_rotation_matrix3(const quat<T>& q) noexcept {
+        const T x = q.x;
+        const T y = q.y;
+        const T z = q.z;
+        const T w = q.w;
+
+        const T xx = x * x;
+        const T xy = x * y;
+        const T xz = x * z;
+        const T xw = x * w;
+
+        const T yy = y * y;
+        const T yz = y * z;
+        const T yw = y * w;
+
+        const T zz = z * z;
+        const T zw = z * w;
+
+        return {
+            T(1) - T(2) * (yy + zz), T(2) * (xy + zw),        T(2) * (xz - yw),
+            T(2) * (xy - zw),        T(1) - T(2) * (xx + zz), T(2) * (yz + xw),
+            T(2) * (xz + yw),        T(2) * (yz - xw),        T(1) - T(2) * (xx + yy)};
     }
 
     //

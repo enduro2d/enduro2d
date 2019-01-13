@@ -307,8 +307,8 @@ namespace e2d { namespace math
         const T cs = math::cos(angle);
         const T sn = math::sin(angle);
         return {
-            cs, -sn,
-            sn, cs};
+            cs, sn,
+            -sn, cs};
     }
 
     //
