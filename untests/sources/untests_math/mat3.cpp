@@ -85,12 +85,12 @@ TEST_CASE("mat3") {
         REQUIRE(v3f(2,3,4) * math::make_scale_matrix3(3.f,4.f,5.f) == v3f(6.f,12.f,20.f));
         REQUIRE(math::approximately(
             v3f(20,30,10) * math::make_rotation_matrix3(math::half_pi<f32>(), v3f::unit_z()),
-            v3f(30.f,-20.f,10)));
+            v3f(-30.f,20.f,10)));
 
         REQUIRE(v3f(2,3,4) * math::make_scale_matrix3(3.f,4.f,5.f) == v3f(6.f,12.f,20.f));
         REQUIRE(math::approximately(
             v3f(20,30,10) * math::make_rotation_matrix3(math::half_pi<f32>(), v3f::unit_z()),
-            v3f(30.f,-20.f,10)));
+            v3f(-30.f,20.f,10)));
     }
     {
         auto v3 = v3f(2,3,4);
@@ -99,8 +99,8 @@ TEST_CASE("mat3") {
         REQUIRE(v3 * sm == v3 * sm);
     }
     {
-        REQUIRE(v3f::unit_x() * math::make_rotation_matrix3(math::half_pi<f32>(), v3f::unit_z()) == v3f(0,-1,0));
-        REQUIRE(-v3f::unit_x() * math::make_rotation_matrix3(math::half_pi<f32>(), v3f::unit_z()) == v3f(0,1,0));
+        REQUIRE(v3f::unit_x() * math::make_rotation_matrix3(math::half_pi<f32>(), v3f::unit_z()) == v3f(0,1,0));
+        REQUIRE(-v3f::unit_x() * math::make_rotation_matrix3(math::half_pi<f32>(), v3f::unit_z()) == v3f(0,-1,0));
     }
     {
         REQUIRE(math::transposed(m3f::identity()) == m3f::identity());
