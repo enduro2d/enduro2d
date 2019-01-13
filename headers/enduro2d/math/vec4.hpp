@@ -517,11 +517,11 @@ namespace e2d { namespace math
     template < typename T >
     math::make_distance_t<T>
     distance_squared(const vec4<T>& l, const vec4<T>& r) noexcept {
-        return length_squared<math::make_distance_t<T>>({
+        return length_squared(make_vec4(
             math::distance(l.x, r.x),
             math::distance(l.y, r.y),
             math::distance(l.z, r.z),
-            math::distance(l.w, r.w)});
+            math::distance(l.w, r.w)));
     }
 
     template < typename T >
