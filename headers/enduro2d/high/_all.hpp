@@ -17,3 +17,6 @@
 #include "components/camera.hpp"
 #include "components/sprite.hpp"
 #include "components/transform.hpp"
+
+#include "systems/render_system.hpp"
+#include "systems/sprite_system.hpp"

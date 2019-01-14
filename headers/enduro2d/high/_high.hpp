@@ -25,6 +25,12 @@ namespace e2d
         class transform3d;
     }
 
+    namespace systems
+    {
+        class render_system;
+        class sprite_system;
+    }
+
     class asset;
     class library;
 
