@@ -13,6 +13,7 @@
 #include "color32.hpp"
 #include "filesystem.hpp"
 #include "filesystem.inl"
+#include "ilist.hpp"
 #include "image.hpp"
 #include "mesh.hpp"
 #include "module.hpp"
