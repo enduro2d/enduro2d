@@ -25,6 +25,9 @@ namespace e2d
     template < typename T >
     class module;
 
+    template < typename T >
+    class intrusive_ptr;
+
     template < typename Char >
     class basic_string_hash;
 }
