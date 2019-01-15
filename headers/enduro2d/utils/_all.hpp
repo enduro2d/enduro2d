@@ -17,6 +17,7 @@
 #include "mesh.hpp"
 #include "module.hpp"
 #include "path.hpp"
+#include "refcount.hpp"
 #include "streams.hpp"
 #include "strfmts.hpp"
 #include "strings.hpp"
