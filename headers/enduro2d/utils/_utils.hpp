@@ -28,6 +28,9 @@ namespace e2d
     template < typename T >
     class intrusive_ptr;
 
+    template < typename T, typename Tag >
+    class intrusive_list;
+
     template < typename Char >
     class basic_string_hash;
 }
