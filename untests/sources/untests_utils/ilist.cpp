@@ -161,9 +161,14 @@ TEST_CASE("ilist") {
             intrusive_list<obj_t, ilist_tag1> l;
 
             REQUIRE(l.insert(l.end(), *o1)->i == 1); // 1
-            REQUIRE(l.insert(++l.begin(), *o2) == ++l.begin()); // 1 2
-            REQUIRE(l.insert(l.begin(), *o3) == l.begin()); // 3 1 2
-
+            {
+                auto i = l.insert(++l.begin(), *o2); // 1 2
+                REQUIRE(std::distance(l.begin(), i) == 1);
+            }
+            {
+                auto i = l.insert(l.begin(), *o3); // 3 1 2
+                REQUIRE(std::distance(l.begin(), i) == 0);
+            }
             {
                 auto iter = l.begin();
                 REQUIRE(iter->i == 3);
