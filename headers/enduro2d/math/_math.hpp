@@ -356,6 +356,14 @@ namespace e2d { namespace math
             : static_cast<std::make_unsigned_t<T>>(-(v + 1)) + 1;
     }
 
+    template < typename T >
+    std::enable_if_t<
+        std::is_integral<T>::value && std::is_unsigned<T>::value,
+        T>
+    abs_to_unsigned(T v) noexcept {
+        return v;
+    }
+
     //
     // sign
     //

@@ -235,6 +235,7 @@ TEST_CASE("math") {
         REQUIRE(math::approximately(math::abs_to_unsigned(1), 1u));
         REQUIRE(math::approximately(math::abs_to_unsigned(-1), 1u));
         REQUIRE(math::approximately(math::abs_to_unsigned(i8(-128)), u8(128)));
+        REQUIRE(math::approximately(math::abs_to_unsigned(10u), 10u));
 
         const auto imin = std::numeric_limits<i32>::min();
         const auto umax = std::numeric_limits<u32>::max();

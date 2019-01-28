@@ -34,7 +34,7 @@ namespace e2d
         using event_listener_uptr = std::unique_ptr<event_listener>;
     public:
         window(const v2u& size, str_view title, bool fullscreen);
-        ~window() noexcept;
+        ~window() noexcept final;
 
         void hide() noexcept;
         void show() noexcept;

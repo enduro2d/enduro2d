@@ -16,7 +16,7 @@ namespace
     using namespace e2d;
     using namespace e2d::opengl;
 
-    class property_block_value_visitor : private noncopyable {
+    class property_block_value_visitor final : private noncopyable {
     public:
         property_block_value_visitor(debug& debug, uniform_info ui) noexcept
         : debug_(debug)
