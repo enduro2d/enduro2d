@@ -23,7 +23,7 @@ namespace
     };
 }
 
-TEST_CASE("ilist") {
+TEST_CASE("intrusive_list") {
     {
         intrusive_list<obj_t, ilist_tag1> l;
         REQUIRE(l.empty());

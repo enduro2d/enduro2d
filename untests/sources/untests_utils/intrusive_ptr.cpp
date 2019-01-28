@@ -74,7 +74,7 @@ namespace
     int obj2_t::dtor_counter = 0;
 }
 
-TEST_CASE("iptr") {
+TEST_CASE("intrusive_ptr") {
     {
         intrusive_ptr<obj_t> p;
         REQUIRE_FALSE(p);
