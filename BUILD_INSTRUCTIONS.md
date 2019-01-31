@@ -1,4 +1,4 @@
-# Build Instructions 
+# Build Instructions
 
 ## * Requirements
 
@@ -56,4 +56,3 @@ $ ./samples/sample_00
 - CMake: https://cmake.org/
 - CMake documentation: https://cmake.org/documentation/
 - CMake FAQ: https://gitlab.kitware.com/cmake/community/wikis/FAQ
-

@@ -379,9 +379,11 @@ namespace mpark {
 
 #ifdef MPARK_CPP14_CONSTEXPR
     template <typename... Traits>
-    inline constexpr Trait common_trait(Traits... traits) {
+    inline constexpr Trait common_trait(Traits... traits_) {
       Trait result = Trait::TriviallyAvailable;
-      for (Trait t : {traits...}) {
+      lib::array<Trait, sizeof...(Traits)> traits = {{traits_...}};
+      for (std::size_t i = 0; i < sizeof...(Traits); ++i) {
+        Trait t = traits[i];
         if (static_cast<int>(t) > static_cast<int>(result)) {
           result = t;
         }
@@ -473,8 +475,13 @@ namespace mpark {
       struct base {
         template <std::size_t I, typename V>
         inline static constexpr AUTO_REFREF get_alt(V &&v)
+#ifdef _MSC_VER
+          AUTO_REFREF_RETURN(recursive_union::get_alt(
+              lib::forward<V>(v).data_, in_place_index_t<I>{}))
+#else
           AUTO_REFREF_RETURN(recursive_union::get_alt(
               data(lib::forward<V>(v)), in_place_index_t<I>{}))
+#endif
       };
 
       struct variant {
@@ -487,13 +494,38 @@ namespace mpark {
 
     namespace visitation {
 
+#if defined(MPARK_CPP14_CONSTEXPR) && !defined(_MSC_VER)
+#define MPARK_VARIANT_SWITCH_VISIT
+#endif
+
       struct base {
         template <typename Visitor, typename... Vs>
         using dispatch_result_t = decltype(
             lib::invoke(std::declval<Visitor>(),
                         access::base::get_alt<0>(std::declval<Vs>())...));
 
-#ifdef MPARK_CPP14_CONSTEXPR
+        template <typename Expected>
+        struct expected {
+          template <typename Actual>
+          inline static constexpr bool but_got() {
+            return std::is_same<Expected, Actual>::value;
+          }
+        };
+
+        template <typename Expected, typename Actual>
+        struct visit_return_type_check {
+          static_assert(
+              expected<Expected>::template but_got<Actual>(),
+              "`visit` requires the visitor to have a single return type");
+
+          template <typename Visitor, typename... Alts>
+          inline static constexpr DECLTYPE_AUTO invoke(Visitor &&visitor,
+                                                       Alts &&... alts)
+            DECLTYPE_AUTO_RETURN(lib::invoke(lib::forward<Visitor>(visitor),
+                                             lib::forward<Alts>(alts)...))
+        };
+
+#ifdef MPARK_VARIANT_SWITCH_VISIT
         template <bool B, typename R, typename... ITs>
         struct dispatcher;
 
@@ -523,7 +555,12 @@ namespace mpark {
           template <std::size_t B, typename F>
           MPARK_ALWAYS_INLINE static constexpr R dispatch(
               F &&f, typename ITs::type &&... visited_vs) {
-            return lib::invoke(
+            using Expected = R;
+            using Actual = decltype(lib::invoke(
+                lib::forward<F>(f),
+                access::base::get_alt<ITs::value>(
+                    lib::forward<typename ITs::type>(visited_vs))...));
+            return visit_return_type_check<Expected, Actual>::invoke(
                 lib::forward<F>(f),
                 access::base::get_alt<ITs::value>(
                     lib::forward<typename ITs::type>(visited_vs))...);
@@ -592,7 +629,11 @@ namespace mpark {
           template <std::size_t I, typename F, typename... Vs>
           MPARK_ALWAYS_INLINE static constexpr R dispatch_case(F &&f,
                                                                Vs &&... vs) {
-            return lib::invoke(
+            using Expected = R;
+            using Actual = decltype(
+                lib::invoke(lib::forward<F>(f),
+                            access::base::get_alt<I>(lib::forward<Vs>(vs))...));
+            return visit_return_type_check<Expected, Actual>::invoke(
                 lib::forward<F>(f),
                 access::base::get_alt<I>(lib::forward<Vs>(vs))...);
           }
@@ -665,22 +706,23 @@ namespace mpark {
           return at(elems[i], is...);
         }
 
-        template <typename... Ts>
-        inline static constexpr lib::array<
-            lib::common_type_t<lib::decay_t<Ts>...>,
-            sizeof...(Ts)>
-        make_farray(Ts &&... elems) {
-          using R = lib::array<lib::common_type_t<lib::decay_t<Ts>...>,
-                               sizeof...(Ts)>;
-          return R{{lib::forward<Ts>(elems)...}};
+        template <typename F, typename... Fs>
+        inline static constexpr lib::array<lib::decay_t<F>, sizeof...(Fs) + 1>
+        make_farray(F &&f, Fs &&... fs) {
+          return {{lib::forward<F>(f), lib::forward<Fs>(fs)...}};
         }
 
         template <typename F, typename... Vs>
         struct make_fmatrix_impl {
+
           template <std::size_t... Is>
           inline static constexpr dispatch_result_t<F, Vs...> dispatch(
               F &&f, Vs &&... vs) {
-            return lib::invoke(
+            using Expected = dispatch_result_t<F, Vs...>;
+            using Actual = decltype(lib::invoke(
+                lib::forward<F>(f),
+                access::base::get_alt<Is>(lib::forward<Vs>(vs))...));
+            return visit_return_type_check<Expected, Actual>::invoke(
                 lib::forward<F>(f),
                 access::base::get_alt<Is>(lib::forward<Vs>(vs))...);
           }
@@ -737,7 +779,11 @@ namespace mpark {
           template <std::size_t I>
           inline static constexpr dispatch_result_t<F, Vs...> dispatch(
               F &&f, Vs &&... vs) {
-            return lib::invoke(
+            using Expected = dispatch_result_t<F, Vs...>;
+            using Actual = decltype(
+                lib::invoke(lib::forward<F>(f),
+                            access::base::get_alt<I>(lib::forward<Vs>(vs))...));
+            return visit_return_type_check<Expected, Actual>::invoke(
                 lib::forward<F>(f),
                 access::base::get_alt<I>(lib::forward<Vs>(vs))...);
           }
@@ -760,21 +806,15 @@ namespace mpark {
 #endif
       };
 
-#ifndef MPARK_CPP14_CONSTEXPR
+#if !defined(MPARK_VARIANT_SWITCH_VISIT) && \
+    (!defined(_MSC_VER) || _MSC_VER >= 1910)
       template <typename F, typename... Vs>
       using fmatrix_t = decltype(base::make_fmatrix<F, Vs...>());
 
       template <typename F, typename... Vs>
       struct fmatrix {
-#ifdef _MSC_VER
-#pragma warning(push)
-#pragma warning(disable : 4268)
-#endif
         static constexpr fmatrix_t<F, Vs...> value =
             base::make_fmatrix<F, Vs...>();
-#ifdef _MSC_VER
-#pragma warning(pop)
-#endif
       };
 
       template <typename F, typename... Vs>
@@ -785,15 +825,8 @@ namespace mpark {
 
       template <typename F, typename... Vs>
       struct fdiagonal {
-#ifdef _MSC_VER
-#pragma warning(push)
-#pragma warning(disable : 4268)
-#endif
         static constexpr fdiagonal_t<F, Vs...> value =
             base::make_fdiagonal<F, Vs...>();
-#ifdef _MSC_VER
-#pragma warning(pop)
-#endif
       };
 
       template <typename F, typename... Vs>
@@ -804,7 +837,7 @@ namespace mpark {
         template <typename Visitor, typename... Vs>
         inline static constexpr DECLTYPE_AUTO visit_alt(Visitor &&visitor,
                                                         Vs &&... vs)
-#ifdef MPARK_CPP14_CONSTEXPR
+#ifdef MPARK_VARIANT_SWITCH_VISIT
           DECLTYPE_AUTO_RETURN(
               base::dispatcher<
                   true,
@@ -813,10 +846,16 @@ namespace mpark {
                                               lib::forward<Vs>(vs)))...>>::
                   template dispatch<0>(lib::forward<Visitor>(visitor),
                                        as_base(lib::forward<Vs>(vs))...))
-#else
+#elif !defined(_MSC_VER) || _MSC_VER >= 1910
           DECLTYPE_AUTO_RETURN(base::at(
               fmatrix<Visitor &&,
                       decltype(as_base(lib::forward<Vs>(vs)))...>::value,
+              vs.index()...)(lib::forward<Visitor>(visitor),
+                             as_base(lib::forward<Vs>(vs))...))
+#else
+          DECLTYPE_AUTO_RETURN(base::at(
+              base::make_fmatrix<Visitor &&,
+                      decltype(as_base(lib::forward<Vs>(vs)))...>(),
               vs.index()...)(lib::forward<Visitor>(visitor),
                              as_base(lib::forward<Vs>(vs))...))
 #endif
@@ -825,7 +864,7 @@ namespace mpark {
         inline static constexpr DECLTYPE_AUTO visit_alt_at(std::size_t index,
                                                            Visitor &&visitor,
                                                            Vs &&... vs)
-#ifdef MPARK_CPP14_CONSTEXPR
+#ifdef MPARK_VARIANT_SWITCH_VISIT
           DECLTYPE_AUTO_RETURN(
               base::dispatcher<
                   true,
@@ -835,10 +874,16 @@ namespace mpark {
                   template dispatch_at<0>(index,
                                           lib::forward<Visitor>(visitor),
                                           as_base(lib::forward<Vs>(vs))...))
-#else
+#elif !defined(_MSC_VER) || _MSC_VER >= 1910
           DECLTYPE_AUTO_RETURN(base::at(
               fdiagonal<Visitor &&,
                         decltype(as_base(lib::forward<Vs>(vs)))...>::value,
+              index)(lib::forward<Visitor>(visitor),
+                     as_base(lib::forward<Vs>(vs))...))
+#else
+          DECLTYPE_AUTO_RETURN(base::at(
+              base::make_fdiagonal<Visitor &&,
+                        decltype(as_base(lib::forward<Vs>(vs)))...>(),
               index)(lib::forward<Visitor>(visitor),
                      as_base(lib::forward<Vs>(vs))...))
 #endif
@@ -846,23 +891,23 @@ namespace mpark {
 
       struct variant {
         private:
-        template <typename Visitor, typename... Values>
-        struct visit_exhaustive_visitor_check {
-          static_assert(
-              lib::is_invocable<Visitor, Values...>::value,
-              "`mpark::visit` requires the visitor to be exhaustive.");
+        template <typename Visitor>
+        struct visitor {
+          template <typename... Values>
+          inline static constexpr bool does_not_handle() {
+            return lib::is_invocable<Visitor, Values...>::value;
+          }
+        };
 
-#ifdef _MSC_VER
-#pragma warning(push)
-#pragma warning(disable : 4100)
-#endif
-          inline constexpr DECLTYPE_AUTO operator()(Visitor &&visitor,
-                                                    Values &&... values) const
+        template <typename Visitor, typename... Values>
+        struct visit_exhaustiveness_check {
+          static_assert(visitor<Visitor>::template does_not_handle<Values...>(),
+                        "`visit` requires the visitor to be exhaustive.");
+
+          inline static constexpr DECLTYPE_AUTO invoke(Visitor &&visitor,
+                                                       Values &&... values)
             DECLTYPE_AUTO_RETURN(lib::invoke(lib::forward<Visitor>(visitor),
                                              lib::forward<Values>(values)...))
-#ifdef _MSC_VER
-#pragma warning(pop)
-#endif
         };
 
         template <typename Visitor>
@@ -872,11 +917,11 @@ namespace mpark {
           template <typename... Alts>
           inline constexpr DECLTYPE_AUTO operator()(Alts &&... alts) const
             DECLTYPE_AUTO_RETURN(
-                visit_exhaustive_visitor_check<
+                visit_exhaustiveness_check<
                     Visitor,
-                    decltype((lib::forward<Alts>(alts).value))...>{}(
-                    lib::forward<Visitor>(visitor_),
-                    lib::forward<Alts>(alts).value...))
+                    decltype((lib::forward<Alts>(alts).value))...>::
+                    invoke(lib::forward<Visitor>(visitor_),
+                           lib::forward<Alts>(alts).value...))
         };
 
         template <typename Visitor>
@@ -1039,13 +1084,13 @@ namespace mpark {
 #endif
     };
 
-#if defined(_MSC_VER) && _MSC_VER < 1910
+#if !defined(_MSC_VER) || _MSC_VER >= 1910
+#define MPARK_INHERITING_CTOR(type, base) using base::base;
+#else
 #define MPARK_INHERITING_CTOR(type, base)         \
   template <typename... Args>                     \
   inline explicit constexpr type(Args &&... args) \
       : base(lib::forward<Args>(args)...) {}
-#else
-#define MPARK_INHERITING_CTOR(type, base) using base::base;
 #endif
 
     template <typename Traits, Trait = Traits::destructible_trait>
