@@ -4,6 +4,7 @@
 
 [![travis][badge.travis]][travis]
 [![appveyor][badge.appveyor]][appveyor]
+[![codecov][badge.codecov]][codecov]
 [![language][badge.language]][language]
 [![license][badge.license]][license]
 [![paypal][badge.paypal]][paypal]
@@ -16,14 +17,16 @@
 
 ## [License (MIT)](./LICENSE.md)
 
-[badge.travis]: https://img.shields.io/travis/enduro2d/enduro2d/master.svg?logo=travis&style=for-the-badge
-[badge.appveyor]: https://img.shields.io/appveyor/ci/BlackMATov/enduro2d/master.svg?logo=appveyor&style=for-the-badge
-[badge.language]: https://img.shields.io/badge/language-C%2B%2B14-red.svg?style=for-the-badge
-[badge.license]: https://img.shields.io/badge/license-MIT-blue.svg?style=for-the-badge
-[badge.paypal]: https://img.shields.io/badge/donate-PayPal-orange.svg?logo=paypal&colorA=00457C&style=for-the-badge
+[badge.travis]: https://img.shields.io/travis/enduro2d/enduro2d/master.svg?logo=travis
+[badge.appveyor]: https://img.shields.io/appveyor/ci/BlackMATov/enduro2d/master.svg?logo=appveyor
+[badge.codecov]: https://img.shields.io/codecov/c/github/enduro2d/enduro2d/master.svg?logo=codecov
+[badge.language]: https://img.shields.io/badge/language-C%2B%2B14-red.svg
+[badge.license]: https://img.shields.io/badge/license-MIT-blue.svg
+[badge.paypal]: https://img.shields.io/badge/donate-PayPal-orange.svg?logo=paypal&colorA=00457C
 
 [travis]: https://travis-ci.org/enduro2d/enduro2d
 [appveyor]: https://ci.appveyor.com/project/BlackMATov/enduro2d
+[codecov]: https://codecov.io/gh/enduro2d/enduro2d
 [language]: https://en.wikipedia.org/wiki/C%2B%2B14
 [license]: https://en.wikipedia.org/wiki/MIT_License
 [paypal]: https://www.paypal.me/matov

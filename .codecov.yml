@@ -1,0 +1,6 @@
+ignore:
+  - "untests/*"
+  - "samples/*"
+  - "toolset/*"
+  - "*/3rdparty/*"
+  - "*/modules/*"
