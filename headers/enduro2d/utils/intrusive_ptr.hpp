@@ -138,20 +138,16 @@ namespace e2d
         intrusive_ptr(const intrusive_ptr& other) noexcept(is_nothrow_add_ref_v);
         intrusive_ptr& operator=(const intrusive_ptr& other) noexcept(is_nothrow_counter_v);
 
-        template < typename U
-                 , typename = std::enable_if_t<std::is_convertible<U,T>::value> >
+        template < typename U >
         intrusive_ptr(intrusive_ptr<U>&& other) noexcept;
 
-        template < typename U
-                 , typename = std::enable_if_t<std::is_convertible<U,T>::value> >
+        template < typename U >
         intrusive_ptr& operator=(intrusive_ptr<U>&& other) noexcept(is_nothrow_release_v);
 
-        template < typename U
-                 , typename = std::enable_if_t<std::is_convertible<U,T>::value> >
+        template < typename U >
         intrusive_ptr(const intrusive_ptr<U>& other) noexcept(is_nothrow_add_ref_v);
 
-        template < typename U
-                 , typename = std::enable_if_t<std::is_convertible<U,T>::value> >
+        template < typename U >
         intrusive_ptr& operator=(const intrusive_ptr<U>& other) noexcept(is_nothrow_counter_v);
 
         intrusive_ptr(T* ptr, bool add_ref = true) noexcept(is_nothrow_add_ref_v);
@@ -216,14 +212,14 @@ namespace e2d
     }
 
     template < typename T >
-    template < typename U, typename >
+    template < typename U >
     intrusive_ptr<T>::intrusive_ptr(intrusive_ptr<U>&& other) noexcept
     : ptr_(other.ptr_) {
         other.ptr_ = nullptr;
     }
 
     template < typename T >
-    template < typename U, typename >
+    template < typename U >
     intrusive_ptr<T>& intrusive_ptr<T>::operator=(intrusive_ptr<U>&& other)
         noexcept(is_nothrow_release_v)
     {
@@ -232,7 +228,7 @@ namespace e2d
     }
 
     template < typename T >
-    template < typename U, typename >
+    template < typename U >
     intrusive_ptr<T>::intrusive_ptr(const intrusive_ptr<U>& other)
         noexcept(is_nothrow_add_ref_v)
     : ptr_(other.ptr_) {
@@ -242,7 +238,7 @@ namespace e2d
     }
 
     template < typename T >
-    template < typename U, typename >
+    template < typename U >
     intrusive_ptr<T>& intrusive_ptr<T>::operator=(const intrusive_ptr<U>& other)
         noexcept(is_nothrow_counter_v)
     {
