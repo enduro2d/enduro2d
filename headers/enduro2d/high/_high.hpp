@@ -31,6 +31,9 @@ namespace e2d
         class sprite_system;
     }
 
+    class node;
+    class scene;
+
     class asset;
     class library;
 
