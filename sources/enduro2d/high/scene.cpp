@@ -75,6 +75,18 @@ namespace e2d
         return count;
     }
 
+    std::size_t node::child_count() const noexcept {
+        return children_.size();
+    }
+
+    std::size_t node::child_count_recursive() const noexcept {
+        std::size_t count = child_count();
+        for ( const node& child : children_ ) {
+            count += child.child_count_recursive();
+        }
+        return count;
+    }
+
     bool node::add_child(const node_iptr& child) noexcept {
         return add_child_to_front(child);
     }
@@ -103,25 +115,6 @@ namespace e2d
         return true;
     }
 
-    bool node::add_child_after(
-        const const_node_iptr& after,
-        const node_iptr& child) noexcept
-    {
-        if ( !after ) {
-            return add_child_to_front(child);
-        }
-
-        if ( !child || after->parent_ != this ) {
-            return false;
-        }
-
-        child->remove_from_parent();
-        const auto iter = ++node_children::iterator_to(*after);
-        children_.insert(iter, *child);
-        child->parent_ = this;
-        return true;
-    }
-
     bool node::add_child_before(
         const const_node_iptr& before,
         const node_iptr& child) noexcept
@@ -136,6 +129,25 @@ namespace e2d
 
         child->remove_from_parent();
         const auto iter = node_children::iterator_to(*before);
+        children_.insert(iter, *child);
+        child->parent_ = this;
+        return true;
+    }
+
+    bool node::add_child_after(
+        const const_node_iptr& after,
+        const node_iptr& child) noexcept
+    {
+        if ( !after ) {
+            return add_child_to_front(child);
+        }
+
+        if ( !child || after->parent_ != this ) {
+            return false;
+        }
+
+        child->remove_from_parent();
+        const auto iter = ++node_children::iterator_to(*after);
         children_.insert(iter, *child);
         child->parent_ = this;
         return true;
@@ -169,40 +181,28 @@ namespace e2d
             : false;
     }
 
-    std::size_t node::child_count() const noexcept {
-        return children_.size();
-    }
-
-    std::size_t node::child_count_recursive() const noexcept {
-        std::size_t count = child_count();
-        for ( const node& child : children_ ) {
-            count += child.child_count_recursive();
-        }
-        return count;
-    }
-
-    node_iptr node::last_child() noexcept {
-        return !children_.empty()
-            ? node_iptr(&children_.back())
-            : node_iptr();
-    }
-
-    const_node_iptr node::last_child() const noexcept {
-        return !children_.empty()
-            ? const_node_iptr(&children_.back())
-            : const_node_iptr();
-    }
-
     node_iptr node::first_child() noexcept {
         return !children_.empty()
             ? node_iptr(&children_.front())
-            : node_iptr();
+            : nullptr;
     }
 
     const_node_iptr node::first_child() const noexcept {
         return !children_.empty()
             ? const_node_iptr(&children_.front())
-            : const_node_iptr();
+            : nullptr;
+    }
+
+    node_iptr node::last_child() noexcept {
+        return !children_.empty()
+            ? node_iptr(&children_.back())
+            : nullptr;
+    }
+
+    const_node_iptr node::last_child() const noexcept {
+        return !children_.empty()
+            ? const_node_iptr(&children_.back())
+            : nullptr;
     }
 
     node_iptr node::prev_sibling() noexcept {

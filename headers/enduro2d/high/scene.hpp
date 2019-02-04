@@ -44,6 +44,9 @@ namespace e2d
         bool remove_from_parent() noexcept;
         std::size_t remove_all_children() noexcept;
 
+        std::size_t child_count() const noexcept;
+        std::size_t child_count_recursive() const noexcept;
+
         bool add_child(
             const node_iptr& child) noexcept;
 
@@ -53,12 +56,12 @@ namespace e2d
         bool add_child_to_front(
             const node_iptr& child) noexcept;
 
-        bool add_child_after(
-            const const_node_iptr& after,
-            const node_iptr& child) noexcept;
-
         bool add_child_before(
             const const_node_iptr& before,
+            const node_iptr& child) noexcept;
+
+        bool add_child_after(
+            const const_node_iptr& after,
             const node_iptr& child) noexcept;
 
         bool send_backward() noexcept;
@@ -67,14 +70,11 @@ namespace e2d
         bool send_forward() noexcept;
         bool bring_to_front() noexcept;
 
-        std::size_t child_count() const noexcept;
-        std::size_t child_count_recursive() const noexcept;
+        node_iptr first_child() noexcept;
+        const_node_iptr first_child() const noexcept;
 
         node_iptr last_child() noexcept;
         const_node_iptr last_child() const noexcept;
-
-        node_iptr first_child() noexcept;
-        const_node_iptr first_child() const noexcept;
 
         node_iptr prev_sibling() noexcept;
         const_node_iptr prev_sibling() const noexcept;

@@ -24,14 +24,11 @@ namespace e2d
             f32 rotation() const noexcept;
             const v2f& scale() const noexcept;
 
-            const m4f& as_matrix() const noexcept;
+            m4f as_matrix() const noexcept;
         private:
             v2f position_ = v2f::zero();
             f32 rotation_ = 0.f;
             v2f scale_ = v2f::unit();
-        private:
-            mutable m4f matrix_ = m4f::identity();
-            mutable bool dirty_matrix_ = true;
         };
 
         class transform3d {
@@ -46,14 +43,11 @@ namespace e2d
             const q4f& rotation() const noexcept;
             const v3f& scale() const noexcept;
 
-            const m4f& as_matrix() const noexcept;
+            m4f as_matrix() const noexcept;
         private:
             v3f position_ = v3f::zero();
             q4f rotation_ = q4f::identity();
             v3f scale_ = v3f::unit();
-        private:
-            mutable m4f matrix_ = m4f::identity();
-            mutable bool dirty_matrix_ = true;
         };
     }
 }

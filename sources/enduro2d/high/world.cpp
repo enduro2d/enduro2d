@@ -16,6 +16,14 @@ namespace e2d
     world::world() = default;
     world::~world() noexcept = default;
 
+    scene_iptr world::scene() noexcept {
+        return scene_;
+    }
+
+    const_scene_iptr world::scene() const noexcept {
+        return scene_;
+    }
+
     ecs::registry& world::registry() noexcept {
         return registry_;
     }

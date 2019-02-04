@@ -7,6 +7,7 @@
 #pragma once
 
 #include "_high.hpp"
+#include "scene.hpp"
 
 namespace e2d
 {
@@ -15,9 +16,13 @@ namespace e2d
         world();
         ~world() noexcept final;
 
+        scene_iptr scene() noexcept;
+        const_scene_iptr scene() const noexcept;
+
         ecs::registry& registry() noexcept;
         const ecs::registry& registry() const noexcept;
     private:
+        scene_iptr scene_ = scene::create();
         ecs::registry registry_;
     };
 }
