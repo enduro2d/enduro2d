@@ -10,6 +10,9 @@ namespace e2d
 {
     namespace components
     {
+        drawable::drawable(const node_iptr& node)
+        : node_(node) {}
+
         node_iptr drawable::node() noexcept {
             return node_;
         }

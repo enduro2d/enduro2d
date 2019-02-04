@@ -11,8 +11,6 @@
 #include "assets.hpp"
 #include "library.hpp"
 #include "library.inl"
-#include "scene.hpp"
-#include "scene.inl"
 #include "starter.hpp"
 #include "world.hpp"
 
@@ -20,6 +18,10 @@
 #include "components/drawable.hpp"
 #include "components/sprite.hpp"
 #include "components/transform.hpp"
+
+#include "scene/node.hpp"
+#include "scene/node.inl"
+#include "scene/scene.hpp"
 
 #include "systems/render_system.hpp"
 #include "systems/sprite_system.hpp"

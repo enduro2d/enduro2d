@@ -8,17 +8,13 @@
 #define E2D_INCLUDE_GUARD_8703CE4A74D94C3CA27ED91AFF906936
 #pragma once
 
-#include "_high.hpp"
+#include "../_high.hpp"
 
 namespace e2d
 {
     class node;
     using node_iptr = intrusive_ptr<node>;
     using const_node_iptr = intrusive_ptr<const node>;
-
-    class scene;
-    using scene_iptr = intrusive_ptr<scene>;
-    using const_scene_iptr = intrusive_ptr<const scene>;
 
     class node_children_ilist_tag {};
     using node_children = intrusive_list<node, node_children_ilist_tag>;
@@ -32,6 +28,7 @@ namespace e2d
         , public intrusive_list_hook<node_children_ilist_tag> {
     public:
         ~node() noexcept;
+
         static node_iptr create();
         static node_iptr create(const node_iptr& parent);
 
@@ -87,9 +84,6 @@ namespace e2d
 
         template < typename F >
         void for_each_child(F&& f) const;
-
-        template < typename F >
-        std::size_t remove_child_if(F&& f);
     private:
         node();
     private:
@@ -98,22 +92,5 @@ namespace e2d
     };
 }
 
-namespace e2d
-{
-    class scene final
-        : private noncopyable
-        , public ref_counter<scene> {
-    public:
-        ~scene() noexcept;
-        static scene_iptr create();
-
-        const node_iptr& root() const noexcept;
-    private:
-        scene();
-    private:
-        node_iptr root_ = node::create();
-    };
-}
-
-#include "scene.inl"
+#include "node.inl"
 #endif

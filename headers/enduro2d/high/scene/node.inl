@@ -8,7 +8,7 @@
 #define E2D_INCLUDE_GUARD_27EFFE66AA124FFB862BE95C2FF38017
 #pragma once
 
-#include "scene.hpp"
+#include "node.hpp"
 
 namespace e2d
 {
@@ -24,22 +24,6 @@ namespace e2d
         for ( const node& child : children_ ) {
             f(const_node_iptr(&child));
         }
-    }
-
-    template < typename F >
-    std::size_t node::remove_child_if(F&& f) {
-        std::size_t count = 0u;
-        for ( auto iter = children_.begin(); iter != children_.end(); ) {
-            node_iptr child(&*iter);
-            if ( f(child) ) {
-                ++count;
-                ++iter;
-                child->remove_from_parent();
-            } else {
-                ++iter;
-            }
-        }
-        return count;
     }
 }
 

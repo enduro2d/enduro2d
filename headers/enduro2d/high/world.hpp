@@ -7,7 +7,7 @@
 #pragma once
 
 #include "_high.hpp"
-#include "scene.hpp"
+#include "scene/scene.hpp"
 
 namespace e2d
 {

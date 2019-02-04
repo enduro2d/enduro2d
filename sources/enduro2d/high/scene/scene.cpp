@@ -4,23 +4,23 @@
  * Copyright (C) 2018 Matvey Cherevko
  ******************************************************************************/
 
-#pragma once
+#include <enduro2d/high/scene/scene.hpp>
 
-#include "../_high.hpp"
-#include "../scene/scene.hpp"
+namespace
+{
+    using namespace e2d;
+}
 
 namespace e2d
 {
-    namespace components
-    {
-        class drawable {
-        public:
-            drawable(const node_iptr& node);
+    scene::scene() = default;
+    scene::~scene() noexcept = default;
 
-            node_iptr node() noexcept;
-            const_node_iptr node() const noexcept;
-        private:
-            node_iptr node_;
-        };
+    scene_iptr scene::create() {
+        return scene_iptr(new scene());
+    }
+
+    const node_iptr& scene::root() const noexcept {
+        return root_;
     }
 }
