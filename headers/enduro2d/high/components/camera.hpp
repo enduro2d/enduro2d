@@ -10,26 +10,23 @@
 
 namespace e2d
 {
-    namespace components
-    {
-        class camera {
-        public:
-            camera() = default;
+    class camera {
+    public:
+        camera() = default;
 
-            camera& viewport(const b2u& value) noexcept;
-            camera& projection(const m4f& value) noexcept;
-            camera& target(const render_target_ptr& value) noexcept;
-            camera& background(const color& value) noexcept;
+        camera& viewport(const b2u& value) noexcept;
+        camera& projection(const m4f& value) noexcept;
+        camera& target(const render_target_ptr& value) noexcept;
+        camera& background(const color& value) noexcept;
 
-            const b2u& viewport() const noexcept;
-            const m4f& projection() const noexcept;
-            const render_target_ptr& target() const noexcept;
-            const color& background() const noexcept;
-        private:
-            b2u viewport_ = b2u::zero();
-            m4f projection_ = m4f::identity();
-            render_target_ptr target_ = nullptr;
-            color background_ = color::clear();
-        };
-    }
+        const b2u& viewport() const noexcept;
+        const m4f& projection() const noexcept;
+        const render_target_ptr& target() const noexcept;
+        const color& background() const noexcept;
+    private:
+        b2u viewport_ = b2u::zero();
+        m4f projection_ = m4f::identity();
+        render_target_ptr target_ = nullptr;
+        color background_ = color::clear();
+    };
 }

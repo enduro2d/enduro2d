@@ -6,11 +6,6 @@
 
 #include <enduro2d/high/scene/node.hpp>
 
-namespace
-{
-    using namespace e2d;
-}
-
 namespace e2d
 {
     node::node() = default;

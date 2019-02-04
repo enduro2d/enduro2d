@@ -8,28 +8,25 @@
 
 namespace e2d
 {
-    namespace systems
-    {
-        //
-        // render_system
-        //
+    //
+    // render_system::internal_state
+    //
 
-        class render_system::internal_state final : private noncopyable {
-        public:
-            internal_state() = default;
-            ~internal_state() noexcept = default;
-        };
+    class render_system::internal_state final : private noncopyable {
+    public:
+        internal_state() = default;
+        ~internal_state() noexcept = default;
+    };
 
-        //
-        // render_system
-        //
+    //
+    // render_system
+    //
 
-        render_system::render_system()
-        : state_(new internal_state()) {}
-        render_system::~render_system() noexcept = default;
+    render_system::render_system()
+    : state_(new internal_state()) {}
+    render_system::~render_system() noexcept = default;
 
-        void render_system::process(ecs::registry& owner) {
-            E2D_UNUSED(owner);
-        }
+    void render_system::process(ecs::registry& owner) {
+        E2D_UNUSED(owner);
     }
 }

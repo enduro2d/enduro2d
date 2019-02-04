@@ -8,17 +8,14 @@
 
 namespace e2d
 {
-    namespace components
-    {
-        drawable::drawable(const node_iptr& node)
-        : node_(node) {}
+    drawable::drawable(const node_iptr& node)
+    : node_(node) {}
 
-        node_iptr drawable::node() noexcept {
-            return node_;
-        }
+    node_iptr drawable::node() noexcept {
+        return node_;
+    }
 
-        const_node_iptr drawable::node() const noexcept {
-            return node_;
-        }
+    const_node_iptr drawable::node() const noexcept {
+        return node_;
     }
 }

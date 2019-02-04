@@ -8,33 +8,30 @@
 
 namespace e2d
 {
-    namespace components
-    {
-        sprite& sprite::tint(const color& value) noexcept {
-            tint_ = value;
-            return *this;
-        }
+    sprite& sprite::tint(const color& value) noexcept {
+        tint_ = value;
+        return *this;
+    }
 
-        sprite& sprite::texture(const texture_ptr& value) noexcept {
-            texture_ = value;
-            return *this;
-        }
+    sprite& sprite::texture(const texture_ptr& value) noexcept {
+        texture_ = value;
+        return *this;
+    }
 
-        sprite& sprite::texture_rect(const b2f& value) noexcept {
-            texture_rect_ = value;
-            return *this;
-        }
+    sprite& sprite::texture_rect(const b2f& value) noexcept {
+        texture_rect_ = value;
+        return *this;
+    }
 
-        const color& sprite::tint() const noexcept {
-            return tint_;
-        }
+    const color& sprite::tint() const noexcept {
+        return tint_;
+    }
 
-        const texture_ptr& sprite::texture() const noexcept {
-            return texture_;
-        }
+    const texture_ptr& sprite::texture() const noexcept {
+        return texture_;
+    }
 
-        const b2f& sprite::texture_rect() const noexcept {
-            return texture_rect_;
-        }
+    const b2f& sprite::texture_rect() const noexcept {
+        return texture_rect_;
     }
 }

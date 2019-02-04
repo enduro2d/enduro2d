@@ -11,16 +11,13 @@
 
 namespace e2d
 {
-    namespace components
-    {
-        class drawable {
-        public:
-            drawable(const node_iptr& node);
+    class drawable {
+    public:
+        drawable(const node_iptr& node);
 
-            node_iptr node() noexcept;
-            const_node_iptr node() const noexcept;
-        private:
-            node_iptr node_;
-        };
-    }
+        node_iptr node() noexcept;
+        const_node_iptr node() const noexcept;
+    private:
+        node_iptr node_;
+    };
 }

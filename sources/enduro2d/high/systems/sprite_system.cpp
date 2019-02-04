@@ -8,28 +8,25 @@
 
 namespace e2d
 {
-    namespace systems
-    {
-        //
-        // sprite_system::internal_state
-        //
+    //
+    // sprite_system::internal_state
+    //
 
-        class sprite_system::internal_state final : private noncopyable {
-        public:
-            internal_state() = default;
-            ~internal_state() noexcept = default;
-        };
+    class sprite_system::internal_state final : private noncopyable {
+    public:
+        internal_state() = default;
+        ~internal_state() noexcept = default;
+    };
 
-        //
-        // sprite_system
-        //
+    //
+    // sprite_system
+    //
 
-        sprite_system::sprite_system()
-        : state_(new internal_state) {}
-        sprite_system::~sprite_system() noexcept = default;
+    sprite_system::sprite_system()
+    : state_(new internal_state) {}
+    sprite_system::~sprite_system() noexcept = default;
 
-        void sprite_system::process(ecs::registry& owner) {
-            E2D_UNUSED(owner);
-        }
+    void sprite_system::process(ecs::registry& owner) {
+        E2D_UNUSED(owner);
     }
 }

@@ -10,16 +10,13 @@
 
 namespace e2d
 {
-    namespace systems
-    {
-        class sprite_system : public ecs::system {
-        public:
-            sprite_system();
-            ~sprite_system() noexcept final;
-            void process(ecs::registry& owner) override;
-        private:
-            class internal_state;
-            std::unique_ptr<internal_state> state_;
-        };
-    }
+    class sprite_system : public ecs::system {
+    public:
+        sprite_system();
+        ~sprite_system() noexcept final;
+        void process(ecs::registry& owner) override;
+    private:
+        class internal_state;
+        std::unique_ptr<internal_state> state_;
+    };
 }

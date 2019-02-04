@@ -17,23 +17,17 @@ namespace e2d
         using namespace ecs_hpp;
     }
 
-    namespace components
-    {
-        class camera;
-        class drawable;
-        class sprite;
-        class transform2d;
-        class transform3d;
-    }
-
-    namespace systems
-    {
-        class render_system;
-        class sprite_system;
-    }
+    class camera;
+    class drawable;
+    class sprite;
+    class transform2d;
+    class transform3d;
 
     class node;
     class scene;
+
+    class render_system;
+    class sprite_system;
 
     class asset;
     class library;
