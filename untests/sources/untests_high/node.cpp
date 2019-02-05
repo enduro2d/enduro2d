@@ -105,6 +105,23 @@ TEST_CASE("node") {
             }
         }
     }
+    SECTION("has_parent") {
+        auto p = node::create();
+        REQUIRE_FALSE(p->has_parent());
+        REQUIRE_FALSE(p->has_parent(nullptr));
+
+        auto n = node::create(p);
+        REQUIRE(n->has_parent());
+        REQUIRE(n->has_parent(p));
+        REQUIRE(n->has_parent(nullptr));
+
+        auto pp = node::create();
+        REQUIRE_FALSE(n->has_parent(pp));
+
+        pp->add_child(p);
+        REQUIRE(n->has_parent(p));
+        REQUIRE(n->has_parent(pp));
+    }
     SECTION("auto_remove/remove_all_children") {
         {
             auto p = node::create();

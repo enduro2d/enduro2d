@@ -38,6 +38,9 @@ namespace e2d
         node_iptr parent() noexcept;
         const_node_iptr parent() const noexcept;
 
+        bool has_parent() const noexcept;
+        bool has_parent(const const_node_iptr& parent) const noexcept;
+
         bool remove_from_parent() noexcept;
         std::size_t remove_all_children() noexcept;
 

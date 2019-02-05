@@ -28,19 +28,19 @@ namespace e2d
     }
 
     node_iptr node::root() noexcept {
-        node* root = this;
-        while ( root->parent_ ) {
-            root = root->parent_;
+        node* n = this;
+        while ( n->parent_ ) {
+            n = n->parent_;
         }
-        return node_iptr(root);
+        return node_iptr(n);
     }
 
     const_node_iptr node::root() const noexcept {
-        const node* root = this;
-        while ( root->parent_ ) {
-            root = root->parent_;
+        const node* n = this;
+        while ( n->parent_ ) {
+            n = n->parent_;
         }
-        return const_node_iptr(root);
+        return const_node_iptr(n);
     }
 
     node_iptr node::parent() noexcept {
@@ -49,6 +49,24 @@ namespace e2d
 
     const_node_iptr node::parent() const noexcept {
         return const_node_iptr(parent_);
+    }
+
+    bool node::has_parent() const noexcept {
+        return !!parent_;
+    }
+
+    bool node::has_parent(const const_node_iptr& parent) const noexcept {
+        if ( !parent ) {
+            return has_parent();
+        }
+        const node* n = this;
+        while ( n ) {
+            if ( n->parent_ == parent ) {
+                return true;
+            }
+            n = n->parent_;
+        }
+        return false;
     }
 
     bool node::remove_from_parent() noexcept {
