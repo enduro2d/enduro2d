@@ -8,20 +8,21 @@
 
 #include "_high.hpp"
 
-#include "assets.hpp"
-#include "library.hpp"
-#include "library.inl"
-#include "starter.hpp"
-#include "world.hpp"
-
 #include "components/camera.hpp"
 #include "components/drawable.hpp"
 #include "components/sprite.hpp"
 #include "components/transform.hpp"
 
+#include "scene/actor.hpp"
 #include "scene/node.hpp"
 #include "scene/node.inl"
 #include "scene/scene.hpp"
 
 #include "systems/render_system.hpp"
 #include "systems/sprite_system.hpp"
+
+#include "assets.hpp"
+#include "library.hpp"
+#include "library.inl"
+#include "starter.hpp"
+#include "world.hpp"

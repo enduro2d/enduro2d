@@ -8,6 +8,8 @@
 
 namespace e2d
 {
+    drawable::drawable() = default;
+
     drawable::drawable(const node_iptr& node)
     : node_(node) {}
 

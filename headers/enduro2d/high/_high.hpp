@@ -16,13 +16,17 @@ namespace e2d
     {
         using namespace ecs_hpp;
     }
+}
 
+namespace e2d
+{
     class camera;
     class drawable;
     class sprite;
     class transform2d;
     class transform3d;
 
+    class actor;
     class node;
     class scene;
 

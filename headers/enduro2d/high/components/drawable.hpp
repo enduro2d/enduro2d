@@ -7,17 +7,18 @@
 #pragma once
 
 #include "../_high.hpp"
-#include "../scene/scene.hpp"
+#include "../scene/node.hpp"
 
 namespace e2d
 {
     class drawable {
     public:
+        drawable();
         drawable(const node_iptr& node);
 
         node_iptr node() noexcept;
         const_node_iptr node() const noexcept;
     private:
-        node_iptr node_;
+        node_iptr node_ = node::create();
     };
 }
