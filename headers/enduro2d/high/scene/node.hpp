@@ -22,12 +22,12 @@ namespace e2d
 
 namespace e2d
 {
-    class node final
+    class node
         : private noncopyable
         , public ref_counter<node>
         , public intrusive_list_hook<node_children_ilist_tag> {
     public:
-        ~node() noexcept;
+        virtual ~node() noexcept;
 
         static node_iptr create();
         static node_iptr create(const node_iptr& parent);
@@ -87,8 +87,11 @@ namespace e2d
 
         template < typename F >
         void for_each_child(F&& f) const;
-    private:
+    protected:
         node();
+    protected:
+        virtual void on_change_parent_() noexcept;
+        virtual void on_change_children_() noexcept;
     private:
         node* parent_{nullptr};
         node_children children_;

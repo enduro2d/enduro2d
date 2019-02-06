@@ -11,8 +11,18 @@ namespace e2d
     node::node() = default;
 
     node::~node() noexcept {
-        remove_all_children();
-        remove_from_parent();
+        while ( !children_.empty() ) {
+            node_iptr child(&children_.back());
+            children_.pop_back();
+            child->parent_ = nullptr;
+            child->on_change_parent_();
+        }
+        if ( parent_ ) {
+            parent_->children_.erase(
+                node_children::iterator_to(*this));
+            parent_->on_change_children_();
+            parent_ = nullptr;
+        }
     }
 
     node_iptr node::create() {
@@ -75,15 +85,23 @@ namespace e2d
         }
         parent_->children_.erase(
             node_children::iterator_to(*this));
+        parent_->on_change_children_();
         parent_ = nullptr;
+        on_change_parent_();
         return true;
     }
 
     std::size_t node::remove_all_children() noexcept {
         std::size_t count = 0;
         while ( !children_.empty() ) {
-            children_.back().remove_from_parent();
+            node_iptr child(&children_.back());
+            children_.pop_back();
+            child->parent_ = nullptr;
+            child->on_change_parent_();
             ++count;
+        }
+        if ( count > 0 ) {
+            on_change_children_();
         }
         return count;
     }
@@ -110,9 +128,28 @@ namespace e2d
         if ( !child ) {
             return false;
         }
-        child->remove_from_parent();
+
+        if ( child == first_child() ) {
+            return true;
+        }
+
+        if ( child->parent_ && child->parent_ == this ) {
+            children_.erase(node_children::iterator_to(*child));
+            children_.push_front(*child);
+            on_change_children_();
+            return true;
+        }
+
+        if ( child->parent_ ) {
+            child->parent_->children_.erase(node_children::iterator_to(*child));
+            child->parent_->on_change_children_();
+            child->parent_ = nullptr;
+        }
+
         children_.push_front(*child);
         child->parent_ = this;
+        child->on_change_parent_();
+        on_change_children_();
         return true;
     }
 
@@ -122,9 +159,28 @@ namespace e2d
         if ( !child ) {
             return false;
         }
-        child->remove_from_parent();
+
+        if ( child == last_child() ) {
+            return true;
+        }
+
+        if ( child->parent_ && child->parent_ == this ) {
+            children_.erase(node_children::iterator_to(*child));
+            children_.push_back(*child);
+            on_change_children_();
+            return true;
+        }
+
+        if ( child->parent_ ) {
+            child->parent_->children_.erase(node_children::iterator_to(*child));
+            child->parent_->on_change_children_();
+            child->parent_ = nullptr;
+        }
+
         children_.push_back(*child);
         child->parent_ = this;
+        child->on_change_parent_();
+        on_change_children_();
         return true;
     }
 
@@ -132,18 +188,35 @@ namespace e2d
         const const_node_iptr& before,
         const node_iptr& child) noexcept
     {
-        if ( !before ) {
-            return add_child_to_back(child);
-        }
-
-        if ( !child || before->parent_ != this ) {
+        if ( !before || !child || before->parent_ != this ) {
             return false;
         }
 
-        child->remove_from_parent();
-        const auto iter = node_children::iterator_to(*before);
-        children_.insert(iter, *child);
+        if ( before == child || before->prev_sibling() == child ) {
+            return true;
+        }
+
+        if ( child->parent_ && child->parent_ == this ) {
+            children_.erase(node_children::iterator_to(*child));
+            children_.insert(
+                node_children::iterator_to(*before),
+                *child);
+            on_change_children_();
+            return true;
+        }
+
+        if ( child->parent_ ) {
+            child->parent_->children_.erase(node_children::iterator_to(*child));
+            child->parent_->on_change_children_();
+            child->parent_ = nullptr;
+        }
+
+        children_.insert(
+            node_children::iterator_to(*before),
+            *child);
         child->parent_ = this;
+        child->on_change_parent_();
+        on_change_children_();
         return true;
     }
 
@@ -151,18 +224,35 @@ namespace e2d
         const const_node_iptr& after,
         const node_iptr& child) noexcept
     {
-        if ( !after ) {
-            return add_child_to_front(child);
-        }
-
-        if ( !child || after->parent_ != this ) {
+        if ( !after || !child || after->parent_ != this ) {
             return false;
         }
 
-        child->remove_from_parent();
-        const auto iter = ++node_children::iterator_to(*after);
-        children_.insert(iter, *child);
+        if ( after == child || after->next_sibling() == child ) {
+            return true;
+        }
+
+        if ( child->parent_ && child->parent_ == this ) {
+            children_.erase(node_children::iterator_to(*child));
+            children_.insert(
+                ++node_children::iterator_to(*after),
+                *child);
+            on_change_children_();
+            return true;
+        }
+
+        if ( child->parent_ ) {
+            child->parent_->children_.erase(node_children::iterator_to(*child));
+            child->parent_->on_change_children_();
+            child->parent_ = nullptr;
+        }
+
+        children_.insert(
+            ++node_children::iterator_to(*after),
+            *child);
         child->parent_ = this;
+        child->on_change_parent_();
+        on_change_children_();
         return true;
     }
 
@@ -174,8 +264,7 @@ namespace e2d
     }
 
     bool node::bring_to_back() noexcept {
-        const_node_iptr prev = prev_sibling();
-        return prev
+        return parent_
             ? parent_->add_child_to_back(this)
             : false;
     }
@@ -188,8 +277,7 @@ namespace e2d
     }
 
     bool node::bring_to_front() noexcept {
-        const_node_iptr next = next_sibling();
-        return next
+        return parent_
             ? parent_->add_child_to_front(this)
             : false;
     }
@@ -262,5 +350,14 @@ namespace e2d
             return nullptr;
         }
         return const_node_iptr(&*iter);
+    }
+}
+
+namespace e2d
+{
+    void node::on_change_parent_() noexcept {
+    }
+
+    void node::on_change_children_() noexcept {
     }
 }

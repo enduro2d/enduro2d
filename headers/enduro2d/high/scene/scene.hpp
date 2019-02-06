@@ -18,15 +18,15 @@ namespace e2d
 
 namespace e2d
 {
-    class scene final
+    class scene
         : private noncopyable
         , public ref_counter<scene> {
     public:
-        ~scene() noexcept;
+        virtual ~scene() noexcept;
         static scene_iptr create();
 
         const node_iptr& root() const noexcept;
-    private:
+    protected:
         scene();
     private:
         node_iptr root_ = node::create();
