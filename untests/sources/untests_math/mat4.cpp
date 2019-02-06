@@ -132,6 +132,30 @@ TEST_CASE("mat4") {
         REQUIRE(math::inversed(m4f::identity()).second == true);
     }
     {
+        REQUIRE(math::make_trs_matrix4(math::make_translation_trs2(v2f(1.f,2.f)))
+            == math::make_translation_matrix4(1.f,2.f));
+        REQUIRE(math::make_trs_matrix4(math::make_translation_trs3(v3f(1.f,2.f,3.f)))
+            == math::make_translation_matrix4(1.f,2.f,3.f));
+
+        REQUIRE(math::make_trs_matrix4(math::make_rotation_trs2(make_rad(3.f)))
+            == math::make_rotation_matrix4(make_rad(3.f), v4f::unit_z()));
+        REQUIRE(math::make_trs_matrix4(math::make_rotation_trs3(q4f(1,2,3,4)))
+            == math::make_rotation_matrix4(q4f(1,2,3,4)));
+
+        REQUIRE(math::make_trs_matrix4(math::make_scale_trs2(v2f(1.f,2.f)))
+            == math::make_scale_matrix4(1.f,2.f));
+        REQUIRE(math::make_trs_matrix4(math::make_scale_trs3(v3f(1.f,2.f,3.f)))
+            == math::make_scale_matrix4(1.f,2.f,3.f));
+
+        auto m0 = math::make_scale_matrix4(2.f,4.f,5.f) *
+                  math::make_rotation_matrix4(make_rad(1.f), v3f::unit_z()) *
+                  math::make_translation_matrix4(30.f, 40.f, 50.f);
+        REQUIRE(m0 == math::make_trs_matrix4(make_trs3(
+            v3f(30.f, 40.f, 50.f),
+            math::make_quat_from_axis_angle(make_rad(1.f), v3f::unit_z()),
+            v3f(2.f,4.f,5.f))));
+    }
+    {
         -m4i::identity();
         m4i::identity() + 2;
         m4i::identity() * 2;

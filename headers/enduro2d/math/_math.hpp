@@ -37,6 +37,12 @@ namespace e2d
     template < typename T >
     class aabb;
 
+    template < typename T >
+    class trs2;
+
+    template < typename T >
+    class trs3;
+
     template < typename T, typename Tag >
     class unit;
 
@@ -108,6 +114,20 @@ namespace e2d
     using b3u = aabb<u32>;
     using b3hi = aabb<i16>;
     using b3hu = aabb<u16>;
+
+    using t2d = trs2<f64>;
+    using t2f = trs2<f32>;
+    using t2i = trs2<i32>;
+    using t2u = trs2<u32>;
+    using t2hi = trs2<i16>;
+    using t2hu = trs2<u16>;
+
+    using t3d = trs3<f64>;
+    using t3f = trs3<f32>;
+    using t3i = trs3<i32>;
+    using t3u = trs3<u32>;
+    using t3hi = trs3<i16>;
+    using t3hu = trs3<u16>;
 
     struct deg_tag {};
     struct rad_tag {};

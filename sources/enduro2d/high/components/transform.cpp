@@ -40,10 +40,9 @@ namespace e2d
     }
 
     m4f transform2d::as_matrix() const noexcept {
-        return
-            math::make_scale_matrix4(scale_) *
-            math::make_rotation_matrix4(make_rad(rotation_), v4f::unit_z()) *
-            math::make_translation_matrix4(position_);
+        return math::make_scale_matrix4(scale_)
+             * math::make_rotation_matrix4(make_rad(rotation_), v4f::unit_z())
+             * math::make_translation_matrix4(position_);
     }
 
     //
@@ -78,9 +77,8 @@ namespace e2d
     }
 
     m4f transform3d::as_matrix() const noexcept {
-        return
-            math::make_scale_matrix4(scale_) *
-            math::make_rotation_matrix4(rotation_) *
-            math::make_translation_matrix4(position_);
+        return math::make_scale_matrix4(scale_)
+             * math::make_rotation_matrix4(rotation_)
+             * math::make_translation_matrix4(position_);
     }
 }

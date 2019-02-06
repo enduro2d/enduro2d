@@ -15,6 +15,8 @@
 #include "quat.hpp"
 #include "rect.hpp"
 #include "trig.hpp"
+#include "trs2.hpp"
+#include "trs3.hpp"
 #include "unit.hpp"
 #include "vec2.hpp"
 #include "vec3.hpp"
