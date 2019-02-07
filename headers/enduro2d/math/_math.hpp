@@ -366,6 +366,58 @@ namespace e2d { namespace math
         return flag_mask == (flags & flag_mask);
     }
 
+    template < typename T, typename U >
+    std::enable_if_t<
+        std::is_unsigned<T>::value &&
+        std::is_convertible<U,T>::value,
+        bool>
+    check_and_set_any_flags(T& flags, U flag_mask) noexcept {
+        if ( flag_mask == (flags & flag_mask) ) {
+            return false;
+        }
+        flags |= flag_mask;
+        return true;
+    }
+
+    template < typename T, typename U >
+    std::enable_if_t<
+        std::is_unsigned<T>::value &&
+        std::is_convertible<U,T>::value,
+        bool>
+    check_and_set_all_flags(T& flags, U flag_mask) noexcept {
+        if ( !!(flags & flag_mask) ) {
+            return false;
+        }
+        flags |= flag_mask;
+        return true;
+    }
+
+    template < typename T, typename U >
+    std::enable_if_t<
+        std::is_unsigned<T>::value &&
+        std::is_convertible<U,T>::value,
+        bool>
+    check_and_clear_any_flags(T& flags, U flag_mask) noexcept {
+        if ( !(flags & flag_mask) ) {
+            return false;
+        }
+        flags &= ~flag_mask;
+        return true;
+    }
+
+    template < typename T, typename U >
+    std::enable_if_t<
+        std::is_unsigned<T>::value &&
+        std::is_convertible<U,T>::value,
+        bool>
+    check_and_clear_all_flags(T& flags, U flag_mask) noexcept {
+        if ( flag_mask != (flags & flag_mask) ) {
+            return false;
+        }
+        flags &= ~flag_mask;
+        return true;
+    }
+
     //
     // power of two
     //
