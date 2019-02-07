@@ -291,6 +291,55 @@ namespace e2d { namespace math
     }
 
     //
+    // bit flags
+    //
+
+    template < typename T, typename U >
+    std::enable_if_t<
+        std::is_unsigned<T>::value &&
+        std::is_convertible<U,T>::value,
+        T>
+    set_flags(T flags, U flag_mask) noexcept {
+        return flags | flag_mask;
+    }
+
+    template < typename T, typename U >
+    std::enable_if_t<
+        std::is_unsigned<T>::value &&
+        std::is_convertible<U,T>::value,
+        T>
+    flip_flags(T flags, U flag_mask) noexcept {
+        return flags ^ flag_mask;
+    }
+
+    template < typename T, typename U >
+    std::enable_if_t<
+        std::is_unsigned<T>::value &&
+        std::is_convertible<U,T>::value,
+        T>
+    clear_flags(T flags, U flag_mask) noexcept {
+        return flags & ~flag_mask;
+    }
+
+    template < typename T, typename U >
+    std::enable_if_t<
+        std::is_unsigned<T>::value &&
+        std::is_convertible<U,T>::value,
+        bool>
+    check_any_flags(T flags, U flag_mask) noexcept {
+        return !!(flags & flag_mask);
+    }
+
+    template < typename T, typename U >
+    std::enable_if_t<
+        std::is_unsigned<T>::value &&
+        std::is_convertible<U,T>::value,
+        bool>
+    check_all_flags(T flags, U flag_mask) noexcept {
+        return flag_mask == (flags & flag_mask);
+    }
+
+    //
     // power of two
     //
 

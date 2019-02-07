@@ -95,6 +95,95 @@ TEST_CASE("math") {
         }
     }
     {
+        enum flag_masks : u32 {
+            fm_flag0 = 1 << 0,
+            fm_flag1 = 1 << 1
+        };
+
+        //
+        // set flags
+        //
+
+        REQUIRE(math::set_flags(0b0000u, 0b0001) == 0b0001u);
+        REQUIRE(math::set_flags(0b0001u, 0b0001) == 0b0001u);
+
+        REQUIRE(math::set_flags(0b0000u, fm_flag0) == 0b0001u);
+        REQUIRE(math::set_flags(0b0000u, fm_flag1) == 0b0010u);
+        REQUIRE(math::set_flags(0b0000u, fm_flag0 | fm_flag1) == 0b0011u);
+
+        //
+        // flip flags
+        //
+
+        REQUIRE(math::flip_flags(0b0000u, fm_flag0) == 0b0001u);
+        REQUIRE(math::flip_flags(0b0001u, fm_flag0) == 0b0000u);
+        REQUIRE(math::flip_flags(0b0000u, fm_flag1) == 0b0010u);
+        REQUIRE(math::flip_flags(0b0010u, fm_flag1) == 0b0000u);
+
+        REQUIRE(math::flip_flags(0b0000u, fm_flag0 | fm_flag1) == 0b0011u);
+        REQUIRE(math::flip_flags(0b0011u, fm_flag0 | fm_flag1) == 0b0000u);
+        REQUIRE(math::flip_flags(0b0001u, fm_flag0 | fm_flag1) == 0b0010u);
+        REQUIRE(math::flip_flags(0b0010u, fm_flag0 | fm_flag1) == 0b0001u);
+
+        //
+        // clear flags
+        //
+
+        REQUIRE(math::clear_flags(0b1111u, fm_flag0) == 0b1110u);
+        REQUIRE(math::clear_flags(0b1111u, fm_flag1) == 0b1101u);
+        REQUIRE(math::clear_flags(0b1111u, fm_flag0 | fm_flag1) == 0b1100u);
+
+        REQUIRE(math::clear_flags(0b0110u, fm_flag0) == 0b0110u);
+        REQUIRE(math::clear_flags(0b0101u, fm_flag1) == 0b0101u);
+        REQUIRE(math::clear_flags(0b0100u, fm_flag0 | fm_flag1) == 0b0100u);
+
+        //
+        // check any flags
+        //
+
+        REQUIRE_FALSE(math::check_any_flags(0b0000u, 0));
+        REQUIRE_FALSE(math::check_any_flags(0b1111u, 0));
+
+        REQUIRE(math::check_any_flags(0b1111u, fm_flag0));
+        REQUIRE(math::check_any_flags(0b1111u, fm_flag1));
+        REQUIRE(math::check_any_flags(0b1111u, fm_flag0 | fm_flag1));
+        REQUIRE(math::check_any_flags(0b1110u, fm_flag0 | fm_flag1));
+        REQUIRE(math::check_any_flags(0b1101u, fm_flag0 | fm_flag1));
+        REQUIRE_FALSE(math::check_any_flags(0b1100u, fm_flag0 | fm_flag1));
+
+        //
+        // check all flags
+        //
+
+        REQUIRE(math::check_all_flags(0b0000u, 0));
+        REQUIRE(math::check_all_flags(0b1111u, 0));
+
+        REQUIRE(math::check_all_flags(0b1111u, fm_flag0));
+        REQUIRE(math::check_all_flags(0b1101u, fm_flag0));
+        REQUIRE(math::check_all_flags(0b0001u, fm_flag0));
+
+        REQUIRE_FALSE(math::check_all_flags(0b1110u, fm_flag0));
+        REQUIRE_FALSE(math::check_all_flags(0b1100u, fm_flag0));
+        REQUIRE_FALSE(math::check_all_flags(0b0000u, fm_flag0));
+
+        REQUIRE(math::check_all_flags(0b1111u, fm_flag1));
+        REQUIRE(math::check_all_flags(0b1110u, fm_flag1));
+        REQUIRE(math::check_all_flags(0b0010u, fm_flag1));
+
+        REQUIRE_FALSE(math::check_all_flags(0b1101u, fm_flag1));
+        REQUIRE_FALSE(math::check_all_flags(0b1100u, fm_flag1));
+        REQUIRE_FALSE(math::check_all_flags(0b0000u, fm_flag1));
+
+        REQUIRE(math::check_all_flags(0b1111u, fm_flag0 | fm_flag1));
+        REQUIRE(math::check_all_flags(0b0111u, fm_flag0 | fm_flag1));
+        REQUIRE(math::check_all_flags(0b0011u, fm_flag0 | fm_flag1));
+
+        REQUIRE_FALSE(math::check_all_flags(0b1110u, fm_flag0 | fm_flag1));
+        REQUIRE_FALSE(math::check_all_flags(0b1101u, fm_flag0 | fm_flag1));
+        REQUIRE_FALSE(math::check_all_flags(0b1100u, fm_flag0 | fm_flag1));
+        REQUIRE_FALSE(math::check_all_flags(0b0000u, fm_flag0 | fm_flag1));
+    }
+    {
         REQUIRE(math::is_power_of_2(1u));
         REQUIRE(math::is_power_of_2(2u));
         REQUIRE(math::is_power_of_2(4u));
