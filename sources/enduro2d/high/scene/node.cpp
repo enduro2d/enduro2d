@@ -185,7 +185,7 @@ namespace e2d
     }
 
     bool node::add_child_before(
-        const const_node_iptr& before,
+        const node_iptr& before,
         const node_iptr& child) noexcept
     {
         if ( !before || !child || before->parent_ != this ) {
@@ -221,7 +221,7 @@ namespace e2d
     }
 
     bool node::add_child_after(
-        const const_node_iptr& after,
+        const node_iptr& after,
         const node_iptr& child) noexcept
     {
         if ( !after || !child || after->parent_ != this ) {
@@ -256,10 +256,22 @@ namespace e2d
         return true;
     }
 
+    bool node::add_sibling_before(const node_iptr& sibling) noexcept {
+        return parent_
+            ? parent_->add_child_before(this, sibling)
+            : false;
+    }
+
+    bool node::add_sibling_after(const node_iptr& sibling) noexcept {
+        return parent_
+            ? parent_->add_child_after(this, sibling)
+            : false;
+    }
+
     bool node::send_backward() noexcept {
-        const_node_iptr prev = prev_sibling();
+        node_iptr prev = prev_sibling();
         return prev
-            ? parent_->add_child_before(prev, this)
+            ? prev->add_sibling_before(this)
             : false;
     }
 
@@ -270,9 +282,9 @@ namespace e2d
     }
 
     bool node::send_forward() noexcept {
-        const_node_iptr next = next_sibling();
+        node_iptr next = next_sibling();
         return next
-            ? parent_->add_child_after(next, this)
+            ? next->add_sibling_after(this)
             : false;
     }
 

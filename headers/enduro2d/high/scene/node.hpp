@@ -57,12 +57,18 @@ namespace e2d
             const node_iptr& child) noexcept;
 
         bool add_child_before(
-            const const_node_iptr& before,
+            const node_iptr& before,
             const node_iptr& child) noexcept;
 
         bool add_child_after(
-            const const_node_iptr& after,
+            const node_iptr& after,
             const node_iptr& child) noexcept;
+
+        bool add_sibling_before(
+            const node_iptr& sibling) noexcept;
+
+        bool add_sibling_after(
+            const node_iptr& sibling) noexcept;
 
         bool send_backward() noexcept;
         bool bring_to_back() noexcept;

@@ -599,22 +599,22 @@ TEST_CASE("node") {
             p->remove_all_children();
             REQUIRE(p->add_child(n1)); // n1
 
-            REQUIRE(p->add_child_before(n1, n2)); // n2 n1
-            REQUIRE(p->add_child_before(n1, n3)); // n2 n3 n1
+            REQUIRE(n1->add_sibling_before(n2)); // n2 n1
+            REQUIRE(n1->add_sibling_before(n3)); // n2 n3 n1
 
-            REQUIRE(p->add_child_before(n1, n1)); // n2 n3 n1
-            REQUIRE(p->add_child_before(n3, n2)); // n2 n3 n1
+            REQUIRE(n1->add_sibling_before(n1)); // n2 n3 n1
+            REQUIRE(n3->add_sibling_before(n2)); // n2 n3 n1
 
-            REQUIRE_FALSE(p->add_child_before(n1, nullptr));
+            REQUIRE_FALSE(n1->add_sibling_before(nullptr));
             REQUIRE_FALSE(p->add_child_before(nullptr, n1));
             REQUIRE_FALSE(p->add_child_before(nullptr, nullptr));
-            REQUIRE_FALSE(p->add_child_before(p, n3));
+            REQUIRE_FALSE(p->add_sibling_before(n3));
 
             REQUIRE(n2->next_sibling() == n3);
             REQUIRE(n3->next_sibling() == n1);
 
-            REQUIRE(p->add_child_before(n3, n1)); // n2 n1 n3
-            REQUIRE(p->add_child_before(n2, n3)); // n3 n2 n1
+            REQUIRE(n3->add_sibling_before(n1)); // n2 n1 n3
+            REQUIRE(n2->add_sibling_before(n3)); // n3 n2 n1
 
             REQUIRE(n3->next_sibling() == n2);
             REQUIRE(n2->next_sibling() == n1);
@@ -622,7 +622,7 @@ TEST_CASE("node") {
             // to another parent
             auto p2 = node::create();
             auto n4 = node::create(p2); // n4
-            REQUIRE(p2->add_child_before(n4, n2)); // n2 n4
+            REQUIRE(n4->add_sibling_before(n2)); // n2 n4
 
             REQUIRE(n2->parent() == p2);
             REQUIRE_FALSE(n2->prev_sibling());
@@ -637,22 +637,22 @@ TEST_CASE("node") {
             p->remove_all_children();
             REQUIRE(p->add_child(n1)); // n1
 
-            REQUIRE(p->add_child_after(n1, n2)); // n1 n2
-            REQUIRE(p->add_child_after(n1, n3)); // n1 n3 n2
+            REQUIRE(n1->add_sibling_after(n2)); // n1 n2
+            REQUIRE(n1->add_sibling_after(n3)); // n1 n3 n2
 
-            REQUIRE(p->add_child_after(n1, n1)); // n1 n3 n2
-            REQUIRE(p->add_child_after(n3, n2)); // n1 n3 n2
+            REQUIRE(n1->add_sibling_after(n1)); // n1 n3 n2
+            REQUIRE(n3->add_sibling_after(n2)); // n1 n3 n2
 
-            REQUIRE_FALSE(p->add_child_after(n1, nullptr));
+            REQUIRE_FALSE(n1->add_sibling_after(nullptr));
             REQUIRE_FALSE(p->add_child_after(nullptr, n1));
             REQUIRE_FALSE(p->add_child_after(nullptr, nullptr));
-            REQUIRE_FALSE(p->add_child_after(p, n3));
+            REQUIRE_FALSE(p->add_sibling_after(n3));
 
             REQUIRE(n1->next_sibling() == n3);
             REQUIRE(n3->next_sibling() == n2);
 
-            REQUIRE(p->add_child_after(n3, n1)); // n3 n1 n2
-            REQUIRE(p->add_child_after(n2, n3)); // n1 n2 n3
+            REQUIRE(n3->add_sibling_after(n1)); // n3 n1 n2
+            REQUIRE(n2->add_sibling_after(n3)); // n1 n2 n3
 
             REQUIRE(n1->next_sibling() == n2);
             REQUIRE(n2->next_sibling() == n3);
@@ -660,7 +660,7 @@ TEST_CASE("node") {
             // to another parent
             auto p2 = node::create();
             auto n4 = node::create(p2); // n4
-            REQUIRE(p2->add_child_after(n4, n2)); // n4 n2
+            REQUIRE(n4->add_sibling_after(n2)); // n4 n2
 
             REQUIRE(n2->parent() == p2);
             REQUIRE(n2->prev_sibling() == n4);
