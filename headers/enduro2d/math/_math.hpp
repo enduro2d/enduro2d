@@ -307,6 +307,15 @@ namespace e2d { namespace math
     std::enable_if_t<
         std::is_unsigned<T>::value &&
         std::is_convertible<U,T>::value,
+        void>
+    set_flags_inplace(T& flags, U flag_mask) noexcept {
+        flags = set_flags(flags, flag_mask);
+    }
+
+    template < typename T, typename U >
+    std::enable_if_t<
+        std::is_unsigned<T>::value &&
+        std::is_convertible<U,T>::value,
         T>
     flip_flags(T flags, U flag_mask) noexcept {
         return flags ^ flag_mask;
@@ -316,9 +325,27 @@ namespace e2d { namespace math
     std::enable_if_t<
         std::is_unsigned<T>::value &&
         std::is_convertible<U,T>::value,
+        void>
+    flip_flags_inplace(T& flags, U flag_mask) noexcept {
+        flags = flip_flags(flags, flag_mask);
+    }
+
+    template < typename T, typename U >
+    std::enable_if_t<
+        std::is_unsigned<T>::value &&
+        std::is_convertible<U,T>::value,
         T>
     clear_flags(T flags, U flag_mask) noexcept {
         return flags & ~flag_mask;
+    }
+
+    template < typename T, typename U >
+    std::enable_if_t<
+        std::is_unsigned<T>::value &&
+        std::is_convertible<U,T>::value,
+        void>
+    clear_flags_inplace(T& flags, U flag_mask) noexcept {
+        flags = clear_flags(flags, flag_mask);
     }
 
     template < typename T, typename U >

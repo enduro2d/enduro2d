@@ -111,6 +111,12 @@ TEST_CASE("math") {
         REQUIRE(math::set_flags(0b0000u, fm_flag1) == 0b0010u);
         REQUIRE(math::set_flags(0b0000u, fm_flag0 | fm_flag1) == 0b0011u);
 
+        {
+            u32 f = 0b0000u;
+            math::set_flags_inplace(f, fm_flag0 | fm_flag1);
+            REQUIRE(f == 0b0011u);
+        }
+
         //
         // flip flags
         //
@@ -125,6 +131,12 @@ TEST_CASE("math") {
         REQUIRE(math::flip_flags(0b0001u, fm_flag0 | fm_flag1) == 0b0010u);
         REQUIRE(math::flip_flags(0b0010u, fm_flag0 | fm_flag1) == 0b0001u);
 
+        {
+            u32 f = 0b0010u;
+            math::flip_flags_inplace(f, fm_flag0 | fm_flag1);
+            REQUIRE(f == 0b0001u);
+        }
+
         //
         // clear flags
         //
@@ -136,6 +148,12 @@ TEST_CASE("math") {
         REQUIRE(math::clear_flags(0b0110u, fm_flag0) == 0b0110u);
         REQUIRE(math::clear_flags(0b0101u, fm_flag1) == 0b0101u);
         REQUIRE(math::clear_flags(0b0100u, fm_flag0 | fm_flag1) == 0b0100u);
+
+        {
+            u32 f = 0b1111u;
+            math::flip_flags_inplace(f, fm_flag0 | fm_flag1);
+            REQUIRE(f == 0b1100u);
+        }
 
         //
         // check any flags
