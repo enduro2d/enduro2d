@@ -11,13 +11,6 @@
 
 namespace e2d
 {
-    class actor;
-    using actor_iptr = intrusive_ptr<actor>;
-    using const_actor_iptr = intrusive_ptr<const actor>;
-}
-
-namespace e2d
-{
     class actor final : public node {
     public:
         ~actor() noexcept final;

@@ -11,13 +11,6 @@
 
 namespace e2d
 {
-    class scene;
-    using scene_iptr = intrusive_ptr<scene>;
-    using const_scene_iptr = intrusive_ptr<const scene>;
-}
-
-namespace e2d
-{
     class scene
         : private noncopyable
         , public ref_counter<scene> {
@@ -25,7 +18,8 @@ namespace e2d
         virtual ~scene() noexcept;
         static scene_iptr create();
 
-        const node_iptr& root() const noexcept;
+        node_iptr root() noexcept;
+        const_node_iptr root() const noexcept;
     protected:
         scene();
     private:

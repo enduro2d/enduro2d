@@ -15,7 +15,11 @@ namespace e2d
         return scene_iptr(new scene());
     }
 
-    const node_iptr& scene::root() const noexcept {
+    node_iptr scene::root() noexcept {
+        return root_;
+    }
+
+    const_node_iptr scene::root() const noexcept {
         return root_;
     }
 }

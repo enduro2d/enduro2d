@@ -803,4 +803,68 @@ TEST_CASE("node") {
         REQUIRE(fake_node::s_parent_changes == 5);
         REQUIRE(fake_node::s_children_changes == 4);
     }
+    SECTION("local_matrix") {
+        {
+            auto p = node::create();
+            p->transform(math::make_translation_trs3(v3f{10.f,0.f,0.f}));
+
+            auto n = node::create(p);
+            n->transform(math::make_translation_trs3(v3f{20.f,0.f,0.f}));
+            REQUIRE(n->local_matrix() == math::make_translation_matrix4(20.f,0.f,0.f));
+
+            auto v = v4f(5.f,0.f,0.f,1.f);
+            REQUIRE(v * n->local_matrix() == v4f{25.f,0.f,0.f,1.f});
+
+            n->transform(math::make_scale_trs3(v3f(1.f,2.f,3.f)));
+            REQUIRE(n->local_matrix() == math::make_scale_matrix4(1.f,2.f,3.f));
+        }
+    }
+    SECTION("world_matrix") {
+        {
+            auto p = node::create();
+            p->transform(math::make_translation_trs3(v3f{10.f,0.f,0.f}));
+
+            auto n = node::create(p);
+            n->transform(math::make_translation_trs3(v3f{20.f,0.f,0.f}));
+
+            auto v = v4f(5.f,0.f,0.f,1.f);
+            REQUIRE(v * n->world_matrix() == v4f{35.f,0.f,0.f,1.f});
+
+            n->transform(math::make_scale_trs3(v3f(1.f,2.f,3.f)));
+            REQUIRE(n->world_matrix() ==
+                math::make_scale_matrix4(1.f,2.f,3.f) *
+                math::make_translation_matrix4(10.f,0.f,0.f));
+        }
+        {
+            auto n = node::create();
+            n->transform(math::make_translation_trs3(v3f{20.f,0.f,0.f}));
+            REQUIRE(n->world_matrix() ==
+                math::make_translation_matrix4(20.f,0.f,0.f));
+
+            auto p = node::create();
+            p->transform(math::make_translation_trs3(v3f{10.f,0.f,0.f}));
+
+            p->add_child(n);
+            REQUIRE(n->world_matrix() ==
+                math::make_translation_matrix4(30.f,0.f,0.f));
+        }
+        {
+            auto p1 = node::create();
+            p1->transform(math::make_translation_trs3(v3f{10.f,0.f,0.f}));
+
+            auto p2 = node::create();
+            p2->transform(math::make_translation_trs3(v3f{20.f,0.f,0.f}));
+
+            auto n = node::create(p2);
+            n->transform(math::make_translation_trs3(v3f{30.f,0.f,0.f}));
+
+            REQUIRE(n->world_matrix() ==
+                math::make_translation_matrix4(50.f,0.f,0.f));
+
+            p1->add_child(p2);
+
+            REQUIRE(n->world_matrix() ==
+                math::make_translation_matrix4(60.f,0.f,0.f));
+        }
+    }
 }

@@ -12,16 +12,6 @@
 
 namespace e2d
 {
-    class node;
-    using node_iptr = intrusive_ptr<node>;
-    using const_node_iptr = intrusive_ptr<const node>;
-
-    class node_children_ilist_tag {};
-    using node_children = intrusive_list<node, node_children_ilist_tag>;
-}
-
-namespace e2d
-{
     class node
         : private noncopyable
         , public ref_counter<node>
@@ -31,6 +21,20 @@ namespace e2d
 
         static node_iptr create();
         static node_iptr create(const node_iptr& parent);
+
+        //
+        // transform
+        //
+
+        void transform(const t3f& transform) noexcept;
+        const t3f& transform() const noexcept;
+
+        const m4f& local_matrix() const noexcept;
+        const m4f& world_matrix() const noexcept;
+
+        //
+        // container
+        //
 
         node_iptr root() noexcept;
         const_node_iptr root() const noexcept;
@@ -99,8 +103,22 @@ namespace e2d
         virtual void on_change_parent_() noexcept;
         virtual void on_change_children_() noexcept;
     private:
+        enum flag_masks : u32 {
+            fm_dirty_local_matrix = 1u << 0,
+            fm_dirty_world_matrix = 1u << 1,
+        };
+        void mark_dirty_local_matrix_() noexcept;
+        void mark_dirty_world_matrix_() noexcept;
+        void update_local_matrix_() const noexcept;
+        void update_world_matrix_() const noexcept;
+    private:
+        t3f transform_;
         node* parent_{nullptr};
         node_children children_;
+    private:
+        mutable u32 flags_{0u};
+        mutable m4f local_matrix_;
+        mutable m4f world_matrix_;
     };
 }
 

@@ -37,6 +37,29 @@ namespace e2d
         return child;
     }
 
+    void node::transform(const t3f& transform) noexcept {
+        transform_ = transform;
+        mark_dirty_local_matrix_();
+    }
+
+    const t3f& node::transform() const noexcept {
+        return transform_;
+    }
+
+    const m4f& node::local_matrix() const noexcept {
+        if ( math::check_and_clear_all_flags(flags_, fm_dirty_local_matrix) ) {
+            update_local_matrix_();
+        }
+        return local_matrix_;
+    }
+
+    const m4f& node::world_matrix() const noexcept {
+        if ( math::check_and_clear_all_flags(flags_, fm_dirty_world_matrix) ) {
+            update_world_matrix_();
+        }
+        return world_matrix_;
+    }
+
     node_iptr node::root() noexcept {
         node* n = this;
         while ( n->parent_ ) {
@@ -368,8 +391,36 @@ namespace e2d
 namespace e2d
 {
     void node::on_change_parent_() noexcept {
+        mark_dirty_world_matrix_();
     }
 
     void node::on_change_children_() noexcept {
+    }
+}
+
+namespace e2d
+{
+    void node::mark_dirty_local_matrix_() noexcept {
+        if ( math::check_and_set_any_flags(flags_, fm_dirty_local_matrix) ) {
+            mark_dirty_world_matrix_();
+        }
+    }
+
+    void node::mark_dirty_world_matrix_() noexcept {
+        if ( math::check_and_set_any_flags(flags_, fm_dirty_world_matrix) ) {
+            for ( node& child : children_ ) {
+                child.mark_dirty_world_matrix_();
+            }
+        }
+    }
+
+    void node::update_local_matrix_() const noexcept {
+        local_matrix_ = math::make_trs_matrix4(transform_);
+    }
+
+    void node::update_world_matrix_() const noexcept {
+        world_matrix_ = parent_
+            ? parent_->world_matrix() * local_matrix()
+            : local_matrix();
     }
 }
