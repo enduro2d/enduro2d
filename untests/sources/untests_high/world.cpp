@@ -28,23 +28,4 @@ TEST_CASE("world"){
     safe_starter_initializer initializer;
     world& w = the<world>();
     REQUIRE(w.scene());
-
-    SECTION("actor/drawable"){
-        auto parent_e = w.registry().create_entity();
-        auto actor_e = w.registry().create_entity();
-        {
-            REQUIRE(parent_e.assign_component<drawable>());
-            node_iptr parent_n = parent_e.get_component<drawable>().node();
-            w.scene()->root()->add_child(parent_n);
-
-            actor_iptr actor_n = actor::create(actor_e);
-            REQUIRE(actor_e.assign_component<drawable>(actor_n));
-            parent_n->add_child(actor_n);
-        }
-        REQUIRE(w.scene()->root()->child_count_recursive() == 2);
-        w.registry().destroy_entity(parent_e);
-        REQUIRE(w.scene()->root()->child_count_recursive() == 0);
-        REQUIRE(actor_e.get_component<drawable>().node());
-        REQUIRE_FALSE(actor_e.get_component<drawable>().node()->parent());
-    }
 }

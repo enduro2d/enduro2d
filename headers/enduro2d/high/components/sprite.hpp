@@ -10,7 +10,7 @@
 
 namespace e2d
 {
-    class sprite {
+    class sprite final {
     public:
         sprite() = default;
 

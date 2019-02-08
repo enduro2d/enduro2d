@@ -10,7 +10,7 @@
 
 namespace e2d
 {
-    class camera {
+    class camera final {
     public:
         camera() = default;
 

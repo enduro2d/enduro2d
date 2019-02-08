@@ -78,7 +78,7 @@ namespace e2d
     class null_disposer {
     public:
         template < typename... Args >
-        void operator()(Args&&... args) noexcept {
+        void operator()(Args&&... args) const noexcept {
             E2D_UNUSED(std::forward<Args>(args)...);
         }
     };

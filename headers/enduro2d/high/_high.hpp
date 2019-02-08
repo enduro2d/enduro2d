@@ -41,8 +41,6 @@ namespace e2d
     class camera;
     class drawable;
     class sprite;
-    class transform2d;
-    class transform3d;
 
     class actor;
     class node;

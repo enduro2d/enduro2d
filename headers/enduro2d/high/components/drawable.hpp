@@ -11,7 +11,7 @@
 
 namespace e2d
 {
-    class drawable {
+    class drawable final {
     public:
         drawable();
         drawable(const node_iptr& node);

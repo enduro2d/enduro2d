@@ -6,22 +6,28 @@
 
 #include <enduro2d/high/scene/node.hpp>
 
+namespace
+{
+    using namespace e2d;
+
+    struct iptr_release_disposer {
+        void operator()(node* n) const noexcept {
+            intrusive_ptr_release(n);
+        }
+    };
+}
+
 namespace e2d
 {
     node::node() = default;
 
     node::~node() noexcept {
+        E2D_ASSERT(!parent_);
         while ( !children_.empty() ) {
             node_iptr child(&children_.back());
-            children_.pop_back();
+            children_.pop_back_and_dispose(iptr_release_disposer());
             child->parent_ = nullptr;
             child->on_change_parent_();
-        }
-        if ( parent_ ) {
-            parent_->children_.erase(
-                node_children::iterator_to(*this));
-            parent_->on_change_children_();
-            parent_ = nullptr;
         }
     }
 
@@ -130,8 +136,10 @@ namespace e2d
         if ( !parent_ ) {
             return false;
         }
-        parent_->children_.erase(
-            node_children::iterator_to(*this));
+        node_iptr self(this);
+        parent_->children_.erase_and_dispose(
+            node_children::iterator_to(*this),
+            iptr_release_disposer());
         parent_->on_change_children_();
         parent_ = nullptr;
         on_change_parent_();
@@ -142,7 +150,7 @@ namespace e2d
         std::size_t count = 0;
         while ( !children_.empty() ) {
             node_iptr child(&children_.back());
-            children_.pop_back();
+            children_.pop_back_and_dispose(iptr_release_disposer());
             child->parent_ = nullptr;
             child->on_change_parent_();
             ++count;
@@ -188,11 +196,14 @@ namespace e2d
         }
 
         if ( child->parent_ ) {
-            child->parent_->children_.erase(node_children::iterator_to(*child));
+            child->parent_->children_.erase_and_dispose(
+                node_children::iterator_to(*child),
+                iptr_release_disposer());
             child->parent_->on_change_children_();
             child->parent_ = nullptr;
         }
 
+        intrusive_ptr_add_ref(child.get());
         children_.push_front(*child);
         child->parent_ = this;
         child->on_change_parent_();
@@ -219,11 +230,14 @@ namespace e2d
         }
 
         if ( child->parent_ ) {
-            child->parent_->children_.erase(node_children::iterator_to(*child));
+            child->parent_->children_.erase_and_dispose(
+                node_children::iterator_to(*child),
+                iptr_release_disposer());
             child->parent_->on_change_children_();
             child->parent_ = nullptr;
         }
 
+        intrusive_ptr_add_ref(child.get());
         children_.push_back(*child);
         child->parent_ = this;
         child->on_change_parent_();
@@ -253,11 +267,14 @@ namespace e2d
         }
 
         if ( child->parent_ ) {
-            child->parent_->children_.erase(node_children::iterator_to(*child));
+            child->parent_->children_.erase_and_dispose(
+                node_children::iterator_to(*child),
+                iptr_release_disposer());
             child->parent_->on_change_children_();
             child->parent_ = nullptr;
         }
 
+        intrusive_ptr_add_ref(child.get());
         children_.insert(
             node_children::iterator_to(*before),
             *child);
@@ -289,11 +306,14 @@ namespace e2d
         }
 
         if ( child->parent_ ) {
-            child->parent_->children_.erase(node_children::iterator_to(*child));
+            child->parent_->children_.erase_and_dispose(
+                node_children::iterator_to(*child),
+                iptr_release_disposer());
             child->parent_->on_change_children_();
             child->parent_ = nullptr;
         }
 
+        intrusive_ptr_add_ref(child.get());
         children_.insert(
             ++node_children::iterator_to(*after),
             *child);

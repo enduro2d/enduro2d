@@ -7,5 +7,5 @@
 #include "_high.hpp"
 using namespace e2d;
 
-TEST_CASE("scene") {
+TEST_CASE("actor") {
 }
