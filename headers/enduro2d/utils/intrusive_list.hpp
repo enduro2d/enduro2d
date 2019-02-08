@@ -250,17 +250,27 @@ namespace e2d
 
         std::size_t size() const noexcept;
         bool empty() const noexcept;
-        void clear() noexcept;
         void swap(intrusive_list& other) noexcept;
 
+        template < typename Disposer >
+        void clear_and_dispose(Disposer&& disposer);
+        void clear() noexcept;
+
+        template < typename Disposer >
+        void pop_back_and_dispose(Disposer&& disposer);
         void pop_back() noexcept;
+
+        template < typename Disposer >
+        void pop_front_and_dispose(Disposer&& disposer);
         void pop_front() noexcept;
 
         void push_back(T& v) noexcept;
         void push_front(T& v) noexcept;
-
-        iterator erase(const_iterator pos) noexcept;
         iterator insert(const_iterator pos, T& v) noexcept;
+
+        template < typename Disposer >
+        iterator erase_and_dispose(const_iterator pos, Disposer&& disposer);
+        iterator erase(const_iterator pos) noexcept;
 
         static iterator iterator_to(T& v) noexcept;
         static const_iterator iterator_to(const T& v) noexcept;
@@ -391,29 +401,49 @@ namespace e2d
     }
 
     template < typename T, typename Tag >
-    void intrusive_list<T,Tag>::clear() noexcept {
-        while ( !empty() ) {
-            pop_back();
-        }
-    }
-
-    template < typename T, typename Tag >
     void intrusive_list<T,Tag>::swap(intrusive_list<T,Tag>& other) noexcept {
         intrusive_list_hook<Tag>::swap_nodes(&root_, &other.root_);
     }
 
     template < typename T, typename Tag >
-    void intrusive_list<T,Tag>::pop_back() noexcept {
+    template < typename Disposer >
+    void intrusive_list<T,Tag>::clear_and_dispose(Disposer&& disposer) {
+        while ( !empty() ) {
+            pop_back_and_dispose(disposer);
+        }
+    }
+
+    template < typename T, typename Tag >
+    void intrusive_list<T,Tag>::clear() noexcept {
+        clear_and_dispose(null_disposer());
+    }
+
+    template < typename T, typename Tag >
+    template < typename Disposer >
+    void intrusive_list<T,Tag>::pop_back_and_dispose(Disposer&& disposer) {
         E2D_ASSERT(!empty());
         node_ptr node = root_.prev_;
         node->unlink();
+        std::forward<Disposer>(disposer)(static_cast<T*>(node));
+    }
+
+    template < typename T, typename Tag >
+    void intrusive_list<T,Tag>::pop_back() noexcept {
+        pop_back_and_dispose(null_disposer());
+    }
+
+    template < typename T, typename Tag >
+    template < typename Disposer >
+    void intrusive_list<T,Tag>::pop_front_and_dispose(Disposer&& disposer) {
+        E2D_ASSERT(!empty());
+        node_ptr node = root_.next_;
+        node->unlink();
+        std::forward<Disposer>(disposer)(static_cast<T*>(node));
     }
 
     template < typename T, typename Tag >
     void intrusive_list<T,Tag>::pop_front() noexcept {
-        E2D_ASSERT(!empty());
-        node_ptr node = root_.next_;
-        node->unlink();
+        pop_front_and_dispose(null_disposer());
     }
 
     template < typename T, typename Tag >
@@ -431,20 +461,27 @@ namespace e2d
     }
 
     template < typename T, typename Tag >
-    typename intrusive_list<T,Tag>::iterator intrusive_list<T,Tag>::erase(const_iterator pos) noexcept {
-        node_ptr node = pos.node();
-        E2D_ASSERT(node != &root_ && node->is_linked());
-        ++pos;
-        node->unlink();
-        return iterator(pos.node());
-    }
-
-    template < typename T, typename Tag >
     typename intrusive_list<T,Tag>::iterator intrusive_list<T,Tag>::insert(const_iterator pos, T& v) noexcept {
         node_t& node = static_cast<node_t&>(v);
         E2D_ASSERT(!node.is_linked());
         node.link_before(pos.node());
         return iterator(&node);
+    }
+
+    template < typename T, typename Tag >
+    template < typename Disposer >
+    typename intrusive_list<T,Tag>::iterator intrusive_list<T,Tag>::erase_and_dispose(const_iterator pos, Disposer&& disposer) {
+        node_ptr node = pos.node();
+        E2D_ASSERT(node != &root_ && node->is_linked());
+        ++pos;
+        node->unlink();
+        std::forward<Disposer>(disposer)(static_cast<T*>(node));
+        return iterator(pos.node());
+    }
+
+    template < typename T, typename Tag >
+    typename intrusive_list<T,Tag>::iterator intrusive_list<T,Tag>::erase(const_iterator pos) noexcept {
+        return erase_and_dispose(pos, null_disposer());
     }
 
     template < typename T, typename Tag >
