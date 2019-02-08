@@ -46,15 +46,42 @@ namespace e2d
         return transform_;
     }
 
+    void node::translation(const v3f& translation) noexcept {
+        transform_.translation = translation;
+        mark_dirty_local_matrix_();
+    }
+
+    const v3f& node::translation() const noexcept {
+        return transform_.translation;
+    }
+
+    void node::rotation(const q4f& rotation) noexcept {
+        transform_.rotation = rotation;
+        mark_dirty_local_matrix_();
+    }
+
+    const q4f& node::rotation() const noexcept {
+        return transform_.rotation;
+    }
+
+    void node::scale(const v3f& scale) noexcept {
+        transform_.scale = scale;
+        mark_dirty_local_matrix_();
+    }
+
+    const v3f& node::scale() const noexcept {
+        return transform_.scale;
+    }
+
     const m4f& node::local_matrix() const noexcept {
-        if ( math::check_and_clear_all_flags(flags_, fm_dirty_local_matrix) ) {
+        if ( math::check_and_clear_any_flags(flags_, fm_dirty_local_matrix) ) {
             update_local_matrix_();
         }
         return local_matrix_;
     }
 
     const m4f& node::world_matrix() const noexcept {
-        if ( math::check_and_clear_all_flags(flags_, fm_dirty_world_matrix) ) {
+        if ( math::check_and_clear_any_flags(flags_, fm_dirty_world_matrix) ) {
             update_world_matrix_();
         }
         return world_matrix_;
@@ -92,14 +119,11 @@ namespace e2d
         if ( !parent ) {
             return has_parent();
         }
-        const node* n = this;
-        while ( n ) {
-            if ( n->parent_ == parent ) {
-                return true;
-            }
-            n = n->parent_;
+        const node* p = parent_;
+        while ( p && p != parent ) {
+            p = p->parent_;
         }
-        return false;
+        return !!p;
     }
 
     bool node::remove_from_parent() noexcept {

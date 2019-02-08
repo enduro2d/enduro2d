@@ -159,10 +159,14 @@ TEST_CASE("node") {
 
         auto pp = node::create();
         REQUIRE_FALSE(n->has_parent(pp));
+        REQUIRE_FALSE(pp->has_parent(pp));
 
         pp->add_child(p);
         REQUIRE(n->has_parent(p));
         REQUIRE(n->has_parent(pp));
+
+        REQUIRE_FALSE(n->has_parent(n));
+        REQUIRE_FALSE(pp->has_parent(pp));
     }
     SECTION("auto_remove/remove_all_children") {
         {
@@ -822,10 +826,10 @@ TEST_CASE("node") {
     SECTION("world_matrix") {
         {
             auto p = node::create();
-            p->transform(math::make_translation_trs3(v3f{10.f,0.f,0.f}));
+            p->translation({10.f,0.f,0.f});
 
             auto n = node::create(p);
-            n->transform(math::make_translation_trs3(v3f{20.f,0.f,0.f}));
+            n->translation({20.f,0.f,0.f});
 
             auto v = v4f(5.f,0.f,0.f,1.f);
             REQUIRE(v * n->world_matrix() == v4f{35.f,0.f,0.f,1.f});
@@ -837,7 +841,7 @@ TEST_CASE("node") {
         }
         {
             auto n = node::create();
-            n->transform(math::make_translation_trs3(v3f{20.f,0.f,0.f}));
+            n->translation({20.f,0.f,0.f});
             REQUIRE(n->world_matrix() ==
                 math::make_translation_matrix4(20.f,0.f,0.f));
 
@@ -850,7 +854,7 @@ TEST_CASE("node") {
         }
         {
             auto p1 = node::create();
-            p1->transform(math::make_translation_trs3(v3f{10.f,0.f,0.f}));
+            p1->translation({10.f,0.f,0.f});
 
             auto p2 = node::create();
             p2->transform(math::make_translation_trs3(v3f{20.f,0.f,0.f}));

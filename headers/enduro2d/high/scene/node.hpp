@@ -22,19 +22,20 @@ namespace e2d
         static node_iptr create();
         static node_iptr create(const node_iptr& parent);
 
-        //
-        // transform
-        //
-
         void transform(const t3f& transform) noexcept;
         const t3f& transform() const noexcept;
 
+        void translation(const v3f& translation) noexcept;
+        const v3f& translation() const noexcept;
+
+        void rotation(const q4f& rotation) noexcept;
+        const q4f& rotation() const noexcept;
+
+        void scale(const v3f& scale) noexcept;
+        const v3f& scale() const noexcept;
+
         const m4f& local_matrix() const noexcept;
         const m4f& world_matrix() const noexcept;
-
-        //
-        // container
-        //
 
         node_iptr root() noexcept;
         const_node_iptr root() const noexcept;
