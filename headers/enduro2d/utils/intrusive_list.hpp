@@ -22,15 +22,6 @@ namespace e2d
     template < typename Tag >
     class intrusive_list_hook {
     public:
-        using node_ptr = intrusive_list_hook*;
-        using const_node_ptr = const intrusive_list_hook*;
-
-        template < typename U, typename UTag >
-        friend class intrusive_list;
-
-        template < typename UTag, typename U, typename UP, typename UR >
-        friend class intrusive_list_iterator;
-    public:
         intrusive_list_hook() = default;
 
         ~intrusive_list_hook() noexcept {
@@ -38,10 +29,6 @@ namespace e2d
                 unlink();
             }
         }
-
-        intrusive_list_hook(node_ptr prev, node_ptr next) noexcept
-        : prev_(prev)
-        , next_(next) {}
 
         intrusive_list_hook(const intrusive_list_hook& other) noexcept {
             E2D_UNUSED(other);
@@ -52,6 +39,19 @@ namespace e2d
             return *this;
         }
     private:
+        using node_ptr = intrusive_list_hook*;
+        using const_node_ptr = const intrusive_list_hook*;
+
+        template < typename U, typename UTag >
+        friend class intrusive_list;
+
+        template < typename UTag, typename U, typename UP, typename UR >
+        friend class intrusive_list_iterator;
+    private:
+        intrusive_list_hook(node_ptr prev, node_ptr next) noexcept
+        : prev_(prev)
+        , next_(next) {}
+
         bool unique() const noexcept {
             return !next_ || next_ == this;
         }
