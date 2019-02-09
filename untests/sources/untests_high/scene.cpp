@@ -8,4 +8,14 @@
 using namespace e2d;
 
 TEST_CASE("scene") {
+    SECTION("ctor") {
+        auto s = scene::create();
+        REQUIRE(s);
+        REQUIRE(s->root());
+
+        {
+            const_scene_iptr cs = s;
+            REQUIRE(cs->root());
+        }
+    }
 }

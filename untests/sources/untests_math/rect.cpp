@@ -9,6 +9,10 @@ using namespace e2d;
 
 TEST_CASE("rect") {
     {
+        REQUIRE(b2i::zero() == b2i(0,0,0,0));
+        REQUIRE(b2i::unit() == b2i(0,0,1,1));
+    }
+    {
         REQUIRE(b2i().position == v2i(0,0));
         REQUIRE(b2i().size == v2i(0,0));
 

@@ -391,6 +391,16 @@ TEST_CASE("node") {
     }
     SECTION("last_child/first_child") {
         auto p = node::create();
+
+        REQUIRE_FALSE(p->last_child());
+        REQUIRE_FALSE(p->first_child());
+
+        {
+            const_node_iptr cp = p;
+            REQUIRE_FALSE(cp->last_child());
+            REQUIRE_FALSE(cp->first_child());
+        }
+
         auto n1 = node::create(p);
         auto n2 = node::create(p);
         auto n3 = node::create(p);
@@ -816,6 +826,23 @@ TEST_CASE("node") {
 
         REQUIRE(fake_node::s_parent_changes == 6);
         REQUIRE(fake_node::s_children_changes == 4);
+    }
+    SECTION("transform") {
+        auto p = node::create();
+
+        REQUIRE(p->transform() == t3f::identity());
+        REQUIRE(p->translation() == v3f::zero());
+        REQUIRE(p->rotation() == q4f::identity());
+        REQUIRE(p->scale() == v3f::unit());
+
+        p->translation(v3f(1,2,3));
+        REQUIRE(p->translation() == v3f(1,2,3));
+
+        p->rotation(q4f(1,2,3,4));
+        REQUIRE(p->rotation() == q4f(1,2,3,4));
+
+        p->scale(v3f(1,2,3));
+        REQUIRE(p->scale() == v3f(1,2,3));
     }
     SECTION("local_matrix") {
         {

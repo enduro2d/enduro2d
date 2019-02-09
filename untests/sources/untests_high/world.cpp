@@ -24,8 +24,20 @@ namespace
     };
 }
 
-TEST_CASE("world"){
+TEST_CASE("world") {
     safe_starter_initializer initializer;
     world& w = the<world>();
-    REQUIRE(w.scene());
+    const world& cw = w;
+
+    SECTION("scene") {
+        REQUIRE(w.scene());
+        REQUIRE(cw.scene());
+    }
+
+    SECTION("registry") {
+        auto e = w.registry().create_entity();
+        REQUIRE(cw.registry().alive_entity(e));
+        REQUIRE(w.registry().destroy_entity(e));
+        REQUIRE_FALSE(cw.registry().alive_entity(e));
+    }
 }
