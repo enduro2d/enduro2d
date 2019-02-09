@@ -8,7 +8,17 @@
 #define E2D_INCLUDE_GUARD_8703CE4A74D94C3CA27ED91AFF906936
 #pragma once
 
-#include "../_high.hpp"
+#include "_high.hpp"
+
+namespace e2d
+{
+    class node;
+    using node_iptr = intrusive_ptr<node>;
+    using const_node_iptr = intrusive_ptr<const node>;
+
+    class node_children_ilist_tag {};
+    using node_children = intrusive_list<node, node_children_ilist_tag>;
+}
 
 namespace e2d
 {
@@ -19,8 +29,11 @@ namespace e2d
     public:
         virtual ~node() noexcept;
 
-        static node_iptr create();
-        static node_iptr create(const node_iptr& parent);
+        static node_iptr create(world& world);
+        static node_iptr create(world& world, const node_iptr& parent);
+
+        ecs::entity entity() noexcept;
+        ecs::const_entity entity() const noexcept;
 
         void transform(const t3f& transform) noexcept;
         const t3f& transform() const noexcept;
@@ -99,7 +112,7 @@ namespace e2d
         template < typename F >
         void for_each_child(F&& f) const;
     protected:
-        node();
+        node(world& world);
     protected:
         virtual void on_change_parent_() noexcept;
         virtual void on_change_children_() noexcept;
@@ -114,6 +127,7 @@ namespace e2d
         void update_world_matrix_() const noexcept;
     private:
         t3f transform_;
+        ecs::entity entity_;
         node* parent_{nullptr};
         node_children children_;
     private:

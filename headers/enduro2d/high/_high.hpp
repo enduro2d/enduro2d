@@ -20,31 +20,8 @@ namespace e2d
 
 namespace e2d
 {
-    class node;
-    using node_iptr = intrusive_ptr<node>;
-    using const_node_iptr = intrusive_ptr<const node>;
-
-    class scene;
-    using scene_iptr = intrusive_ptr<scene>;
-    using const_scene_iptr = intrusive_ptr<const scene>;
-
-    class actor;
-    using actor_iptr = intrusive_ptr<actor>;
-    using const_actor_iptr = intrusive_ptr<const actor>;
-
-    class node_children_ilist_tag {};
-    using node_children = intrusive_list<node, node_children_ilist_tag>;
-}
-
-namespace e2d
-{
     class camera;
-    class drawable;
     class sprite;
-
-    class actor;
-    class node;
-    class scene;
 
     class render_system;
     class sprite_system;
@@ -67,6 +44,7 @@ namespace e2d
     class asset_cache;
     class asset_cache_base;
 
+    class node;
     class starter;
     class world;
 }

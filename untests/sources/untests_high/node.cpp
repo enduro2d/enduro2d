@@ -9,9 +9,23 @@ using namespace e2d;
 
 namespace
 {
+    class safe_starter_initializer final : private noncopyable {
+    public:
+        safe_starter_initializer() {
+            modules::initialize<starter>(0, nullptr,
+                starter::parameters(
+                    engine::parameters("world_untests", "enduro2d")
+                        .without_graphics(true)));
+        }
+
+        ~safe_starter_initializer() noexcept {
+            modules::shutdown<starter>();
+        }
+    };
+
     class fake_node final : public node {
     protected:
-        fake_node() {
+        fake_node(world& world) : node(world) {
             ++s_ctor_count;
         }
 
@@ -42,12 +56,12 @@ namespace
         static std::size_t s_parent_changes;
         static std::size_t s_children_changes;
     public:
-        static intrusive_ptr<fake_node> create() {
-            return intrusive_ptr<fake_node>(new fake_node());
+        static intrusive_ptr<fake_node> create(world& world) {
+            return intrusive_ptr<fake_node>(new fake_node(world));
         }
 
-        static intrusive_ptr<fake_node> create(const node_iptr& parent) {
-            auto child = create();
+        static intrusive_ptr<fake_node> create(world& world, const node_iptr& parent) {
+            auto child = create(world);
             if ( parent ) {
                 parent->add_child(child);
             }
@@ -62,8 +76,10 @@ namespace
 }
 
 TEST_CASE("node") {
+    safe_starter_initializer initializer;
+    world& w = the<world>();
     SECTION("empty_node") {
-        auto n = node::create();
+        auto n = node::create(w);
         REQUIRE(n);
         REQUIRE(n->root() == n);
         REQUIRE_FALSE(n->parent());
@@ -82,8 +98,8 @@ TEST_CASE("node") {
     }
     SECTION("parent/root") {
         {
-            auto p = node::create();
-            auto n = node::create();
+            auto p = node::create(w);
+            auto n = node::create(w);
 
             REQUIRE(p->add_child(n));
             REQUIRE(n->parent() == p);
@@ -98,21 +114,21 @@ TEST_CASE("node") {
             REQUIRE(p->child_count() == 1);
         }
         {
-            auto p = node::create();
+            auto p = node::create(w);
 
-            auto n1 = node::create(p);
+            auto n1 = node::create(w, p);
             REQUIRE(n1->parent() == p);
             REQUIRE(p->child_count() == 1);
 
-            auto n2 = node::create(nullptr);
+            auto n2 = node::create(w, nullptr);
             REQUIRE_FALSE(n2->parent());
             REQUIRE(p->child_count() == 1);
         }
         {
-            auto p1 = node::create();
-            auto p2 = node::create();
+            auto p1 = node::create(w);
+            auto p2 = node::create(w);
 
-            auto n = node::create(p1);
+            auto n = node::create(w, p1);
             REQUIRE(n->parent() == p1);
             REQUIRE(p1->child_count() == 1);
             REQUIRE(p2->child_count() == 0);
@@ -123,11 +139,11 @@ TEST_CASE("node") {
             REQUIRE(p2->child_count() == 1);
         }
         {
-            auto p1 = node::create();
-            auto p2 = node::create(p1);
+            auto p1 = node::create(w);
+            auto p2 = node::create(w, p1);
 
-            auto n1 = node::create(p1);
-            auto n2 = node::create(p2);
+            auto n1 = node::create(w, p1);
+            auto n2 = node::create(w, p2);
 
             REQUIRE(n1->parent() == p1);
             REQUIRE(n2->parent() == p2);
@@ -135,7 +151,7 @@ TEST_CASE("node") {
             REQUIRE(n1->root() == p1);
             REQUIRE(n2->root() == p1);
 
-            auto n3 = node::create();
+            auto n3 = node::create(w);
             REQUIRE_FALSE(n3->parent());
             REQUIRE(n3->root() == n3);
 
@@ -149,23 +165,23 @@ TEST_CASE("node") {
                 REQUIRE(cn1->root() == p1);
                 REQUIRE(cn2->root() == p1);
 
-                const_node_iptr cn3 = node::create();
+                const_node_iptr cn3 = node::create(w);
                 REQUIRE_FALSE(cn3->parent());
                 REQUIRE(cn3->root() == cn3);
             }
         }
     }
     SECTION("has_parent") {
-        auto p = node::create();
+        auto p = node::create(w);
         REQUIRE_FALSE(p->has_parent());
         REQUIRE_FALSE(p->has_parent(nullptr));
 
-        auto n = node::create(p);
+        auto n = node::create(w, p);
         REQUIRE(n->has_parent());
         REQUIRE(n->has_parent(p));
         REQUIRE(n->has_parent(nullptr));
 
-        auto pp = node::create();
+        auto pp = node::create(w);
         REQUIRE_FALSE(n->has_parent(pp));
         REQUIRE_FALSE(pp->has_parent(pp));
 
@@ -178,21 +194,21 @@ TEST_CASE("node") {
     }
     SECTION("auto_remove/remove_all_children") {
         {
-            auto p = node::create();
-            auto n = node::create(p);
+            auto p = node::create(w);
+            auto n = node::create(w, p);
             n->remove_from_parent();
             REQUIRE(p->child_count() == 0);
         }
         {
-            auto p = node::create();
-            auto n = node::create(p);
+            auto p = node::create(w);
+            auto n = node::create(w, p);
             p.reset();
             REQUIRE_FALSE(n->parent());
         }
         {
-            auto p = node::create();
-            auto n1 = node::create(p);
-            auto n2 = node::create(p);
+            auto p = node::create(w);
+            auto n1 = node::create(w, p);
+            auto n2 = node::create(w, p);
             REQUIRE(p->child_count() == 2);
             REQUIRE(p->remove_all_children() == 2);
             REQUIRE_FALSE(n1->parent());
@@ -204,25 +220,25 @@ TEST_CASE("node") {
     SECTION("auto_remove/remove_all_children/events") {
         {
             fake_node::reset_counters();
-            auto p = fake_node::create();
-            auto n = fake_node::create(p);
+            auto p = fake_node::create(w);
+            auto n = fake_node::create(w, p);
             n->remove_from_parent();
             REQUIRE(p->children_changes == 2);
             REQUIRE(fake_node::s_parent_changes == 2);
         }
         {
             fake_node::reset_counters();
-            auto p = fake_node::create();
-            auto n = fake_node::create(p);
+            auto p = fake_node::create(w);
+            auto n = fake_node::create(w, p);
             p.reset();
             REQUIRE(fake_node::s_children_changes == 1);
             REQUIRE(n->parent_changes == 2);
         }
         {
             fake_node::reset_counters();
-            auto p = fake_node::create();
-            auto n1 = fake_node::create(p);
-            auto n2 = fake_node::create(p);
+            auto p = fake_node::create(w);
+            auto n1 = fake_node::create(w, p);
+            auto n2 = fake_node::create(w, p);
             REQUIRE(p->remove_all_children() == 2);
             REQUIRE(p->remove_all_children() == 0);
             REQUIRE(p->children_changes == 3);
@@ -230,11 +246,11 @@ TEST_CASE("node") {
         }
     }
     SECTION("remove_from_parent") {
-        auto p = node::create();
-        auto n1 = node::create(p);
-        auto n2 = node::create(p);
+        auto p = node::create(w);
+        auto n1 = node::create(w, p);
+        auto n2 = node::create(w, p);
 
-        auto np = node::create();
+        auto np = node::create(w);
         np->remove_from_parent();
         REQUIRE(np->root() == np);
         REQUIRE_FALSE(np->parent());
@@ -254,11 +270,11 @@ TEST_CASE("node") {
     SECTION("remove_from_parent/events") {
         fake_node::reset_counters();
 
-        auto p = fake_node::create();
-        auto n1 = fake_node::create(p);
-        auto n2 = fake_node::create(p);
+        auto p = fake_node::create(w);
+        auto n1 = fake_node::create(w, p);
+        auto n2 = fake_node::create(w, p);
 
-        auto np = fake_node::create();
+        auto np = fake_node::create(w);
         np->remove_from_parent();
         REQUIRE(fake_node::s_parent_changes == 2);
         REQUIRE(fake_node::s_children_changes == 2);
@@ -272,18 +288,18 @@ TEST_CASE("node") {
         REQUIRE(fake_node::s_children_changes == 4);
     }
     SECTION("child_count/child_count_recursive") {
-        auto p1 = node::create();
+        auto p1 = node::create(w);
         REQUIRE(p1->child_count() == 0);
         REQUIRE(p1->child_count_recursive() == 0);
 
-        auto p2 = node::create(p1);
+        auto p2 = node::create(w, p1);
         REQUIRE(p1->child_count() == 1);
         REQUIRE(p1->child_count_recursive() == 1);
         REQUIRE(p2->child_count() == 0);
         REQUIRE(p2->child_count_recursive() == 0);
 
-        auto n1 = node::create(p2);
-        auto n2 = node::create(p2);
+        auto n1 = node::create(w, p2);
+        auto n2 = node::create(w, p2);
         REQUIRE(p1->child_count() == 1);
         REQUIRE(p1->child_count_recursive() == 3);
         REQUIRE(p2->child_count() == 2);
@@ -291,10 +307,10 @@ TEST_CASE("node") {
     }
     SECTION("send_backward/bring_to_back") {
         {
-            auto p = node::create();
-            auto n1 = node::create(p);
-            auto n2 = node::create(p);
-            auto n3 = node::create(p);
+            auto p = node::create(w);
+            auto n1 = node::create(w, p);
+            auto n2 = node::create(w, p);
+            auto n3 = node::create(w, p);
 
             REQUIRE(n3->send_backward()); // n1 n3 n2
             REQUIRE(n1->next_sibling() == n3);
@@ -312,17 +328,17 @@ TEST_CASE("node") {
             REQUIRE(n2->next_sibling() == n3);
         }
         {
-            auto n = node::create();
+            auto n = node::create(w);
             REQUIRE_FALSE(n->send_backward());
             REQUIRE_FALSE(n->bring_to_back());
         }
     }
     SECTION("send_backward/bring_to_back/events") {
         {
-            auto p = fake_node::create();
-            auto n1 = fake_node::create(p);
-            auto n2 = fake_node::create(p);
-            auto n3 = fake_node::create(p);
+            auto p = fake_node::create(w);
+            auto n1 = fake_node::create(w, p);
+            auto n2 = fake_node::create(w, p);
+            auto n3 = fake_node::create(w, p);
 
             REQUIRE(n3->send_backward()); // n1 n3 n2
             REQUIRE(n3->send_backward()); // n3 n1 n2
@@ -333,7 +349,7 @@ TEST_CASE("node") {
             REQUIRE(p->children_changes == 6);
         }
         {
-            auto n = fake_node::create();
+            auto n = fake_node::create(w);
             REQUIRE_FALSE(n->send_backward());
             REQUIRE_FALSE(n->bring_to_back());
             REQUIRE(n->children_changes == 0);
@@ -341,10 +357,10 @@ TEST_CASE("node") {
     }
     SECTION("send_forward/bring_to_front") {
         {
-            auto p = node::create();
-            auto n1 = node::create(p);
-            auto n2 = node::create(p);
-            auto n3 = node::create(p);
+            auto p = node::create(w);
+            auto n1 = node::create(w, p);
+            auto n2 = node::create(w, p);
+            auto n3 = node::create(w, p);
 
             REQUIRE(n1->send_forward()); // n2 n1 n3
             REQUIRE(n2->next_sibling() == n1);
@@ -362,17 +378,17 @@ TEST_CASE("node") {
             REQUIRE(n1->next_sibling() == n2);
         }
         {
-            auto n = node::create();
+            auto n = node::create(w);
             REQUIRE_FALSE(n->send_forward());
             REQUIRE_FALSE(n->bring_to_back());
         }
     }
     SECTION("send_forward/bring_to_front/events") {
         {
-            auto p = fake_node::create();
-            auto n1 = fake_node::create(p);
-            auto n2 = fake_node::create(p);
-            auto n3 = fake_node::create(p);
+            auto p = fake_node::create(w);
+            auto n1 = fake_node::create(w, p);
+            auto n2 = fake_node::create(w, p);
+            auto n3 = fake_node::create(w, p);
 
             REQUIRE(n1->send_forward()); // n2 n1 n3
             REQUIRE(n1->send_forward()); // n2 n3 n1
@@ -383,14 +399,14 @@ TEST_CASE("node") {
             REQUIRE(p->children_changes == 6);
         }
         {
-            auto n = fake_node::create();
+            auto n = fake_node::create(w);
             REQUIRE_FALSE(n->send_forward());
             REQUIRE_FALSE(n->bring_to_back());
             REQUIRE(n->children_changes == 0);
         }
     }
     SECTION("last_child/first_child") {
-        auto p = node::create();
+        auto p = node::create(w);
 
         REQUIRE_FALSE(p->last_child());
         REQUIRE_FALSE(p->first_child());
@@ -401,9 +417,9 @@ TEST_CASE("node") {
             REQUIRE_FALSE(cp->first_child());
         }
 
-        auto n1 = node::create(p);
-        auto n2 = node::create(p);
-        auto n3 = node::create(p);
+        auto n1 = node::create(w, p);
+        auto n2 = node::create(w, p);
+        auto n3 = node::create(w, p);
 
         REQUIRE(p->last_child() == n3);
         REQUIRE(p->first_child() == n1);
@@ -416,11 +432,11 @@ TEST_CASE("node") {
         }
     }
     SECTION("prev_sibling/next_sibling") {
-        auto p = node::create();
+        auto p = node::create(w);
 
-        auto n1 = node::create(p);
-        auto n2 = node::create(p);
-        auto n3 = node::create(p);
+        auto n1 = node::create(w, p);
+        auto n2 = node::create(w, p);
+        auto n3 = node::create(w, p);
 
         REQUIRE_FALSE(n1->prev_sibling());
         REQUIRE(n1->next_sibling() == n2);
@@ -431,7 +447,7 @@ TEST_CASE("node") {
         REQUIRE(n3->prev_sibling() == n2);
         REQUIRE_FALSE(n3->next_sibling());
 
-        auto n4 = node::create();
+        auto n4 = node::create(w);
         REQUIRE_FALSE(n4->prev_sibling());
         REQUIRE_FALSE(n4->next_sibling());
 
@@ -455,10 +471,10 @@ TEST_CASE("node") {
         }
     }
     SECTION("add_child_to_back/add_child_to_front") {
-        auto p = node::create();
-        auto n1 = node::create();
-        auto n2 = node::create();
-        auto n3 = node::create();
+        auto p = node::create(w);
+        auto n1 = node::create(w);
+        auto n2 = node::create(w);
+        auto n3 = node::create(w);
         {
             p->remove_all_children();
             REQUIRE(p->add_child_to_back(n1));
@@ -483,7 +499,7 @@ TEST_CASE("node") {
             REQUIRE_FALSE(n1->prev_sibling());
 
             // add to another parent
-            auto p2 = node::create();
+            auto p2 = node::create(w);
             REQUIRE(p2->add_child_to_back(n1));
             REQUIRE(n1->parent() == p2);
             REQUIRE_FALSE(n1->prev_sibling());
@@ -518,7 +534,7 @@ TEST_CASE("node") {
             REQUIRE_FALSE(n1->next_sibling());
 
             // add to another parent
-            auto p2 = node::create();
+            auto p2 = node::create(w);
             REQUIRE(p2->add_child_to_front(n1));
             REQUIRE(n1->parent() == p2);
             REQUIRE_FALSE(n1->prev_sibling());
@@ -532,10 +548,10 @@ TEST_CASE("node") {
     }
     SECTION("add_child_to_back/add_child_to_front/events") {
         {
-            auto p = fake_node::create();
-            auto n1 = fake_node::create();
-            auto n2 = fake_node::create();
-            auto n3 = fake_node::create();
+            auto p = fake_node::create(w);
+            auto n1 = fake_node::create(w);
+            auto n2 = fake_node::create(w);
+            auto n3 = fake_node::create(w);
 
             REQUIRE(p->add_child_to_back(n1));
             REQUIRE(p->add_child_to_back(n2));
@@ -561,7 +577,7 @@ TEST_CASE("node") {
             REQUIRE(n1->children_changes == 0);
 
             // add to another parent
-            auto p2 = node::create();
+            auto p2 = node::create(w);
             REQUIRE(p2->add_child_to_back(n1));
             REQUIRE(p->parent_changes == 0);
             REQUIRE(p->children_changes == 5);
@@ -572,10 +588,10 @@ TEST_CASE("node") {
             REQUIRE(n2->children_changes == 0);
         }
         {
-            auto p = fake_node::create();
-            auto n1 = fake_node::create();
-            auto n2 = fake_node::create();
-            auto n3 = fake_node::create();
+            auto p = fake_node::create(w);
+            auto n1 = fake_node::create(w);
+            auto n2 = fake_node::create(w);
+            auto n3 = fake_node::create(w);
 
             REQUIRE(p->add_child_to_front(n1));
             REQUIRE(p->add_child_to_front(n2));
@@ -601,7 +617,7 @@ TEST_CASE("node") {
             REQUIRE(n1->children_changes == 0);
 
             // add to another parent
-            auto p2 = node::create();
+            auto p2 = node::create(w);
             REQUIRE(p2->add_child_to_front(n1));
             REQUIRE(p->parent_changes == 0);
             REQUIRE(p->children_changes == 5);
@@ -613,10 +629,10 @@ TEST_CASE("node") {
         }
     }
     SECTION("add_child_after/add_child_before") {
-        auto p = node::create();
-        auto n1 = node::create();
-        auto n2 = node::create();
-        auto n3 = node::create();
+        auto p = node::create(w);
+        auto n1 = node::create(w);
+        auto n2 = node::create(w);
+        auto n3 = node::create(w);
         {
             p->remove_all_children();
             REQUIRE(p->add_child(n1)); // n1
@@ -642,8 +658,8 @@ TEST_CASE("node") {
             REQUIRE(n2->next_sibling() == n1);
 
             // to another parent
-            auto p2 = node::create();
-            auto n4 = node::create(p2); // n4
+            auto p2 = node::create(w);
+            auto n4 = node::create(w, p2); // n4
             REQUIRE(n4->add_sibling_before(n2)); // n2 n4
 
             REQUIRE(n2->parent() == p2);
@@ -680,8 +696,8 @@ TEST_CASE("node") {
             REQUIRE(n2->next_sibling() == n3);
 
             // to another parent
-            auto p2 = node::create();
-            auto n4 = node::create(p2); // n4
+            auto p2 = node::create(w);
+            auto n4 = node::create(w, p2); // n4
             REQUIRE(n4->add_sibling_after(n2)); // n4 n2
 
             REQUIRE(n2->parent() == p2);
@@ -696,10 +712,10 @@ TEST_CASE("node") {
     }
     SECTION("add_child_after/add_child_before/events") {
         {
-            auto p = fake_node::create();
-            auto n1 = fake_node::create();
-            auto n2 = fake_node::create();
-            auto n3 = fake_node::create();
+            auto p = fake_node::create(w);
+            auto n1 = fake_node::create(w);
+            auto n2 = fake_node::create(w);
+            auto n3 = fake_node::create(w);
 
             REQUIRE(p->add_child(n1)); // n1
             REQUIRE(p->add_child_before(n1, n2)); // n2 n1
@@ -720,8 +736,8 @@ TEST_CASE("node") {
             REQUIRE(p->children_changes == 5);
 
             // to another parent
-            auto p2 = node::create();
-            auto n4 = node::create(p2); // n4
+            auto p2 = node::create(w);
+            auto n4 = node::create(w, p2); // n4
             REQUIRE(p2->add_child_before(n4, n2)); // n2 n4
 
             REQUIRE(p->parent_changes == 0);
@@ -731,10 +747,10 @@ TEST_CASE("node") {
             REQUIRE(n2->parent_changes == 2);
         }
         {
-            auto p = fake_node::create();
-            auto n1 = fake_node::create();
-            auto n2 = fake_node::create();
-            auto n3 = fake_node::create();
+            auto p = fake_node::create(w);
+            auto n1 = fake_node::create(w);
+            auto n2 = fake_node::create(w);
+            auto n3 = fake_node::create(w);
 
             REQUIRE(p->add_child(n1)); // n1
             REQUIRE(p->add_child_after(n1, n2)); // n1 n2
@@ -755,8 +771,8 @@ TEST_CASE("node") {
             REQUIRE(p->children_changes == 5);
 
             // to another parent
-            auto p2 = node::create();
-            auto n4 = node::create(p2); // n4
+            auto p2 = node::create(w);
+            auto n4 = node::create(w, p2); // n4
             REQUIRE(p2->add_child_after(n4, n2)); // n4 n2
 
             REQUIRE(p->parent_changes == 0);
@@ -767,11 +783,11 @@ TEST_CASE("node") {
         }
     }
     SECTION("for_each_child") {
-        auto p = node::create();
+        auto p = node::create(w);
         array<node_iptr, 3> ns{
-            node::create(p),
-            node::create(p),
-            node::create(p)};
+            node::create(w, p),
+            node::create(w, p),
+            node::create(w, p)};
         {
             std::size_t count = 0;
             p->for_each_child([&ns, &count](const node_iptr& n){
@@ -789,10 +805,10 @@ TEST_CASE("node") {
         }
     }
     SECTION("destroy_node") {
-        auto p1 = node::create();
-        auto p2 = node::create(p1);
-        auto n1 = node::create(p2);
-        auto n2 = node::create(p2);
+        auto p1 = node::create(w);
+        auto p2 = node::create(w, p1);
+        auto n1 = node::create(w, p2);
+        auto n2 = node::create(w, p2);
 
         p2->remove_from_parent();
         p2.reset();
@@ -813,10 +829,10 @@ TEST_CASE("node") {
     SECTION("destroy_node/events") {
         fake_node::reset_counters();
 
-        auto p1 = fake_node::create();
-        auto p2 = fake_node::create(p1);
-        auto n1 = fake_node::create(p2);
-        auto n2 = fake_node::create(p2);
+        auto p1 = fake_node::create(w);
+        auto p2 = fake_node::create(w, p1);
+        auto n1 = fake_node::create(w, p2);
+        auto n2 = fake_node::create(w, p2);
 
         REQUIRE(fake_node::s_parent_changes == 3);
         REQUIRE(fake_node::s_children_changes == 3);
@@ -828,7 +844,7 @@ TEST_CASE("node") {
         REQUIRE(fake_node::s_children_changes == 4);
     }
     SECTION("transform") {
-        auto p = node::create();
+        auto p = node::create(w);
 
         REQUIRE(p->transform() == t3f::identity());
         REQUIRE(p->translation() == v3f::zero());
@@ -846,10 +862,10 @@ TEST_CASE("node") {
     }
     SECTION("local_matrix") {
         {
-            auto p = node::create();
+            auto p = node::create(w);
             p->transform(math::make_translation_trs3(v3f{10.f,0.f,0.f}));
 
-            auto n = node::create(p);
+            auto n = node::create(w, p);
             n->transform(math::make_translation_trs3(v3f{20.f,0.f,0.f}));
             REQUIRE(n->local_matrix() == math::make_translation_matrix4(20.f,0.f,0.f));
 
@@ -862,10 +878,10 @@ TEST_CASE("node") {
     }
     SECTION("world_matrix") {
         {
-            auto p = node::create();
+            auto p = node::create(w);
             p->translation({10.f,0.f,0.f});
 
-            auto n = node::create(p);
+            auto n = node::create(w, p);
             n->translation({20.f,0.f,0.f});
 
             auto v = v4f(5.f,0.f,0.f,1.f);
@@ -877,12 +893,12 @@ TEST_CASE("node") {
                 math::make_translation_matrix4(10.f,0.f,0.f));
         }
         {
-            auto n = node::create();
+            auto n = node::create(w);
             n->translation({20.f,0.f,0.f});
             REQUIRE(n->world_matrix() ==
                 math::make_translation_matrix4(20.f,0.f,0.f));
 
-            auto p = node::create();
+            auto p = node::create(w);
             p->transform(math::make_translation_trs3(v3f{10.f,0.f,0.f}));
 
             p->add_child(n);
@@ -890,13 +906,13 @@ TEST_CASE("node") {
                 math::make_translation_matrix4(30.f,0.f,0.f));
         }
         {
-            auto p1 = node::create();
+            auto p1 = node::create(w);
             p1->translation({10.f,0.f,0.f});
 
-            auto p2 = node::create();
+            auto p2 = node::create(w);
             p2->transform(math::make_translation_trs3(v3f{20.f,0.f,0.f}));
 
-            auto n = node::create(p2);
+            auto n = node::create(w, p2);
             n->transform(math::make_translation_trs3(v3f{30.f,0.f,0.f}));
 
             REQUIRE(n->world_matrix() ==
@@ -911,9 +927,9 @@ TEST_CASE("node") {
     SECTION("lifetime") {
         {
             fake_node::reset_counters();
-            auto p = fake_node::create();
+            auto p = fake_node::create(w);
 
-            auto n = fake_node::create();
+            auto n = fake_node::create(w);
             p->add_child(n);
             REQUIRE(fake_node::s_ctor_count == 2);
             REQUIRE(fake_node::s_dtor_count == 0);
@@ -929,10 +945,10 @@ TEST_CASE("node") {
         }
         {
             fake_node::reset_counters();
-            auto p = fake_node::create();
+            auto p = fake_node::create(w);
             {
-                auto n1 = fake_node::create(p);
-                auto n2 = fake_node::create(p);
+                auto n1 = fake_node::create(w, p);
+                auto n2 = fake_node::create(w, p);
             }
             REQUIRE(fake_node::s_ctor_count == 3);
             REQUIRE(fake_node::s_dtor_count == 0);

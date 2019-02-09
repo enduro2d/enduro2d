@@ -29,11 +29,6 @@ TEST_CASE("world") {
     world& w = the<world>();
     const world& cw = w;
 
-    SECTION("scene") {
-        REQUIRE(w.scene());
-        REQUIRE(cw.scene());
-    }
-
     SECTION("registry") {
         auto e = w.registry().create_entity();
         REQUIRE(cw.registry().alive_entity(e));
