@@ -30,3 +30,42 @@ namespace e2d
         color background_ = color::clear();
     };
 }
+
+namespace e2d
+{
+    inline camera& camera::viewport(const b2u& value) noexcept {
+        viewport_ = value;
+        return *this;
+    }
+
+    inline camera& camera::projection(const m4f& value) noexcept {
+        projection_ = value;
+        return *this;
+    }
+
+    inline camera& camera::target(const render_target_ptr& value) noexcept {
+        target_ = value;
+        return *this;
+    }
+
+    inline camera& camera::background(const color& value) noexcept {
+        background_ = value;
+        return *this;
+    }
+
+    inline const b2u& camera::viewport() const noexcept {
+        return viewport_;
+    }
+
+    inline const m4f& camera::projection() const noexcept {
+        return projection_;
+    }
+
+    inline const render_target_ptr& camera::target() const noexcept {
+        return target_;
+    }
+
+    inline const color& camera::background() const noexcept {
+        return background_;
+    }
+}

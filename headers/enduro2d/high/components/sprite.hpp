@@ -27,3 +27,33 @@ namespace e2d
         b2f texture_rect_ = b2f{0.f, 0.f, 1.f, 1.f};
     };
 }
+
+namespace e2d
+{
+    inline sprite& sprite::tint(const color& value) noexcept {
+        tint_ = value;
+        return *this;
+    }
+
+    inline sprite& sprite::texture(const texture_ptr& value) noexcept {
+        texture_ = value;
+        return *this;
+    }
+
+    inline sprite& sprite::texture_rect(const b2f& value) noexcept {
+        texture_rect_ = value;
+        return *this;
+    }
+
+    inline const color& sprite::tint() const noexcept {
+        return tint_;
+    }
+
+    inline const texture_ptr& sprite::texture() const noexcept {
+        return texture_;
+    }
+
+    inline const b2f& sprite::texture_rect() const noexcept {
+        return texture_rect_;
+    }
+}
