@@ -7,17 +7,6 @@
 #include <enduro2d/high/node.hpp>
 #include <enduro2d/high/world.hpp>
 
-namespace
-{
-    using namespace e2d;
-
-    struct iptr_release_disposer {
-        void operator()(node* n) const noexcept {
-            intrusive_ptr_release(n);
-        }
-    };
-}
-
 namespace e2d
 {
     node::node(world& world)
@@ -25,12 +14,7 @@ namespace e2d
 
     node::~node() noexcept {
         E2D_ASSERT(!parent_);
-        while ( !children_.empty() ) {
-            node_iptr child(&children_.back());
-            children_.pop_back_and_dispose(iptr_release_disposer());
-            child->parent_ = nullptr;
-            child->on_change_parent_();
-        }
+        remove_all_children();
     }
 
     node_iptr node::create(world& world) {
@@ -143,30 +127,15 @@ namespace e2d
     }
 
     bool node::remove_from_parent() noexcept {
-        if ( !parent_ ) {
-            return false;
-        }
-        node_iptr self(this);
-        parent_->children_.erase_and_dispose(
-            node_children::iterator_to(*this),
-            iptr_release_disposer());
-        parent_->on_change_children_();
-        parent_ = nullptr;
-        on_change_parent_();
-        return true;
+        return parent_
+            ? parent_->remove_child(this)
+            : false;
     }
 
     std::size_t node::remove_all_children() noexcept {
-        std::size_t count = 0;
+        const std::size_t count = children_.size();
         while ( !children_.empty() ) {
-            node_iptr child(&children_.back());
-            children_.pop_back_and_dispose(iptr_release_disposer());
-            child->parent_ = nullptr;
-            child->on_change_parent_();
-            ++count;
-        }
-        if ( count > 0 ) {
-            on_change_children_();
+            children_.back().remove_from_parent();
         }
         return count;
     }
@@ -198,26 +167,11 @@ namespace e2d
             return true;
         }
 
-        if ( child->parent_ && child->parent_ == this ) {
-            children_.erase(node_children::iterator_to(*child));
-            children_.push_front(*child);
-            on_change_children_();
-            return true;
-        }
-
-        if ( child->parent_ ) {
-            child->parent_->children_.erase_and_dispose(
-                node_children::iterator_to(*child),
-                iptr_release_disposer());
-            child->parent_->on_change_children_();
-            child->parent_ = nullptr;
-        }
-
         intrusive_ptr_add_ref(child.get());
+        child->remove_from_parent();
         children_.push_front(*child);
         child->parent_ = this;
-        child->on_change_parent_();
-        on_change_children_();
+        child->mark_dirty_world_matrix_();
         return true;
     }
 
@@ -232,26 +186,11 @@ namespace e2d
             return true;
         }
 
-        if ( child->parent_ && child->parent_ == this ) {
-            children_.erase(node_children::iterator_to(*child));
-            children_.push_back(*child);
-            on_change_children_();
-            return true;
-        }
-
-        if ( child->parent_ ) {
-            child->parent_->children_.erase_and_dispose(
-                node_children::iterator_to(*child),
-                iptr_release_disposer());
-            child->parent_->on_change_children_();
-            child->parent_ = nullptr;
-        }
-
         intrusive_ptr_add_ref(child.get());
+        child->remove_from_parent();
         children_.push_back(*child);
         child->parent_ = this;
-        child->on_change_parent_();
-        on_change_children_();
+        child->mark_dirty_world_matrix_();
         return true;
     }
 
@@ -267,30 +206,13 @@ namespace e2d
             return true;
         }
 
-        if ( child->parent_ && child->parent_ == this ) {
-            children_.erase(node_children::iterator_to(*child));
-            children_.insert(
-                node_children::iterator_to(*before),
-                *child);
-            on_change_children_();
-            return true;
-        }
-
-        if ( child->parent_ ) {
-            child->parent_->children_.erase_and_dispose(
-                node_children::iterator_to(*child),
-                iptr_release_disposer());
-            child->parent_->on_change_children_();
-            child->parent_ = nullptr;
-        }
-
         intrusive_ptr_add_ref(child.get());
+        child->remove_from_parent();
         children_.insert(
             node_children::iterator_to(*before),
             *child);
         child->parent_ = this;
-        child->on_change_parent_();
-        on_change_children_();
+        child->mark_dirty_world_matrix_();
         return true;
     }
 
@@ -306,30 +228,13 @@ namespace e2d
             return true;
         }
 
-        if ( child->parent_ && child->parent_ == this ) {
-            children_.erase(node_children::iterator_to(*child));
-            children_.insert(
-                ++node_children::iterator_to(*after),
-                *child);
-            on_change_children_();
-            return true;
-        }
-
-        if ( child->parent_ ) {
-            child->parent_->children_.erase_and_dispose(
-                node_children::iterator_to(*child),
-                iptr_release_disposer());
-            child->parent_->on_change_children_();
-            child->parent_ = nullptr;
-        }
-
         intrusive_ptr_add_ref(child.get());
+        child->remove_from_parent();
         children_.insert(
             ++node_children::iterator_to(*after),
             *child);
         child->parent_ = this;
-        child->on_change_parent_();
-        on_change_children_();
+        child->mark_dirty_world_matrix_();
         return true;
     }
 
@@ -343,6 +248,20 @@ namespace e2d
         return parent_
             ? parent_->add_child_after(this, sibling)
             : false;
+    }
+
+    bool node::remove_child(const node_iptr& child) noexcept {
+        if ( !child || child->parent_ != this ) {
+            return false;
+        }
+        children_.erase_and_dispose(
+            node_children::iterator_to(*child),
+            [](node* n){
+                n->parent_ = nullptr;
+                n->mark_dirty_world_matrix_();
+                intrusive_ptr_release(n);
+            });
+        return true;
     }
 
     bool node::send_backward() noexcept {
@@ -439,16 +358,6 @@ namespace e2d
             return nullptr;
         }
         return const_node_iptr(&*iter);
-    }
-}
-
-namespace e2d
-{
-    void node::on_change_parent_() noexcept {
-        mark_dirty_world_matrix_();
-    }
-
-    void node::on_change_children_() noexcept {
     }
 }
 

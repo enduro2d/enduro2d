@@ -88,6 +88,9 @@ namespace e2d
         bool add_sibling_after(
             const node_iptr& sibling) noexcept;
 
+        bool remove_child(
+            const node_iptr& child) noexcept;
+
         bool send_backward() noexcept;
         bool bring_to_back() noexcept;
 
@@ -113,9 +116,6 @@ namespace e2d
         void for_each_child(F&& f) const;
     protected:
         node(world& world);
-    protected:
-        virtual void on_change_parent_() noexcept;
-        virtual void on_change_children_() noexcept;
     private:
         enum flag_masks : u32 {
             fm_dirty_local_matrix = 1u << 0,

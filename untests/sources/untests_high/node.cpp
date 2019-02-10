@@ -32,29 +32,13 @@ namespace
         ~fake_node() noexcept final {
             ++s_dtor_count;
         }
-
-        void on_change_parent_() noexcept override {
-            ++parent_changes;
-            ++s_parent_changes;
-        }
-
-        void on_change_children_() noexcept override {
-            ++children_changes;
-            ++s_children_changes;
-        }
     public:
         static void reset_counters() noexcept {
             s_ctor_count = 0;
             s_dtor_count = 0;
-            s_parent_changes = 0;
-            s_children_changes = 0;
         }
-        std::size_t parent_changes{0};
-        std::size_t children_changes{0};
         static std::size_t s_ctor_count;
         static std::size_t s_dtor_count;
-        static std::size_t s_parent_changes;
-        static std::size_t s_children_changes;
     public:
         static intrusive_ptr<fake_node> create(world& world) {
             return intrusive_ptr<fake_node>(new fake_node(world));
@@ -71,8 +55,6 @@ namespace
 
     std::size_t fake_node::s_ctor_count{0};
     std::size_t fake_node::s_dtor_count{0};
-    std::size_t fake_node::s_parent_changes{0};
-    std::size_t fake_node::s_children_changes{0};
 }
 
 TEST_CASE("node") {
@@ -217,34 +199,6 @@ TEST_CASE("node") {
             REQUIRE(p->remove_all_children() == 0);
         }
     }
-    SECTION("auto_remove/remove_all_children/events") {
-        {
-            fake_node::reset_counters();
-            auto p = fake_node::create(w);
-            auto n = fake_node::create(w, p);
-            n->remove_from_parent();
-            REQUIRE(p->children_changes == 2);
-            REQUIRE(fake_node::s_parent_changes == 2);
-        }
-        {
-            fake_node::reset_counters();
-            auto p = fake_node::create(w);
-            auto n = fake_node::create(w, p);
-            p.reset();
-            REQUIRE(fake_node::s_children_changes == 1);
-            REQUIRE(n->parent_changes == 2);
-        }
-        {
-            fake_node::reset_counters();
-            auto p = fake_node::create(w);
-            auto n1 = fake_node::create(w, p);
-            auto n2 = fake_node::create(w, p);
-            REQUIRE(p->remove_all_children() == 2);
-            REQUIRE(p->remove_all_children() == 0);
-            REQUIRE(p->children_changes == 3);
-            REQUIRE(fake_node::s_parent_changes == 4);
-        }
-    }
     SECTION("remove_from_parent") {
         auto p = node::create(w);
         auto n1 = node::create(w, p);
@@ -266,26 +220,6 @@ TEST_CASE("node") {
         REQUIRE(n2->remove_from_parent());
         REQUIRE_FALSE(n2->parent());
         REQUIRE(p->child_count() == 0);
-    }
-    SECTION("remove_from_parent/events") {
-        fake_node::reset_counters();
-
-        auto p = fake_node::create(w);
-        auto n1 = fake_node::create(w, p);
-        auto n2 = fake_node::create(w, p);
-
-        auto np = fake_node::create(w);
-        np->remove_from_parent();
-        REQUIRE(fake_node::s_parent_changes == 2);
-        REQUIRE(fake_node::s_children_changes == 2);
-
-        REQUIRE(n1->remove_from_parent());
-        REQUIRE(fake_node::s_parent_changes == 3);
-        REQUIRE(fake_node::s_children_changes == 3);
-
-        REQUIRE(n2->remove_from_parent());
-        REQUIRE(fake_node::s_parent_changes == 4);
-        REQUIRE(fake_node::s_children_changes == 4);
     }
     SECTION("child_count/child_count_recursive") {
         auto p1 = node::create(w);
@@ -345,14 +279,11 @@ TEST_CASE("node") {
             REQUIRE_FALSE(n3->send_backward()); // n3 n1 n2
             REQUIRE(n2->bring_to_back()); // n2 n3 n1
             REQUIRE(n2->bring_to_back()); // n2 n3 n1
-
-            REQUIRE(p->children_changes == 6);
         }
         {
             auto n = fake_node::create(w);
             REQUIRE_FALSE(n->send_backward());
             REQUIRE_FALSE(n->bring_to_back());
-            REQUIRE(n->children_changes == 0);
         }
     }
     SECTION("send_forward/bring_to_front") {
@@ -395,14 +326,11 @@ TEST_CASE("node") {
             REQUIRE_FALSE(n1->send_forward()); // n2 n3 n1
             REQUIRE(n2->bring_to_front()); // n3 n1 n2
             REQUIRE(n2->bring_to_front()); // n3 n1 n2
-
-            REQUIRE(p->children_changes == 6);
         }
         {
             auto n = fake_node::create(w);
             REQUIRE_FALSE(n->send_forward());
             REQUIRE_FALSE(n->bring_to_back());
-            REQUIRE(n->children_changes == 0);
         }
     }
     SECTION("last_child/first_child") {
@@ -546,88 +474,6 @@ TEST_CASE("node") {
             REQUIRE(n3->parent() == p);
         }
     }
-    SECTION("add_child_to_back/add_child_to_front/events") {
-        {
-            auto p = fake_node::create(w);
-            auto n1 = fake_node::create(w);
-            auto n2 = fake_node::create(w);
-            auto n3 = fake_node::create(w);
-
-            REQUIRE(p->add_child_to_back(n1));
-            REQUIRE(p->add_child_to_back(n2));
-            REQUIRE(p->add_child_to_back(n3)); // n3 n2 n1
-            REQUIRE_FALSE(p->add_child_to_back(nullptr));
-            REQUIRE(p->parent_changes == 0);
-            REQUIRE(p->children_changes == 3);
-            REQUIRE(n1->parent_changes == 1);
-            REQUIRE(n1->children_changes == 0);
-
-            // add to self parent (change order)
-            REQUIRE(p->add_child_to_back(n1)); // n1 n3 n2
-            REQUIRE(p->parent_changes == 0);
-            REQUIRE(p->children_changes == 4);
-            REQUIRE(n1->parent_changes == 1);
-            REQUIRE(n1->children_changes == 0);
-
-            // add to self parent (no change order)
-            REQUIRE(p->add_child_to_back(n1)); // n1 n3 n2
-            REQUIRE(p->parent_changes == 0);
-            REQUIRE(p->children_changes == 4);
-            REQUIRE(n1->parent_changes == 1);
-            REQUIRE(n1->children_changes == 0);
-
-            // add to another parent
-            auto p2 = node::create(w);
-            REQUIRE(p2->add_child_to_back(n1));
-            REQUIRE(p->parent_changes == 0);
-            REQUIRE(p->children_changes == 5);
-            REQUIRE(n1->parent_changes == 2);
-            REQUIRE(n1->children_changes == 0);
-
-            REQUIRE(n2->parent_changes == 1);
-            REQUIRE(n2->children_changes == 0);
-        }
-        {
-            auto p = fake_node::create(w);
-            auto n1 = fake_node::create(w);
-            auto n2 = fake_node::create(w);
-            auto n3 = fake_node::create(w);
-
-            REQUIRE(p->add_child_to_front(n1));
-            REQUIRE(p->add_child_to_front(n2));
-            REQUIRE(p->add_child_to_front(n3)); // n1 n2 n3
-            REQUIRE_FALSE(p->add_child_to_front(nullptr));
-            REQUIRE(p->parent_changes == 0);
-            REQUIRE(p->children_changes == 3);
-            REQUIRE(n1->parent_changes == 1);
-            REQUIRE(n1->children_changes == 0);
-
-            // add to self parent (change order)
-            REQUIRE(p->add_child_to_front(n1)); // n2 n3 n1
-            REQUIRE(p->parent_changes == 0);
-            REQUIRE(p->children_changes == 4);
-            REQUIRE(n1->parent_changes == 1);
-            REQUIRE(n1->children_changes == 0);
-
-            // add to self parent (no change order)
-            REQUIRE(p->add_child_to_front(n1)); // n2 n3 n1
-            REQUIRE(p->parent_changes == 0);
-            REQUIRE(p->children_changes == 4);
-            REQUIRE(n1->parent_changes == 1);
-            REQUIRE(n1->children_changes == 0);
-
-            // add to another parent
-            auto p2 = node::create(w);
-            REQUIRE(p2->add_child_to_front(n1));
-            REQUIRE(p->parent_changes == 0);
-            REQUIRE(p->children_changes == 5);
-            REQUIRE(n1->parent_changes == 2);
-            REQUIRE(n1->children_changes == 0);
-
-            REQUIRE(n2->parent_changes == 1);
-            REQUIRE(n2->children_changes == 0);
-        }
-    }
     SECTION("add_child_after/add_child_before") {
         auto p = node::create(w);
         auto n1 = node::create(w);
@@ -710,78 +556,6 @@ TEST_CASE("node") {
             REQUIRE(n3->parent() == p);
         }
     }
-    SECTION("add_child_after/add_child_before/events") {
-        {
-            auto p = fake_node::create(w);
-            auto n1 = fake_node::create(w);
-            auto n2 = fake_node::create(w);
-            auto n3 = fake_node::create(w);
-
-            REQUIRE(p->add_child(n1)); // n1
-            REQUIRE(p->add_child_before(n1, n2)); // n2 n1
-            REQUIRE(p->add_child_before(n1, n3)); // n2 n3 n1
-
-            REQUIRE(p->add_child_before(n1, n1)); // n2 n3 n1
-            REQUIRE(p->add_child_before(n3, n2)); // n2 n3 n1
-
-            REQUIRE_FALSE(p->add_child_before(n1, nullptr));
-            REQUIRE_FALSE(p->add_child_before(nullptr, n1));
-            REQUIRE_FALSE(p->add_child_before(nullptr, nullptr));
-            REQUIRE_FALSE(p->add_child_before(p, n3));
-
-            REQUIRE(p->add_child_before(n3, n1)); // n2 n1 n3
-            REQUIRE(p->add_child_before(n2, n3)); // n3 n2 n1
-
-            REQUIRE(p->parent_changes == 0);
-            REQUIRE(p->children_changes == 5);
-
-            // to another parent
-            auto p2 = node::create(w);
-            auto n4 = node::create(w, p2); // n4
-            REQUIRE(p2->add_child_before(n4, n2)); // n2 n4
-
-            REQUIRE(p->parent_changes == 0);
-            REQUIRE(p->children_changes == 6);
-
-            REQUIRE(n1->parent_changes == 1);
-            REQUIRE(n2->parent_changes == 2);
-        }
-        {
-            auto p = fake_node::create(w);
-            auto n1 = fake_node::create(w);
-            auto n2 = fake_node::create(w);
-            auto n3 = fake_node::create(w);
-
-            REQUIRE(p->add_child(n1)); // n1
-            REQUIRE(p->add_child_after(n1, n2)); // n1 n2
-            REQUIRE(p->add_child_after(n1, n3)); // n1 n3 n2
-
-            REQUIRE(p->add_child_after(n1, n1)); // n1 n3 n2
-            REQUIRE(p->add_child_after(n3, n2)); // n1 n3 n2
-
-            REQUIRE_FALSE(p->add_child_after(n1, nullptr));
-            REQUIRE_FALSE(p->add_child_after(nullptr, n1));
-            REQUIRE_FALSE(p->add_child_after(nullptr, nullptr));
-            REQUIRE_FALSE(p->add_child_after(p, n3));
-
-            REQUIRE(p->add_child_after(n3, n1)); // n3 n1 n2
-            REQUIRE(p->add_child_after(n2, n3)); // n1 n2 n3
-
-            REQUIRE(p->parent_changes == 0);
-            REQUIRE(p->children_changes == 5);
-
-            // to another parent
-            auto p2 = node::create(w);
-            auto n4 = node::create(w, p2); // n4
-            REQUIRE(p2->add_child_after(n4, n2)); // n4 n2
-
-            REQUIRE(p->parent_changes == 0);
-            REQUIRE(p->children_changes == 6);
-
-            REQUIRE(n1->parent_changes == 1);
-            REQUIRE(n2->parent_changes == 2);
-        }
-    }
     SECTION("for_each_child") {
         auto p = node::create(w);
         array<node_iptr, 3> ns{
@@ -825,23 +599,6 @@ TEST_CASE("node") {
         REQUIRE_FALSE(n2->parent());
         REQUIRE_FALSE(n2->prev_sibling());
         REQUIRE_FALSE(n2->next_sibling());
-    }
-    SECTION("destroy_node/events") {
-        fake_node::reset_counters();
-
-        auto p1 = fake_node::create(w);
-        auto p2 = fake_node::create(w, p1);
-        auto n1 = fake_node::create(w, p2);
-        auto n2 = fake_node::create(w, p2);
-
-        REQUIRE(fake_node::s_parent_changes == 3);
-        REQUIRE(fake_node::s_children_changes == 3);
-
-        p2->remove_from_parent();
-        p2.reset();
-
-        REQUIRE(fake_node::s_parent_changes == 6);
-        REQUIRE(fake_node::s_children_changes == 4);
     }
     SECTION("transform") {
         auto p = node::create(w);
