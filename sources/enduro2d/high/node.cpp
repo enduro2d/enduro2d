@@ -115,15 +115,26 @@ namespace e2d
         return !!parent_;
     }
 
-    bool node::has_parent(const const_node_iptr& parent) const noexcept {
-        if ( !parent ) {
-            return has_parent();
-        }
+    bool node::has_parent_recursive(
+        const const_node_iptr& parent) const noexcept
+    {
         const node* p = parent_;
         while ( p && p != parent ) {
             p = p->parent_;
         }
         return !!p;
+    }
+
+    bool node::has_children() const noexcept {
+        return !children_.empty();
+    }
+
+    bool node::has_child_recursive(
+        const const_node_iptr& child) const noexcept
+    {
+        return child
+            ? child->has_parent_recursive(this)
+            : false;
     }
 
     bool node::remove_from_parent() noexcept {
@@ -133,8 +144,9 @@ namespace e2d
     }
 
     std::size_t node::remove_all_children() noexcept {
-        const std::size_t count = children_.size();
+        std::size_t count = 0;
         while ( !children_.empty() ) {
+            ++count;
             children_.back().remove_from_parent();
         }
         return count;
@@ -145,9 +157,9 @@ namespace e2d
     }
 
     std::size_t node::child_count_recursive() const noexcept {
-        std::size_t count = child_count();
+        std::size_t count = 0;
         for ( const node& child : children_ ) {
-            count += child.child_count_recursive();
+            count += 1u + child.child_count_recursive();
         }
         return count;
     }

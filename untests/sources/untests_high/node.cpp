@@ -153,26 +153,55 @@ TEST_CASE("node") {
             }
         }
     }
-    SECTION("has_parent") {
+    SECTION("has_parent/has_parent_recursive") {
         auto p = node::create(w);
         REQUIRE_FALSE(p->has_parent());
-        REQUIRE_FALSE(p->has_parent(nullptr));
+        REQUIRE_FALSE(p->has_parent_recursive(nullptr));
 
         auto n = node::create(w, p);
+
+        REQUIRE_FALSE(p->has_parent());
+        REQUIRE_FALSE(p->has_parent_recursive(n));
+
         REQUIRE(n->has_parent());
-        REQUIRE(n->has_parent(p));
-        REQUIRE(n->has_parent(nullptr));
+        REQUIRE(n->has_parent_recursive(p));
+        REQUIRE_FALSE(n->has_parent_recursive(nullptr));
 
         auto pp = node::create(w);
-        REQUIRE_FALSE(n->has_parent(pp));
-        REQUIRE_FALSE(pp->has_parent(pp));
+        REQUIRE_FALSE(n->has_parent_recursive(pp));
+        REQUIRE_FALSE(pp->has_parent_recursive(pp));
 
         pp->add_child(p);
-        REQUIRE(n->has_parent(p));
-        REQUIRE(n->has_parent(pp));
+        REQUIRE(n->has_parent_recursive(p));
+        REQUIRE(n->has_parent_recursive(pp));
 
-        REQUIRE_FALSE(n->has_parent(n));
-        REQUIRE_FALSE(pp->has_parent(pp));
+        REQUIRE_FALSE(n->has_parent_recursive(n));
+        REQUIRE_FALSE(pp->has_parent_recursive(pp));
+    }
+    SECTION("has_children/has_child_recursive") {
+        auto p = node::create(w);
+        REQUIRE_FALSE(p->has_children());
+        REQUIRE_FALSE(p->has_child_recursive(nullptr));
+
+        auto n = node::create(w, p);
+
+        REQUIRE(p->has_children());
+        REQUIRE(p->has_child_recursive(n));
+        REQUIRE_FALSE(p->has_child_recursive(nullptr));
+
+        REQUIRE_FALSE(n->has_children());
+        REQUIRE_FALSE(n->has_child_recursive(p));
+        REQUIRE_FALSE(n->has_child_recursive(nullptr));
+
+        auto pp = node::create(w);
+        REQUIRE_FALSE(n->has_child_recursive(pp));
+        REQUIRE_FALSE(pp->has_child_recursive(pp));
+
+        pp->add_child(p);
+        REQUIRE_FALSE(n->has_child_recursive(p));
+        REQUIRE_FALSE(n->has_child_recursive(pp));
+        REQUIRE(pp->has_child_recursive(p));
+        REQUIRE(pp->has_child_recursive(n));
     }
     SECTION("auto_remove/remove_all_children") {
         {
