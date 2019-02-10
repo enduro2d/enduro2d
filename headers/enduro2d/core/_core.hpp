@@ -12,6 +12,7 @@
 
 namespace e2d
 {
+    class dbgui;
     class debug;
     class deferrer;
     class application;

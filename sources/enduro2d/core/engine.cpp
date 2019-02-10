@@ -6,6 +6,7 @@
 
 #include <enduro2d/core/engine.hpp>
 
+#include <enduro2d/core/dbgui.hpp>
 #include <enduro2d/core/debug.hpp>
 #include <enduro2d/core/deferrer.hpp>
 #include <enduro2d/core/input.hpp>
@@ -379,10 +380,17 @@ namespace e2d
             safe_module_initialize<render>(
                 the<debug>(),
                 the<window>());
+
+            // setup dbgui
+
+            safe_module_initialize<dbgui>(
+                the<window>(),
+                the<render>());
         }
     }
 
     engine::~engine() noexcept {
+        modules::shutdown<dbgui>();
         modules::shutdown<render>();
         modules::shutdown<window>();
         modules::shutdown<input>();
@@ -403,6 +411,7 @@ namespace e2d
         while ( true ) {
             try {
                 the<deferrer>().scheduler().process_all_tasks();
+                the<dbgui>().frame_tick();
 
                 if ( !app->frame_tick() ) {
                     break;
