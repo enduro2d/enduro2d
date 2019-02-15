@@ -976,7 +976,7 @@ namespace e2d
     render& render::execute(const viewport_command& command) {
         E2D_ASSERT(is_in_main_thread());
 
-        const b2u viewport = make_minmax_rect(command.viewport_rect());
+        const b2u viewport = math::make_minmax_rect(command.viewport_rect());
         GL_CHECK_CODE(state_->dbg(), glViewport(
             math::numeric_cast<GLint>(viewport.position.x),
             math::numeric_cast<GLint>(viewport.position.y),
@@ -984,7 +984,7 @@ namespace e2d
             math::numeric_cast<GLsizei>(viewport.size.y)));
 
         if ( command.scissoring() ) {
-            const b2u scissor = make_minmax_rect(command.scissor_rect());
+            const b2u scissor = math::make_minmax_rect(command.scissor_rect());
             GL_CHECK_CODE(state_->dbg(), glScissor(
                 math::numeric_cast<GLint>(scissor.position.x),
                 math::numeric_cast<GLint>(scissor.position.y),

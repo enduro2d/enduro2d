@@ -179,23 +179,6 @@ namespace e2d
         return {position, size};
     }
 
-    template < typename T >
-    aabb<T> make_minmax_aabb(T x1, T y1, T z1, T x2, T y2, T z2) noexcept {
-        const vec3<T> min = {math::min(x1, x2), math::min(y1, y2), math::min(z1, z2)};
-        const vec3<T> max = {math::max(x1, x2), math::max(y1, y2), math::max(z1, z2)};
-        return {min, max - min};
-    }
-
-    template < typename T >
-    aabb<T> make_minmax_aabb(const vec3<T>& p1, const vec3<T>& p2) noexcept {
-        return make_minmax_aabb(p1.x, p1.y, p1.z, p2.x, p2.y, p2.z);
-    }
-
-    template < typename T >
-    aabb<T> make_minmax_aabb(const aabb<T>& b) noexcept {
-        return make_minmax_aabb(b.position, b.position + b.size);
-    }
-
     //
     // aabb (==,!=) aabb
     //
@@ -302,6 +285,27 @@ namespace e2d
 
 namespace e2d { namespace math
 {
+    //
+    // make_minmax_aabb
+    //
+
+    template < typename T >
+    aabb<T> make_minmax_aabb(T x1, T y1, T z1, T x2, T y2, T z2) noexcept {
+        const vec3<T> min = {math::min(x1, x2), math::min(y1, y2), math::min(z1, z2)};
+        const vec3<T> max = {math::max(x1, x2), math::max(y1, y2), math::max(z1, z2)};
+        return {min, max - min};
+    }
+
+    template < typename T >
+    aabb<T> make_minmax_aabb(const vec3<T>& p1, const vec3<T>& p2) noexcept {
+        return make_minmax_aabb(p1.x, p1.y, p1.z, p2.x, p2.y, p2.z);
+    }
+
+    template < typename T >
+    aabb<T> make_minmax_aabb(const aabb<T>& b) noexcept {
+        return make_minmax_aabb(b.position, b.position + b.size);
+    }
+
     //
     // approximately
     //

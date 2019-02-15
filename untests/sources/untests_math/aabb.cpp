@@ -90,8 +90,8 @@ TEST_CASE("aabb") {
         REQUIRE(make_aabb(v3i{2,1,0}) == b3i(0,0,0,2,1,0));
         REQUIRE(make_aabb(v3i{4,3,2},v3i{2,1,0}) == b3i(4,3,2,2,1,0));
 
-        REQUIRE(make_minmax_aabb(1,2,3,4,5,6) == b3i(1,2,3,3,3,3));
-        REQUIRE(make_minmax_aabb(3,4,1,2,3,4) == b3i(2,3,1,1,1,3));
+        REQUIRE(math::make_minmax_aabb(1,2,3,4,5,6) == b3i(1,2,3,3,3,3));
+        REQUIRE(math::make_minmax_aabb(3,4,1,2,3,4) == b3i(2,3,1,1,1,3));
     }
     {
         auto r0 = b3i(1,2,3,4,5,6);
