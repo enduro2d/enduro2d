@@ -27,11 +27,11 @@ namespace e2d
 
     class dbgui final : public module<dbgui> {
     public:
-        dbgui(window& w, render& r);
+        dbgui(debug& d, input& i, render& r, window& w);
         ~dbgui() noexcept final;
 
-        void frame_tick() noexcept;
-        void frame_render() noexcept;
+        void frame_tick();
+        void frame_render();
     private:
         class internal_state;
         std::unique_ptr<internal_state> state_;

@@ -832,9 +832,9 @@ namespace e2d
         public:
             command_block() = default;
 
-            command_block& clear() noexcept;
             command_block& add_command(command_value&& value);
             command_block& add_command(const command_value& value);
+
             const command_value& command(std::size_t index) const noexcept;
             std::size_t command_count() const noexcept;
         private:

@@ -360,12 +360,14 @@ namespace e2d
             the<debug>().register_sink<debug_stream_sink>(std::move(log_stream));
         }
 
+        // setup input
+
+        safe_module_initialize<input>();
+
+        // setup graphics
+
         if ( !params.without_graphics() )
         {
-            // setup input
-
-            safe_module_initialize<input>();
-
             // setup window
 
             safe_module_initialize<window>(
@@ -384,8 +386,10 @@ namespace e2d
             // setup dbgui
 
             safe_module_initialize<dbgui>(
-                the<window>(),
-                the<render>());
+                the<debug>(),
+                the<input>(),
+                the<render>(),
+                the<window>());
         }
     }
 
@@ -410,8 +414,8 @@ namespace e2d
 
         while ( true ) {
             try {
-                the<deferrer>().scheduler().process_all_tasks();
                 the<dbgui>().frame_tick();
+                the<deferrer>().scheduler().process_all_tasks();
 
                 if ( !app->frame_tick() ) {
                     break;
