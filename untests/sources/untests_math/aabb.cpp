@@ -28,6 +28,63 @@ TEST_CASE("aabb") {
         REQUIRE(b3f(1,2,3,4,5,6).cast_to<i32>() == b3i(1,2,3,4,5,6));
     }
     {
+        auto r0 = b3i(1,2,3,4,5,6);
+        REQUIRE(r0.data()[0] == 1);
+        REQUIRE(r0.data()[1] == 2);
+        REQUIRE(r0.data()[2] == 3);
+        REQUIRE(r0.data()[3] == 4);
+        REQUIRE(r0.data()[4] == 5);
+        REQUIRE(r0.data()[5] == 6);
+        r0.data()[0] = 2;
+        REQUIRE(r0 == b3i(2,2,3,4,5,6));
+        const auto& cr0 = r0;
+        REQUIRE(cr0.data()[0] == 2);
+        REQUIRE(cr0.data()[1] == 2);
+        REQUIRE(cr0.data()[2] == 3);
+        REQUIRE(cr0.data()[3] == 4);
+        REQUIRE(cr0.data()[4] == 5);
+        REQUIRE(cr0.data()[5] == 6);
+    }
+    {
+        auto r0 = b3i(1,2,3,4,5,6);
+        REQUIRE(r0[0] == 1);
+        REQUIRE(r0[1] == 2);
+        REQUIRE(r0[2] == 3);
+        REQUIRE(r0[3] == 4);
+        REQUIRE(r0[4] == 5);
+        REQUIRE(r0[5] == 6);
+        r0[0] = 2;
+        REQUIRE(r0 == b3i(2,2,3,4,5,6));
+        const auto& cr0 = r0;
+        REQUIRE(cr0[0] == 2);
+        REQUIRE(cr0[1] == 2);
+        REQUIRE(cr0[2] == 3);
+        REQUIRE(cr0[3] == 4);
+        REQUIRE(cr0[4] == 5);
+        REQUIRE(cr0[5] == 6);
+    }
+    {
+        auto r0 = b3i(1,2,3,4,5,6);
+        REQUIRE(&r0 == &(r0 += 1));
+        REQUIRE(r0 == b3i(2,3,4,4,5,6));
+        REQUIRE(&r0 == &(r0 -= 4));
+        REQUIRE(r0 == b3i(-2,-1,0,4,5,6));
+        REQUIRE(&r0 == &(r0 *= 2));
+        REQUIRE(r0 == b3i(-2,-1,0,8,10,12));
+        REQUIRE(&r0 == &(r0 /= 3));
+        REQUIRE(r0 == b3i(-2,-1,0,2,3,4));
+
+        REQUIRE(b3i(1,2,3,4,5,6) + 2 == b3i(3,4,5,4,5,6));
+        REQUIRE(b3i(1,2,3,4,5,6) - 2 == b3i(-1,0,1,4,5,6));
+        REQUIRE(b3i(1,2,3,4,5,6) * 2 == b3i(1,2,3,8,10,12));
+        REQUIRE(b3i(1,2,3,4,5,6) / 2 == b3i(1,2,3,2,2,3));
+
+        REQUIRE(b3i(1,2,3,4,5,6) + v3i(1,2,3) == b3i(2,4,6,4,5,6));
+        REQUIRE(b3i(1,2,3,4,5,6) - v3i(3,2,1) == b3i(-2,0,2,4,5,6));
+        REQUIRE(b3i(1,2,3,4,5,6) * v3i(2,3,4) == b3i(1,2,3,8,15,24));
+        REQUIRE(b3i(1,2,3,4,12,20) / v3i(2,3,4) == b3i(1,2,3,2,4,5));
+    }
+    {
         REQUIRE(make_aabb(2,1,0) == b3i(0,0,0,2,1,0));
         REQUIRE(make_aabb(4,3,2,1,0,-1) == b3i(4,3,2,1,0,-1));
         REQUIRE(make_aabb(v3i{2,1,0}) == b3i(0,0,0,2,1,0));

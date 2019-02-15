@@ -35,6 +35,22 @@ namespace e2d
 
         template < typename To >
         aabb<To> cast_to() const noexcept;
+
+        T* data() noexcept;
+        const T* data() const noexcept;
+
+        T& operator[](std::size_t index) noexcept;
+        T  operator[](std::size_t index) const noexcept;
+
+        aabb& operator+=(T v) noexcept;
+        aabb& operator-=(T v) noexcept;
+        aabb& operator*=(T v) noexcept;
+        aabb& operator/=(T v) noexcept;
+
+        aabb& operator+=(const vec3<T>& v) noexcept;
+        aabb& operator-=(const vec3<T>& v) noexcept;
+        aabb& operator*=(const vec3<T>& v) noexcept;
+        aabb& operator/=(const vec3<T>& v) noexcept;
     };
 }
 
@@ -64,6 +80,76 @@ namespace e2d
         return {
             position.template cast_to<To>(),
             size.template cast_to<To>()};
+    }
+
+    template < typename T >
+    T* aabb<T>::data() noexcept {
+        return position.data();
+    }
+
+    template < typename T >
+    const T* aabb<T>::data() const noexcept {
+        return position.data();
+    }
+
+    template < typename T >
+    T& aabb<T>::operator[](std::size_t index) noexcept {
+        E2D_ASSERT(index < 6);
+        return data()[index];
+    }
+
+    template < typename T >
+    T aabb<T>::operator[](std::size_t index) const noexcept {
+        E2D_ASSERT(index < 6);
+        return data()[index];
+    }
+
+    template < typename T >
+    aabb<T>& aabb<T>::operator+=(T v) noexcept {
+        position += v;
+        return *this;
+    }
+
+    template < typename T >
+    aabb<T>& aabb<T>::operator-=(T v) noexcept {
+        position -= v;
+        return *this;
+    }
+
+    template < typename T >
+    aabb<T>& aabb<T>::operator*=(T v) noexcept {
+        size *= v;
+        return *this;
+    }
+
+    template < typename T >
+    aabb<T>& aabb<T>::operator/=(T v) noexcept {
+        size /= v;
+        return *this;
+    }
+
+    template < typename T >
+    aabb<T>& aabb<T>::operator+=(const vec3<T>& v) noexcept {
+        position += v;
+        return *this;
+    }
+
+    template < typename T >
+    aabb<T>& aabb<T>::operator-=(const vec3<T>& v) noexcept {
+        position -= v;
+        return *this;
+    }
+
+    template < typename T >
+    aabb<T>& aabb<T>::operator*=(const vec3<T>& v) noexcept {
+        size *= v;
+        return *this;
+    }
+
+    template < typename T >
+    aabb<T>& aabb<T>::operator/=(const vec3<T>& v) noexcept {
+        size /= v;
+        return *this;
     }
 }
 
@@ -147,6 +233,70 @@ namespace e2d
     template < typename T >
     bool operator>=(const aabb<T>& l, const aabb<T>& r) noexcept {
         return !(l < r);
+    }
+
+    //
+    // aabb (+,-,*,/) value
+    //
+
+    template < typename T >
+    aabb<T> operator+(const aabb<T>& l, T v) noexcept {
+        return {
+            l.position + v,
+            l.size};
+    }
+
+    template < typename T >
+    aabb<T> operator-(const aabb<T>& l, T v) noexcept {
+        return {
+            l.position - v,
+            l.size};
+    }
+
+    template < typename T >
+    aabb<T> operator*(const aabb<T>& l, T v) noexcept {
+        return {
+            l.position,
+            l.size * v};
+    }
+
+    template < typename T >
+    aabb<T> operator/(const aabb<T>& l, T v) noexcept {
+        return {
+            l.position,
+            l.size / v};
+    }
+
+    //
+    // aabb (+,-,*,/) vec3
+    //
+
+    template < typename T >
+    aabb<T> operator+(const aabb<T>& l, const vec3<T>& v) noexcept {
+        return {
+            l.position + v,
+            l.size};
+    }
+
+    template < typename T >
+    aabb<T> operator-(const aabb<T>& l, const vec3<T>& v) noexcept {
+        return {
+            l.position - v,
+            l.size};
+    }
+
+    template < typename T >
+    aabb<T> operator*(const aabb<T>& l, const vec3<T>& v) noexcept {
+        return {
+            l.position,
+            l.size * v};
+    }
+
+    template < typename T >
+    aabb<T> operator/(const aabb<T>& l, const vec3<T>& v) noexcept {
+        return {
+            l.position,
+            l.size / v};
     }
 }
 

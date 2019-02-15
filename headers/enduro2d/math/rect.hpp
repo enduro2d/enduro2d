@@ -38,6 +38,22 @@ namespace e2d
 
         template < typename To >
         rect<To> cast_to() const noexcept;
+
+        T* data() noexcept;
+        const T* data() const noexcept;
+
+        T& operator[](std::size_t index) noexcept;
+        T  operator[](std::size_t index) const noexcept;
+
+        rect& operator+=(T v) noexcept;
+        rect& operator-=(T v) noexcept;
+        rect& operator*=(T v) noexcept;
+        rect& operator/=(T v) noexcept;
+
+        rect& operator+=(const vec2<T>& v) noexcept;
+        rect& operator-=(const vec2<T>& v) noexcept;
+        rect& operator*=(const vec2<T>& v) noexcept;
+        rect& operator/=(const vec2<T>& v) noexcept;
     };
 }
 
@@ -79,6 +95,76 @@ namespace e2d
         return {
             position.template cast_to<To>(),
             size.template cast_to<To>()};
+    }
+
+    template < typename T >
+    T* rect<T>::data() noexcept {
+        return position.data();
+    }
+
+    template < typename T >
+    const T* rect<T>::data() const noexcept {
+        return position.data();
+    }
+
+    template < typename T >
+    T& rect<T>::operator[](std::size_t index) noexcept {
+        E2D_ASSERT(index < 4);
+        return data()[index];
+    }
+
+    template < typename T >
+    T rect<T>::operator[](std::size_t index) const noexcept {
+        E2D_ASSERT(index < 4);
+        return data()[index];
+    }
+
+    template < typename T >
+    rect<T>& rect<T>::operator+=(T v) noexcept {
+        position += v;
+        return *this;
+    }
+
+    template < typename T >
+    rect<T>& rect<T>::operator-=(T v) noexcept {
+        position -= v;
+        return *this;
+    }
+
+    template < typename T >
+    rect<T>& rect<T>::operator*=(T v) noexcept {
+        size *= v;
+        return *this;
+    }
+
+    template < typename T >
+    rect<T>& rect<T>::operator/=(T v) noexcept {
+        size /= v;
+        return *this;
+    }
+
+    template < typename T >
+    rect<T>& rect<T>::operator+=(const vec2<T>& v) noexcept {
+        position += v;
+        return *this;
+    }
+
+    template < typename T >
+    rect<T>& rect<T>::operator-=(const vec2<T>& v) noexcept {
+        position -= v;
+        return *this;
+    }
+
+    template < typename T >
+    rect<T>& rect<T>::operator*=(const vec2<T>& v) noexcept {
+        size *= v;
+        return *this;
+    }
+
+    template < typename T >
+    rect<T>& rect<T>::operator/=(const vec2<T>& v) noexcept {
+        size /= v;
+        return *this;
     }
 }
 
@@ -162,6 +248,70 @@ namespace e2d
     template < typename T >
     bool operator>=(const rect<T>& l, const rect<T>& r) noexcept {
         return !(l < r);
+    }
+
+    //
+    // rect (+,-,*,/) value
+    //
+
+    template < typename T >
+    rect<T> operator+(const rect<T>& l, T v) noexcept {
+        return {
+            l.position + v,
+            l.size};
+    }
+
+    template < typename T >
+    rect<T> operator-(const rect<T>& l, T v) noexcept {
+        return {
+            l.position - v,
+            l.size};
+    }
+
+    template < typename T >
+    rect<T> operator*(const rect<T>& l, T v) noexcept {
+        return {
+            l.position,
+            l.size * v};
+    }
+
+    template < typename T >
+    rect<T> operator/(const rect<T>& l, T v) noexcept {
+        return {
+            l.position,
+            l.size / v};
+    }
+
+    //
+    // rect (+,-,*,/) vec2
+    //
+
+    template < typename T >
+    rect<T> operator+(const rect<T>& l, const vec2<T>& v) noexcept {
+        return {
+            l.position + v,
+            l.size};
+    }
+
+    template < typename T >
+    rect<T> operator-(const rect<T>& l, const vec2<T>& v) noexcept {
+        return {
+            l.position - v,
+            l.size};
+    }
+
+    template < typename T >
+    rect<T> operator*(const rect<T>& l, const vec2<T>& v) noexcept {
+        return {
+            l.position,
+            l.size * v};
+    }
+
+    template < typename T >
+    rect<T> operator/(const rect<T>& l, const vec2<T>& v) noexcept {
+        return {
+            l.position,
+            l.size / v};
     }
 }
 

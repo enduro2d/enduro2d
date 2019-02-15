@@ -28,6 +28,55 @@ TEST_CASE("rect") {
         REQUIRE(b2f(1,2,3,4).cast_to<i32>() == b2i(1,2,3,4));
     }
     {
+        auto r0 = b2i(1,2,3,4);
+        REQUIRE(r0.data()[0] == 1);
+        REQUIRE(r0.data()[1] == 2);
+        REQUIRE(r0.data()[2] == 3);
+        REQUIRE(r0.data()[3] == 4);
+        r0.data()[0] = 2;
+        REQUIRE(r0 == b2i(2,2,3,4));
+        const auto& cr0 = r0;
+        REQUIRE(cr0.data()[0] == 2);
+        REQUIRE(cr0.data()[1] == 2);
+        REQUIRE(cr0.data()[2] == 3);
+        REQUIRE(cr0.data()[3] == 4);
+    }
+    {
+        auto r0 = b2i(1,2,3,4);
+        REQUIRE(r0[0] == 1);
+        REQUIRE(r0[1] == 2);
+        REQUIRE(r0[2] == 3);
+        REQUIRE(r0[3] == 4);
+        r0[0] = 2;
+        REQUIRE(r0 == b2i(2,2,3,4));
+        const auto& cr0 = r0;
+        REQUIRE(cr0[0] == 2);
+        REQUIRE(cr0[1] == 2);
+        REQUIRE(cr0[2] == 3);
+        REQUIRE(cr0[3] == 4);
+    }
+    {
+        auto r0 = b2i(1,2,3,4);
+        REQUIRE(&r0 == &(r0 += 1));
+        REQUIRE(r0 == b2i(2,3,3,4));
+        REQUIRE(&r0 == &(r0 -= 4));
+        REQUIRE(r0 == b2i(-2,-1,3,4));
+        REQUIRE(&r0 == &(r0 *= 2));
+        REQUIRE(r0 == b2i(-2,-1,6,8));
+        REQUIRE(&r0 == &(r0 /= 3));
+        REQUIRE(r0 == b2i(-2,-1,2,2));
+
+        REQUIRE(b2i(1,2,3,4) + 2 == b2i(3,4,3,4));
+        REQUIRE(b2i(1,2,3,4) - 2 == b2i(-1,0,3,4));
+        REQUIRE(b2i(1,2,3,4) * 3 == b2i(1,2,9,12));
+        REQUIRE(b2i(1,2,6,9) / 3 == b2i(1,2,2,3));
+
+        REQUIRE(b2i(1,2,3,4) + v2i(1,2) == b2i(2,4,3,4));
+        REQUIRE(b2i(1,2,3,4) - v2i(1,2) == b2i(0,0,3,4));
+        REQUIRE(b2i(1,2,3,4) * v2i(2,3) == b2i(1,2,6,12));
+        REQUIRE(b2i(1,2,6,8) / v2i(3,2) == b2i(1,2,2,4));
+    }
+    {
         REQUIRE(make_rect(2,1) == b2i(0,0,2,1));
         REQUIRE(make_rect(4,3,2,1) == b2i(4,3,2,1));
         REQUIRE(make_rect(v2i{2,1}) == b2i(0,0,2,1));
