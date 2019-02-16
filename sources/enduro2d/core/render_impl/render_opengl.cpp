@@ -882,12 +882,6 @@ namespace e2d
                 std::move(depth_rb)));
     }
 
-    render& render::execute(const swap_command& command) {
-        E2D_ASSERT(is_in_main_thread());
-        state_->wnd().swap_buffers(command.vsync());
-        return *this;
-    }
-
     render& render::execute(const draw_command& command) {
         E2D_ASSERT(is_in_main_thread());
 

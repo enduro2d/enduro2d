@@ -33,8 +33,8 @@ namespace e2d
         };
         using event_listener_uptr = std::unique_ptr<event_listener>;
     public:
-        window(const v2u& size, str_view title, bool fullscreen);
-        ~window() noexcept;
+        window(const v2u& size, str_view title, bool vsync, bool fullscreen);
+        ~window() noexcept final;
 
         void hide() noexcept;
         void show() noexcept;
@@ -63,7 +63,7 @@ namespace e2d
         void set_should_close(bool yesno) noexcept;
 
         void bind_context() noexcept;
-        void swap_buffers(bool vsync) noexcept;
+        void swap_buffers() noexcept;
         static bool poll_events() noexcept;
 
         template < typename T, typename... Args >

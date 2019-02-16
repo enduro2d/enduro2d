@@ -100,8 +100,8 @@ namespace
         command_value_visitor(render& render) noexcept
         : render_(render) {}
 
-        void operator()(const render::swap_command& command) const {
-            render_.execute(command);
+        void operator()(const render::zero_command& command) const {
+            E2D_UNUSED(command);
         }
 
         void operator()(const render::draw_command& command) const {
@@ -892,26 +892,6 @@ namespace e2d
     const vertex_buffer_ptr& render::geometry::vertices(std::size_t index) const noexcept {
         E2D_ASSERT(index < vertices_count_);
         return vertices_[index];
-    }
-
-    //
-    // swap_command
-    //
-
-    render::swap_command::swap_command(bool vsync)
-    : vsync_(vsync) {}
-
-    render::swap_command& render::swap_command::vsync(bool value) noexcept {
-        vsync_ = value;
-        return *this;
-    }
-
-    bool& render::swap_command::vsync() noexcept {
-        return vsync_;
-    }
-
-    bool render::swap_command::vsync() const noexcept {
-        return vsync_;
     }
 
     //

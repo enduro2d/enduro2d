@@ -122,6 +122,11 @@ namespace e2d
         return *this;
     }
 
+    engine::window_parameters& engine::window_parameters::vsync(bool value) noexcept {
+        vsync_ = value;
+        return *this;
+    }
+
     engine::window_parameters& engine::window_parameters::fullscreen(bool value) noexcept {
         fullscreen_ = value;
         return *this;
@@ -133,6 +138,10 @@ namespace e2d
 
     const v2u& engine::window_parameters::size() const noexcept {
         return size_;
+    }
+
+    bool engine::window_parameters::vsync() const noexcept {
+        return vsync_;
     }
 
     bool engine::window_parameters::fullscreen() const noexcept {
@@ -373,6 +382,7 @@ namespace e2d
             safe_module_initialize<window>(
                 params.window_params().size(),
                 params.window_params().caption(),
+                params.window_params().vsync(),
                 params.window_params().fullscreen());
 
             the<window>().register_event_listener<window_input_source>(the<input>());
@@ -421,6 +431,8 @@ namespace e2d
                     break;
                 }
 
+                the<dbgui>().frame_render();
+                the<window>().swap_buffers();
                 state_->calculate_end_frame_timers();
             } catch ( ... ) {
                 app->shutdown();
