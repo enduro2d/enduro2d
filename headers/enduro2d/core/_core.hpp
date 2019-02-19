@@ -25,6 +25,7 @@ namespace e2d
         using namespace scheduler_hpp;
     }
 
+    class dbgui;
     class debug;
     class deferrer;
     class application;

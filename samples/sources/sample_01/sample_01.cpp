@@ -219,8 +219,13 @@ namespace
 
         bool frame_tick() final {
             const keyboard& k = the<input>().keyboard();
+
             if ( the<window>().should_close() || k.is_key_just_released(keyboard_key::escape) ) {
                 return false;
+            }
+
+            if ( k.is_key_just_pressed(keyboard_key::f12) ) {
+                the<dbgui>().toggle_visible(!the<dbgui>().visible());
             }
 
             const auto framebuffer_size = the<window>().real_size().cast_to<f32>();
@@ -242,10 +247,11 @@ namespace
                 .property("u_MVP", MVP);
 
             the<render>().execute(render::command_block<64>()
+                .add_command(render::viewport_command(
+                    the<window>().real_size()))
                 .add_command(render::clear_command()
                     .color_value({1.f, 0.4f, 0.f, 1.f}))
-                .add_command(render::draw_command(material_, geometry_))
-                .add_command(render::swap_command(true)));
+                .add_command(render::draw_command(material_, geometry_)));
 
             return true;
         }

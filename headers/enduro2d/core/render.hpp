@@ -715,15 +715,9 @@ namespace e2d
             topology topology_ = topology::triangles;
         };
 
-        class swap_command final {
+        class zero_command final {
         public:
-            swap_command() = default;
-            swap_command(bool vsync);
-            swap_command& vsync(bool value) noexcept;
-            bool& vsync() noexcept;
-            bool vsync() const noexcept;
-        private:
-            bool vsync_ = true;
+            zero_command() = default;
         };
 
         class draw_command final {
@@ -824,7 +818,7 @@ namespace e2d
         };
 
         using command_value = stdex::variant<
-            swap_command,
+            zero_command,
             draw_command,
             clear_command,
             target_command,
@@ -835,9 +829,9 @@ namespace e2d
         public:
             command_block() = default;
 
-            command_block& clear() noexcept;
             command_block& add_command(command_value&& value);
             command_block& add_command(const command_value& value);
+
             const command_value& command(std::size_t index) const noexcept;
             std::size_t command_count() const noexcept;
         private:
@@ -906,7 +900,6 @@ namespace e2d
         render& execute(const command_block<N>& commands);
         render& execute(const command_value& command);
 
-        render& execute(const swap_command& command);
         render& execute(const draw_command& command);
         render& execute(const clear_command& command);
         render& execute(const target_command& command);
