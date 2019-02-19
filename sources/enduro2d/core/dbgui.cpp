@@ -85,6 +85,14 @@ namespace e2d
             return ImGui::GetIO();
         }
 
+        bool visible() const noexcept {
+            return visible_;
+        }
+
+        void toggle_visible(bool yesno) noexcept {
+            visible_ = yesno;
+        }
+
         void frame_tick() {
             ImGuiIO& io = bind_context();
             const mouse& m = input_.mouse();
@@ -352,6 +360,7 @@ namespace e2d
         input& input_;
         render& render_;
         window& window_;
+        bool visible_{false};
         ImGuiContext* context_{nullptr};
         window::event_listener& listener_;
     private:
@@ -371,8 +380,20 @@ namespace e2d
     : state_(new internal_state(d, i, r, w)) {}
     dbgui::~dbgui() noexcept = default;
 
+    bool dbgui::visible() const noexcept {
+        return state_->visible();
+    }
+
+    void dbgui::toggle_visible(bool yesno) noexcept {
+        state_->toggle_visible(yesno);
+    }
+
     void dbgui::frame_tick() {
         state_->frame_tick();
+
+        if ( visible() ) {
+            dbgui_widgets::show_main_menu();
+        }
     }
 
     void dbgui::frame_render() {

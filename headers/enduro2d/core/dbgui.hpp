@@ -30,6 +30,9 @@ namespace e2d
         dbgui(debug& d, input& i, render& r, window& w);
         ~dbgui() noexcept final;
 
+        bool visible() const noexcept;
+        void toggle_visible(bool yesno) noexcept;
+
         void frame_tick();
         void frame_render();
     private:

@@ -25,6 +25,4 @@ namespace e2d { namespace dbgui_shaders
 namespace e2d { namespace dbgui_widgets
 {
     void show_main_menu();
-    void show_engine_stats();
-    void show_window_stats();
 }}

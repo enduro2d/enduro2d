@@ -189,8 +189,13 @@ namespace
 
         bool frame_tick() final {
             const keyboard& k = the<input>().keyboard();
+
             if ( the<window>().should_close() || k.is_key_just_released(keyboard_key::escape) ) {
                 return false;
+            }
+
+            if ( k.is_key_just_pressed(keyboard_key::f12) ) {
+                the<dbgui>().toggle_visible(!the<dbgui>().visible());
             }
 
             const auto framebuffer_size = the<window>().real_size().cast_to<f32>();
