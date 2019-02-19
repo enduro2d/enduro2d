@@ -21,6 +21,7 @@ namespace e2d
 namespace e2d
 {
     class camera;
+    class scene;
     class sprite;
 
     class render_system;

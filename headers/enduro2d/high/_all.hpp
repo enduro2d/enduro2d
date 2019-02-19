@@ -9,6 +9,7 @@
 #include "_high.hpp"
 
 #include "components/camera.hpp"
+#include "components/scene.hpp"
 #include "components/sprite.hpp"
 
 #include "systems/render_system.hpp"
