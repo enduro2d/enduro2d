@@ -1082,6 +1082,7 @@ enum ImGuiStyleVar_
     ImGuiStyleVar_GrabRounding,        // float     GrabRounding
     ImGuiStyleVar_TabRounding,         // float     TabRounding
     ImGuiStyleVar_ButtonTextAlign,     // ImVec2    ButtonTextAlign
+    ImGuiStyleVar_SelectableTextAlign, // ImVec2    SelectableTextAlign
     ImGuiStyleVar_COUNT
 
     // Obsolete names (will be removed)
@@ -1256,7 +1257,8 @@ struct ImGuiStyle
     float       GrabRounding;               // Radius of grabs corners rounding. Set to 0.0f to have rectangular slider grabs.
     float       TabRounding;                // Radius of upper corners of a tab. Set to 0.0f to have rectangular tabs.
     float       TabBorderSize;              // Thickness of border around tabs.
-    ImVec2      ButtonTextAlign;            // Alignment of button text when button is larger than text. Defaults to (0.5f,0.5f) for horizontally+vertically centered.
+    ImVec2      ButtonTextAlign;            // Alignment of button text when button is larger than text. Defaults to (0.5f, 0.5f) (centered).
+    ImVec2      SelectableTextAlign;        // Alignment of selectable text when selectable is larger than text. Defaults to (0.0f, 0.0f) (top-left aligned).
     ImVec2      DisplayWindowPadding;       // Window position are clamped to be visible within the display area by at least this amount. Only applies to regular windows.
     ImVec2      DisplaySafeAreaPadding;     // If you cannot see the edges of your screen (e.g. on a TV) increase the safe area padding. Apply to popups/tooltips as well regular windows. NB: Prefer configuring your TV sets correctly!
     float       MouseCursorScale;           // Scale software rendered mouse cursor (when io.MouseDrawCursor is enabled). May be removed later.
@@ -1300,7 +1302,7 @@ struct ImGuiIO
     float       FontGlobalScale;                // = 1.0f           // Global scale all fonts
     bool        FontAllowUserScaling;           // = false          // Allow user scaling text of individual window with CTRL+Wheel.
     ImFont*     FontDefault;                    // = NULL           // Font to use on NewFrame(). Use NULL to uses Fonts->Fonts[0].
-    ImVec2      DisplayFramebufferScale;        // = (1.0f,1.0f)    // For hi-dpi/retina display or other situations where window coordinates are different from framebuffer coordinates. User storage only, presently not used by ImGui.
+    ImVec2      DisplayFramebufferScale;        // = (1, 1)         // For retina display or other situations where window coordinates are different from framebuffer coordinates. This generally ends up in ImDrawData::FramebufferScale.
 
     // Miscellaneous options
     bool        MouseDrawCursor;                // = false          // Request ImGui to draw a mouse cursor for you (if you are on a platform without a mouse cursor). Cannot be easily renamed to 'io.ConfigXXX' because this is frequently used by back-end implementations.
@@ -1893,13 +1895,14 @@ struct ImDrawData
     int             TotalVtxCount;          // For convenience, sum of all ImDrawList's VtxBuffer.Size
     ImVec2          DisplayPos;             // Upper-left position of the viewport to render (== upper-left of the orthogonal projection matrix to use)
     ImVec2          DisplaySize;            // Size of the viewport to render (== io.DisplaySize for the main viewport) (DisplayPos + DisplaySize == lower-right of the orthogonal projection matrix to use)
+    ImVec2          FramebufferScale;       // Amount of pixels for each unit of DisplaySize. Based on io.DisplayFramebufferScale. Generally (1,1) on normal display, (2,2) on OSX with Retina display.
 
     // Functions
     ImDrawData()    { Valid = false; Clear(); }
     ~ImDrawData()   { Clear(); }
-    void Clear()    { Valid = false; CmdLists = NULL; CmdListsCount = TotalVtxCount = TotalIdxCount = 0; DisplayPos = DisplaySize = ImVec2(0.f, 0.f); } // The ImDrawList are owned by ImGuiContext!
-    IMGUI_API void  DeIndexAllBuffers();                // Helper to convert all buffers from indexed to non-indexed, in case you cannot render indexed. Note: this is slow and most likely a waste of resources. Always prefer indexed rendering!
-    IMGUI_API void  ScaleClipRects(const ImVec2& sc);   // Helper to scale the ClipRect field of each ImDrawCmd. Use if your final output buffer is at a different scale than ImGui expects, or if there is a difference between your window resolution and framebuffer resolution.
+    void Clear()    { Valid = false; CmdLists = NULL; CmdListsCount = TotalVtxCount = TotalIdxCount = 0; DisplayPos = DisplaySize = FramebufferScale = ImVec2(0.f, 0.f); } // The ImDrawList are owned by ImGuiContext!
+    IMGUI_API void  DeIndexAllBuffers();                    // Helper to convert all buffers from indexed to non-indexed, in case you cannot render indexed. Note: this is slow and most likely a waste of resources. Always prefer indexed rendering!
+    IMGUI_API void  ScaleClipRects(const ImVec2& fb_scale); // Helper to scale the ClipRect field of each ImDrawCmd. Use if your final output buffer is at a different scale than ImGui expects, or if there is a difference between your window resolution and framebuffer resolution.
 };
 
 //-----------------------------------------------------------------------------
@@ -1913,8 +1916,8 @@ struct ImFontConfig
     bool            FontDataOwnedByAtlas;   // true     // TTF/OTF data ownership taken by the container ImFontAtlas (will delete memory itself).
     int             FontNo;                 // 0        // Index of font within TTF/OTF file
     float           SizePixels;             //          // Size in pixels for rasterizer (more or less maps to the resulting font height).
-    int             OversampleH;            // 3        // Rasterize at higher quality for sub-pixel positioning. We don't use sub-pixel positions on the Y axis.
-    int             OversampleV;            // 1        // Rasterize at higher quality for sub-pixel positioning. We don't use sub-pixel positions on the Y axis.
+    int             OversampleH;            // 3        // Rasterize at higher quality for sub-pixel positioning. Read https://github.com/nothings/stb/blob/master/tests/oversample/README.md for details.
+    int             OversampleV;            // 1        // Rasterize at higher quality for sub-pixel positioning. We don't use sub-pixel positions on the Y axis. 
     bool            PixelSnapH;             // false    // Align every glyph to pixel boundary. Useful e.g. if you are merging a non-pixel aligned font with the default font. If enabled, you can set OversampleH/V to 1.
     ImVec2          GlyphExtraSpacing;      // 0, 0     // Extra spacing (in pixels) between glyphs. Only X axis is supported for now.
     ImVec2          GlyphOffset;            // 0, 0     // Offset all glyphs from this font input.
@@ -1947,12 +1950,12 @@ struct ImFontGlyphRangesBuilder
     ImVector<int> UsedChars;            // Store 1-bit per Unicode code point (0=unused, 1=used)
 
     ImFontGlyphRangesBuilder()          { UsedChars.resize(0x10000 / sizeof(int)); memset(UsedChars.Data, 0, 0x10000 / sizeof(int)); }
-    bool           GetBit(int n) const  { int off = (n >> 5); int mask = 1 << (n & 31); return (UsedChars[off] & mask) != 0; } // Get bit n in the array
-    void           SetBit(int n)        { int off = (n >> 5); int mask = 1 << (n & 31); UsedChars[off] |= mask; }              // Set bit n in the array
-    void           AddChar(ImWchar c)   { SetBit(c); }                          // Add character
-    IMGUI_API void AddText(const char* text, const char* text_end = NULL);      // Add string (each character of the UTF-8 string are added)
-    IMGUI_API void AddRanges(const ImWchar* ranges);                            // Add ranges, e.g. builder.AddRanges(ImFontAtlas::GetGlyphRangesDefault()) to force add all of ASCII/Latin+Ext
-    IMGUI_API void BuildRanges(ImVector<ImWchar>* out_ranges);                  // Output new ranges
+    bool            GetBit(int n) const { int off = (n >> 5); int mask = 1 << (n & 31); return (UsedChars[off] & mask) != 0; }  // Get bit n in the array
+    void            SetBit(int n)       { int off = (n >> 5); int mask = 1 << (n & 31); UsedChars[off] |= mask; }               // Set bit n in the array
+    void            AddChar(ImWchar c)  { SetBit(c); }                          // Add character
+    IMGUI_API void  AddText(const char* text, const char* text_end = NULL);     // Add string (each character of the UTF-8 string are added)
+    IMGUI_API void  AddRanges(const ImWchar* ranges);                           // Add ranges, e.g. builder.AddRanges(ImFontAtlas::GetGlyphRangesDefault()) to force add all of ASCII/Latin+Ext
+    IMGUI_API void  BuildRanges(ImVector<ImWchar>* out_ranges);                 // Output new ranges
 };
 
 enum ImFontAtlasFlags_
@@ -2078,35 +2081,32 @@ struct ImFontAtlas
 // ImFontAtlas automatically loads a default embedded font for you when you call GetTexDataAsAlpha8() or GetTexDataAsRGBA32().
 struct ImFont
 {
-    // Members: Hot ~24/32 bytes (for CalcTextSize)
-    ImVector<float>             IndexAdvanceX;      // 12/16 // out //            // Sparse. Glyphs->AdvanceX in a directly indexable way (more cache-friendly, for CalcTextSize functions which are often bottleneck in large UI).
-    float                       FontSize;           // 4     // in  // <user set> // Height of characters, set during loading (don't change after loading)
+    // Members: Hot ~20/24 bytes (for CalcTextSize)
+    ImVector<float>             IndexAdvanceX;      // 12-16 // out //            // Sparse. Glyphs->AdvanceX in a directly indexable way (cache-friendly for CalcTextSize functions which only this this info, and are often bottleneck in large UI).
     float                       FallbackAdvanceX;   // 4     // out // = FallbackGlyph->AdvanceX
-    ImWchar                     FallbackChar;       // 2     // in  // = '?'      // Replacement glyph if one isn't found. Only set via SetFallbackChar()
+    float                       FontSize;           // 4     // in  //            // Height of characters/line, set during loading (don't change after loading)
 
     // Members: Hot ~36/48 bytes (for CalcTextSize + render loop)
     ImVector<ImWchar>           IndexLookup;        // 12-16 // out //            // Sparse. Index glyphs by Unicode code-point.
     ImVector<ImFontGlyph>       Glyphs;             // 12-16 // out //            // All glyphs.
-    ImVec2                      DisplayOffset;      // 8     // in  // = (0,0)    // Offset font rendering by xx pixels
     const ImFontGlyph*          FallbackGlyph;      // 4-8   // out // = FindGlyph(FontFallbackChar)
+    ImVec2                      DisplayOffset;      // 8     // in  // = (0,0)    // Offset font rendering by xx pixels
 
-    // Members: Cold ~28/40 bytes
+    // Members: Cold ~32/40 bytes
     ImFontAtlas*                ContainerAtlas;     // 4-8   // out //            // What we has been loaded into
-    ImFontConfig*               ConfigData;         // 4-8   // in  //            // Pointer within ContainerAtlas->ConfigData
+    const ImFontConfig*         ConfigData;         // 4-8   // in  //            // Pointer within ContainerAtlas->ConfigData
     short                       ConfigDataCount;    // 2     // in  // ~ 1        // Number of ImFontConfig involved in creating this font. Bigger than 1 when merging multiple font sources into one ImFont.
+    ImWchar                     FallbackChar;       // 2     // in  // = '?'      // Replacement glyph if one isn't found. Only set via SetFallbackChar()
+    float                       Scale;              // 4     // in  // = 1.f      // Base font scale, multiplied by the per-window font scale which you can adjust with SetWindowFontScale()
+    float                       Ascent, Descent;    // 4+4   // out //            // Ascent: distance from top to bottom of e.g. 'A' [0..FontSize]
+    int                         MetricsTotalSurface;// 4     // out //            // Total surface in pixels to get an idea of the font rasterization/texture cost (not exact, we approximate the cost of padding between glyphs)
     bool                        DirtyLookupTables;  // 1     // out //
-    float                       Scale;              // 4     // in  // = 1.f       // Base font scale, multiplied by the per-window font scale which you can adjust with SetWindowFontScale()
-    float                       Ascent, Descent;    // 8     // out               // Ascent: distance from top to bottom of e.g. 'A' [0..FontSize]
-    int                         MetricsTotalSurface;// 4     // out               // Total surface in pixels to get an idea of the font rasterization/texture cost (not exact, we approximate the cost of padding between glyphs)
 
     // Methods
     IMGUI_API ImFont();
     IMGUI_API ~ImFont();
-    IMGUI_API void              ClearOutputData();
-    IMGUI_API void              BuildLookupTable();
     IMGUI_API const ImFontGlyph*FindGlyph(ImWchar c) const;
     IMGUI_API const ImFontGlyph*FindGlyphNoFallback(ImWchar c) const;
-    IMGUI_API void              SetFallbackChar(ImWchar c);
     float                       GetCharAdvance(ImWchar c) const     { return ((int)c < IndexAdvanceX.Size) ? IndexAdvanceX[(int)c] : FallbackAdvanceX; }
     bool                        IsLoaded() const                    { return ContainerAtlas != NULL; }
     const char*                 GetDebugName() const                { return ConfigData ? ConfigData->Name : "<unknown>"; }
@@ -2118,10 +2118,13 @@ struct ImFont
     IMGUI_API void              RenderChar(ImDrawList* draw_list, float size, ImVec2 pos, ImU32 col, ImWchar c) const;
     IMGUI_API void              RenderText(ImDrawList* draw_list, float size, ImVec2 pos, ImU32 col, const ImVec4& clip_rect, const char* text_begin, const char* text_end, float wrap_width = 0.0f, bool cpu_fine_clip = false) const;
 
-    // [Internal]
+    // [Internal] Don't use!
+    IMGUI_API void              BuildLookupTable();
+    IMGUI_API void              ClearOutputData();
     IMGUI_API void              GrowIndex(int new_size);
     IMGUI_API void              AddGlyph(ImWchar c, float x0, float y0, float x1, float y1, float u0, float v0, float u1, float v1, float advance_x);
     IMGUI_API void              AddRemapChar(ImWchar dst, ImWchar src, bool overwrite_dst = true); // Makes 'dst' character/glyph points to 'src' character/glyph. Currently needs to be called AFTER fonts have been built.
+    IMGUI_API void              SetFallbackChar(ImWchar c);
 
 #ifndef IMGUI_DISABLE_OBSOLETE_FUNCTIONS
     typedef ImFontGlyph Glyph; // OBSOLETE 1.52+
