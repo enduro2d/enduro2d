@@ -22,6 +22,17 @@ git submodule update --init --remote --recursive
 mkdir -p $UNTESTS_DIR/catch
 cp -fv $MODULES_DIR/catch2/single_include/catch2/catch.hpp $UNTESTS_DIR/catch/catch.hpp
 
+mkdir -p $SOURCES_RDPARTY_DIR/imgui
+cp -fv $MODULES_DIR/imgui/imgui.cpp $SOURCES_RDPARTY_DIR/imgui/imgui.cpp
+cp -fv $MODULES_DIR/imgui/imgui.h $SOURCES_RDPARTY_DIR/imgui/imgui.h
+cp -fv $MODULES_DIR/imgui/imgui_demo.cpp $SOURCES_RDPARTY_DIR/imgui/imgui_demo.cpp
+cp -fv $MODULES_DIR/imgui/imgui_draw.cpp $SOURCES_RDPARTY_DIR/imgui/imgui_draw.cpp
+cp -fv $MODULES_DIR/imgui/imgui_internal.h $SOURCES_RDPARTY_DIR/imgui/imgui_internal.h
+cp -fv $MODULES_DIR/imgui/imgui_widgets.cpp $SOURCES_RDPARTY_DIR/imgui/imgui_widgets.cpp
+cp -fv $MODULES_DIR/imgui/imstb_rectpack.h $SOURCES_RDPARTY_DIR/imgui/imstb_rectpack.h
+cp -fv $MODULES_DIR/imgui/imstb_textedit.h $SOURCES_RDPARTY_DIR/imgui/imstb_textedit.h
+cp -fv $MODULES_DIR/imgui/imstb_truetype.h $SOURCES_RDPARTY_DIR/imgui/imstb_truetype.h
+
 mkdir -p $HEADERS_RDPARTY_DIR/promise.hpp
 cp -rfv $MODULES_DIR/promise.hpp/invoke.hpp $HEADERS_RDPARTY_DIR/promise.hpp/invoke.hpp
 cp -rfv $MODULES_DIR/promise.hpp/jobber.hpp $HEADERS_RDPARTY_DIR/promise.hpp/jobber.hpp

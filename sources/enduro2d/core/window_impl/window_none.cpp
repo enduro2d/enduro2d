@@ -18,6 +18,7 @@ namespace e2d
         std::recursive_mutex rmutex;
         v2u virtual_size;
         str title;
+        bool vsync = false;
         bool fullscreen = false;
         bool cursor_hidden = false;
         bool should_close = false;
@@ -25,9 +26,10 @@ namespace e2d
         bool focused = true;
         bool minimized = false;
     public:
-        state(const v2u& size, str_view title, bool fullscreen)
+        state(const v2u& size, str_view title, bool vsync, bool fullscreen)
         : virtual_size(size)
         , title(make_utf8(title))
+        , vsync(vsync)
         , fullscreen(fullscreen) {}
         ~state() noexcept = default;
 
@@ -42,8 +44,8 @@ namespace e2d
         }
     };
 
-    window::window(const v2u& size, str_view title, bool fullscreen)
-    : state_(new state(size, title, fullscreen)) {}
+    window::window(const v2u& size, str_view title, bool vsync, bool fullscreen)
+    : state_(new state(size, title, vsync, fullscreen)) {}
     window::~window() noexcept = default;
 
     void window::hide() noexcept {
@@ -159,8 +161,7 @@ namespace e2d
     void window::bind_context() noexcept {
     }
 
-    void window::swap_buffers(bool vsync) noexcept {
-        E2D_UNUSED(vsync);
+    void window::swap_buffers() noexcept {
     }
 
     bool window::poll_events() noexcept {

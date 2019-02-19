@@ -112,12 +112,6 @@ namespace e2d
     //
 
     template < std::size_t N >
-    render::command_block<N>& render::command_block<N>::clear() noexcept {
-        command_count_ = 0;
-        return *this;
-    }
-
-    template < std::size_t N >
     render::command_block<N>& render::command_block<N>::add_command(command_value&& value) {
         E2D_ASSERT(command_count_ < commands_.size());
         commands_[command_count_] = std::move(value);

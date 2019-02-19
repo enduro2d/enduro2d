@@ -1,3 +1,8 @@
+// [DEAR IMGUI] 
+// This is a slightly modified version of stb_truetype.h 1.20.
+// Mostly fixing for compiler and static analyzer warnings.
+// Grep for [DEAR IMGUI] to find the changes.
+
 // stb_truetype.h - v1.20 - public domain
 // authored from 2009-2016 by Sean Barrett / RAD Game Tools
 //
@@ -248,7 +253,7 @@
 //   Documentation & header file        520 LOC  \___ 660 LOC documentation
 //   Sample code                        140 LOC  /
 //   Truetype parsing                   620 LOC  ---- 620 LOC TrueType
-//   Software rasterization             240 LOC  \                           
+//   Software rasterization             240 LOC  \.
 //   Curve tessellation                 120 LOC   \__ 550 LOC Bitmap creation
 //   Bitmap management                  100 LOC   /
 //   Baked bitmap interface              70 LOC  /
@@ -1836,7 +1841,7 @@ static int stbtt__GetGlyphShapeTT(const stbtt_fontinfo *info, int glyph_index, s
                if (comp_verts) STBTT_free(comp_verts, info->userdata);
                return 0;
             }
-            if (num_vertices > 0) STBTT_memcpy(tmp, vertices, num_vertices*sizeof(stbtt_vertex));
+            if (num_vertices > 0) STBTT_memcpy(tmp, vertices, num_vertices*sizeof(stbtt_vertex)); //-V595
             STBTT_memcpy(tmp+num_vertices, comp_verts, comp_num_verts*sizeof(stbtt_vertex));
             if (vertices) STBTT_free(vertices, info->userdata);
             vertices = tmp;
@@ -2207,7 +2212,7 @@ static int stbtt__run_charstring(const stbtt_fontinfo *info, int glyph_index, st
       } break;
 
       default:
-         if (b0 != 255 && b0 != 28 && (b0 < 32 || b0 > 254))
+         if (b0 != 255 && b0 != 28 && (b0 < 32 || b0 > 254)) //-V560
             return STBTT__CSERR("reserved operator");
 
          // push immediate
@@ -2379,7 +2384,8 @@ static stbtt_int32  stbtt__GetGlyphClass(stbtt_uint8 *classDefTable, int glyph)
             if (glyph >= startGlyphID && glyph < startGlyphID + glyphCount)
                 return (stbtt_int32)ttUSHORT(classDef1ValueArray + 2 * (glyph - startGlyphID));
 
-            classDefTable = classDef1ValueArray + 2 * glyphCount;
+            // [DEAR IMGUI] Commented to fix static analyzer warning
+            //classDefTable = classDef1ValueArray + 2 * glyphCount;
         } break;
 
         case 2: {
@@ -2403,7 +2409,8 @@ static stbtt_int32  stbtt__GetGlyphClass(stbtt_uint8 *classDefTable, int glyph)
                     return (stbtt_int32)ttUSHORT(classRangeRecord + 4);
             }
 
-            classDefTable = classRangeRecords + 6 * classRangeCount;
+            // [DEAR IMGUI] Commented to fix static analyzer warning
+            //classDefTable = classRangeRecords + 6 * classRangeCount;
         } break;
 
         default: {
@@ -3035,6 +3042,8 @@ static void stbtt__fill_active_edges_new(float *scanline, float *scanline_fill, 
                   dx = -dx;
                   dy = -dy;
                   t = x0, x0 = xb, xb = t;
+                  // [DEAR IMGUI] Fix static analyzer warning
+                  (void)dx; // [ImGui: fix static analyzer warning]
                }
 
                x1 = (int) x_top;
@@ -4293,7 +4302,7 @@ static int stbtt__compute_crossings_x(float x, float y, int nverts, stbtt_vertex
    int winding = 0;
 
    orig[0] = x;
-   orig[1] = y;
+   //orig[1] = y; // [DEAR IMGUI] commmented double assignment
 
    // make sure y never passes through a vertex of the shape
    y_frac = (float) STBTT_fmod(y, 1.0f);

@@ -121,6 +121,14 @@ namespace e2d
     : state_(std::move(state)) {}
     index_buffer::~index_buffer() noexcept = default;
 
+    void index_buffer::update(const buffer& indices, std::size_t offset) noexcept {
+        E2D_UNUSED(indices, offset);
+    }
+
+    std::size_t index_buffer::buffer_size() const noexcept {
+        return 0u;
+    }
+
     //
     // vertex_buffer
     //
@@ -132,6 +140,14 @@ namespace e2d
     vertex_buffer::vertex_buffer(internal_state_uptr state)
     : state_(std::move(state)) {}
     vertex_buffer::~vertex_buffer() noexcept = default;
+
+    void vertex_buffer::update(const buffer& vertices, std::size_t offset) noexcept {
+        E2D_UNUSED(vertices, offset);
+    }
+
+    std::size_t vertex_buffer::buffer_size() const noexcept {
+        return 0u;
+    }
 
     //
     // render_target
@@ -221,11 +237,6 @@ namespace e2d
     {
         E2D_UNUSED(size, color_decl, depth_decl, external_texture);
         return nullptr;
-    }
-
-    render& render::execute(const swap_command& command) {
-        E2D_UNUSED(command);
-        return *this;
     }
 
     render& render::execute(const draw_command& command) {
