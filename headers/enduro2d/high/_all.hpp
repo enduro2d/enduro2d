@@ -8,6 +8,7 @@
 
 #include "_high.hpp"
 
+#include "components/actor.hpp"
 #include "components/camera.hpp"
 #include "components/scene.hpp"
 #include "components/sprite.hpp"

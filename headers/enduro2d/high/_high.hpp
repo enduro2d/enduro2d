@@ -20,6 +20,7 @@ namespace e2d
 
 namespace e2d
 {
+    class actor;
     class camera;
     class scene;
     class sprite;
