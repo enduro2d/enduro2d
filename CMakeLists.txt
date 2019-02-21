@@ -189,11 +189,6 @@ if(E2D_BUILD_SAMPLES)
     add_subdirectory(samples)
 endif()
 
-option(E2D_BUILD_TOOLSET "Build toolset" ON)
-if(E2D_BUILD_TOOLSET)
-    add_subdirectory(toolset)
-endif()
-
 option(E2D_BUILD_UNTESTS "Build untests" ON)
 if(E2D_BUILD_UNTESTS)
     enable_testing()
