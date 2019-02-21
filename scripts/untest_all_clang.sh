@@ -18,9 +18,3 @@ $SCRIPT_DIR/build_clear.sh
 CC=clang-3.8 CXX=clang++-3.8 $SCRIPT_DIR/build_all.sh
 
 $SCRIPT_DIR/build_clear.sh
-CC=clang-3.7 CXX=clang++-3.7 $SCRIPT_DIR/build_all.sh
-
-$SCRIPT_DIR/build_clear.sh
-CC=clang-3.6 CXX=clang++-3.6 $SCRIPT_DIR/build_all.sh
-
-$SCRIPT_DIR/build_clear.sh

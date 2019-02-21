@@ -12,14 +12,8 @@
 ```bash
 $ git clone --recursive git://github.com/enduro2d/enduro2d.git
 $ cd enduro2d
-```
-
-> or
-
-```bash
-$ git clone git://github.com/enduro2d/enduro2d.git
-$ cd enduro2d
-$ git submodule update --init --recursive
+$ git lfs install
+$ git lfs pull
 ```
 
 ## * Building
