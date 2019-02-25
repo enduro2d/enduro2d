@@ -9,6 +9,9 @@
 #include "../_high.hpp"
 #include "../library.hpp"
 
+#include "model.hpp"
+#include "sprite.hpp"
+
 namespace e2d
 {
     class text_asset final : public content_asset<text_asset, str> {
@@ -23,9 +26,21 @@ namespace e2d
         static load_async_result load_async(library& library, str_view address);
     };
 
+    class model_asset final : public content_asset<model_asset, model> {
+    public:
+        using content_asset<model_asset, model>::content_asset;
+        static load_async_result load_async(library& library, str_view address);
+    };
+
     class image_asset final : public content_asset<image_asset, image> {
     public:
         using content_asset<image_asset, image>::content_asset;
+        static load_async_result load_async(library& library, str_view address);
+    };
+
+    class sprite_asset final : public content_asset<sprite_asset, sprite> {
+    public:
+        using content_asset<sprite_asset, sprite>::content_asset;
         static load_async_result load_async(library& library, str_view address);
     };
 

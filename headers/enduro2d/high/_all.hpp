@@ -9,11 +9,14 @@
 #include "_high.hpp"
 
 #include "assets/assets.hpp"
+#include "assets/model.hpp"
+#include "assets/sprite.hpp"
 
 #include "components/actor.hpp"
 #include "components/camera.hpp"
+#include "components/model_renderer.hpp"
 #include "components/scene.hpp"
-#include "components/sprite.hpp"
+#include "components/sprite_renderer.hpp"
 
 #include "systems/render_system.hpp"
 #include "systems/sprite_system.hpp"

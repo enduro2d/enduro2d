@@ -32,15 +32,15 @@ namespace e2d
     };
 
     //
-    // asset
+    // content_asset_base
     //
 
-    class base_asset
+    class content_asset_base
         : private noncopyable
-        , public ref_counter<base_asset> {
+        , public ref_counter<content_asset_base> {
     public:
-        base_asset() = default;
-        virtual ~base_asset() noexcept = default;
+        content_asset_base() = default;
+        virtual ~content_asset_base() noexcept = default;
     };
 
     //
@@ -48,7 +48,7 @@ namespace e2d
     //
 
     template < typename Asset, typename Content >
-    class content_asset : public base_asset {
+    class content_asset : public content_asset_base {
     public:
         using asset_type = Asset;
         using content_type = Content;
@@ -60,12 +60,12 @@ namespace e2d
             return load_result(new Asset(std::move(content)));
         }
 
+        content_asset(Content content)
+        : content_(std::move(content)) {}
+
         const Content& content() const noexcept {
             return content_;
         }
-    private:
-        content_asset(Content content)
-        : content_(std::move(content)) {}
     private:
         Content content_;
     };

@@ -20,27 +20,33 @@ namespace e2d
 
 namespace e2d
 {
-    class actor;
-    class camera;
-    class scene;
+    class model;
     class sprite;
-
-    class render_system;
-    class sprite_system;
-
-    class asset;
-    class library;
 
     class text_asset;
     class mesh_asset;
+    class model_asset;
     class image_asset;
+    class sprite_asset;
     class binary_asset;
     class shader_asset;
     class texture_asset;
     class material_asset;
 
+    class actor;
+    class camera;
+    class model_renderer;
+    class scene;
+    class sprite_renderer;
+
+    class render_system;
+    class sprite_system;
+
     template < typename Asset, typename Content >
     class content_asset;
+    class content_asset_base;
+
+    class library;
 
     template < typename T >
     class asset_cache;
