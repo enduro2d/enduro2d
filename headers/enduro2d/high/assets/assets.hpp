@@ -6,33 +6,11 @@
 
 #pragma once
 
-#include "_high.hpp"
-#include "library.hpp"
+#include "../_high.hpp"
+#include "../library.hpp"
 
 namespace e2d
 {
-    class asset_loading_exception : public exception {
-        const char* what() const noexcept override = 0;
-    };
-
-    template < typename Asset, typename Content >
-    class content_asset : public asset {
-    public:
-        using ptr = std::shared_ptr<Asset>;
-
-        using load_result = std::shared_ptr<Asset>;
-        using load_async_result = stdex::promise<load_result>;
-    public:
-        content_asset(Content content)
-        : content_(std::move(content)) {}
-
-        const Content& content() const noexcept {
-            return content_;
-        }
-    private:
-        Content content_;
-    };
-
     class text_asset final : public content_asset<text_asset, str> {
     public:
         using content_asset<text_asset, str>::content_asset;

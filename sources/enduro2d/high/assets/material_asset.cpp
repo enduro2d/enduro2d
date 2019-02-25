@@ -4,7 +4,9 @@
  * Copyright (C) 2018 Matvey Cherevko
  ******************************************************************************/
 
-#include "assets.hpp"
+#include <enduro2d/high/assets/assets.hpp>
+
+#include "json_asset.hpp"
 
 namespace
 {

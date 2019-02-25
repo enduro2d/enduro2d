@@ -4,7 +4,7 @@
  * Copyright (C) 2018 Matvey Cherevko
  ******************************************************************************/
 
-#include "assets.hpp"
+#include "json_asset.hpp"
 
 namespace
 {

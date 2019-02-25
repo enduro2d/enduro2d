@@ -8,6 +8,8 @@
 
 #include "_high.hpp"
 
+#include "assets/assets.hpp"
+
 #include "components/actor.hpp"
 #include "components/camera.hpp"
 #include "components/scene.hpp"
@@ -16,7 +18,6 @@
 #include "systems/render_system.hpp"
 #include "systems/sprite_system.hpp"
 
-#include "assets.hpp"
 #include "library.hpp"
 #include "library.inl"
 #include "node.hpp"

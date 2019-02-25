@@ -24,6 +24,14 @@ namespace e2d
     };
 
     //
+    // asset_loading_exception
+    //
+
+    class asset_loading_exception : public exception {
+        const char* what() const noexcept override = 0;
+    };
+
+    //
     // asset
     //
 
@@ -33,6 +41,28 @@ namespace e2d
         virtual ~asset() noexcept;
     };
     using asset_ptr = std::shared_ptr<asset>;
+
+    //
+    // content_asset
+    //
+
+    template < typename Asset, typename Content >
+    class content_asset : public asset {
+    public:
+        using ptr = std::shared_ptr<Asset>;
+
+        using load_result = std::shared_ptr<Asset>;
+        using load_async_result = stdex::promise<load_result>;
+    public:
+        content_asset(Content content)
+        : content_(std::move(content)) {}
+
+        const Content& content() const noexcept {
+            return content_;
+        }
+    private:
+        Content content_;
+    };
 
     //
     // library

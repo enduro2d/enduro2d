@@ -6,7 +6,7 @@
 
 #include <enduro2d/high/starter.hpp>
 
-#include <enduro2d/high/assets.hpp>
+#include <enduro2d/high/assets/assets.hpp>
 #include <enduro2d/high/library.hpp>
 #include <enduro2d/high/world.hpp>
 
