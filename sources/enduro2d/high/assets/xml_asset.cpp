@@ -23,7 +23,7 @@ namespace e2d
         library& library, str_view address)
     {
         return library.load_asset_async<text_asset>(address)
-            .then([](const text_asset::ptr& xml_data){
+            .then([](const text_asset::load_result& xml_data){
                 if ( !modules::is_initialized<deferrer>() ) {
                     throw xml_asset_loading_exception();
                 }
@@ -32,7 +32,7 @@ namespace e2d
                     if ( !doc.load_string(xml_data->content().c_str()) ) {
                         throw xml_asset_loading_exception();
                     }
-                    return std::make_shared<xml_asset>(std::move(doc));
+                    return xml_asset::create(std::move(doc));
                 });
             });
     }

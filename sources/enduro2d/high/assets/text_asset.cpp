@@ -32,7 +32,7 @@ namespace e2d
         const auto asset_url = library.root() / address;
         return the<vfs>().load_as_string_async(asset_url)
             .then([](auto&& content){
-                return std::make_shared<text_asset>(
+                return text_asset::create(
                     std::forward<decltype(content)>(content));
             });
     }

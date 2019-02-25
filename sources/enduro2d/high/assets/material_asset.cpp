@@ -709,7 +709,7 @@ namespace
         const auto shader_address =
             path::combine(parent_address, root.GetString());
         return library.load_asset_async<shader_asset>(shader_address)
-            .then([](const shader_asset::ptr& shader){
+            .then([](const shader_asset::load_result& shader){
                 return shader->content();
             });
     }
@@ -723,7 +723,7 @@ namespace
         const auto texture_address =
             path::combine(parent_address, root.GetString());
         return library.load_asset_async<texture_asset>(texture_address)
-            .then([](const texture_asset::ptr& texture){
+            .then([](const texture_asset::load_result& texture){
                 return texture->content();
             });
     }
@@ -1427,7 +1427,7 @@ namespace e2d
             .then([
                 &library,
                 parent_address = path::parent_path(address)
-            ](const json_asset::ptr& material_data){
+            ](const json_asset::load_result& material_data){
                 if ( !modules::is_initialized<deferrer>() ) {
                     throw material_asset_loading_exception();
                 }
@@ -1443,7 +1443,7 @@ namespace e2d
                         library, parent_address, material_data->content());
                 })
                 .then([](const render::material& material){
-                    return std::make_shared<material_asset>(material);
+                    return material_asset::create(material);
                 });
             });
     }

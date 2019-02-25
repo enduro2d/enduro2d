@@ -23,7 +23,7 @@ namespace e2d
         library& library, str_view address)
     {
         return library.load_asset_async<image_asset>(address)
-            .then([](const image_asset::ptr& texture_data){
+            .then([](const image_asset::load_result& texture_data){
                 if ( !modules::is_initialized<deferrer>() ) {
                     throw texture_asset_loading_exception();
                 }
@@ -36,7 +36,7 @@ namespace e2d
                     if ( !content ) {
                         throw texture_asset_loading_exception();
                     }
-                    return std::make_shared<texture_asset>(content);
+                    return texture_asset::create(content);
                 });
             });
     }

@@ -35,31 +35,37 @@ namespace e2d
     // asset
     //
 
-    class asset : private noncopyable {
+    class base_asset
+        : private noncopyable
+        , public ref_counter<base_asset> {
     public:
-        asset();
-        virtual ~asset() noexcept;
+        base_asset() = default;
+        virtual ~base_asset() noexcept = default;
     };
-    using asset_ptr = std::shared_ptr<asset>;
 
     //
     // content_asset
     //
 
     template < typename Asset, typename Content >
-    class content_asset : public asset {
+    class content_asset : public base_asset {
     public:
-        using ptr = std::shared_ptr<Asset>;
+        using asset_type = Asset;
+        using content_type = Content;
 
-        using load_result = std::shared_ptr<Asset>;
+        using load_result = intrusive_ptr<Asset>;
         using load_async_result = stdex::promise<load_result>;
     public:
-        content_asset(Content content)
-        : content_(std::move(content)) {}
+        static load_result create(Content content) {
+            return load_result(new Asset(std::move(content)));
+        }
 
         const Content& content() const noexcept {
             return content_;
         }
+    private:
+        content_asset(Content content)
+        : content_(std::move(content)) {}
     private:
         Content content_;
     };
@@ -76,11 +82,11 @@ namespace e2d
         const url& root() const noexcept;
         std::size_t unload_unused_assets() noexcept;
 
-        template < typename T >
-        std::shared_ptr<T> load_asset(str_view address);
+        template < typename Asset >
+        typename Asset::load_result load_asset(str_view address);
 
-        template < typename T >
-        stdex::promise<std::shared_ptr<T>> load_asset_async(str_view address);
+        template < typename Asset >
+        typename Asset::load_async_result load_asset_async(str_view address);
     private:
         url root_;
     };
@@ -105,15 +111,17 @@ namespace e2d
     // asset_cache
     //
 
-    template < typename T >
+    template < typename Asset >
     class asset_cache : public asset_cache_base
-                      , public module<asset_cache<T>> {
+                      , public module<asset_cache<Asset>> {
+    public:
+        using asset_result = typename Asset::load_result;
     public:
         asset_cache(library& l);
         ~asset_cache() noexcept final;
 
-        std::shared_ptr<T> find(str_hash address) const;
-        void store(str_hash address, const std::shared_ptr<T>& asset);
+        asset_result find(str_hash address) const;
+        void store(str_hash address, const asset_result& asset);
 
         void clear() noexcept;
         std::size_t asset_count() const noexcept;
@@ -122,7 +130,7 @@ namespace e2d
     private:
         library& library_;
         mutable std::mutex mutex_;
-        hash_map<str_hash, std::shared_ptr<T>> assets_;
+        hash_map<str_hash, asset_result> assets_;
     };
 }
 

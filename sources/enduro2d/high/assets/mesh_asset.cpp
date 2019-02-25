@@ -23,7 +23,7 @@ namespace e2d
         library& library, str_view address)
     {
         return library.load_asset_async<binary_asset>(address)
-            .then([](const binary_asset::ptr& mesh_data){
+            .then([](const binary_asset::load_result& mesh_data){
                 if ( !modules::is_initialized<deferrer>() ) {
                     throw mesh_asset_loading_exception();
                 }
@@ -32,7 +32,7 @@ namespace e2d
                     if ( !meshes::try_load_mesh(content, mesh_data->content()) ) {
                         throw mesh_asset_loading_exception();
                     }
-                    return std::make_shared<mesh_asset>(std::move(content));
+                    return mesh_asset::create(std::move(content));
                 });
             });
     }

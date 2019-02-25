@@ -17,9 +17,9 @@ namespace e2d
     // library
     //
 
-    template < typename T >
-    std::shared_ptr<T> library::load_asset(str_view address) {
-        auto p = load_asset_async<T>(address);
+    template < typename Asset >
+    typename Asset::load_result library::load_asset(str_view address) {
+        auto p = load_asset_async<Asset>(address);
 
         if ( modules::is_initialized<deferrer>() ) {
             the<deferrer>().active_safe_wait_promise(p);
@@ -28,24 +28,22 @@ namespace e2d
         return p.get_or_default(nullptr);
     }
 
-    template < typename T >
-    stdex::promise<std::shared_ptr<T>> library::load_asset_async(str_view address) {
-        if ( !modules::is_initialized<asset_cache<T>>() ) {
-            return T::load_async(*this, address);
+    template < typename Asset >
+    typename Asset::load_async_result library::load_asset_async(str_view address) {
+        if ( !modules::is_initialized<asset_cache<Asset>>() ) {
+            return Asset::load_async(*this, address);
         }
 
-        auto& cache = the<asset_cache<T>>();
-
-        auto cached_asset = cache.find(address);
-        if ( cached_asset ) {
+        auto& cache = the<asset_cache<Asset>>();
+        if ( auto cached_asset = cache.find(address) ) {
             return stdex::make_resolved_promise(std::move(cached_asset));
         }
 
-        return T::load_async(*this, address)
+        return Asset::load_async(*this, address)
             .then([
                 &cache,
                 address_hash = make_hash(address)
-            ](const std::shared_ptr<T>& new_asset){
+            ](auto&& new_asset){
                 cache.store(address_hash, new_asset);
                 return new_asset;
             });
@@ -63,7 +61,7 @@ namespace e2d
     asset_cache<T>::~asset_cache() noexcept = default;
 
     template < typename T >
-    std::shared_ptr<T> asset_cache<T>::find(str_hash address) const {
+    typename asset_cache<T>::asset_result asset_cache<T>::find(str_hash address) const {
         std::lock_guard<std::mutex> guard(mutex_);
         const auto iter = assets_.find(address);
         return iter != assets_.end()
@@ -72,7 +70,7 @@ namespace e2d
     }
 
     template < typename T >
-    void asset_cache<T>::store(str_hash address, const std::shared_ptr<T>& asset) {
+    void asset_cache<T>::store(str_hash address, const asset_result& asset) {
         std::lock_guard<std::mutex> guard(mutex_);
         assets_[address] = asset;
     }
@@ -94,7 +92,7 @@ namespace e2d
         std::lock_guard<std::mutex> guard(mutex_);
         std::size_t result = 0u;
         for ( auto iter = assets_.begin(); iter != assets_.end(); ) {
-            if ( 1 == iter->second.use_count() ) {
+            if ( !iter->second || 1 == iter->second->use_count() ) {
                 iter = assets_.erase(iter);
                 ++result;
             } else {

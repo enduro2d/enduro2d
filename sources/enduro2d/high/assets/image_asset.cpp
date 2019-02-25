@@ -23,7 +23,7 @@ namespace e2d
         library& library, str_view address)
     {
         return library.load_asset_async<binary_asset>(address)
-            .then([](const binary_asset::ptr& image_data){
+            .then([](const binary_asset::load_result& image_data){
                 if ( !modules::is_initialized<deferrer>() ) {
                     throw image_asset_loading_exception();
                 }
@@ -32,7 +32,7 @@ namespace e2d
                     if ( !images::try_load_image(content, image_data->content()) ) {
                         throw image_asset_loading_exception();
                     }
-                    return std::make_shared<image_asset>(std::move(content));
+                    return image_asset::create(std::move(content));
                 });
             });
     }

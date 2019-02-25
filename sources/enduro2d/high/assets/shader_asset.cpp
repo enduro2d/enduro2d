@@ -69,8 +69,8 @@ namespace
             std::move(vertex_p),
             std::move(fragment_p)))
         .then([](const std::tuple<
-            text_asset::ptr,
-            text_asset::ptr
+            text_asset::load_result,
+            text_asset::load_result
         >& results){
             if ( !modules::is_initialized<deferrer>() ) {
                 throw shader_asset_loading_exception();
@@ -100,7 +100,7 @@ namespace e2d
             .then([
                 &library,
                 parent_address = path::parent_path(address)
-            ](const json_asset::ptr& shader_data){
+            ](const json_asset::load_result& shader_data){
                 if ( !modules::is_initialized<deferrer>() ) {
                     throw shader_asset_loading_exception();
                 }
@@ -119,7 +119,7 @@ namespace e2d
                     if ( !shader ) {
                         throw shader_asset_loading_exception();
                     }
-                    return std::make_shared<shader_asset>(shader);
+                    return shader_asset::create(shader);
                 });
             });
     }
