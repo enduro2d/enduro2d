@@ -94,6 +94,23 @@ TEST_CASE("library"){
             auto texture_res = l.load_asset<texture_asset>("image.png");
             REQUIRE(texture_res);
             REQUIRE(texture_res->content());
+
+            auto sprite_res = l.load_asset<sprite_asset>("sprite.json");
+            REQUIRE(sprite_res);
+            REQUIRE(sprite_res->content().size() == v2f(10.f, 20.f));
+            REQUIRE(sprite_res->content().pivot() == v2f(0.5f, 0.7f));
+            REQUIRE(sprite_res->content().texrect() == b2f(0.5f, 1.f));
+            REQUIRE(sprite_res->content().texture());
+            REQUIRE(sprite_res->content().material());
+
+            auto model_res = l.load_asset<model_asset>("model.json");
+            REQUIRE(model_res);
+            REQUIRE(model_res->content().mesh());
+            REQUIRE(model_res->content().material_count() == 1);
+            REQUIRE(model_res->content().material(0));
+            REQUIRE_FALSE(model_res->content().mesh()->content().vertices().empty());
+            REQUIRE(model_res->content().mesh()->content().indices_submesh_count() == 1);
+            REQUIRE_FALSE(model_res->content().mesh()->content().indices(0).empty());
         }
     }
     {

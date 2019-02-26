@@ -1,0 +1,6 @@
+{
+    "mesh" : "mesh.e2d_mesh",
+    "materials" : [
+        "material.json"
+    ]
+}
