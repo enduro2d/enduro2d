@@ -6,6 +6,8 @@
 
 #include "xml_asset.hpp"
 
+#include <enduro2d/high/assets/text_asset.hpp>
+
 namespace
 {
     using namespace e2d;

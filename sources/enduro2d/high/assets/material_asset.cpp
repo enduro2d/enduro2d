@@ -4,9 +4,11 @@
  * Copyright (C) 2018 Matvey Cherevko
  ******************************************************************************/
 
-#include <enduro2d/high/assets/assets.hpp>
+#include <enduro2d/high/assets/material_asset.hpp>
 
 #include "json_asset.hpp"
+#include <enduro2d/high/assets/shader_asset.hpp>
+#include <enduro2d/high/assets/texture_asset.hpp>
 
 namespace
 {

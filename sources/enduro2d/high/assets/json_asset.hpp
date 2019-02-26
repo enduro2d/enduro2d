@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include <enduro2d/high/assets/assets.hpp>
+#include <enduro2d/high/library.hpp>
 
 #include <3rdparty/rapidjson/schema.h>
 #include <3rdparty/rapidjson/document.h>

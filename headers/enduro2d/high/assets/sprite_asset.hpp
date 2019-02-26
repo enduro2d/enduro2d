@@ -6,15 +6,16 @@
 
 #pragma once
 
-#include <enduro2d/high/library.hpp>
+#include "../_high.hpp"
+#include "../library.hpp"
 
-#include <3rdparty/pugixml/pugixml.hpp>
+#include "sprite.hpp"
 
 namespace e2d
 {
-    class xml_asset final : public content_asset<xml_asset, pugi::xml_document> {
+    class sprite_asset final : public content_asset<sprite_asset, sprite> {
     public:
-        using content_asset<xml_asset, pugi::xml_document>::content_asset;
+        using content_asset<sprite_asset, sprite>::content_asset;
         static load_async_result load_async(library& library, str_view address);
     };
 }

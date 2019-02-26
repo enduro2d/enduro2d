@@ -4,7 +4,8 @@
  * Copyright (C) 2018 Matvey Cherevko
  ******************************************************************************/
 
-#include <enduro2d/high/assets/assets.hpp>
+#include <enduro2d/high/assets/image_asset.hpp>
+#include <enduro2d/high/assets/binary_asset.hpp>
 
 namespace
 {

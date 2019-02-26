@@ -4,7 +4,7 @@
  * Copyright (C) 2018 Matvey Cherevko
  ******************************************************************************/
 
-#include <enduro2d/high/assets/assets.hpp>
+#include <enduro2d/high/assets/sprite_asset.hpp>
 
 #include "json_asset.hpp"
 
