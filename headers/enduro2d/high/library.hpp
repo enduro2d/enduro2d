@@ -53,6 +53,7 @@ namespace e2d
         using asset_type = Asset;
         using content_type = Content;
 
+        using ptr = intrusive_ptr<Asset>;
         using load_result = intrusive_ptr<Asset>;
         using load_async_result = stdex::promise<load_result>;
     public:
