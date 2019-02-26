@@ -6,15 +6,10 @@
 
 #pragma once
 
-#include <enduro2d/high/library.hpp>
+#include <enduro2d/high/_high.hpp>
 
-#include "xml_utils.hpp"
+#include <3rdparty/pugixml/pugixml.hpp>
 
-namespace e2d
+namespace e2d { namespace xml_utils
 {
-    class xml_asset final : public content_asset<xml_asset, pugi::xml_document> {
-    public:
-        using content_asset<xml_asset, pugi::xml_document>::content_asset;
-        static load_async_result load_async(library& library, str_view address);
-    };
-}
+}}

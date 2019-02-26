@@ -8,8 +8,7 @@
 
 #include <enduro2d/high/library.hpp>
 
-#include <3rdparty/rapidjson/schema.h>
-#include <3rdparty/rapidjson/document.h>
+#include "json_utils.hpp"
 
 namespace e2d
 {
