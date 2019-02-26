@@ -10,6 +10,159 @@ namespace
 {
     using namespace e2d;
 
+    class json_utils_exception final : public exception {
+        const char* what() const noexcept final {
+            return "json utils exception";
+        }
+    };
+
+    const char* common_schema_definitions_source = R"json({
+        "v2" : {
+            "anyOf" : [{
+                "type" : "number"
+            }, {
+                "type" : "array",
+                "minItems" : 2,
+                "maxItems" : 2,
+                "items" : { "type" : "number" }
+            }, {
+                "type" : "object",
+                "additionalProperties" : false,
+                "properties" : {
+                    "x" : { "type" : "number" },
+                    "y" : { "type" : "number" }
+                }
+            }]
+        },
+        "v3" : {
+            "anyOf" : [{
+                "type" : "number"
+            }, {
+                "type" : "array",
+                "minItems" : 3,
+                "maxItems" : 3,
+                "items" : { "type" : "number" }
+            }, {
+                "type" : "object",
+                "additionalProperties" : false,
+                "properties" : {
+                    "x" : { "type" : "number" },
+                    "y" : { "type" : "number" },
+                    "z" : { "type" : "number" }
+                }
+            }]
+        },
+        "v4" : {
+            "anyOf" : [{
+                "type" : "number"
+            }, {
+                "type" : "array",
+                "minItems" : 4,
+                "maxItems" : 4,
+                "items" : { "type" : "number" }
+            }, {
+                "type" : "object",
+                "additionalProperties" : false,
+                "properties" : {
+                    "x" : { "type" : "number" },
+                    "y" : { "type" : "number" },
+                    "z" : { "type" : "number" },
+                    "w" : { "type" : "number" }
+                }
+            }]
+        },
+        "b2" : {
+            "anyOf" : [{
+                "type" : "array",
+                "minItems" : 2,
+                "maxItems" : 2,
+                "items" : { "type" : "number" }
+            }, {
+                "type" : "array",
+                "minItems" : 4,
+                "maxItems" : 4,
+                "items" : { "type" : "number" }
+            }, {
+                "type" : "object",
+                "additionalProperties" : false,
+                "properties" : {
+                    "x" : { "type" : "number" },
+                    "y" : { "type" : "number" },
+                    "w" : { "type" : "number" },
+                    "h" : { "type" : "number" }
+                }
+            }]
+        },
+        "b3" : {
+            "anyOf" : [{
+                "type" : "array",
+                "minItems" : 3,
+                "maxItems" : 3,
+                "items" : { "type" : "number" }
+            }, {
+                "type" : "array",
+                "minItems" : 6,
+                "maxItems" : 6,
+                "items" : { "type" : "number" }
+            }, {
+                "type" : "object",
+                "additionalProperties" : false,
+                "properties" : {
+                    "x" : { "type" : "number" },
+                    "y" : { "type" : "number" },
+                    "z" : { "type" : "number" },
+                    "w" : { "type" : "number" },
+                    "h" : { "type" : "number" },
+                    "d" : { "type" : "number" }
+                }
+            }]
+        },
+        "color" : {
+            "anyOf" : [{
+                "type" : "number"
+            }, {
+                "type" : "array",
+                "minItems" : 3,
+                "maxItems" : 4,
+                "items" : { "type" : "number" }
+            }, {
+                "type" : "object",
+                "additionalProperties" : false,
+                "properties" : {
+                    "r" : { "type" : "number" },
+                    "g" : { "type" : "number" },
+                    "b" : { "type" : "number" },
+                    "a" : { "type" : "number" }
+                }
+            }]
+        },
+        "name" : {
+            "type" : "string",
+            "minLength" : 1
+        },
+        "address" : {
+            "type" : "string",
+            "minLength" : 1
+        }
+    })json";
+
+    const rapidjson::Value& common_schema_definitions() {
+        static std::mutex mutex;
+        static std::unique_ptr<rapidjson::Document> defs_doc;
+
+        std::lock_guard<std::mutex> guard(mutex);
+        if ( !defs_doc ) {
+            rapidjson::Document doc;
+            if ( doc.Parse(common_schema_definitions_source).HasParseError() ) {
+                the<debug>().error("JSON_UTILS: Failed to parse common schema definitions");
+                throw json_utils_exception();
+            }
+            defs_doc = std::make_unique<rapidjson::Document>(std::move(doc));
+        }
+
+        return *defs_doc;
+    }
+
     template < std::size_t N, typename V, typename FV >
     bool parse_vN(const rapidjson::Value& root, V& v, FV&& f) noexcept {
         if ( root.IsNumber() ) {
@@ -263,5 +416,14 @@ namespace e2d { namespace json_utils
 
     bool try_parse_value(const rapidjson::Value& root, color& c) noexcept {
         return parse_clr(root, c);
+    }
+
+    void add_common_schema_definitions(rapidjson::Document& schema) {
+        schema.AddMember(
+            "common_definitions",
+            rapidjson::Value(
+                common_schema_definitions(),
+                schema.GetAllocator()).Move(),
+            schema.GetAllocator());
     }
 }}

@@ -25,14 +25,8 @@ namespace
             "required" : [ "vertex", "fragment" ],
             "additionalProperties" : false,
             "properties" : {
-                "vertex" : { "$ref": "#/definitions/generic_address" },
-                "fragment" : { "$ref": "#/definitions/generic_address" }
-            },
-            "definitions" : {
-                "generic_address" : {
-                    "type" : "string",
-                    "minLength" : 1
-                }
+                "vertex" : { "$ref": "#/common_definitions/address" },
+                "fragment" : { "$ref": "#/common_definitions/address" }
             }
         })json";
 
@@ -47,6 +41,7 @@ namespace
                 the<debug>().error("ASSETS: Failed to parse shader asset schema");
                 throw shader_asset_loading_exception();
             }
+            json_utils::add_common_schema_definitions(doc);
             schema = std::make_unique<rapidjson::SchemaDocument>(doc);
         }
 

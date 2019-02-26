@@ -28,4 +28,6 @@ namespace e2d { namespace json_utils
     bool try_parse_value(const rapidjson::Value& root, b3f& b) noexcept;
 
     bool try_parse_value(const rapidjson::Value& root, color& c) noexcept;
+
+    void add_common_schema_definitions(rapidjson::Document& schema);
 }}
