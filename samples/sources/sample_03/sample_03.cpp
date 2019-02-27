@@ -9,24 +9,23 @@ using namespace e2d;
 
 namespace
 {
-    class game final : public application {
+    class game_system final : public ecs::system {
+        void process(ecs::registry& owner) override {
+            E2D_UNUSED(owner);
+            const keyboard& k = the<input>().keyboard();
+            if ( k.is_key_just_released(keyboard_key::f12) ) {
+                the<dbgui>().toggle_visible(!the<dbgui>().visible());
+            }
+            if ( k.is_key_just_released(keyboard_key::escape) ) {
+                the<window>().set_should_close(true);
+            }
+        }
+    };
+
+    class game final : public high_application {
     public:
         bool initialize() final {
-            return true;
-        }
-
-        bool frame_tick() final {
-            const keyboard& k = the<input>().keyboard();
-            if ( the<window>().should_close() || k.is_key_just_released(keyboard_key::escape) ) {
-                return false;
-            }
-
-            the<render>().execute(render::command_block<64>()
-                .add_command(render::viewport_command(
-                    the<window>().real_size()))
-                .add_command(render::clear_command()
-                    .color_value({1.f, 0.4f, 0.f, 1.f})));
-
+            the<world>().registry().add_system<game_system>();
             return true;
         }
     };

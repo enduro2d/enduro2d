@@ -19,6 +19,9 @@
 #include <enduro2d/high/assets/text_asset.hpp>
 #include <enduro2d/high/assets/texture_asset.hpp>
 
+#include <enduro2d/high/systems/render_system.hpp>
+#include <enduro2d/high/systems/sprite_system.hpp>
+
 namespace
 {
     using namespace e2d;
@@ -32,33 +35,52 @@ namespace
 
     class starter_application final : public application {
     public:
-        starter_application(application_uptr application)
-        : application_(std::move(application)) {}
+        starter_application(high_application_uptr application)
+        : high_application_(std::move(application)) {}
 
         bool initialize() final {
-            return application_ && application_->initialize();
+            the<world>().registry().add_system<sprite_system>();
+            the<world>().registry().add_system<render_system>();
+            return high_application_ && high_application_->initialize();
         }
 
         void shutdown() noexcept final {
-            if ( application_ ) {
-                application_->shutdown();
+            if ( high_application_ ) {
+                high_application_->shutdown();
             }
         }
 
         bool frame_tick() final {
-            if ( !application_ || !application_->frame_tick() ) {
-                return false;
+            if ( the<window>().should_close() ) {
+                if ( !high_application_ || high_application_->on_should_close() ) {
+                    return false;
+                }
             }
             the<world>().registry().process_systems();
             return true;
         }
     private:
-        application_uptr application_;
+        high_application_uptr high_application_;
     };
 }
 
 namespace e2d
 {
+    //
+    // high_application
+    //
+
+    bool high_application::initialize() {
+        return true;
+    }
+
+    void high_application::shutdown() noexcept {
+    }
+
+    bool high_application::on_should_close() {
+        return true;
+    }
+
     //
     // starter::parameters
     //
@@ -126,7 +148,7 @@ namespace e2d
         modules::shutdown<engine>();
     }
 
-    bool starter::start(application_uptr app) {
+    bool starter::start(high_application_uptr app) {
         return the<engine>().start(
             std::make_unique<starter_application>(
                 std::move(app)));
