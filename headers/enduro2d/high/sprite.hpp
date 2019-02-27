@@ -6,16 +6,16 @@
 
 #pragma once
 
-#include "../_high.hpp"
+#include "_high.hpp"
 
-#include "texture_asset.hpp"
-#include "material_asset.hpp"
+#include "assets/texture_asset.hpp"
+#include "assets/material_asset.hpp"
 
 namespace e2d
 {
     class sprite final {
     public:
-        sprite();
+        sprite() = default;
 
         sprite(sprite&& other) noexcept;
         sprite& operator=(sprite&& other) noexcept;
@@ -23,7 +23,9 @@ namespace e2d
         sprite(const sprite& other);
         sprite& operator=(const sprite& other);
 
+        void clear() noexcept;
         void swap(sprite& other) noexcept;
+
         sprite& assign(sprite&& other) noexcept;
         sprite& assign(const sprite& other);
 

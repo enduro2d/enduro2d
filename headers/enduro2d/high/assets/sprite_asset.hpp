@@ -7,9 +7,9 @@
 #pragma once
 
 #include "../_high.hpp"
-#include "../library.hpp"
 
-#include "sprite.hpp"
+#include "../sprite.hpp"
+#include "../library.hpp"
 
 namespace e2d
 {

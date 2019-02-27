@@ -6,10 +6,10 @@
 
 #pragma once
 
-#include "../_high.hpp"
+#include "_high.hpp"
 
-#include "mesh_asset.hpp"
-#include "material_asset.hpp"
+#include "assets/mesh_asset.hpp"
+#include "assets/material_asset.hpp"
 
 namespace e2d
 {
@@ -22,7 +22,7 @@ namespace e2d
 
     class model final {
     public:
-        model();
+        model() = default;
 
         model(model&& other) noexcept;
         model& operator=(model&& other) noexcept;
@@ -30,7 +30,9 @@ namespace e2d
         model(const model& other);
         model& operator=(const model& other);
 
+        void clear() noexcept;
         void swap(model& other) noexcept;
+
         model& assign(model&& other) noexcept;
         model& assign(const model& other);
 

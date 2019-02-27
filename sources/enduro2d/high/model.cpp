@@ -4,22 +4,30 @@
  * Copyright (C) 2018 Matvey Cherevko
  ******************************************************************************/
 
-#include <enduro2d/high/assets/model.hpp>
-
-namespace
-{
-    using namespace e2d;
-}
+#include <enduro2d/high/model.hpp>
 
 namespace e2d
 {
-    model::model() = default;
+    model::model(model&& other) noexcept {
+        assign(std::move(other));
+    }
 
-    model::model(model&& other) noexcept = default;
-    model& model::operator=(model&& other) noexcept = default;
+    model& model::operator=(model&& other) noexcept {
+        return assign(std::move(other));
+    }
 
-    model::model(const model& other) = default;
-    model& model::operator=(const model& other) = default;
+    model::model(const model& other) {
+        assign(other);
+    }
+
+    model& model::operator=(const model& other) {
+        return assign(other);
+    }
+
+    void model::clear() noexcept {
+        mesh_.reset();
+        materials_.clear();
+    }
 
     void model::swap(model& other) noexcept {
         using std::swap;
@@ -28,11 +36,21 @@ namespace e2d
     }
 
     model& model::assign(model&& other) noexcept {
-        return *this = std::move(other);
+        if ( this != &other ) {
+            swap(other);
+            other.clear();
+        }
+        return *this;
     }
 
     model& model::assign(const model& other) {
-        return *this = other;
+        if ( this != &other ) {
+            model m;
+            m.mesh_ = other.mesh_;
+            m.materials_ = other.materials_;
+            swap(m);
+        }
+        return *this;
     }
 
     model& model::set_mesh(const mesh_asset::ptr& mesh) noexcept {

@@ -20,18 +20,15 @@ namespace e2d
 
 namespace e2d
 {
-    class model;
-    class sprite;
-
-    class text_asset;
+    class binary_asset;
+    class image_asset;
+    class material_asset;
     class mesh_asset;
     class model_asset;
-    class image_asset;
-    class sprite_asset;
-    class binary_asset;
     class shader_asset;
+    class sprite_asset;
+    class text_asset;
     class texture_asset;
-    class material_asset;
 
     class actor;
     class camera;
@@ -52,7 +49,9 @@ namespace e2d
     class asset_cache;
     class asset_cache_base;
 
+    class model;
     class node;
+    class sprite;
     class starter;
     class world;
 }

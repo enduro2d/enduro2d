@@ -4,22 +4,33 @@
  * Copyright (C) 2018 Matvey Cherevko
  ******************************************************************************/
 
-#include <enduro2d/high/assets/sprite.hpp>
-
-namespace
-{
-    using namespace e2d;
-}
+#include <enduro2d/high/sprite.hpp>
 
 namespace e2d
 {
-    sprite::sprite() = default;
+    sprite::sprite(sprite&& other) noexcept {
+        assign(std::move(other));
+    }
 
-    sprite::sprite(sprite&& other) noexcept = default;
-    sprite& sprite::operator=(sprite&& other) noexcept = default;
+    sprite& sprite::operator=(sprite&& other) noexcept {
+        return assign(std::move(other));
+    }
 
-    sprite::sprite(const sprite& other) = default;
-    sprite& sprite::operator=(const sprite& other) = default;
+    sprite::sprite(const sprite& other) {
+        assign(other);
+    }
+
+    sprite& sprite::operator=(const sprite& other) {
+        return assign(other);
+    }
+
+    void sprite::clear() noexcept {
+        size_ = v2f::zero();
+        pivot_ = v2f::zero();
+        texrect_ = b2f::zero();
+        texture_.reset();
+        material_.reset();
+    }
 
     void sprite::swap(sprite& other) noexcept {
         using std::swap;
@@ -31,11 +42,24 @@ namespace e2d
     }
 
     sprite& sprite::assign(sprite&& other) noexcept {
-        return *this = std::move(other);
+        if ( this != &other ) {
+            swap(other);
+            other.clear();
+        }
+        return *this;
     }
 
     sprite& sprite::assign(const sprite& other) {
-        return *this = other;
+        if ( this != &other ) {
+            sprite s;
+            s.size_ = other.size_;
+            s.pivot_ = other.pivot_;
+            s.texrect_ = other.texrect_;
+            s.texture_ = other.texture_;
+            s.material_ = other.material_;
+            swap(s);
+        }
+        return *this;
     }
 
     sprite& sprite::set_size(const v2f& size) noexcept {

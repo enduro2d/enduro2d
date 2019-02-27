@@ -8,9 +8,6 @@
 
 #include "_high.hpp"
 
-#include "assets/model.hpp"
-#include "assets/sprite.hpp"
-
 #include "assets/binary_asset.hpp"
 #include "assets/image_asset.hpp"
 #include "assets/material_asset.hpp"
@@ -32,7 +29,9 @@
 
 #include "library.hpp"
 #include "library.inl"
+#include "model.hpp"
 #include "node.hpp"
 #include "node.inl"
+#include "sprite.hpp"
 #include "starter.hpp"
 #include "world.hpp"
