@@ -57,6 +57,8 @@ namespace e2d
         using load_result = intrusive_ptr<Asset>;
         using load_async_result = stdex::promise<load_result>;
     public:
+        ~content_asset() noexcept override = default;
+
         static load_result create(Content content) {
             return load_result(new Asset(std::move(content)));
         }
