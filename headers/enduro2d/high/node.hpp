@@ -32,6 +32,9 @@ namespace e2d
         static node_iptr create(world& world);
         static node_iptr create(world& world, const node_iptr& parent);
 
+        static node_iptr create(const ecs::entity& entity);
+        static node_iptr create(const ecs::entity& entity, const node_iptr& parent);
+
         ecs::entity entity() noexcept;
         ecs::const_entity entity() const noexcept;
 
@@ -121,6 +124,7 @@ namespace e2d
         void for_each_child(F&& f) const;
     protected:
         node(world& world);
+        node(const ecs::entity& entity);
     private:
         enum flag_masks : u32 {
             fm_dirty_local_matrix = 1u << 0,

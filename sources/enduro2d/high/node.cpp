@@ -12,6 +12,9 @@ namespace e2d
     node::node(world& world)
     : entity_(world.registry().create_entity()) {}
 
+    node::node(const ecs::entity& entity)
+    : entity_(entity) {}
+
     node::~node() noexcept {
         E2D_ASSERT(!parent_);
         remove_all_children();
@@ -23,6 +26,18 @@ namespace e2d
 
     node_iptr node::create(world& world, const node_iptr& parent) {
         node_iptr child = create(world);
+        if ( parent ) {
+            parent->add_child(child);
+        }
+        return child;
+    }
+
+    node_iptr node::create(const ecs::entity& entity) {
+        return node_iptr(new node(entity));
+    }
+
+    node_iptr node::create(const ecs::entity& entity, const node_iptr& parent) {
+        node_iptr child = create(entity);
         if ( parent ) {
             parent->add_child(child);
         }
