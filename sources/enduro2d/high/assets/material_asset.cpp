@@ -164,7 +164,7 @@ namespace
                 },
                 "sampler" : {
                     "type" : "object",
-                    "required" : [ "name", "texture" ],
+                    "required" : [ "name" ],
                     "additionalProperties" : false,
                     "properties" : {
                         "name" : {
@@ -215,7 +215,9 @@ namespace
                     "enum" : [
                         "i32", "f32",
                         "v2i", "v3i", "v4i",
-                        "v2f", "v3f", "v4f"
+                        "v2f", "v3f", "v4f",
+                        "m2i", "m3i", "m4i",
+                        "m2f", "m3f", "m4f"
                     ]
                 },
                 "property_value" : {
@@ -223,7 +225,10 @@ namespace
                         { "type" : "number" },
                         { "$ref" : "#/common_definitions/v2" },
                         { "$ref" : "#/common_definitions/v3" },
-                        { "$ref" : "#/common_definitions/v4" }
+                        { "$ref" : "#/common_definitions/v4" },
+                        { "$ref" : "#/common_definitions/m2" },
+                        { "$ref" : "#/common_definitions/m3" },
+                        { "$ref" : "#/common_definitions/m4" }
                     ]
                 },
                 "stencil_op" : {
@@ -522,8 +527,6 @@ namespace
         render::sampler_state content;
 
         E2D_ASSERT(root.HasMember("name") && root["name"].IsString());
-        E2D_ASSERT(root.HasMember("texture") && root["texture"].IsString());
-
         auto name_hash = make_hash(root["name"].GetString());
 
         auto texture_p = root.HasMember("texture")
@@ -630,78 +633,37 @@ namespace
             E2D_ASSERT(property_json.HasMember("name") && property_json["name"].IsString());
             E2D_ASSERT(property_json.HasMember("type") && property_json["type"].IsString());
 
-            if ( 0 == std::strcmp(property_json["type"].GetString(), "i32") ) {
-                i32 value = 0;
-                if ( property_json.HasMember("value") ) {
-                    E2D_ASSERT(property_json["value"].IsNumber());
-                    value = property_json["value"].GetInt();
-                }
-                props.property(property_json["name"].GetString(), value);
-            } else if ( 0 == std::strcmp(property_json["type"].GetString(), "f32") ) {
-                f32 value = 0;
-                if ( property_json.HasMember("value") ) {
-                    E2D_ASSERT(property_json["value"].IsNumber());
-                    value = property_json["value"].GetFloat();
-                }
-                props.property(property_json["name"].GetString(), value);
-            } else if ( 0 == std::strcmp(property_json["type"].GetString(), "v2i") ) {
-                v2i value;
-                if ( property_json.HasMember("value") ) {
-                    if ( !json_utils::try_parse_value(property_json["value"], value) ) {
-                        E2D_ASSERT_MSG(false, "unexpected property value");
-                        return false;
-                    }
-                }
-                props.property(property_json["name"].GetString(), value);
-            } else if ( 0 == std::strcmp(property_json["type"].GetString(), "v3i") ) {
-                v3i value;
-                if ( property_json.HasMember("value") ) {
-                    if ( !json_utils::try_parse_value(property_json["value"], value) ) {
-                        E2D_ASSERT_MSG(false, "unexpected property value");
-                        return false;
-                    }
-                }
-                props.property(property_json["name"].GetString(), value);
-            } else if ( 0 == std::strcmp(property_json["type"].GetString(), "v4i") ) {
-                v4i value;
-                if ( property_json.HasMember("value") ) {
-                    if ( !json_utils::try_parse_value(property_json["value"], value) ) {
-                        E2D_ASSERT_MSG(false, "unexpected property value");
-                        return false;
-                    }
-                }
-                props.property(property_json["name"].GetString(), value);
-            } else if ( 0 == std::strcmp(property_json["type"].GetString(), "v2f") ) {
-                v2f value;
-                if ( property_json.HasMember("value") ) {
-                    if ( !json_utils::try_parse_value(property_json["value"], value) ) {
-                        E2D_ASSERT_MSG(false, "unexpected property value");
-                        return false;
-                    }
-                }
-                props.property(property_json["name"].GetString(), value);
-            } else if ( 0 == std::strcmp(property_json["type"].GetString(), "v3f") ) {
-                v3f value;
-                if ( property_json.HasMember("value") ) {
-                    if ( !json_utils::try_parse_value(property_json["value"], value) ) {
-                        E2D_ASSERT_MSG(false, "unexpected property value");
-                        return false;
-                    }
-                }
-                props.property(property_json["name"].GetString(), value);
-            } else if ( 0 == std::strcmp(property_json["type"].GetString(), "v4f") ) {
-                v4f value;
-                if ( property_json.HasMember("value") ) {
-                    if ( !json_utils::try_parse_value(property_json["value"], value) ) {
-                        E2D_ASSERT_MSG(false, "unexpected property value");
-                        return false;
-                    }
-                }
-                props.property(property_json["name"].GetString(), value);
-            } else {
-                E2D_ASSERT_MSG(false, "unexpected property type");
-                return false;
+        #define DEFINE_CASE(x)\
+            if ( 0 == std::strcmp(property_json["type"].GetString(), #x) ) {\
+                x value;\
+                if ( property_json.HasMember("value") ) {\
+                    if ( !json_utils::try_parse_value(property_json["value"], value) ) {\
+                        E2D_ASSERT_MSG(false, "unexpected property value");\
+                        return false;\
+                    }\
+                }\
+                props.property(property_json["name"].GetString(), value);\
+                continue;\
             }
+
+            DEFINE_CASE(i32);
+            DEFINE_CASE(f32);
+
+            DEFINE_CASE(v2i);
+            DEFINE_CASE(v3i);
+            DEFINE_CASE(v4i);
+
+            DEFINE_CASE(v2f);
+            DEFINE_CASE(v3f);
+            DEFINE_CASE(v4f);
+
+            DEFINE_CASE(m2f);
+            DEFINE_CASE(m3f);
+            DEFINE_CASE(m4f);
+        #undef DEFINE_CASE
+
+            E2D_ASSERT_MSG(false, "unexpected property type");
+            return false;
         }
         return true;
     }

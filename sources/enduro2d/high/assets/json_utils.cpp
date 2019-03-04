@@ -71,6 +71,45 @@ namespace
                 }
             }]
         },
+        "m2" : {
+            "anyOf" : [{
+                "type" : "array",
+                "minItems" : 2,
+                "maxItems" : 2,
+                "items" : { "$ref": "#/common_definitions/v2" }
+            }, {
+                "type" : "array",
+                "minItems" : 4,
+                "maxItems" : 4,
+                "items" : { "type" : "number" }
+            }]
+        },
+        "m3" : {
+            "anyOf" : [{
+                "type" : "array",
+                "minItems" : 3,
+                "maxItems" : 3,
+                "items" : { "$ref": "#/common_definitions/v3" }
+            }, {
+                "type" : "array",
+                "minItems" : 9,
+                "maxItems" : 9,
+                "items" : { "type" : "number" }
+            }]
+        },
+        "m4" : {
+            "anyOf" : [{
+                "type" : "array",
+                "minItems" : 4,
+                "maxItems" : 4,
+                "items" : { "$ref": "#/common_definitions/v4" }
+            }, {
+                "type" : "array",
+                "minItems" : 16,
+                "maxItems" : 16,
+                "items" : { "type" : "number" }
+            }]
+        },
         "b2" : {
             "anyOf" : [{
                 "type" : "array",
@@ -197,6 +236,35 @@ namespace
             }
         }
 
+        return false;
+    }
+
+    template < std::size_t N, typename V, typename FV >
+    bool parse_mN(const rapidjson::Value& root, V& v, FV&& f) noexcept {
+        if ( root.IsArray() ) {
+            if ( root.Size() == N ) {
+                for ( u32 i = 0; i < N; ++i ) {
+                    const auto& jv = root[i];
+                    if ( !parse_vN<N>(jv, v[i], f) ) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+
+            if ( root.Size() == N * N ) {
+                for ( u32 i = 0; i < N; ++i ) {
+                    for ( u32 j = 0; j < N; ++j ) {
+                        const auto& jv = root[i * N + j];
+                        if ( !jv.IsNumber() ) {
+                            return false;
+                        }
+                        v[i][j] = f(jv);
+                    }
+                }
+                return true;
+            }
+        }
         return false;
     }
 
@@ -339,6 +407,14 @@ namespace
         });
     }
 
+    template < u32 N, typename V >
+    bool parse_mNf(const rapidjson::Value& root, V& v) noexcept {
+        return parse_mN<N>(root, v, [](const rapidjson::Value& jv){
+            E2D_ASSERT(jv.IsNumber());
+            return jv.GetFloat();
+        });
+    }
+
     template < typename B >
     bool parse_b2i(const rapidjson::Value& root, B& b) noexcept {
         return parse_b2(root, b, [](const rapidjson::Value& jv){
@@ -374,6 +450,18 @@ namespace
 
 namespace e2d { namespace json_utils
 {
+    bool try_parse_value(const rapidjson::Value& root, i32& v) noexcept {
+        E2D_ASSERT(root.IsNumber());
+        v = root.GetInt();
+        return true;
+    }
+
+    bool try_parse_value(const rapidjson::Value& root, f32& v) noexcept {
+        E2D_ASSERT(root.IsNumber());
+        v = root.GetFloat();
+        return true;
+    }
+
     bool try_parse_value(const rapidjson::Value& root, v2i& v) noexcept {
         return parse_vNi<2>(root, v);
     }
@@ -396,6 +484,18 @@ namespace e2d { namespace json_utils
 
     bool try_parse_value(const rapidjson::Value& root, v4f& v) noexcept {
         return parse_vNf<4>(root, v);
+    }
+
+    bool try_parse_value(const rapidjson::Value& root, m2f& v) noexcept {
+        return parse_mNf<2>(root, v);
+    }
+
+    bool try_parse_value(const rapidjson::Value& root, m3f& v) noexcept {
+        return parse_mNf<3>(root, v);
+    }
+
+    bool try_parse_value(const rapidjson::Value& root, m4f& v) noexcept {
+        return parse_mNf<4>(root, v);
     }
 
     bool try_parse_value(const rapidjson::Value& root, b2i& b) noexcept {

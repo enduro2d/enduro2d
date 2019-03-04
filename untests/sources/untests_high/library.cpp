@@ -164,6 +164,36 @@ TEST_CASE("library"){
                 REQUIRE(stdex::get<v4i>(*property) == v4i(1,2,3,4));
             }
             {
+                const auto* property = pass.properties().property("m1");
+                REQUIRE(property);
+                REQUIRE(property->index() == 8);
+                REQUIRE(stdex::get<m2f>(*property) == m2f(1,2,3,4));
+
+                const auto* property2 = pass.properties().property("m4");
+                REQUIRE(property2);
+                REQUIRE(*property2 == *property);
+            }
+            {
+                const auto* property = pass.properties().property("m2");
+                REQUIRE(property);
+                REQUIRE(property->index() == 9);
+                REQUIRE(stdex::get<m3f>(*property) == m3f(1,2,3,4,5,6,7,8,9));
+
+                const auto* property2 = pass.properties().property("m5");
+                REQUIRE(property2);
+                REQUIRE(*property2 == *property);
+            }
+            {
+                const auto* property = pass.properties().property("m3");
+                REQUIRE(property);
+                REQUIRE(property->index() == 10);
+                REQUIRE(stdex::get<m4f>(*property) == m4f(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16));
+
+                const auto* property2 = pass.properties().property("m6");
+                REQUIRE(property2);
+                REQUIRE(*property2 == *property);
+            }
+            {
                 REQUIRE(pass.states().depth().range_near() == 1.f);
                 REQUIRE(pass.states().depth().range_far() == 2.f);
                 REQUIRE(pass.states().depth().write() == false);
