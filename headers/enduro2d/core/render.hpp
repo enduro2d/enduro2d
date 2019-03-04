@@ -631,6 +631,7 @@ namespace e2d
             bool equals(const property_block& other) const noexcept;
 
             property_block& sampler(str_hash name, const sampler_state& s);
+            sampler_state* sampler(str_hash name) noexcept;
             const sampler_state* sampler(str_hash name) const noexcept;
 
             template < typename T >
@@ -639,6 +640,7 @@ namespace e2d
             const T* property(str_hash name) const noexcept;
 
             property_block& property(str_hash name, const property_value& v);
+            property_value* property(str_hash name) noexcept;
             const property_value* property(str_hash name) const noexcept;
 
             template < typename F >

@@ -736,6 +736,13 @@ namespace e2d
         return *this;
     }
 
+    render::sampler_state* render::property_block::sampler(str_hash name) noexcept {
+        const auto iter = samplers_.find(name);
+        return iter != samplers_.end()
+            ? &iter->second
+            : nullptr;
+    }
+
     const render::sampler_state* render::property_block::sampler(str_hash name) const noexcept {
         const auto iter = samplers_.find(name);
         return iter != samplers_.end()
@@ -746,6 +753,13 @@ namespace e2d
     render::property_block& render::property_block::property(str_hash name, const property_value& v) {
         properties_[name] = v;
         return *this;
+    }
+
+    render::property_value* render::property_block::property(str_hash name) noexcept {
+        const auto iter = properties_.find(name);
+        return iter != properties_.end()
+            ? &iter->second
+            : nullptr;
     }
 
     const render::property_value* render::property_block::property(str_hash name) const noexcept {
