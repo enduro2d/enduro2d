@@ -24,6 +24,7 @@
 #include "components/scene.hpp"
 #include "components/sprite_renderer.hpp"
 
+#include "systems/model_system.hpp"
 #include "systems/render_system.hpp"
 #include "systems/sprite_system.hpp"
 
