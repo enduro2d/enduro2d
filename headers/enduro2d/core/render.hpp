@@ -628,6 +628,7 @@ namespace e2d
 
             property_block& clear() noexcept;
             property_block& merge(const property_block& pb);
+            bool equals(const property_block& other) const noexcept;
 
             property_block& sampler(str_hash name, const sampler_state& s);
             const sampler_state* sampler(str_hash name) const noexcept;
@@ -917,6 +918,10 @@ namespace e2d
 
 namespace e2d
 {
+    //
+    // render::state_block
+    //
+
     bool operator==(const render::state_block& l, const render::state_block& r) noexcept;
     bool operator!=(const render::state_block& l, const render::state_block& r) noexcept;
 
@@ -934,6 +939,26 @@ namespace e2d
 
     bool operator==(const render::capabilities_state& l, const render::capabilities_state& r) noexcept;
     bool operator!=(const render::capabilities_state& l, const render::capabilities_state& r) noexcept;
+
+    //
+    // render::property_block
+    //
+
+    bool operator==(const render::property_block& l, const render::property_block& r) noexcept;
+    bool operator!=(const render::property_block& l, const render::property_block& r) noexcept;
+
+    bool operator==(const render::sampler_state& l, const render::sampler_state& r) noexcept;
+    bool operator!=(const render::sampler_state& l, const render::sampler_state& r) noexcept;
+
+    //
+    // render::material
+    //
+
+    bool operator==(const render::material& l, const render::material& r) noexcept;
+    bool operator!=(const render::material& l, const render::material& r) noexcept;
+
+    bool operator==(const render::pass_state& l, const render::pass_state& r) noexcept;
+    bool operator!=(const render::pass_state& l, const render::pass_state& r) noexcept;
 }
 
 #include "render.inl"
