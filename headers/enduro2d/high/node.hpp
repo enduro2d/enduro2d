@@ -122,6 +122,12 @@ namespace e2d
 
         template < typename F >
         void for_each_child(F&& f) const;
+
+        template < typename Iter >
+        std::size_t extract_all_nodes(Iter iter);
+
+        template < typename Iter >
+        std::size_t extract_all_nodes(Iter iter) const;
     protected:
         node(world& world);
         node(const ecs::entity& entity);

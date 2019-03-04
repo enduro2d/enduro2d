@@ -607,6 +607,27 @@ TEST_CASE("node") {
             REQUIRE(count == 3);
         }
     }
+    SECTION("extract_all_nodes") {
+        auto p = node::create(w);
+        auto c1 = node::create(w, p);
+        auto c2 = node::create(w, c1);
+        auto c3 = node::create(w, p);
+        const vector<node_iptr> ns{p, c1, c2, c3};
+        {
+            vector<node_iptr> ns2;
+            REQUIRE(4u == p->extract_all_nodes(std::back_inserter(ns2)));
+            REQUIRE(ns == ns2);
+        }
+        {
+            const_node_iptr cp = p;
+            vector<const_node_iptr> ns2;
+            REQUIRE(4u == cp->extract_all_nodes(std::back_inserter(ns2)));
+            REQUIRE(ns.size() == ns2.size());
+            for ( std::size_t i = 0; i < ns.size(); ++i ) {
+                REQUIRE(ns[i] == ns2[i]);
+            }
+        }
+    }
     SECTION("destroy_node") {
         auto p1 = node::create(w);
         auto p2 = node::create(w, p1);

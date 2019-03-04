@@ -159,7 +159,7 @@ namespace e2d
     }
 
     std::size_t node::remove_all_children() noexcept {
-        std::size_t count = 0;
+        std::size_t count{0u};
         while ( !children_.empty() ) {
             ++count;
             children_.back().remove_from_parent();
@@ -172,7 +172,7 @@ namespace e2d
     }
 
     std::size_t node::child_count_recursive() const noexcept {
-        std::size_t count = 0;
+        std::size_t count{0u};
         for ( const node& child : children_ ) {
             count += 1u + child.child_count_recursive();
         }

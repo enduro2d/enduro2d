@@ -25,6 +25,26 @@ namespace e2d
             f(const_node_iptr(&child));
         }
     }
+
+    template < typename Iter >
+    std::size_t node::extract_all_nodes(Iter iter) {
+        std::size_t count{1u};
+        iter++ = node_iptr(this);
+        for_each_child([&iter, &count](const node_iptr& child){
+            count += child->extract_all_nodes(iter);
+        });
+        return count;
+    }
+
+    template < typename Iter >
+    std::size_t node::extract_all_nodes(Iter iter) const {
+        std::size_t count{1u};
+        iter++ = const_node_iptr(this);
+        for_each_child([&iter, &count](const const_node_iptr& child){
+            count += child->extract_all_nodes(iter);
+        });
+        return count;
+    }
 }
 
 #endif
