@@ -21,6 +21,7 @@
 #include "components/actor.hpp"
 #include "components/camera.hpp"
 #include "components/model_renderer.hpp"
+#include "components/renderer.hpp"
 #include "components/scene.hpp"
 #include "components/sprite_renderer.hpp"
 

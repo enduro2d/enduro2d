@@ -20,15 +20,15 @@ namespace e2d
         sprite_renderer& tint(const color& value) noexcept;
         const color& tint() const noexcept;
 
+        sprite_renderer& filtering(bool value) noexcept;
+        bool filtering() const noexcept;
+
         sprite_renderer& sprite(const sprite_asset::ptr& value) noexcept;
         const sprite_asset::ptr& sprite() const noexcept;
-
-        render::property_block& properties() noexcept;
-        const render::property_block& properties() const noexcept;
     private:
-        color tint_;
+        color tint_ = color::white();
+        bool filtering_ = true;
         sprite_asset::ptr sprite_;
-        render::property_block properties_;
     };
 }
 
@@ -46,6 +46,15 @@ namespace e2d
         return tint_;
     }
 
+    inline sprite_renderer& sprite_renderer::filtering(bool value) noexcept {
+        filtering_ = value;
+        return *this;
+    }
+
+    inline bool sprite_renderer::filtering() const noexcept {
+        return filtering_;
+    }
+
     inline sprite_renderer& sprite_renderer::sprite(const sprite_asset::ptr& value) noexcept {
         sprite_ = value;
         return *this;
@@ -53,13 +62,5 @@ namespace e2d
 
     inline const sprite_asset::ptr& sprite_renderer::sprite() const noexcept {
         return sprite_;
-    }
-
-    inline render::property_block& sprite_renderer::properties() noexcept {
-        return properties_;
-    }
-
-    inline const render::property_block& sprite_renderer::properties() const noexcept {
-        return properties_;
     }
 }

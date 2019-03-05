@@ -33,6 +33,7 @@ namespace e2d
     class actor;
     class camera;
     class model_renderer;
+    class renderer;
     class scene;
     class sprite_renderer;
 
