@@ -677,6 +677,8 @@ namespace e2d
 
         class material final {
         public:
+            material& reset() noexcept;
+
             material& add_pass(const pass_state& pass) noexcept;
             std::size_t pass_count() const noexcept;
 
@@ -696,6 +698,8 @@ namespace e2d
 
         class geometry final {
         public:
+            geometry& reset() noexcept;
+
             geometry& add_vertices(const vertex_buffer_ptr& vb) noexcept;
             std::size_t vertices_count() const noexcept;
 
@@ -961,6 +965,13 @@ namespace e2d
 
     bool operator==(const render::pass_state& l, const render::pass_state& r) noexcept;
     bool operator!=(const render::pass_state& l, const render::pass_state& r) noexcept;
+
+    //
+    // render::geometry
+    //
+
+    bool operator==(const render::geometry& l, const render::geometry& r) noexcept;
+    bool operator!=(const render::geometry& l, const render::geometry& r) noexcept;
 }
 
 #include "render.inl"

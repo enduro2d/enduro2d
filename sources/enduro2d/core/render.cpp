@@ -824,6 +824,10 @@ namespace e2d
     // material
     //
 
+    render::material& render::material::reset() noexcept {
+        return *this = material();
+    }
+
     render::material& render::material::add_pass(const pass_state& pass) noexcept {
         E2D_ASSERT(pass_count_ < max_pass_count);
         passes_[pass_count_] = pass;
@@ -859,6 +863,10 @@ namespace e2d
     //
     // geometry
     //
+
+    render::geometry& render::geometry::reset() noexcept {
+        return *this = geometry();
+    }
 
     render::geometry& render::geometry::add_vertices(const vertex_buffer_ptr& vb) noexcept {
         E2D_ASSERT(vertices_count_ < max_vertices_count);
@@ -1236,6 +1244,28 @@ namespace e2d
     }
 
     bool operator!=(const render::pass_state& l, const render::pass_state& r) noexcept {
+        return !(l == r);
+    }
+
+    bool operator==(const render::geometry& l, const render::geometry& r) noexcept {
+        if ( l.topo() != r.topo() ) {
+            return false;
+        }
+        if ( l.indices() != r.indices() ) {
+            return false;
+        }
+        if ( l.vertices_count() != r.vertices_count() ) {
+            return false;
+        }
+        for ( std::size_t i = 0, e = l.vertices_count(); i < e; ++i ) {
+            if ( l.vertices(i) != r.vertices(i) ) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    bool operator!=(const render::geometry& l, const render::geometry& r) noexcept {
         return !(l == r);
     }
 }
