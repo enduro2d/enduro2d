@@ -21,7 +21,6 @@
 
 #include <enduro2d/high/systems/model_system.hpp>
 #include <enduro2d/high/systems/render_system.hpp>
-#include <enduro2d/high/systems/sprite_system.hpp>
 
 namespace
 {
@@ -41,7 +40,6 @@ namespace
 
         bool initialize() final {
             the<world>().registry().add_system<model_system>();
-            the<world>().registry().add_system<sprite_system>();
             the<world>().registry().add_system<render_system>();
             return high_application_ && high_application_->initialize();
         }

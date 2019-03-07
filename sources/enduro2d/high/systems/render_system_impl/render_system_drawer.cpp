@@ -18,6 +18,7 @@ namespace
     const str_hash matrix_p_property_hash = "u_matrix_p";
     const str_hash matrix_vp_property_hash = "u_matrix_vp";
     const str_hash game_time_property_hash = "u_game_time";
+    const str_hash sprite_texture_sampler_hash = "u_texture";
 }
 
 namespace e2d { namespace render_system_impl
@@ -123,10 +124,26 @@ namespace e2d { namespace render_system_impl
             { v3f(p3 * sm), {tx + tw,  ty + th }, color32(tn) },
             { v3f(p4 * sm), {tx + 0.f, ty + th }, color32(tn) }};
 
+        const texture_ptr texture = spr.texture()
+            ? spr.texture()->content()
+            : nullptr;
+
+        const render::sampler_min_filter min_filter = spr_r.filtering()
+            ? render::sampler_min_filter::linear
+            : render::sampler_min_filter::nearest;
+
+        const render::sampler_mag_filter mag_filter = spr_r.filtering()
+            ? render::sampler_mag_filter::linear
+            : render::sampler_mag_filter::nearest;
+
         try {
             batcher_.batch(
                 spr.material(),
                 property_cache_
+                    .sampler(sprite_texture_sampler_hash, render::sampler_state()
+                        .texture(texture)
+                        .min_filter(min_filter)
+                        .mag_filter(mag_filter))
                     .merge(node_r.properties())
                     .merge(internal_properties_),
                 indices, E2D_COUNTOF(indices),

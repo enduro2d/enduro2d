@@ -39,7 +39,6 @@ namespace e2d
 
     class model_system;
     class render_system;
-    class sprite_system;
 
     template < typename Asset, typename Content >
     class content_asset;
