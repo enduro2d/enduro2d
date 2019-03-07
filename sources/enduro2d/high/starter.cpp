@@ -19,7 +19,6 @@
 #include <enduro2d/high/assets/text_asset.hpp>
 #include <enduro2d/high/assets/texture_asset.hpp>
 
-#include <enduro2d/high/systems/model_system.hpp>
 #include <enduro2d/high/systems/render_system.hpp>
 
 namespace
@@ -39,7 +38,6 @@ namespace
         : high_application_(std::move(application)) {}
 
         bool initialize() final {
-            the<world>().registry().add_system<model_system>();
             the<world>().registry().add_system<render_system>();
             return high_application_ && high_application_->initialize();
         }

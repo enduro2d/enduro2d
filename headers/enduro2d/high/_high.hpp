@@ -37,7 +37,6 @@ namespace e2d
     class scene;
     class sprite_renderer;
 
-    class model_system;
     class render_system;
 
     template < typename Asset, typename Content >
