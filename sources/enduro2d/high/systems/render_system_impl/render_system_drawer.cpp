@@ -33,7 +33,8 @@ namespace e2d { namespace render_system_impl
         engine& engine,
         render& render,
         batcher_type& batcher)
-    : batcher_(batcher)
+    : render_(render)
+    , batcher_(batcher)
     {
         const m4f& m_v = cam_n ? cam_n->world_matrix() : m4f::identity();
         const m4f& m_p = cam.projection();
@@ -60,6 +61,7 @@ namespace e2d { namespace render_system_impl
 
         ecs::const_entity node_e = node->entity();
         const renderer* node_r = node_e.find_component<renderer>();
+
         if ( node_r && node_r->enabled() ) {
             const model_renderer* mdl_r = node_e.find_component<model_renderer>();
             if ( mdl_r ) {
@@ -77,8 +79,45 @@ namespace e2d { namespace render_system_impl
         const renderer& node_r,
         const model_renderer& mdl_r)
     {
-        //TODO(BlackMat): implme
-        E2D_UNUSED(node, node_r, mdl_r);
+        if ( !node || !node_r.enabled() ) {
+            return;
+        }
+
+        if ( !mdl_r.model() || !mdl_r.model()->content().mesh()) {
+            return;
+        }
+
+        batcher_.flush();
+
+        const model& mdl = mdl_r.model()->content();
+        const mesh& msh = mdl.mesh()->content();
+
+        try {
+            property_cache_
+                .property("u_matrix_m", node->world_matrix())
+                .merge(internal_properties_);
+
+            const std::size_t submesh_count = math::min(
+                msh.indices_submesh_count(),
+                mdl.material_count());
+
+            for ( std::size_t i = 0, first_index = 0; i < submesh_count; ++i ) {
+                const std::size_t index_count = msh.indices(i).size();
+                const material_asset::ptr& mat = mdl.material(i);
+                if ( mat ) {
+                    render_.execute(render::draw_command(
+                        mat->content(),
+                        mdl.geometry(),
+                        property_cache_
+                    ).index_range(first_index, index_count));
+                }
+                first_index += index_count;
+            }
+        } catch (...) {
+            property_cache_.clear();
+            throw;
+        }
+        property_cache_.clear();
     }
 
     void drawer::context::draw(

@@ -53,6 +53,7 @@ namespace e2d { namespace render_system_impl
 
             void flush();
         private:
+            render& render_;
             batcher_type& batcher_;
             render::property_block property_cache_;
             render::property_block internal_properties_;
