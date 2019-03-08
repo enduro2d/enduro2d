@@ -1,0 +1,7 @@
+{
+    "size" : { "x" : 66, "y" : 113 },
+    "pivot" : { "x" : 0.5, "y" : 0.5 },
+    "texrect" : { "w" : 1, "h" : 1 },
+    "texture" : "ship.png",
+    "material" : "sprite_material.json"
+}
