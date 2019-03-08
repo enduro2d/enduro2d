@@ -13,7 +13,8 @@ namespace e2d
 {
     class image_asset final : public content_asset<image_asset, image> {
     public:
-        using content_asset<image_asset, image>::content_asset;
+        image_asset(content_type content)
+        : content_asset<image_asset, image>(std::move(content)) {}
         static load_async_result load_async(library& library, str_view address);
     };
 }

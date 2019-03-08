@@ -13,7 +13,8 @@ namespace e2d
 {
     class material_asset final : public content_asset<material_asset, render::material> {
     public:
-        using content_asset<material_asset, render::material>::content_asset;
+        material_asset(content_type content)
+        : content_asset<material_asset, render::material>(std::move(content)) {}
         static load_async_result load_async(library& library, str_view address);
     };
 }

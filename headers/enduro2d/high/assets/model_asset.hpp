@@ -15,7 +15,8 @@ namespace e2d
 {
     class model_asset final : public content_asset<model_asset, model> {
     public:
-        using content_asset<model_asset, model>::content_asset;
+        model_asset(content_type content)
+        : content_asset<model_asset, model>(std::move(content)) {}
         static load_async_result load_async(library& library, str_view address);
     };
 }
