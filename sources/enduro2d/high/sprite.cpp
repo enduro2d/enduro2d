@@ -8,6 +8,9 @@
 
 namespace e2d
 {
+    sprite::sprite() = default;
+    sprite::~sprite() noexcept = default;
+
     sprite::sprite(sprite&& other) noexcept {
         assign(std::move(other));
     }

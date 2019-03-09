@@ -15,7 +15,8 @@ namespace e2d
 {
     class sprite final {
     public:
-        sprite() = default;
+        sprite();
+        ~sprite() noexcept;
 
         sprite(sprite&& other) noexcept;
         sprite& operator=(sprite&& other) noexcept;
