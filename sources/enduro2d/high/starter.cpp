@@ -38,8 +38,9 @@ namespace
         : high_application_(std::move(application)) {}
 
         bool initialize() final {
-            the<world>().registry().add_system<render_system>();
-            return high_application_ && high_application_->initialize();
+            ecs::registry_filler(the<world>().registry())
+                .system<render_system>(world::priority_render);
+            return !high_application_ || high_application_->initialize();
         }
 
         void shutdown() noexcept final {
@@ -49,12 +50,20 @@ namespace
         }
 
         bool frame_tick() final {
+            the<world>().registry().process_systems_in_range(
+                world::priority_update_section_begin,
+                world::priority_update_section_end);
+
             if ( the<window>().should_close() ) {
                 if ( !high_application_ || high_application_->on_should_close() ) {
                     return false;
                 }
             }
-            the<world>().registry().process_systems();
+
+            the<world>().registry().process_systems_in_range(
+                world::priority_render_section_begin,
+                world::priority_render_section_end);
+
             return true;
         }
     private:

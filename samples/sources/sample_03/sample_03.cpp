@@ -48,8 +48,9 @@ namespace
             if ( !create_scene() || !create_camera() ) {
                 return false;
             }
-            the<world>().registry().add_system<game_system>();
-            the<world>().registry().add_system<rotator_system>();
+            ecs::registry_filler(the<world>().registry())
+                .system<game_system>(world::priority_update)
+                .system<rotator_system>(world::priority_update);
             return true;
         }
     private:
@@ -66,27 +67,29 @@ namespace
 
             {
                 ecs::entity model_e = the<world>().registry().create_entity();
-                model_e.assign_component<rotator>(rotator{v3f::unit_y()});
-                model_e.assign_component<actor>(node::create(model_e));
-                model_e.assign_component<renderer>();
-                model_e.assign_component<model_renderer>(model_res);
+
+                ecs::entity_filler(model_e)
+                    .component<rotator>(rotator{v3f::unit_y()})
+                    .component<actor>(node::create(model_e, scene_r))
+                    .component<renderer>()
+                    .component<model_renderer>(model_res);
 
                 node_iptr model_n = model_e.get_component<actor>().node();
                 model_n->scale(v3f{20.f});
                 model_n->translation(v3f{0.f,50.f,0.f});
-                scene_r->add_child(model_n);
             }
 
             {
                 ecs::entity sprite_e = the<world>().registry().create_entity();
-                sprite_e.assign_component<rotator>(rotator{v3f::unit_z()});
-                sprite_e.assign_component<actor>(node::create(sprite_e));
-                sprite_e.assign_component<renderer>();
-                sprite_e.assign_component<sprite_renderer>(sprite_res);
+
+                ecs::entity_filler(sprite_e)
+                    .component<rotator>(rotator{v3f::unit_z()})
+                    .component<actor>(node::create(sprite_e, scene_r))
+                    .component<renderer>()
+                    .component<sprite_renderer>(sprite_res);
 
                 node_iptr sprite_n = sprite_e.get_component<actor>().node();
                 sprite_n->translation(v3f{0,-50.f,0});
-                scene_r->add_child(sprite_n);
             }
 
             return true;

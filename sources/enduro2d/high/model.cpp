@@ -232,7 +232,7 @@ namespace e2d
         return mesh_;
     }
 
-    const render::geometry model::geometry() const noexcept {
+    const render::geometry& model::geometry() const noexcept {
         return geometry_;
     }
 

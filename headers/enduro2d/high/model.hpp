@@ -44,7 +44,7 @@ namespace e2d
         model& set_materials(const vector<material_asset::ptr>& materials);
 
         const mesh_asset::ptr& mesh() const noexcept;
-        const render::geometry geometry() const noexcept;
+        const render::geometry& geometry() const noexcept;
         const material_asset::ptr& material(std::size_t index) const;
         std::size_t material_count() const noexcept;
     private:
