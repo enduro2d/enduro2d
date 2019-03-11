@@ -13,6 +13,7 @@
 #include <tuple>
 #include <memory>
 #include <vector>
+#include <limits>
 #include <utility>
 #include <iterator>
 #include <stdexcept>
@@ -41,6 +42,7 @@ namespace ecs_hpp
 
     using family_id = std::uint16_t;
     using entity_id = std::uint32_t;
+    using priority_t = std::int32_t;
 
     constexpr std::size_t entity_id_index_bits = 22u;
     constexpr std::size_t entity_id_version_bits = 10u;
@@ -589,9 +591,9 @@ namespace ecs_hpp
             bool has(entity_id id) const noexcept override;
 
             template < typename F >
-            void for_each_component(F&& f) noexcept;
+            void for_each_component(F&& f);
             template < typename F >
-            void for_each_component(F&& f) const noexcept;
+            void for_each_component(F&& f) const;
         private:
             registry& owner_;
             detail::sparse_map<entity_id, T, entity_id_indexer> components_;
@@ -641,7 +643,7 @@ namespace ecs_hpp
 
         template < typename T >
         template < typename F >
-        void component_storage<T>::for_each_component(F&& f) noexcept {
+        void component_storage<T>::for_each_component(F&& f) {
             for ( const auto id : components_ ) {
                 f(id, components_.get(id));
             }
@@ -649,7 +651,7 @@ namespace ecs_hpp
 
         template < typename T >
         template < typename F >
-        void component_storage<T>::for_each_component(F&& f) const noexcept {
+        void component_storage<T>::for_each_component(F&& f) const {
             for ( const auto id : components_ ) {
                 f(id, components_.get(id));
             }
@@ -667,11 +669,14 @@ namespace ecs_hpp
 {
     class entity final {
     public:
+        entity(registry& owner) noexcept;
+        entity(registry& owner, entity_id id) noexcept;
+
         entity(const entity&) = default;
         entity& operator=(const entity&) = default;
 
-        entity(registry& owner) noexcept;
-        entity(registry& owner, entity_id id) noexcept;
+        entity(entity&&) noexcept = default;
+        entity& operator=(entity&&) noexcept = default;
 
         registry& owner() noexcept;
         const registry& owner() const noexcept;
@@ -751,13 +756,16 @@ namespace ecs_hpp
 {
     class const_entity final {
     public:
-        const_entity(const const_entity&) = default;
-        const_entity& operator=(const const_entity&) = default;
-
         const_entity(const entity& ent) noexcept;
 
         const_entity(const registry& owner) noexcept;
         const_entity(const registry& owner, entity_id id) noexcept;
+
+        const_entity(const const_entity&) = default;
+        const_entity& operator=(const const_entity&) = default;
+
+        const_entity(const_entity&&) noexcept = default;
+        const_entity& operator=(const_entity&&) noexcept = default;
 
         const registry& owner() const noexcept;
         entity_id id() const noexcept;
@@ -817,10 +825,13 @@ namespace ecs_hpp
     template < typename T >
     class component final {
     public:
+        component(const entity& owner) noexcept;
+
         component(const component&) = default;
         component& operator=(const component&) = default;
 
-        component(const entity& owner) noexcept;
+        component(component&&) noexcept = default;
+        component& operator=(component&&) noexcept = default;
 
         entity& owner() noexcept;
         const entity& owner() const noexcept;
@@ -877,11 +888,14 @@ namespace ecs_hpp
     template < typename T >
     class const_component final {
     public:
+        const_component(const component<T>& comp) noexcept;
+        const_component(const const_entity& owner) noexcept;
+
         const_component(const const_component&) = default;
         const_component& operator=(const const_component&) = default;
 
-        const_component(const component<T>& comp) noexcept;
-        const_component(const const_entity& owner) noexcept;
+        const_component(const_component&&) noexcept = default;
+        const_component& operator=(const_component&&) noexcept = default;
 
         const const_entity& owner() const noexcept;
 
@@ -989,6 +1003,12 @@ namespace ecs_hpp
         registry() = default;
         ~registry() noexcept = default;
 
+        registry(const registry& other) = delete;
+        registry& operator=(const registry& other) = delete;
+
+        registry(registry&& other) noexcept = default;
+        registry& operator=(registry&& other) noexcept = default;
+
         entity wrap_entity(const const_uentity& ent) noexcept;
         const_entity wrap_entity(const const_uentity& ent) const noexcept;
 
@@ -1054,8 +1074,12 @@ namespace ecs_hpp
         void for_joined_components(F&& f) const;
 
         template < typename T, typename... Args >
-        void add_system(Args&&... args);
-        void process_systems();
+        void add_system(priority_t priority, Args&&... args);
+
+        void process_all_systems();
+        void process_systems_above(priority_t min);
+        void process_systems_below(priority_t max);
+        void process_systems_in_range(priority_t min, priority_t max);
     private:
         template < typename T >
         detail::component_storage<T>* find_storage_() noexcept;
@@ -1128,7 +1152,46 @@ namespace ecs_hpp
         detail::sparse_map<family_id, storage_uptr> storages_;
 
         using system_uptr = std::unique_ptr<system>;
-        std::vector<system_uptr> systems_;
+        std::vector<std::pair<priority_t, system_uptr>> systems_;
+    };
+}
+
+// -----------------------------------------------------------------------------
+//
+// fillers
+//
+// -----------------------------------------------------------------------------
+
+namespace ecs_hpp
+{
+    class entity_filler final {
+    public:
+        entity_filler(entity& entity) noexcept
+        : entity_(entity) {}
+
+        template < typename T, typename... Args >
+        entity_filler& component(Args&&... args) {
+            entity_.assign_component<T>(std::forward<Args>(args)...);
+            return *this;
+        }
+    private:
+        entity& entity_;
+    };
+
+    class registry_filler final {
+    public:
+        registry_filler(registry& registry) noexcept
+        : registry_(registry) {}
+
+        template < typename T, typename... Args >
+        registry_filler& system(priority_t priority, Args&&... args) {
+            registry_.add_system<T>(
+                priority,
+                std::forward<Args>(args)...);
+            return *this;
+        }
+    private:
+        registry& registry_;
     };
 }
 
@@ -1813,14 +1876,44 @@ namespace ecs_hpp
     }
 
     template < typename T, typename... Args >
-    void registry::add_system(Args&&... args) {
-        systems_.emplace_back(
+    void registry::add_system(priority_t priority, Args&&... args) {
+        auto iter = std::upper_bound(
+            systems_.begin(), systems_.end(), priority,
+            [](priority_t pr, const auto& r){
+                return pr < r.first;
+            });
+        systems_.emplace(
+            iter,
+            priority,
             std::make_unique<T>(std::forward<Args>(args)...));
     }
 
-    inline void registry::process_systems() {
-        for ( auto& s : systems_ ) {
-            s->process(*this);
+    inline void registry::process_all_systems() {
+        process_systems_in_range(
+            std::numeric_limits<priority_t>::min(),
+            std::numeric_limits<priority_t>::max());
+    }
+
+    inline void registry::process_systems_above(priority_t min) {
+        process_systems_in_range(
+            min,
+            std::numeric_limits<priority_t>::max());
+    }
+
+    inline void registry::process_systems_below(priority_t max) {
+        process_systems_in_range(
+            std::numeric_limits<priority_t>::min(),
+            max);
+    }
+
+    inline void registry::process_systems_in_range(priority_t min, priority_t max) {
+        const auto first = std::lower_bound(
+            systems_.begin(), systems_.end(), min,
+            [](const auto& p, priority_t pr) noexcept {
+                return p.first < pr;
+            });
+        for ( auto iter = first; iter != systems_.end() && iter->first <= max; ++iter ) {
+            iter->second->process(*this);
         }
     }
 
