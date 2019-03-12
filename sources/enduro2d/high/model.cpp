@@ -34,7 +34,7 @@ namespace
     const vertex_declaration bitangent_buffer_decl = vertex_declaration()
         .add_attribute<v3f>("a_bitangent");
 
-    render::geometry generate_geometry(const mesh& mesh) {
+    render::geometry make_geometry(const mesh& mesh) {
         render::geometry geo;
 
         if ( !modules::is_initialized<render>() ) {
@@ -202,11 +202,8 @@ namespace e2d
     }
 
     model& model::set_mesh(const mesh_asset::ptr& mesh) {
-        render::geometry ngeo = mesh
-            ? generate_geometry(mesh->content())
-            : render::geometry();
         mesh_ = mesh;
-        geometry_ = std::move(ngeo);
+        geometry_.reset();
         return *this;
     }
 
@@ -232,10 +229,6 @@ namespace e2d
         return mesh_;
     }
 
-    const render::geometry& model::geometry() const noexcept {
-        return geometry_;
-    }
-
     const material_asset::ptr& model::material(std::size_t index) const {
         if ( index < materials_.size() ) {
             return materials_[index];
@@ -245,6 +238,18 @@ namespace e2d
 
     std::size_t model::material_count() const noexcept {
         return materials_.size();
+    }
+
+    void model::regenerate_geometry() {
+        if ( mesh_ ) {
+            geometry_ = make_geometry(mesh_->content());
+        } else {
+            geometry_.reset();
+        }
+    }
+
+    const render::geometry& model::geometry() const noexcept {
+        return geometry_;
     }
 }
 

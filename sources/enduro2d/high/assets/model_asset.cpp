@@ -80,10 +80,16 @@ namespace
             mesh_asset::load_result,
             vector<material_asset::load_result>
         >& results){
+            if ( !modules::is_initialized<deferrer>() ) {
+                throw model_asset_loading_exception();
+            }
             model content;
             content.set_mesh(std::get<0>(results));
             content.set_materials(std::get<1>(results));
-            return content;
+            return the<deferrer>().do_in_main_thread([content = std::move(content)]() mutable {
+                content.regenerate_geometry();
+                return content;
+            });
         });
     }
 }
