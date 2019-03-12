@@ -37,12 +37,6 @@ namespace
     render::geometry make_geometry(const mesh& mesh) {
         render::geometry geo;
 
-        if ( !modules::is_initialized<render>() ) {
-            return geo;
-        }
-
-        render& r = the<render>();
-
         {
             std::size_t index_count{0u};
             for ( std::size_t i = 0; i < mesh.indices_submesh_count(); ++i ) {
@@ -57,7 +51,7 @@ namespace
                     indices.insert(indices.end(), mesh.indices(i).begin(), mesh.indices(i).end());
                 }
 
-                const index_buffer_ptr index_buffer = r.create_index_buffer(
+                const index_buffer_ptr index_buffer = the<render>().create_index_buffer(
                     buffer(indices.data(), indices.size() * sizeof(indices[0])),
                     index_declaration::index_type::unsigned_int,
                     index_buffer::usage::static_draw);
@@ -70,7 +64,7 @@ namespace
 
         {
             const vector<v3f>& vertices = mesh.vertices();
-            const vertex_buffer_ptr vertex_buffer = r.create_vertex_buffer(
+            const vertex_buffer_ptr vertex_buffer = the<render>().create_vertex_buffer(
                 buffer(vertices.data(), vertices.size() * sizeof(vertices[0])),
                 vertex_buffer_decl,
                 vertex_buffer::usage::static_draw);

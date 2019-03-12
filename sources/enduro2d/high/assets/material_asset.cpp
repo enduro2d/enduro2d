@@ -1176,9 +1176,6 @@ namespace e2d
                 &library,
                 parent_address = path::parent_path(address)
             ](const json_asset::load_result& material_data){
-                if ( !modules::is_initialized<deferrer>() ) {
-                    throw material_asset_loading_exception();
-                }
                 return the<deferrer>().do_in_worker_thread([material_data](){
                     const rapidjson::Document& doc = material_data->content();
                     rapidjson::SchemaValidator validator(material_asset_schema());

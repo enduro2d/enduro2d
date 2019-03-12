@@ -22,13 +22,6 @@ namespace e2d
     text_asset::load_async_result text_asset::load_async(
         library& library, str_view address)
     {
-        E2D_UNUSED(library);
-
-        if ( !modules::is_initialized<vfs>() ) {
-            return stdex::make_rejected_promise<load_result>(
-                text_asset_loading_exception());
-        }
-
         const auto asset_url = library.root() / address;
         return the<vfs>().load_as_string_async(asset_url)
             .then([](auto&& content){

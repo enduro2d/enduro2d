@@ -118,9 +118,6 @@ namespace e2d
             &library,
             parent_address = path::parent_path(address)
         ](const json_asset::load_result& sprite_data){
-            if ( !modules::is_initialized<deferrer>() ) {
-                throw sprite_asset_loading_exception();
-            }
             return the<deferrer>().do_in_worker_thread([sprite_data](){
                 const rapidjson::Document& doc = sprite_data->content();
                 rapidjson::SchemaValidator validator(sprite_asset_schema());
@@ -132,8 +129,9 @@ namespace e2d
                 return parse_sprite(
                     library, parent_address, sprite_data->content());
             })
-            .then([](const sprite& sprite){
-                return sprite_asset::create(sprite);
+            .then([](auto&& content){
+                return sprite_asset::create(
+                    std::forward<decltype(content)>(content));
             });
         });
     }

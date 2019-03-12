@@ -26,9 +26,6 @@ namespace e2d
     {
         return library.load_asset_async<text_asset>(address)
             .then([](const text_asset::load_result& json_data){
-                if ( !modules::is_initialized<deferrer>() ) {
-                    throw json_asset_loading_exception();
-                }
                 return the<deferrer>().do_in_worker_thread([json_data](){
                     rapidjson::Document doc;
                     if ( doc.Parse(json_data->content().c_str()).HasParseError() ) {

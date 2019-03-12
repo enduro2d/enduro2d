@@ -25,9 +25,6 @@ namespace e2d
     {
         return library.load_asset_async<binary_asset>(address)
             .then([](const binary_asset::load_result& image_data){
-                if ( !modules::is_initialized<deferrer>() ) {
-                    throw image_asset_loading_exception();
-                }
                 return the<deferrer>().do_in_worker_thread([image_data](){
                     image content;
                     if ( !images::try_load_image(content, image_data->content()) ) {

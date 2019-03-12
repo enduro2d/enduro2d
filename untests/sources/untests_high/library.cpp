@@ -42,7 +42,7 @@ TEST_CASE("library"){
         text_res.reset();
         text_res_from_cache.reset();
 
-        the<deferrer>().worker().wait_all();
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
         REQUIRE(1u == the<asset_cache<text_asset>>().unload_self_unused_assets());
         REQUIRE(the<asset_cache<text_asset>>().asset_count() == 0);
     }
@@ -59,7 +59,8 @@ TEST_CASE("library"){
 
         text_res.reset();
         binary_res.reset();
-        the<deferrer>().worker().wait_all();
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
         REQUIRE(2u == l.unload_unused_assets());
     }
     {

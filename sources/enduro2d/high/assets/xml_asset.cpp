@@ -26,9 +26,6 @@ namespace e2d
     {
         return library.load_asset_async<text_asset>(address)
             .then([](const text_asset::load_result& xml_data){
-                if ( !modules::is_initialized<deferrer>() ) {
-                    throw xml_asset_loading_exception();
-                }
                 return the<deferrer>().do_in_worker_thread([xml_data](){
                     pugi::xml_document doc;
                     if ( !doc.load_string(xml_data->content().c_str()) ) {

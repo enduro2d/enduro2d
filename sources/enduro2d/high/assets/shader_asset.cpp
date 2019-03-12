@@ -68,13 +68,7 @@ namespace
             text_asset::load_result,
             text_asset::load_result
         >& results){
-            if ( !modules::is_initialized<deferrer>() ) {
-                throw shader_asset_loading_exception();
-            }
             return the<deferrer>().do_in_main_thread([results](){
-                if ( !modules::is_initialized<render>() ) {
-                    throw shader_asset_loading_exception();
-                }
                 const shader_ptr content = the<render>().create_shader(
                     std::get<0>(results)->content(),
                     std::get<1>(results)->content());
@@ -97,9 +91,6 @@ namespace e2d
                 &library,
                 parent_address = path::parent_path(address)
             ](const json_asset::load_result& shader_data){
-                if ( !modules::is_initialized<deferrer>() ) {
-                    throw shader_asset_loading_exception();
-                }
                 return the<deferrer>().do_in_worker_thread([shader_data](){
                     const rapidjson::Document& doc = shader_data->content();
                     rapidjson::SchemaValidator validator(shader_asset_schema());
@@ -111,11 +102,9 @@ namespace e2d
                     return parse_shader(
                         library, parent_address, shader_data->content());
                 })
-                .then([](const shader_ptr& shader){
-                    if ( !shader ) {
-                        throw shader_asset_loading_exception();
-                    }
-                    return shader_asset::create(shader);
+                .then([](auto&& content){
+                    return shader_asset::create(
+                        std::forward<decltype(content)>(content));
                 });
             });
     }

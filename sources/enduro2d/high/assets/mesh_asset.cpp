@@ -25,9 +25,6 @@ namespace e2d
     {
         return library.load_asset_async<binary_asset>(address)
             .then([](const binary_asset::load_result& mesh_data){
-                if ( !modules::is_initialized<deferrer>() ) {
-                    throw mesh_asset_loading_exception();
-                }
                 return the<deferrer>().do_in_worker_thread([mesh_data](){
                     mesh content;
                     if ( !meshes::try_load_mesh(content, mesh_data->content()) ) {

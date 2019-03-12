@@ -60,6 +60,7 @@ namespace
             path::combine(parent_address, root["mesh"].GetString()));
 
         vector<stdex::promise<material_asset::load_result>> materials_p;
+
         if ( root.HasMember("materials") ) {
             E2D_ASSERT(root["materials"].IsArray());
             const auto& materials_json = root["materials"];
@@ -80,13 +81,12 @@ namespace
             mesh_asset::load_result,
             vector<material_asset::load_result>
         >& results){
-            if ( !modules::is_initialized<deferrer>() ) {
-                throw model_asset_loading_exception();
-            }
             model content;
             content.set_mesh(std::get<0>(results));
             content.set_materials(std::get<1>(results));
-            return the<deferrer>().do_in_main_thread([content = std::move(content)]() mutable {
+            return the<deferrer>().do_in_main_thread([
+                content = std::move(content)
+            ]() mutable {
                 content.regenerate_geometry();
                 return content;
             });
@@ -104,9 +104,6 @@ namespace e2d
             &library,
             parent_address = path::parent_path(address)
         ](const json_asset::load_result& model_data){
-            if ( !modules::is_initialized<deferrer>() ) {
-                throw model_asset_loading_exception();
-            }
             return the<deferrer>().do_in_worker_thread([model_data](){
                 const rapidjson::Document& doc = model_data->content();
                 rapidjson::SchemaValidator validator(model_asset_schema());
@@ -118,8 +115,9 @@ namespace e2d
                 return parse_model(
                     library, parent_address, model_data->content());
             })
-            .then([](const model& model){
-                return model_asset::create(model);
+            .then([](auto&& content){
+                return model_asset::create(
+                    std::forward<decltype(content)>(content));
             });
         });
     }
