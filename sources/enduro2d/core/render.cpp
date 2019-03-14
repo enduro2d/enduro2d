@@ -824,8 +824,20 @@ namespace e2d
     // material
     //
 
-    render::material& render::material::reset() noexcept {
+    render::material& render::material::clear() noexcept {
         return *this = material();
+    }
+
+    bool render::material::equals(const material& other) const noexcept {
+        if ( pass_count_ != other.pass_count_ ) {
+            return false;
+        }
+        for ( std::size_t i = 0, e = pass_count_; i < e; ++i ) {
+            if ( passes_[i] != other.passes_[i] ) {
+                return false;
+            }
+        }
+        return properties_ == other.properties_;
     }
 
     render::material& render::material::add_pass(const pass_state& pass) noexcept {
@@ -864,8 +876,26 @@ namespace e2d
     // geometry
     //
 
-    render::geometry& render::geometry::reset() noexcept {
+    render::geometry& render::geometry::clear() noexcept {
         return *this = geometry();
+    }
+
+    bool render::geometry::equals(const geometry& other) const noexcept {
+        if ( topology_ != other.topology_ ) {
+            return false;
+        }
+        if ( indices_ != other.indices_ ) {
+            return false;
+        }
+        if ( vertices_count_ != other.vertices_count_ ) {
+            return false;
+        }
+        for ( std::size_t i = 0, e = vertices_count_; i < e; ++i ) {
+            if ( vertices_[i] != other.vertices_[i] ) {
+                return false;
+            }
+        }
+        return true;
     }
 
     render::geometry& render::geometry::add_vertices(const vertex_buffer_ptr& vb) noexcept {
@@ -1222,15 +1252,7 @@ namespace e2d
     }
 
     bool operator==(const render::material& l, const render::material& r) noexcept {
-        if ( l.pass_count() != r.pass_count() ) {
-            return false;
-        }
-        for ( std::size_t i = 0, e = l.pass_count(); i < e; ++i ) {
-            if ( l.pass(i) != r.pass(i) ) {
-                return false;
-            }
-        }
-        return l.properties() == r.properties();
+        return l.equals(r);
     }
 
     bool operator!=(const render::material& l, const render::material& r) noexcept {
@@ -1248,21 +1270,7 @@ namespace e2d
     }
 
     bool operator==(const render::geometry& l, const render::geometry& r) noexcept {
-        if ( l.topo() != r.topo() ) {
-            return false;
-        }
-        if ( l.indices() != r.indices() ) {
-            return false;
-        }
-        if ( l.vertices_count() != r.vertices_count() ) {
-            return false;
-        }
-        for ( std::size_t i = 0, e = l.vertices_count(); i < e; ++i ) {
-            if ( l.vertices(i) != r.vertices(i) ) {
-                return false;
-            }
-        }
-        return true;
+        return l.equals(r);
     }
 
     bool operator!=(const render::geometry& l, const render::geometry& r) noexcept {

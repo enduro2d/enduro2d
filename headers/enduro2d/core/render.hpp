@@ -677,7 +677,8 @@ namespace e2d
 
         class material final {
         public:
-            material& reset() noexcept;
+            material& clear() noexcept;
+            bool equals(const material& other) const noexcept;
 
             material& add_pass(const pass_state& pass) noexcept;
             std::size_t pass_count() const noexcept;
@@ -698,7 +699,8 @@ namespace e2d
 
         class geometry final {
         public:
-            geometry& reset() noexcept;
+            geometry& clear() noexcept;
+            bool equals(const geometry& other) const noexcept;
 
             geometry& add_vertices(const vertex_buffer_ptr& vb) noexcept;
             std::size_t vertices_count() const noexcept;

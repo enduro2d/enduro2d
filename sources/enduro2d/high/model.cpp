@@ -165,7 +165,7 @@ namespace e2d
 
     void model::clear() noexcept {
         mesh_.reset();
-        geometry_.reset();
+        geometry_.clear();
         materials_.clear();
     }
 
@@ -197,7 +197,7 @@ namespace e2d
 
     model& model::set_mesh(const mesh_asset::ptr& mesh) {
         mesh_ = mesh;
-        geometry_.reset();
+        geometry_.clear();
         return *this;
     }
 
@@ -238,7 +238,7 @@ namespace e2d
         if ( mesh_ ) {
             geometry_ = make_geometry(mesh_->content());
         } else {
-            geometry_.reset();
+            geometry_.clear();
         }
     }
 
