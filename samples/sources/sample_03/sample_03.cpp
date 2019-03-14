@@ -27,6 +27,21 @@ namespace
         }
     };
 
+    class camera_system final : public ecs::system {
+    public:
+        void process(ecs::registry& owner) override {
+            owner.for_joined_components<camera>(
+            [](const ecs::const_entity&, camera& cam){
+                if ( !cam.target() ) {
+                    cam.viewport(
+                        the<window>().real_size());
+                    cam.projection(math::make_orthogonal_lh_matrix4(
+                        the<window>().real_size().cast_to<f32>(), 0.f, 1000.f));
+                }
+            });
+        }
+    };
+
     class rotator_system final : public ecs::system {
     public:
         void process(ecs::registry& owner) override {
@@ -45,13 +60,9 @@ namespace
     class game final : public high_application {
     public:
         bool initialize() final {
-            if ( !create_scene() || !create_camera() ) {
-                return false;
-            }
-            ecs::registry_filler(the<world>().registry())
-                .system<game_system>(world::priority_update)
-                .system<rotator_system>(world::priority_update);
-            return true;
+            return create_scene()
+                && create_camera()
+                && create_systems();
         }
     private:
         bool create_scene() {
@@ -96,14 +107,19 @@ namespace
         }
 
         bool create_camera() {
-            const auto camera_c = camera()
-                .background({1.f, 0.4f, 0.f, 1.f})
-                .viewport(the<window>().real_size())
-                .projection(math::make_orthogonal_lh_matrix4(
-                    the<window>().real_size().cast_to<f32>(), 0.f, 1000.f));
             ecs::entity camera_e = the<world>().registry().create_entity();
-            camera_e.assign_component<camera>(camera_c);
-            camera_e.assign_component<actor>(node::create(camera_e));
+            ecs::entity_filler(camera_e)
+                .component<camera>(camera()
+                    .background({1.f, 0.4f, 0.f, 1.f}))
+                .component<actor>(node::create(camera_e));
+            return true;
+        }
+
+        bool create_systems() {
+            ecs::registry_filler(the<world>().registry())
+                .system<game_system>(world::priority_update)
+                .system<camera_system>(world::priority_update)
+                .system<rotator_system>(world::priority_update);
             return true;
         }
     };
