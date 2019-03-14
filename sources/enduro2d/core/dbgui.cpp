@@ -367,7 +367,6 @@ namespace e2d
         shader_ptr shader_;
         texture_ptr texture_;
         render::material material_;
-        render::geometry geometry_;
         render::property_block mprops_;
         index_buffer_ptr index_buffer_;
         vertex_buffer_ptr vertex_buffer_;

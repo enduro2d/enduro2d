@@ -10,6 +10,23 @@
 
 namespace e2d
 {
+    //
+    // high_application
+    //
+
+    class high_application : private noncopyable {
+    public:
+        virtual ~high_application() noexcept = default;
+        virtual bool initialize();
+        virtual void shutdown() noexcept;
+        virtual bool on_should_close();
+    };
+    using high_application_uptr = std::unique_ptr<high_application>;
+
+    //
+    // starter
+    //
+
     class starter final : public module<starter> {
     public:
         class parameters {
@@ -33,16 +50,16 @@ namespace e2d
         starter(int argc, char *argv[], const parameters& params);
         ~starter() noexcept final;
 
-        template < typename Application, typename... Args >
+        template < typename HighApplication, typename... Args >
         bool start(Args&&... args);
-        bool start(application_uptr app);
+        bool start(high_application_uptr app);
     };
 }
 
 namespace e2d
 {
-    template < typename Application, typename... Args >
+    template < typename HighApplication, typename... Args >
     bool starter::start(Args&&... args) {
-        return start(std::make_unique<Application>(std::forward<Args>(args)...));
+        return start(std::make_unique<HighApplication>(std::forward<Args>(args)...));
     }
 }

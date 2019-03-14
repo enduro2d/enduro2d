@@ -62,8 +62,8 @@ namespace e2d
         read(T& v) noexcept;
     private:
         input_stream& stream_;
-        bool success_ = true;
-        std::exception_ptr exception_ = nullptr;
+        bool success_{true};
+        std::exception_ptr exception_{nullptr};
     };
 
     class output_sequence final : private noncopyable {
@@ -89,8 +89,8 @@ namespace e2d
         write(T v) noexcept;
     private:
         output_stream& stream_;
-        bool success_ = true;
-        std::exception_ptr exception_ = nullptr;
+        bool success_{true};
+        std::exception_ptr exception_{nullptr};
     };
 }
 

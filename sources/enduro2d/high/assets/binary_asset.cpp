@@ -4,7 +4,7 @@
  * Copyright (C) 2018 Matvey Cherevko
  ******************************************************************************/
 
-#include "assets.hpp"
+#include <enduro2d/high/assets/binary_asset.hpp>
 
 namespace
 {
@@ -22,17 +22,10 @@ namespace e2d
     binary_asset::load_async_result binary_asset::load_async(
         library& library, str_view address)
     {
-        E2D_UNUSED(library);
-
-        if ( !modules::is_initialized<vfs>() ) {
-            return stdex::make_rejected_promise<load_result>(
-                binary_asset_loading_exception());
-        }
-
         const auto asset_url = library.root() / address;
         return the<vfs>().load_async(asset_url)
             .then([](auto&& content){
-                return std::make_shared<binary_asset>(
+                return binary_asset::create(
                     std::forward<decltype(content)>(content));
             });
     }

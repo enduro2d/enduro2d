@@ -42,7 +42,8 @@ namespace e2d { namespace path
     str combine(str_view lhs, str_view rhs) {
         if ( lhs.empty() || is_absolute(rhs) ) {
             return rhs;
-        } else if ( rhs.empty() ) {
+        }
+        if ( rhs.empty() ) {
             return lhs;
         }
         return is_directory_separator(lhs.back())

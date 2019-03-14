@@ -42,7 +42,7 @@ TEST_CASE("library"){
         text_res.reset();
         text_res_from_cache.reset();
 
-        the<deferrer>().worker().wait_all();
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
         REQUIRE(1u == the<asset_cache<text_asset>>().unload_self_unused_assets());
         REQUIRE(the<asset_cache<text_asset>>().asset_count() == 0);
     }
@@ -59,7 +59,8 @@ TEST_CASE("library"){
 
         text_res.reset();
         binary_res.reset();
-        the<deferrer>().worker().wait_all();
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
         REQUIRE(2u == l.unload_unused_assets());
     }
     {
@@ -94,6 +95,23 @@ TEST_CASE("library"){
             auto texture_res = l.load_asset<texture_asset>("image.png");
             REQUIRE(texture_res);
             REQUIRE(texture_res->content());
+
+            auto sprite_res = l.load_asset<sprite_asset>("sprite.json");
+            REQUIRE(sprite_res);
+            REQUIRE(sprite_res->content().size() == v2f(10.f, 20.f));
+            REQUIRE(sprite_res->content().pivot() == v2f(0.5f, 0.7f));
+            REQUIRE(sprite_res->content().texrect() == b2f(0.5f, 1.f));
+            REQUIRE(sprite_res->content().texture());
+            REQUIRE(sprite_res->content().material());
+
+            auto model_res = l.load_asset<model_asset>("model.json");
+            REQUIRE(model_res);
+            REQUIRE(model_res->content().mesh());
+            REQUIRE(model_res->content().material_count() == 1);
+            REQUIRE(model_res->content().material(0));
+            REQUIRE_FALSE(model_res->content().mesh()->content().vertices().empty());
+            REQUIRE(model_res->content().mesh()->content().indices_submesh_count() == 1);
+            REQUIRE_FALSE(model_res->content().mesh()->content().indices(0).empty());
         }
     }
     {
@@ -145,6 +163,36 @@ TEST_CASE("library"){
                 REQUIRE(property);
                 REQUIRE(property->index() == 4);
                 REQUIRE(stdex::get<v4i>(*property) == v4i(1,2,3,4));
+            }
+            {
+                const auto* property = pass.properties().property("m1");
+                REQUIRE(property);
+                REQUIRE(property->index() == 8);
+                REQUIRE(stdex::get<m2f>(*property) == m2f(1,2,3,4));
+
+                const auto* property2 = pass.properties().property("m4");
+                REQUIRE(property2);
+                REQUIRE(*property2 == *property);
+            }
+            {
+                const auto* property = pass.properties().property("m2");
+                REQUIRE(property);
+                REQUIRE(property->index() == 9);
+                REQUIRE(stdex::get<m3f>(*property) == m3f(1,2,3,4,5,6,7,8,9));
+
+                const auto* property2 = pass.properties().property("m5");
+                REQUIRE(property2);
+                REQUIRE(*property2 == *property);
+            }
+            {
+                const auto* property = pass.properties().property("m3");
+                REQUIRE(property);
+                REQUIRE(property->index() == 10);
+                REQUIRE(stdex::get<m4f>(*property) == m4f(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16));
+
+                const auto* property2 = pass.properties().property("m6");
+                REQUIRE(property2);
+                REQUIRE(*property2 == *property);
             }
             {
                 REQUIRE(pass.states().depth().range_near() == 1.f);

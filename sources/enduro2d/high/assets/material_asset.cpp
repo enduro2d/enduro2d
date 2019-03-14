@@ -4,7 +4,11 @@
  * Copyright (C) 2018 Matvey Cherevko
  ******************************************************************************/
 
-#include "assets.hpp"
+#include <enduro2d/high/assets/material_asset.hpp>
+
+#include "json_asset.hpp"
+#include <enduro2d/high/assets/shader_asset.hpp>
+#include <enduro2d/high/assets/texture_asset.hpp>
 
 namespace
 {
@@ -33,7 +37,7 @@ namespace
                     "required" : [ "shader" ],
                     "additionalProperties" : false,
                     "properties" : {
-                        "shader" : { "$ref": "#/definitions/generic_address" },
+                        "shader" : { "$ref": "#/common_definitions/address" },
                         "state_block" : { "$ref": "#/definitions/state_block" },
                         "property_block" : { "$ref": "#/definitions/property_block" }
                     }
@@ -91,7 +95,7 @@ namespace
                     "additionalProperties" : false,
                     "properties" : {
                         "constant_color" : {
-                            "$ref" : "#/definitions/color"
+                            "$ref" : "#/common_definitions/color"
                         },
                         "color_mask" : {
                             "$ref" : "#/definitions/color_mask"
@@ -160,14 +164,14 @@ namespace
                 },
                 "sampler" : {
                     "type" : "object",
-                    "required" : [ "name", "texture" ],
+                    "required" : [ "name" ],
                     "additionalProperties" : false,
                     "properties" : {
                         "name" : {
-                            "$ref" : "#/definitions/generic_name"
+                            "$ref" : "#/common_definitions/name"
                         },
                         "texture" : {
-                            "$ref" : "#/definitions/generic_address"
+                            "$ref" : "#/common_definitions/address"
                         },
                         "wrap" : {
                             "anyOf" : [{
@@ -201,7 +205,7 @@ namespace
                     "required" : [ "name", "type" ],
                     "additionalProperties" : false,
                     "properties" : {
-                        "name" : { "$ref" : "#/definitions/generic_name" },
+                        "name" : { "$ref" : "#/common_definitions/name" },
                         "type" : { "$ref" : "#/definitions/property_type" },
                         "value" : { "$ref" : "#/definitions/property_value" }
                     }
@@ -211,13 +215,20 @@ namespace
                     "enum" : [
                         "i32", "f32",
                         "v2i", "v3i", "v4i",
-                        "v2f", "v3f", "v4f"
+                        "v2f", "v3f", "v4f",
+                        "m2i", "m3i", "m4i",
+                        "m2f", "m3f", "m4f"
                     ]
                 },
                 "property_value" : {
                     "anyOf": [
                         { "type" : "number" },
-                        { "$ref" : "#/definitions/vector" }
+                        { "$ref" : "#/common_definitions/v2" },
+                        { "$ref" : "#/common_definitions/v3" },
+                        { "$ref" : "#/common_definitions/v4" },
+                        { "$ref" : "#/common_definitions/m2" },
+                        { "$ref" : "#/common_definitions/m3" },
+                        { "$ref" : "#/common_definitions/m4" }
                     ]
                 },
                 "stencil_op" : {
@@ -328,42 +339,6 @@ namespace
                         "nearest_mipmap_linear",
                         "linear_mipmap_linear"
                     ]
-                },
-                "color" : {
-                    "type" : "object",
-                    "additionalProperties" : false,
-                    "properties" : {
-                        "r" : { "type" : "number" },
-                        "g" : { "type" : "number" },
-                        "b" : { "type" : "number" },
-                        "a" : { "type" : "number" }
-                    }
-                },
-                "vector" : {
-                    "anyOf" : [{
-                        "type" : "number"
-                    }, {
-                        "type" : "array",
-                        "maxItems" : 4,
-                        "items" : { "type" : "number" }
-                    }, {
-                        "type" : "object",
-                        "additionalProperties" : false,
-                        "properties" : {
-                            "x" : { "type" : "number" },
-                            "y" : { "type" : "number" },
-                            "z" : { "type" : "number" },
-                            "w" : { "type" : "number" }
-                        }
-                    }]
-                },
-                "generic_name" : {
-                    "type" : "string",
-                    "minLength" : 1
-                },
-                "generic_address" : {
-                    "type" : "string",
-                    "minLength" : 1
                 }
             }
         })json";
@@ -379,6 +354,7 @@ namespace
                 the<debug>().error("ASSETS: Failed to parse material asset schema");
                 throw material_asset_loading_exception();
             }
+            json_utils::add_common_schema_definitions(doc);
             schema = std::make_unique<rapidjson::SchemaDocument>(doc);
         }
 
@@ -515,189 +491,6 @@ namespace
         return false;
     }
 
-    bool parse_property_value(const rapidjson::Value& root, v4i& v) {
-        if ( root.IsNumber() ) {
-            v = v4i(root.GetInt());
-            return true;
-        }
-
-        if ( root.IsObject() ) {
-            if ( root.HasMember("x") ) {
-                E2D_ASSERT(root["x"].IsNumber());
-                v.x = root["x"].GetInt();
-            }
-            if ( root.HasMember("y") ) {
-                E2D_ASSERT(root["y"].IsNumber());
-                v.y = root["y"].GetInt();
-            }
-            if ( root.HasMember("z") ) {
-                E2D_ASSERT(root["z"].IsNumber());
-                v.z = root["z"].GetInt();
-            }
-            if ( root.HasMember("w") ) {
-                E2D_ASSERT(root["w"].IsNumber());
-                v.w = root["w"].GetInt();
-            }
-            return true;
-        }
-
-        if ( root.IsArray() ) {
-            if ( root.Size() > 0 ) {
-                E2D_ASSERT(root[0].IsNumber());
-                v.x = root[0].GetInt();
-            }
-            if ( root.Size() > 1 ) {
-                E2D_ASSERT(root[1].IsNumber());
-                v.y = root[1].GetInt();
-            }
-            if ( root.Size() > 2 ) {
-                E2D_ASSERT(root[2].IsNumber());
-                v.z = root[2].GetInt();
-            }
-            if ( root.Size() > 3 ) {
-                E2D_ASSERT(root[3].IsNumber());
-                v.w = root[3].GetInt();
-            }
-            return true;
-        }
-
-        return false;
-    }
-
-    bool parse_property_value(const rapidjson::Value& root, v3i& v) {
-        v4i vv;
-        if ( !parse_property_value(root, vv) ) {
-            return false;
-        }
-        v = v3i(vv);
-        return true;
-    }
-
-    bool parse_property_value(const rapidjson::Value& root, v2i& v) {
-        v4i vv;
-        if ( !parse_property_value(root, vv) ) {
-            return false;
-        }
-        v = v2i(vv);
-        return true;
-    }
-
-    bool parse_property_value(const rapidjson::Value& root, v4f& v) {
-        if ( root.IsNumber() ) {
-            v = v4f(root.GetFloat());
-            return true;
-        }
-
-        if ( root.IsObject() ) {
-            if ( root.HasMember("x") ) {
-                E2D_ASSERT(root["x"].IsNumber());
-                v.x = root["x"].GetFloat();
-            }
-            if ( root.HasMember("y") ) {
-                E2D_ASSERT(root["y"].IsNumber());
-                v.y = root["y"].GetFloat();
-            }
-            if ( root.HasMember("z") ) {
-                E2D_ASSERT(root["z"].IsNumber());
-                v.z = root["z"].GetFloat();
-            }
-            if ( root.HasMember("w") ) {
-                E2D_ASSERT(root["w"].IsNumber());
-                v.w = root["w"].GetFloat();
-            }
-            return true;
-        }
-
-        if ( root.IsArray() ) {
-            if ( root.Size() > 0 ) {
-                E2D_ASSERT(root[0].IsNumber());
-                v.x = root[0].GetFloat();
-            }
-            if ( root.Size() > 1 ) {
-                E2D_ASSERT(root[1].IsNumber());
-                v.y = root[1].GetFloat();
-            }
-            if ( root.Size() > 2 ) {
-                E2D_ASSERT(root[2].IsNumber());
-                v.z = root[2].GetFloat();
-            }
-            if ( root.Size() > 3 ) {
-                E2D_ASSERT(root[3].IsNumber());
-                v.w = root[3].GetFloat();
-            }
-            return true;
-        }
-
-        return false;
-    }
-
-    bool parse_property_value(const rapidjson::Value& root, v3f& v) {
-        v4f vv;
-        if ( !parse_property_value(root, vv) ) {
-            return false;
-        }
-        v = v3f(vv);
-        return true;
-    }
-
-    bool parse_property_value(const rapidjson::Value& root, v2f& v) {
-        v4f vv;
-        if ( !parse_property_value(root, vv) ) {
-            return false;
-        }
-        v = v2f(vv);
-        return true;
-    }
-
-    bool parse_property_value(const rapidjson::Value& root, color& v) {
-        if ( root.IsNumber() ) {
-            v = color(root.GetFloat(), root.GetFloat(), root.GetFloat());
-            return true;
-        }
-
-        if ( root.IsObject() ) {
-            if ( root.HasMember("r") ) {
-                E2D_ASSERT(root["r"].IsNumber());
-                v.r = root["r"].GetFloat();
-            }
-            if ( root.HasMember("g") ) {
-                E2D_ASSERT(root["g"].IsNumber());
-                v.g = root["g"].GetFloat();
-            }
-            if ( root.HasMember("b") ) {
-                E2D_ASSERT(root["b"].IsNumber());
-                v.b = root["b"].GetFloat();
-            }
-            if ( root.HasMember("a") ) {
-                E2D_ASSERT(root["a"].IsNumber());
-                v.a = root["a"].GetFloat();
-            }
-            return true;
-        }
-
-        if ( root.IsArray() ) {
-            if ( root.Size() > 0 ) {
-                E2D_ASSERT(root[0].IsNumber());
-                v.r = root[0].GetFloat();
-            }
-            if ( root.Size() > 1 ) {
-                E2D_ASSERT(root[1].IsNumber());
-                v.g = root[1].GetFloat();
-            }
-            if ( root.Size() > 2 ) {
-                E2D_ASSERT(root[2].IsNumber());
-                v.b = root[2].GetFloat();
-            }
-            if ( root.Size() > 3 ) {
-                E2D_ASSERT(root[3].IsNumber());
-                v.a = root[3].GetFloat();
-            }
-            return true;
-        }
-
-        return false;
-    }
-
     stdex::promise<shader_ptr> parse_shader_block(
         library& library,
         str_view parent_address,
@@ -707,7 +500,7 @@ namespace
         const auto shader_address =
             path::combine(parent_address, root.GetString());
         return library.load_asset_async<shader_asset>(shader_address)
-            .then([](const shader_asset::ptr& shader){
+            .then([](const shader_asset::load_result& shader){
                 return shader->content();
             });
     }
@@ -721,7 +514,7 @@ namespace
         const auto texture_address =
             path::combine(parent_address, root.GetString());
         return library.load_asset_async<texture_asset>(texture_address)
-            .then([](const texture_asset::ptr& texture){
+            .then([](const texture_asset::load_result& texture){
                 return texture->content();
             });
     }
@@ -734,8 +527,6 @@ namespace
         render::sampler_state content;
 
         E2D_ASSERT(root.HasMember("name") && root["name"].IsString());
-        E2D_ASSERT(root.HasMember("texture") && root["texture"].IsString());
-
         auto name_hash = make_hash(root["name"].GetString());
 
         auto texture_p = root.HasMember("texture")
@@ -842,78 +633,37 @@ namespace
             E2D_ASSERT(property_json.HasMember("name") && property_json["name"].IsString());
             E2D_ASSERT(property_json.HasMember("type") && property_json["type"].IsString());
 
-            if ( 0 == std::strcmp(property_json["type"].GetString(), "i32") ) {
-                i32 value = 0;
-                if ( property_json.HasMember("value") ) {
-                    E2D_ASSERT(property_json["value"].IsNumber());
-                    value = property_json["value"].GetInt();
-                }
-                props.property(property_json["name"].GetString(), value);
-            } else if ( 0 == std::strcmp(property_json["type"].GetString(), "f32") ) {
-                f32 value = 0;
-                if ( property_json.HasMember("value") ) {
-                    E2D_ASSERT(property_json["value"].IsNumber());
-                    value = property_json["value"].GetFloat();
-                }
-                props.property(property_json["name"].GetString(), value);
-            } else if ( 0 == std::strcmp(property_json["type"].GetString(), "v2i") ) {
-                v2i value;
-                if ( property_json.HasMember("value") ) {
-                    if ( !parse_property_value(property_json["value"], value) ) {
-                        E2D_ASSERT_MSG(false, "unexpected property value");
-                        return false;
-                    }
-                }
-                props.property(property_json["name"].GetString(), value);
-            } else if ( 0 == std::strcmp(property_json["type"].GetString(), "v3i") ) {
-                v3i value;
-                if ( property_json.HasMember("value") ) {
-                    if ( !parse_property_value(property_json["value"], value) ) {
-                        E2D_ASSERT_MSG(false, "unexpected property value");
-                        return false;
-                    }
-                }
-                props.property(property_json["name"].GetString(), value);
-            } else if ( 0 == std::strcmp(property_json["type"].GetString(), "v4i") ) {
-                v4i value;
-                if ( property_json.HasMember("value") ) {
-                    if ( !parse_property_value(property_json["value"], value) ) {
-                        E2D_ASSERT_MSG(false, "unexpected property value");
-                        return false;
-                    }
-                }
-                props.property(property_json["name"].GetString(), value);
-            } else if ( 0 == std::strcmp(property_json["type"].GetString(), "v2f") ) {
-                v2f value;
-                if ( property_json.HasMember("value") ) {
-                    if ( !parse_property_value(property_json["value"], value) ) {
-                        E2D_ASSERT_MSG(false, "unexpected property value");
-                        return false;
-                    }
-                }
-                props.property(property_json["name"].GetString(), value);
-            } else if ( 0 == std::strcmp(property_json["type"].GetString(), "v3f") ) {
-                v3f value;
-                if ( property_json.HasMember("value") ) {
-                    if ( !parse_property_value(property_json["value"], value) ) {
-                        E2D_ASSERT_MSG(false, "unexpected property value");
-                        return false;
-                    }
-                }
-                props.property(property_json["name"].GetString(), value);
-            } else if ( 0 == std::strcmp(property_json["type"].GetString(), "v4f") ) {
-                v4f value;
-                if ( property_json.HasMember("value") ) {
-                    if ( !parse_property_value(property_json["value"], value) ) {
-                        E2D_ASSERT_MSG(false, "unexpected property value");
-                        return false;
-                    }
-                }
-                props.property(property_json["name"].GetString(), value);
-            } else {
-                E2D_ASSERT_MSG(false, "unexpected property type");
-                return false;
+        #define DEFINE_CASE(x)\
+            if ( 0 == std::strcmp(property_json["type"].GetString(), #x) ) {\
+                x value;\
+                if ( property_json.HasMember("value") ) {\
+                    if ( !json_utils::try_parse_value(property_json["value"], value) ) {\
+                        E2D_ASSERT_MSG(false, "unexpected property value");\
+                        return false;\
+                    }\
+                }\
+                props.property(property_json["name"].GetString(), value);\
+                continue;\
             }
+
+            DEFINE_CASE(i32);
+            DEFINE_CASE(f32);
+
+            DEFINE_CASE(v2i);
+            DEFINE_CASE(v3i);
+            DEFINE_CASE(v4i);
+
+            DEFINE_CASE(v2f);
+            DEFINE_CASE(v3f);
+            DEFINE_CASE(v4f);
+
+            DEFINE_CASE(m2f);
+            DEFINE_CASE(m3f);
+            DEFINE_CASE(m4f);
+        #undef DEFINE_CASE
+
+            E2D_ASSERT_MSG(false, "unexpected property type");
+            return false;
         }
         return true;
     }
@@ -1134,7 +884,7 @@ namespace
             E2D_ASSERT(root["constant_color"].IsObject());
 
             color color = blending.constant_color();
-            if ( !parse_property_value(root["constant_color"], color) ) {
+            if ( !json_utils::try_parse_value(root["constant_color"], color) ) {
                 E2D_ASSERT_MSG(false, "unexpected blending state constant_color");
                 return false;
             }
@@ -1425,10 +1175,7 @@ namespace e2d
             .then([
                 &library,
                 parent_address = path::parent_path(address)
-            ](const json_asset::ptr& material_data){
-                if ( !modules::is_initialized<deferrer>() ) {
-                    throw material_asset_loading_exception();
-                }
+            ](const json_asset::load_result& material_data){
                 return the<deferrer>().do_in_worker_thread([material_data](){
                     const rapidjson::Document& doc = material_data->content();
                     rapidjson::SchemaValidator validator(material_asset_schema());
@@ -1441,7 +1188,7 @@ namespace e2d
                         library, parent_address, material_data->content());
                 })
                 .then([](const render::material& material){
-                    return std::make_shared<material_asset>(material);
+                    return material_asset::create(material);
                 });
             });
     }

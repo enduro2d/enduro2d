@@ -37,22 +37,14 @@
 #endif
 
 #define E2D_CLEAR_ALLOCA(size)\
-    std::memset(E2D_ALLOCA(size), 0, size)
+    std::memset(E2D_ALLOCA((size)), 0, (size))
 
 //
 // E2D_UNUSED
 //
 
-template < typename T >
-void E2D_UNUSED(T&& arg) noexcept {
-    (void)arg;
-}
-
-template < typename T, typename... Ts >
-void E2D_UNUSED(T&& arg, Ts&&... args) noexcept {
-    E2D_UNUSED(arg);
-    E2D_UNUSED(std::forward<Ts>(args)...);
-}
+template < typename... Ts >
+constexpr void E2D_UNUSED(Ts&&...) noexcept {}
 
 //
 // E2D_COUNTOF

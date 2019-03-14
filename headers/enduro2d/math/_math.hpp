@@ -37,6 +37,12 @@ namespace e2d
     template < typename T >
     class aabb;
 
+    template < typename T >
+    class trs2;
+
+    template < typename T >
+    class trs3;
+
     template < typename T, typename Tag >
     class unit;
 
@@ -108,6 +114,20 @@ namespace e2d
     using b3u = aabb<u32>;
     using b3hi = aabb<i16>;
     using b3hu = aabb<u16>;
+
+    using t2d = trs2<f64>;
+    using t2f = trs2<f32>;
+    using t2i = trs2<i32>;
+    using t2u = trs2<u32>;
+    using t2hi = trs2<i16>;
+    using t2hu = trs2<u16>;
+
+    using t3d = trs3<f64>;
+    using t3f = trs3<f32>;
+    using t3i = trs3<i32>;
+    using t3u = trs3<u32>;
+    using t3hi = trs3<i16>;
+    using t3hu = trs3<u16>;
 
     struct deg_tag {};
     struct rad_tag {};
@@ -271,6 +291,134 @@ namespace e2d { namespace math
     }
 
     //
+    // bit flags
+    //
+
+    template < typename T, typename U >
+    std::enable_if_t<
+        std::is_unsigned<T>::value &&
+        std::is_convertible<U,T>::value,
+        T>
+    set_flags(T flags, U flag_mask) noexcept {
+        return flags | flag_mask;
+    }
+
+    template < typename T, typename U >
+    std::enable_if_t<
+        std::is_unsigned<T>::value &&
+        std::is_convertible<U,T>::value,
+        void>
+    set_flags_inplace(T& flags, U flag_mask) noexcept {
+        flags = set_flags(flags, flag_mask);
+    }
+
+    template < typename T, typename U >
+    std::enable_if_t<
+        std::is_unsigned<T>::value &&
+        std::is_convertible<U,T>::value,
+        T>
+    flip_flags(T flags, U flag_mask) noexcept {
+        return flags ^ flag_mask;
+    }
+
+    template < typename T, typename U >
+    std::enable_if_t<
+        std::is_unsigned<T>::value &&
+        std::is_convertible<U,T>::value,
+        void>
+    flip_flags_inplace(T& flags, U flag_mask) noexcept {
+        flags = flip_flags(flags, flag_mask);
+    }
+
+    template < typename T, typename U >
+    std::enable_if_t<
+        std::is_unsigned<T>::value &&
+        std::is_convertible<U,T>::value,
+        T>
+    clear_flags(T flags, U flag_mask) noexcept {
+        return flags & ~flag_mask;
+    }
+
+    template < typename T, typename U >
+    std::enable_if_t<
+        std::is_unsigned<T>::value &&
+        std::is_convertible<U,T>::value,
+        void>
+    clear_flags_inplace(T& flags, U flag_mask) noexcept {
+        flags = clear_flags(flags, flag_mask);
+    }
+
+    template < typename T, typename U >
+    std::enable_if_t<
+        std::is_unsigned<T>::value &&
+        std::is_convertible<U,T>::value,
+        bool>
+    check_any_flags(T flags, U flag_mask) noexcept {
+        return !!(flags & flag_mask);
+    }
+
+    template < typename T, typename U >
+    std::enable_if_t<
+        std::is_unsigned<T>::value &&
+        std::is_convertible<U,T>::value,
+        bool>
+    check_all_flags(T flags, U flag_mask) noexcept {
+        return flag_mask == (flags & flag_mask);
+    }
+
+    template < typename T, typename U >
+    std::enable_if_t<
+        std::is_unsigned<T>::value &&
+        std::is_convertible<U,T>::value,
+        bool>
+    check_and_set_any_flags(T& flags, U flag_mask) noexcept {
+        if ( flag_mask == (flags & flag_mask) ) {
+            return false;
+        }
+        flags |= flag_mask;
+        return true;
+    }
+
+    template < typename T, typename U >
+    std::enable_if_t<
+        std::is_unsigned<T>::value &&
+        std::is_convertible<U,T>::value,
+        bool>
+    check_and_set_all_flags(T& flags, U flag_mask) noexcept {
+        if ( !!(flags & flag_mask) ) {
+            return false;
+        }
+        flags |= flag_mask;
+        return true;
+    }
+
+    template < typename T, typename U >
+    std::enable_if_t<
+        std::is_unsigned<T>::value &&
+        std::is_convertible<U,T>::value,
+        bool>
+    check_and_clear_any_flags(T& flags, U flag_mask) noexcept {
+        if ( !(flags & flag_mask) ) {
+            return false;
+        }
+        flags &= ~flag_mask;
+        return true;
+    }
+
+    template < typename T, typename U >
+    std::enable_if_t<
+        std::is_unsigned<T>::value &&
+        std::is_convertible<U,T>::value,
+        bool>
+    check_and_clear_all_flags(T& flags, U flag_mask) noexcept {
+        if ( flag_mask != (flags & flag_mask) ) {
+            return false;
+        }
+        flags &= ~flag_mask;
+        return true;
+    }
+
+    //
     // power of two
     //
 
@@ -354,6 +502,14 @@ namespace e2d { namespace math
         return v >= 0
             ? static_cast<std::make_unsigned_t<T>>(v)
             : static_cast<std::make_unsigned_t<T>>(-(v + 1)) + 1;
+    }
+
+    template < typename T >
+    std::enable_if_t<
+        std::is_integral<T>::value && std::is_unsigned<T>::value,
+        T>
+    abs_to_unsigned(T v) noexcept {
+        return v;
     }
 
     //

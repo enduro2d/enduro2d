@@ -102,10 +102,10 @@
     meshes, shaders, textures, materials
     ```
 
-  - [ ] `scene graph`
+  - [x] `scene graph`
     ```
     nodes, scenes
-    parent child relationship, bounding boxes, event bubbling
+    parent-child relationships
     ```
 
 ## `Milestone IV (advanced high)`
@@ -117,7 +117,7 @@
     static and frame-by-frame animations
     ```
 
-  - [ ] `ECS`
+  - [x] `ECS`
     ```
     basic entity component system
     component processing and joins

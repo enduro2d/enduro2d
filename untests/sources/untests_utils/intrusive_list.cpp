@@ -23,7 +23,7 @@ namespace
     };
 }
 
-TEST_CASE("ilist") {
+TEST_CASE("intrusive_list") {
     {
         intrusive_list<obj_t, ilist_tag1> l;
         REQUIRE(l.empty());
@@ -84,10 +84,53 @@ TEST_CASE("ilist") {
             REQUIRE(l.empty());
         }
     }
-    SECTION("empty/size/clear") {
+    SECTION("pop_back_and_dispose/pop_front_and_dispose") {
+        {
+            auto o1 = std::make_unique<obj_t>(1);
+            auto o2 = std::make_unique<obj_t>(2);
+            auto o3 = std::make_unique<obj_t>(3);
+            auto o4 = std::make_unique<obj_t>(4);
+
+            intrusive_list<obj_t, ilist_tag1> l;
+            l.push_back(*o1);
+            l.push_back(*o2);
+            l.push_back(*o3);
+            l.push_back(*o4);
+
+            std::size_t dispose_count = 0;
+            l.pop_front_and_dispose([&dispose_count](obj_t* o){
+                ++dispose_count;
+                REQUIRE(o->i == 1);
+            });
+            REQUIRE(l.front().i == 2);
+            REQUIRE(l.back().i == 4);
+
+            l.pop_back_and_dispose([&dispose_count](obj_t* o){
+                ++dispose_count;
+                REQUIRE(o->i == 4);
+            });
+            REQUIRE(l.front().i == 2);
+            REQUIRE(l.back().i == 3);
+
+            l.pop_front_and_dispose([&dispose_count](obj_t* o){
+                ++dispose_count;
+                REQUIRE(o->i == 2);
+            });
+            REQUIRE(l.front().i == 3);
+            REQUIRE(l.back().i == 3);
+
+            l.pop_front_and_dispose([&dispose_count](obj_t* o){
+                ++dispose_count;
+                REQUIRE(o->i == 3);
+            });
+            REQUIRE(l.empty());
+            REQUIRE(dispose_count == 4);
+        }
+    }
+    SECTION("empty/size/clear/clear_and_dispose") {
         auto o1 = std::make_unique<obj_t>(1);
         auto o2 = std::make_unique<obj_t>(2);
-        auto o3 = std::make_unique<obj_t>(2);
+        auto o3 = std::make_unique<obj_t>(3);
         {
             intrusive_list<obj_t, ilist_tag1> l;
             REQUIRE(l.empty());
@@ -125,6 +168,29 @@ TEST_CASE("ilist") {
             REQUIRE_FALSE(l.empty());
             REQUIRE(l.size() == 3u);
         }
+        {
+            intrusive_list<obj_t, ilist_tag1> l;
+            l.push_back(*o1);
+            l.push_back(*o2);
+            l.push_back(*o3);
+            l.clear();
+            REQUIRE(l.empty());
+        }
+        {
+            intrusive_list<obj_t, ilist_tag1> l;
+            l.push_back(*o1);
+            l.push_back(*o2);
+            l.push_back(*o3);
+
+            std::size_t dispose_count = 0;
+            std::array<int, 3> obj_values{3,2,1};
+            l.clear_and_dispose([&dispose_count, &obj_values](obj_t* o){
+                REQUIRE(obj_values[dispose_count] == o->i);
+                ++dispose_count;
+            });
+            REQUIRE(l.empty());
+            REQUIRE(dispose_count == 3);
+        }
     }
     SECTION("swap") {
         {
@@ -151,13 +217,12 @@ TEST_CASE("ilist") {
             REQUIRE(l2.front().i == 1);
         }
     }
-    SECTION("insert/erase") {
+    SECTION("insert/erase/erase_and_dispose") {
+        auto o1 = std::make_unique<obj_t>(1);
+        auto o2 = std::make_unique<obj_t>(2);
+        auto o3 = std::make_unique<obj_t>(3);
+        auto o4 = std::make_unique<obj_t>(4);
         {
-            auto o1 = std::make_unique<obj_t>(1);
-            auto o2 = std::make_unique<obj_t>(2);
-            auto o3 = std::make_unique<obj_t>(3);
-            auto o4 = std::make_unique<obj_t>(4);
-
             intrusive_list<obj_t, ilist_tag1> l;
 
             REQUIRE(l.insert(l.end(), *o1)->i == 1); // 1
@@ -197,6 +262,31 @@ TEST_CASE("ilist") {
             REQUIRE(l.size() == 1);
             REQUIRE(l.back().i == 2);
             REQUIRE(l.front().i == 2);
+        }
+        {
+            intrusive_list<obj_t, ilist_tag1> l;
+            l.push_back(*o1);
+            l.push_back(*o2);
+            l.push_back(*o3);
+            l.push_back(*o4);
+            std::size_t dispose_count = 0;
+            l.erase_and_dispose(l.begin(), [&dispose_count](obj_t* o){
+                ++dispose_count;
+                REQUIRE(o->i == 1);
+            });
+            l.erase_and_dispose(++l.begin(), [&dispose_count](obj_t* o){
+                ++dispose_count;
+                REQUIRE(o->i == 3);
+            });
+            l.erase_and_dispose(++l.begin(), [&dispose_count](obj_t* o){
+                ++dispose_count;
+                REQUIRE(o->i == 4);
+            });
+            l.erase_and_dispose(l.begin(), [&dispose_count](obj_t* o){
+                ++dispose_count;
+                REQUIRE(o->i == 2);
+            });
+            REQUIRE(dispose_count == 4);
         }
     }
     SECTION("iterator_to") {

@@ -620,13 +620,18 @@ namespace e2d
             property_block() = default;
             ~property_block() noexcept = default;
 
+            property_block(property_block&&) noexcept = default;
+            property_block& operator=(property_block&&) noexcept = default;
+
             property_block(const property_block&) = default;
             property_block& operator=(const property_block&) = default;
 
             property_block& clear() noexcept;
             property_block& merge(const property_block& pb);
+            bool equals(const property_block& other) const noexcept;
 
             property_block& sampler(str_hash name, const sampler_state& s);
+            sampler_state* sampler(str_hash name) noexcept;
             const sampler_state* sampler(str_hash name) const noexcept;
 
             template < typename T >
@@ -635,6 +640,7 @@ namespace e2d
             const T* property(str_hash name) const noexcept;
 
             property_block& property(str_hash name, const property_value& v);
+            property_value* property(str_hash name) noexcept;
             const property_value* property(str_hash name) const noexcept;
 
             template < typename F >
@@ -671,6 +677,9 @@ namespace e2d
 
         class material final {
         public:
+            material& clear() noexcept;
+            bool equals(const material& other) const noexcept;
+
             material& add_pass(const pass_state& pass) noexcept;
             std::size_t pass_count() const noexcept;
 
@@ -690,6 +699,9 @@ namespace e2d
 
         class geometry final {
         public:
+            geometry& clear() noexcept;
+            bool equals(const geometry& other) const noexcept;
+
             geometry& add_vertices(const vertex_buffer_ptr& vb) noexcept;
             std::size_t vertices_count() const noexcept;
 
@@ -914,6 +926,10 @@ namespace e2d
 
 namespace e2d
 {
+    //
+    // render::state_block
+    //
+
     bool operator==(const render::state_block& l, const render::state_block& r) noexcept;
     bool operator!=(const render::state_block& l, const render::state_block& r) noexcept;
 
@@ -931,6 +947,33 @@ namespace e2d
 
     bool operator==(const render::capabilities_state& l, const render::capabilities_state& r) noexcept;
     bool operator!=(const render::capabilities_state& l, const render::capabilities_state& r) noexcept;
+
+    //
+    // render::property_block
+    //
+
+    bool operator==(const render::property_block& l, const render::property_block& r) noexcept;
+    bool operator!=(const render::property_block& l, const render::property_block& r) noexcept;
+
+    bool operator==(const render::sampler_state& l, const render::sampler_state& r) noexcept;
+    bool operator!=(const render::sampler_state& l, const render::sampler_state& r) noexcept;
+
+    //
+    // render::material
+    //
+
+    bool operator==(const render::material& l, const render::material& r) noexcept;
+    bool operator!=(const render::material& l, const render::material& r) noexcept;
+
+    bool operator==(const render::pass_state& l, const render::pass_state& r) noexcept;
+    bool operator!=(const render::pass_state& l, const render::pass_state& r) noexcept;
+
+    //
+    // render::geometry
+    //
+
+    bool operator==(const render::geometry& l, const render::geometry& r) noexcept;
+    bool operator!=(const render::geometry& l, const render::geometry& r) noexcept;
 }
 
 #include "render.inl"

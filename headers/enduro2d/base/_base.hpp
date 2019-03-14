@@ -12,13 +12,12 @@
 #include <cstring>
 #include <cstdint>
 #include <cstdlib>
+#include <cstddef>
 #include <cassert>
 
 #include <mutex>
 #include <atomic>
 #include <thread>
-#include <future>
-#include <condition_variable>
 
 #include <set>
 #include <map>
@@ -39,12 +38,7 @@
 #include <utility>
 #include <iterator>
 #include <exception>
+#include <stdexcept>
 #include <algorithm>
 #include <functional>
 #include <type_traits>
-
-#include <3rdparty/variant/variant.hpp>
-#include <3rdparty/promise.hpp/invoke.hpp>
-#include <3rdparty/promise.hpp/jobber.hpp>
-#include <3rdparty/promise.hpp/promise.hpp>
-#include <3rdparty/promise.hpp/scheduler.hpp>

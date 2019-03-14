@@ -17,7 +17,7 @@ namespace
     class glfw_state;
     using glfw_state_ptr = std::shared_ptr<glfw_state>;
 
-    class glfw_state : private noncopyable {
+    class glfw_state final : private noncopyable {
     public:
         glfw_state() {
             glfwSetErrorCallback(error_handler);

@@ -8,24 +8,50 @@
 
 #include "../core/_all.hpp"
 
+#include <3rdparty/ecs.hpp/ecs.hpp>
+
 namespace e2d
 {
-    class asset;
-    class library;
-    class starter;
+    namespace ecs
+    {
+        using namespace ecs_hpp;
+    }
+}
 
-    class text_asset;
-    class mesh_asset;
-    class image_asset;
+namespace e2d
+{
     class binary_asset;
-    class shader_asset;
-    class texture_asset;
+    class image_asset;
     class material_asset;
+    class mesh_asset;
+    class model_asset;
+    class shader_asset;
+    class sprite_asset;
+    class text_asset;
+    class texture_asset;
+
+    class actor;
+    class camera;
+    class model_renderer;
+    class renderer;
+    class scene;
+    class sprite_renderer;
+
+    class render_system;
 
     template < typename Asset, typename Content >
     class content_asset;
+    class content_asset_base;
+
+    class library;
 
     template < typename T >
     class asset_cache;
     class asset_cache_base;
+
+    class model;
+    class node;
+    class sprite;
+    class starter;
+    class world;
 }

@@ -16,7 +16,7 @@ namespace
     using namespace e2d;
     using namespace e2d::opengl;
 
-    class property_block_value_visitor : private noncopyable {
+    class property_block_value_visitor final : private noncopyable {
     public:
         property_block_value_visitor(debug& debug, uniform_info ui) noexcept
         : debug_(debug)
@@ -231,6 +231,7 @@ namespace
         std::size_t first,
         std::size_t count) noexcept
     {
+        E2D_ASSERT(ib);
         with_gl_bind_buffer(debug, ib->state().id(), [&debug, &tp, &ib, &first, &count]() noexcept {
             const index_declaration& decl = ib->decl();
             if ( first < ib->index_count() ) {
@@ -891,22 +892,30 @@ namespace e2d
 
         for ( std::size_t i = 0, e = mat.pass_count(); i < e; ++i ) {
             const pass_state& pass = mat.pass(i);
-            const property_block& main_props = main_property_cache()
-                .merge(mat.properties())
-                .merge(pass.properties())
-                .merge(props);
-            state_->set_states(pass.states());
-            state_->set_shader_program(pass.shader());
-            with_material_shader(state_->dbg(), pass.shader(), main_props, [this, &command, &pass, &geo]() noexcept {
-                with_geometry_vertices(state_->dbg(), pass.shader(), command.geometry_ref(), [this, &command, &geo]() noexcept {
-                    draw_indexed_primitive(
-                        state_->dbg(),
-                        geo.topo(),
-                        geo.indices(),
-                        command.first_index(),
-                        command.index_count());
+            if ( !pass.shader() || !geo.indices() ) {
+                continue;
+            }
+            try {
+                const property_block& main_props = main_property_cache()
+                    .merge(mat.properties())
+                    .merge(pass.properties())
+                    .merge(props);
+                state_->set_states(pass.states());
+                state_->set_shader_program(pass.shader());
+                with_material_shader(state_->dbg(), pass.shader(), main_props, [this, &command, &pass, &geo]() noexcept {
+                    with_geometry_vertices(state_->dbg(), pass.shader(), command.geometry_ref(), [this, &command, &geo]() noexcept {
+                        draw_indexed_primitive(
+                            state_->dbg(),
+                            geo.topo(),
+                            geo.indices(),
+                            command.first_index(),
+                            command.index_count());
+                    });
                 });
-            });
+            } catch (...) {
+                main_property_cache().clear();
+                throw;
+            }
             main_property_cache().clear();
         }
         return *this;

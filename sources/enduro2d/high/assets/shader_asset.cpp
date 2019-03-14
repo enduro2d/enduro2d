@@ -4,7 +4,10 @@
  * Copyright (C) 2018 Matvey Cherevko
  ******************************************************************************/
 
-#include "assets.hpp"
+#include <enduro2d/high/assets/shader_asset.hpp>
+
+#include "json_asset.hpp"
+#include <enduro2d/high/assets/text_asset.hpp>
 
 namespace
 {
@@ -22,14 +25,8 @@ namespace
             "required" : [ "vertex", "fragment" ],
             "additionalProperties" : false,
             "properties" : {
-                "vertex" : { "$ref": "#/definitions/generic_address" },
-                "fragment" : { "$ref": "#/definitions/generic_address" }
-            },
-            "definitions" : {
-                "generic_address" : {
-                    "type" : "string",
-                    "minLength" : 1
-                }
+                "vertex" : { "$ref": "#/common_definitions/address" },
+                "fragment" : { "$ref": "#/common_definitions/address" }
             }
         })json";
 
@@ -44,6 +41,7 @@ namespace
                 the<debug>().error("ASSETS: Failed to parse shader asset schema");
                 throw shader_asset_loading_exception();
             }
+            json_utils::add_common_schema_definitions(doc);
             schema = std::make_unique<rapidjson::SchemaDocument>(doc);
         }
 
@@ -67,16 +65,10 @@ namespace
             std::move(vertex_p),
             std::move(fragment_p)))
         .then([](const std::tuple<
-            text_asset::ptr,
-            text_asset::ptr
+            text_asset::load_result,
+            text_asset::load_result
         >& results){
-            if ( !modules::is_initialized<deferrer>() ) {
-                throw shader_asset_loading_exception();
-            }
             return the<deferrer>().do_in_main_thread([results](){
-                if ( !modules::is_initialized<render>() ) {
-                    throw shader_asset_loading_exception();
-                }
                 const shader_ptr content = the<render>().create_shader(
                     std::get<0>(results)->content(),
                     std::get<1>(results)->content());
@@ -98,10 +90,7 @@ namespace e2d
             .then([
                 &library,
                 parent_address = path::parent_path(address)
-            ](const json_asset::ptr& shader_data){
-                if ( !modules::is_initialized<deferrer>() ) {
-                    throw shader_asset_loading_exception();
-                }
+            ](const json_asset::load_result& shader_data){
                 return the<deferrer>().do_in_worker_thread([shader_data](){
                     const rapidjson::Document& doc = shader_data->content();
                     rapidjson::SchemaValidator validator(shader_asset_schema());
@@ -113,11 +102,9 @@ namespace e2d
                     return parse_shader(
                         library, parent_address, shader_data->content());
                 })
-                .then([](const shader_ptr& shader){
-                    if ( !shader ) {
-                        throw shader_asset_loading_exception();
-                    }
-                    return std::make_shared<shader_asset>(shader);
+                .then([](auto&& content){
+                    return shader_asset::create(
+                        std::forward<decltype(content)>(content));
                 });
             });
     }

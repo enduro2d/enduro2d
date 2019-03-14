@@ -74,6 +74,14 @@ namespace e2d
         noncopyable() = default;
         ~noncopyable() = default;
     };
+
+    class null_disposer {
+    public:
+        template < typename... Args >
+        void operator()(Args&&... args) const noexcept {
+            E2D_UNUSED(std::forward<Args>(args)...);
+        }
+    };
 }
 
 namespace e2d { namespace utils

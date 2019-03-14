@@ -4,7 +4,8 @@
  * Copyright (C) 2018 Matvey Cherevko
  ******************************************************************************/
 
-#include "assets.hpp"
+#include <enduro2d/high/assets/mesh_asset.hpp>
+#include <enduro2d/high/assets/binary_asset.hpp>
 
 namespace
 {
@@ -23,16 +24,13 @@ namespace e2d
         library& library, str_view address)
     {
         return library.load_asset_async<binary_asset>(address)
-            .then([](const binary_asset::ptr& mesh_data){
-                if ( !modules::is_initialized<deferrer>() ) {
-                    throw mesh_asset_loading_exception();
-                }
+            .then([](const binary_asset::load_result& mesh_data){
                 return the<deferrer>().do_in_worker_thread([mesh_data](){
                     mesh content;
                     if ( !meshes::try_load_mesh(content, mesh_data->content()) ) {
                         throw mesh_asset_loading_exception();
                     }
-                    return std::make_shared<mesh_asset>(std::move(content));
+                    return mesh_asset::create(std::move(content));
                 });
             });
     }

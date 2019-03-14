@@ -1,0 +1,6 @@
+{
+    "mesh" : "gnome.e2d_mesh",
+    "materials" : [
+        "gnome_material.json"
+    ]
+}

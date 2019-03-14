@@ -6,8 +6,20 @@
 
 #include <enduro2d/high/starter.hpp>
 
-#include <enduro2d/high/assets.hpp>
+#include <enduro2d/high/world.hpp>
 #include <enduro2d/high/library.hpp>
+
+#include <enduro2d/high/assets/binary_asset.hpp>
+#include <enduro2d/high/assets/image_asset.hpp>
+#include <enduro2d/high/assets/material_asset.hpp>
+#include <enduro2d/high/assets/mesh_asset.hpp>
+#include <enduro2d/high/assets/model_asset.hpp>
+#include <enduro2d/high/assets/shader_asset.hpp>
+#include <enduro2d/high/assets/sprite_asset.hpp>
+#include <enduro2d/high/assets/text_asset.hpp>
+#include <enduro2d/high/assets/texture_asset.hpp>
+
+#include <enduro2d/high/systems/render_system.hpp>
 
 namespace
 {
@@ -22,29 +34,60 @@ namespace
 
     class starter_application final : public application {
     public:
-        starter_application(application_uptr application)
-        : application_(std::move(application)) {}
+        starter_application(high_application_uptr application)
+        : high_application_(std::move(application)) {}
 
         bool initialize() final {
-            return application_ && application_->initialize();
+            ecs::registry_filler(the<world>().registry())
+                .system<render_system>(world::priority_render);
+            return !high_application_ || high_application_->initialize();
         }
 
         void shutdown() noexcept final {
-            if ( application_ ) {
-                application_->shutdown();
+            if ( high_application_ ) {
+                high_application_->shutdown();
             }
         }
 
         bool frame_tick() final {
-            return application_ && application_->frame_tick();
+            the<world>().registry().process_systems_in_range(
+                world::priority_update_section_begin,
+                world::priority_update_section_end);
+
+            if ( the<window>().should_close() ) {
+                if ( !high_application_ || high_application_->on_should_close() ) {
+                    return false;
+                }
+            }
+
+            the<world>().registry().process_systems_in_range(
+                world::priority_render_section_begin,
+                world::priority_render_section_end);
+
+            return true;
         }
     private:
-        application_uptr application_;
+        high_application_uptr high_application_;
     };
 }
 
 namespace e2d
 {
+    //
+    // high_application
+    //
+
+    bool high_application::initialize() {
+        return true;
+    }
+
+    void high_application::shutdown() noexcept {
+    }
+
+    bool high_application::on_should_close() {
+        return true;
+    }
+
     //
     // starter::parameters
     //
@@ -85,28 +128,34 @@ namespace e2d
     starter::starter(int argc, char *argv[], const parameters& params) {
         safe_module_initialize<engine>(argc, argv, params.engine_params());
         safe_module_initialize<library>(params.library_root());
-        safe_module_initialize<asset_cache<text_asset>>(the<library>());
-        safe_module_initialize<asset_cache<mesh_asset>>(the<library>());
-        safe_module_initialize<asset_cache<image_asset>>(the<library>());
         safe_module_initialize<asset_cache<binary_asset>>(the<library>());
-        safe_module_initialize<asset_cache<shader_asset>>(the<library>());
-        safe_module_initialize<asset_cache<texture_asset>>(the<library>());
+        safe_module_initialize<asset_cache<image_asset>>(the<library>());
         safe_module_initialize<asset_cache<material_asset>>(the<library>());
+        safe_module_initialize<asset_cache<mesh_asset>>(the<library>());
+        safe_module_initialize<asset_cache<model_asset>>(the<library>());
+        safe_module_initialize<asset_cache<shader_asset>>(the<library>());
+        safe_module_initialize<asset_cache<sprite_asset>>(the<library>());
+        safe_module_initialize<asset_cache<text_asset>>(the<library>());
+        safe_module_initialize<asset_cache<texture_asset>>(the<library>());
+        safe_module_initialize<world>();
     }
 
     starter::~starter() noexcept {
-        modules::shutdown<asset_cache<material_asset>>();
+        modules::shutdown<world>();
         modules::shutdown<asset_cache<texture_asset>>();
-        modules::shutdown<asset_cache<shader_asset>>();
-        modules::shutdown<asset_cache<binary_asset>>();
-        modules::shutdown<asset_cache<image_asset>>();
-        modules::shutdown<asset_cache<mesh_asset>>();
         modules::shutdown<asset_cache<text_asset>>();
+        modules::shutdown<asset_cache<sprite_asset>>();
+        modules::shutdown<asset_cache<shader_asset>>();
+        modules::shutdown<asset_cache<model_asset>>();
+        modules::shutdown<asset_cache<mesh_asset>>();
+        modules::shutdown<asset_cache<material_asset>>();
+        modules::shutdown<asset_cache<image_asset>>();
+        modules::shutdown<asset_cache<binary_asset>>();
         modules::shutdown<library>();
         modules::shutdown<engine>();
     }
 
-    bool starter::start(application_uptr app) {
+    bool starter::start(high_application_uptr app) {
         return the<engine>().start(
             std::make_unique<starter_application>(
                 std::move(app)));

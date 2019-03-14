@@ -14,13 +14,6 @@ namespace
 namespace e2d
 {
     //
-    // asset
-    //
-
-    asset::asset() = default;
-    asset::~asset() noexcept = default;
-
-    //
     // library
     //
 

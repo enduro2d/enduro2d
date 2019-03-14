@@ -726,9 +726,21 @@ namespace e2d
         return *this;
     }
 
+    bool render::property_block::equals(const property_block& other) const noexcept {
+        return properties_ == other.properties_
+            && samplers_ == other.samplers_;
+    }
+
     render::property_block& render::property_block::sampler(str_hash name, const sampler_state& s) {
         samplers_[name] = s;
         return *this;
+    }
+
+    render::sampler_state* render::property_block::sampler(str_hash name) noexcept {
+        const auto iter = samplers_.find(name);
+        return iter != samplers_.end()
+            ? &iter->second
+            : nullptr;
     }
 
     const render::sampler_state* render::property_block::sampler(str_hash name) const noexcept {
@@ -741,6 +753,13 @@ namespace e2d
     render::property_block& render::property_block::property(str_hash name, const property_value& v) {
         properties_[name] = v;
         return *this;
+    }
+
+    render::property_value* render::property_block::property(str_hash name) noexcept {
+        const auto iter = properties_.find(name);
+        return iter != properties_.end()
+            ? &iter->second
+            : nullptr;
     }
 
     const render::property_value* render::property_block::property(str_hash name) const noexcept {
@@ -805,6 +824,22 @@ namespace e2d
     // material
     //
 
+    render::material& render::material::clear() noexcept {
+        return *this = material();
+    }
+
+    bool render::material::equals(const material& other) const noexcept {
+        if ( pass_count_ != other.pass_count_ ) {
+            return false;
+        }
+        for ( std::size_t i = 0, e = pass_count_; i < e; ++i ) {
+            if ( passes_[i] != other.passes_[i] ) {
+                return false;
+            }
+        }
+        return properties_ == other.properties_;
+    }
+
     render::material& render::material::add_pass(const pass_state& pass) noexcept {
         E2D_ASSERT(pass_count_ < max_pass_count);
         passes_[pass_count_] = pass;
@@ -840,6 +875,28 @@ namespace e2d
     //
     // geometry
     //
+
+    render::geometry& render::geometry::clear() noexcept {
+        return *this = geometry();
+    }
+
+    bool render::geometry::equals(const geometry& other) const noexcept {
+        if ( topology_ != other.topology_ ) {
+            return false;
+        }
+        if ( indices_ != other.indices_ ) {
+            return false;
+        }
+        if ( vertices_count_ != other.vertices_count_ ) {
+            return false;
+        }
+        for ( std::size_t i = 0, e = vertices_count_; i < e; ++i ) {
+            if ( vertices_[i] != other.vertices_[i] ) {
+                return false;
+            }
+        }
+        return true;
+    }
 
     render::geometry& render::geometry::add_vertices(const vertex_buffer_ptr& vb) noexcept {
         E2D_ASSERT(vertices_count_ < max_vertices_count);
@@ -1170,6 +1227,53 @@ namespace e2d
     }
 
     bool operator!=(const render::capabilities_state& l, const render::capabilities_state& r) noexcept {
+        return !(l == r);
+    }
+
+    bool operator==(const render::property_block& l, const render::property_block& r) noexcept {
+        return l.equals(r);
+    }
+
+    bool operator!=(const render::property_block& l, const render::property_block& r) noexcept {
+        return !(l == r);
+    }
+
+    bool operator==(const render::sampler_state& l, const render::sampler_state& r) noexcept {
+        return l.texture() == r.texture()
+            && l.s_wrap() == r.s_wrap()
+            && l.t_wrap() == r.t_wrap()
+            && l.r_wrap() == r.r_wrap()
+            && l.min_filter() == r.min_filter()
+            && l.mag_filter() == r.mag_filter();
+    }
+
+    bool operator!=(const render::sampler_state& l, const render::sampler_state& r) noexcept {
+        return !(l == r);
+    }
+
+    bool operator==(const render::material& l, const render::material& r) noexcept {
+        return l.equals(r);
+    }
+
+    bool operator!=(const render::material& l, const render::material& r) noexcept {
+        return !(l == r);
+    }
+
+    bool operator==(const render::pass_state& l, const render::pass_state& r) noexcept {
+        return l.shader() == r.shader()
+            && l.states() == r.states()
+            && l.properties() == r.properties();
+    }
+
+    bool operator!=(const render::pass_state& l, const render::pass_state& r) noexcept {
+        return !(l == r);
+    }
+
+    bool operator==(const render::geometry& l, const render::geometry& r) noexcept {
+        return l.equals(r);
+    }
+
+    bool operator!=(const render::geometry& l, const render::geometry& r) noexcept {
         return !(l == r);
     }
 }

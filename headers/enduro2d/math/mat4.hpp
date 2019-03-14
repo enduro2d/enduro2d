@@ -9,6 +9,8 @@
 #include "_math.hpp"
 #include "quat.hpp"
 #include "trig.hpp"
+#include "trs2.hpp"
+#include "trs3.hpp"
 #include "unit.hpp"
 #include "vec2.hpp"
 #include "vec3.hpp"
@@ -489,6 +491,24 @@ namespace e2d { namespace math
             T(2) * (xy - zw),        T(1) - T(2) * (xx + zz), T(2) * (yz + xw),        T(0),
             T(2) * (xz + yw),        T(2) * (yz - xw),        T(1) - T(2) * (xx + yy), T(0),
             T(0),                    T(0),                    T(0),                    T(1)};
+    }
+
+    //
+    // make_trs_matrix4
+    //
+
+    template < typename T >
+    mat4<T> make_trs_matrix4(const trs2<T>& trs) noexcept {
+        return make_scale_matrix4(trs.scale)
+             * make_rotation_matrix4(trs.rotation, v4f::unit_z())
+             * make_translation_matrix4(trs.translation);
+    }
+
+    template < typename T >
+    mat4<T> make_trs_matrix4(const trs3<T>& trs) noexcept {
+        return make_scale_matrix4(trs.scale)
+             * make_rotation_matrix4(trs.rotation)
+             * make_translation_matrix4(trs.translation);
     }
 
     //
