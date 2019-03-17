@@ -253,5 +253,6 @@ int e2d_main(int argc, char *argv[]) {
         .timer_params(engine::timer_parameters()
             .maximal_framerate(100));
     modules::initialize<engine>(argc, argv, params).start<game>();
+    modules::shutdown<engine>();
     return 0;
 }
