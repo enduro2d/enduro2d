@@ -41,6 +41,7 @@ namespace e2d
         void restore() noexcept;
         void minimize() noexcept;
 
+        bool enabled() const noexcept;
         bool visible() const noexcept;
         bool focused() const noexcept;
         bool minimized() const noexcept;

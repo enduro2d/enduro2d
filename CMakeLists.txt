@@ -62,6 +62,15 @@ if(E2D_BUILD_WITH_SANITIZER AND (CMAKE_CXX_COMPILER_ID MATCHES "Clang"))
 endif()
 
 #
+# global compiling mode
+#
+
+if(MSVC)
+    add_definitions(/MP)
+    add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+endif(MSVC)
+
+#
 # e2d sources
 #
 

@@ -172,8 +172,17 @@ namespace
                 the<dbgui>().toggle_visible(!the<dbgui>().visible());
             }
 
+            if ( k.is_key_pressed(keyboard_key::lsuper) && k.is_key_just_released(keyboard_key::enter) ) {
+                the<window>().toggle_fullscreen(!the<window>().fullscreen());
+            }
+
+            return true;
+        }
+
+        void frame_render() final {
             const auto framebuffer_size = the<window>().real_size().cast_to<f32>();
-            const auto projection = math::make_orthogonal_lh_matrix4(framebuffer_size, 0.f, 1.f);
+            const auto projection = math::make_orthogonal_lh_matrix4(
+                framebuffer_size, 0.f, 1.f);
 
             material_.properties()
                 .property("u_time", the<engine>().time())
@@ -185,8 +194,6 @@ namespace
                 .add_command(render::clear_command()
                     .color_value({1.f, 0.4f, 0.f, 1.f}))
                 .add_command(render::draw_command(material_, geometry_)));
-
-            return true;
         }
     private:
         shader_ptr shader_;
@@ -205,5 +212,6 @@ int e2d_main(int argc, char *argv[]) {
         .timer_params(engine::timer_parameters()
             .maximal_framerate(100));
     modules::initialize<engine>(argc, argv, params).start<game>();
+    modules::shutdown<engine>();
     return 0;
 }

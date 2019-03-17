@@ -22,6 +22,7 @@ namespace e2d
         bool fullscreen = false;
         bool cursor_hidden = false;
         bool should_close = false;
+        bool enabled = true;
         bool visible = true;
         bool focused = true;
         bool minimized = false;
@@ -80,6 +81,11 @@ namespace e2d
             state_->minimized = true;
             state_->for_all_listeners(&event_listener::on_window_minimize, true);
         }
+    }
+
+    bool window::enabled() const noexcept {
+        std::lock_guard<std::recursive_mutex> guard(state_->rmutex);
+        return state_->enabled;
     }
 
     bool window::visible() const noexcept {

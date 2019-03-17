@@ -124,7 +124,7 @@ namespace e2d { namespace render_system_impl
                 std::transform(
                     iter, indices_.end(), iter,
                     [add = vertices_.size()](index_type v) noexcept {
-                        return v + add;
+                        return static_cast<index_type>(v + add);
                     });
                 batches_.back().count += index_count;
             }
