@@ -255,7 +255,9 @@ namespace e2d
         std::recursive_mutex rmutex;
         glfw_state_ptr shared_state;
         window_uptr window;
+        v2u real_size;
         v2u virtual_size;
+        v2u framebuffer_size;
         str title;
         bool vsync = false;
         bool fullscreen = false;
@@ -264,21 +266,32 @@ namespace e2d
         state(const v2u& size, str_view ntitle, bool nvsync, bool nfullscreen)
         : shared_state(glfw_state::get_shared_state())
         , window(nullptr, glfwDestroyWindow)
+        , real_size(size)
         , virtual_size(size)
+        , framebuffer_size(size)
         , title(ntitle)
         , vsync(nvsync)
         , fullscreen(nfullscreen)
         {
-            window = open_window_(size, make_utf8(ntitle), vsync, fullscreen);
+            window = open_window_(
+                size,
+                make_utf8(ntitle),
+                vsync,
+                fullscreen);
+
             if ( !window ) {
                 throw bad_window_operation();
             }
+
+            update_window_sizes();
             glfwSetWindowUserPointer(window.get(), this);
+
             glfwSetCharCallback(window.get(), input_char_callback_);
             glfwSetCursorPosCallback(window.get(), move_cursor_callback_);
             glfwSetScrollCallback(window.get(), mouse_scroll_callback_);
             glfwSetMouseButtonCallback(window.get(), mouse_button_callback_);
             glfwSetKeyCallback(window.get(), keyboard_key_callback_);
+            glfwSetWindowSizeCallback(window.get(), window_size_callback_);
             glfwSetWindowCloseCallback(window.get(), window_close_callback_);
             glfwSetWindowFocusCallback(window.get(), window_focus_callback_);
             glfwSetWindowIconifyCallback(window.get(), window_minimize_callback_);
@@ -287,6 +300,21 @@ namespace e2d
         ~state() noexcept {
             // reset window before shared state
             window.reset();
+        }
+
+        void update_window_sizes() noexcept {
+            std::lock_guard<std::recursive_mutex> guard(rmutex);
+            E2D_ASSERT(window);
+            {
+                int w = 0, h = 0;
+                glfwGetWindowSize(window.get(), &w, &h);
+                real_size = make_vec2(w, h).cast_to<u32>();
+            }
+            {
+                int w = 0, h = 0;
+                glfwGetFramebufferSize(window.get(), &w, &h);
+                framebuffer_size = make_vec2(w, h).cast_to<u32>();
+            }
         }
 
         template < typename F, typename... Args >
@@ -308,7 +336,10 @@ namespace e2d
         }
     private:
         static window_uptr open_window_(
-            const v2u& virtual_size, const str& title, bool vsync, bool fullscreen) noexcept
+            const v2u& virtual_size,
+            const str& title,
+            bool vsync,
+            bool fullscreen) noexcept
         {
             GLFWmonitor* monitor = glfwGetPrimaryMonitor();
             if ( !monitor ) {
@@ -396,6 +427,14 @@ namespace e2d
                     convert_glfw_keyboard_key(key),
                     math::numeric_cast<u32>(scancode),
                     convert_glfw_keyboard_key_action(action));
+            }
+        }
+
+        static void window_size_callback_(GLFWwindow* window, int w, int h) noexcept {
+            E2D_UNUSED(w, h);
+            state* self = static_cast<state*>(glfwGetWindowUserPointer(window));
+            if ( self ) {
+                self->update_window_sizes();
             }
         }
 
@@ -541,10 +580,7 @@ namespace e2d
 
     v2u window::real_size() const noexcept {
         std::lock_guard<std::recursive_mutex> guard(state_->rmutex);
-        int w = 0, h = 0;
-        E2D_ASSERT(state_->window);
-        glfwGetWindowSize(state_->window.get(), &w, &h);
-        return make_vec2(w,h).cast_to<u32>();
+        return state_->real_size;
     }
 
     v2u window::virtual_size() const noexcept {
@@ -554,10 +590,7 @@ namespace e2d
 
     v2u window::framebuffer_size() const noexcept {
         std::lock_guard<std::recursive_mutex> guard(state_->rmutex);
-        int w = 0, h = 0;
-        E2D_ASSERT(state_->window);
-        glfwGetFramebufferSize(state_->window.get(), &w, &h);
-        return make_vec2(w,h).cast_to<u32>();
+        return state_->framebuffer_size;
     }
 
     const str& window::title() const noexcept {
