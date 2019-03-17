@@ -458,6 +458,16 @@ namespace e2d
         glfwIconifyWindow(state_->window.get());
     }
 
+    bool window::enabled() const noexcept {
+        std::lock_guard<std::recursive_mutex> guard(state_->rmutex);
+        if ( !state_->window || state_->window.get() != glfwGetCurrentContext() ) {
+            return false;
+        }
+        int w = 0, h = 0;
+        glfwGetWindowSize(state_->window.get(), &w, &h);
+        return w > 0 && h > 0;
+    }
+
     bool window::visible() const noexcept {
         std::lock_guard<std::recursive_mutex> guard(state_->rmutex);
         E2D_ASSERT(state_->window);

@@ -55,6 +55,9 @@ namespace e2d
         return true;
     }
 
+    void application::frame_render() {
+    }
+
     //
     // engine::debug_parameters
     //
@@ -431,8 +434,12 @@ namespace e2d
                     break;
                 }
 
-                the<dbgui>().frame_render();
-                the<window>().swap_buffers();
+                if ( the<window>().enabled() ) {
+                    app->frame_render();
+                    the<dbgui>().frame_render();
+                    the<window>().swap_buffers();
+                }
+
                 state_->calculate_end_frame_timers();
             } catch ( ... ) {
                 app->shutdown();

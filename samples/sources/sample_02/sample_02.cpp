@@ -198,6 +198,10 @@ namespace
                 the<dbgui>().toggle_visible(!the<dbgui>().visible());
             }
 
+            return true;
+        }
+
+        void frame_render() final {
             const auto framebuffer_size = the<window>().real_size().cast_to<f32>();
             const auto projection = math::make_perspective_lh_matrix4(
                 make_deg(45.f),
@@ -210,7 +214,7 @@ namespace
                 math::make_rotation_matrix4(make_rad(the<engine>().time()), 0.f, 1.f, 0.f) *
                 math::make_rotation_matrix4(make_rad(the<engine>().time()), 0.f, 0.f, 1.f) *
                 math::make_translation_matrix4(0.f, 0.f, 0.f) *
-                math::make_loot_at_lh_matrix4({0.f,0.f,-2.f}, v3f::zero(), v3f::unit_y()) *
+                math::make_loot_at_lh_matrix4({0.f, 0.f, -2.f}, v3f::zero(), v3f::unit_y()) *
                 projection;
 
             material_.properties()
@@ -232,8 +236,6 @@ namespace
                 .add_command(render::clear_command()
                     .color_value({1.f, 0.4f, 0.f, 1.f}))
                 .add_command(render::draw_command(material_, geometry_, rt_props_)));
-
-            return true;
         }
     private:
         shader_ptr shader_;

@@ -172,8 +172,13 @@ namespace
                 the<dbgui>().toggle_visible(!the<dbgui>().visible());
             }
 
+            return true;
+        }
+
+        void frame_render() final {
             const auto framebuffer_size = the<window>().real_size().cast_to<f32>();
-            const auto projection = math::make_orthogonal_lh_matrix4(framebuffer_size, 0.f, 1.f);
+            const auto projection = math::make_orthogonal_lh_matrix4(
+                framebuffer_size, 0.f, 1.f);
 
             material_.properties()
                 .property("u_time", the<engine>().time())
@@ -185,8 +190,6 @@ namespace
                 .add_command(render::clear_command()
                     .color_value({1.f, 0.4f, 0.f, 1.f}))
                 .add_command(render::draw_command(material_, geometry_)));
-
-            return true;
         }
     private:
         shader_ptr shader_;

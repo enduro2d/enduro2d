@@ -53,18 +53,14 @@ namespace
             the<world>().registry().process_systems_in_range(
                 world::priority_update_section_begin,
                 world::priority_update_section_end);
+            return !the<window>().should_close()
+                || (high_application_ && !high_application_->on_should_close());
+        }
 
-            if ( the<window>().should_close() ) {
-                if ( !high_application_ || high_application_->on_should_close() ) {
-                    return false;
-                }
-            }
-
+        void frame_render() final {
             the<world>().registry().process_systems_in_range(
                 world::priority_render_section_begin,
                 world::priority_render_section_end);
-
-            return true;
         }
     private:
         high_application_uptr high_application_;

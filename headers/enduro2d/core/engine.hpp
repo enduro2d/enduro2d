@@ -20,6 +20,7 @@ namespace e2d
         virtual bool initialize();
         virtual void shutdown() noexcept;
         virtual bool frame_tick();
+        virtual void frame_render();
     };
     using application_uptr = std::unique_ptr<application>;
 
