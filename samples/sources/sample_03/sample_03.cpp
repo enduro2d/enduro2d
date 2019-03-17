@@ -18,11 +18,17 @@ namespace
         void process(ecs::registry& owner) override {
             E2D_UNUSED(owner);
             const keyboard& k = the<input>().keyboard();
+
             if ( k.is_key_just_released(keyboard_key::f12) ) {
                 the<dbgui>().toggle_visible(!the<dbgui>().visible());
             }
+
             if ( k.is_key_just_released(keyboard_key::escape) ) {
                 the<window>().set_should_close(true);
+            }
+
+            if ( k.is_key_pressed(keyboard_key::lsuper) && k.is_key_just_released(keyboard_key::enter) ) {
+                the<window>().toggle_fullscreen(!the<window>().fullscreen());
             }
         }
     };

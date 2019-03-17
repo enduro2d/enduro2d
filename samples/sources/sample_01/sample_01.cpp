@@ -228,6 +228,10 @@ namespace
                 the<dbgui>().toggle_visible(!the<dbgui>().visible());
             }
 
+            if ( k.is_key_pressed(keyboard_key::lsuper) && k.is_key_just_released(keyboard_key::enter) ) {
+                the<window>().toggle_fullscreen(!the<window>().fullscreen());
+            }
+
             return true;
         }
 
