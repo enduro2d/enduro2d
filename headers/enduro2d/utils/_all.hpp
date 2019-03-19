@@ -19,6 +19,7 @@
 #include "mesh.hpp"
 #include "module.hpp"
 #include "path.hpp"
+#include "shape.hpp"
 #include "streams.hpp"
 #include "strfmts.hpp"
 #include "strings.hpp"
