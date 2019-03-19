@@ -96,6 +96,9 @@ TEST_CASE("library"){
             REQUIRE(texture_res);
             REQUIRE(texture_res->content());
 
+            auto atlas_res = l.load_asset<atlas_asset>("atlas.json");
+            REQUIRE(atlas_res);
+
             auto sprite_res = l.load_asset<sprite_asset>("sprite.json");
             REQUIRE(sprite_res);
             REQUIRE(sprite_res->content().size() == v2f(10.f, 20.f));

@@ -49,6 +49,7 @@ namespace e2d
     class asset_cache;
     class asset_cache_base;
 
+    class atlas;
     class model;
     class node;
     class sprite;

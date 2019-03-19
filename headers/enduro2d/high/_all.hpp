@@ -8,6 +8,7 @@
 
 #include "_high.hpp"
 
+#include "assets/atlas_asset.hpp"
 #include "assets/binary_asset.hpp"
 #include "assets/image_asset.hpp"
 #include "assets/material_asset.hpp"
@@ -27,6 +28,7 @@
 
 #include "systems/render_system.hpp"
 
+#include "atlas.hpp"
 #include "library.hpp"
 #include "library.inl"
 #include "model.hpp"
