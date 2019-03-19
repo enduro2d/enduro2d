@@ -108,13 +108,35 @@
     parent-child relationships
     ```
 
-## `Milestone IV (advanced high)`
+## `Milestone IV (advanced core and high)`
+
+- ### `advanced core`
+
+  - [ ] `audio`
+    ```
+    vorbis, streaming
+    ```
+    
+  - [ ] `network`
+    ```
+    tcp/udp sockets
+    http/https requests
+    ```
 
 - ### `advanced high`
 
   - [ ] `sprites`
     ```
-    static and frame-by-frame animations
+    texture atlases
+    quad and polygon sprites
+    ```
+
+  - [ ] `debug`
+
+    ```
+    system profilers
+    hot library reloading
+    resource and component inspectors
     ```
 
   - [x] `ECS`
@@ -123,17 +145,30 @@
     component processing and joins
     ```
 
-  - [ ] `animations`
+  - [ ] `game objects`
+
     ```
-    tweeners and spine runtime
+    entity prefabs
+    smart entity wrapper
     ```
 
-  - [ ] `labels`
+  - [ ] `animations`
     ```
-    ttf, bmfont
+    flipbook, tweens and embedded spine runtime
+    ```
+
+  - [ ] `text labels`
+    ```
+    ttf, bmfont, sdf
     ```
 
   - [ ] `scripting`
     ```
     lua runtime and bindings
     ```
+
+  - [ ] `asset bundles`
+    ```
+    downloadable resource packs
+    ```
+
