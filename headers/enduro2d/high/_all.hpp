@@ -15,6 +15,7 @@
 #include "assets/mesh_asset.hpp"
 #include "assets/model_asset.hpp"
 #include "assets/shader_asset.hpp"
+#include "assets/shape_asset.hpp"
 #include "assets/sprite_asset.hpp"
 #include "assets/text_asset.hpp"
 #include "assets/texture_asset.hpp"

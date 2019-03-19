@@ -15,6 +15,7 @@
 #include <enduro2d/high/assets/mesh_asset.hpp>
 #include <enduro2d/high/assets/model_asset.hpp>
 #include <enduro2d/high/assets/shader_asset.hpp>
+#include <enduro2d/high/assets/shape_asset.hpp>
 #include <enduro2d/high/assets/sprite_asset.hpp>
 #include <enduro2d/high/assets/text_asset.hpp>
 #include <enduro2d/high/assets/texture_asset.hpp>
@@ -130,6 +131,7 @@ namespace e2d
         safe_module_initialize<asset_cache<mesh_asset>>(the<library>());
         safe_module_initialize<asset_cache<model_asset>>(the<library>());
         safe_module_initialize<asset_cache<shader_asset>>(the<library>());
+        safe_module_initialize<asset_cache<shape_asset>>(the<library>());
         safe_module_initialize<asset_cache<sprite_asset>>(the<library>());
         safe_module_initialize<asset_cache<text_asset>>(the<library>());
         safe_module_initialize<asset_cache<texture_asset>>(the<library>());
@@ -141,6 +143,7 @@ namespace e2d
         modules::shutdown<asset_cache<texture_asset>>();
         modules::shutdown<asset_cache<text_asset>>();
         modules::shutdown<asset_cache<sprite_asset>>();
+        modules::shutdown<asset_cache<shape_asset>>();
         modules::shutdown<asset_cache<shader_asset>>();
         modules::shutdown<asset_cache<model_asset>>();
         modules::shutdown<asset_cache<mesh_asset>>();
