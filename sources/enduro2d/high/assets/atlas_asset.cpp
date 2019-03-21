@@ -21,10 +21,47 @@ namespace
     const char* atlas_asset_schema_source = R"json(
     {
         "type" : "object",
-        "required" : [ "texture" ],
+        "required" : [ "texture", "pixels_per_unit" ],
         "additionalProperties" : false,
         "properties" : {
-            "texture" : { "$ref": "#/common_definitions/address" }
+            "texture" : { "$ref": "#/common_definitions/address" },
+            "pixels_per_unit" : { "type" : "number" },
+            "regions" : { "$ref": "#/definitions/regions" },
+            "shape_regions" : { "$ref": "#/definitions/shape_regions" }
+        },
+        "definitions" : {
+            "regions" : {
+                "type" : "array",
+                "items" : { "$ref": "#/definitions/region" }
+            },
+            "region" : {
+                "type" : "object",
+                "required" : [ "name", "pivot", "texrect" ],
+                "additionalProperties" : false,
+                "properties" : {
+                    "name" : { "$ref": "#/common_definitions/name" },
+                    "pivot" : { "$ref": "#/common_definitions/v2" },
+                    "texrect" : { "$ref": "#/common_definitions/b2" }
+                }
+            },
+            "shape_regions" : {
+                "type" : "array",
+                "items" : { "$ref": "#/definitions/shape_region" }
+            },
+            "shape_region" : {
+                "type" : "object",
+                "required" : [ "name", "pivot", "points" ],
+                "additionalProperties" : false,
+                "properties" : {
+                    "name" : { "$ref": "#/common_definitions/name" },
+                    "pivot" : { "$ref": "#/common_definitions/v2" },
+                    "points" : {
+                        "type" : "array",
+                        "minItems" : 3,
+                        "items" : { "$ref": "#/common_definitions/v2" }
+                    }
+                }
+            }
         }
     })json";
 
@@ -46,13 +83,116 @@ namespace
         return *schema;
     }
 
+    bool parse_regions(
+        const rapidjson::Value& root,
+        vector<atlas::region>& regions)
+    {
+        E2D_ASSERT(root.IsArray());
+        vector<atlas::region> tregions(root.Size());
+
+        for ( rapidjson::SizeType i = 0; i < root.Size(); ++i ) {
+            E2D_ASSERT(root[i].IsObject());
+            const auto& region_json = root[i];
+
+            E2D_ASSERT(region_json.HasMember("name"));
+            if ( !json_utils::try_parse_value(region_json["name"], tregions[i].name) ) {
+                return false;
+            }
+
+            E2D_ASSERT(region_json.HasMember("pivot"));
+            if ( !json_utils::try_parse_value(region_json["pivot"], tregions[i].pivot) ) {
+                return false;
+            }
+
+            E2D_ASSERT(region_json.HasMember("texrect"));
+            if ( !json_utils::try_parse_value(region_json["texrect"], tregions[i].texrect) ) {
+                return false;
+            }
+        }
+
+        regions = std::move(tregions);
+        return true;
+    }
+
+    bool parse_shape_regions(
+        const rapidjson::Value& root,
+        vector<atlas::shape_region>& regions)
+    {
+        E2D_ASSERT(root.IsArray());
+        vector<atlas::shape_region> tregions(root.Size());
+
+        for ( rapidjson::SizeType i = 0; i < root.Size(); ++i ) {
+            E2D_ASSERT(root[i].IsObject());
+            const auto& region_json = root[i];
+
+            E2D_ASSERT(region_json.HasMember("name"));
+            if ( !json_utils::try_parse_value(region_json["name"], tregions[i].name) ) {
+                return false;
+            }
+
+            E2D_ASSERT(region_json.HasMember("pivot"));
+            if ( !json_utils::try_parse_value(region_json["pivot"], tregions[i].pivot) ) {
+                return false;
+            }
+
+            E2D_ASSERT(region_json.HasMember("points"));
+            if ( !json_utils::try_parse_values(region_json["points"], tregions[i].points) ) {
+                return false;
+            }
+        }
+
+        regions = std::move(tregions);
+        return true;
+    }
+
     stdex::promise<atlas> parse_atlas(
         library& library,
         str_view parent_address,
         const rapidjson::Value& root)
     {
-        E2D_UNUSED(library, parent_address, root);
-        return stdex::make_resolved_promise<atlas>(atlas());
+        E2D_ASSERT(root.HasMember("texture") && root["texture"].IsString());
+        auto texture_p = library.load_asset_async<texture_asset>(
+            path::combine(parent_address, root["texture"].GetString()));
+
+        f32 pixels_per_unit = 1.f;
+        E2D_ASSERT(root.HasMember("pixels_per_unit"));
+        if ( !json_utils::try_parse_value(root["pixels_per_unit"], pixels_per_unit) ) {
+            return stdex::make_rejected_promise<atlas>(
+                atlas_asset_loading_exception());
+        }
+
+        vector<atlas::region> regions;
+        if ( root.HasMember("regions") ) {
+            E2D_ASSERT(root["regions"].IsArray());
+            const auto& regions_json = root["regions"];
+            if ( !parse_regions(regions_json, regions) ) {
+                return stdex::make_rejected_promise<atlas>(
+                    atlas_asset_loading_exception());
+            }
+        }
+
+        vector<atlas::shape_region> shape_regions;
+        if ( root.HasMember("shape_regions") ) {
+            E2D_ASSERT(root["shape_regions"].IsArray());
+            const auto& shape_regions_json = root["shape_regions"];
+            if ( !parse_shape_regions(shape_regions_json, shape_regions) ) {
+                return stdex::make_rejected_promise<atlas>(
+                    atlas_asset_loading_exception());
+            }
+        }
+
+        return texture_p.then([
+            pixels_per_unit,
+            regions = std::move(regions),
+            shape_regions = std::move(shape_regions)
+        ](const texture_asset::load_result& texture) mutable {
+            atlas content;
+            content.set_texture(texture);
+            content.set_pixels_per_unit(pixels_per_unit);
+            content.set_regions(std::move(regions));
+            content.set_shape_regions(std::move(shape_regions));
+            return content;
+        });
     }
 }
 
