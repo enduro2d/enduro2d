@@ -99,7 +99,6 @@ TEST_CASE("library"){
             auto atlas_res = l.load_asset<atlas_asset>("atlas.json");
             REQUIRE(atlas_res);
             REQUIRE(atlas_res->content().texture() == texture_res);
-            REQUIRE(math::approximately(atlas_res->content().pixels_per_unit(), 2.f));
             REQUIRE(atlas_res->content().regions().size() == 1);
             REQUIRE(atlas_res->content().find_region("sprite"));
             REQUIRE(atlas_res->content().find_region("sprite")->name == make_hash("sprite"));

@@ -29,7 +29,6 @@ namespace e2d
 
     void atlas::clear() noexcept {
         texture_.reset();
-        pixels_per_unit_ = 1.f;
         regions_.clear();
         shape_regions_.clear();
     }
@@ -37,7 +36,6 @@ namespace e2d
     void atlas::swap(atlas& other) noexcept {
         using std::swap;
         swap(texture_, other.texture_);
-        swap(pixels_per_unit_, other.pixels_per_unit_);
         swap(regions_, other.regions_);
         swap(shape_regions_, other.shape_regions_);
     }
@@ -54,7 +52,6 @@ namespace e2d
         if ( this != &other ) {
             atlas s;
             s.texture_ = other.texture_;
-            s.pixels_per_unit_ = other.pixels_per_unit_;
             s.regions_ = other.regions_;
             s.shape_regions_ = other.shape_regions_;
             swap(s);
@@ -69,15 +66,6 @@ namespace e2d
 
     const texture_asset::ptr& atlas::texture() const noexcept {
         return texture_;
-    }
-
-    atlas& atlas::set_pixels_per_unit(f32 pixels_per_unit) noexcept {
-        pixels_per_unit_ = pixels_per_unit;
-        return *this;
-    }
-
-    f32 atlas::pixels_per_unit() const noexcept {
-        return pixels_per_unit_;
     }
 
     atlas& atlas::set_regions(vector<region>&& regions) noexcept {
@@ -147,7 +135,6 @@ namespace e2d
 
     bool operator==(const atlas& l, const atlas& r) noexcept {
         return l.texture() == r.texture()
-            && math::approximately(l.pixels_per_unit(), r.pixels_per_unit())
             && l.regions() == r.regions()
             && l.shape_regions() == r.shape_regions();
     }

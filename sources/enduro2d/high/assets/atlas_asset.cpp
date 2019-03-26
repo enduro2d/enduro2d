@@ -21,11 +21,10 @@ namespace
     const char* atlas_asset_schema_source = R"json(
     {
         "type" : "object",
-        "required" : [ "texture", "pixels_per_unit" ],
+        "required" : [ "texture" ],
         "additionalProperties" : false,
         "properties" : {
             "texture" : { "$ref": "#/common_definitions/address" },
-            "pixels_per_unit" : { "type" : "number" },
             "regions" : { "$ref": "#/definitions/regions" },
             "shape_regions" : { "$ref": "#/definitions/shape_regions" }
         },
@@ -154,13 +153,6 @@ namespace
         auto texture_p = library.load_asset_async<texture_asset>(
             path::combine(parent_address, root["texture"].GetString()));
 
-        f32 pixels_per_unit = 1.f;
-        E2D_ASSERT(root.HasMember("pixels_per_unit"));
-        if ( !json_utils::try_parse_value(root["pixels_per_unit"], pixels_per_unit) ) {
-            return stdex::make_rejected_promise<atlas>(
-                atlas_asset_loading_exception());
-        }
-
         vector<atlas::region> regions;
         if ( root.HasMember("regions") ) {
             E2D_ASSERT(root["regions"].IsArray());
@@ -182,13 +174,11 @@ namespace
         }
 
         return texture_p.then([
-            pixels_per_unit,
             regions = std::move(regions),
             shape_regions = std::move(shape_regions)
         ](const texture_asset::load_result& texture) mutable {
             atlas content;
             content.set_texture(texture);
-            content.set_pixels_per_unit(pixels_per_unit);
             content.set_regions(std::move(regions));
             content.set_shape_regions(std::move(shape_regions));
             return content;

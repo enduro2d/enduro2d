@@ -1,6 +1,5 @@
 {
     "texture" : "image.png",
-    "pixels_per_unit" : 2,
     "regions" : [{
         "name" : "sprite",
         "pivot" : { "x" : 1, "y" : 2 },

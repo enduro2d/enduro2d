@@ -44,9 +44,6 @@ namespace e2d
         atlas& set_texture(const texture_asset::ptr& texture) noexcept;
         const texture_asset::ptr& texture() const noexcept;
 
-        atlas& set_pixels_per_unit(f32 pixels_per_unit) noexcept;
-        f32 pixels_per_unit() const noexcept;
-
         atlas& set_regions(vector<region>&& regions) noexcept;
         atlas& set_regions(const vector<region>& regions);
         const vector<region>& regions() const noexcept;
@@ -58,7 +55,6 @@ namespace e2d
         const shape_region* find_shape_region(str_hash name) const noexcept;
     private:
         texture_asset::ptr texture_;
-        f32 pixels_per_unit_{1.f};
         vector<region> regions_;
         vector<shape_region> shape_regions_;
     };
