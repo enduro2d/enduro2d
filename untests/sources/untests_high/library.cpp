@@ -75,13 +75,13 @@ TEST_CASE("library"){
         REQUIRE(the<asset_cache<image_asset>>().find("image.png"));
         REQUIRE(the<asset_cache<binary_asset>>().find("image.png"));
 
-        the<deferrer>().worker().wait_all();
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
         the<asset_cache<binary_asset>>().unload_self_unused_assets();
         REQUIRE(the<asset_cache<image_asset>>().find("image.png"));
         REQUIRE_FALSE(the<asset_cache<binary_asset>>().find("image.png"));
 
         image_res.reset();
-        the<deferrer>().worker().wait_all();
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
         the<asset_cache<image_asset>>().unload_self_unused_assets();
         REQUIRE_FALSE(the<asset_cache<image_asset>>().find("image.png"));
         REQUIRE_FALSE(the<asset_cache<binary_asset>>().find("image.png"));
