@@ -20,6 +20,7 @@ namespace e2d
 
 namespace e2d
 {
+    class atlas_asset;
     class binary_asset;
     class image_asset;
     class material_asset;

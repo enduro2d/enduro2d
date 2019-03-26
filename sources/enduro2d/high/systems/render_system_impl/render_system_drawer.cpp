@@ -157,16 +157,16 @@ namespace e2d { namespace render_system_impl
         const f32 th = tex_r.size.y / tex_s.y;
 
         const m4f& sm = node->world_matrix();
-        const color& tn = spr_r.tint();
+        const color32 tc = color32(spr_r.tint());
 
         const batcher_type::index_type indices[] = {
             0u, 1u, 2u, 2u, 3u, 0u};
 
         const batcher_type::vertex_type vertices[] = {
-            { v3f(p1 * sm), {tx + 0.f, ty + 0.f}, color32(tn) },
-            { v3f(p2 * sm), {tx + tw,  ty + 0.f}, color32(tn) },
-            { v3f(p3 * sm), {tx + tw,  ty + th }, color32(tn) },
-            { v3f(p4 * sm), {tx + 0.f, ty + th }, color32(tn) }};
+            { v3f(p1 * sm), {tx + 0.f, ty + 0.f}, tc },
+            { v3f(p2 * sm), {tx + tw,  ty + 0.f}, tc },
+            { v3f(p3 * sm), {tx + tw,  ty + th }, tc },
+            { v3f(p4 * sm), {tx + 0.f, ty + th }, tc }};
 
         const render::sampler_min_filter min_filter = spr_r.filtering()
             ? render::sampler_min_filter::linear

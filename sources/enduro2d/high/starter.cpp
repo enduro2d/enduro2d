@@ -9,6 +9,7 @@
 #include <enduro2d/high/world.hpp>
 #include <enduro2d/high/library.hpp>
 
+#include <enduro2d/high/assets/atlas_asset.hpp>
 #include <enduro2d/high/assets/binary_asset.hpp>
 #include <enduro2d/high/assets/image_asset.hpp>
 #include <enduro2d/high/assets/material_asset.hpp>
@@ -125,6 +126,7 @@ namespace e2d
     starter::starter(int argc, char *argv[], const parameters& params) {
         safe_module_initialize<engine>(argc, argv, params.engine_params());
         safe_module_initialize<library>(params.library_root());
+        safe_module_initialize<asset_cache<atlas_asset>>(the<library>());
         safe_module_initialize<asset_cache<binary_asset>>(the<library>());
         safe_module_initialize<asset_cache<image_asset>>(the<library>());
         safe_module_initialize<asset_cache<material_asset>>(the<library>());
@@ -150,6 +152,7 @@ namespace e2d
         modules::shutdown<asset_cache<material_asset>>();
         modules::shutdown<asset_cache<image_asset>>();
         modules::shutdown<asset_cache<binary_asset>>();
+        modules::shutdown<asset_cache<atlas_asset>>();
         modules::shutdown<library>();
         modules::shutdown<engine>();
     }
