@@ -317,10 +317,10 @@ namespace e2d
             convert_blending_equation(bs.rgb_equation()),
             convert_blending_equation(bs.alpha_equation())));
         GL_CHECK_CODE(debug_, glColorMask(
-            (math::enum_to_number(bs.color_mask()) & math::enum_to_number(blending_color_mask::r)) != 0,
-            (math::enum_to_number(bs.color_mask()) & math::enum_to_number(blending_color_mask::g)) != 0,
-            (math::enum_to_number(bs.color_mask()) & math::enum_to_number(blending_color_mask::b)) != 0,
-            (math::enum_to_number(bs.color_mask()) & math::enum_to_number(blending_color_mask::a)) != 0));
+            (utils::enum_to_underlying(bs.color_mask()) & utils::enum_to_underlying(blending_color_mask::r)) != 0,
+            (utils::enum_to_underlying(bs.color_mask()) & utils::enum_to_underlying(blending_color_mask::g)) != 0,
+            (utils::enum_to_underlying(bs.color_mask()) & utils::enum_to_underlying(blending_color_mask::b)) != 0,
+            (utils::enum_to_underlying(bs.color_mask()) & utils::enum_to_underlying(blending_color_mask::a)) != 0));
 
         state_block_.blending(bs);
         return *this;

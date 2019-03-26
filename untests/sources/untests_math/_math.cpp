@@ -452,26 +452,6 @@ TEST_CASE("math") {
         REQUIRE(math::is_near_zero(-0.0001f, 0.001f));
     }
     {
-        enum class ee_u8 : u8 {
-            ee1 = 10,
-            ee2 = 42
-        };
-        enum class ee_i16 : i16 {
-            ee1 = 10,
-            ee2 = 42
-        };
-        auto e1 = math::enum_to_number(ee_u8::ee1);
-        auto e2 = math::enum_to_number(ee_i16::ee2);
-        REQUIRE(e1 == u8(10));
-        REQUIRE(e2 == i16(42));
-        static_assert(
-            std::is_same<u8, decltype(e1)>::value,
-            "static unit test error");
-        static_assert(
-            std::is_same<i16, decltype(e2)>::value,
-            "static unit test error");
-    }
-    {
         REQUIRE(math::approximately(math::lerp(1.f, 11.f, 0.f), 1.f));
         REQUIRE(math::approximately(math::lerp(1.f, 11.f, 0.5f), 6.f));
         REQUIRE(math::approximately(math::lerp(1.f, 11.f, 1.f), 11.f));

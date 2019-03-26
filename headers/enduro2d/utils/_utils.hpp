@@ -136,4 +136,14 @@ namespace e2d { namespace utils
         E2D_ASSERT(begin <= end);
         return impl::sdbm_hash_impl(init, begin, end);
     }
+
+    //
+    // enum_to_underlying
+    //
+
+    template < typename E
+             , typename = std::enable_if<std::is_enum<E>::value> >
+    constexpr std::underlying_type_t<E> enum_to_underlying(E e) noexcept {
+        return static_cast<std::underlying_type_t<E>>(e);
+    }
 }}

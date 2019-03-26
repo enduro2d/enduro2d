@@ -36,7 +36,7 @@ namespace
 
         void on_keyboard_key(keyboard_key key, u32 scancode, keyboard_key_action act) noexcept final {
             E2D_UNUSED(scancode);
-            auto key_i = math::enum_to_number(key);
+            auto key_i = utils::enum_to_underlying(key);
             if ( key_i < E2D_COUNTOF(io_.KeysDown) ) {
                 switch ( act ) {
                     case keyboard_key_action::press:
@@ -210,7 +210,7 @@ namespace e2d
         void setup_key_map_(ImGuiIO& io) noexcept {
             const auto map_key = [&io](ImGuiKey_ imgui_key, keyboard_key key) noexcept {
                 E2D_ASSERT(imgui_key < ImGuiKey_COUNT);
-                io.KeyMap[imgui_key] = math::enum_to_number(key);
+                io.KeyMap[imgui_key] = utils::enum_to_underlying(key);
             };
 
             map_key(ImGuiKey_Tab, keyboard_key::tab);

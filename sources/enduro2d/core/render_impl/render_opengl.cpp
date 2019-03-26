@@ -802,12 +802,12 @@ namespace e2d
         }
 
         bool need_color =
-            math::enum_to_number(external_texture)
-            & math::enum_to_number(render_target::external_texture::color);
+            utils::enum_to_underlying(external_texture)
+            & utils::enum_to_underlying(render_target::external_texture::color);
 
         bool need_depth =
-            math::enum_to_number(external_texture)
-            & math::enum_to_number(render_target::external_texture::depth);
+            utils::enum_to_underlying(external_texture)
+            & utils::enum_to_underlying(render_target::external_texture::depth);
 
         texture_ptr color;
         texture_ptr depth;
@@ -925,14 +925,14 @@ namespace e2d
         E2D_ASSERT(is_in_main_thread());
 
         bool clear_color =
-            math::enum_to_number(command.clear_buffer())
-            & math::enum_to_number(clear_command::buffer::color);
+            utils::enum_to_underlying(command.clear_buffer())
+            & utils::enum_to_underlying(clear_command::buffer::color);
         bool clear_depth =
-            math::enum_to_number(command.clear_buffer())
-            & math::enum_to_number(clear_command::buffer::depth);
+            utils::enum_to_underlying(command.clear_buffer())
+            & utils::enum_to_underlying(clear_command::buffer::depth);
         bool clear_stencil =
-            math::enum_to_number(command.clear_buffer())
-            & math::enum_to_number(clear_command::buffer::stencil);
+            utils::enum_to_underlying(command.clear_buffer())
+            & utils::enum_to_underlying(clear_command::buffer::stencil);
 
         const render_target_ptr& rt = state_->render_target();
         bool has_color = !rt || rt->state().color() || !rt->state().color_rb().empty();

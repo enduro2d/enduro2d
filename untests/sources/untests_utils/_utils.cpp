@@ -10,6 +10,26 @@ using namespace e2d;
 
 TEST_CASE("utils") {
     {
+        enum class ee_u8 : u8 {
+            ee1 = 10,
+            ee2 = 42
+        };
+        enum class ee_i16 : i16 {
+            ee1 = 10,
+            ee2 = 42
+        };
+        auto e1 = utils::enum_to_underlying(ee_u8::ee1);
+        auto e2 = utils::enum_to_underlying(ee_i16::ee2);
+        REQUIRE(e1 == u8(10));
+        REQUIRE(e2 == i16(42));
+        static_assert(
+            std::is_same<u8, decltype(e1)>::value,
+            "static unit test error");
+        static_assert(
+            std::is_same<i16, decltype(e2)>::value,
+            "static unit test error");
+    }
+    {
         REQUIRE(utils::sdbm_hash("") == 0u);
         REQUIRE(utils::sdbm_hash(1u, "") == 1u);
 
