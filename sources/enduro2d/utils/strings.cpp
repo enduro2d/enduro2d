@@ -243,19 +243,19 @@ namespace e2d
     // make_hash
     //
 
-    str_hash make_hash(str_view src) {
+    str_hash make_hash(str_view src) noexcept {
         return str_hash(src);
     }
 
-    wstr_hash make_hash(wstr_view src) {
+    wstr_hash make_hash(wstr_view src) noexcept {
         return wstr_hash(src);
     }
 
-    str16_hash make_hash(str16_view src) {
+    str16_hash make_hash(str16_view src) noexcept {
         return str16_hash(src);
     }
 
-    str32_hash make_hash(str32_view src) {
+    str32_hash make_hash(str32_view src) noexcept {
         return str32_hash(src);
     }
 }

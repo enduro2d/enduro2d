@@ -665,15 +665,6 @@ namespace e2d { namespace math
     }
 
     //
-    // enum_to_number
-    //
-
-    template < typename E >
-    constexpr std::underlying_type_t<E> enum_to_number(E e) noexcept {
-        return static_cast<std::underlying_type_t<E>>(e);
-    }
-
-    //
     // lerp/inverse_lerp
     //
 

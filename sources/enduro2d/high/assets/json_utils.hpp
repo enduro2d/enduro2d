@@ -36,5 +36,33 @@ namespace e2d { namespace json_utils
 
     bool try_parse_value(const rapidjson::Value& root, color& c) noexcept;
 
+    bool try_parse_value(const rapidjson::Value& root, str& s) noexcept;
+    bool try_parse_value(const rapidjson::Value& root, wstr& s) noexcept;
+    bool try_parse_value(const rapidjson::Value& root, str16& s) noexcept;
+    bool try_parse_value(const rapidjson::Value& root, str32& s) noexcept;
+    bool try_parse_value(const rapidjson::Value& root, str_hash& s) noexcept;
+
+    template < typename T >
+    bool try_parse_values(
+        const rapidjson::Value& root,
+        vector<T>& v,
+        const T& dv = T());
+
     void add_common_schema_definitions(rapidjson::Document& schema);
+}}
+
+namespace e2d { namespace json_utils
+{
+    template < typename T >
+    bool try_parse_values(const rapidjson::Value& root, vector<T>& v, const T& dv) {
+        E2D_ASSERT(root.IsArray());
+        vector<T> tv(root.Size(), dv);
+        for ( rapidjson::SizeType i = 0; i < root.Size(); ++i ) {
+            if ( !try_parse_value(root[i], tv[i]) ) {
+                return false;
+            }
+        }
+        v = std::move(tv);
+        return true;
+    }
 }}

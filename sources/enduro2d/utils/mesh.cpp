@@ -257,6 +257,9 @@ namespace e2d
     }
 
     bool operator==(const mesh& l, const mesh& r) noexcept {
+        if ( l.vertices().size() != r.vertices().size() ) {
+            return false;
+        }
         if ( l.uvs_channel_count() != r.uvs_channel_count() ) {
             return false;
         }

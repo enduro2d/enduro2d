@@ -80,10 +80,10 @@ namespace e2d
     str32 make_utf32(str16_view src);
     str32 make_utf32(str32_view src);
 
-    str_hash make_hash(str_view src);
-    wstr_hash make_hash(wstr_view src);
-    str16_hash make_hash(str16_view src);
-    str32_hash make_hash(str32_view src);
+    str_hash make_hash(str_view src) noexcept;
+    wstr_hash make_hash(wstr_view src) noexcept;
+    str16_hash make_hash(str16_view src) noexcept;
+    str32_hash make_hash(str32_view src) noexcept;
 
     namespace strings
     {

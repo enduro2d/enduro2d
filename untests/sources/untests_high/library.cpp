@@ -75,13 +75,13 @@ TEST_CASE("library"){
         REQUIRE(the<asset_cache<image_asset>>().find("image.png"));
         REQUIRE(the<asset_cache<binary_asset>>().find("image.png"));
 
-        the<deferrer>().worker().wait_all();
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
         the<asset_cache<binary_asset>>().unload_self_unused_assets();
         REQUIRE(the<asset_cache<image_asset>>().find("image.png"));
         REQUIRE_FALSE(the<asset_cache<binary_asset>>().find("image.png"));
 
         image_res.reset();
-        the<deferrer>().worker().wait_all();
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
         the<asset_cache<image_asset>>().unload_self_unused_assets();
         REQUIRE_FALSE(the<asset_cache<image_asset>>().find("image.png"));
         REQUIRE_FALSE(the<asset_cache<binary_asset>>().find("image.png"));
@@ -96,13 +96,46 @@ TEST_CASE("library"){
             REQUIRE(texture_res);
             REQUIRE(texture_res->content());
 
-            auto sprite_res = l.load_asset<sprite_asset>("sprite.json");
-            REQUIRE(sprite_res);
-            REQUIRE(sprite_res->content().size() == v2f(10.f, 20.f));
-            REQUIRE(sprite_res->content().pivot() == v2f(0.5f, 0.7f));
-            REQUIRE(sprite_res->content().texrect() == b2f(0.5f, 1.f));
-            REQUIRE(sprite_res->content().texture());
-            REQUIRE(sprite_res->content().material());
+            auto material_res = l.load_asset<material_asset>("material.json");
+            REQUIRE(material_res);
+
+            auto atlas_res = l.load_asset<atlas_asset>("atlas.json");
+            REQUIRE(atlas_res);
+            REQUIRE(atlas_res->content().texture() == texture_res);
+            REQUIRE(atlas_res->content().regions().size() == 1);
+            REQUIRE(atlas_res->content().find_region("sprite"));
+            REQUIRE(atlas_res->content().find_region("sprite")->name == make_hash("sprite"));
+            REQUIRE(atlas_res->content().find_region("sprite")->pivot == v2f(1.f,2.f));
+            REQUIRE(atlas_res->content().find_region("sprite")->texrect == b2f(5.f,6.f,7.f,8.f));
+            REQUIRE_FALSE(atlas_res->content().find_region("sprite2"));
+            REQUIRE(atlas_res->content().shape_regions().size() == 1);
+            REQUIRE(atlas_res->content().find_shape_region("shape_sprite"));
+            REQUIRE(atlas_res->content().find_shape_region("shape_sprite")->name == make_hash("shape_sprite"));
+            REQUIRE(atlas_res->content().find_shape_region("shape_sprite")->pivot == v2f(3.f,4.f));
+            REQUIRE(atlas_res->content().find_shape_region("shape_sprite")->points == vector<v2f>{
+                {1.f, 2.f},
+                {3.f, 4.f},
+                {5.f, 6.f}
+            });
+            REQUIRE_FALSE(atlas_res->content().find_shape_region("shape_sprite2"));
+
+            {
+                auto sprite_res = l.load_asset<sprite_asset>("sprite_a.json");
+                REQUIRE(sprite_res);
+                REQUIRE(sprite_res->content().pivot() == v2f(1.f, 2.f));
+                REQUIRE(sprite_res->content().texrect() == b2f(5.f, 6.f, 7.f, 8.f));
+                REQUIRE(sprite_res->content().texture() == texture_res);
+                REQUIRE(sprite_res->content().material() == material_res);
+            }
+
+            {
+                auto sprite_res = l.load_asset<sprite_asset>("sprite_t.json");
+                REQUIRE(sprite_res);
+                REQUIRE(sprite_res->content().pivot() == v2f(1.f, 2.f));
+                REQUIRE(sprite_res->content().texrect() == b2f(5.f, 6.f, 7.f, 8.f));
+                REQUIRE(sprite_res->content().texture() == texture_res);
+                REQUIRE(sprite_res->content().material() == material_res);
+            }
 
             auto model_res = l.load_asset<model_asset>("model.json");
             REQUIRE(model_res);

@@ -451,13 +451,17 @@ namespace
 namespace e2d { namespace json_utils
 {
     bool try_parse_value(const rapidjson::Value& root, i32& v) noexcept {
-        E2D_ASSERT(root.IsNumber());
+        if ( !root.IsNumber() ) {
+            return false;
+        }
         v = root.GetInt();
         return true;
     }
 
     bool try_parse_value(const rapidjson::Value& root, f32& v) noexcept {
-        E2D_ASSERT(root.IsNumber());
+        if ( !root.IsNumber() ) {
+            return false;
+        }
         v = root.GetFloat();
         return true;
     }
@@ -516,6 +520,66 @@ namespace e2d { namespace json_utils
 
     bool try_parse_value(const rapidjson::Value& root, color& c) noexcept {
         return parse_clr(root, c);
+    }
+
+    bool try_parse_value(const rapidjson::Value& root, str& s) noexcept {
+        if ( !root.IsString() ) {
+            return false;
+        }
+        try {
+            s = make_utf8(root.GetString());
+        } catch (...) {
+            return false;
+        }
+        return true;
+    }
+
+    bool try_parse_value(const rapidjson::Value& root, wstr& s) noexcept {
+        if ( !root.IsString() ) {
+            return false;
+        }
+        try {
+            s = make_wide(root.GetString());
+        } catch (...) {
+            return false;
+        }
+        return true;
+    }
+
+    bool try_parse_value(const rapidjson::Value& root, str16& s) noexcept {
+        if ( !root.IsString() ) {
+            return false;
+        }
+        try {
+            s = make_utf16(root.GetString());
+        } catch (...) {
+            return false;
+        }
+        return true;
+    }
+
+    bool try_parse_value(const rapidjson::Value& root, str32& s) noexcept {
+        if ( !root.IsString() ) {
+            return false;
+        }
+        try {
+            s = make_utf32(root.GetString());
+        } catch (...) {
+            return false;
+        }
+        return true;
+    }
+
+    bool try_parse_value(const rapidjson::Value& root, str_hash& s) noexcept {
+        if ( !root.IsString() ) {
+            return false;
+        }
+        try {
+            s = make_hash(root.GetString());
+        } catch (...) {
+            return false;
+        }
+        return true;
     }
 
     void add_common_schema_definitions(rapidjson::Document& schema) {

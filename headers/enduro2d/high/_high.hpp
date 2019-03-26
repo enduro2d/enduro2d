@@ -20,12 +20,14 @@ namespace e2d
 
 namespace e2d
 {
+    class atlas_asset;
     class binary_asset;
     class image_asset;
     class material_asset;
     class mesh_asset;
     class model_asset;
     class shader_asset;
+    class shape_asset;
     class sprite_asset;
     class text_asset;
     class texture_asset;
@@ -49,6 +51,7 @@ namespace e2d
     class asset_cache;
     class asset_cache_base;
 
+    class atlas;
     class model;
     class node;
     class sprite;

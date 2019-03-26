@@ -1,0 +1,7 @@
+{
+    "atlas" : {
+        "atlas" : "atlas.json",
+        "region" : "sprite"
+    },
+    "material" : "material.json"
+}

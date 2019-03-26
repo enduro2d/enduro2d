@@ -18,14 +18,14 @@ namespace e2d
         v2f cursor_pos;
         v2f scroll_delta;
         bitset<
-            math::enum_to_number(mouse_button::unknown) + 1> pressed;
+            utils::enum_to_underlying(mouse_button::unknown) + 1> pressed;
         bitset<
-            math::enum_to_number(mouse_button::unknown) + 1> just_pressed;
+            utils::enum_to_underlying(mouse_button::unknown) + 1> just_pressed;
         bitset<
-            math::enum_to_number(mouse_button::unknown) + 1> just_released;
+            utils::enum_to_underlying(mouse_button::unknown) + 1> just_released;
     public:
         std::size_t button_index(mouse_button btn) const noexcept {
-            const auto index = math::enum_to_number(btn);
+            const auto index = utils::enum_to_underlying(btn);
             E2D_ASSERT(index < pressed.size());
             return math::numeric_cast<std::size_t>(index);
         }
@@ -81,14 +81,14 @@ namespace e2d
         mutable std::mutex mutex;
         str32 input_text;
         bitset<
-            math::enum_to_number(keyboard_key::unknown) + 1> pressed;
+            utils::enum_to_underlying(keyboard_key::unknown) + 1> pressed;
         bitset<
-            math::enum_to_number(keyboard_key::unknown) + 1> just_pressed;
+            utils::enum_to_underlying(keyboard_key::unknown) + 1> just_pressed;
         bitset<
-            math::enum_to_number(keyboard_key::unknown) + 1> just_released;
+            utils::enum_to_underlying(keyboard_key::unknown) + 1> just_released;
     public:
         std::size_t key_index(keyboard_key key) const noexcept {
-            const auto index = math::enum_to_number(key);
+            const auto index = utils::enum_to_underlying(key);
             E2D_ASSERT(index < pressed.size());
             return math::numeric_cast<std::size_t>(index);
         }

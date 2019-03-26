@@ -8,6 +8,7 @@
 
 #include "_high.hpp"
 
+#include "assets/atlas_asset.hpp"
 #include "assets/texture_asset.hpp"
 #include "assets/material_asset.hpp"
 
@@ -30,13 +31,12 @@ namespace e2d
         sprite& assign(sprite&& other) noexcept;
         sprite& assign(const sprite& other);
 
-        sprite& set_size(const v2f& size) noexcept;
         sprite& set_pivot(const v2f& pivot) noexcept;
         sprite& set_texrect(const b2f& texrect) noexcept;
+        sprite& set_region(const atlas::region& region) noexcept;
         sprite& set_texture(const texture_asset::ptr& texture) noexcept;
         sprite& set_material(const material_asset::ptr& material) noexcept;
 
-        const v2f& size() const noexcept;
         const v2f& pivot() const noexcept;
         const b2f& texrect() const noexcept;
         const texture_asset::ptr& texture() const noexcept;
