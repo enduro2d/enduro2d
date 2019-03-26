@@ -155,7 +155,6 @@ namespace
 
         vector<atlas::region> regions;
         if ( root.HasMember("regions") ) {
-            E2D_ASSERT(root["regions"].IsArray());
             const auto& regions_json = root["regions"];
             if ( !parse_regions(regions_json, regions) ) {
                 return stdex::make_rejected_promise<atlas>(
@@ -165,7 +164,6 @@ namespace
 
         vector<atlas::shape_region> shape_regions;
         if ( root.HasMember("shape_regions") ) {
-            E2D_ASSERT(root["shape_regions"].IsArray());
             const auto& shape_regions_json = root["shape_regions"];
             if ( !parse_shape_regions(shape_regions_json, shape_regions) ) {
                 return stdex::make_rejected_promise<atlas>(

@@ -1,7 +1,0 @@
-{
-    "size" : { "x" : 10, "y" : 20 },
-    "pivot" : { "x" : 0.5, "y" : 0.7 },
-    "texrect" : { "w" : 0.5, "h" : 1 },
-    "texture" : "image.png",
-    "material" : "material.json"
-}

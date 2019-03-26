@@ -65,11 +65,6 @@ namespace e2d
         return *this;
     }
 
-    sprite& sprite::set_size(const v2f& size) noexcept {
-        size_ = size;
-        return *this;
-    }
-
     sprite& sprite::set_pivot(const v2f& pivot) noexcept {
         pivot_ = pivot;
         return *this;
@@ -77,6 +72,12 @@ namespace e2d
 
     sprite& sprite::set_texrect(const b2f& texrect) noexcept {
         texrect_ = texrect;
+        return *this;
+    }
+
+    sprite& sprite::set_region(const atlas::region& region) noexcept {
+        pivot_ = region.pivot;
+        texrect_ = region.texrect;
         return *this;
     }
 
@@ -88,10 +89,6 @@ namespace e2d
     sprite& sprite::set_material(const material_asset::ptr& material) noexcept {
         material_ = material;
         return *this;
-    }
-
-    const v2f& sprite::size() const noexcept {
-        return size_;
     }
 
     const v2f& sprite::pivot() const noexcept {
@@ -118,8 +115,7 @@ namespace e2d
     }
 
     bool operator==(const sprite& l, const sprite& r) noexcept {
-        return l.size() == r.size()
-            && l.pivot() == r.pivot()
+        return l.pivot() == r.pivot()
             && l.texrect() == r.texrect()
             && l.texture() == r.texture()
             && l.material() == r.material();

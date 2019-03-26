@@ -125,31 +125,36 @@ namespace e2d { namespace render_system_impl
         const renderer& node_r,
         const sprite_renderer& spr_r)
     {
-        if ( !node || !node_r.enabled() ) {
-            return;
-        }
-
-        if ( !spr_r.sprite() || !spr_r.sprite()->content().material()) {
+        if ( !node || !node_r.enabled() || !spr_r.sprite() ) {
             return;
         }
 
         const sprite& spr = spr_r.sprite()->content();
+        const texture_asset::ptr& tex_a = spr.texture();
+        const material_asset::ptr& mat_a = spr.material();
 
-        const f32 sw = spr.size().x;
-        const f32 sh = spr.size().y;
+        if ( !tex_a || !tex_a->content() || !mat_a ) {
+            return;
+        }
 
-        const f32 hw = -sw * spr.pivot().x;
-        const f32 hh = -sh * spr.pivot().y;
+        const b2f& tex_r = spr.texrect();
+        const v2f& tex_s = tex_a->content()->size().cast_to<f32>();
 
-        const v4f p1{hw + 0.f, hh + 0.f, 0.f, 1.f};
-        const v4f p2{hw + sw,  hh + 0.f, 0.f, 1.f};
-        const v4f p3{hw + sw,  hh + sh,  0.f, 1.f};
-        const v4f p4{hw + 0.f, hh + sh,  0.f, 1.f};
+        const f32 sw = tex_r.size.x;
+        const f32 sh = tex_r.size.y;
 
-        const f32 tx = spr.texrect().position.x;
-        const f32 ty = spr.texrect().position.y;
-        const f32 tw = spr.texrect().size.x;
-        const f32 th = spr.texrect().size.y;
+        const f32 px = tex_r.position.x - spr.pivot().x;
+        const f32 py = tex_r.position.y - spr.pivot().y;
+
+        const v4f p1{px + 0.f, py + 0.f, 0.f, 1.f};
+        const v4f p2{px + sw,  py + 0.f, 0.f, 1.f};
+        const v4f p3{px + sw,  py + sh,  0.f, 1.f};
+        const v4f p4{px + 0.f, py + sh,  0.f, 1.f};
+
+        const f32 tx = tex_r.position.x / tex_s.x;
+        const f32 ty = tex_r.position.y / tex_s.y;
+        const f32 tw = tex_r.size.x / tex_s.x;
+        const f32 th = tex_r.size.y / tex_s.y;
 
         const m4f& sm = node->world_matrix();
         const color& tn = spr_r.tint();
@@ -162,10 +167,6 @@ namespace e2d { namespace render_system_impl
             { v3f(p2 * sm), {tx + tw,  ty + 0.f}, color32(tn) },
             { v3f(p3 * sm), {tx + tw,  ty + th }, color32(tn) },
             { v3f(p4 * sm), {tx + 0.f, ty + th }, color32(tn) }};
-
-        const texture_ptr texture = spr.texture()
-            ? spr.texture()->content()
-            : nullptr;
 
         const render::sampler_min_filter min_filter = spr_r.filtering()
             ? render::sampler_min_filter::linear
@@ -180,7 +181,7 @@ namespace e2d { namespace render_system_impl
                 spr.material(),
                 property_cache_
                     .sampler(sprite_texture_sampler_hash, render::sampler_state()
-                        .texture(texture)
+                        .texture(tex_a->content())
                         .min_filter(min_filter)
                         .mag_filter(mag_filter))
                     .merge(node_r.properties())

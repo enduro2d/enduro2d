@@ -96,6 +96,9 @@ TEST_CASE("library"){
             REQUIRE(texture_res);
             REQUIRE(texture_res->content());
 
+            auto material_res = l.load_asset<material_asset>("material.json");
+            REQUIRE(material_res);
+
             auto atlas_res = l.load_asset<atlas_asset>("atlas.json");
             REQUIRE(atlas_res);
             REQUIRE(atlas_res->content().texture() == texture_res);
@@ -116,13 +119,23 @@ TEST_CASE("library"){
             });
             REQUIRE_FALSE(atlas_res->content().find_shape_region("shape_sprite2"));
 
-            auto sprite_res = l.load_asset<sprite_asset>("sprite.json");
-            REQUIRE(sprite_res);
-            REQUIRE(sprite_res->content().size() == v2f(10.f, 20.f));
-            REQUIRE(sprite_res->content().pivot() == v2f(0.5f, 0.7f));
-            REQUIRE(sprite_res->content().texrect() == b2f(0.5f, 1.f));
-            REQUIRE(sprite_res->content().texture());
-            REQUIRE(sprite_res->content().material());
+            {
+                auto sprite_res = l.load_asset<sprite_asset>("sprite_a.json");
+                REQUIRE(sprite_res);
+                REQUIRE(sprite_res->content().pivot() == v2f(1.f, 2.f));
+                REQUIRE(sprite_res->content().texrect() == b2f(5.f, 6.f, 7.f, 8.f));
+                REQUIRE(sprite_res->content().texture() == texture_res);
+                REQUIRE(sprite_res->content().material() == material_res);
+            }
+
+            {
+                auto sprite_res = l.load_asset<sprite_asset>("sprite_t.json");
+                REQUIRE(sprite_res);
+                REQUIRE(sprite_res->content().pivot() == v2f(1.f, 2.f));
+                REQUIRE(sprite_res->content().texrect() == b2f(5.f, 6.f, 7.f, 8.f));
+                REQUIRE(sprite_res->content().texture() == texture_res);
+                REQUIRE(sprite_res->content().material() == material_res);
+            }
 
             auto model_res = l.load_asset<model_asset>("model.json");
             REQUIRE(model_res);
