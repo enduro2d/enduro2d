@@ -75,12 +75,6 @@ namespace e2d
         return *this;
     }
 
-    sprite& sprite::set_region(const atlas::region& region) noexcept {
-        pivot_ = region.pivot;
-        texrect_ = region.texrect;
-        return *this;
-    }
-
     sprite& sprite::set_texture(const texture_asset::ptr& texture) noexcept {
         texture_ = texture;
         return *this;

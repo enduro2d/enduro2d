@@ -32,7 +32,9 @@ namespace e2d
 
     void flipbook::swap(flipbook& other) noexcept {
         using std::swap;
-        E2D_UNUSED(other);
+        swap(frames_, other.frames_);
+        swap(sequences_, other.sequences_);
+        swap(material_, other.material_);
     }
 
     flipbook& flipbook::assign(flipbook&& other) noexcept {
@@ -46,9 +48,69 @@ namespace e2d
     flipbook& flipbook::assign(const flipbook& other) {
         if ( this != &other ) {
             flipbook s;
+            s.frames_ = other.frames_;
+            s.sequences_ = other.sequences_;
+            s.material_ = other.material_;
             swap(s);
         }
         return *this;
+    }
+
+    flipbook& flipbook::set_frames(vector<frame>&& frames) noexcept {
+        frames_ = std::move(frames);
+        return *this;
+    }
+
+    flipbook& flipbook::set_frames(const vector<frame>& frames) {
+        return set_frames(vector<frame>(frames));
+    }
+
+    const vector<flipbook::frame>& flipbook::frames() const noexcept {
+        return frames_;
+    }
+
+    const flipbook::frame* flipbook::find_frame(u32 index) const noexcept {
+        return index < frames_.size()
+            ? &frames_[index]
+            : nullptr;
+    }
+
+    flipbook& flipbook::set_sequences(vector<sequence>&& sequences) noexcept {
+        sequences_ = std::move(sequences);
+        std::sort(
+            sequences_.begin(), sequences_.end(),
+            [](const flipbook::sequence& l, const flipbook::sequence& r) noexcept {
+                return l.name < r.name;
+            });
+        return *this;
+    }
+
+    flipbook& flipbook::set_sequences(const vector<sequence>& sequences) {
+        return set_sequences(vector<sequence>(sequences));
+    }
+
+    const vector<flipbook::sequence>& flipbook::sequences() const noexcept {
+        return sequences_;
+    }
+
+    const flipbook::sequence* flipbook::find_sequence(str_hash name) const noexcept {
+        const auto iter = std::lower_bound(
+            sequences_.begin(), sequences_.end(), name,
+            [](const flipbook::sequence& l, str_hash r) noexcept {
+                return l.name < r;
+            });
+        return iter != sequences_.end() && iter->name == name
+            ? &*iter
+            : nullptr;
+    }
+
+    flipbook& flipbook::set_material(const material_asset::ptr& material) noexcept {
+        material_ = material;
+        return *this;
+    }
+
+    const material_asset::ptr& flipbook::material() const noexcept {
+        return material_;
     }
 }
 
@@ -59,11 +121,54 @@ namespace e2d
     }
 
     bool operator==(const flipbook& l, const flipbook& r) noexcept {
-        E2D_UNUSED(l, r);
-        return true;
+        if ( l.frames().size() != r.frames().size() ) {
+            return false;
+        }
+
+        if ( l.sequences().size() != r.sequences().size() ) {
+            return false;
+        }
+
+        return l.frames() == r.frames()
+            && l.sequences() == r.sequences()
+            && l.material() == r.material();
     }
 
     bool operator!=(const flipbook& l, const flipbook& r) noexcept {
+        return !(l == r);
+    }
+
+    void swap(flipbook::frame& l, flipbook::frame& r) noexcept {
+        using std::swap;
+        swap(l.pivot, r.pivot);
+        swap(l.texrect, r.texrect);
+        swap(l.texture, r.texture);
+    }
+
+    bool operator==(const flipbook::frame& l, const flipbook::frame& r) noexcept {
+        return l.pivot == r.pivot
+            && l.texrect == r.texrect
+            && l.texture == r.texture;
+    }
+
+    bool operator!=(const flipbook::frame& l, const flipbook::frame& r) noexcept {
+        return !(l == r);
+    }
+
+    void swap(flipbook::sequence& l, flipbook::sequence& r) noexcept {
+        using std::swap;
+        swap(l.fps, r.fps);
+        swap(l.name, r.name);
+        swap(l.frames, r.frames);
+    }
+
+    bool operator==(const flipbook::sequence& l, const flipbook::sequence& r) noexcept {
+        return math::approximately(l.fps, r.fps)
+            && l.name == r.name
+            && l.frames == r.frames;
+    }
+
+    bool operator!=(const flipbook::sequence& l, const flipbook::sequence& r) noexcept {
         return !(l == r);
     }
 }

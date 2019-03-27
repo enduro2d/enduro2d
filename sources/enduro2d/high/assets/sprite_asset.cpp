@@ -7,6 +7,7 @@
 #include <enduro2d/high/assets/sprite_asset.hpp>
 
 #include "json_asset.hpp"
+#include <enduro2d/high/assets/atlas_asset.hpp>
 
 namespace
 {
@@ -120,7 +121,8 @@ namespace
             }
 
             sprite content;
-            content.set_region(*region);
+            content.set_pivot(region->pivot);
+            content.set_texrect(region->texrect);
             content.set_texture(texture);
             content.set_material(material);
             return content;
