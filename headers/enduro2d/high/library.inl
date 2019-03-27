@@ -45,7 +45,7 @@ namespace e2d
                 address_hash = make_hash(address)
             ](auto&& new_asset){
                 cache.store(address_hash, new_asset);
-                return new_asset;
+                return std::forward<decltype(new_asset)>(new_asset);
             });
     }
 

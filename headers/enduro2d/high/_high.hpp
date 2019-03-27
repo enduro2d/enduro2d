@@ -22,6 +22,7 @@ namespace e2d
 {
     class atlas_asset;
     class binary_asset;
+    class flipbook_asset;
     class image_asset;
     class material_asset;
     class mesh_asset;
@@ -52,6 +53,7 @@ namespace e2d
     class asset_cache_base;
 
     class atlas;
+    class flipbook;
     class model;
     class node;
     class sprite;
