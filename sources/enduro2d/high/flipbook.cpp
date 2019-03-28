@@ -69,7 +69,7 @@ namespace e2d
         return frames_;
     }
 
-    const flipbook::frame* flipbook::find_frame(u32 index) const noexcept {
+    const flipbook::frame* flipbook::find_frame(std::size_t index) const noexcept {
         return index < frames_.size()
             ? &frames_[index]
             : nullptr;

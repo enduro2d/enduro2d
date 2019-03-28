@@ -137,6 +137,32 @@ TEST_CASE("library"){
                 REQUIRE(sprite_res->content().material() == material_res);
             }
 
+            {
+                auto flipbook_res = l.load_asset<flipbook_asset>("flipbook.json");
+                REQUIRE(flipbook_res);
+                REQUIRE(flipbook_res->content().material() == material_res);
+
+                REQUIRE(flipbook_res->content().frames().size() == 2);
+                REQUIRE(flipbook_res->content().find_frame(0));
+                REQUIRE(flipbook_res->content().find_frame(0)->texture == texture_res);
+                REQUIRE(flipbook_res->content().find_frame(0)->pivot == v2f(1.f,2.f));
+                REQUIRE(flipbook_res->content().find_frame(0)->texrect == b2f(5.f, 6.f, 7.f, 8.f));
+                REQUIRE(flipbook_res->content().find_frame(1));
+                REQUIRE(flipbook_res->content().find_frame(1)->texture == texture_res);
+                REQUIRE(flipbook_res->content().find_frame(1)->pivot == v2f(1.f, 2.f));
+                REQUIRE(flipbook_res->content().find_frame(1)->texrect == b2f(5.f, 6.f, 7.f, 8.f));
+
+                REQUIRE(flipbook_res->content().sequences().size() == 2);
+                REQUIRE(flipbook_res->content().find_sequence("sequence_0"));
+                REQUIRE(flipbook_res->content().find_sequence("sequence_0")->name == make_hash("sequence_0"));
+                REQUIRE(math::approximately(flipbook_res->content().find_sequence("sequence_0")->fps, 24.f));
+                REQUIRE(flipbook_res->content().find_sequence("sequence_0")->frames == vector<std::size_t>{0, 1, 0, 1});
+                REQUIRE(flipbook_res->content().find_sequence("sequence_1"));
+                REQUIRE(flipbook_res->content().find_sequence("sequence_1")->name == make_hash("sequence_1"));
+                REQUIRE(math::approximately(flipbook_res->content().find_sequence("sequence_1")->fps, 30.f));
+                REQUIRE(flipbook_res->content().find_sequence("sequence_1")->frames == vector<std::size_t>{1, 0, 0, 1});
+            }
+
             auto model_res = l.load_asset<model_asset>("model.json");
             REQUIRE(model_res);
             REQUIRE(model_res->content().mesh());

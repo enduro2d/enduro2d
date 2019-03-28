@@ -49,17 +49,17 @@ namespace e2d { namespace json_utils
         std::is_integral<T>::value &&
         std::is_signed<T>::value, bool>
     try_parse_value(const rapidjson::Value& root, T& v) noexcept {
-        if ( !root.IsNumber() || !root.IsInt64() ) {
+        if ( !root.IsNumber() || !root.IsInt() ) {
             return false;
         }
-        const auto iv = root.GetInt64();
+        const auto iv = root.GetInt();
         if ( iv < std::numeric_limits<T>::min() ) {
             return false;
         }
         if ( iv > std::numeric_limits<T>::max() ) {
             return false;
         }
-        v = static_cast<T>(iv);
+        v = math::numeric_cast<T>(iv);
         return true;
     }
 
@@ -68,17 +68,11 @@ namespace e2d { namespace json_utils
         std::is_integral<T>::value &&
         std::is_unsigned<T>::value, bool>
     try_parse_value(const rapidjson::Value& root, T& v) noexcept {
-        if ( !root.IsNumber() || !root.GetUint64() ) {
+        i32 iv{0};
+        if ( !try_parse_value(root, iv) || iv < 0 ) {
             return false;
         }
-        const auto uv = root.GetUint64();
-        if ( uv < std::numeric_limits<T>::min() ) {
-            return false;
-        }
-        if ( uv > std::numeric_limits<T>::max() ) {
-            return false;
-        }
-        v = static_cast<T>(uv);
+        v = math::numeric_cast<T>(iv);
         return true;
     }
 
@@ -86,10 +80,10 @@ namespace e2d { namespace json_utils
     std::enable_if_t<
         std::is_floating_point<T>::value, bool>
     try_parse_value(const rapidjson::Value& root, T& v) noexcept {
-        if ( !root.IsNumber() || !root.IsDouble() ) {
+        if ( !root.IsNumber() ) {
             return false;
         }
-        v = static_cast<T>(root.GetDouble());
+        v = math::numeric_cast<T>(root.GetDouble());
         return true;
     }
 

@@ -1,11 +1,15 @@
 {
     "frames" : [{
-        "atlas" : "atlas.json",
-        "region" : "sprite"
+        "atlas" : {
+            "atlas" : "atlas.json",
+            "region" : "sprite"
+        }
     }, {
-        "texture" : "image.png",
-        "pivot" : { "x" : 1, "y" : 2 },
-        "texrect" : { "x" : 5, "y" : 6, "w" : 7, "h" : 8 }
+        "texture" : {
+            "texture" : "image.png",
+            "pivot" : { "x" : 1, "y" : 2 },
+            "texrect" : { "x" : 5, "y" : 6, "w" : 7, "h" : 8 }
+        }
     }],
     "sequences" : [{
         "fps" : 24,
@@ -15,5 +19,6 @@
         "fps" : 30,
         "name" : "sequence_1",
         "frames" : [1,0,0,1]
-    }]
+    }],
+    "material" : "material.json"
 }

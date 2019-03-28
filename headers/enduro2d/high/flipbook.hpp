@@ -24,7 +24,7 @@ namespace e2d
         struct sequence {
             f32 fps{0.f};
             str_hash name;
-            vector<u32> frames;
+            vector<std::size_t> frames;
         };
     public:
         flipbook();
@@ -45,7 +45,7 @@ namespace e2d
         flipbook& set_frames(vector<frame>&& frames) noexcept;
         flipbook& set_frames(const vector<frame>& frames);
         const vector<frame>& frames() const noexcept;
-        const frame* find_frame(u32 index) const noexcept;
+        const frame* find_frame(std::size_t index) const noexcept;
 
         flipbook& set_sequences(vector<sequence>&& sequences) noexcept;
         flipbook& set_sequences(const vector<sequence>& sequences);
