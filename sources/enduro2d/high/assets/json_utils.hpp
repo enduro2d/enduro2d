@@ -13,9 +13,6 @@
 
 namespace e2d { namespace json_utils
 {
-    bool try_parse_value(const rapidjson::Value& root, i32& v) noexcept;
-    bool try_parse_value(const rapidjson::Value& root, f32& v) noexcept;
-
     bool try_parse_value(const rapidjson::Value& root, v2i& v) noexcept;
     bool try_parse_value(const rapidjson::Value& root, v3i& v) noexcept;
     bool try_parse_value(const rapidjson::Value& root, v4i& v) noexcept;
@@ -42,19 +39,66 @@ namespace e2d { namespace json_utils
     bool try_parse_value(const rapidjson::Value& root, str32& s) noexcept;
     bool try_parse_value(const rapidjson::Value& root, str_hash& s) noexcept;
 
-    template < typename T >
-    bool try_parse_values(
-        const rapidjson::Value& root,
-        vector<T>& v,
-        const T& dv = T());
-
     void add_common_schema_definitions(rapidjson::Document& schema);
 }}
 
 namespace e2d { namespace json_utils
 {
     template < typename T >
-    bool try_parse_values(const rapidjson::Value& root, vector<T>& v, const T& dv) {
+    std::enable_if_t<
+        std::is_integral<T>::value &&
+        std::is_signed<T>::value, bool>
+    try_parse_value(const rapidjson::Value& root, T& v) noexcept {
+        if ( !root.IsNumber() || !root.IsInt64() ) {
+            return false;
+        }
+        const auto iv = root.GetInt64();
+        if ( iv < std::numeric_limits<T>::min() ) {
+            return false;
+        }
+        if ( iv > std::numeric_limits<T>::max() ) {
+            return false;
+        }
+        v = static_cast<T>(iv);
+        return true;
+    }
+
+    template < typename T >
+    std::enable_if_t<
+        std::is_integral<T>::value &&
+        std::is_unsigned<T>::value, bool>
+    try_parse_value(const rapidjson::Value& root, T& v) noexcept {
+        if ( !root.IsNumber() || !root.GetUint64() ) {
+            return false;
+        }
+        const auto uv = root.GetUint64();
+        if ( uv < std::numeric_limits<T>::min() ) {
+            return false;
+        }
+        if ( uv > std::numeric_limits<T>::max() ) {
+            return false;
+        }
+        v = static_cast<T>(uv);
+        return true;
+    }
+
+    template < typename T >
+    std::enable_if_t<
+        std::is_floating_point<T>::value, bool>
+    try_parse_value(const rapidjson::Value& root, T& v) noexcept {
+        if ( !root.IsNumber() || !root.IsDouble() ) {
+            return false;
+        }
+        v = static_cast<T>(root.GetDouble());
+        return true;
+    }
+
+    template < typename T >
+    bool try_parse_values(
+        const rapidjson::Value& root,
+        vector<T>& v,
+        const T& dv = T())
+    {
         E2D_ASSERT(root.IsArray());
         vector<T> tv(root.Size(), dv);
         for ( rapidjson::SizeType i = 0; i < root.Size(); ++i ) {

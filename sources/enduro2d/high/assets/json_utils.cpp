@@ -450,22 +450,6 @@ namespace
 
 namespace e2d { namespace json_utils
 {
-    bool try_parse_value(const rapidjson::Value& root, i32& v) noexcept {
-        if ( !root.IsNumber() ) {
-            return false;
-        }
-        v = root.GetInt();
-        return true;
-    }
-
-    bool try_parse_value(const rapidjson::Value& root, f32& v) noexcept {
-        if ( !root.IsNumber() ) {
-            return false;
-        }
-        v = root.GetFloat();
-        return true;
-    }
-
     bool try_parse_value(const rapidjson::Value& root, v2i& v) noexcept {
         return parse_vNi<2>(root, v);
     }
