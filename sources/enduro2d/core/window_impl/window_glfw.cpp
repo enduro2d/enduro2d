@@ -349,12 +349,6 @@ namespace e2d
             if ( !video_mode ) {
                 return {nullptr, glfwDestroyWindow};
             }
-            glfwWindowHint(GLFW_RED_BITS, 8);
-            glfwWindowHint(GLFW_GREEN_BITS, 8);
-            glfwWindowHint(GLFW_BLUE_BITS, 8);
-            glfwWindowHint(GLFW_ALPHA_BITS, 0);
-            glfwWindowHint(GLFW_DEPTH_BITS, 24);
-            glfwWindowHint(GLFW_STENCIL_BITS, 8);
             glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
             glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
             glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
