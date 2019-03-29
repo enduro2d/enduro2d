@@ -143,24 +143,31 @@ TEST_CASE("library"){
                 REQUIRE(flipbook_res->content().material() == material_res);
 
                 REQUIRE(flipbook_res->content().frames().size() == 2);
-                REQUIRE(flipbook_res->content().find_frame(0));
-                REQUIRE(flipbook_res->content().find_frame(0)->texture == texture_res);
-                REQUIRE(flipbook_res->content().find_frame(0)->pivot == v2f(1.f,2.f));
-                REQUIRE(flipbook_res->content().find_frame(0)->texrect == b2f(5.f, 6.f, 7.f, 8.f));
-                REQUIRE(flipbook_res->content().find_frame(1));
-                REQUIRE(flipbook_res->content().find_frame(1)->texture == texture_res);
-                REQUIRE(flipbook_res->content().find_frame(1)->pivot == v2f(1.f, 2.f));
-                REQUIRE(flipbook_res->content().find_frame(1)->texrect == b2f(5.f, 6.f, 7.f, 8.f));
-
                 REQUIRE(flipbook_res->content().sequences().size() == 2);
-                REQUIRE(flipbook_res->content().find_sequence("sequence_0"));
-                REQUIRE(flipbook_res->content().find_sequence("sequence_0")->name == make_hash("sequence_0"));
-                REQUIRE(math::approximately(flipbook_res->content().find_sequence("sequence_0")->fps, 24.f));
-                REQUIRE(flipbook_res->content().find_sequence("sequence_0")->frames == vector<std::size_t>{0, 1, 0, 1});
-                REQUIRE(flipbook_res->content().find_sequence("sequence_1"));
-                REQUIRE(flipbook_res->content().find_sequence("sequence_1")->name == make_hash("sequence_1"));
-                REQUIRE(math::approximately(flipbook_res->content().find_sequence("sequence_1")->fps, 30.f));
-                REQUIRE(flipbook_res->content().find_sequence("sequence_1")->frames == vector<std::size_t>{1, 0, 0, 1});
+
+                const flipbook::frame* frame_0 = flipbook_res->content().find_frame(0);
+                REQUIRE(frame_0);
+                REQUIRE(frame_0->texture == texture_res);
+                REQUIRE(frame_0->pivot == v2f(1.f,2.f));
+                REQUIRE(frame_0->texrect == b2f(5.f, 6.f, 7.f, 8.f));
+
+                const flipbook::frame* frame_1 = flipbook_res->content().find_frame(1);
+                REQUIRE(frame_1);
+                REQUIRE(frame_1->texture == texture_res);
+                REQUIRE(frame_1->pivot == v2f(1.f, 2.f));
+                REQUIRE(frame_1->texrect == b2f(5.f, 6.f, 7.f, 8.f));
+
+                const flipbook::sequence* sequence_0 = flipbook_res->content().find_sequence("sequence_0");
+                REQUIRE(sequence_0);
+                REQUIRE(sequence_0->name == make_hash("sequence_0"));
+                REQUIRE(math::approximately(sequence_0->fps, 24.f));
+                REQUIRE(sequence_0->frames == vector<std::size_t>{0, 1, 0, 1});
+
+                const flipbook::sequence* sequence_1 = flipbook_res->content().find_sequence("sequence_1");
+                REQUIRE(sequence_1);
+                REQUIRE(sequence_1->name == make_hash("sequence_1"));
+                REQUIRE(math::approximately(sequence_1->fps, 30.f));
+                REQUIRE(sequence_1->frames == vector<std::size_t>{1, 0, 0, 1});
             }
 
             auto model_res = l.load_asset<model_asset>("model.json");

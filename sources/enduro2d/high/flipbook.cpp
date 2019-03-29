@@ -28,6 +28,9 @@ namespace e2d
     }
 
     void flipbook::clear() noexcept {
+        frames_.clear();
+        sequences_.clear();
+        material_.reset();
     }
 
     void flipbook::swap(flipbook& other) noexcept {
@@ -124,11 +127,9 @@ namespace e2d
         if ( l.frames().size() != r.frames().size() ) {
             return false;
         }
-
         if ( l.sequences().size() != r.sequences().size() ) {
             return false;
         }
-
         return l.frames() == r.frames()
             && l.sequences() == r.sequences()
             && l.material() == r.material();
