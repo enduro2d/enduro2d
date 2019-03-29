@@ -10,4 +10,6 @@
 
 namespace e2d { namespace address
 {
+    str parent(str_view address);
+    str nested(str_view address);
 }}
