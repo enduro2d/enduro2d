@@ -21,7 +21,7 @@ namespace
 namespace e2d
 {
     shape_asset::load_async_result shape_asset::load_async(
-        library& library, str_view address)
+        const library& library, str_view address)
     {
         return library.load_asset_async<binary_asset>(address)
             .then([](const binary_asset::load_result& shape_data){

@@ -492,7 +492,7 @@ namespace
     }
 
     stdex::promise<shader_ptr> parse_shader_block(
-        library& library,
+        const library& library,
         str_view parent_address,
         const rapidjson::Value& root)
     {
@@ -506,7 +506,7 @@ namespace
     }
 
     stdex::promise<texture_ptr> parse_texture_block(
-        library& library,
+        const library& library,
         str_view parent_address,
         const rapidjson::Value& root)
     {
@@ -520,7 +520,7 @@ namespace
     }
 
     stdex::promise<std::pair<str_hash,render::sampler_state>> parse_sampler_state(
-        library& library,
+        const library& library,
         str_view parent_address,
         const rapidjson::Value& root)
     {
@@ -669,7 +669,7 @@ namespace
     }
 
     stdex::promise<render::property_block> parse_property_block(
-        library& library,
+        const library& library,
         str_view parent_address,
         const rapidjson::Value& root)
     {
@@ -1092,7 +1092,7 @@ namespace
     }
 
     stdex::promise<render::pass_state> parse_pass_state(
-        library& library,
+        const library& library,
         str_view parent_address,
         const rapidjson::Value& root)
     {
@@ -1126,7 +1126,7 @@ namespace
     }
 
     stdex::promise<render::material> parse_material(
-        library& library,
+        const library& library,
         str_view parent_address,
         const rapidjson::Value& root)
     {
@@ -1169,7 +1169,7 @@ namespace
 namespace e2d
 {
     material_asset::load_async_result material_asset::load_async(
-        library& library, str_view address)
+        const library& library, str_view address)
     {
         return library.load_asset_async<json_asset>(address)
             .then([

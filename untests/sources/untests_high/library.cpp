@@ -25,17 +25,13 @@ namespace
 
     class fake_asset final : public content_asset<fake_asset, int> {
     public:
-        fake_asset(content_type content)
-        : content_asset<fake_asset, int>(std::move(content)) {}
-
-        fake_asset(content_type content, nested_content nested_content)
-        : content_asset<fake_asset, int>(std::move(content), std::move(nested_content)) {}
-
-        static load_async_result load_async(library& library, str_view address) {
-            E2D_UNUSED(library, address);
-            return stdex::make_resolved_promise(fake_asset::create(42, {
-                {"21", fake_asset::create(21)},
-                {"84", fake_asset::create(84)}}));
+        static load_async_result load_async(const library& library, str_view address) {
+            E2D_UNUSED(library);
+            return address == "42"
+                ? stdex::make_resolved_promise(fake_asset::create(42, {
+                    {"21", fake_asset::create(21)},
+                    {"84", fake_asset::create(84)}}))
+                : stdex::make_rejected_promise<load_result>(asset_loading_exception());
         }
     };
 }
@@ -44,7 +40,9 @@ TEST_CASE("asset"){
     safe_starter_initializer initializer;
     library& l = the<library>();
     {
-        auto fa = l.load_asset<fake_asset>("");
+        REQUIRE_FALSE(l.load_asset<fake_asset>("none"));
+
+        auto fa = l.load_asset<fake_asset>("42");
         REQUIRE(fa);
         REQUIRE(fa->content() == 42);
 

@@ -18,7 +18,7 @@ namespace e2d
     //
 
     template < typename Asset >
-    typename Asset::load_result library::load_asset(str_view address) {
+    typename Asset::load_result library::load_asset(str_view address) const {
         auto p = load_asset_async<Asset>(address);
 
         if ( modules::is_initialized<deferrer>() ) {
@@ -29,7 +29,7 @@ namespace e2d
     }
 
     template < typename Asset >
-    typename Asset::load_async_result library::load_asset_async(str_view address) {
+    typename Asset::load_async_result library::load_asset_async(str_view address) const {
         if ( !modules::is_initialized<asset_cache<Asset>>() ) {
             return Asset::load_async(*this, address);
         }

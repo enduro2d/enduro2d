@@ -22,7 +22,7 @@ namespace
 namespace e2d
 {
     xml_asset::load_async_result xml_asset::load_async(
-        library& library, str_view address)
+        const library& library, str_view address)
     {
         return library.load_asset_async<text_asset>(address)
             .then([](const text_asset::load_result& xml_data){

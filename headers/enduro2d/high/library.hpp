@@ -28,7 +28,9 @@ namespace e2d
     //
 
     class asset_loading_exception : public exception {
-        const char* what() const noexcept override = 0;
+        const char* what() const noexcept override {
+            return "asset loading exception";
+        }
     };
 
     //
@@ -60,20 +62,30 @@ namespace e2d
         using load_result = intrusive_ptr<Asset>;
         using load_async_result = stdex::promise<load_result>;
     public:
+        static load_result create() {
+            return load_result(new Asset());
+        }
+
         static load_result create(Content content) {
-            return load_result(new Asset(std::move(content)));
+            auto result = create();
+            result->fill(std::move(content));
+            return result;
         }
 
         static load_result create(Content content, nested_content nested_content) {
-            return load_result(new Asset(std::move(content), std::move(nested_content)));
+            auto result = create();
+            result->fill(std::move(content), std::move(nested_content));
+            return result;
         }
 
-        content_asset(Content content)
-        : content_(std::move(content)) {}
+        void fill(Content content) {
+            content_ = std::move(content);
+        }
 
-        content_asset(Content content, nested_content nested_content)
-        : content_(std::move(content))
-        , nested_content_(std::move(nested_content)) {}
+        void fill(Content content, nested_content nested_content) {
+            content_ = std::move(content);
+            nested_content_ = std::move(nested_content);
+        }
 
         const Content& content() const noexcept {
             return content_;
@@ -108,10 +120,10 @@ namespace e2d
         std::size_t unload_unused_assets() noexcept;
 
         template < typename Asset >
-        typename Asset::load_result load_asset(str_view address);
+        typename Asset::load_result load_asset(str_view address) const;
 
         template < typename Asset >
-        typename Asset::load_async_result load_asset_async(str_view address);
+        typename Asset::load_async_result load_asset_async(str_view address) const;
     private:
         url root_;
     };

@@ -51,7 +51,7 @@ namespace
     }
 
     stdex::promise<model> parse_model(
-        library& library,
+        const library& library,
         str_view parent_address,
         const rapidjson::Value& root)
     {
@@ -97,7 +97,7 @@ namespace
 namespace e2d
 {
     model_asset::load_async_result model_asset::load_async(
-        library& library, str_view address)
+        const library& library, str_view address)
     {
         return library.load_asset_async<json_asset>(address)
         .then([

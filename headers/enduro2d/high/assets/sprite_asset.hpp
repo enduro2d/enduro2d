@@ -15,8 +15,6 @@ namespace e2d
 {
     class sprite_asset final : public content_asset<sprite_asset, sprite> {
     public:
-        sprite_asset(content_type content)
-        : content_asset<sprite_asset, sprite>(std::move(content)) {}
-        static load_async_result load_async(library& library, str_view address);
+        static load_async_result load_async(const library& library, str_view address);
     };
 }

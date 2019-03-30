@@ -21,7 +21,7 @@ namespace
 namespace e2d
 {
     texture_asset::load_async_result texture_asset::load_async(
-        library& library, str_view address)
+        const library& library, str_view address)
     {
         return library.load_asset_async<image_asset>(address)
             .then([](const image_asset::load_result& texture_data){
