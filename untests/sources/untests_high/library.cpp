@@ -22,6 +22,39 @@ namespace
             modules::shutdown<starter>();
         }
     };
+
+    class fake_asset final : public content_asset<fake_asset, int> {
+    public:
+        fake_asset(content_type content)
+        : content_asset<fake_asset, int>(std::move(content)) {}
+
+        fake_asset(content_type content, nested_content nested_content)
+        : content_asset<fake_asset, int>(std::move(content), std::move(nested_content)) {}
+
+        static load_async_result load_async(library& library, str_view address) {
+            E2D_UNUSED(library, address);
+            return stdex::make_resolved_promise(fake_asset::create(42, {
+                {"21", fake_asset::create(21)},
+                {"84", fake_asset::create(84)}}));
+        }
+    };
+}
+
+TEST_CASE("asset"){
+    safe_starter_initializer initializer;
+    library& l = the<library>();
+    {
+        auto fa = l.load_asset<fake_asset>("");
+        REQUIRE(fa);
+        REQUIRE(fa->content() == 42);
+
+        REQUIRE_FALSE(fa->find_nested_asset("none"));
+        REQUIRE(fa->find_nested_asset("21"));
+        REQUIRE_FALSE(fa->find_nested_asset<binary_asset>("21"));
+        REQUIRE(fa->find_nested_asset<fake_asset>("21"));
+        REQUIRE(fa->find_nested_asset<fake_asset>("21")->content() == 21);
+        REQUIRE(fa->find_nested_asset<fake_asset>("84")->content() == 84);
+    }
 }
 
 TEST_CASE("library"){

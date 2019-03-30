@@ -32,23 +32,26 @@ namespace e2d
     };
 
     //
-    // content_asset_base
+    // asset
     //
 
-    class content_asset_base
+    class asset
         : private noncopyable
-        , public ref_counter<content_asset_base> {
+        , public ref_counter<asset> {
     public:
-        content_asset_base() = default;
-        virtual ~content_asset_base() noexcept = default;
+        asset() = default;
+        virtual ~asset() noexcept = default;
     };
+
+    using asset_ptr = intrusive_ptr<asset>;
+    using nested_content = hash_map<str_hash, asset_ptr>;
 
     //
     // content_asset
     //
 
     template < typename Asset, typename Content >
-    class content_asset : public content_asset_base {
+    class content_asset : public asset {
     public:
         using asset_type = Asset;
         using content_type = Content;
@@ -61,14 +64,35 @@ namespace e2d
             return load_result(new Asset(std::move(content)));
         }
 
+        static load_result create(Content content, nested_content nested_content) {
+            return load_result(new Asset(std::move(content), std::move(nested_content)));
+        }
+
         content_asset(Content content)
         : content_(std::move(content)) {}
+
+        content_asset(Content content, nested_content nested_content)
+        : content_(std::move(content))
+        , nested_content_(std::move(nested_content)) {}
 
         const Content& content() const noexcept {
             return content_;
         }
+
+        asset_ptr find_nested_asset(str_view name) const noexcept {
+            const auto iter = nested_content_.find(name);
+            return iter != nested_content_.end()
+                ? iter->second
+                : nullptr;
+        }
+
+        template < typename T >
+        intrusive_ptr<T> find_nested_asset(str_view name) const noexcept {
+            return dynamic_pointer_cast<T>(find_nested_asset(name));
+        }
     private:
         Content content_;
+        nested_content nested_content_;
     };
 
     //
@@ -116,13 +140,13 @@ namespace e2d
     class asset_cache : public asset_cache_base
                       , public module<asset_cache<Asset>> {
     public:
-        using asset_result = typename Asset::load_result;
+        using asset_ptr = typename Asset::ptr;
     public:
         asset_cache(library& l);
         ~asset_cache() noexcept final;
 
-        asset_result find(str_hash address) const;
-        void store(str_hash address, const asset_result& asset);
+        asset_ptr find(str_hash address) const;
+        void store(str_hash address, const asset_ptr& asset);
 
         void clear() noexcept;
         std::size_t asset_count() const noexcept;
@@ -131,7 +155,7 @@ namespace e2d
     private:
         library& library_;
         mutable std::mutex mutex_;
-        hash_map<str_hash, asset_result> assets_;
+        hash_map<str_hash, asset_ptr> assets_;
     };
 }
 

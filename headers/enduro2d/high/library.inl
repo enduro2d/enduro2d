@@ -43,7 +43,7 @@ namespace e2d
             .then([
                 &cache,
                 address_hash = make_hash(address)
-            ](auto&& new_asset){
+            ](const typename Asset::load_result& new_asset){
                 cache.store(address_hash, new_asset);
                 return new_asset;
             });
@@ -61,7 +61,7 @@ namespace e2d
     asset_cache<T>::~asset_cache() noexcept = default;
 
     template < typename T >
-    typename asset_cache<T>::asset_result asset_cache<T>::find(str_hash address) const {
+    typename asset_cache<T>::asset_ptr asset_cache<T>::find(str_hash address) const {
         std::lock_guard<std::mutex> guard(mutex_);
         const auto iter = assets_.find(address);
         return iter != assets_.end()
@@ -70,7 +70,7 @@ namespace e2d
     }
 
     template < typename T >
-    void asset_cache<T>::store(str_hash address, const asset_result& asset) {
+    void asset_cache<T>::store(str_hash address, const asset_ptr& asset) {
         std::lock_guard<std::mutex> guard(mutex_);
         assets_[address] = asset;
     }

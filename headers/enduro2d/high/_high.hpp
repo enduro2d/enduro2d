@@ -43,7 +43,7 @@ namespace e2d
 
     template < typename Asset, typename Content >
     class content_asset;
-    class content_asset_base;
+    class asset;
 
     class library;
 
