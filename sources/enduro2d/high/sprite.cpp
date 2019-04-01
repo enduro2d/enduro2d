@@ -28,7 +28,6 @@ namespace e2d
     }
 
     void sprite::clear() noexcept {
-        size_ = v2f::zero();
         pivot_ = v2f::zero();
         texrect_ = b2f::zero();
         texture_.reset();
@@ -37,7 +36,6 @@ namespace e2d
 
     void sprite::swap(sprite& other) noexcept {
         using std::swap;
-        swap(size_, other.size_);
         swap(pivot_, other.pivot_);
         swap(texrect_, other.texrect_);
         swap(texture_, other.texture_);
@@ -55,7 +53,6 @@ namespace e2d
     sprite& sprite::assign(const sprite& other) {
         if ( this != &other ) {
             sprite s;
-            s.size_ = other.size_;
             s.pivot_ = other.pivot_;
             s.texrect_ = other.texrect_;
             s.texture_ = other.texture_;

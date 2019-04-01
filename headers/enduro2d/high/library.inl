@@ -13,9 +13,6 @@
 
 namespace e2d
 {
-    //
-    // library
-    //
 
     template < typename Asset >
     typename Asset::load_result library::load_asset(str_view address) const {
@@ -47,59 +44,6 @@ namespace e2d
                 cache.store(address_hash, new_asset);
                 return new_asset;
             });
-    }
-
-    //
-    // asset_cache
-    //
-
-    template < typename T >
-    asset_cache<T>::asset_cache(library& l)
-    : library_(l) {}
-
-    template < typename T >
-    asset_cache<T>::~asset_cache() noexcept = default;
-
-    template < typename T >
-    typename asset_cache<T>::asset_ptr asset_cache<T>::find(str_hash address) const {
-        std::lock_guard<std::mutex> guard(mutex_);
-        const auto iter = assets_.find(address);
-        return iter != assets_.end()
-            ? iter->second
-            : nullptr;
-    }
-
-    template < typename T >
-    void asset_cache<T>::store(str_hash address, const asset_ptr& asset) {
-        std::lock_guard<std::mutex> guard(mutex_);
-        assets_[address] = asset;
-    }
-
-    template < typename T >
-    void asset_cache<T>::clear() noexcept {
-        std::lock_guard<std::mutex> guard(mutex_);
-        assets_.clear();
-    }
-
-    template < typename T >
-    std::size_t asset_cache<T>::asset_count() const noexcept {
-        std::lock_guard<std::mutex> guard(mutex_);
-        return assets_.size();
-    }
-
-    template < typename T >
-    std::size_t asset_cache<T>::unload_self_unused_assets() noexcept {
-        std::lock_guard<std::mutex> guard(mutex_);
-        std::size_t result = 0u;
-        for ( auto iter = assets_.begin(); iter != assets_.end(); ) {
-            if ( !iter->second || 1 == iter->second->use_count() ) {
-                iter = assets_.erase(iter);
-                ++result;
-            } else {
-                ++iter;
-            }
-        }
-        return result;
     }
 }
 

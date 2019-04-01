@@ -45,11 +45,11 @@ namespace e2d
     class content_asset;
     class asset;
 
-    class library;
-
     template < typename T >
     class asset_cache;
     class asset_cache_base;
+
+    class library;
 
     class atlas;
     class model;
