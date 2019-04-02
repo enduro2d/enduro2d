@@ -20,7 +20,7 @@ namespace
 namespace e2d
 {
     text_asset::load_async_result text_asset::load_async(
-        library& library, str_view address)
+        const library& library, str_view address)
     {
         const auto asset_url = library.root() / address;
         return the<vfs>().load_as_string_async(asset_url)

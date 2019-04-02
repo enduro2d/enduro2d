@@ -43,13 +43,13 @@ namespace e2d
 
     template < typename Asset, typename Content >
     class content_asset;
-    class content_asset_base;
-
-    class library;
+    class asset;
 
     template < typename T >
     class asset_cache;
     class asset_cache_base;
+
+    class library;
 
     class atlas;
     class model;

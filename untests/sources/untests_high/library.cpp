@@ -99,25 +99,33 @@ TEST_CASE("library"){
             auto material_res = l.load_asset<material_asset>("material.json");
             REQUIRE(material_res);
 
-            auto atlas_res = l.load_asset<atlas_asset>("atlas.json");
-            REQUIRE(atlas_res);
-            REQUIRE(atlas_res->content().texture() == texture_res);
-            REQUIRE(atlas_res->content().regions().size() == 1);
-            REQUIRE(atlas_res->content().find_region("sprite"));
-            REQUIRE(atlas_res->content().find_region("sprite")->name == make_hash("sprite"));
-            REQUIRE(atlas_res->content().find_region("sprite")->pivot == v2f(1.f,2.f));
-            REQUIRE(atlas_res->content().find_region("sprite")->texrect == b2f(5.f,6.f,7.f,8.f));
-            REQUIRE_FALSE(atlas_res->content().find_region("sprite2"));
-            REQUIRE(atlas_res->content().shape_regions().size() == 1);
-            REQUIRE(atlas_res->content().find_shape_region("shape_sprite"));
-            REQUIRE(atlas_res->content().find_shape_region("shape_sprite")->name == make_hash("shape_sprite"));
-            REQUIRE(atlas_res->content().find_shape_region("shape_sprite")->pivot == v2f(3.f,4.f));
-            REQUIRE(atlas_res->content().find_shape_region("shape_sprite")->points == vector<v2f>{
-                {1.f, 2.f},
-                {3.f, 4.f},
-                {5.f, 6.f}
-            });
-            REQUIRE_FALSE(atlas_res->content().find_shape_region("shape_sprite2"));
+            {
+                auto atlas_res = l.load_asset<atlas_asset>("atlas.json");
+                REQUIRE(atlas_res);
+
+                REQUIRE(atlas_res->content().texture() == texture_res);
+                REQUIRE(atlas_res->content().regions().size() == 1);
+                REQUIRE(atlas_res->content().shape_regions().size() == 1);
+
+                const atlas::region* region = atlas_res->content().find_region("sprite");
+                REQUIRE(region);
+                REQUIRE(region->name == make_hash("sprite"));
+                REQUIRE(region->pivot == v2f(1.f,2.f));
+                REQUIRE(region->texrect == b2f(5.f,6.f,7.f,8.f));
+
+                const atlas::shape_region* shape_region = atlas_res->content().find_shape_region("shape_sprite");
+                REQUIRE(shape_region);
+                REQUIRE(shape_region->name == make_hash("shape_sprite"));
+                REQUIRE(shape_region->pivot == v2f(3.f,4.f));
+                REQUIRE(shape_region->points == vector<v2f>{
+                    {1.f, 2.f},
+                    {3.f, 4.f},
+                    {5.f, 6.f}
+                });
+
+                REQUIRE_FALSE(atlas_res->content().find_region("sprite2"));
+                REQUIRE_FALSE(atlas_res->content().find_shape_region("shape_sprite2"));
+            }
 
             {
                 auto sprite_res = l.load_asset<sprite_asset>("sprite_a.json");

@@ -29,6 +29,9 @@
 
 #include "systems/render_system.hpp"
 
+#include "address.hpp"
+#include "asset.hpp"
+#include "asset.inl"
 #include "atlas.hpp"
 #include "library.hpp"
 #include "library.inl"

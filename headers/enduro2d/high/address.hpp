@@ -1,19 +1,15 @@
 /*******************************************************************************
  * This file is part of the "Enduro2D"
  * For conditions of distribution and use, see copyright notice in LICENSE.md
- * Copyright (C) 2018 Matvey Cherevko
+ * Copyright (C) 2018-2019 Matvey Cherevko
  ******************************************************************************/
 
 #pragma once
 
-#include "../_high.hpp"
+#include "_high.hpp"
 
-#include "../library.hpp"
-
-namespace e2d
+namespace e2d { namespace address
 {
-    class mesh_asset final : public content_asset<mesh_asset, mesh> {
-    public:
-        static load_async_result load_async(const library& library, str_view address);
-    };
-}
+    str parent(str_view address);
+    str nested(str_view address);
+}}

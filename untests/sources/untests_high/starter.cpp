@@ -4,8 +4,6 @@
  * Copyright (C) 2018 Matvey Cherevko
  ******************************************************************************/
 
-#include <iostream>
-
 #include "_high.hpp"
 using namespace e2d;
 
