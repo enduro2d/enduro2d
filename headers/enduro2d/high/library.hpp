@@ -39,15 +39,15 @@ namespace e2d
         std::size_t unload_unused_assets() noexcept;
 
         template < typename Asset >
-        typename Asset::load_result load_asset(str_view address) const;
+        typename Asset::load_result load_main_asset(str_view address) const;
 
         template < typename Asset >
-        typename Asset::load_async_result load_asset_async(str_view address) const;
+        typename Asset::load_async_result load_main_asset_async(str_view address) const;
 
-        template < typename Asset, typename Nested >
+        template < typename Asset, typename Nested = Asset >
         typename Nested::load_result load_asset(str_view address) const;
 
-        template < typename Asset, typename Nested >
+        template < typename Asset, typename Nested = Asset >
         typename Nested::load_async_result load_asset_async(str_view address) const;
     private:
         url root_;

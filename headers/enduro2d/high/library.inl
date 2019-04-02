@@ -13,10 +13,9 @@
 
 namespace e2d
 {
-
     template < typename Asset >
-    typename Asset::load_result library::load_asset(str_view address) const {
-        auto p = load_asset_async<Asset>(address);
+    typename Asset::load_result library::load_main_asset(str_view address) const {
+        auto p = load_main_asset_async<Asset>(address);
 
         if ( modules::is_initialized<deferrer>() ) {
             the<deferrer>().active_safe_wait_promise(p);
@@ -26,7 +25,7 @@ namespace e2d
     }
 
     template < typename Asset >
-    typename Asset::load_async_result library::load_asset_async(str_view address) const {
+    typename Asset::load_async_result library::load_main_asset_async(str_view address) const {
         const auto main_address = address::parent(address);
         const auto main_address_hash = make_hash(main_address);
 
@@ -62,19 +61,23 @@ namespace e2d
 
     template < typename Asset, typename Nested >
     typename Nested::load_async_result library::load_asset_async(str_view address) const {
-        return load_asset_async<Asset>(address::parent(address))
+        return load_main_asset_async<Asset>(address::parent(address))
             .then([
-                nested_address = address::nested(address)
-            ](const typename Asset::load_result& main_asset) mutable {
+                address = str(address)
+            ](const typename Asset::load_result& main_asset){
                 asset_ptr nested_asset = main_asset;
+                str nested_address = address::nested(address);
+
                 while ( nested_asset && !nested_address.empty() ) {
                     nested_asset = nested_asset->find_nested_asset(address::parent(nested_address));
                     nested_address = address::nested(nested_address);
                 }
+
                 using nested_asset_type = typename Nested::asset_type;
                 if ( auto result = dynamic_pointer_cast<nested_asset_type>(nested_asset) ) {
                     return result;
                 }
+
                 throw asset_loading_exception();
             });
     }
