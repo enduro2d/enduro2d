@@ -37,16 +37,18 @@ namespace e2d
     // asset
     //
 
+    class asset;
+    using asset_ptr = intrusive_ptr<asset>;
+    using nested_content = hash_map<str_hash, asset_ptr>;
+
     class asset
         : private noncopyable
         , public ref_counter<asset> {
     public:
         asset();
         virtual ~asset() noexcept;
+        virtual asset_ptr find_nested_asset(str_view name) const noexcept = 0;
     };
-
-    using asset_ptr = intrusive_ptr<asset>;
-    using nested_content = hash_map<str_hash, asset_ptr>;
 
     //
     // content_asset
@@ -73,7 +75,7 @@ namespace e2d
 
         template < typename T >
         intrusive_ptr<T> find_nested_asset(str_view name) const noexcept;
-        asset_ptr find_nested_asset(str_view name) const noexcept;
+        asset_ptr find_nested_asset(str_view name) const noexcept override;
     private:
         Content content_;
         nested_content nested_content_;

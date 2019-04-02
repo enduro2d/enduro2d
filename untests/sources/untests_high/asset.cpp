@@ -23,14 +23,22 @@ namespace
         }
     };
 
+    class fake_nested_asset final : public content_asset<fake_nested_asset, int> {
+    };
+
     class fake_asset final : public content_asset<fake_asset, int> {
     public:
         static load_async_result load_async(const library& library, str_view address) {
             E2D_UNUSED(library);
             return address == "42"
                 ? stdex::make_resolved_promise(fake_asset::create(42, {
-                    {"21", fake_asset::create(21)},
-                    {"84", fake_asset::create(84)}}))
+                    {"21", fake_nested_asset::create(21, {
+                        {"2", fake_nested_asset::create(2)}
+                    })},
+                    {"84", fake_nested_asset::create(84, {
+                        {"8", fake_nested_asset::create(8)}
+                    })}
+                }))
                 : stdex::make_rejected_promise<load_result>(asset_loading_exception());
         }
     };
@@ -49,8 +57,23 @@ TEST_CASE("asset"){
         REQUIRE_FALSE(fa->find_nested_asset("none"));
         REQUIRE(fa->find_nested_asset("21"));
         REQUIRE_FALSE(fa->find_nested_asset<binary_asset>("21"));
-        REQUIRE(fa->find_nested_asset<fake_asset>("21"));
-        REQUIRE(fa->find_nested_asset<fake_asset>("21")->content() == 21);
-        REQUIRE(fa->find_nested_asset<fake_asset>("84")->content() == 84);
+        REQUIRE(fa->find_nested_asset<fake_nested_asset>("21"));
+        REQUIRE(fa->find_nested_asset<fake_nested_asset>("21")->content() == 21);
+        REQUIRE(fa->find_nested_asset<fake_nested_asset>("84")->content() == 84);
+    }
+    {
+        REQUIRE(l.load_asset<fake_asset, fake_nested_asset>("42:/21"));
+        REQUIRE(l.load_asset<fake_asset, fake_nested_asset>("42:/21")->content() == 21);
+
+        REQUIRE_FALSE(l.load_asset<fake_asset, binary_asset>("42:/21"));
+        REQUIRE_FALSE(l.load_asset<fake_asset, fake_nested_asset>("42:/none"));
+        REQUIRE_FALSE(l.load_asset<fake_asset, fake_nested_asset>("42:/none:/21"));
+
+        REQUIRE(l.load_asset<fake_asset, fake_nested_asset>("42:/21:/2"));
+        REQUIRE(l.load_asset<fake_asset, fake_nested_asset>("42:/21:/2")->content() == 2);
+
+        REQUIRE_FALSE(l.load_asset<fake_asset, binary_asset>("42:/21:/2"));
+        REQUIRE_FALSE(l.load_asset<fake_asset, fake_nested_asset>("42:/21:/none"));
+        REQUIRE_FALSE(l.load_asset<fake_asset, fake_nested_asset>("42:/21:/none:/2"));
     }
 }

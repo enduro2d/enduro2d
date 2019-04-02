@@ -11,6 +11,7 @@
 #include "_high.hpp"
 
 #include "asset.hpp"
+#include "address.hpp"
 
 namespace e2d
 {
@@ -42,6 +43,12 @@ namespace e2d
 
         template < typename Asset >
         typename Asset::load_async_result load_asset_async(str_view address) const;
+
+        template < typename Asset, typename Nested >
+        typename Nested::load_result load_asset(str_view address) const;
+
+        template < typename Asset, typename Nested >
+        typename Nested::load_async_result load_asset_async(str_view address) const;
     private:
         url root_;
     };
