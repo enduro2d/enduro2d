@@ -107,7 +107,7 @@ namespace
     }
 
     stdex::promise<flipbook::frame> parse_flipbook_atlas_frame(
-        library& library,
+        const library& library,
         str_view parent_address,
         const rapidjson::Value& root)
     {
@@ -140,7 +140,7 @@ namespace
     }
 
     stdex::promise<flipbook::frame> parse_flipbook_texture_frame(
-        library& library,
+        const library& library,
         str_view parent_address,
         const rapidjson::Value& root)
     {
@@ -174,7 +174,7 @@ namespace
     }
 
     stdex::promise<flipbook::frame> parse_flipbook_frame(
-        library& library,
+        const library& library,
         str_view parent_address,
         const rapidjson::Value& root)
     {
@@ -191,7 +191,7 @@ namespace
     }
 
     stdex::promise<vector<flipbook::frame>> parse_flipbook_frames(
-        library& library,
+        const library& library,
         str_view parent_address,
         const rapidjson::Value& root)
     {
@@ -245,7 +245,7 @@ namespace
     }
 
     stdex::promise<flipbook> parse_flipbook(
-        library& library,
+        const library& library,
         str_view parent_address,
         const rapidjson::Value& root)
     {
@@ -290,7 +290,7 @@ namespace
 namespace e2d
 {
     flipbook_asset::load_async_result flipbook_asset::load_async(
-        library& library, str_view address)
+        const library& library, str_view address)
     {
         return library.load_asset_async<json_asset>(address)
         .then([

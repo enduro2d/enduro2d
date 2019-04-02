@@ -40,7 +40,6 @@ namespace e2d
         const texture_asset::ptr& texture() const noexcept;
         const material_asset::ptr& material() const noexcept;
     private:
-        v2f size_;
         v2f pivot_;
         b2f texrect_;
         texture_asset::ptr texture_;

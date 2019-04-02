@@ -145,7 +145,7 @@ namespace
     }
 
     stdex::promise<atlas> parse_atlas(
-        library& library,
+        const library& library,
         str_view parent_address,
         const rapidjson::Value& root)
     {
@@ -187,7 +187,7 @@ namespace
 namespace e2d
 {
     atlas_asset::load_async_result atlas_asset::load_async(
-        library& library, str_view address)
+        const library& library, str_view address)
     {
         return library.load_asset_async<json_asset>(address)
         .then([

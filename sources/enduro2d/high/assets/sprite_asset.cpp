@@ -78,7 +78,7 @@ namespace
     }
 
     stdex::promise<sprite> parse_sprite_with_atlas(
-        library& library,
+        const library& library,
         str_view parent_address,
         const rapidjson::Value& root)
     {
@@ -130,7 +130,7 @@ namespace
     }
 
     stdex::promise<sprite> parse_sprite_with_texture(
-        library& library,
+        const library& library,
         str_view parent_address,
         const rapidjson::Value& root)
     {
@@ -183,7 +183,7 @@ namespace
     }
 
     stdex::promise<sprite> parse_sprite(
-        library& library,
+        const library& library,
         str_view parent_address,
         const rapidjson::Value& root)
     {
@@ -203,7 +203,7 @@ namespace
 namespace e2d
 {
     sprite_asset::load_async_result sprite_asset::load_async(
-        library& library, str_view address)
+        const library& library, str_view address)
     {
         return library.load_asset_async<json_asset>(address)
         .then([

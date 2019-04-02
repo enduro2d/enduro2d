@@ -49,7 +49,7 @@ namespace
     }
 
     stdex::promise<shader_ptr> parse_shader(
-        library& library,
+        const library& library,
         str_view parent_address,
         const rapidjson::Value& root)
     {
@@ -84,7 +84,7 @@ namespace
 namespace e2d
 {
     shader_asset::load_async_result shader_asset::load_async(
-        library& library, str_view address)
+        const library& library, str_view address)
     {
         return library.load_asset_async<json_asset>(address)
             .then([

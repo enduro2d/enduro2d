@@ -15,6 +15,6 @@ namespace e2d
     class json_asset final : public content_asset<json_asset, rapidjson::Document> {
     public:
         using content_asset<json_asset, rapidjson::Document>::content_asset;
-        static load_async_result load_async(library& library, str_view address);
+        static load_async_result load_async(const library& library, str_view address);
     };
 }
