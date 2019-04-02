@@ -9,7 +9,6 @@
 #include "_high.hpp"
 
 #include "assets/texture_asset.hpp"
-#include "assets/material_asset.hpp"
 
 namespace e2d
 {

@@ -9,17 +9,9 @@
 #include "_high.hpp"
 
 #include "assets/mesh_asset.hpp"
-#include "assets/material_asset.hpp"
 
 namespace e2d
 {
-    class bad_model_access final : public exception {
-    public:
-        const char* what() const noexcept final {
-            return "bad model access";
-        }
-    };
-
     class model final {
     public:
         model();

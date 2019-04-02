@@ -146,7 +146,6 @@ TEST_CASE("library"){
             {
                 auto flipbook_res = l.load_asset<flipbook_asset>("flipbook.json");
                 REQUIRE(flipbook_res);
-                REQUIRE(flipbook_res->content().material() == material_res);
 
                 REQUIRE(flipbook_res->content().frames().size() == 2);
                 REQUIRE(flipbook_res->content().sequences().size() == 2);

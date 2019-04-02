@@ -30,14 +30,12 @@ namespace e2d
     void flipbook::clear() noexcept {
         frames_.clear();
         sequences_.clear();
-        material_.reset();
     }
 
     void flipbook::swap(flipbook& other) noexcept {
         using std::swap;
         swap(frames_, other.frames_);
         swap(sequences_, other.sequences_);
-        swap(material_, other.material_);
     }
 
     flipbook& flipbook::assign(flipbook&& other) noexcept {
@@ -53,7 +51,6 @@ namespace e2d
             flipbook s;
             s.frames_ = other.frames_;
             s.sequences_ = other.sequences_;
-            s.material_ = other.material_;
             swap(s);
         }
         return *this;
@@ -106,15 +103,6 @@ namespace e2d
             ? &*iter
             : nullptr;
     }
-
-    flipbook& flipbook::set_material(const material_asset::ptr& material) noexcept {
-        material_ = material;
-        return *this;
-    }
-
-    const material_asset::ptr& flipbook::material() const noexcept {
-        return material_;
-    }
 }
 
 namespace e2d
@@ -131,8 +119,7 @@ namespace e2d
             return false;
         }
         return l.frames() == r.frames()
-            && l.sequences() == r.sequences()
-            && l.material() == r.material();
+            && l.sequences() == r.sequences();
     }
 
     bool operator!=(const flipbook& l, const flipbook& r) noexcept {

@@ -21,12 +21,11 @@ namespace
 
     const char* flipbook_asset_schema_source = R"json({
         "type" : "object",
-        "required" : [ "material" ],
+        "required" : [],
         "additionalProperties" : false,
         "properties" : {
             "frames" : { "$ref": "#/definitions/frames" },
-            "sequences" : { "$ref": "#/definitions/sequences" },
-            "material" : { "$ref": "#/common_definitions/address" }
+            "sequences" : { "$ref": "#/definitions/sequences" }
         },
         "definitions" : {
             "frames" : {
@@ -257,31 +256,19 @@ namespace
             ? parse_flipbook_sequences(root["sequences"])
             : stdex::make_resolved_promise(vector<flipbook::sequence>());
 
-        E2D_ASSERT(root.HasMember("material") && root["material"].IsString());
-        auto material_p = library.load_asset_async<material_asset>(
-            path::combine(parent_address, root["material"].GetString()));
-
         return stdex::make_tuple_promise(std::make_tuple(
             std::move(frames_p),
-            std::move(sequences_p),
-            std::move(material_p)))
+            std::move(sequences_p)))
         .then([](const std::tuple<
             vector<flipbook::frame>,
-            vector<flipbook::sequence>,
-            material_asset::load_result
+            vector<flipbook::sequence>
         >& results){
             const vector<flipbook::frame>& frames = std::get<0>(results);
             const vector<flipbook::sequence>& sequences = std::get<1>(results);
-            const material_asset::load_result& material = std::get<2>(results);
-
-            if ( !material ) {
-                throw flipbook_asset_loading_exception();
-            }
 
             flipbook content;
             content.set_frames(frames);
             content.set_sequences(sequences);
-            content.set_material(material);
             return content;
         });
     }

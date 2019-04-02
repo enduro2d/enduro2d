@@ -16,6 +16,5 @@
         "fps" : 10,
         "name" : "idle",
         "frames" : [0, 1]
-    }],
-    "material" : "sprite_material.json"
+    }]
 }

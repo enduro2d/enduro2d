@@ -9,7 +9,6 @@
 #include "_high.hpp"
 
 #include "assets/texture_asset.hpp"
-#include "assets/material_asset.hpp"
 
 namespace e2d
 {
@@ -51,13 +50,9 @@ namespace e2d
         flipbook& set_sequences(const vector<sequence>& sequences);
         const vector<sequence>& sequences() const noexcept;
         const sequence* find_sequence(str_hash name) const noexcept;
-
-        flipbook& set_material(const material_asset::ptr& material) noexcept;
-        const material_asset::ptr& material() const noexcept;
     private:
         vector<frame> frames_;
         vector<sequence> sequences_;
-        material_asset::ptr material_;
     };
 
     void swap(flipbook& l, flipbook& r) noexcept;
