@@ -125,13 +125,17 @@ namespace e2d { namespace render_system_impl
         const renderer& node_r,
         const sprite_renderer& spr_r)
     {
-        if ( !node || !node_r.enabled() || !spr_r.sprite() ) {
+        if ( !node || !node_r.enabled() ) {
+            return;
+        }
+
+        if ( !spr_r.sprite() || node_r.materials().empty() ) {
             return;
         }
 
         const sprite& spr = spr_r.sprite()->content();
         const texture_asset::ptr& tex_a = spr.texture();
-        const material_asset::ptr& mat_a = spr.material();
+        const material_asset::ptr& mat_a = node_r.materials().front();
 
         if ( !tex_a || !tex_a->content() || !mat_a ) {
             return;
@@ -178,7 +182,7 @@ namespace e2d { namespace render_system_impl
 
         try {
             batcher_.batch(
-                spr.material(),
+                mat_a,
                 property_cache_
                     .sampler(sprite_texture_sampler_hash, render::sampler_state()
                         .texture(tex_a->content())

@@ -133,7 +133,6 @@ TEST_CASE("library"){
                 REQUIRE(sprite_res->content().pivot() == v2f(1.f, 2.f));
                 REQUIRE(sprite_res->content().texrect() == b2f(5.f, 6.f, 7.f, 8.f));
                 REQUIRE(sprite_res->content().texture() == texture_res);
-                REQUIRE(sprite_res->content().material() == material_res);
             }
 
             {
@@ -142,7 +141,6 @@ TEST_CASE("library"){
                 REQUIRE(sprite_res->content().pivot() == v2f(1.f, 2.f));
                 REQUIRE(sprite_res->content().texrect() == b2f(5.f, 6.f, 7.f, 8.f));
                 REQUIRE(sprite_res->content().texture() == texture_res);
-                REQUIRE(sprite_res->content().material() == material_res);
             }
 
             {

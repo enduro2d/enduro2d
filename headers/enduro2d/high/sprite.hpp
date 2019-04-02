@@ -33,17 +33,14 @@ namespace e2d
         sprite& set_pivot(const v2f& pivot) noexcept;
         sprite& set_texrect(const b2f& texrect) noexcept;
         sprite& set_texture(const texture_asset::ptr& texture) noexcept;
-        sprite& set_material(const material_asset::ptr& material) noexcept;
 
         const v2f& pivot() const noexcept;
         const b2f& texrect() const noexcept;
         const texture_asset::ptr& texture() const noexcept;
-        const material_asset::ptr& material() const noexcept;
     private:
         v2f pivot_;
         b2f texrect_;
         texture_asset::ptr texture_;
-        material_asset::ptr material_;
     };
 
     void swap(sprite& l, sprite& r) noexcept;

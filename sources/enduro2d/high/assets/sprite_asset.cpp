@@ -22,18 +22,16 @@ namespace
     const char* sprite_asset_schema_source = R"json({
         "type" : "object",
         "oneOf" : [{
-            "required" : [ "atlas", "material" ],
+            "required" : [ "atlas" ],
             "additionalProperties" : false,
             "properties" : {
-                "atlas" : { "$ref": "#/definitions/atlas" },
-                "material" : { "$ref": "#/common_definitions/address" }
+                "atlas" : { "$ref": "#/definitions/atlas" }
             }
         }, {
-            "required" : [ "texture", "material" ],
+            "required" : [ "texture" ],
             "additionalProperties" : false,
             "properties" : {
-                "texture" : { "$ref": "#/definitions/texture" },
-                "material" : { "$ref": "#/common_definitions/address" }
+                "texture" : { "$ref": "#/definitions/texture" }
             }
         }],
         "definitions" : {
@@ -82,10 +80,6 @@ namespace
         str_view parent_address,
         const rapidjson::Value& root)
     {
-        E2D_ASSERT(root.HasMember("material") && root["material"].IsString());
-        auto material_p = library.load_asset_async<material_asset>(
-            path::combine(parent_address, root["material"].GetString()));
-
         E2D_ASSERT(root.HasMember("atlas") && root["atlas"].IsObject());
         const auto& atlas_root_json = root["atlas"];
 
@@ -99,20 +93,9 @@ namespace
                 sprite_asset_loading_exception());
         }
 
-        return stdex::make_tuple_promise(std::make_tuple(
-            std::move(atlas_p),
-            std::move(material_p)
-        )).then([region_hash](const std::tuple<
-            atlas_asset::load_result,
-            material_asset::load_result
-        >& results){
-            const atlas_asset::load_result& atlas = std::get<0>(results);
-            const material_asset::load_result& material = std::get<1>(results);
-
-            if ( !atlas || !material ) {
-                throw sprite_asset_loading_exception();
-            }
-
+        return atlas_p.then([
+            region_hash
+        ](const atlas_asset::load_result& atlas){
             const texture_asset::ptr& texture = atlas->content().texture();
             const atlas::region* region = atlas->content().find_region(region_hash);
 
@@ -124,7 +107,6 @@ namespace
             content.set_pivot(region->pivot);
             content.set_texrect(region->texrect);
             content.set_texture(texture);
-            content.set_material(material);
             return content;
         });
     }
@@ -134,10 +116,6 @@ namespace
         str_view parent_address,
         const rapidjson::Value& root)
     {
-        E2D_ASSERT(root.HasMember("material") && root["material"].IsString());
-        auto material_p = library.load_asset_async<material_asset>(
-            path::combine(parent_address, root["material"].GetString()));
-
         E2D_ASSERT(root.HasMember("texture") && root["texture"].IsObject());
         const auto& texture_root_json = root["texture"];
 
@@ -159,25 +137,14 @@ namespace
                 sprite_asset_loading_exception());
         }
 
-        return stdex::make_tuple_promise(std::make_tuple(
-            std::move(texture_p),
-            std::move(material_p)
-        )).then([pivot, texrect](const std::tuple<
-            texture_asset::load_result,
-            material_asset::load_result
-        >& results){
-            const texture_asset::load_result& texture = std::get<0>(results);
-            const material_asset::load_result& material = std::get<1>(results);
-
-            if ( !texture || !material ) {
-                throw sprite_asset_loading_exception();
-            }
-
+        return texture_p.then([
+            pivot,
+            texrect
+        ](const texture_asset::load_result& texture){
             sprite content;
             content.set_pivot(pivot);
             content.set_texrect(texrect);
             content.set_texture(texture);
-            content.set_material(material);
             return content;
         });
     }

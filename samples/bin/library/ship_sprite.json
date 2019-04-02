@@ -2,6 +2,5 @@
     "atlas" : {
         "atlas" : "ships_atlas.json",
         "region" : "ship (2).png"
-    },
-    "material" : "sprite_material.json"
+    }
 }
