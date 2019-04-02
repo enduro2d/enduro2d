@@ -23,6 +23,17 @@ namespace e2d
     };
 
     //
+    // bad_asset_factory_operation
+    //
+
+    class bad_asset_factory_operation final : public exception {
+    public:
+        const char* what() const noexcept final {
+            return "bad asset factory operation";
+        }
+    };
+
+    //
     // asset
     //
 
@@ -97,7 +108,7 @@ namespace e2d
         asset_cache(library& l);
         ~asset_cache() noexcept final;
 
-        asset_ptr find(str_hash address) const;
+        asset_ptr find(str_hash address) const noexcept;
         void store(str_hash address, const asset_ptr& asset);
 
         void clear() noexcept;
@@ -108,6 +119,26 @@ namespace e2d
         library& library_;
         mutable std::mutex mutex_;
         hash_map<str_hash, asset_ptr> assets_;
+    };
+
+    //
+    // asset_factory
+    //
+
+    class asset_factory : public module<asset_factory> {
+    public:
+        using asset_creator = std::function<
+            stdex::promise<asset_ptr>(const library& library, str_view address)>;
+    public:
+        asset_factory();
+        ~asset_factory() noexcept final;
+
+        template < typename Asset >
+        asset_factory& register_asset(str_hash type);
+        asset_factory& register_creator(str_hash type, asset_creator creator);
+    private:
+        std::mutex mutex_;
+        hash_map<str_hash, asset_creator> creators_;
     };
 }
 

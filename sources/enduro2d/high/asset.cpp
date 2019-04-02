@@ -39,4 +39,11 @@ namespace e2d
                 return acc + cache->unload_self_unused_assets();
             });
     }
+
+    //
+    // asset_factory
+    //
+
+    asset_factory::asset_factory() = default;
+    asset_factory::~asset_factory() noexcept = default;
 }
