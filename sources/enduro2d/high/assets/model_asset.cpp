@@ -24,11 +24,7 @@ namespace
         "required" : [ "mesh" ],
         "additionalProperties" : false,
         "properties" : {
-            "mesh" : { "$ref": "#/common_definitions/address" },
-            "materials" : {
-                "type" : "array",
-                "items" : { "$ref" : "#/common_definitions/address" }
-            }
+            "mesh" : { "$ref": "#/common_definitions/address" }
         }
     })json";
 
@@ -59,31 +55,10 @@ namespace
         auto mesh_p = library.load_asset_async<mesh_asset>(
             path::combine(parent_address, root["mesh"].GetString()));
 
-        vector<stdex::promise<material_asset::load_result>> materials_p;
-
-        if ( root.HasMember("materials") ) {
-            E2D_ASSERT(root["materials"].IsArray());
-            const auto& materials_json = root["materials"];
-
-            materials_p.reserve(materials_json.Size());
-            for ( rapidjson::SizeType i = 0; i < materials_json.Size(); ++i ) {
-                E2D_ASSERT(materials_json[i].IsString());
-                materials_p.emplace_back(
-                    library.load_asset_async<material_asset>(
-                        path::combine(parent_address, materials_json[i].GetString())));
-            }
-        }
-
-        return stdex::make_tuple_promise(std::make_tuple(
-            std::move(mesh_p),
-            stdex::make_all_promise(materials_p)))
-        .then([](const std::tuple<
-            mesh_asset::load_result,
-            vector<material_asset::load_result>
-        >& results){
+        return mesh_p.then([
+        ](const mesh_asset::load_result& mesh){
             model content;
-            content.set_mesh(std::get<0>(results));
-            content.set_materials(std::get<1>(results));
+            content.set_mesh(mesh);
             return the<deferrer>().do_in_main_thread([
                 content = std::move(content)
             ]() mutable {

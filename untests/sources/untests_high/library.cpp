@@ -179,8 +179,6 @@ TEST_CASE("library"){
             auto model_res = l.load_asset<model_asset>("model.json");
             REQUIRE(model_res);
             REQUIRE(model_res->content().mesh());
-            REQUIRE(model_res->content().material_count() == 1);
-            REQUIRE(model_res->content().material(0));
             REQUIRE_FALSE(model_res->content().mesh()->content().vertices().empty());
             REQUIRE(model_res->content().mesh()->content().indices_submesh_count() == 1);
             REQUIRE_FALSE(model_res->content().mesh()->content().indices(0).empty());

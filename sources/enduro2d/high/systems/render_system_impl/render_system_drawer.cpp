@@ -83,7 +83,7 @@ namespace e2d { namespace render_system_impl
             return;
         }
 
-        if ( !mdl_r.model() || !mdl_r.model()->content().mesh()) {
+        if ( !mdl_r.model() || !mdl_r.model()->content().mesh() ) {
             return;
         }
 
@@ -99,11 +99,11 @@ namespace e2d { namespace render_system_impl
 
             const std::size_t submesh_count = math::min(
                 msh.indices_submesh_count(),
-                mdl.material_count());
+                node_r.materials().size());
 
             for ( std::size_t i = 0, first_index = 0; i < submesh_count; ++i ) {
                 const std::size_t index_count = msh.indices(i).size();
-                const material_asset::ptr& mat = mdl.material(i);
+                const material_asset::ptr& mat = node_r.materials()[i];
                 if ( mat ) {
                     render_.execute(render::draw_command(
                         mat->content(),

@@ -1,6 +1,3 @@
 {
-    "mesh" : "mesh.e2d_mesh",
-    "materials" : [
-        "material.json"
-    ]
+    "mesh" : "mesh.e2d_mesh"
 }
