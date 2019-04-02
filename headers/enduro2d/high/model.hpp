@@ -33,7 +33,7 @@ namespace e2d
         const mesh_asset::ptr& mesh() const noexcept;
 
         // It can only be called from the main thread
-        void regenerate_geometry();
+        void regenerate_geometry(render& render);
         const render::geometry& geometry() const noexcept;
     private:
         mesh_asset::ptr mesh_;

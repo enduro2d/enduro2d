@@ -57,12 +57,10 @@ namespace
 
         return mesh_p.then([
         ](const mesh_asset::load_result& mesh){
-            model content;
-            content.set_mesh(mesh);
-            return the<deferrer>().do_in_main_thread([
-                content = std::move(content)
-            ]() mutable {
-                content.regenerate_geometry();
+            return the<deferrer>().do_in_main_thread([mesh](){
+                model content;
+                content.set_mesh(mesh);
+                content.regenerate_geometry(the<render>());
                 return content;
             });
         });
