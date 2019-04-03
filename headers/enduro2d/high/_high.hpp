@@ -35,11 +35,13 @@ namespace e2d
 
     class actor;
     class camera;
+    class flipbook_controller;
     class model_renderer;
     class renderer;
     class scene;
     class sprite_renderer;
 
+    class flipbook_system;
     class render_system;
 
     template < typename Asset, typename Content >

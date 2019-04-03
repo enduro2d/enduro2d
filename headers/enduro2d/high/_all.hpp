@@ -23,11 +23,13 @@
 
 #include "components/actor.hpp"
 #include "components/camera.hpp"
+#include "components/flipbook_controller.hpp"
 #include "components/model_renderer.hpp"
 #include "components/renderer.hpp"
 #include "components/scene.hpp"
 #include "components/sprite_renderer.hpp"
 
+#include "systems/flipbook_system.hpp"
 #include "systems/render_system.hpp"
 
 #include "address.hpp"

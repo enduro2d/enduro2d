@@ -1,17 +1,8 @@
 {
-    "frames" : [{
-        "texture" : {
-            "texture" : "cube_0.png",
-            "pivot" : { "x" : 12, "y" : 12 },
-            "texrect" : { "x" : 0, "y" : 0, "w" : 24, "h" : 24 }
-        }
-    }, {
-        "texture" : {
-            "texture" : "cube_1.png",
-            "pivot" : { "x" : 12, "y" : 12 },
-            "texrect" : { "x" : 0, "y" : 0, "w" : 24, "h" : 24 }
-        }
-    }],
+    "frames" : [
+        { "sprite" : "cube_0_sprite.json" },
+        { "sprite" : "cube_1_sprite.json" }
+    ],
     "sequences" : [{
         "fps" : 10,
         "name" : "idle",

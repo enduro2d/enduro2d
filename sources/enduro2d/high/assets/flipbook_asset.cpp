@@ -8,7 +8,7 @@
 
 #include "json_asset.hpp"
 #include <enduro2d/high/assets/atlas_asset.hpp>
-#include <enduro2d/high/assets/sprite_asset.cpp>
+#include <enduro2d/high/assets/sprite_asset.hpp>
 
 namespace
 {

@@ -76,8 +76,9 @@ namespace
             auto model_mat = the<library>().load_asset<material_asset>("gnome_material.json");
             auto sprite_res = the<library>().load_asset<sprite_asset>("ship_sprite.json");
             auto sprite_mat = the<library>().load_asset<material_asset>("sprite_material.json");
+            auto flipbook_res = the<library>().load_asset<flipbook_asset>("cube_flipbook.json");
 
-            if ( !model_res || !model_mat || !sprite_res || !sprite_mat ) {
+            if ( !model_res || !model_mat || !sprite_res || !sprite_mat || !flipbook_res ) {
                 return false;
             }
 
@@ -112,6 +113,20 @@ namespace
 
                 node_iptr sprite_n = sprite_e.get_component<actor>().node();
                 sprite_n->translation(v3f{0,-50.f,0});
+            }
+
+            {
+                ecs::entity flipbook_e = the<world>().registry().create_entity();
+
+                ecs::entity_filler(flipbook_e)
+                    .component<actor>(node::create(flipbook_e, scene_r))
+                    .component<renderer>(renderer()
+                        .materials({sprite_mat}))
+                    .component<sprite_renderer>()
+                    .component<flipbook_controller>(flipbook_res);
+
+                node_iptr flipbook_n = flipbook_e.get_component<actor>().node();
+                flipbook_n->translation(v3f{0,-100.f,0});
             }
 
             return true;
