@@ -8,6 +8,7 @@
 
 #include "json_asset.hpp"
 #include <enduro2d/high/assets/atlas_asset.hpp>
+#include <enduro2d/high/assets/texture_asset.hpp>
 
 namespace
 {
@@ -21,39 +22,12 @@ namespace
 
     const char* sprite_asset_schema_source = R"json({
         "type" : "object",
-        "oneOf" : [{
-            "required" : [ "atlas" ],
-            "additionalProperties" : false,
-            "properties" : {
-                "atlas" : { "$ref": "#/definitions/atlas" }
-            }
-        }, {
-            "required" : [ "texture" ],
-            "additionalProperties" : false,
-            "properties" : {
-                "texture" : { "$ref": "#/definitions/texture" }
-            }
-        }],
-        "definitions" : {
-            "atlas" : {
-                "type" : "object",
-                "required" : [ "atlas", "region" ],
-                "additionalProperties" : false,
-                "properties" : {
-                    "atlas" : { "$ref": "#/common_definitions/address" },
-                    "region" : { "$ref": "#/common_definitions/name" }
-                }
-            },
-            "texture" : {
-                "type" : "object",
-                "required" : [ "texture", "pivot", "texrect" ],
-                "additionalProperties" : false,
-                "properties" : {
-                    "texture" : { "$ref": "#/common_definitions/address" },
-                    "pivot" : { "$ref": "#/common_definitions/v2" },
-                    "texrect" : { "$ref": "#/common_definitions/b2" }
-                }
-            }
+        "required" : [ "texture", "pivot", "texrect" ],
+        "additionalProperties" : false,
+        "properties" : {
+            "texture" : { "$ref": "#/common_definitions/address" },
+            "pivot" : { "$ref": "#/common_definitions/v2" },
+            "texrect" : { "$ref": "#/common_definitions/b2" }
         }
     })json";
 
@@ -75,64 +49,25 @@ namespace
         return *schema;
     }
 
-    stdex::promise<sprite> parse_sprite_with_atlas(
+    stdex::promise<sprite> parse_sprite(
         const library& library,
         str_view parent_address,
         const rapidjson::Value& root)
     {
-        E2D_ASSERT(root.HasMember("atlas") && root["atlas"].IsObject());
-        const auto& atlas_root_json = root["atlas"];
-
-        E2D_ASSERT(atlas_root_json.HasMember("atlas") && atlas_root_json["atlas"].IsString());
-        auto atlas_p = library.load_asset_async<atlas_asset>(
-            path::combine(parent_address, atlas_root_json["atlas"].GetString()));
-
-        str_hash region_hash;
-        if ( !json_utils::try_parse_value(atlas_root_json["region"], region_hash) ) {
-            return stdex::make_rejected_promise<sprite>(
-                sprite_asset_loading_exception());
-        }
-
-        return atlas_p.then([
-            region_hash
-        ](const atlas_asset::load_result& atlas){
-            const texture_asset::ptr& texture = atlas->content().texture();
-            const atlas::region* region = atlas->content().find_region(region_hash);
-
-            if ( !texture || !region ) {
-                throw sprite_asset_loading_exception();
-            }
-
-            sprite content;
-            content.set_pivot(region->pivot);
-            content.set_texrect(region->texrect);
-            content.set_texture(texture);
-            return content;
-        });
-    }
-
-    stdex::promise<sprite> parse_sprite_with_texture(
-        const library& library,
-        str_view parent_address,
-        const rapidjson::Value& root)
-    {
-        E2D_ASSERT(root.HasMember("texture") && root["texture"].IsObject());
-        const auto& texture_root_json = root["texture"];
-
-        E2D_ASSERT(texture_root_json.HasMember("texture") && texture_root_json["texture"].IsString());
+        E2D_ASSERT(root.HasMember("texture") && root["texture"].IsString());
         auto texture_p = library.load_asset_async<texture_asset>(
-            path::combine(parent_address, texture_root_json["texture"].GetString()));
+            path::combine(parent_address, root["texture"].GetString()));
 
         v2f pivot;
-        E2D_ASSERT(texture_root_json.HasMember("pivot"));
-        if ( !json_utils::try_parse_value(texture_root_json["pivot"], pivot) ) {
+        E2D_ASSERT(root.HasMember("pivot"));
+        if ( !json_utils::try_parse_value(root["pivot"], pivot) ) {
             return stdex::make_rejected_promise<sprite>(
                 sprite_asset_loading_exception());
         }
 
         b2f texrect;
-        E2D_ASSERT(texture_root_json.HasMember("texrect"));
-        if ( !json_utils::try_parse_value(texture_root_json["texrect"], texrect) ) {
+        E2D_ASSERT(root.HasMember("texrect"));
+        if ( !json_utils::try_parse_value(root["texrect"], texrect) ) {
             return stdex::make_rejected_promise<sprite>(
                 sprite_asset_loading_exception());
         }
@@ -147,23 +82,6 @@ namespace
             content.set_texture(texture);
             return content;
         });
-    }
-
-    stdex::promise<sprite> parse_sprite(
-        const library& library,
-        str_view parent_address,
-        const rapidjson::Value& root)
-    {
-        if ( root.HasMember("atlas") ) {
-            return parse_sprite_with_atlas(library, parent_address, root);
-        }
-
-        if ( root.HasMember("texture") ) {
-            return parse_sprite_with_texture(library, parent_address, root);
-        }
-
-        return stdex::make_rejected_promise<sprite>(
-            sprite_asset_loading_exception());
     }
 }
 

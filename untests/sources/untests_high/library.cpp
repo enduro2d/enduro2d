@@ -104,39 +104,18 @@ TEST_CASE("library"){
                 REQUIRE(atlas_res);
 
                 REQUIRE(atlas_res->content().texture() == texture_res);
-                REQUIRE(atlas_res->content().regions().size() == 1);
-                REQUIRE(atlas_res->content().shape_regions().size() == 1);
 
-                const atlas::region* region = atlas_res->content().find_region("sprite");
-                REQUIRE(region);
-                REQUIRE(region->name == make_hash("sprite"));
-                REQUIRE(region->pivot == v2f(1.f,2.f));
-                REQUIRE(region->texrect == b2f(5.f,6.f,7.f,8.f));
+                REQUIRE(atlas_res->find_nested_asset("sprite"));
 
-                const atlas::shape_region* shape_region = atlas_res->content().find_shape_region("shape_sprite");
-                REQUIRE(shape_region);
-                REQUIRE(shape_region->name == make_hash("shape_sprite"));
-                REQUIRE(shape_region->pivot == v2f(3.f,4.f));
-                REQUIRE(shape_region->points == vector<v2f>{
-                    {1.f, 2.f},
-                    {3.f, 4.f},
-                    {5.f, 6.f}
-                });
-
-                REQUIRE_FALSE(atlas_res->content().find_region("sprite2"));
-                REQUIRE_FALSE(atlas_res->content().find_shape_region("shape_sprite2"));
+                sprite_asset::ptr spr = atlas_res->find_nested_asset<sprite_asset>("sprite");
+                REQUIRE(spr);
+                REQUIRE(spr->content().pivot() == v2f(1.f,2.f));
+                REQUIRE(spr->content().texrect() == b2f(5.f,6.f,7.f,8.f));
+                REQUIRE(spr->content().texture()== texture_res);
             }
 
             {
-                auto sprite_res = l.load_asset<sprite_asset>("sprite_a.json");
-                REQUIRE(sprite_res);
-                REQUIRE(sprite_res->content().pivot() == v2f(1.f, 2.f));
-                REQUIRE(sprite_res->content().texrect() == b2f(5.f, 6.f, 7.f, 8.f));
-                REQUIRE(sprite_res->content().texture() == texture_res);
-            }
-
-            {
-                auto sprite_res = l.load_asset<sprite_asset>("sprite_t.json");
+                auto sprite_res = l.load_asset<sprite_asset>("sprite.json");
                 REQUIRE(sprite_res);
                 REQUIRE(sprite_res->content().pivot() == v2f(1.f, 2.f));
                 REQUIRE(sprite_res->content().texrect() == b2f(5.f, 6.f, 7.f, 8.f));
@@ -152,15 +131,13 @@ TEST_CASE("library"){
 
                 const flipbook::frame* frame_0 = flipbook_res->content().find_frame(0);
                 REQUIRE(frame_0);
-                REQUIRE(frame_0->texture == texture_res);
-                REQUIRE(frame_0->pivot == v2f(1.f,2.f));
-                REQUIRE(frame_0->texrect == b2f(5.f, 6.f, 7.f, 8.f));
+                REQUIRE(frame_0->sprite);
+                REQUIRE(frame_0->sprite == l.load_asset<atlas_asset, sprite_asset>("atlas.json:/sprite"));
 
                 const flipbook::frame* frame_1 = flipbook_res->content().find_frame(1);
                 REQUIRE(frame_1);
-                REQUIRE(frame_1->texture == texture_res);
-                REQUIRE(frame_1->pivot == v2f(1.f, 2.f));
-                REQUIRE(frame_1->texrect == b2f(5.f, 6.f, 7.f, 8.f));
+                REQUIRE(frame_1->sprite);
+                REQUIRE(frame_1->sprite == l.load_asset<sprite_asset>("sprite.json"));
 
                 const flipbook::sequence* sequence_0 = flipbook_res->content().find_sequence("sequence_0");
                 REQUIRE(sequence_0);

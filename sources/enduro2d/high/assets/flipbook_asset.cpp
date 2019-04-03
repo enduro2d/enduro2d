@@ -8,6 +8,7 @@
 
 #include "json_asset.hpp"
 #include <enduro2d/high/assets/atlas_asset.hpp>
+#include <enduro2d/high/assets/sprite_asset.cpp>
 
 namespace
 {
@@ -38,34 +39,15 @@ namespace
                     "required" : [ "atlas" ],
                     "additionalProperties" : false,
                     "properties" : {
-                        "atlas" : { "$ref": "#/definitions/atlas_frame" }
+                        "atlas" : { "$ref": "#/common_definitions/address" }
                     }
                 }, {
-                    "required" : [ "texture" ],
+                    "required" : [ "sprite" ],
                     "additionalProperties" : false,
                     "properties" : {
-                        "texture" : { "$ref": "#/definitions/texture_frame" }
+                        "sprite" : { "$ref": "#/common_definitions/address" }
                     }
                 }]
-            },
-            "atlas_frame" : {
-                "type" : "object",
-                "required" : [ "atlas", "region" ],
-                "additionalProperties" : false,
-                "properties" : {
-                    "atlas" : { "$ref": "#/common_definitions/address" },
-                    "region" : { "$ref": "#/common_definitions/name" }
-                }
-            },
-            "texture_frame" : {
-                "type" : "object",
-                "required" : [ "texture", "pivot", "texrect" ],
-                "additionalProperties" : false,
-                "properties" : {
-                    "texture" : { "$ref": "#/common_definitions/address" },
-                    "pivot" : { "$ref": "#/common_definitions/v2" },
-                    "texrect" : { "$ref": "#/common_definitions/b2" }
-                }
             },
             "sequences" : {
                 "type" : "array",
@@ -105,84 +87,31 @@ namespace
         return *schema;
     }
 
-    stdex::promise<flipbook::frame> parse_flipbook_atlas_frame(
-        const library& library,
-        str_view parent_address,
-        const rapidjson::Value& root)
-    {
-        E2D_ASSERT(root.IsObject());
-
-        E2D_ASSERT(root.HasMember("atlas") && root["atlas"].IsString());
-        auto atlas_p = library.load_asset_async<atlas_asset>(
-            path::combine(parent_address, root["atlas"].GetString()));
-
-        str_hash region_hash;
-        if ( !json_utils::try_parse_value(root["region"], region_hash) ) {
-            return stdex::make_rejected_promise<flipbook::frame>(
-                flipbook_asset_loading_exception());
-        }
-
-        return atlas_p.then([region_hash](const atlas_asset::load_result& atlas){
-            const texture_asset::ptr& texture = atlas->content().texture();
-            const atlas::region* region = atlas->content().find_region(region_hash);
-
-            if ( !texture || !region ) {
-                throw flipbook_asset_loading_exception();
-            }
-
-            flipbook::frame content;
-            content.pivot = region->pivot;
-            content.texrect = region->texrect;
-            content.texture = texture;
-            return content;
-        });
-    }
-
-    stdex::promise<flipbook::frame> parse_flipbook_texture_frame(
-        const library& library,
-        str_view parent_address,
-        const rapidjson::Value& root)
-    {
-        E2D_ASSERT(root.IsObject());
-
-        E2D_ASSERT(root.HasMember("texture") && root["texture"].IsString());
-        auto texture_p = library.load_asset_async<texture_asset>(
-            path::combine(parent_address, root["texture"].GetString()));
-
-        v2f pivot;
-        E2D_ASSERT(root.HasMember("pivot"));
-        if ( !json_utils::try_parse_value(root["pivot"], pivot) ) {
-            return stdex::make_rejected_promise<flipbook::frame>(
-                flipbook_asset_loading_exception());
-        }
-
-        b2f texrect;
-        E2D_ASSERT(root.HasMember("texrect"));
-        if ( !json_utils::try_parse_value(root["texrect"], texrect) ) {
-            return stdex::make_rejected_promise<flipbook::frame>(
-                flipbook_asset_loading_exception());
-        }
-
-        return texture_p.then([pivot, texrect](const texture_asset::load_result& texture){
-            flipbook::frame content;
-            content.pivot = pivot;
-            content.texrect = texrect;
-            content.texture = texture;
-            return content;
-        });
-    }
-
     stdex::promise<flipbook::frame> parse_flipbook_frame(
         const library& library,
         str_view parent_address,
         const rapidjson::Value& root)
     {
         if ( root.HasMember("atlas") ) {
-            return parse_flipbook_atlas_frame(library, parent_address, root["atlas"]);
+            E2D_ASSERT(root["atlas"].IsString());
+            return library.load_asset_async<atlas_asset, sprite_asset>(
+                path::combine(parent_address, root["atlas"].GetString()))
+            .then([](const sprite_asset::load_result& sprite){
+                flipbook::frame frame;
+                frame.sprite = sprite;
+                return frame;
+            });
         }
 
-        if ( root.HasMember("texture") ) {
-            return parse_flipbook_texture_frame(library, parent_address, root["texture"]);
+        if ( root.HasMember("sprite") ) {
+            E2D_ASSERT(root["sprite"].IsString());
+            return library.load_asset_async<sprite_asset>(
+                path::combine(parent_address, root["sprite"].GetString()))
+            .then([](const sprite_asset::load_result& sprite){
+                flipbook::frame frame;
+                frame.sprite = sprite;
+                return frame;
+            });
         }
 
         return stdex::make_rejected_promise<flipbook::frame>(
@@ -198,8 +127,8 @@ namespace
         vector<stdex::promise<flipbook::frame>> frames_p;
         frames_p.reserve(root.Size());
         for ( rapidjson::SizeType i = 0; i < root.Size(); ++i ) {
-            auto frame_p = parse_flipbook_frame(library, parent_address, root[i]);
-            frames_p.push_back(frame_p);
+            frames_p.push_back(
+                parse_flipbook_frame(library, parent_address, root[i]));
         }
         return stdex::make_all_promise(frames_p);
     }
@@ -237,7 +166,7 @@ namespace
             sequence.fps = fps;
             sequence.name = name_hash;
             sequence.frames = std::move(frames);
-            sequences.push_back(sequence);
+            sequences.push_back(std::move(sequence));
         }
 
         return stdex::make_resolved_promise(sequences);
@@ -263,12 +192,9 @@ namespace
             vector<flipbook::frame>,
             vector<flipbook::sequence>
         >& results){
-            const vector<flipbook::frame>& frames = std::get<0>(results);
-            const vector<flipbook::sequence>& sequences = std::get<1>(results);
-
             flipbook content;
-            content.set_frames(frames);
-            content.set_sequences(sequences);
+            content.set_frames(std::get<0>(results));
+            content.set_sequences(std::get<1>(results));
             return content;
         });
     }

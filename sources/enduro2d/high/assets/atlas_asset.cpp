@@ -7,6 +7,8 @@
 #include <enduro2d/high/assets/atlas_asset.hpp>
 
 #include "json_asset.hpp"
+#include <enduro2d/high/assets/sprite_asset.cpp>
+#include <enduro2d/high/assets/texture_asset.cpp>
 
 namespace
 {
@@ -25,15 +27,14 @@ namespace
         "additionalProperties" : false,
         "properties" : {
             "texture" : { "$ref": "#/common_definitions/address" },
-            "regions" : { "$ref": "#/definitions/regions" },
-            "shape_regions" : { "$ref": "#/definitions/shape_regions" }
+            "sprites" : { "$ref": "#/definitions/sprites" }
         },
         "definitions" : {
-            "regions" : {
+            "sprites" : {
                 "type" : "array",
-                "items" : { "$ref": "#/definitions/region" }
+                "items" : { "$ref": "#/definitions/sprite" }
             },
-            "region" : {
+            "sprite" : {
                 "type" : "object",
                 "required" : [ "name", "pivot", "texrect" ],
                 "additionalProperties" : false,
@@ -41,24 +42,6 @@ namespace
                     "name" : { "$ref": "#/common_definitions/name" },
                     "pivot" : { "$ref": "#/common_definitions/v2" },
                     "texrect" : { "$ref": "#/common_definitions/b2" }
-                }
-            },
-            "shape_regions" : {
-                "type" : "array",
-                "items" : { "$ref": "#/definitions/shape_region" }
-            },
-            "shape_region" : {
-                "type" : "object",
-                "required" : [ "name", "pivot", "points" ],
-                "additionalProperties" : false,
-                "properties" : {
-                    "name" : { "$ref": "#/common_definitions/name" },
-                    "pivot" : { "$ref": "#/common_definitions/v2" },
-                    "points" : {
-                        "type" : "array",
-                        "minItems" : 3,
-                        "items" : { "$ref": "#/common_definitions/v2" }
-                    }
                 }
             }
         }
@@ -82,69 +65,45 @@ namespace
         return *schema;
     }
 
-    bool parse_regions(
+    struct sprite_desc {
+        str_hash name;
+        v2f pivot;
+        b2f texrect;
+    };
+
+    bool parse_sprites(
         const rapidjson::Value& root,
-        vector<atlas::region>& regions)
+        vector<sprite_desc>& sprite_descs)
     {
         E2D_ASSERT(root.IsArray());
-        vector<atlas::region> tregions(root.Size());
+        vector<sprite_desc> tsprite_descs(root.Size());
 
         for ( rapidjson::SizeType i = 0; i < root.Size(); ++i ) {
             E2D_ASSERT(root[i].IsObject());
-            const auto& region_json = root[i];
+            const auto& sprite_json = root[i];
 
-            E2D_ASSERT(region_json.HasMember("name"));
-            if ( !json_utils::try_parse_value(region_json["name"], tregions[i].name) ) {
+            E2D_ASSERT(sprite_json.HasMember("name"));
+            if ( !json_utils::try_parse_value(sprite_json["name"], tsprite_descs[i].name) ) {
                 return false;
             }
 
-            E2D_ASSERT(region_json.HasMember("pivot"));
-            if ( !json_utils::try_parse_value(region_json["pivot"], tregions[i].pivot) ) {
+            E2D_ASSERT(sprite_json.HasMember("pivot"));
+            if ( !json_utils::try_parse_value(sprite_json["pivot"], tsprite_descs[i].pivot) ) {
                 return false;
             }
 
-            E2D_ASSERT(region_json.HasMember("texrect"));
-            if ( !json_utils::try_parse_value(region_json["texrect"], tregions[i].texrect) ) {
+            E2D_ASSERT(sprite_json.HasMember("texrect"));
+            if ( !json_utils::try_parse_value(sprite_json["texrect"], tsprite_descs[i].texrect) ) {
                 return false;
             }
         }
 
-        regions = std::move(tregions);
+        sprite_descs = std::move(tsprite_descs);
         return true;
     }
 
-    bool parse_shape_regions(
-        const rapidjson::Value& root,
-        vector<atlas::shape_region>& regions)
-    {
-        E2D_ASSERT(root.IsArray());
-        vector<atlas::shape_region> tregions(root.Size());
-
-        for ( rapidjson::SizeType i = 0; i < root.Size(); ++i ) {
-            E2D_ASSERT(root[i].IsObject());
-            const auto& region_json = root[i];
-
-            E2D_ASSERT(region_json.HasMember("name"));
-            if ( !json_utils::try_parse_value(region_json["name"], tregions[i].name) ) {
-                return false;
-            }
-
-            E2D_ASSERT(region_json.HasMember("pivot"));
-            if ( !json_utils::try_parse_value(region_json["pivot"], tregions[i].pivot) ) {
-                return false;
-            }
-
-            E2D_ASSERT(region_json.HasMember("points"));
-            if ( !json_utils::try_parse_values(region_json["points"], tregions[i].points) ) {
-                return false;
-            }
-        }
-
-        regions = std::move(tregions);
-        return true;
-    }
-
-    stdex::promise<atlas> parse_atlas(
+    using parse_atlas_result = std::tuple<atlas, nested_content>;
+    stdex::promise<parse_atlas_result> parse_atlas(
         const library& library,
         str_view parent_address,
         const rapidjson::Value& root)
@@ -153,33 +112,31 @@ namespace
         auto texture_p = library.load_asset_async<texture_asset>(
             path::combine(parent_address, root["texture"].GetString()));
 
-        vector<atlas::region> regions;
-        if ( root.HasMember("regions") ) {
-            const auto& regions_json = root["regions"];
-            if ( !parse_regions(regions_json, regions) ) {
-                return stdex::make_rejected_promise<atlas>(
-                    atlas_asset_loading_exception());
-            }
-        }
-
-        vector<atlas::shape_region> shape_regions;
-        if ( root.HasMember("shape_regions") ) {
-            const auto& shape_regions_json = root["shape_regions"];
-            if ( !parse_shape_regions(shape_regions_json, shape_regions) ) {
-                return stdex::make_rejected_promise<atlas>(
+        vector<sprite_desc> sprite_descs;
+        if ( root.HasMember("sprites") ) {
+            const auto& sprites_json = root["sprites"];
+            if ( !parse_sprites(sprites_json, sprite_descs) ) {
+                return stdex::make_rejected_promise<parse_atlas_result>(
                     atlas_asset_loading_exception());
             }
         }
 
         return texture_p.then([
-            regions = std::move(regions),
-            shape_regions = std::move(shape_regions)
+            sprite_descs = std::move(sprite_descs)
         ](const texture_asset::load_result& texture) mutable {
             atlas content;
             content.set_texture(texture);
-            content.set_regions(std::move(regions));
-            content.set_shape_regions(std::move(shape_regions));
-            return content;
+
+            nested_content ncontent;
+            for ( const sprite_desc& desc : sprite_descs ) {
+                sprite spr;
+                spr.set_pivot(desc.pivot);
+                spr.set_texrect(desc.texrect);
+                spr.set_texture(texture);
+                ncontent.insert(std::make_pair(desc.name, sprite_asset::create(std::move(spr))));
+            }
+
+            return std::make_tuple(std::move(content), std::move(ncontent));
         });
     }
 }
@@ -205,9 +162,10 @@ namespace e2d
                 return parse_atlas(
                     library, parent_address, atlas_data->content());
             })
-            .then([](auto&& content){
+            .then([](const parse_atlas_result& result){
                 return atlas_asset::create(
-                    std::forward<decltype(content)>(content));
+                    std::get<0>(result),
+                    std::get<1>(result));
             });
         });
     }

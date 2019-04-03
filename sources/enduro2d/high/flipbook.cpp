@@ -128,15 +128,11 @@ namespace e2d
 
     void swap(flipbook::frame& l, flipbook::frame& r) noexcept {
         using std::swap;
-        swap(l.pivot, r.pivot);
-        swap(l.texrect, r.texrect);
-        swap(l.texture, r.texture);
+        swap(l.sprite, r.sprite);
     }
 
     bool operator==(const flipbook::frame& l, const flipbook::frame& r) noexcept {
-        return l.pivot == r.pivot
-            && l.texrect == r.texrect
-            && l.texture == r.texture;
+        return l.sprite == r.sprite;
     }
 
     bool operator!=(const flipbook::frame& l, const flipbook::frame& r) noexcept {
