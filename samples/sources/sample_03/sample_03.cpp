@@ -128,8 +128,8 @@ namespace
                             .filtering(false))
                         .component<flipbook_source>(flipbook_res)
                         .component<flipbook_player>(flipbook_player()
-                            .looped(true)
-                            .sequence("idle"));
+                            .play("idle")
+                            .looped(true));
 
                     node_iptr flipbook_n = flipbook_e.get_component<actor>().node();
                     flipbook_n->scale(v3f(2.f,2.f,1.f));

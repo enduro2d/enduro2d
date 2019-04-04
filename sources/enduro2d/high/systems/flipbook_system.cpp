@@ -20,20 +20,16 @@ namespace
             flipbook_player& fp,
             const flipbook_source& fs)
         {
-            if ( fp.speed() <= 0.f || fp.paused() ) {
+            if ( fp.speed() <= 0.f || fp.stopped() ) {
                 return;
             }
             const flipbook_asset::ptr& flipbook_res = fs.flipbook();
             if ( !flipbook_res ) {
-                fp.time(0.f);
-                fp.paused(true);
                 return;
             }
             const flipbook& flipbook = flipbook_res->content();
             const flipbook::sequence* sequence = flipbook.find_sequence(fp.sequence());
             if ( !sequence || sequence->frames.empty() ) {
-                fp.time(0.f);
-                fp.paused(true);
                 return;
             }
             fp.time(fp.time() + dt * fp.speed());
@@ -43,8 +39,7 @@ namespace
                     if ( fp.looped() ) {
                         fp.time(math::mod(fp.time(), loop_time));
                     } else {
-                        fp.time(loop_time);
-                        fp.paused(true);
+                        fp.stop(loop_time);
                     }
                 }
             }
