@@ -12,12 +12,12 @@
 
 namespace e2d
 {
-    class flipbook_controller final {
+    class flipbook_source final {
     public:
-        flipbook_controller() = default;
-        flipbook_controller(const flipbook_asset::ptr& flipbook);
+        flipbook_source() = default;
+        flipbook_source(const flipbook_asset::ptr& flipbook);
 
-        flipbook_controller& flipbook(const flipbook_asset::ptr& value) noexcept;
+        flipbook_source& flipbook(const flipbook_asset::ptr& value) noexcept;
         const flipbook_asset::ptr& flipbook() const noexcept;
     private:
         flipbook_asset::ptr flipbook_;
@@ -26,15 +26,15 @@ namespace e2d
 
 namespace e2d
 {
-    inline flipbook_controller::flipbook_controller(const flipbook_asset::ptr& flipbook)
+    inline flipbook_source::flipbook_source(const flipbook_asset::ptr& flipbook)
     : flipbook_(flipbook) {}
 
-    inline flipbook_controller& flipbook_controller::flipbook(const flipbook_asset::ptr& value) noexcept {
+    inline flipbook_source& flipbook_source::flipbook(const flipbook_asset::ptr& value) noexcept {
         flipbook_ = value;
         return *this;
     }
 
-    inline const flipbook_asset::ptr& flipbook_controller::flipbook() const noexcept {
+    inline const flipbook_asset::ptr& flipbook_source::flipbook() const noexcept {
         return flipbook_;
     }
 }

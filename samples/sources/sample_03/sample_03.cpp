@@ -116,17 +116,25 @@ namespace
             }
 
             {
-                ecs::entity flipbook_e = the<world>().registry().create_entity();
+                for ( std::size_t i = 0; i < 2; ++i )
+                for ( std::size_t j = 0; j < 5; ++j ) {
+                    ecs::entity flipbook_e = the<world>().registry().create_entity();
 
-                ecs::entity_filler(flipbook_e)
-                    .component<actor>(node::create(flipbook_e, scene_r))
-                    .component<renderer>(renderer()
-                        .materials({sprite_mat}))
-                    .component<sprite_renderer>()
-                    .component<flipbook_controller>(flipbook_res);
+                    ecs::entity_filler(flipbook_e)
+                        .component<actor>(node::create(flipbook_e, scene_r))
+                        .component<renderer>(renderer()
+                            .materials({sprite_mat}))
+                        .component<sprite_renderer>(sprite_renderer()
+                            .filtering(false))
+                        .component<flipbook_source>(flipbook_res)
+                        .component<flipbook_player>(flipbook_player()
+                            .looped(true)
+                            .sequence("idle"));
 
-                node_iptr flipbook_n = flipbook_e.get_component<actor>().node();
-                flipbook_n->translation(v3f{0,-100.f,0});
+                    node_iptr flipbook_n = flipbook_e.get_component<actor>().node();
+                    flipbook_n->scale(v3f(2.f,2.f,1.f));
+                    flipbook_n->translation(v3f{-80.f + j * 40.f, -200.f + i * 40.f, 0});
+                }
             }
 
             return true;

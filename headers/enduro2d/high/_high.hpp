@@ -35,7 +35,8 @@ namespace e2d
 
     class actor;
     class camera;
-    class flipbook_controller;
+    class flipbook_player;
+    class flipbook_source;
     class model_renderer;
     class renderer;
     class scene;

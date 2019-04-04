@@ -23,7 +23,8 @@
 
 #include "components/actor.hpp"
 #include "components/camera.hpp"
-#include "components/flipbook_controller.hpp"
+#include "components/flipbook_player.hpp"
+#include "components/flipbook_source.hpp"
 #include "components/model_renderer.hpp"
 #include "components/renderer.hpp"
 #include "components/scene.hpp"

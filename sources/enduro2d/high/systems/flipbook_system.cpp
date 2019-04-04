@@ -6,9 +6,77 @@
 
 #include <enduro2d/high/systems/flipbook_system.hpp>
 
+#include <enduro2d/high/components/flipbook_player.hpp>
+#include <enduro2d/high/components/flipbook_source.hpp>
+#include <enduro2d/high/components/sprite_renderer.hpp>
+
 namespace
 {
     using namespace e2d;
+
+    void update_flipbook_timers(f32 dt, ecs::registry& owner) {
+        owner.for_joined_components<flipbook_player, flipbook_source>([dt](
+            const ecs::const_entity&,
+            flipbook_player& fp,
+            const flipbook_source& fs)
+        {
+            if ( fp.speed() <= 0.f || fp.paused() ) {
+                return;
+            }
+            const flipbook_asset::ptr& flipbook_res = fs.flipbook();
+            if ( !flipbook_res ) {
+                fp.time(0.f);
+                fp.paused(true);
+                return;
+            }
+            const flipbook& flipbook = flipbook_res->content();
+            const flipbook::sequence* sequence = flipbook.find_sequence(fp.sequence());
+            if ( !sequence || sequence->frames.empty() ) {
+                fp.time(0.f);
+                fp.paused(true);
+                return;
+            }
+            fp.time(fp.time() + dt * fp.speed());
+            if ( sequence->fps > 0.f ) {
+                const f32 loop_time = sequence->frames.size() / sequence->fps;
+                if ( fp.time() >= loop_time ) {
+                    if ( fp.looped() ) {
+                        fp.time(math::mod(fp.time(), loop_time));
+                    } else {
+                        fp.time(loop_time);
+                        fp.paused(true);
+                    }
+                }
+            }
+        });
+    }
+
+    void update_flipbook_sprites(ecs::registry& owner) {
+        owner.for_joined_components<flipbook_player, flipbook_source, sprite_renderer>([](
+            const ecs::const_entity&,
+            const flipbook_player& fp,
+            const flipbook_source& fs,
+            sprite_renderer& sr)
+        {
+            const flipbook_asset::ptr& flipbook_res = fs.flipbook();
+            if ( !flipbook_res ) {
+                sr.sprite(nullptr);
+                return;
+            }
+            const flipbook& flipbook = flipbook_res->content();
+            const flipbook::sequence* sequence = flipbook.find_sequence(fp.sequence());
+            if ( !sequence || sequence->frames.empty() ) {
+                sr.sprite(nullptr);
+                return;
+            }
+            const std::size_t frame_index = math::clamp<std::size_t>(
+                math::numeric_cast<std::size_t>(fp.time() * sequence->fps),
+                0u,
+                sequence->frames.size() - 1u);
+            const flipbook::frame* frame = flipbook.find_frame(sequence->frames[frame_index]);
+            sr.sprite(frame ? frame->sprite : nullptr);
+        });
+    }
 }
 
 namespace e2d
@@ -23,7 +91,8 @@ namespace e2d
         ~internal_state() noexcept = default;
 
         void process(ecs::registry& owner) {
-            E2D_UNUSED(owner);
+            update_flipbook_timers(the<engine>().delta_time(), owner);
+            update_flipbook_sprites(owner);
         }
     };
 
