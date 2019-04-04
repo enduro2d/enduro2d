@@ -353,6 +353,67 @@ TEST_CASE("math") {
         REQUIRE(math::abs(-0.0) == 0.0);
     }
     {
+        REQUIRE(math::mod(6, 3) == 0);
+        REQUIRE(math::mod(6, 4) == 2);
+        REQUIRE(math::mod(6, 6) == 0);
+        REQUIRE(math::mod(6, 7) == 6);
+
+        REQUIRE(math::mod(6, -3) == 0);
+        REQUIRE(math::mod(6, -4) == 2);
+        REQUIRE(math::mod(6, -6) == 0);
+        REQUIRE(math::mod(6, -7) == 6);
+
+        REQUIRE(math::mod(-6, 3) == -0);
+        REQUIRE(math::mod(-6, 4) == -2);
+        REQUIRE(math::mod(-6, 6) == -0);
+        REQUIRE(math::mod(-6, 7) == -6);
+
+        REQUIRE(math::mod(-6, -3) == -0);
+        REQUIRE(math::mod(-6, -4) == -2);
+        REQUIRE(math::mod(-6, -6) == -0);
+        REQUIRE(math::mod(-6, -7) == -6);
+
+        REQUIRE(math::approximately(math::mod(6.f, 3.f), 0.f));
+        REQUIRE(math::approximately(math::mod(6.f, 4.f), 2.f));
+        REQUIRE(math::approximately(math::mod(6.f, 6.f), 0.f));
+        REQUIRE(math::approximately(math::mod(6.f, 7.f), 6.f));
+
+        REQUIRE(math::approximately(math::mod(6.f, -3.f), 0.f));
+        REQUIRE(math::approximately(math::mod(6.f, -4.f), 2.f));
+        REQUIRE(math::approximately(math::mod(6.f, -6.f), 0.f));
+        REQUIRE(math::approximately(math::mod(6.f, -7.f), 6.f));
+
+        REQUIRE(math::approximately(math::mod(-6.f, 3.f), -0.f));
+        REQUIRE(math::approximately(math::mod(-6.f, 4.f), -2.f));
+        REQUIRE(math::approximately(math::mod(-6.f, 6.f), -0.f));
+        REQUIRE(math::approximately(math::mod(-6.f, 7.f), -6.f));
+
+        REQUIRE(math::approximately(math::mod(-6.f, -3.f), -0.f));
+        REQUIRE(math::approximately(math::mod(-6.f, -4.f), -2.f));
+        REQUIRE(math::approximately(math::mod(-6.f, -6.f), -0.f));
+        REQUIRE(math::approximately(math::mod(-6.f, -7.f), -6.f));
+
+        REQUIRE(math::approximately(math::mod(6.0, 3.0), 0.0));
+        REQUIRE(math::approximately(math::mod(6.0, 4.0), 2.0));
+        REQUIRE(math::approximately(math::mod(6.0, 6.0), 0.0));
+        REQUIRE(math::approximately(math::mod(6.0, 7.0), 6.0));
+
+        REQUIRE(math::approximately(math::mod(6.0, -3.0), 0.0));
+        REQUIRE(math::approximately(math::mod(6.0, -4.0), 2.0));
+        REQUIRE(math::approximately(math::mod(6.0, -6.0), 0.0));
+        REQUIRE(math::approximately(math::mod(6.0, -7.0), 6.0));
+
+        REQUIRE(math::approximately(math::mod(-6.0, 3.0), -0.0));
+        REQUIRE(math::approximately(math::mod(-6.0, 4.0), -2.0));
+        REQUIRE(math::approximately(math::mod(-6.0, 6.0), -0.0));
+        REQUIRE(math::approximately(math::mod(-6.0, 7.0), -6.0));
+
+        REQUIRE(math::approximately(math::mod(-6.0, -3.0), -0.0));
+        REQUIRE(math::approximately(math::mod(-6.0, -4.0), -2.0));
+        REQUIRE(math::approximately(math::mod(-6.0, -6.0), -0.0));
+        REQUIRE(math::approximately(math::mod(-6.0, -7.0), -6.0));
+    }
+    {
         REQUIRE_FALSE(math::sign(0));
         REQUIRE_FALSE(math::sign(1));
         REQUIRE(math::sign(-1));
