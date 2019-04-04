@@ -73,8 +73,12 @@ namespace
     private:
         bool create_scene() {
             auto model_res = the<library>().load_asset<model_asset>("gnome_model.json");
+            auto model_mat = the<library>().load_asset<material_asset>("gnome_material.json");
             auto sprite_res = the<library>().load_asset<sprite_asset>("ship_sprite.json");
-            if ( !model_res || !sprite_res ) {
+            auto sprite_mat = the<library>().load_asset<material_asset>("sprite_material.json");
+            auto flipbook_res = the<library>().load_asset<flipbook_asset>("cube_flipbook.json");
+
+            if ( !model_res || !model_mat || !sprite_res || !sprite_mat || !flipbook_res ) {
                 return false;
             }
 
@@ -88,7 +92,8 @@ namespace
                 ecs::entity_filler(model_e)
                     .component<rotator>(rotator{v3f::unit_y()})
                     .component<actor>(node::create(model_e, scene_r))
-                    .component<renderer>()
+                    .component<renderer>(renderer()
+                        .materials({model_mat}))
                     .component<model_renderer>(model_res);
 
                 node_iptr model_n = model_e.get_component<actor>().node();
@@ -102,11 +107,34 @@ namespace
                 ecs::entity_filler(sprite_e)
                     .component<rotator>(rotator{v3f::unit_z()})
                     .component<actor>(node::create(sprite_e, scene_r))
-                    .component<renderer>()
+                    .component<renderer>(renderer()
+                        .materials({sprite_mat}))
                     .component<sprite_renderer>(sprite_res);
 
                 node_iptr sprite_n = sprite_e.get_component<actor>().node();
                 sprite_n->translation(v3f{0,-50.f,0});
+            }
+
+            {
+                for ( std::size_t i = 0; i < 2; ++i )
+                for ( std::size_t j = 0; j < 5; ++j ) {
+                    ecs::entity flipbook_e = the<world>().registry().create_entity();
+
+                    ecs::entity_filler(flipbook_e)
+                        .component<actor>(node::create(flipbook_e, scene_r))
+                        .component<renderer>(renderer()
+                            .materials({sprite_mat}))
+                        .component<sprite_renderer>(sprite_renderer()
+                            .filtering(false))
+                        .component<flipbook_source>(flipbook_res)
+                        .component<flipbook_player>(flipbook_player()
+                            .play("idle")
+                            .looped(true));
+
+                    node_iptr flipbook_n = flipbook_e.get_component<actor>().node();
+                    flipbook_n->scale(v3f(2.f,2.f,1.f));
+                    flipbook_n->translation(v3f{-80.f + j * 40.f, -200.f + i * 40.f, 0});
+                }
             }
 
             return true;

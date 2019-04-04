@@ -1,4 +1,4 @@
-// dear imgui, v1.69
+// dear imgui, v1.70 WIP
 // (widgets code)
 
 /*
@@ -37,7 +37,7 @@ Index of this file:
 #endif
 #include "imgui_internal.h"
 
-#include <ctype.h>      // toupper, isprint
+#include <ctype.h>      // toupper
 #if defined(_MSC_VER) && _MSC_VER <= 1500 // MSVC 2008 or earlier
 #include <stddef.h>     // intptr_t
 #else
@@ -1611,7 +1611,7 @@ static void DataTypeApplyOp(ImGuiDataType data_type, int op, void* output, void*
             if (op == '-') { *(float*)output = *(const float*)arg1 - *(const float*)arg2; }
             return;
         case ImGuiDataType_Double:
-            if (op == '+') { *(double*)output = *(const double*)arg1 + *(const double*)arg2; } 
+            if (op == '+') { *(double*)output = *(const double*)arg1 + *(const double*)arg2; }
             if (op == '-') { *(double*)output = *(const double*)arg1 - *(const double*)arg2; }
             return;
         case ImGuiDataType_COUNT: break;
@@ -3139,7 +3139,8 @@ static bool InputTextFilterCharacter(unsigned int* p_char, ImGuiInputTextFlags f
 {
     unsigned int c = *p_char;
 
-    if (c < 128 && c != ' ' && !isprint((int)(c & 0xFF)))
+    // Filter non-printable (NB: isprint is unreliable! see #2467)
+    if (c < 0x20)
     {
         bool pass = false;
         pass |= (c == '\n' && (flags & ImGuiInputTextFlags_Multiline));
@@ -3148,9 +3149,11 @@ static bool InputTextFilterCharacter(unsigned int* p_char, ImGuiInputTextFlags f
             return false;
     }
 
-    if (c >= 0xE000 && c <= 0xF8FF) // Filter private Unicode range. I don't imagine anybody would want to input them. GLFW on OSX seems to send private characters for special keys like arrow keys.
+    // Filter private Unicode range. GLFW on OSX seems to send private characters for special keys like arrow keys (FIXME)
+    if (c >= 0xE000 && c <= 0xF8FF)
         return false;
 
+    // Generic named filters
     if (flags & (ImGuiInputTextFlags_CharsDecimal | ImGuiInputTextFlags_CharsHexadecimal | ImGuiInputTextFlags_CharsUppercase | ImGuiInputTextFlags_CharsNoBlank | ImGuiInputTextFlags_CharsScientific))
     {
         if (flags & ImGuiInputTextFlags_CharsDecimal)
@@ -3174,6 +3177,7 @@ static bool InputTextFilterCharacter(unsigned int* p_char, ImGuiInputTextFlags f
                 return false;
     }
 
+    // Custom callback filter
     if (flags & ImGuiInputTextFlags_CallbackCharFilter)
     {
         ImGuiInputTextCallbackData callback_data;
@@ -3329,7 +3333,7 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
         FocusWindow(window);
         IM_ASSERT(ImGuiNavInput_COUNT < 32);
         g.ActiveIdBlockNavInputFlags = (1 << ImGuiNavInput_Cancel);
-        if (flags & (ImGuiInputTextFlags_CallbackCompletion | ImGuiInputTextFlags_AllowTabInput))  // Disable keyboard tabbing out
+        if (flags & (ImGuiInputTextFlags_CallbackCompletion | ImGuiInputTextFlags_AllowTabInput))  // Disable keyboard tabbing out as we will use the \t character.
             g.ActiveIdBlockNavInputFlags |= (1 << ImGuiNavInput_KeyTab_);
         if (!is_multiline && !(flags & ImGuiInputTextFlags_CallbackHistory))
             g.ActiveIdAllowNavDirFlags = ((1 << ImGuiDir_Up) | (1 << ImGuiDir_Down));
@@ -3343,27 +3347,23 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
     if (g.ActiveId == id && io.MouseClicked[0] && !init_state && !init_make_active) //-V560
         clear_active_id = true;
 
-    // When read-only we always use the live data passed to the function
-    // FIXME-OPT: Because our selection/cursor code currently needs the wide text we need to convert it when active, which is not ideal :(
-    if (is_readonly && state != NULL)
-    {
-        const bool will_render_cursor = (g.ActiveId == id) || (user_scroll_active);
-        const bool will_render_selection = state->HasSelection() && (RENDER_SELECTION_WHEN_INACTIVE || will_render_cursor);
-        if (will_render_cursor || will_render_selection)
-        {
-            const char* buf_end = NULL;
-            state->TextW.resize(buf_size + 1);
-            state->CurLenW = ImTextStrFromUtf8(state->TextW.Data, state->TextW.Size, buf, NULL, &buf_end);
-            state->CurLenA = (int)(buf_end - buf);
-            state->CursorClamp();
-        }
-    }
-
     // Lock the decision of whether we are going to take the path displaying the cursor or selection
     const bool render_cursor = (g.ActiveId == id) || (state && user_scroll_active);
-    const bool render_selection = state && state->HasSelection() && (RENDER_SELECTION_WHEN_INACTIVE || render_cursor);
+    bool render_selection = state && state->HasSelection() && (RENDER_SELECTION_WHEN_INACTIVE || render_cursor);
     bool value_changed = false;
     bool enter_pressed = false;
+
+    // When read-only we always use the live data passed to the function
+    // FIXME-OPT: Because our selection/cursor code currently needs the wide text we need to convert it when active, which is not ideal :(
+    if (is_readonly && state != NULL && (render_cursor || render_selection))
+    {
+        const char* buf_end = NULL;
+        state->TextW.resize(buf_size + 1);
+        state->CurLenW = ImTextStrFromUtf8(state->TextW.Data, state->TextW.Size, buf, NULL, &buf_end);
+        state->CurLenA = (int)(buf_end - buf);
+        state->CursorClamp();
+        render_selection &= state->HasSelection();
+    }
 
     // Select the buffer to render.
     const bool buf_display_from_state = (render_cursor || render_selection || g.ActiveId == id) && !is_readonly && state && state->TextAIsValid;
@@ -3435,16 +3435,28 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
         if (state->SelectedAllMouseLock && !io.MouseDown[0])
             state->SelectedAllMouseLock = false;
 
+        // It is ill-defined whether the back-end needs to send a \t character when pressing the TAB keys.
+        // Win32 and GLFW naturally do it but not SDL.
+        const bool ignore_char_inputs = (io.KeyCtrl && !io.KeyAlt) || (is_osx && io.KeySuper);
+        if ((flags & ImGuiInputTextFlags_AllowTabInput) && IsKeyPressedMap(ImGuiKey_Tab) && !ignore_char_inputs && !io.KeyShift && !is_readonly)
+            if (!io.InputQueueCharacters.contains('\t'))
+            {
+                unsigned int c = '\t'; // Insert TAB
+                if (InputTextFilterCharacter(&c, flags, callback, callback_user_data))
+                    state->OnKeyPressed((int)c);
+            }
+
+        // Process regular text input (before we check for Return because using some IME will effectively send a Return?)
+        // We ignore CTRL inputs, but need to allow ALT+CTRL as some keyboards (e.g. German) use AltGR (which _is_ Alt+Ctrl) to input certain characters.
         if (io.InputQueueCharacters.Size > 0)
         {
-            // Process text input (before we check for Return because using some IME will effectively send a Return?)
-            // We ignore CTRL inputs, but need to allow ALT+CTRL as some keyboards (e.g. German) use AltGR (which _is_ Alt+Ctrl) to input certain characters.
-            bool ignore_inputs = (io.KeyCtrl && !io.KeyAlt) || (is_osx && io.KeySuper);
-            if (!ignore_inputs && !is_readonly && !user_nav_input_start)
+            if (!ignore_char_inputs && !is_readonly && !user_nav_input_start)
                 for (int n = 0; n < io.InputQueueCharacters.Size; n++)
                 {
                     // Insert character if they pass filtering
                     unsigned int c = (unsigned int)io.InputQueueCharacters[n];
+                    if (c == '\t' && io.KeyShift)
+                        continue;
                     if (InputTextFilterCharacter(&c, flags, callback, callback_user_data))
                         state->OnKeyPressed((int)c);
                 }
@@ -3485,9 +3497,9 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
         {
             if (!state->HasSelection())
             {
-                if (is_wordmove_key_down) 
+                if (is_wordmove_key_down)
                     state->OnKeyPressed(STB_TEXTEDIT_K_WORDLEFT|STB_TEXTEDIT_K_SHIFT);
-                else if (is_osx && io.KeySuper && !io.KeyAlt && !io.KeyCtrl) 
+                else if (is_osx && io.KeySuper && !io.KeyAlt && !io.KeyCtrl)
                     state->OnKeyPressed(STB_TEXTEDIT_K_LINESTART|STB_TEXTEDIT_K_SHIFT);
             }
             state->OnKeyPressed(STB_TEXTEDIT_K_BACKSPACE | k_mask);
@@ -3505,12 +3517,6 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
                 if (InputTextFilterCharacter(&c, flags, callback, callback_user_data))
                     state->OnKeyPressed((int)c);
             }
-        }
-        else if ((flags & ImGuiInputTextFlags_AllowTabInput) && IsKeyPressedMap(ImGuiKey_Tab) && !io.KeyCtrl && !io.KeyShift && !io.KeyAlt && !is_readonly)
-        {
-            unsigned int c = '\t'; // Insert TAB
-            if (InputTextFilterCharacter(&c, flags, callback, callback_user_data))
-                state->OnKeyPressed((int)c);
         }
         else if (IsKeyPressedMap(ImGuiKey_Escape))
         {
@@ -3574,6 +3580,9 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
                 MemFree(clipboard_filtered);
             }
         }
+
+        // Update render selection flag after events have been handled, so selection highlight can be displayed during the same frame.
+        render_selection |= state->HasSelection() && (RENDER_SELECTION_WHEN_INACTIVE || render_cursor);
     }
 
     // Process callbacks and apply result back to user's buffer.
@@ -3791,9 +3800,9 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
                     if (searches_result_line_no[1] == -1 && s >= searches_input_ptr[1]) { searches_result_line_no[1] = line_count; if (--searches_remaining <= 0) break; }
                 }
             line_count++;
-            if (searches_result_line_no[0] == -1) 
+            if (searches_result_line_no[0] == -1)
                 searches_result_line_no[0] = line_count;
-            if (searches_result_line_no[1] == -1) 
+            if (searches_result_line_no[1] == -1)
                 searches_result_line_no[1] = line_count;
 
             // Calculate 2d position by finding the beginning of the line and measuring distance
@@ -5283,7 +5292,7 @@ bool ImGui::Selectable(const char* label, bool selected, ImGuiSelectableFlags fl
     else
     {
         item_add = ItemAdd(bb, id);
-    }        
+    }
     if (!item_add)
     {
         if ((flags & ImGuiSelectableFlags_SpanAllColumns) && window->DC.ColumnsSet)
@@ -5685,7 +5694,7 @@ void ImGuiMenuColumns::Update(int count, float spacing, bool clear)
     IM_ASSERT(count == IM_ARRAYSIZE(Pos));
     Width = NextWidth = 0.0f;
     Spacing = spacing;
-    if (clear) 
+    if (clear)
         memset(NextWidths, 0, sizeof(NextWidths));
     for (int i = 0; i < IM_ARRAYSIZE(Pos); i++)
     {

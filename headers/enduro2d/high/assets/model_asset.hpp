@@ -8,8 +8,8 @@
 
 #include "../_high.hpp"
 
-#include "../model.hpp"
 #include "../library.hpp"
+#include "../model.hpp"
 
 namespace e2d
 {

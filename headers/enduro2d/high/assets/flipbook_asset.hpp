@@ -9,11 +9,11 @@
 #include "../_high.hpp"
 
 #include "../library.hpp"
-#include "../atlas.hpp"
+#include "../flipbook.hpp"
 
 namespace e2d
 {
-    class atlas_asset final : public content_asset<atlas_asset, atlas> {
+    class flipbook_asset final : public content_asset<flipbook_asset, flipbook> {
     public:
         static load_async_result load_async(const library& library, str_view address);
     };

@@ -1,4 +1,4 @@
-// dear imgui, v1.69
+// dear imgui, v1.70 WIP
 // (drawing and font code)
 
 /*
@@ -73,6 +73,7 @@ Index of this file:
 #pragma GCC diagnostic ignored "-Wunused-function"          // warning: 'xxxx' defined but not used
 #pragma GCC diagnostic ignored "-Wdouble-promotion"         // warning: implicit conversion from 'float' to 'double' when passing argument to function
 #pragma GCC diagnostic ignored "-Wconversion"               // warning: conversion to 'xxxx' from 'xxxx' may alter its value
+#pragma GCC diagnostic ignored "-Wstack-protector"          // warning: stack protector not protecting local variables: variable length buffer
 #if __GNUC__ >= 8
 #pragma GCC diagnostic ignored "-Wclass-memaccess"          // warning: 'memset/memcpy' clearing/writing an object of type 'xxxx' with no trivial copy-assignment; use assignment or value-initialization instead
 #endif
@@ -1287,8 +1288,8 @@ void ImDrawData::DeIndexAllBuffers()
     }
 }
 
-// Helper to scale the ClipRect field of each ImDrawCmd. 
-// Use if your final output buffer is at a different scale than draw_data->DisplaySize, 
+// Helper to scale the ClipRect field of each ImDrawCmd.
+// Use if your final output buffer is at a different scale than draw_data->DisplaySize,
 // or if there is a difference between your window resolution and framebuffer resolution.
 void ImDrawData::ScaleClipRects(const ImVec2& fb_scale)
 {
@@ -1594,9 +1595,9 @@ ImFont* ImFontAtlas::AddFontDefault(const ImFontConfig* font_cfg_template)
         font_cfg.OversampleH = font_cfg.OversampleV = 1;
         font_cfg.PixelSnapH = true;
     }
-    if (font_cfg.SizePixels <= 0.0f) 
+    if (font_cfg.SizePixels <= 0.0f)
         font_cfg.SizePixels = 13.0f * 1.0f;
-    if (font_cfg.Name[0] == '\0') 
+    if (font_cfg.Name[0] == '\0')
         ImFormatString(font_cfg.Name, IM_ARRAYSIZE(font_cfg.Name), "ProggyClean.ttf, %dpx", (int)font_cfg.SizePixels);
 
     const char* ttf_compressed_base85 = GetDefaultCompressedFontDataTTFBase85();
@@ -2467,7 +2468,7 @@ void ImFont::BuildLookupTable()
         ImFontGlyph& tab_glyph = Glyphs.back();
         tab_glyph = *FindGlyph((ImWchar)' ');
         tab_glyph.Codepoint = '\t';
-        tab_glyph.AdvanceX *= 4;
+        tab_glyph.AdvanceX *= IM_TABSIZE;
         IndexAdvanceX[(int)tab_glyph.Codepoint] = (float)tab_glyph.AdvanceX;
         IndexLookup[(int)tab_glyph.Codepoint] = (ImWchar)(Glyphs.Size-1);
     }

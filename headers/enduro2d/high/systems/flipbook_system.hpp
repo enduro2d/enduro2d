@@ -8,13 +8,15 @@
 
 #include "../_high.hpp"
 
-#include "../library.hpp"
-#include "../atlas.hpp"
-
 namespace e2d
 {
-    class atlas_asset final : public content_asset<atlas_asset, atlas> {
+    class flipbook_system final : public ecs::system {
     public:
-        static load_async_result load_async(const library& library, str_view address);
+        flipbook_system();
+        ~flipbook_system() noexcept final;
+        void process(ecs::registry& owner) override;
+    private:
+        class internal_state;
+        std::unique_ptr<internal_state> state_;
     };
 }

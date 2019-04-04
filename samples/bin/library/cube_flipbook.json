@@ -1,0 +1,11 @@
+{
+    "frames" : [
+        { "sprite" : "cube_0_sprite.json" },
+        { "sprite" : "cube_1_sprite.json" }
+    ],
+    "sequences" : [{
+        "fps" : 10,
+        "name" : "idle",
+        "frames" : [0, 1]
+    }]
+}

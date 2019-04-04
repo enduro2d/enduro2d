@@ -83,7 +83,7 @@ namespace e2d { namespace render_system_impl
             return;
         }
 
-        if ( !mdl_r.model() || !mdl_r.model()->content().mesh()) {
+        if ( !mdl_r.model() || !mdl_r.model()->content().mesh() ) {
             return;
         }
 
@@ -99,11 +99,11 @@ namespace e2d { namespace render_system_impl
 
             const std::size_t submesh_count = math::min(
                 msh.indices_submesh_count(),
-                mdl.material_count());
+                node_r.materials().size());
 
             for ( std::size_t i = 0, first_index = 0; i < submesh_count; ++i ) {
                 const std::size_t index_count = msh.indices(i).size();
-                const material_asset::ptr& mat = mdl.material(i);
+                const material_asset::ptr& mat = node_r.materials()[i];
                 if ( mat ) {
                     render_.execute(render::draw_command(
                         mat->content(),
@@ -125,13 +125,17 @@ namespace e2d { namespace render_system_impl
         const renderer& node_r,
         const sprite_renderer& spr_r)
     {
-        if ( !node || !node_r.enabled() || !spr_r.sprite() ) {
+        if ( !node || !node_r.enabled() ) {
+            return;
+        }
+
+        if ( !spr_r.sprite() || node_r.materials().empty() ) {
             return;
         }
 
         const sprite& spr = spr_r.sprite()->content();
         const texture_asset::ptr& tex_a = spr.texture();
-        const material_asset::ptr& mat_a = spr.material();
+        const material_asset::ptr& mat_a = node_r.materials().front();
 
         if ( !tex_a || !tex_a->content() || !mat_a ) {
             return;
@@ -178,7 +182,7 @@ namespace e2d { namespace render_system_impl
 
         try {
             batcher_.batch(
-                spr.material(),
+                mat_a,
                 property_cache_
                     .sampler(sprite_texture_sampler_hash, render::sampler_state()
                         .texture(tex_a->content())

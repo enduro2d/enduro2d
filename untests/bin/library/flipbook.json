@@ -1,0 +1,15 @@
+{
+    "frames" : [
+        { "atlas" : "atlas.json:/sprite" },
+        { "sprite" : "sprite.json" }
+    ],
+    "sequences" : [{
+        "fps" : 24,
+        "name" : "sequence_0",
+        "frames" : [0,1,0,1]
+    }, {
+        "fps" : 30,
+        "name" : "sequence_1",
+        "frames" : [1,0,0,1]
+    }]
+}

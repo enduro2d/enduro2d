@@ -8,8 +8,8 @@
 
 #include "../_high.hpp"
 
-#include "../sprite.hpp"
 #include "../library.hpp"
+#include "../sprite.hpp"
 
 namespace e2d
 {

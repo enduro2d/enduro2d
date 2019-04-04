@@ -31,7 +31,6 @@ namespace e2d
         pivot_ = v2f::zero();
         texrect_ = b2f::zero();
         texture_.reset();
-        material_.reset();
     }
 
     void sprite::swap(sprite& other) noexcept {
@@ -39,7 +38,6 @@ namespace e2d
         swap(pivot_, other.pivot_);
         swap(texrect_, other.texrect_);
         swap(texture_, other.texture_);
-        swap(material_, other.material_);
     }
 
     sprite& sprite::assign(sprite&& other) noexcept {
@@ -56,7 +54,6 @@ namespace e2d
             s.pivot_ = other.pivot_;
             s.texrect_ = other.texrect_;
             s.texture_ = other.texture_;
-            s.material_ = other.material_;
             swap(s);
         }
         return *this;
@@ -72,19 +69,8 @@ namespace e2d
         return *this;
     }
 
-    sprite& sprite::set_region(const atlas::region& region) noexcept {
-        pivot_ = region.pivot;
-        texrect_ = region.texrect;
-        return *this;
-    }
-
     sprite& sprite::set_texture(const texture_asset::ptr& texture) noexcept {
         texture_ = texture;
-        return *this;
-    }
-
-    sprite& sprite::set_material(const material_asset::ptr& material) noexcept {
-        material_ = material;
         return *this;
     }
 
@@ -99,10 +85,6 @@ namespace e2d
     const texture_asset::ptr& sprite::texture() const noexcept {
         return texture_;
     }
-
-    const material_asset::ptr& sprite::material() const noexcept {
-        return material_;
-    }
 }
 
 namespace e2d
@@ -114,8 +96,7 @@ namespace e2d
     bool operator==(const sprite& l, const sprite& r) noexcept {
         return l.pivot() == r.pivot()
             && l.texrect() == r.texrect()
-            && l.texture() == r.texture()
-            && l.material() == r.material();
+            && l.texture() == r.texture();
     }
 
     bool operator!=(const sprite& l, const sprite& r) noexcept {

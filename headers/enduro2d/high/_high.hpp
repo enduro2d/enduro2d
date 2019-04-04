@@ -22,6 +22,7 @@ namespace e2d
 {
     class atlas_asset;
     class binary_asset;
+    class flipbook_asset;
     class image_asset;
     class material_asset;
     class mesh_asset;
@@ -34,11 +35,14 @@ namespace e2d
 
     class actor;
     class camera;
+    class flipbook_player;
+    class flipbook_source;
     class model_renderer;
     class renderer;
     class scene;
     class sprite_renderer;
 
+    class flipbook_system;
     class render_system;
 
     template < typename Asset, typename Content >
@@ -52,6 +56,7 @@ namespace e2d
     class library;
 
     class atlas;
+    class flipbook;
     class model;
     class node;
     class sprite;

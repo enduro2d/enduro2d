@@ -513,6 +513,17 @@ namespace e2d { namespace math
     }
 
     //
+    // mod
+    //
+
+    template < typename T >
+    std::enable_if_t<std::is_arithmetic<T>::value, T>
+    mod(T x, T y) noexcept {
+        E2D_ASSERT(y != T(0));
+        return std::fmod(x, y);
+    }
+
+    //
     // sign
     //
 

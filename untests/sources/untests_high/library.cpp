@@ -104,52 +104,57 @@ TEST_CASE("library"){
                 REQUIRE(atlas_res);
 
                 REQUIRE(atlas_res->content().texture() == texture_res);
-                REQUIRE(atlas_res->content().regions().size() == 1);
-                REQUIRE(atlas_res->content().shape_regions().size() == 1);
 
-                const atlas::region* region = atlas_res->content().find_region("sprite");
-                REQUIRE(region);
-                REQUIRE(region->name == make_hash("sprite"));
-                REQUIRE(region->pivot == v2f(1.f,2.f));
-                REQUIRE(region->texrect == b2f(5.f,6.f,7.f,8.f));
+                REQUIRE(atlas_res->find_nested_asset("sprite"));
 
-                const atlas::shape_region* shape_region = atlas_res->content().find_shape_region("shape_sprite");
-                REQUIRE(shape_region);
-                REQUIRE(shape_region->name == make_hash("shape_sprite"));
-                REQUIRE(shape_region->pivot == v2f(3.f,4.f));
-                REQUIRE(shape_region->points == vector<v2f>{
-                    {1.f, 2.f},
-                    {3.f, 4.f},
-                    {5.f, 6.f}
-                });
-
-                REQUIRE_FALSE(atlas_res->content().find_region("sprite2"));
-                REQUIRE_FALSE(atlas_res->content().find_shape_region("shape_sprite2"));
+                sprite_asset::ptr spr = atlas_res->find_nested_asset<sprite_asset>("sprite");
+                REQUIRE(spr);
+                REQUIRE(spr->content().pivot() == v2f(1.f,2.f));
+                REQUIRE(spr->content().texrect() == b2f(5.f,6.f,7.f,8.f));
+                REQUIRE(spr->content().texture()== texture_res);
             }
 
             {
-                auto sprite_res = l.load_asset<sprite_asset>("sprite_a.json");
+                auto sprite_res = l.load_asset<sprite_asset>("sprite.json");
                 REQUIRE(sprite_res);
                 REQUIRE(sprite_res->content().pivot() == v2f(1.f, 2.f));
                 REQUIRE(sprite_res->content().texrect() == b2f(5.f, 6.f, 7.f, 8.f));
                 REQUIRE(sprite_res->content().texture() == texture_res);
-                REQUIRE(sprite_res->content().material() == material_res);
             }
 
             {
-                auto sprite_res = l.load_asset<sprite_asset>("sprite_t.json");
-                REQUIRE(sprite_res);
-                REQUIRE(sprite_res->content().pivot() == v2f(1.f, 2.f));
-                REQUIRE(sprite_res->content().texrect() == b2f(5.f, 6.f, 7.f, 8.f));
-                REQUIRE(sprite_res->content().texture() == texture_res);
-                REQUIRE(sprite_res->content().material() == material_res);
+                auto flipbook_res = l.load_asset<flipbook_asset>("flipbook.json");
+                REQUIRE(flipbook_res);
+
+                REQUIRE(flipbook_res->content().frames().size() == 2);
+                REQUIRE(flipbook_res->content().sequences().size() == 2);
+
+                const flipbook::frame* frame_0 = flipbook_res->content().find_frame(0);
+                REQUIRE(frame_0);
+                REQUIRE(frame_0->sprite);
+                REQUIRE(frame_0->sprite == l.load_asset<atlas_asset, sprite_asset>("atlas.json:/sprite"));
+
+                const flipbook::frame* frame_1 = flipbook_res->content().find_frame(1);
+                REQUIRE(frame_1);
+                REQUIRE(frame_1->sprite);
+                REQUIRE(frame_1->sprite == l.load_asset<sprite_asset>("sprite.json"));
+
+                const flipbook::sequence* sequence_0 = flipbook_res->content().find_sequence("sequence_0");
+                REQUIRE(sequence_0);
+                REQUIRE(sequence_0->name == make_hash("sequence_0"));
+                REQUIRE(math::approximately(sequence_0->fps, 24.f));
+                REQUIRE(sequence_0->frames == vector<std::size_t>{0, 1, 0, 1});
+
+                const flipbook::sequence* sequence_1 = flipbook_res->content().find_sequence("sequence_1");
+                REQUIRE(sequence_1);
+                REQUIRE(sequence_1->name == make_hash("sequence_1"));
+                REQUIRE(math::approximately(sequence_1->fps, 30.f));
+                REQUIRE(sequence_1->frames == vector<std::size_t>{1, 0, 0, 1});
             }
 
             auto model_res = l.load_asset<model_asset>("model.json");
             REQUIRE(model_res);
             REQUIRE(model_res->content().mesh());
-            REQUIRE(model_res->content().material_count() == 1);
-            REQUIRE(model_res->content().material(0));
             REQUIRE_FALSE(model_res->content().mesh()->content().vertices().empty());
             REQUIRE(model_res->content().mesh()->content().indices_submesh_count() == 1);
             REQUIRE_FALSE(model_res->content().mesh()->content().indices(0).empty());
