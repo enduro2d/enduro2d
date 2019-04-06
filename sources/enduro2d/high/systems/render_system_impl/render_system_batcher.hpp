@@ -33,8 +33,8 @@ namespace e2d { namespace render_system_impl
             const index_type* indices, std::size_t index_count,
             const vertex_type* vertices, std::size_t vertex_count);
 
-        void flush();
         void clear() noexcept;
+        render::property_block& flush();
     private:
         void update_buffers_();
         void render_buffers_();
@@ -65,6 +65,8 @@ namespace e2d { namespace render_system_impl
         vertex_declaration vertex_decl_;
         index_buffer_ptr index_buffer_;
         vertex_buffer_ptr vertex_buffer_;
+        render::property_block property_cache_;
+        render::property_block internal_properties_;
     private:
         static std::size_t calculate_new_buffer_size(
             std::size_t esize, std::size_t osize, std::size_t nsize);
@@ -141,7 +143,16 @@ namespace e2d { namespace render_system_impl
     }
 
     template < typename Index, typename Vertex >
-    void batcher<Index, Vertex>::flush() {
+    void batcher<Index, Vertex>::clear() noexcept {
+        batches_.clear();
+        indices_.clear();
+        vertices_.clear();
+        property_cache_.clear();
+        internal_properties_.clear();
+    }
+
+    template < typename Index, typename Vertex >
+    render::property_block& batcher<Index, Vertex>::flush() {
         try {
             update_buffers_();
             render_buffers_();
@@ -150,13 +161,7 @@ namespace e2d { namespace render_system_impl
             throw;
         }
         clear();
-    }
-
-    template < typename Index, typename Vertex >
-    void batcher<Index, Vertex>::clear() noexcept {
-        batches_.clear();
-        indices_.clear();
-        vertices_.clear();
+        return internal_properties_;
     }
 
     template < typename Index, typename Vertex >
@@ -175,11 +180,22 @@ namespace e2d { namespace render_system_impl
             .indices(index_buffer_)
             .add_vertices(vertex_buffer_);
 
-        for ( const batch_type& batch : batches_ ) {
-            const render::material& mat = batch.material->content();
-            render_.execute(render::draw_command(mat, geo, batch.properties)
-                .index_range(batch.start, batch.count));
+        try {
+            for ( const batch_type& batch : batches_ ) {
+                const render::material& mat = batch.material->content();
+                render_.execute(render::draw_command(
+                    mat,
+                    geo,
+                    property_cache_
+                        .merge(internal_properties_)
+                        .merge(batch.properties)
+                ).index_range(batch.start, batch.count));
+            }
+        } catch ( ... ) {
+            property_cache_.clear();
+            throw;
         }
+        property_cache_.clear();
     }
 
     template < typename Index, typename Vertex >
