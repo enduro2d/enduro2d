@@ -266,7 +266,7 @@ namespace e2d
         explicit index_buffer(internal_state_uptr);
         ~index_buffer() noexcept;
     public:
-        void update(const buffer& indices, std::size_t offset) noexcept;
+        void update(buffer_view indices, std::size_t offset) noexcept;
         std::size_t buffer_size() const noexcept;
         std::size_t index_count() const noexcept;
         const index_declaration& decl() const noexcept;
@@ -293,7 +293,7 @@ namespace e2d
         explicit vertex_buffer(internal_state_uptr);
         ~vertex_buffer() noexcept;
     public:
-        void update(const buffer& vertices, std::size_t offset) noexcept;
+        void update(buffer_view vertices, std::size_t offset) noexcept;
         std::size_t buffer_size() const noexcept;
         std::size_t vertex_count() const noexcept;
         const vertex_declaration& decl() const noexcept;
@@ -890,12 +890,12 @@ namespace e2d
             const pixel_declaration& decl);
 
         index_buffer_ptr create_index_buffer(
-            const buffer& indices,
+            buffer_view indices,
             const index_declaration& decl,
             index_buffer::usage usage);
 
         vertex_buffer_ptr create_vertex_buffer(
-            const buffer& vertices,
+            buffer_view vertices,
             const vertex_declaration& decl,
             vertex_buffer::usage usage);
 

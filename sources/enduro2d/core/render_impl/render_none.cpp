@@ -121,7 +121,7 @@ namespace e2d
     : state_(std::move(state)) {}
     index_buffer::~index_buffer() noexcept = default;
 
-    void index_buffer::update(const buffer& indices, std::size_t offset) noexcept {
+    void index_buffer::update(buffer_view indices, std::size_t offset) noexcept {
         E2D_UNUSED(indices, offset);
     }
 
@@ -141,7 +141,7 @@ namespace e2d
     : state_(std::move(state)) {}
     vertex_buffer::~vertex_buffer() noexcept = default;
 
-    void vertex_buffer::update(const buffer& vertices, std::size_t offset) noexcept {
+    void vertex_buffer::update(buffer_view vertices, std::size_t offset) noexcept {
         E2D_UNUSED(vertices, offset);
     }
 
@@ -212,7 +212,7 @@ namespace e2d
     }
 
     index_buffer_ptr render::create_index_buffer(
-        const buffer& indices,
+        buffer_view indices,
         const index_declaration& decl,
         index_buffer::usage usage)
     {
@@ -221,7 +221,7 @@ namespace e2d
     }
 
     vertex_buffer_ptr render::create_vertex_buffer(
-        const buffer& vertices,
+        buffer_view vertices,
         const vertex_declaration& decl,
         vertex_buffer::usage usage)
     {

@@ -355,7 +355,7 @@ namespace e2d
     }
     index_buffer::~index_buffer() noexcept = default;
 
-    void index_buffer::update(const buffer& indices, std::size_t offset) noexcept {
+    void index_buffer::update(buffer_view indices, std::size_t offset) noexcept {
         const std::size_t buffer_offset = offset * state_->decl().bytes_per_index();
         E2D_ASSERT(indices.size() + buffer_offset <= state_->size());
         E2D_ASSERT(indices.size() % state_->decl().bytes_per_index() == 0);
@@ -396,7 +396,7 @@ namespace e2d
     }
     vertex_buffer::~vertex_buffer() noexcept = default;
 
-    void vertex_buffer::update(const buffer& vertices, std::size_t offset) noexcept {
+    void vertex_buffer::update(buffer_view vertices, std::size_t offset) noexcept {
         const std::size_t buffer_offset = offset * state_->decl().bytes_per_vertex();
         E2D_ASSERT(vertices.size() + buffer_offset <= state_->size());
         E2D_ASSERT(vertices.size() % state_->decl().bytes_per_vertex() == 0);
@@ -689,7 +689,7 @@ namespace e2d
     }
 
     index_buffer_ptr render::create_index_buffer(
-        const buffer& indices,
+        buffer_view indices,
         const index_declaration& decl,
         index_buffer::usage usage)
     {
@@ -725,7 +725,7 @@ namespace e2d
     }
 
     vertex_buffer_ptr render::create_vertex_buffer(
-        const buffer& vertices,
+        buffer_view vertices,
         const vertex_declaration& decl,
         vertex_buffer::usage usage)
     {
