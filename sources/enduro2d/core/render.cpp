@@ -717,56 +717,46 @@ namespace e2d
     }
 
     render::property_block& render::property_block::merge(const property_block& pb) {
-        pb.foreach_by_properties([this](str_hash name, const property_value& v){
-            property(name, v);
-        });
-        pb.foreach_by_samplers([this](str_hash name, const sampler_state& s){
-            sampler(name, s);
-        });
+        properties_.merge(pb.properties_);
+        samplers_.merge(pb.samplers_);
         return *this;
     }
 
     bool render::property_block::equals(const property_block& other) const noexcept {
-        return properties_ == other.properties_
-            && samplers_ == other.samplers_;
+        if ( properties_.size() != other.properties_.size() ) {
+            return false;
+        }
+        if ( samplers_.size() != other.samplers_.size() ) {
+            return false;
+        }
+        return properties_.equals(other.properties_)
+            && samplers_.equals(other.samplers_);
     }
 
     render::property_block& render::property_block::sampler(str_hash name, const sampler_state& s) {
-        samplers_[name] = s;
+        samplers_.assign(name, s);
         return *this;
     }
 
     render::sampler_state* render::property_block::sampler(str_hash name) noexcept {
-        const auto iter = samplers_.find(name);
-        return iter != samplers_.end()
-            ? &iter->second
-            : nullptr;
+        return samplers_.find(name);
     }
 
     const render::sampler_state* render::property_block::sampler(str_hash name) const noexcept {
-        const auto iter = samplers_.find(name);
-        return iter != samplers_.end()
-            ? &iter->second
-            : nullptr;
+        return samplers_.find(name);
     }
 
     render::property_block& render::property_block::property(str_hash name, const property_value& v) {
-        properties_[name] = v;
+        properties_.assign(name, v);
         return *this;
     }
 
     render::property_value* render::property_block::property(str_hash name) noexcept {
-        const auto iter = properties_.find(name);
-        return iter != properties_.end()
-            ? &iter->second
-            : nullptr;
+        return properties_.find(name);
     }
 
     const render::property_value* render::property_block::property(str_hash name) const noexcept {
-        const auto iter = properties_.find(name);
-        return iter != properties_.end()
-            ? &iter->second
-            : nullptr;
+        return properties_.find(name);
     }
 
     std::size_t render::property_block::sampler_count() const noexcept {

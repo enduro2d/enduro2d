@@ -615,13 +615,49 @@ namespace e2d
             v2f, v3f, v4f,
             m2f, m3f, m4f>;
 
+        template < typename T >
+        class property_map final {
+        public:
+            property_map() = default;
+
+            property_map(property_map&& other) = default;
+            property_map& operator=(property_map&& other) = default;
+
+            property_map(const property_map& other) = default;
+            property_map& operator=(const property_map& other) = default;
+
+            T* find(str_hash key) noexcept;
+            const T* find(str_hash key) const noexcept;
+
+            void assign(str_hash key, T&& value);
+            void assign(str_hash key, const T& value);
+
+            void clear() noexcept;
+            std::size_t size() const noexcept;
+
+            template < typename F >
+            void foreach(F&& f) const;
+            void merge(const property_map& other);
+            bool equals(const property_map& other) const noexcept;
+        private:
+            struct entry {
+                str_hash key;
+                T value;
+            public:
+                entry(str_hash k, T&& v);
+                entry(str_hash k, const T& v);
+                bool operator==(const entry& other) const;
+            };
+            vector<entry> entries_;
+        };
+
         class property_block final {
         public:
             property_block() = default;
             ~property_block() noexcept = default;
 
-            property_block(property_block&&) noexcept = default;
-            property_block& operator=(property_block&&) noexcept = default;
+            property_block(property_block&&) = default;
+            property_block& operator=(property_block&&) = default;
 
             property_block(const property_block&) = default;
             property_block& operator=(const property_block&) = default;
@@ -652,8 +688,8 @@ namespace e2d
             std::size_t sampler_count() const noexcept;
             std::size_t property_count() const noexcept;
         private:
-            hash_map<str_hash, sampler_state> samplers_;
-            hash_map<str_hash, property_value> properties_;
+            property_map<sampler_state> samplers_;
+            property_map<property_value> properties_;
         };
 
         class pass_state final {
