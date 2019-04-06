@@ -147,8 +147,6 @@ namespace e2d { namespace render_system_impl
         batches_.clear();
         indices_.clear();
         vertices_.clear();
-        property_cache_.clear();
-        internal_properties_.clear();
     }
 
     template < typename Index, typename Vertex >

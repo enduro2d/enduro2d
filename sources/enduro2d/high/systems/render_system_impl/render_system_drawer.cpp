@@ -87,13 +87,12 @@ namespace e2d { namespace render_system_impl
             return;
         }
 
-        batcher_.flush();
-
         const model& mdl = mdl_r.model()->content();
         const mesh& msh = mdl.mesh()->content();
 
         try {
             property_cache_
+                .merge(batcher_.flush())
                 .property("u_matrix_m", node->world_matrix())
                 .merge(node_r.properties());
 
@@ -201,7 +200,7 @@ namespace e2d { namespace render_system_impl
     }
 
     void drawer::context::flush() {
-        batcher_.flush();
+        batcher_.flush().clear();
     }
 
     //
