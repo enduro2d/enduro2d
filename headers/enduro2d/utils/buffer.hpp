@@ -43,8 +43,63 @@ namespace e2d
         std::size_t size_ = 0;
     };
 
+    class buffer_view {
+    public:
+        buffer_view() noexcept = default;
+        buffer_view(const buffer_view&) noexcept = default;
+        buffer_view& operator=(const buffer_view&) noexcept = default;
+
+        buffer_view(std::nullptr_t) noexcept = delete;
+        buffer_view(std::nullptr_t, std::size_t) noexcept = delete;
+
+        buffer_view(const void* data, std::size_t size) noexcept
+        : data_(data)
+        , size_(size){
+            E2D_ASSERT(!size || data);
+        }
+
+        buffer_view(const buffer& buffer) noexcept
+        : data_(buffer.data())
+        , size_(buffer.size()) {}
+
+        template < typename T >
+        buffer_view(const vector<T>& buffer) noexcept
+        : data_(buffer.data())
+        , size_(buffer.size() * sizeof(T)) {}
+
+        template < typename T, std::size_t N >
+        buffer_view(const array<T,N>& buffer) noexcept
+        : data_(buffer.data())
+        , size_(buffer.size() * sizeof(T)) {}
+
+        const void* data() const noexcept {
+            return data_;
+        }
+
+        std::size_t size() const noexcept {
+            return size_;
+        }
+
+        bool empty() const noexcept {
+            return size_ == 0;
+        }
+
+        void swap(buffer_view& other) noexcept {
+            std::swap(data_, other.data_);
+            std::swap(size_, other.size_);
+        }
+    private:
+        const void* data_ = nullptr;
+        std::size_t size_ = 0;
+    };
+
     void swap(buffer& l, buffer& r) noexcept;
     bool operator<(const buffer& l, const buffer& r) noexcept;
     bool operator==(const buffer& l, const buffer& r) noexcept;
     bool operator!=(const buffer& l, const buffer& r) noexcept;
+
+    void swap(buffer_view& l, buffer_view& r) noexcept;
+    bool operator<(const buffer_view& l, const buffer_view& r) noexcept;
+    bool operator==(const buffer_view& l, const buffer_view& r) noexcept;
+    bool operator!=(const buffer_view& l, const buffer_view& r) noexcept;
 }

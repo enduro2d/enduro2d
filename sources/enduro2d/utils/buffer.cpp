@@ -138,4 +138,32 @@ namespace e2d
     bool operator!=(const buffer& l, const buffer& r) noexcept {
         return !(l == r);
     }
+
+    void swap(buffer_view& l, buffer_view& r) noexcept {
+        l.swap(r);
+    }
+
+    bool operator<(const buffer_view& l, const buffer_view& r) noexcept {
+        const void* ld = l.data();
+        const void* rd = r.data();
+        const std::size_t ls = l.size();
+        const std::size_t rs = r.size();
+        return
+            (ls < rs) ||
+            (ls == rs && ls > 0 && std::memcmp(ld, rd, ls) < 0);
+    }
+
+    bool operator==(const buffer_view& l, const buffer_view& r) noexcept {
+        const void* ld = l.data();
+        const void* rd = r.data();
+        const std::size_t ls = l.size();
+        const std::size_t rs = r.size();
+        return
+            (ls == rs) &&
+            (ls == 0 || std::memcmp(ld, rd, ls) == 0);
+    }
+
+    bool operator!=(const buffer_view& l, const buffer_view& r) noexcept {
+        return !(l == r);
+    }
 }

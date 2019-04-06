@@ -12,6 +12,7 @@
 namespace e2d
 {
     class buffer;
+    class buffer_view;
     class color;
     class color32;
     class image;
