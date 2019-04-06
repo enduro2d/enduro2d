@@ -161,7 +161,7 @@ namespace e2d { namespace render_system_impl
         const f32 th = tex_r.size.y / tex_s.y;
 
         const m4f& sm = node->world_matrix();
-        const color32 tc = color32(spr_r.tint());
+        const color32& tc = spr_r.tint();
 
         const batcher_type::index_type indices[] = {
             0u, 1u, 2u, 2u, 3u, 0u};
