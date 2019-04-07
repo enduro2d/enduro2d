@@ -158,13 +158,13 @@ namespace e2d
             for ( int i = 0; i < draw_data->CmdListsCount; ++i ) {
                 const ImDrawList* cmd_list = draw_data->CmdLists[i];
 
-                update_index_buffer(
+                update_index_buffer({
                     cmd_list->IdxBuffer.Data,
-                    math::numeric_cast<std::size_t>(cmd_list->IdxBuffer.Size) * sizeof(ImDrawIdx));
+                    math::numeric_cast<std::size_t>(cmd_list->IdxBuffer.Size) * sizeof(ImDrawIdx)});
 
-                update_vertex_buffer(
+                update_vertex_buffer({
                     cmd_list->VtxBuffer.Data,
-                    math::numeric_cast<std::size_t>(cmd_list->VtxBuffer.Size) * sizeof(ImDrawVert));
+                    math::numeric_cast<std::size_t>(cmd_list->VtxBuffer.Size) * sizeof(ImDrawVert)});
 
                 const auto geometry = render::geometry()
                     .indices(index_buffer_)
@@ -301,19 +301,19 @@ namespace e2d
             return math::max(osize * 2u, nsize);
         }
 
-        void update_index_buffer(const void* indices, std::size_t size) {
-            if ( index_buffer_ && index_buffer_->buffer_size() >= size ) {
-                index_buffer_->update(buffer(indices, size), 0);
+        void update_index_buffer(buffer_view indices) {
+            if ( index_buffer_ && index_buffer_->buffer_size() >= indices.size() ) {
+                index_buffer_->update(indices, 0);
                 return;
             }
 
             const std::size_t new_buffer_size = calculate_new_buffer_size(
                 sizeof(ImDrawIdx),
                 index_buffer_ ? index_buffer_->buffer_size() : 0u,
-                size);
+                indices.size());
 
             buffer new_buffer_data(new_buffer_size);
-            std::memcpy(new_buffer_data.data(), indices, size);
+            std::memcpy(new_buffer_data.data(), indices.data(), indices.size());
 
             index_buffer_ = render_.create_index_buffer(
                 new_buffer_data,
@@ -327,19 +327,19 @@ namespace e2d
             }
         }
 
-        void update_vertex_buffer(const void* vertices, std::size_t size) {
-            if ( vertex_buffer_ && vertex_buffer_->buffer_size() >= size ) {
-                vertex_buffer_->update(buffer(vertices, size), 0);
+        void update_vertex_buffer(buffer_view vertices) {
+            if ( vertex_buffer_ && vertex_buffer_->buffer_size() >= vertices.size() ) {
+                vertex_buffer_->update(vertices, 0);
                 return;
             }
 
             const std::size_t new_buffer_size = calculate_new_buffer_size(
                 sizeof(ImDrawVert),
                 vertex_buffer_ ? vertex_buffer_->buffer_size() : 0u,
-                size);
+                vertices.size());
 
             buffer new_buffer_data(new_buffer_size);
-            std::memcpy(new_buffer_data.data(), vertices, size);
+            std::memcpy(new_buffer_data.data(), vertices.data(), vertices.size());
 
             vertex_buffer_ = render_.create_vertex_buffer(
                 new_buffer_data,

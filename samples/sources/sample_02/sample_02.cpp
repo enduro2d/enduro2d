@@ -128,13 +128,13 @@ namespace
 
             const auto indices = generate_cube_indices();
             index_buffer_ = the<render>().create_index_buffer(
-                buffer(indices.data(), indices.size() * sizeof(indices[0])),
+                indices,
                 index_declaration::index_type::unsigned_byte,
                 index_buffer::usage::static_draw);
 
             const auto vertices = generate_cube_vertices(make_vec3(1.f));
             vertex_buffer_ = the<render>().create_vertex_buffer(
-                buffer(vertices.data(), vertices.size() * sizeof(vertices[0])),
+                vertices,
                 vertex::decl(),
                 vertex_buffer::usage::static_draw);
 

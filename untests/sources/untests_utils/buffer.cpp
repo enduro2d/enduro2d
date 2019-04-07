@@ -171,3 +171,90 @@ TEST_CASE("buffer") {
     #endif
     }
 }
+
+TEST_CASE("buffer_view") {
+    {
+        buffer_view v0;
+        REQUIRE(v0.data() == nullptr);
+        REQUIRE(v0.size() == 0);
+        REQUIRE(v0.empty());
+
+        const char* s = "hello";
+
+        buffer_view v1{s, 5};
+        REQUIRE(v1.data() == s);
+        REQUIRE(v1.size() == 5);
+        REQUIRE_FALSE(v1.empty());
+
+        buffer_view v2{s, 3};
+        REQUIRE(v2.data() == s);
+        REQUIRE(v2.size() == 3);
+
+        buffer b0("hello", 5);
+        buffer_view v3(b0);
+        REQUIRE(v3.data() == b0.data());
+        REQUIRE(v3.size() == 5);
+
+        vector<u16> b1{'h', 'e', 'l', 'l', 'o'};
+        buffer_view v4(b1);
+        REQUIRE(v4.data() == b1.data());
+        REQUIRE(v4.size() == 10);
+
+        array<u32,5> b2{'h', 'e', 'l', 'l', 'o'};
+        buffer_view v5(b2);
+        REQUIRE(v5.data() == b2.data());
+        REQUIRE(v5.size() == 20);
+    }
+    {
+        const char* s0 = "hell";
+        const char* s1 = "world";
+
+        buffer_view v0{s0, 4};
+        buffer_view v1{s1, 5};
+        v0.swap(v1);
+        REQUIRE(v0.data() == s1);
+        REQUIRE(v0.size() == 5);
+        REQUIRE(v1.data() == s0);
+        REQUIRE(v1.size() == 4);
+    }
+    {
+        buffer_view v0{"hello", 5};
+        buffer_view v1(v0);
+        REQUIRE(v1.data() == v0.data());
+        REQUIRE(v1.size() == 5);
+        buffer_view v2;
+        v2 = v1;
+        REQUIRE(v2.data() == v0.data());
+        REQUIRE(v2.size() == 5);
+    }
+    {
+        REQUIRE_FALSE(buffer_view() < buffer_view());
+        REQUIRE_FALSE(buffer_view("aa",2) < buffer_view("aa",2));
+
+        REQUIRE(buffer_view() < buffer_view("a",1));
+        REQUIRE_FALSE(buffer_view("a",1) < buffer_view());
+
+        REQUIRE(buffer_view("aa",2) < buffer_view("ab",2));
+        REQUIRE_FALSE(buffer_view("ab",2) < buffer_view("aa",2));
+
+        REQUIRE(buffer_view("aa",2) < buffer_view("aaa",3));
+        REQUIRE(buffer_view("aa",2) < buffer_view("abb",3));
+        REQUIRE_FALSE(buffer_view("aaa",3) < buffer_view("aa",2));
+        REQUIRE_FALSE(buffer_view("abb",3) < buffer_view("aa",2));
+    }
+    {
+        REQUIRE(buffer_view() == buffer_view());
+        REQUIRE_FALSE(buffer_view() != buffer_view());
+
+        REQUIRE_FALSE(buffer_view() == buffer_view("hello",5));
+        REQUIRE_FALSE(buffer_view("hello",5) == buffer_view());
+        REQUIRE(buffer_view("hello",5) == buffer_view("hello",5));
+        REQUIRE_FALSE(buffer_view("hello",5) != buffer_view("hello",5));
+
+        REQUIRE(buffer_view("hello",5) != buffer_view("world",5));
+        REQUIRE_FALSE(buffer_view("hello",5) == buffer_view("world",5));
+
+        REQUIRE(buffer_view("hello",5) != buffer_view("hello, world",12));
+        REQUIRE_FALSE(buffer_view("hello",5) == buffer_view("hello, world",12));
+    }
+}

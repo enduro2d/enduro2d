@@ -33,8 +33,8 @@ namespace e2d { namespace render_system_impl
             const index_type* indices, std::size_t index_count,
             const vertex_type* vertices, std::size_t vertex_count);
 
-        void flush();
-        void clear() noexcept;
+        render::property_block& flush();
+        void clear(bool clear_internal_props) noexcept;
     private:
         void update_buffers_();
         void render_buffers_();
@@ -65,6 +65,8 @@ namespace e2d { namespace render_system_impl
         vertex_declaration vertex_decl_;
         index_buffer_ptr index_buffer_;
         vertex_buffer_ptr vertex_buffer_;
+        render::property_block property_cache_;
+        render::property_block internal_properties_;
     private:
         static std::size_t calculate_new_buffer_size(
             std::size_t esize, std::size_t osize, std::size_t nsize);
@@ -134,29 +136,33 @@ namespace e2d { namespace render_system_impl
                     vertices_.end(),
                     vertices, vertices + vertex_count);
             }
-        } catch (...) {
-            clear();
+        } catch ( ... ) {
+            clear(false);
             throw;
         }
     }
 
     template < typename Index, typename Vertex >
-    void batcher<Index, Vertex>::flush() {
+    render::property_block& batcher<Index, Vertex>::flush() {
         try {
             update_buffers_();
             render_buffers_();
         } catch (...) {
-            clear();
+            clear(false);
             throw;
         }
-        clear();
+        clear(false);
+        return internal_properties_;
     }
 
     template < typename Index, typename Vertex >
-    void batcher<Index, Vertex>::clear() noexcept {
+    void batcher<Index, Vertex>::clear(bool clear_internal_props) noexcept {
         batches_.clear();
         indices_.clear();
         vertices_.clear();
+        if ( clear_internal_props ) {
+            internal_properties_.clear();
+        }
     }
 
     template < typename Index, typename Vertex >
@@ -175,18 +181,29 @@ namespace e2d { namespace render_system_impl
             .indices(index_buffer_)
             .add_vertices(vertex_buffer_);
 
-        for ( const batch_type& batch : batches_ ) {
-            const render::material& mat = batch.material->content();
-            render_.execute(render::draw_command(mat, geo, batch.properties)
-                .index_range(batch.start, batch.count));
+        try {
+            for ( const batch_type& batch : batches_ ) {
+                const render::material& mat = batch.material->content();
+                render_.execute(render::draw_command(
+                    mat,
+                    geo,
+                    property_cache_
+                        .merge(internal_properties_)
+                        .merge(batch.properties)
+                ).index_range(batch.start, batch.count));
+            }
+        } catch ( ... ) {
+            property_cache_.clear();
+            throw;
         }
+        property_cache_.clear();
     }
 
     template < typename Index, typename Vertex >
     void batcher<Index, Vertex>::update_index_buffer_() {
         const std::size_t min_ib_size = indices_.size() * sizeof(indices_[0]);
         if ( index_buffer_ && index_buffer_->buffer_size() >= min_ib_size ) {
-            index_buffer_->update(buffer(indices_.data(), min_ib_size), 0u);
+            index_buffer_->update(indices_, 0u);
         } else {
             const std::size_t new_ib_size = calculate_new_buffer_size(
                 sizeof(Index),
@@ -213,7 +230,7 @@ namespace e2d { namespace render_system_impl
     void batcher<Index, Vertex>::update_vertex_buffer_() {
         const std::size_t min_vb_size = vertices_.size() * sizeof(vertices_[0]);
         if ( vertex_buffer_ && vertex_buffer_->buffer_size() >= min_vb_size ) {
-            vertex_buffer_->update(buffer(vertices_.data(), min_vb_size), 0u);
+            vertex_buffer_->update(vertices_, 0u);
         } else {
             const std::size_t new_vb_size = calculate_new_buffer_size(
                 sizeof(Vertex),

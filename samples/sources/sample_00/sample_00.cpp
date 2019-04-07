@@ -114,19 +114,19 @@ namespace
 
             const auto indices = generate_quad_indices();
             index_buffer_ = the<render>().create_index_buffer(
-                buffer(indices.data(), indices.size() * sizeof(indices[0])),
+                indices,
                 index_declaration::index_type::unsigned_byte,
                 index_buffer::usage::static_draw);
 
             const auto vertices1 = generate_quad_vertices(texture1_->size());
             vertex_buffer1_ = the<render>().create_vertex_buffer(
-                buffer(vertices1.data(), vertices1.size() * sizeof(vertices1[0])),
+                vertices1,
                 vertex1::decl(),
                 vertex_buffer::usage::static_draw);
 
             const auto vertices2 = generate_quad_colors();
             vertex_buffer2_ = the<render>().create_vertex_buffer(
-                buffer(vertices2.data(), vertices2.size() * sizeof(vertices2[0])),
+                vertices2,
                 vertex2::decl(),
                 vertex_buffer::usage::static_draw);
 

@@ -52,7 +52,7 @@ namespace
                 }
 
                 const index_buffer_ptr index_buffer = render.create_index_buffer(
-                    buffer(indices.data(), indices.size() * sizeof(indices[0])),
+                    indices,
                     index_declaration::index_type::unsigned_int,
                     index_buffer::usage::static_draw);
 
@@ -65,7 +65,7 @@ namespace
         {
             const vector<v3f>& vertices = mesh.vertices();
             const vertex_buffer_ptr vertex_buffer = render.create_vertex_buffer(
-                buffer(vertices.data(), vertices.size() * sizeof(vertices[0])),
+                vertices,
                 vertex_buffer_decl,
                 vertex_buffer::usage::static_draw);
             if ( vertex_buffer ) {
@@ -80,7 +80,7 @@ namespace
             for ( std::size_t i = 0; i < uv_count; ++i ) {
                 const vector<v2f>& uvs = mesh.uvs(i);
                 const vertex_buffer_ptr uv_buffer = render.create_vertex_buffer(
-                    buffer(uvs.data(), uvs.size() * sizeof(uvs[0])),
+                    uvs,
                     uv_buffer_decls[i],
                     vertex_buffer::usage::static_draw);
                 if ( uv_buffer ) {
@@ -96,7 +96,7 @@ namespace
             for ( std::size_t i = 0; i < color_count; ++i ) {
                 const vector<color32>& colors = mesh.colors(i);
                 const vertex_buffer_ptr color_buffer = render.create_vertex_buffer(
-                    buffer(colors.data(), colors.size() * sizeof(colors[0])),
+                    colors,
                     color_buffer_decls[i],
                     vertex_buffer::usage::static_draw);
                 if ( color_buffer ) {
@@ -108,7 +108,7 @@ namespace
         {
             const vector<v3f>& normals = mesh.normals();
             const vertex_buffer_ptr normal_buffer = render.create_vertex_buffer(
-                buffer(normals.data(), normals.size() * sizeof(normals[0])),
+                normals,
                 normal_buffer_decl,
                 vertex_buffer::usage::static_draw);
             if ( normal_buffer ) {
@@ -119,7 +119,7 @@ namespace
         {
             const vector<v3f>& tangents = mesh.tangents();
             const vertex_buffer_ptr tangent_buffer = render.create_vertex_buffer(
-                buffer(tangents.data(), tangents.size() * sizeof(tangents[0])),
+                tangents,
                 tangent_buffer_decl,
                 vertex_buffer::usage::static_draw);
             if ( tangent_buffer ) {
@@ -130,7 +130,7 @@ namespace
         {
             const vector<v3f>& bitangents = mesh.bitangents();
             const vertex_buffer_ptr bitangent_buffer = render.create_vertex_buffer(
-                buffer(bitangents.data(), bitangents.size() * sizeof(bitangents[0])),
+                bitangents,
                 bitangent_buffer_decl,
                 vertex_buffer::usage::static_draw);
             if ( bitangent_buffer ) {

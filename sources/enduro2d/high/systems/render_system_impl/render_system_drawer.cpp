@@ -39,7 +39,7 @@ namespace e2d { namespace render_system_impl
         const m4f& m_v = cam_n ? cam_n->world_matrix() : m4f::identity();
         const m4f& m_p = cam.projection();
 
-        internal_properties_
+        batcher_.flush()
             .property(matrix_v_property_hash, m_v)
             .property(matrix_p_property_hash, m_p)
             .property(matrix_vp_property_hash, m_v * m_p)
@@ -50,6 +50,10 @@ namespace e2d { namespace render_system_impl
             .add_command(render::viewport_command(cam.viewport()))
             .add_command(render::clear_command()
                 .color_value(cam.background())));
+    }
+
+    drawer::context::~context() noexcept {
+        batcher_.clear(true);
     }
 
     void drawer::context::draw(
@@ -87,15 +91,14 @@ namespace e2d { namespace render_system_impl
             return;
         }
 
-        batcher_.flush();
-
         const model& mdl = mdl_r.model()->content();
         const mesh& msh = mdl.mesh()->content();
 
         try {
             property_cache_
+                .merge(batcher_.flush())
                 .property("u_matrix_m", node->world_matrix())
-                .merge(internal_properties_);
+                .merge(node_r.properties());
 
             const std::size_t submesh_count = math::min(
                 msh.indices_submesh_count(),
@@ -161,7 +164,7 @@ namespace e2d { namespace render_system_impl
         const f32 th = tex_r.size.y / tex_s.y;
 
         const m4f& sm = node->world_matrix();
-        const color32 tc = color32(spr_r.tint());
+        const color32& tc = spr_r.tint();
 
         const batcher_type::index_type indices[] = {
             0u, 1u, 2u, 2u, 3u, 0u};
@@ -181,15 +184,16 @@ namespace e2d { namespace render_system_impl
             : render::sampler_mag_filter::nearest;
 
         try {
+            property_cache_
+                .sampler(sprite_texture_sampler_hash, render::sampler_state()
+                    .texture(tex_a->content())
+                    .min_filter(min_filter)
+                    .mag_filter(mag_filter))
+                .merge(node_r.properties());
+
             batcher_.batch(
                 mat_a,
-                property_cache_
-                    .sampler(sprite_texture_sampler_hash, render::sampler_state()
-                        .texture(tex_a->content())
-                        .min_filter(min_filter)
-                        .mag_filter(mag_filter))
-                    .merge(node_r.properties())
-                    .merge(internal_properties_),
+                property_cache_,
                 indices, E2D_COUNTOF(indices),
                 vertices, E2D_COUNTOF(vertices));
         } catch (...) {

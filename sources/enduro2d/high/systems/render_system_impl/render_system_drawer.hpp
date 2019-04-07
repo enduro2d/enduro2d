@@ -37,6 +37,7 @@ namespace e2d { namespace render_system_impl
                 engine& engine,
                 render& render,
                 batcher_type& batcher);
+            ~context() noexcept;
 
             void draw(
                 const const_node_iptr& node);
@@ -56,7 +57,6 @@ namespace e2d { namespace render_system_impl
             render& render_;
             batcher_type& batcher_;
             render::property_block property_cache_;
-            render::property_block internal_properties_;
         };
     public:
         drawer(engine& e, debug& d, render& r);
