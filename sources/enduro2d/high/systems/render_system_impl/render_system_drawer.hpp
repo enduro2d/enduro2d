@@ -37,6 +37,7 @@ namespace e2d { namespace render_system_impl
                 engine& engine,
                 render& render,
                 batcher_type& batcher);
+            ~context() noexcept;
 
             void draw(
                 const const_node_iptr& node);

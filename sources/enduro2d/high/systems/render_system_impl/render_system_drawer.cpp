@@ -52,6 +52,10 @@ namespace e2d { namespace render_system_impl
                 .color_value(cam.background())));
     }
 
+    drawer::context::~context() noexcept {
+        batcher_.clear(true);
+    }
+
     void drawer::context::draw(
         const const_node_iptr& node)
     {
@@ -200,7 +204,7 @@ namespace e2d { namespace render_system_impl
     }
 
     void drawer::context::flush() {
-        batcher_.flush().clear();
+        batcher_.flush();
     }
 
     //

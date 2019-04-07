@@ -33,8 +33,8 @@ namespace e2d { namespace render_system_impl
             const index_type* indices, std::size_t index_count,
             const vertex_type* vertices, std::size_t vertex_count);
 
-        void clear() noexcept;
         render::property_block& flush();
+        void clear(bool clear_internal_props) noexcept;
     private:
         void update_buffers_();
         void render_buffers_();
@@ -136,17 +136,10 @@ namespace e2d { namespace render_system_impl
                     vertices_.end(),
                     vertices, vertices + vertex_count);
             }
-        } catch (...) {
-            clear();
+        } catch ( ... ) {
+            clear(false);
             throw;
         }
-    }
-
-    template < typename Index, typename Vertex >
-    void batcher<Index, Vertex>::clear() noexcept {
-        batches_.clear();
-        indices_.clear();
-        vertices_.clear();
     }
 
     template < typename Index, typename Vertex >
@@ -155,11 +148,21 @@ namespace e2d { namespace render_system_impl
             update_buffers_();
             render_buffers_();
         } catch (...) {
-            clear();
+            clear(false);
             throw;
         }
-        clear();
+        clear(false);
         return internal_properties_;
+    }
+
+    template < typename Index, typename Vertex >
+    void batcher<Index, Vertex>::clear(bool clear_internal_props) noexcept {
+        batches_.clear();
+        indices_.clear();
+        vertices_.clear();
+        if ( clear_internal_props ) {
+            internal_properties_.clear();
+        }
     }
 
     template < typename Index, typename Vertex >
