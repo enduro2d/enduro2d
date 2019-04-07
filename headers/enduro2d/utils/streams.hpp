@@ -1,7 +1,7 @@
 /*******************************************************************************
  * This file is part of the "Enduro2D"
  * For conditions of distribution and use, see copyright notice in LICENSE.md
- * Copyright (C) 2018 Matvey Cherevko
+ * Copyright (C) 2018-2019, by Matvey Cherevko (blackmatov@gmail.com)
  ******************************************************************************/
 
 #ifndef E2D_INCLUDE_GUARD_271E0872955E4A59980866CBF737BDC1
