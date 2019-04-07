@@ -517,7 +517,14 @@ namespace e2d { namespace math
     //
 
     template < typename T >
-    std::enable_if_t<std::is_arithmetic<T>::value, T>
+    std::enable_if_t<std::is_integral<T>::value, T>
+    mod(T x, T y) noexcept {
+        E2D_ASSERT(y != T(0));
+        return x % y;
+    }
+
+    template < typename T >
+    std::enable_if_t<std::is_floating_point<T>::value, T>
     mod(T x, T y) noexcept {
         E2D_ASSERT(y != T(0));
         return std::fmod(x, y);
