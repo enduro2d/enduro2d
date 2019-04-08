@@ -22,9 +22,6 @@
 [submodule "modules/glfw"]
 	path = modules/glfw
 	url = https://github.com/glfw/glfw
-[submodule "toolset/model_converter/modules/assimp"]
-	path = toolset/model_converter/modules/assimp
-	url = https://github.com/assimp/assimp
 [submodule "modules/promise.hpp"]
 	path = modules/promise.hpp
 	url = https://github.com/BlackMATov/promise.hpp
