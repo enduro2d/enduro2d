@@ -27,6 +27,7 @@ namespace e2d
     class material_asset;
     class mesh_asset;
     class model_asset;
+    class prefab_asset;
     class shader_asset;
     class shape_asset;
     class sprite_asset;
@@ -59,6 +60,7 @@ namespace e2d
     class flipbook;
     class model;
     class node;
+    class prefab;
     class sprite;
     class starter;
     class world;

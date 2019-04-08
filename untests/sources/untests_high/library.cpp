@@ -152,12 +152,19 @@ TEST_CASE("library"){
                 REQUIRE(sequence_1->frames == vector<std::size_t>{1, 0, 0, 1});
             }
 
-            auto model_res = l.load_asset<model_asset>("model.json");
-            REQUIRE(model_res);
-            REQUIRE(model_res->content().mesh());
-            REQUIRE_FALSE(model_res->content().mesh()->content().vertices().empty());
-            REQUIRE(model_res->content().mesh()->content().indices_submesh_count() == 1);
-            REQUIRE_FALSE(model_res->content().mesh()->content().indices(0).empty());
+            {
+                auto model_res = l.load_asset<model_asset>("model.json");
+                REQUIRE(model_res);
+                REQUIRE(model_res->content().mesh());
+                REQUIRE_FALSE(model_res->content().mesh()->content().vertices().empty());
+                REQUIRE(model_res->content().mesh()->content().indices_submesh_count() == 1);
+                REQUIRE_FALSE(model_res->content().mesh()->content().indices(0).empty());
+            }
+
+            {
+                auto prefab_res = l.load_asset<prefab_asset>("prefab.json");
+                REQUIRE(prefab_res);
+            }
         }
     }
     {
