@@ -31,3 +31,6 @@
 [submodule "modules/imgui"]
 	path = modules/imgui
 	url = https://github.com/ocornut/imgui
+[submodule "modules/miniz"]
+	path = modules/miniz
+	url = https://github.com/richgel999/miniz
