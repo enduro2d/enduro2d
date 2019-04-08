@@ -58,6 +58,13 @@ namespace
             if ( !ship_prefab_res || !gnome_prefab_res ) {
                 return false;
             }
+
+            auto ship_go = the<world>().instantiate(ship_prefab_res);
+            auto gnome_go = the<world>().instantiate(gnome_prefab_res);
+            if ( !ship_go || !gnome_go ) {
+                return false;
+            }
+
             return true;
         }
 

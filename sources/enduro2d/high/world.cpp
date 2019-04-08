@@ -18,4 +18,13 @@ namespace e2d
     const ecs::registry& world::registry() const noexcept {
         return registry_;
     }
+
+    gobject_iptr world::instantiate() {
+        return gobject_iptr(new gobject(registry_));
+    }
+
+    gobject_iptr world::instantiate(const prefab_asset::ptr& prefab) {
+        E2D_UNUSED(prefab);
+        return instantiate();
+    }
 }

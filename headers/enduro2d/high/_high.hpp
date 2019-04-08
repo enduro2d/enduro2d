@@ -58,6 +58,7 @@ namespace e2d
 
     class atlas;
     class flipbook;
+    class gobject;
     class model;
     class node;
     class prefab;

@@ -39,6 +39,7 @@
 #include "asset.inl"
 #include "atlas.hpp"
 #include "flipbook.hpp"
+#include "gobject.hpp"
 #include "library.hpp"
 #include "library.inl"
 #include "model.hpp"

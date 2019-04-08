@@ -8,6 +8,9 @@
 
 #include "_high.hpp"
 
+#include "gobject.hpp"
+#include "assets/prefab_asset.hpp"
+
 namespace e2d
 {
     class world final : public module<world> {
@@ -31,6 +34,9 @@ namespace e2d
 
         ecs::registry& registry() noexcept;
         const ecs::registry& registry() const noexcept;
+
+        gobject_iptr instantiate();
+        gobject_iptr instantiate(const prefab_asset::ptr& prefab);
     private:
         ecs::registry registry_;
     };
