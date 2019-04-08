@@ -47,10 +47,20 @@ namespace
     class game final : public high_application {
     public:
         bool initialize() final {
-            return create_camera()
+            return create_scene()
+                && create_camera()
                 && create_systems();
         }
     private:
+        bool create_scene() {
+            auto ship_prefab_res = the<library>().load_asset<prefab_asset>("ship_prefab.json");
+            auto gnome_prefab_res = the<library>().load_asset<prefab_asset>("gnome_prefab.json");
+            if ( !ship_prefab_res || !gnome_prefab_res ) {
+                return false;
+            }
+            return true;
+        }
+
         bool create_camera() {
             ecs::entity camera_e = the<world>().registry().create_entity();
             ecs::entity_filler(camera_e)

@@ -1,2 +1,7 @@
 {
+    "components" : [{
+        "actor" : [],
+        "renderer" : [],
+        "sprite_renderer" : []
+    }]
 }
