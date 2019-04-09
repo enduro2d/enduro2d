@@ -36,6 +36,17 @@ cp -fv $MODULES_DIR/imgui/imstb_rectpack.h $SOURCES_RDPARTY_DIR/imgui/imstb_rect
 cp -fv $MODULES_DIR/imgui/imstb_textedit.h $SOURCES_RDPARTY_DIR/imgui/imstb_textedit.h
 cp -fv $MODULES_DIR/imgui/imstb_truetype.h $SOURCES_RDPARTY_DIR/imgui/imstb_truetype.h
 
+mkdir -p $SOURCES_RDPARTY_DIR/miniz
+cp -fv $MODULES_DIR/miniz/miniz.c $SOURCES_RDPARTY_DIR/miniz/miniz.c
+cp -fv $MODULES_DIR/miniz/miniz.h $SOURCES_RDPARTY_DIR/miniz/miniz.h
+cp -fv $MODULES_DIR/miniz/miniz_common.h $SOURCES_RDPARTY_DIR/miniz/miniz_common.h
+cp -fv $MODULES_DIR/miniz/miniz_tdef.c $SOURCES_RDPARTY_DIR/miniz/miniz_tdef.c
+cp -fv $MODULES_DIR/miniz/miniz_tdef.h $SOURCES_RDPARTY_DIR/miniz/miniz_tdef.h
+cp -fv $MODULES_DIR/miniz/miniz_tinfl.c $SOURCES_RDPARTY_DIR/miniz/miniz_tinfl.c
+cp -fv $MODULES_DIR/miniz/miniz_tinfl.h $SOURCES_RDPARTY_DIR/miniz/miniz_tinfl.h
+cp -fv $MODULES_DIR/miniz/miniz_zip.c $SOURCES_RDPARTY_DIR/miniz/miniz_zip.c
+cp -fv $MODULES_DIR/miniz/miniz_zip.h $SOURCES_RDPARTY_DIR/miniz/miniz_zip.h
+
 mkdir -p $HEADERS_RDPARTY_DIR/promise.hpp
 cp -rfv $MODULES_DIR/promise.hpp/invoke.hpp $HEADERS_RDPARTY_DIR/promise.hpp/invoke.hpp
 cp -rfv $MODULES_DIR/promise.hpp/jobber.hpp $HEADERS_RDPARTY_DIR/promise.hpp/jobber.hpp
