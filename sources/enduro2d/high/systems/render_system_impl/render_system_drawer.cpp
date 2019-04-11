@@ -59,7 +59,7 @@ namespace e2d { namespace render_system_impl
     void drawer::context::draw(
         const const_node_iptr& node)
     {
-        if ( !node || !node->entity().alive() ) {
+        if ( !node || !node->entity().valid() ) {
             return;
         }
 
