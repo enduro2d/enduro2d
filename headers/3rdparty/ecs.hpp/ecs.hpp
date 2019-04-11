@@ -37,8 +37,13 @@ namespace ecs_hpp
     template < typename T >
     class const_component;
 
+    class prototype;
+
     class system;
     class registry;
+
+    class entity_filler;
+    class registry_filler;
 
     using family_id = std::uint16_t;
     using entity_id = std::uint32_t;
@@ -158,6 +163,44 @@ namespace ecs_hpp
         }
 
         //
+        // tiny_tuple_apply
+        //
+
+        namespace impl
+        {
+            template < typename F, typename Tuple, std::size_t... I >
+            void tiny_tuple_apply_impl(F&& f, Tuple&& args, std::index_sequence<I...>) {
+                std::forward<F>(f)(std::get<I>(std::forward<Tuple>(args))...);
+            }
+        }
+
+        template < typename F, typename Tuple >
+        void tiny_tuple_apply(F&& f, Tuple&& args) {
+            impl::tiny_tuple_apply_impl(
+                std::forward<F>(f),
+                std::forward<Tuple>(args),
+                std::make_index_sequence<std::tuple_size<std::decay_t<Tuple>>::value>());
+        }
+
+        //
+        // next_capacity_size
+        //
+
+        inline std::size_t next_capacity_size(
+            std::size_t cur_size,
+            std::size_t min_size,
+            std::size_t max_size)
+        {
+            if ( min_size > max_size ) {
+                throw std::length_error("ecs_hpp::next_capacity_size");
+            }
+            if ( cur_size >= max_size / 2u ) {
+                return max_size;
+            }
+            return std::max(cur_size * 2u, min_size);
+        }
+
+        //
         // entity_id index/version
         //
 
@@ -263,6 +306,15 @@ namespace ecs_hpp
             using iterator = typename std::vector<T>::iterator;
             using const_iterator = typename std::vector<T>::const_iterator;
         public:
+            static_assert(
+                noexcept(std::declval<Indexer>()(std::declval<T>())),
+                "unsupported sparse_set indexer");
+            static_assert(
+                std::is_nothrow_destructible<T>::value &&
+                std::is_nothrow_move_assignable<T>::value &&
+                noexcept(std::declval<T>() == std::declval<T>()),
+                "unsupported sparse_set value type");
+        public:
             iterator begin() noexcept {
                 return dense_.begin();
             }
@@ -290,28 +342,29 @@ namespace ecs_hpp
             sparse_set(const Indexer& indexer = Indexer())
             : indexer_(indexer) {}
 
-            bool insert(T&& v) {
-                if ( has(v) ) {
-                    return false;
-                }
-                const std::size_t vi = indexer_(v);
-                if ( vi >= sparse_.size() ) {
-                    sparse_.resize(new_sparse_size_for_(vi + 1u));
-                }
-                dense_.push_back(std::move(v));
-                sparse_[vi] = dense_.size() - 1u;
-                return true;
+            sparse_set(const sparse_set& other) = default;
+            sparse_set& operator=(const sparse_set& other) = default;
+
+            sparse_set(sparse_set&& other) noexcept = default;
+            sparse_set& operator=(sparse_set&& other) noexcept = default;
+
+            void swap(sparse_set& other) noexcept {
+                using std::swap;
+                swap(dense_, other.dense_);
+                swap(sparse_, other.sparse_);
             }
 
-            bool insert(const T& v) {
+            template < typename UT >
+            bool insert(UT&& v) {
                 if ( has(v) ) {
                     return false;
                 }
                 const std::size_t vi = indexer_(v);
                 if ( vi >= sparse_.size() ) {
-                    sparse_.resize(new_sparse_size_for_(vi + 1u));
+                    sparse_.resize(next_capacity_size(
+                        sparse_.size(), vi + 1u, sparse_.max_size()));
                 }
-                dense_.push_back(v);
+                dense_.push_back(std::forward<UT>(v));
                 sparse_[vi] = dense_.size() - 1u;
                 return true;
             }
@@ -321,16 +374,16 @@ namespace ecs_hpp
                 return insert(T(std::forward<Args>(args)...));
             }
 
-            bool unordered_erase(const T& v)
-                noexcept(std::is_nothrow_move_assignable<T>::value)
-            {
+            bool unordered_erase(const T& v) noexcept {
                 if ( !has(v) ) {
                     return false;
                 }
                 const std::size_t vi = indexer_(v);
                 const std::size_t dense_index = sparse_[vi];
-                dense_[dense_index] = std::move(dense_.back());
-                sparse_[indexer_(dense_[dense_index])] = dense_index;
+                if ( dense_index != dense_.size() - 1 ) {
+                    dense_[dense_index] = std::move(dense_.back());
+                    sparse_[indexer_(dense_[dense_index])] = dense_index;
+                }
                 dense_.pop_back();
                 return true;
             }
@@ -347,9 +400,8 @@ namespace ecs_hpp
             }
 
             const_iterator find(const T& v) const noexcept {
-                const std::size_t vi = indexer_(v);
                 return has(v)
-                    ? begin() + sparse_[vi]
+                    ? begin() + sparse_[indexer_(v)]
                     : end();
             }
 
@@ -375,21 +427,19 @@ namespace ecs_hpp
                 return dense_.size();
             }
         private:
-            std::size_t new_sparse_size_for_(std::size_t nsize) const {
-                const std::size_t ms = sparse_.max_size();
-                if ( nsize > ms ) {
-                    throw std::length_error("ecs_hpp::sparse_set");
-                }
-                if ( sparse_.size() >= ms / 2u ) {
-                    return ms;
-                }
-                return std::max(sparse_.size() * 2u, nsize);
-            }
-        private:
             Indexer indexer_;
             std::vector<T> dense_;
             std::vector<std::size_t> sparse_;
         };
+
+        template < typename T
+                 , typename Indexer >
+        void swap(
+            sparse_set<T, Indexer>& l,
+            sparse_set<T, Indexer>& r) noexcept
+        {
+            l.swap(r);
+        }
     }
 }
 
@@ -410,6 +460,11 @@ namespace ecs_hpp
         public:
             using iterator = typename std::vector<K>::iterator;
             using const_iterator = typename std::vector<K>::const_iterator;
+        public:
+            static_assert(
+                std::is_nothrow_destructible<T>::value &&
+                std::is_nothrow_move_assignable<T>::value,
+                "unsupported sparse_map value type");
         public:
             iterator begin() noexcept {
                 return keys_.begin();
@@ -438,57 +493,65 @@ namespace ecs_hpp
             sparse_map(const Indexer& indexer = Indexer())
             : keys_(indexer) {}
 
-            bool insert(const K& k, const T& v) {
+            sparse_map(const sparse_map& other) = default;
+            sparse_map& operator=(const sparse_map& other) = default;
+
+            sparse_map(sparse_map&& other) noexcept = default;
+            sparse_map& operator=(sparse_map&& other) noexcept = default;
+
+            void swap(sparse_map& other) noexcept {
+                using std::swap;
+                swap(keys_, other.keys_);
+                swap(values_, other.values_);
+            }
+
+            template < typename UK, typename UT >
+            bool insert(UK&& k, UT&& v) {
                 if ( keys_.has(k) ) {
                     return false;
                 }
-                values_.push_back(v);
+                values_.push_back(std::forward<UT>(v));
                 try {
-                    return keys_.insert(k);
+                    return keys_.insert(std::forward<UK>(k));
                 } catch (...) {
                     values_.pop_back();
                     throw;
                 }
             }
 
-            bool insert(const K& k, T&& v) {
-                if ( keys_.has(k) ) {
-                    return false;
-                }
-                values_.push_back(std::move(v));
-                try {
-                    return keys_.insert(k);
-                } catch (...) {
-                    values_.pop_back();
-                    throw;
-                }
-            }
-
-            template < typename... Args >
-            bool emplace(const K& k, Args&&... args) {
+            template < typename UK, typename... Args >
+            bool emplace(UK&& k, Args&&... args) {
                 if ( keys_.has(k) ) {
                     return false;
                 }
                 values_.emplace_back(std::forward<Args>(args)...);
                 try {
-                    return keys_.insert(k);
+                    return keys_.insert(std::forward<UK>(k));
                 } catch (...) {
                     values_.pop_back();
                     throw;
                 }
             }
 
-            std::enable_if_t<
-                std::is_nothrow_move_assignable<K>::value,
-                bool>
-            unordered_erase(const K& k)
-                noexcept(std::is_nothrow_move_assignable<T>::value)
-            {
-                if ( !keys_.has(k) ) {
+            template < typename UK, typename UT >
+            bool insert_or_assign(UK&& k, UT&& v) {
+                if ( keys_.has(k) ) {
+                    get(k) = std::forward<UT>(v);
+                    return false;
+                } else {
+                    insert(std::forward<UK>(k), std::forward<UT>(v));
+                    return true;
+                }
+            }
+
+            bool unordered_erase(const K& k) noexcept {
+                const auto value_index_p = keys_.find_dense_index(k);
+                if ( !value_index_p.second ) {
                     return false;
                 }
-                const std::size_t value_index = keys_.get_dense_index(k);
-                values_[value_index] = std::move(values_.back());
+                if ( value_index_p.first != values_.size() - 1 ) {
+                    values_[value_index_p.first] = std::move(values_.back());
+                }
                 values_.pop_back();
                 keys_.unordered_erase(k);
                 return true;
@@ -536,6 +599,16 @@ namespace ecs_hpp
             sparse_set<K, Indexer> keys_;
             std::vector<T> values_;
         };
+
+        template < typename K
+                 , typename T
+                 , typename Indexer >
+        void swap(
+            sparse_map<K, T, Indexer>& l,
+            sparse_map<K, T, Indexer>& r) noexcept
+        {
+            l.swap(r);
+        }
     }
 }
 
@@ -572,6 +645,7 @@ namespace ecs_hpp
             virtual ~component_storage_base() = default;
             virtual bool remove(entity_id id) noexcept = 0;
             virtual bool has(entity_id id) const noexcept = 0;
+            virtual void clone(entity_id from, entity_id to) = 0;
         };
 
         template < typename T >
@@ -580,7 +654,7 @@ namespace ecs_hpp
             component_storage(registry& owner);
 
             template < typename... Args >
-            void assign(entity_id id, Args&&... args);
+            T& assign(entity_id id, Args&&... args);
             bool exists(entity_id id) const noexcept;
             bool remove(entity_id id) noexcept override;
 
@@ -589,6 +663,7 @@ namespace ecs_hpp
 
             std::size_t count() const noexcept;
             bool has(entity_id id) const noexcept override;
+            void clone(entity_id from, entity_id to) override;
 
             template < typename F >
             void for_each_component(F&& f);
@@ -605,10 +680,9 @@ namespace ecs_hpp
 
         template < typename T >
         template < typename... Args >
-        void component_storage<T>::assign(entity_id id, Args&&... args) {
-            if ( !components_.emplace(id, std::forward<Args>(args)...) ) {
-                components_.get(id) = T(std::forward<Args>(args)...);
-            }
+        T& component_storage<T>::assign(entity_id id, Args&&... args) {
+            components_.insert_or_assign(id, T(std::forward<Args>(args)...));
+            return components_.get(id);
         }
 
         template < typename T >
@@ -642,9 +716,17 @@ namespace ecs_hpp
         }
 
         template < typename T >
+        void component_storage<T>::clone(entity_id from, entity_id to) {
+            const T* c = components_.find(from);
+            if ( c ) {
+                components_.insert_or_assign(to, *c);
+            }
+        }
+
+        template < typename T >
         template < typename F >
         void component_storage<T>::for_each_component(F&& f) {
-            for ( const auto id : components_ ) {
+            for ( const entity_id id : components_ ) {
                 f(id, components_.get(id));
             }
         }
@@ -652,7 +734,7 @@ namespace ecs_hpp
         template < typename T >
         template < typename F >
         void component_storage<T>::for_each_component(F&& f) const {
-            for ( const auto id : components_ ) {
+            for ( const entity_id id : components_ ) {
                 f(id, components_.get(id));
             }
         }
@@ -683,11 +765,12 @@ namespace ecs_hpp
 
         entity_id id() const noexcept;
 
-        bool destroy();
-        bool alive() const noexcept;
+        entity clone() const;
+        void destroy() noexcept;
+        bool valid() const noexcept;
 
         template < typename T, typename... Args >
-        bool assign_component(Args&&... args);
+        T& assign_component(Args&&... args);
 
         template < typename T >
         bool remove_component();
@@ -718,6 +801,8 @@ namespace ecs_hpp
         std::tuple<Ts*...> find_components() noexcept;
         template < typename... Ts >
         std::tuple<const Ts*...> find_components() const noexcept;
+
+        std::size_t component_count() const noexcept;
     private:
         registry* owner_{nullptr};
         entity_id id_{0u};
@@ -770,7 +855,7 @@ namespace ecs_hpp
         const registry& owner() const noexcept;
         entity_id id() const noexcept;
 
-        bool alive() const noexcept;
+        bool valid() const noexcept;
 
         template < typename T >
         bool exists_component() const noexcept;
@@ -786,6 +871,8 @@ namespace ecs_hpp
 
         template < typename... Ts >
         std::tuple<const Ts*...> find_components() const noexcept;
+
+        std::size_t component_count() const noexcept;
     private:
         const registry* owner_{nullptr};
         entity_id id_{0u};
@@ -840,7 +927,7 @@ namespace ecs_hpp
         bool exists() const noexcept;
 
         template < typename... Args >
-        bool assign(Args&&... args);
+        T& assign(Args&&... args);
 
         T& get();
         const T& get() const;
@@ -935,6 +1022,71 @@ namespace std
 
 // -----------------------------------------------------------------------------
 //
+// prototype
+//
+// -----------------------------------------------------------------------------
+
+namespace ecs_hpp
+{
+    namespace detail
+    {
+        class component_applier_base;
+        using component_applier_uptr = std::unique_ptr<component_applier_base>;
+
+        class component_applier_base {
+        public:
+            virtual ~component_applier_base() = default;
+            virtual component_applier_uptr clone() const = 0;
+            virtual void apply(entity& ent, bool override) const = 0;
+        };
+
+        template < typename T, typename... Args >
+        class component_applier final : public component_applier_base {
+        public:
+            component_applier(std::tuple<Args...>&& args);
+            component_applier(const std::tuple<Args...>& args);
+            component_applier_uptr clone() const override;
+            void apply(entity& ent, bool override) const override;
+        private:
+            std::tuple<Args...> args_;
+        };
+    }
+
+    class prototype final {
+    public:
+        prototype() = default;
+        ~prototype() noexcept = default;
+
+        prototype(const prototype& other);
+        prototype& operator=(const prototype& other);
+
+        prototype(prototype&& other) noexcept;
+        prototype& operator=(prototype&& other) noexcept;
+
+        void clear() noexcept;
+        bool empty() const noexcept;
+        void swap(prototype& other) noexcept;
+
+        template < typename T, typename... Args >
+        prototype& assign_component(Args&&... args) &;
+        template < typename T, typename... Args >
+        prototype&& assign_component(Args&&... args) &&;
+
+        prototype& merge(const prototype& other, bool override) &;
+        prototype&& merge(const prototype& other, bool override) &&;
+
+        void apply(entity& ent, bool override) const;
+    private:
+        detail::sparse_map<
+            family_id,
+            detail::component_applier_uptr> appliers_;
+    };
+
+    void swap(prototype& l, prototype& r) noexcept;
+}
+
+// -----------------------------------------------------------------------------
+//
 // system
 //
 // -----------------------------------------------------------------------------
@@ -1018,12 +1170,14 @@ namespace ecs_hpp
         const_component<T> wrap_component(const const_uentity& ent) const noexcept;
 
         entity create_entity();
+        entity create_entity(const prototype& proto);
+        entity create_entity(const const_uentity& proto);
 
-        bool destroy_entity(const uentity& ent);
-        bool alive_entity(const const_uentity& ent) const noexcept;
+        void destroy_entity(const uentity& ent) noexcept;
+        bool valid_entity(const const_uentity& ent) const noexcept;
 
         template < typename T, typename... Args >
-        bool assign_component(const uentity& ent, Args&&... args);
+        T& assign_component(const uentity& ent, Args&&... args);
 
         template < typename T >
         bool remove_component(const uentity& ent);
@@ -1055,7 +1209,7 @@ namespace ecs_hpp
 
         template < typename T >
         std::size_t component_count() const noexcept;
-        template < typename T >
+        std::size_t entity_count() const noexcept;
         std::size_t entity_component_count(const const_uentity& ent) const noexcept;
 
         template < typename F >
@@ -1222,16 +1376,20 @@ namespace ecs_hpp
         return id_;
     }
 
-    inline bool entity::destroy() {
-        return (*owner_).destroy_entity(id_);
+    inline entity entity::clone() const {
+        return (*owner_).create_entity(id_);
     }
 
-    inline bool entity::alive() const noexcept {
-        return detail::as_const(*owner_).alive_entity(id_);
+    inline void entity::destroy() noexcept {
+        (*owner_).destroy_entity(id_);
+    }
+
+    inline bool entity::valid() const noexcept {
+        return detail::as_const(*owner_).valid_entity(id_);
     }
 
     template < typename T, typename... Args >
-    bool entity::assign_component(Args&&... args) {
+    T& entity::assign_component(Args&&... args) {
         return (*owner_).assign_component<T>(
             id_,
             std::forward<Args>(args)...);
@@ -1291,6 +1449,10 @@ namespace ecs_hpp
         return detail::as_const(*owner_).find_components<Ts...>(id_);
     }
 
+    inline std::size_t entity::component_count() const noexcept {
+        return detail::as_const(*owner_).entity_component_count(id_);
+    }
+
     inline bool operator<(const entity& l, const entity& r) noexcept {
         return (&l.owner() < &r.owner())
             || (&l.owner() == &r.owner() && l.id() < r.id());
@@ -1342,8 +1504,8 @@ namespace ecs_hpp
         return id_;
     }
 
-    inline bool const_entity::alive() const noexcept {
-        return (*owner_).alive_entity(id_);
+    inline bool const_entity::valid() const noexcept {
+        return (*owner_).valid_entity(id_);
     }
 
     template < typename T >
@@ -1369,6 +1531,10 @@ namespace ecs_hpp
     template < typename... Ts >
     std::tuple<const Ts*...> const_entity::find_components() const noexcept {
         return (*owner_).find_components<Ts...>(id_);
+    }
+
+    inline std::size_t const_entity::component_count() const noexcept {
+        return (*owner_).entity_component_count(id_);
     }
 
     inline bool operator<(const const_entity& l, const const_entity& r) noexcept {
@@ -1429,7 +1595,7 @@ namespace ecs_hpp
 
     template < typename T >
     template < typename... Args >
-    bool component<T>::assign(Args&&... args) {
+    T& component<T>::assign(Args&&... args) {
         return owner_.assign_component<T>(
             std::forward<Args>(args)...);
     }
@@ -1539,6 +1705,122 @@ namespace ecs_hpp
     template < typename T >
     bool operator!=(const const_component<T>& l, const const_component<T>& r) noexcept {
         return !(l == r);
+    }
+}
+
+// -----------------------------------------------------------------------------
+//
+// prototype impl
+//
+// -----------------------------------------------------------------------------
+
+namespace ecs_hpp
+{
+    namespace detail
+    {
+        template < typename T, typename... Args >
+        component_applier<T,Args...>::component_applier(std::tuple<Args...>&& args)
+        : args_(std::move(args)) {}
+
+        template < typename T, typename... Args >
+        component_applier<T,Args...>::component_applier(const std::tuple<Args...>& args)
+        : args_(args) {}
+
+        template < typename T, typename... Args >
+        component_applier_uptr component_applier<T,Args...>::clone() const {
+            return std::make_unique<component_applier>(args_);
+        }
+
+        template < typename T, typename... Args >
+        void component_applier<T,Args...>::apply(entity& ent, bool override) const {
+            detail::tiny_tuple_apply([&ent, override](const Args&... args){
+                if ( override || !ent.exists_component<T>() ) {
+                    ent.assign_component<T>(args...);
+                }
+            }, args_);
+        }
+    }
+
+    inline prototype::prototype(const prototype& other) {
+        for ( const family_id id : other.appliers_ ) {
+            appliers_.insert(id, other.appliers_.get(id)->clone());
+        }
+    }
+
+    inline prototype& prototype::operator=(const prototype& other) {
+        if ( this != &other ) {
+            prototype p(other);
+            swap(p);
+        }
+        return *this;
+    }
+
+    inline prototype::prototype(prototype&& other) noexcept
+    : appliers_(std::move(other.appliers_)) {}
+
+    inline prototype& prototype::operator=(prototype&& other) noexcept {
+        if ( this != &other ) {
+            swap(other);
+            other.clear();
+        }
+        return *this;
+    }
+
+    inline void prototype::clear() noexcept {
+        appliers_.clear();
+    }
+
+    inline bool prototype::empty() const noexcept {
+        return appliers_.empty();
+    }
+
+    inline void prototype::swap(prototype& other) noexcept {
+        using std::swap;
+        swap(appliers_, other.appliers_);
+    }
+
+    template < typename T, typename... Args >
+    prototype& prototype::assign_component(Args&&... args) & {
+        using applier_t = detail::component_applier<
+            T,
+            std::decay_t<Args>...>;
+        auto applier = std::make_unique<applier_t>(
+            std::make_tuple(std::forward<Args>(args)...));
+        const auto family = detail::type_family<T>::id();
+        appliers_.emplace(family, std::move(applier));
+        return *this;
+    }
+
+    template < typename T, typename... Args >
+    prototype&& prototype::assign_component(Args&&... args) && {
+        assign_component<T>(std::forward<Args>(args)...);
+        return std::move(*this);
+    }
+
+    inline prototype& prototype::merge(const prototype& other, bool override) & {
+        for ( const auto family_id : other.appliers_ ) {
+            if ( override || !appliers_.has(family_id) ) {
+                appliers_.insert_or_assign(
+                    family_id,
+                    other.appliers_.get(family_id)->clone());
+            }
+        }
+        return *this;
+    }
+
+    inline prototype&& prototype::merge(const prototype& other, bool override) && {
+        merge(other, override);
+        return std::move(*this);
+    }
+
+    inline void prototype::apply(entity& ent, bool override) const {
+        for ( const auto family_id : appliers_ ) {
+            appliers_.get(family_id)->apply(ent, override);
+        }
+    }
+
+    inline void swap(prototype& l, prototype& r) noexcept {
+        l.swap(r);
     }
 }
 
@@ -1670,46 +1952,70 @@ namespace ecs_hpp
             return wrap_entity(new_ent_id);
 
         }
-        if ( last_entity_id_ < detail::entity_id_index_mask ) {
-            entity_ids_.insert(last_entity_id_ + 1);
-            return wrap_entity(++last_entity_id_);
+        if ( last_entity_id_ >= detail::entity_id_index_mask ) {
+            throw std::logic_error("ecs_hpp::registry (entity index overlow)");
         }
-        throw std::logic_error("ecs_hpp::registry (entity index overlow)");
+        if ( free_entity_ids_.capacity() <= entity_ids_.size() ) {
+            // ensure free entity ids capacity for safe (noexcept) entity destroying
+            free_entity_ids_.reserve(detail::next_capacity_size(
+                free_entity_ids_.capacity(),
+                entity_ids_.size() + 1,
+                free_entity_ids_.max_size()));
+        }
+        entity_ids_.insert(last_entity_id_ + 1);
+        return wrap_entity(++last_entity_id_);
     }
 
-    inline bool registry::destroy_entity(const uentity& ent) {
-        assert(ent.check_owner(this));
+    inline entity registry::create_entity(const prototype& proto) {
+        auto ent = create_entity();
+        try {
+            proto.apply(ent, true);
+        } catch (...) {
+            destroy_entity(ent);
+            throw;
+        }
+        return ent;
+    }
+
+    inline entity registry::create_entity(const const_uentity& proto) {
+        assert(valid_entity(proto));
+        entity ent = create_entity();
+        try {
+            for ( const auto family_id : storages_ ) {
+                storages_.get(family_id)->clone(proto, ent.id());
+            }
+        } catch (...) {
+            destroy_entity(ent);
+            throw;
+        }
+        return ent;
+    }
+
+    inline void registry::destroy_entity(const uentity& ent) noexcept {
+        assert(valid_entity(ent));
         remove_all_components(ent);
         if ( entity_ids_.unordered_erase(ent) ) {
+            assert(free_entity_ids_.size() < free_entity_ids_.capacity());
             free_entity_ids_.push_back(ent);
-            return true;
         }
-        return false;
     }
 
-    inline bool registry::alive_entity(const const_uentity& ent) const noexcept {
+    inline bool registry::valid_entity(const const_uentity& ent) const noexcept {
         assert(ent.check_owner(this));
         return entity_ids_.has(ent);
     }
 
     template < typename T, typename... Args >
-    bool registry::assign_component(const uentity& ent, Args&&... args) {
-        assert(ent.check_owner(this));
-        if ( !alive_entity(ent) ) {
-            return false;
-        }
-        get_or_create_storage_<T>().assign(
+    T& registry::assign_component(const uentity& ent, Args&&... args) {
+        assert(valid_entity(ent));
+        return get_or_create_storage_<T>().assign(
             ent,
             std::forward<Args>(args)...);
-        return true;
     }
 
     template < typename T >
     bool registry::remove_component(const uentity& ent) {
-        assert(ent.check_owner(this));
-        if ( !alive_entity(ent) ) {
-            return false;
-        }
+        assert(valid_entity(ent));
         detail::component_storage<T>* storage = find_storage_<T>();
         return storage
             ? storage->remove(ent)
@@ -1718,10 +2024,7 @@ namespace ecs_hpp
 
     template < typename T >
     bool registry::exists_component(const const_uentity& ent) const noexcept {
-        assert(ent.check_owner(this));
-        if ( !alive_entity(ent) ) {
-            return false;
-        }
+        assert(valid_entity(ent));
         const detail::component_storage<T>* storage = find_storage_<T>();
         return storage
             ? storage->exists(ent)
@@ -1729,10 +2032,7 @@ namespace ecs_hpp
     }
 
     inline std::size_t registry::remove_all_components(const uentity& ent) noexcept {
-        assert(ent.check_owner(this));
-        if ( !alive_entity(ent) ) {
-            return 0u;
-        }
+        assert(valid_entity(ent));
         std::size_t removed_count = 0u;
         for ( const auto family_id : storages_ ) {
             if ( storages_.get(family_id)->remove(ent) ) {
@@ -1744,7 +2044,7 @@ namespace ecs_hpp
 
     template < typename T >
     T& registry::get_component(const uentity& ent) {
-        assert(ent.check_owner(this));
+        assert(valid_entity(ent));
         T* component = find_component<T>(ent);
         if ( component ) {
             return *component;
@@ -1754,7 +2054,7 @@ namespace ecs_hpp
 
     template < typename T >
     const T& registry::get_component(const const_uentity& ent) const {
-        assert(ent.check_owner(this));
+        assert(valid_entity(ent));
         const T* component = find_component<T>(ent);
         if ( component ) {
             return *component;
@@ -1764,7 +2064,7 @@ namespace ecs_hpp
 
     template < typename T >
     T* registry::find_component(const uentity& ent) noexcept {
-        assert(ent.check_owner(this));
+        assert(valid_entity(ent));
         detail::component_storage<T>* storage = find_storage_<T>();
         return storage
             ? storage->find(ent)
@@ -1773,7 +2073,7 @@ namespace ecs_hpp
 
     template < typename T >
     const T* registry::find_component(const const_uentity& ent) const noexcept {
-        assert(ent.check_owner(this));
+        assert(valid_entity(ent));
         const detail::component_storage<T>* storage = find_storage_<T>();
         return storage
             ? storage->find(ent)
@@ -1782,25 +2082,25 @@ namespace ecs_hpp
 
     template < typename... Ts >
     std::tuple<Ts&...> registry::get_components(const uentity& ent) {
-        assert(ent.check_owner(this));
+        assert(valid_entity(ent));
         return std::make_tuple(std::ref(get_component<Ts>(ent))...);
     }
 
     template < typename... Ts >
     std::tuple<const Ts&...> registry::get_components(const const_uentity& ent) const {
-        assert(ent.check_owner(this));
+        assert(valid_entity(ent));
         return std::make_tuple(std::cref(get_component<Ts>(ent))...);
     }
 
     template < typename... Ts >
     std::tuple<Ts*...> registry::find_components(const uentity& ent) noexcept {
-        assert(ent.check_owner(this));
+        assert(valid_entity(ent));
         return std::make_tuple(find_component<Ts>(ent)...);
     }
 
     template < typename... Ts >
     std::tuple<const Ts*...> registry::find_components(const const_uentity& ent) const noexcept {
-        assert(ent.check_owner(this));
+        assert(valid_entity(ent));
         return std::make_tuple(find_component<Ts>(ent)...);
     }
 
@@ -1812,12 +2112,12 @@ namespace ecs_hpp
             : 0u;
     }
 
-    template < typename T >
-    std::size_t registry::entity_component_count(const const_uentity& ent) const noexcept {
-        assert(ent.check_owner(this));
-        if ( !alive_entity(ent) ) {
-            return 0u;
-        }
+    inline std::size_t registry::entity_count() const noexcept {
+        return entity_ids_.size();
+    }
+
+    inline std::size_t registry::entity_component_count(const const_uentity& ent) const noexcept {
+        assert(valid_entity(ent));
         std::size_t component_count = 0u;
         for ( const auto family_id : storages_ ) {
             if ( storages_.get(family_id)->has(ent) ) {
