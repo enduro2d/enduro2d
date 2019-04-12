@@ -28,11 +28,12 @@ namespace e2d
     }
 
     void prefab::clear() noexcept {
+        prototype_.clear();
     }
 
     void prefab::swap(prefab& other) noexcept {
         using std::swap;
-        E2D_UNUSED(other);
+        swap(prototype_, other.prototype_);
     }
 
     prefab& prefab::assign(prefab&& other) noexcept {
@@ -46,9 +47,24 @@ namespace e2d
     prefab& prefab::assign(const prefab& other) {
         if ( this != &other ) {
             prefab s;
+            s.prototype_ = other.prototype_;
             swap(s);
         }
         return *this;
+    }
+
+    prefab& prefab::set_prototype(ecs::prototype&& proto) noexcept {
+        prototype_ = std::move(proto);
+        return *this;
+    }
+
+    prefab& prefab::set_prototype(const ecs::prototype& proto) {
+        prototype_ = proto;
+        return *this;
+    }
+
+    const ecs::prototype& prefab::prototype() const noexcept {
+        return prototype_;
     }
 }
 
@@ -59,8 +75,7 @@ namespace e2d
     }
 
     bool operator==(const prefab& l, const prefab& r) noexcept {
-        E2D_UNUSED(l, r);
-        return true;
+        return l.prototype().empty() && r.prototype().empty();
     }
 
     bool operator!=(const prefab& l, const prefab& r) noexcept {

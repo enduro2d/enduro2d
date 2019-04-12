@@ -20,11 +20,27 @@ namespace e2d
     }
 
     gobject_iptr world::instantiate() {
-        return gobject_iptr(new gobject(registry_));
+        auto instance = gobject_iptr(new gobject(registry_));
+        intrusive_ptr_add_ref(instance.get());
+        gobjects_.push_back(*instance);
+        return instance;
     }
 
     gobject_iptr world::instantiate(const prefab_asset::ptr& prefab) {
-        E2D_UNUSED(prefab);
-        return instantiate();
+        auto instance = prefab
+            ? gobject_iptr(new gobject(registry_, prefab->content().prototype()))
+            : gobject_iptr(new gobject(registry_));
+        intrusive_ptr_add_ref(instance.get());
+        gobjects_.push_back(*instance);
+        return instance;
+    }
+
+    gobject_iptr world::instantiate(const const_gobject_iptr& source) {
+        auto instance = source
+            ? gobject_iptr(new gobject(registry_, *source))
+            : gobject_iptr(new gobject(registry_));
+        intrusive_ptr_add_ref(instance.get());
+        gobjects_.push_back(*instance);
+        return instance;
     }
 }

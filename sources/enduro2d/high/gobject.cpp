@@ -11,6 +11,12 @@ namespace e2d
     gobject::gobject(ecs::registry& registry)
     : entity_(registry.create_entity()) {}
 
+    gobject::gobject(ecs::registry& registry, const gobject& source)
+    : entity_(registry.create_entity(source.entity_)) {}
+
+    gobject::gobject(ecs::registry& registry, const ecs::prototype& proto)
+    : entity_(registry.create_entity(proto)) {}
+
     gobject::~gobject() noexcept {
         entity_.destroy();
     }

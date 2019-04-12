@@ -37,7 +37,9 @@ namespace e2d
 
         gobject_iptr instantiate();
         gobject_iptr instantiate(const prefab_asset::ptr& prefab);
+        gobject_iptr instantiate(const const_gobject_iptr& gobject);
     private:
         ecs::registry registry_;
+        world_gobjects gobjects_;
     };
 }

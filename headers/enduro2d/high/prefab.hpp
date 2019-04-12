@@ -26,6 +26,13 @@ namespace e2d
 
         prefab& assign(prefab&& other) noexcept;
         prefab& assign(const prefab& other);
+
+        prefab& set_prototype(ecs::prototype&& proto) noexcept;
+        prefab& set_prototype(const ecs::prototype& proto);
+
+        const ecs::prototype& prototype() const noexcept;
+    private:
+        ecs::prototype prototype_;
     };
 
     void swap(prefab& l, prefab& r) noexcept;
