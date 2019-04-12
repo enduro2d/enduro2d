@@ -31,8 +31,8 @@ TEST_CASE("world") {
 
     SECTION("registry") {
         auto e = w.registry().create_entity();
-        REQUIRE(cw.registry().alive_entity(e));
-        REQUIRE(w.registry().destroy_entity(e));
-        REQUIRE_FALSE(cw.registry().alive_entity(e));
+        REQUIRE(cw.registry().valid_entity(e));
+        w.registry().destroy_entity(e);
+        REQUIRE_FALSE(cw.registry().valid_entity(e));
     }
 }
