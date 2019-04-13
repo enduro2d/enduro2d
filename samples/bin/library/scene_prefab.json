@@ -1,0 +1,23 @@
+{
+    "components" : {
+        "scene" : {
+            "root" : {
+                "children" : [{
+                    "prototype" : "gnome_prefab.json",
+                    "components" : {
+                        "actor" : {
+                            "translation" : [0,50,0]
+                        }
+                    }
+                }, {
+                    "prototype" : "ship_prefab.json",
+                    "components" : {
+                        "actor" : {
+                            "translation" : [0,-50,0]
+                        }
+                    }
+                }]
+            }
+        }
+    }
+}

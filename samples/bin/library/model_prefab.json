@@ -1,7 +1,7 @@
 {
-    "components" : [{
-        "actor" : [],
-        "renderer" : [],
-        "model_renderer" : []
-    }]
+    "components" : {
+        "actor" : {},
+        "renderer" : {},
+        "model_renderer" : {}
+    }
 }

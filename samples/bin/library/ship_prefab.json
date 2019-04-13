@@ -1,13 +1,13 @@
 {
     "prototype" : "sprite_prefab.json",
-    "components" : [{
-        "renderer" : [{
+    "components" : {
+        "renderer" : {
             "materials" : [
                 "sprite_material.json"
             ]
-        }],
-        "sprite_renderer" : [{
+        },
+        "sprite_renderer" : {
             "sprite" : "ship_sprite.json"
-        }]
-    }]
+        }
+    }
 }

@@ -24,15 +24,7 @@ namespace
         "additionalProperties" : false,
         "properties" : {
             "prototype" : { "$ref": "#/common_definitions/address" },
-            "components" : {
-                "type" : "array",
-                "items" : { "$ref" : "#/definitions/component" }
-            }
-        },
-        "definitions" : {
-            "component" : {
-                "type" : "object"
-            }
+            "components" : { "type" : "object" }
         }
     })json";
 
