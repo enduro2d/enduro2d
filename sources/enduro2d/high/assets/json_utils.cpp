@@ -356,7 +356,7 @@ namespace
 
     bool parse_clr(const rapidjson::Value& root, color& c) {
         if ( root.IsNumber() ) {
-            f32 cv = root.GetFloat();
+            f32 cv = math::clamp(root.GetFloat(), 0.f, 1.f);
             c = color(cv, cv, cv, c.a);
             return true;
         }
@@ -369,7 +369,7 @@ namespace
                     if ( !jv.IsNumber() ) {
                         return false;
                     }
-                    c[i] = jv.GetFloat();
+                    c[i] = math::clamp(jv.GetFloat(), 0.f, 1.f);
                 }
             }
             return true;
@@ -382,7 +382,44 @@ namespace
                     if ( !jv.IsNumber() ) {
                         return false;
                     }
-                    c[i] = jv.GetFloat();
+                    c[i] = math::clamp(jv.GetFloat(), 0.f, 1.f);
+                }
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    bool parse_clr(const rapidjson::Value& root, color32& c) {
+        if ( root.IsNumber() ) {
+            u8 cv = math::numeric_cast<u8>(math::clamp(root.GetInt(), 0, 255));
+            c = color32(cv, cv, cv, c.a);
+            return true;
+        }
+
+        if ( root.IsObject() ) {
+            const char* const props[] = { "r", "g", "b", "a" };
+            for ( std::size_t i = 0; i < E2D_COUNTOF(props); ++i ) {
+                if ( root.HasMember(props[i]) ) {
+                    const auto& jv = root[props[i]];
+                    if ( !jv.IsNumber() ) {
+                        return false;
+                    }
+                    c[i] = math::numeric_cast<u8>(math::clamp(jv.GetInt(), 0, 255));
+                }
+            }
+            return true;
+        }
+
+        if ( root.IsArray() ) {
+            if ( root.Size() == 3 || root.Size() == 4 ) {
+                for ( u32 i = 0; i < root.Size(); ++i ) {
+                    const auto& jv = root[i];
+                    if ( !jv.IsNumber() ) {
+                        return false;
+                    }
+                    c[i] = math::numeric_cast<u8>(math::clamp(jv.GetInt(), 0, 255));
                 }
                 return true;
             }
@@ -503,6 +540,10 @@ namespace e2d { namespace json_utils
     }
 
     bool try_parse_value(const rapidjson::Value& root, color& c) noexcept {
+        return parse_clr(root, c);
+    }
+
+    bool try_parse_value(const rapidjson::Value& root, color32& c) noexcept {
         return parse_clr(root, c);
     }
 

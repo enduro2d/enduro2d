@@ -157,7 +157,7 @@ namespace
             }
 
             vector<std::size_t> frames;
-            if ( !json_utils::try_parse_values(sequence_json["frames"], frames) ) {
+            if ( !json_utils::try_parse_value(sequence_json["frames"], frames) ) {
                 return stdex::make_rejected_promise<vector<flipbook::sequence>>(
                     flipbook_asset_loading_exception());
             }

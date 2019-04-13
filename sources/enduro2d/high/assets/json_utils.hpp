@@ -32,6 +32,7 @@ namespace e2d { namespace json_utils
     bool try_parse_value(const rapidjson::Value& root, b3f& b) noexcept;
 
     bool try_parse_value(const rapidjson::Value& root, color& c) noexcept;
+    bool try_parse_value(const rapidjson::Value& root, color32& c) noexcept;
 
     bool try_parse_value(const rapidjson::Value& root, str& s) noexcept;
     bool try_parse_value(const rapidjson::Value& root, wstr& s) noexcept;
@@ -44,6 +45,14 @@ namespace e2d { namespace json_utils
 
 namespace e2d { namespace json_utils
 {
+    inline bool try_parse_value(const rapidjson::Value& root, bool& v) noexcept {
+        if ( !root.IsBool() ) {
+            return false;
+        }
+        v = root.GetBool();
+        return true;
+    }
+
     template < typename T >
     std::enable_if_t<
         std::is_integral<T>::value &&
@@ -86,15 +95,28 @@ namespace e2d { namespace json_utils
         v = math::numeric_cast<T>(root.GetDouble());
         return true;
     }
+}}
 
+namespace e2d { namespace json_utils
+{
     template < typename T >
-    bool try_parse_values(
-        const rapidjson::Value& root,
-        vector<T>& v,
-        const T& dv = T())
-    {
-        E2D_ASSERT(root.IsArray());
-        vector<T> tv(root.Size(), dv);
+    using has_try_parse_value = decltype(
+        try_parse_value(
+            std::declval<const rapidjson::Value&>(),
+            std::declval<T&>()));
+}}
+
+namespace e2d { namespace json_utils
+{
+    template < typename T >
+    std::enable_if_t<
+        stdex::is_detected<json_utils::has_try_parse_value, T>::value,
+        bool>
+    try_parse_value(const rapidjson::Value& root, vector<T>& v) {
+        if ( !root.IsArray() ) {
+            return false;
+        }
+        vector<T> tv(root.Size());
         for ( rapidjson::SizeType i = 0; i < root.Size(); ++i ) {
             if ( !try_parse_value(root[i], tv[i]) ) {
                 return false;
