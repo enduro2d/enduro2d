@@ -499,6 +499,42 @@ namespace e2d { namespace json_utils
         return parse_vNi<4>(root, v);
     }
 
+    bool try_parse_value(const rapidjson::Value& root, v2u& v) noexcept {
+        v2i vi;
+        if ( !try_parse_value(root, vi) ) {
+            return false;
+        }
+        if ( vi.x < 0 || vi.y < 0 ) {
+            return false;
+        }
+        v = vi.cast_to<u32>();
+        return true;
+    }
+
+    bool try_parse_value(const rapidjson::Value& root, v3u& v) noexcept {
+        v3i vi;
+        if ( !try_parse_value(root, vi) ) {
+            return false;
+        }
+        if ( vi.x < 0 || vi.y < 0 || vi.z < 0 ) {
+            return false;
+        }
+        v = vi.cast_to<u32>();
+        return true;
+    }
+
+    bool try_parse_value(const rapidjson::Value& root, v4u& v) noexcept {
+        v4i vi;
+        if ( !try_parse_value(root, vi) ) {
+            return false;
+        }
+        if ( vi.x < 0 || vi.y < 0 || vi.z < 0 || vi.w < 0 ) {
+            return false;
+        }
+        v = vi.cast_to<u32>();
+        return true;
+    }
+
     bool try_parse_value(const rapidjson::Value& root, v2f& v) noexcept {
         return parse_vNf<2>(root, v);
     }
@@ -529,6 +565,36 @@ namespace e2d { namespace json_utils
 
     bool try_parse_value(const rapidjson::Value& root, b3i& b) noexcept {
         return parse_b3i(root, b);
+    }
+
+    bool try_parse_value(const rapidjson::Value& root, b2u& b) noexcept {
+        b2i bi;
+        if ( !try_parse_value(root, bi) ) {
+            return false;
+        }
+        if ( bi.position.x < 0 || bi.position.y < 0 ) {
+            return false;
+        }
+        if ( bi.size.x < 0 || bi.size.y < 0 ) {
+            return false;
+        }
+        b = bi.cast_to<u32>();
+        return true;
+    }
+
+    bool try_parse_value(const rapidjson::Value& root, b3u& b) noexcept {
+        b3i bi;
+        if ( !try_parse_value(root, bi) ) {
+            return false;
+        }
+        if ( bi.position.x < 0 || bi.position.y < 0 || bi.position.z < 0 ) {
+            return false;
+        }
+        if ( bi.size.x < 0 || bi.size.y < 0 || bi.size.z < 0 ) {
+            return false;
+        }
+        b = bi.cast_to<u32>();
+        return true;
     }
 
     bool try_parse_value(const rapidjson::Value& root, b2f& b) noexcept {
