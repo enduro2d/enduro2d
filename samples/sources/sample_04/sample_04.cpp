@@ -48,33 +48,13 @@ namespace
     public:
         bool initialize() final {
             return create_scene()
-                && create_camera()
                 && create_systems();
         }
     private:
         bool create_scene() {
-            auto ship_prefab_res = the<library>().load_asset<prefab_asset>("ship_prefab.json");
-            auto gnome_prefab_res = the<library>().load_asset<prefab_asset>("gnome_prefab.json");
-            if ( !ship_prefab_res || !gnome_prefab_res ) {
-                return false;
-            }
-
-            auto ship_go = the<world>().instantiate(ship_prefab_res);
-            auto gnome_go = the<world>().instantiate(gnome_prefab_res);
-            if ( !ship_go || !gnome_go ) {
-                return false;
-            }
-
-            return true;
-        }
-
-        bool create_camera() {
-            ecs::entity camera_e = the<world>().registry().create_entity();
-            ecs::entity_filler(camera_e)
-                .component<camera>(camera()
-                    .background({1.f, 0.4f, 0.f, 1.f}))
-                .component<actor>(node::create(camera_e));
-            return true;
+            auto scene_prefab_res = the<library>().load_asset<prefab_asset>("scene_prefab.json");
+            auto scene_go = scene_prefab_res ? the<world>().instantiate(scene_prefab_res) : nullptr;
+            return !!scene_go;
         }
 
         bool create_systems() {

@@ -3,6 +3,13 @@
         "scene" : {
             "root" : {
                 "children" : [{
+                    "prototype" : "camera_prefab.json",
+                    "components" : {
+                        "camera" : {
+                            "background" : [1.0, 0.4, 0.0, 1.0]
+                        }
+                    }
+                },{
                     "prototype" : "gnome_prefab.json",
                     "components" : {
                         "actor" : {
