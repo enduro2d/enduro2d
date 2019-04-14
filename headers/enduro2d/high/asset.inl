@@ -145,6 +145,23 @@ namespace e2d
         }
         return *this;
     }
+
+    //
+    // asset_dependency
+    //
+
+    template < typename Asset >
+    asset_dependency<Asset>::asset_dependency(str_view address)
+    : asset_dependency_base(address) {}
+
+    template < typename Asset >
+    asset_dependency<Asset>::~asset_dependency() noexcept = default;
+
+    template < typename Asset >
+    asset_dependencies& asset_dependencies::dependency(str_view address) {
+        dependencies_.push_back(new asset_dependency<Asset>(address));
+        return *this;
+    }
 }
 
 #endif

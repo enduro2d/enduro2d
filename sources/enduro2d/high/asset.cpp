@@ -46,4 +46,13 @@ namespace e2d
 
     asset_factory::asset_factory() = default;
     asset_factory::~asset_factory() noexcept = default;
+
+    //
+    // asset_dependency_base
+    //
+
+    asset_dependency_base::asset_dependency_base(str_view address)
+    : address_(address) {}
+
+    asset_dependency_base::~asset_dependency_base() noexcept = default;
 }

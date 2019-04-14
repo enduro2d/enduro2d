@@ -44,36 +44,45 @@ namespace
     };
 }
 
-TEST_CASE("asset"){
+TEST_CASE("asset") {
     safe_starter_initializer initializer;
     library& l = the<library>();
-    {
-        REQUIRE_FALSE(l.load_asset<fake_asset>("none"));
+    SECTION("nested_assets") {
+        {
+            REQUIRE_FALSE(l.load_asset<fake_asset>("none"));
 
-        auto fa = l.load_asset<fake_asset>("42");
-        REQUIRE(fa);
-        REQUIRE(fa->content() == 42);
+            auto fa = l.load_asset<fake_asset>("42");
+            REQUIRE(fa);
+            REQUIRE(fa->content() == 42);
 
-        REQUIRE_FALSE(fa->find_nested_asset("none"));
-        REQUIRE(fa->find_nested_asset("21"));
-        REQUIRE_FALSE(fa->find_nested_asset<binary_asset>("21"));
-        REQUIRE(fa->find_nested_asset<fake_nested_asset>("21"));
-        REQUIRE(fa->find_nested_asset<fake_nested_asset>("21")->content() == 21);
-        REQUIRE(fa->find_nested_asset<fake_nested_asset>("84")->content() == 84);
+            REQUIRE_FALSE(fa->find_nested_asset("none"));
+            REQUIRE(fa->find_nested_asset("21"));
+            REQUIRE_FALSE(fa->find_nested_asset<binary_asset>("21"));
+            REQUIRE(fa->find_nested_asset<fake_nested_asset>("21"));
+            REQUIRE(fa->find_nested_asset<fake_nested_asset>("21")->content() == 21);
+            REQUIRE(fa->find_nested_asset<fake_nested_asset>("84")->content() == 84);
+        }
+        {
+            REQUIRE(l.load_asset<fake_asset, fake_nested_asset>("42:/21"));
+            REQUIRE(l.load_asset<fake_asset, fake_nested_asset>("42:/21")->content() == 21);
+
+            REQUIRE_FALSE(l.load_asset<fake_asset, binary_asset>("42:/21"));
+            REQUIRE_FALSE(l.load_asset<fake_asset, fake_nested_asset>("42:/none"));
+            REQUIRE_FALSE(l.load_asset<fake_asset, fake_nested_asset>("42:/none:/21"));
+
+            REQUIRE(l.load_asset<fake_asset, fake_nested_asset>("42:/21:/2"));
+            REQUIRE(l.load_asset<fake_asset, fake_nested_asset>("42:/21:/2")->content() == 2);
+
+            REQUIRE_FALSE(l.load_asset<fake_asset, binary_asset>("42:/21:/2"));
+            REQUIRE_FALSE(l.load_asset<fake_asset, fake_nested_asset>("42:/21:/none"));
+            REQUIRE_FALSE(l.load_asset<fake_asset, fake_nested_asset>("42:/21:/none:/2"));
+        }
     }
-    {
-        REQUIRE(l.load_asset<fake_asset, fake_nested_asset>("42:/21"));
-        REQUIRE(l.load_asset<fake_asset, fake_nested_asset>("42:/21")->content() == 21);
-
-        REQUIRE_FALSE(l.load_asset<fake_asset, binary_asset>("42:/21"));
-        REQUIRE_FALSE(l.load_asset<fake_asset, fake_nested_asset>("42:/none"));
-        REQUIRE_FALSE(l.load_asset<fake_asset, fake_nested_asset>("42:/none:/21"));
-
-        REQUIRE(l.load_asset<fake_asset, fake_nested_asset>("42:/21:/2"));
-        REQUIRE(l.load_asset<fake_asset, fake_nested_asset>("42:/21:/2")->content() == 2);
-
-        REQUIRE_FALSE(l.load_asset<fake_asset, binary_asset>("42:/21:/2"));
-        REQUIRE_FALSE(l.load_asset<fake_asset, fake_nested_asset>("42:/21:/none"));
-        REQUIRE_FALSE(l.load_asset<fake_asset, fake_nested_asset>("42:/21:/none:/2"));
+    SECTION("asset_dependencies") {
+        {
+            const auto ad = asset_dependencies()
+                .dependency<text_asset>("text_asset.txt")
+                .dependency<binary_asset>("binary_asset.bin");
+        }
     }
 }

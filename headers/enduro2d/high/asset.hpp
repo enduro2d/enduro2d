@@ -142,6 +142,49 @@ namespace e2d
         std::mutex mutex_;
         hash_map<str_hash, asset_creator> creators_;
     };
+
+    //
+    // asset_dependency_base
+    //
+
+    class asset_dependency_base;
+    using asset_dependency_base_iptr = intrusive_ptr<asset_dependency_base>;
+
+    class asset_dependency_base
+        : private noncopyable
+        , public ref_counter<asset_dependency_base> {
+    public:
+        asset_dependency_base(str_view address);
+        virtual ~asset_dependency_base() noexcept;
+    private:
+        str address_;
+    };
+
+    //
+    // asset_dependency
+    //
+
+    template < typename Asset >
+    class asset_dependency : public asset_dependency_base {
+    public:
+        asset_dependency(str_view address);
+        ~asset_dependency() noexcept override;
+    };
+
+    //
+    // asset_dependencies
+    //
+
+    class asset_dependencies final {
+    public:
+        asset_dependencies() = default;
+        ~asset_dependencies() noexcept = default;
+
+        template < typename Asset >
+        asset_dependencies& dependency(str_view address);
+    private:
+        vector<asset_dependency_base_iptr> dependencies_;
+    };
 }
 
 #include "asset.inl"

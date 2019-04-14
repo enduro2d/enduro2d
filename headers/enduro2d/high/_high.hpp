@@ -53,6 +53,13 @@ namespace e2d
     class asset_cache;
     class asset_cache_base;
 
+    template < typename Asset >
+    class asset_dependency;
+    class asset_dependency_base;
+
+    class asset_factory;
+    class asset_dependencies;
+
     class library;
 
     class atlas;
