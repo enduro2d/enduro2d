@@ -43,6 +43,31 @@ namespace e2d
     };
 
     //
+    // asset_group
+    //
+
+    class asset_group {
+    public:
+        asset_group() = default;
+        ~asset_group() noexcept = default;
+
+        asset_group(asset_group&& other) noexcept = default;
+        asset_group& operator=(asset_group&& other) noexcept = default;
+
+        asset_group(const asset_group& other) = default;
+        asset_group& operator=(const asset_group& other) = default;
+
+        template < typename Iter >
+        asset_group& add_assets(Iter first, Iter last);
+        asset_group& add_asset(str_view address, const asset_ptr& asset);
+
+        template < typename Asset, typename Nested = Asset >
+        typename Nested::load_result find_asset(str_view address) const;
+    private:
+        vector<std::pair<str, asset_ptr>> assets_;
+    };
+
+    //
     // asset_dependency_base
     //
 
@@ -56,10 +81,7 @@ namespace e2d
         asset_dependency_base() = default;
         virtual ~asset_dependency_base() noexcept = default;
 
-        virtual asset_ptr main_asset() const noexcept = 0;
         virtual const str& main_address() const noexcept = 0;
-
-        virtual asset_ptr load(const library& library) = 0;
         virtual stdex::promise<asset_ptr> load_async(const library& library) = 0;
     };
 
@@ -76,15 +98,10 @@ namespace e2d
         asset_dependency(str_view address);
         ~asset_dependency() noexcept override;
 
-        asset_ptr main_asset() const noexcept override;
         const str& main_address() const noexcept override;
-
-        asset_ptr load(const library& library) override;
         stdex::promise<asset_ptr> load_async(const library& library) override;
     private:
         str main_address_;
-        load_result main_asset_;
-        mutable std::mutex mutex_;
     };
 
     //
@@ -103,13 +120,8 @@ namespace e2d
         asset_dependencies& operator=(const asset_dependencies& other) = default;
 
         template < typename Asset >
-        asset_dependencies& dependency(str_view address);
-
-        template < typename Asset, typename Nested = Asset >
-        typename Nested::load_result find_dependency(str_view address) const;
-
-        bool load_all(const library& library);
-        stdex::promise<void> load_all_async(const library& library);
+        asset_dependencies& add_dependency(str_view address);
+        stdex::promise<asset_group> load_async(const library& library);
     private:
         vector<asset_dependency_base_iptr> dependencies_;
     };

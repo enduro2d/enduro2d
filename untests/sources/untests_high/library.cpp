@@ -283,28 +283,33 @@ TEST_CASE("asset_dependencies") {
     library& l = the<library>();
     {
         auto ad = asset_dependencies()
-            .dependency<text_asset>("text_asset.txt")
-            .dependency<binary_asset>("binary_asset.bin");
+            .add_dependency<text_asset>("text_asset.txt")
+            .add_dependency<binary_asset>("binary_asset.bin");
+        auto g1_p = ad.load_async(l);
+        the<deferrer>().active_safe_wait_promise(g1_p);
+        asset_group g1 = g1_p.get();
+        REQUIRE(g1.find_asset<text_asset>("text_asset.txt"));
+        REQUIRE(g1.find_asset<binary_asset>("binary_asset.bin"));
 
-        REQUIRE(ad.load_all(l));
-        REQUIRE(ad.find_dependency<text_asset>("text_asset.txt"));
-        REQUIRE(ad.find_dependency<binary_asset>("binary_asset.bin"));
-
-        ad.dependency<text_asset>("none_asset");
-        REQUIRE_FALSE(ad.load_all(l));
+        ad.add_dependency<text_asset>("none_asset");
+        auto g2_p = ad.load_async(l);
+        the<deferrer>().active_safe_wait_promise(g2_p);
     }
     {
         if ( modules::is_initialized<render>() ) {
             auto ad = asset_dependencies()
-                .dependency<atlas_asset>("atlas.json:/sprite");
-            REQUIRE(ad.load_all(l));
-            REQUIRE(ad.find_dependency<atlas_asset>("atlas.json")
+                .add_dependency<atlas_asset>("atlas.json:/sprite");
+            auto g1_p = ad.load_async(l);
+            the<deferrer>().active_safe_wait_promise(g1_p);
+            asset_group g1 = g1_p.get();
+            REQUIRE(g1.find_asset<atlas_asset>("atlas.json")
                 == l.load_asset<atlas_asset>("atlas.json"));
-            REQUIRE(ad.find_dependency<atlas_asset, sprite_asset>("atlas.json:/sprite")
+            REQUIRE(g1.find_asset<atlas_asset, sprite_asset>("atlas.json:/sprite")
                 == l.load_asset<atlas_asset, sprite_asset>("atlas.json:/sprite"));
 
-            ad.dependency<sprite_asset>("atlas.json:/sprite");
-            REQUIRE_FALSE(ad.load_all(l));
+            ad.add_dependency<sprite_asset>("atlas.json:/sprite");
+            auto g2_p = ad.load_async(l);
+            the<deferrer>().active_safe_wait_promise(g2_p);
         }
     }
 }

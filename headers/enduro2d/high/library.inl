@@ -87,74 +87,38 @@ namespace e2d
     }
 
     //
-    // asset_dependency
+    // asset_group
     //
 
-    template < typename Asset >
-    asset_dependency<Asset>::asset_dependency(str_view address)
-    : main_address_(address::parent(address)) {}
-
-    template < typename Asset >
-    asset_dependency<Asset>::~asset_dependency() noexcept = default;
-
-    template < typename Asset >
-    asset_ptr asset_dependency<Asset>::asset_dependency<Asset>::main_asset() const noexcept {
-        std::lock_guard<std::mutex> guard(mutex_);
-        return main_asset_;
-    }
-
-    template < typename Asset >
-    const str& asset_dependency<Asset>::main_address() const noexcept {
-        return main_address_;
-    }
-
-    template < typename Asset >
-    asset_ptr asset_dependency<Asset>::load(const library& library) {
-        auto p = load_async(library);
-
-        if ( modules::is_initialized<deferrer>() ) {
-            the<deferrer>().active_safe_wait_promise(p);
+    template < typename Iter >
+    asset_group& asset_group::add_assets(Iter first, Iter last) {
+        for ( auto iter = first; iter != last; ++iter ) {
+            add_asset(iter->first, iter->second);
         }
-
-        return p.get_or_default(nullptr);
+        return *this;
     }
 
-    template < typename Asset >
-    stdex::promise<asset_ptr> asset_dependency<Asset>::load_async(const library& library) {
-        return library.load_main_asset_async<Asset>(main_address())
-        .then([this](const typename Asset::load_result& main_asset){
-            std::lock_guard<std::mutex> guard(mutex_);
-            main_asset_ = main_asset;
-            return asset_ptr(main_asset_);
-        });
-    }
-
-    //
-    // asset_dependencies
-    //
-
-    template < typename Asset >
-    asset_dependencies& asset_dependencies::dependency(str_view address) {
-        asset_dependency_base_iptr dep(new asset_dependency<Asset>(address));
+    inline asset_group& asset_group::add_asset(str_view address, const asset_ptr& asset) {
+        str main_address = address::parent(address);
         auto iter = std::upper_bound(
-            dependencies_.begin(), dependencies_.end(), dep->main_address(),
+            assets_.begin(), assets_.end(), main_address,
             [](const str& l, const auto& r){
-                return l < r->main_address();
+                return l < r.first;
             });
-        dependencies_.insert(iter, std::move(dep));
+        assets_.insert(iter, std::make_pair(std::move(main_address), asset));
         return *this;
     }
 
     template < typename Asset, typename Nested >
-    typename Nested::load_result asset_dependencies::find_dependency(str_view address) const {
+    typename Nested::load_result asset_group::find_asset(str_view address) const {
         const str main_address = address::parent(address);
         auto iter = std::lower_bound(
-            dependencies_.begin(), dependencies_.end(), main_address,
+            assets_.begin(), assets_.end(), main_address,
             [](const auto& l, const str& r) noexcept {
-                return l->main_address() < r;
+                return l.first < r;
             });
-        for ( ; iter != dependencies_.end() && (*iter)->main_address() == main_address; ++iter ) {
-            asset_ptr main_asset = (*iter)->main_asset();
+        for ( ; iter != assets_.end() && iter->first == main_address; ++iter ) {
+            asset_ptr main_asset = iter->second;
             typename Asset::load_result typed_main_asset = dynamic_pointer_cast<Asset>(main_asset);
             if ( !typed_main_asset ) {
                 continue;
@@ -176,32 +140,61 @@ namespace e2d
         return nullptr;
     }
 
-    inline bool asset_dependencies::load_all(const library& library) {
-        auto p = load_all_async(library);
+    //
+    // asset_dependency
+    //
 
-        if ( modules::is_initialized<deferrer>() ) {
-            the<deferrer>().active_safe_wait_promise(p);
-        }
+    template < typename Asset >
+    asset_dependency<Asset>::asset_dependency(str_view address)
+    : main_address_(address::parent(address)) {}
 
-        try {
-            p.get();
-            return true;
-        } catch (...) {
-            return false;
-        }
+    template < typename Asset >
+    asset_dependency<Asset>::~asset_dependency() noexcept = default;
+
+    template < typename Asset >
+    const str& asset_dependency<Asset>::main_address() const noexcept {
+        return main_address_;
     }
 
-    inline stdex::promise<void> asset_dependencies::load_all_async(const library& library) {
-        vector<stdex::promise<asset_ptr>> promises;
+    template < typename Asset >
+    stdex::promise<asset_ptr> asset_dependency<Asset>::load_async(const library& library) {
+        return library.load_main_asset_async<Asset>(main_address())
+        .then([](const typename Asset::load_result& main_asset){
+            return asset_ptr(main_asset);
+        });
+    }
+
+    //
+    // asset_dependencies
+    //
+
+    template < typename Asset >
+    asset_dependencies& asset_dependencies::add_dependency(str_view address) {
+        asset_dependency_base_iptr dep(new asset_dependency<Asset>(address));
+        auto iter = std::upper_bound(
+            dependencies_.begin(), dependencies_.end(), dep->main_address(),
+            [](const str& l, const auto& r){
+                return l < r->main_address();
+            });
+        dependencies_.insert(iter, std::move(dep));
+        return *this;
+    }
+
+    inline stdex::promise<asset_group> asset_dependencies::load_async(const library& library) {
+        vector<stdex::promise<std::pair<str, asset_ptr>>> promises;
         promises.reserve(dependencies_.size());
         std::transform(
             dependencies_.begin(), dependencies_.end(), std::back_inserter(promises),
             [&library](const asset_dependency_base_iptr& dep){
-                return dep->load_async(library);
+                return dep->load_async(library)
+                .then([main_address = dep->main_address()](const asset_ptr& asset){
+                    return std::make_pair(main_address, asset);
+                });
             });
         return stdex::make_all_promise(std::move(promises))
-        .then([](const vector<asset_ptr>& results){
-            E2D_UNUSED(results);
+        .then([](const vector<std::pair<str, asset_ptr>>& results){
+            return asset_group()
+                .add_assets(results.begin(), results.end());
         });
     }
 }
