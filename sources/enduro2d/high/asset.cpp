@@ -9,13 +9,6 @@
 namespace e2d
 {
     //
-    // asset
-    //
-
-    asset::asset() = default;
-    asset::~asset() noexcept = default;
-
-    //
     // asset_cache_base
     //
 
@@ -34,25 +27,10 @@ namespace e2d
 
     std::size_t asset_cache_base::unload_all_unused_assets() noexcept {
         std::lock_guard<std::mutex> guard(mutex_);
-        return std::accumulate(caches_.begin(), caches_.end(), std::size_t(0),
+        return std::accumulate(
+            caches_.begin(), caches_.end(), std::size_t(0),
             [](std::size_t acc, asset_cache_base* cache){
                 return acc + cache->unload_self_unused_assets();
             });
     }
-
-    //
-    // asset_factory
-    //
-
-    asset_factory::asset_factory() = default;
-    asset_factory::~asset_factory() noexcept = default;
-
-    //
-    // asset_dependency_base
-    //
-
-    asset_dependency_base::asset_dependency_base(str_view address)
-    : address_(address) {}
-
-    asset_dependency_base::~asset_dependency_base() noexcept = default;
 }

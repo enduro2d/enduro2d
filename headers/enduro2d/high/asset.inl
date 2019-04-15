@@ -56,9 +56,9 @@ namespace e2d
     }
 
     template < typename Asset, typename Content >
-    template < typename T >
-    intrusive_ptr<T> content_asset<Asset, Content>::find_nested_asset(str_view name) const noexcept {
-        return dynamic_pointer_cast<T>(find_nested_asset(name));
+    template < typename NestedAsset >
+    typename NestedAsset::ptr content_asset<Asset, Content>::find_nested_asset(str_view name) const noexcept {
+        return dynamic_pointer_cast<NestedAsset>(find_nested_asset(name));
     }
 
     template < typename Asset, typename Content >
@@ -143,23 +143,6 @@ namespace e2d
         if ( !success ) {
             throw bad_asset_factory_operation();
         }
-        return *this;
-    }
-
-    //
-    // asset_dependency
-    //
-
-    template < typename Asset >
-    asset_dependency<Asset>::asset_dependency(str_view address)
-    : asset_dependency_base(address) {}
-
-    template < typename Asset >
-    asset_dependency<Asset>::~asset_dependency() noexcept = default;
-
-    template < typename Asset >
-    asset_dependencies& asset_dependencies::dependency(str_view address) {
-        dependencies_.push_back(new asset_dependency<Asset>(address));
         return *this;
     }
 }

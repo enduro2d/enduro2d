@@ -277,3 +277,34 @@ TEST_CASE("library"){
         }
     }
 }
+
+TEST_CASE("asset_dependencies") {
+    safe_starter_initializer initializer;
+    library& l = the<library>();
+    {
+        auto ad = asset_dependencies()
+            .dependency<text_asset>("text_asset.txt")
+            .dependency<binary_asset>("binary_asset.bin");
+
+        REQUIRE(ad.load_all(l));
+        REQUIRE(ad.find_dependency<text_asset>("text_asset.txt"));
+        REQUIRE(ad.find_dependency<binary_asset>("binary_asset.bin"));
+
+        ad.dependency<text_asset>("none_asset");
+        REQUIRE_FALSE(ad.load_all(l));
+    }
+    {
+        if ( modules::is_initialized<render>() ) {
+            auto ad = asset_dependencies()
+                .dependency<atlas_asset>("atlas.json:/sprite");
+            REQUIRE(ad.load_all(l));
+            REQUIRE(ad.find_dependency<atlas_asset>("atlas.json")
+                == l.load_asset<atlas_asset>("atlas.json"));
+            REQUIRE(ad.find_dependency<atlas_asset, sprite_asset>("atlas.json:/sprite")
+                == l.load_asset<atlas_asset, sprite_asset>("atlas.json:/sprite"));
+
+            ad.dependency<sprite_asset>("atlas.json:/sprite");
+            REQUIRE_FALSE(ad.load_all(l));
+        }
+    }
+}

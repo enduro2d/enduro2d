@@ -45,8 +45,8 @@ namespace e2d
         : private noncopyable
         , public ref_counter<asset> {
     public:
-        asset();
-        virtual ~asset() noexcept;
+        asset() = default;
+        virtual ~asset() noexcept = default;
         virtual asset_ptr find_nested_asset(str_view name) const noexcept = 0;
     };
 
@@ -73,8 +73,8 @@ namespace e2d
 
         const Content& content() const noexcept;
 
-        template < typename T >
-        intrusive_ptr<T> find_nested_asset(str_view name) const noexcept;
+        template < typename NestedAsset >
+        typename NestedAsset::ptr find_nested_asset(str_view name) const noexcept;
         asset_ptr find_nested_asset(str_view name) const noexcept override;
     private:
         Content content_;
@@ -102,8 +102,9 @@ namespace e2d
     //
 
     template < typename Asset >
-    class asset_cache : public asset_cache_base
-                      , public module<asset_cache<Asset>> {
+    class asset_cache
+        : public asset_cache_base
+        , public module<asset_cache<Asset>> {
     public:
         using asset_ptr = typename Asset::ptr;
     public:
@@ -132,8 +133,8 @@ namespace e2d
         using asset_creator = std::function<
             stdex::promise<asset_ptr>(const library& library, str_view address)>;
     public:
-        asset_factory();
-        ~asset_factory() noexcept final;
+        asset_factory() = default;
+        ~asset_factory() noexcept final = default;
 
         template < typename Asset >
         asset_factory& register_asset(str_hash type);
@@ -141,49 +142,6 @@ namespace e2d
     private:
         std::mutex mutex_;
         hash_map<str_hash, asset_creator> creators_;
-    };
-
-    //
-    // asset_dependency_base
-    //
-
-    class asset_dependency_base;
-    using asset_dependency_base_iptr = intrusive_ptr<asset_dependency_base>;
-
-    class asset_dependency_base
-        : private noncopyable
-        , public ref_counter<asset_dependency_base> {
-    public:
-        asset_dependency_base(str_view address);
-        virtual ~asset_dependency_base() noexcept;
-    private:
-        str address_;
-    };
-
-    //
-    // asset_dependency
-    //
-
-    template < typename Asset >
-    class asset_dependency : public asset_dependency_base {
-    public:
-        asset_dependency(str_view address);
-        ~asset_dependency() noexcept override;
-    };
-
-    //
-    // asset_dependencies
-    //
-
-    class asset_dependencies final {
-    public:
-        asset_dependencies() = default;
-        ~asset_dependencies() noexcept = default;
-
-        template < typename Asset >
-        asset_dependencies& dependency(str_view address);
-    private:
-        vector<asset_dependency_base_iptr> dependencies_;
     };
 }
 

@@ -78,11 +78,4 @@ TEST_CASE("asset") {
             REQUIRE_FALSE(l.load_asset<fake_asset, fake_nested_asset>("42:/21:/none:/2"));
         }
     }
-    SECTION("asset_dependencies") {
-        {
-            const auto ad = asset_dependencies()
-                .dependency<text_asset>("text_asset.txt")
-                .dependency<binary_asset>("binary_asset.bin");
-        }
-    }
 }
