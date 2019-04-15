@@ -58,7 +58,6 @@ namespace e2d
     class asset_dependency_base;
 
     class asset_group;
-    class asset_factory;
     class asset_dependencies;
 
     class library;

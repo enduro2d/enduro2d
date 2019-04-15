@@ -141,25 +141,11 @@ namespace e2d
         safe_module_initialize<asset_cache<sprite_asset>>(the<library>());
         safe_module_initialize<asset_cache<text_asset>>(the<library>());
         safe_module_initialize<asset_cache<texture_asset>>(the<library>());
-        safe_module_initialize<asset_factory>()
-            .register_asset<atlas_asset>("atlas")
-            .register_asset<binary_asset>("binary")
-            .register_asset<flipbook_asset>("flipbook")
-            .register_asset<image_asset>("image")
-            .register_asset<material_asset>("material")
-            .register_asset<mesh_asset>("mesh")
-            .register_asset<model_asset>("model")
-            .register_asset<shader_asset>("shader")
-            .register_asset<shape_asset>("shape")
-            .register_asset<sprite_asset>("sprite")
-            .register_asset<text_asset>("text")
-            .register_asset<texture_asset>("texture");
         safe_module_initialize<world>();
     }
 
     starter::~starter() noexcept {
         modules::shutdown<world>();
-        modules::shutdown<asset_factory>();
         modules::shutdown<asset_cache<texture_asset>>();
         modules::shutdown<asset_cache<text_asset>>();
         modules::shutdown<asset_cache<sprite_asset>>();

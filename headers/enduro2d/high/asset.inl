@@ -121,30 +121,6 @@ namespace e2d
         }
         return result;
     }
-
-    //
-    // asset_factory
-    //
-
-    template < typename Asset >
-    asset_factory& asset_factory::register_asset(str_hash type) {
-        return register_creator(type, [](const library& library, str_view address) {
-            return Asset::load_async(library, address)
-                .then([](const typename Asset::load_result& result){
-                    return static_pointer_cast<asset>(result);
-                });
-        });
-    }
-
-    inline asset_factory& asset_factory::register_creator(str_hash type, asset_creator creator) {
-        std::lock_guard<std::mutex> guard(mutex_);
-        bool success = creators_.insert(
-            std::make_pair(type, std::move(creator))).second;
-        if ( !success ) {
-            throw bad_asset_factory_operation();
-        }
-        return *this;
-    }
 }
 
 #endif
