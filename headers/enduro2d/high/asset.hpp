@@ -10,6 +10,8 @@
 
 #include "_high.hpp"
 
+#include "address.hpp"
+
 namespace e2d
 {
     //
@@ -36,7 +38,7 @@ namespace e2d
     public:
         asset() = default;
         virtual ~asset() noexcept = default;
-        virtual asset_ptr find_nested_asset(str_view name) const noexcept = 0;
+        virtual asset_ptr find_nested_asset(str_view nested_address) const noexcept = 0;
     };
 
     //
@@ -63,8 +65,8 @@ namespace e2d
         const Content& content() const noexcept;
 
         template < typename NestedAsset >
-        typename NestedAsset::ptr find_nested_asset(str_view name) const noexcept;
-        asset_ptr find_nested_asset(str_view name) const noexcept override;
+        typename NestedAsset::ptr find_nested_asset(str_view nested_address) const noexcept;
+        asset_ptr find_nested_asset(str_view nested_address) const noexcept override;
     private:
         Content content_;
         nested_content nested_content_;
@@ -98,7 +100,7 @@ namespace e2d
         using asset_ptr = typename Asset::ptr;
     public:
         asset_cache(library& l);
-        ~asset_cache() noexcept final;
+        ~asset_cache() noexcept final = default;
 
         asset_ptr find(str_hash address) const noexcept;
         void store(str_hash address, const asset_ptr& asset);

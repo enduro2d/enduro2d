@@ -11,10 +11,46 @@
 #include "_high.hpp"
 
 #include "asset.hpp"
-#include "address.hpp"
 
 namespace e2d
 {
+    //
+    // loading_asset_base
+    //
+
+    class loading_asset_base;
+    using loading_asset_base_iptr = intrusive_ptr<loading_asset_base>;
+
+    class loading_asset_base
+        : private noncopyable
+        , public ref_counter<loading_asset_base> {
+    public:
+        loading_asset_base() = default;
+        virtual ~loading_asset_base() noexcept = default;
+
+        virtual const str& main_address() const noexcept = 0;
+    };
+
+    //
+    // loading_asset
+    //
+
+    template < typename Asset >
+    class loading_asset : public loading_asset_base {
+    public:
+        using ptr = intrusive_ptr<loading_asset>;
+        using promise_type = typename Asset::load_async_result;
+    public:
+        loading_asset(str_view address, promise_type promise);
+        ~loading_asset() noexcept override = default;
+
+        const str& main_address() const noexcept override;
+        const promise_type& promise() const noexcept;
+    private:
+        str main_address_;
+        promise_type promise_;
+    };
+
     //
     // library
     //
@@ -39,7 +75,20 @@ namespace e2d
         template < typename Asset, typename Nested = Asset >
         typename Nested::load_async_result load_asset_async(str_view address) const;
     private:
+        template < typename Asset >
+        vector<loading_asset_base_iptr>::iterator
+        find_loading_asset_iter_(const str& main_address) const noexcept;
+
+        template < typename Asset >
+        typename loading_asset<Asset>::ptr
+        find_loading_asset_(const str& main_address) const noexcept;
+
+        template < typename Asset >
+        void remove_loading_asset_(const str& main_address) const noexcept;
+    private:
         url root_;
+        mutable std::recursive_mutex mutex_;
+        mutable vector<loading_asset_base_iptr> loading_assets_;
     };
 
     //
@@ -59,6 +108,10 @@ namespace e2d
 
         template < typename Iter >
         asset_group& add_assets(Iter first, Iter last);
+
+        template < typename Container >
+        asset_group& add_assets(Container&& container);
+
         asset_group& add_asset(str_view address, const asset_ptr& asset);
 
         template < typename Asset, typename Nested = Asset >

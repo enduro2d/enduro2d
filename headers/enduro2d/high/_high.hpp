@@ -60,6 +60,10 @@ namespace e2d
     class asset_group;
     class asset_dependencies;
 
+    template < typename Asset >
+    class loading_asset;
+    class loading_asset_base;
+
     class library;
 
     class atlas;

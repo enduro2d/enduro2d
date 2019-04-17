@@ -28,6 +28,18 @@ TEST_CASE("library"){
     safe_starter_initializer initializer;
     library& l = the<library>();
     {
+        auto p1 = l.load_asset_async<binary_asset>("binary_asset.bin");
+        auto p2 = l.load_asset_async<binary_asset>("binary_asset.bin");
+
+        the<deferrer>().active_safe_wait_promise(p1);
+        the<deferrer>().active_safe_wait_promise(p2);
+
+        auto b1 = p1.get();
+        auto b2 = p2.get();
+
+        REQUIRE(b1 == b2);
+    }
+    {
         auto text_res = l.load_asset<text_asset>("text_asset.txt");
         REQUIRE(text_res);
         REQUIRE(text_res->content() == "hello");

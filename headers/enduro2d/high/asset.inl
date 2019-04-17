@@ -57,16 +57,20 @@ namespace e2d
 
     template < typename Asset, typename Content >
     template < typename NestedAsset >
-    typename NestedAsset::ptr content_asset<Asset, Content>::find_nested_asset(str_view name) const noexcept {
-        return dynamic_pointer_cast<NestedAsset>(find_nested_asset(name));
+    typename NestedAsset::ptr content_asset<Asset, Content>::find_nested_asset(str_view nested_address) const noexcept {
+        return dynamic_pointer_cast<NestedAsset>(find_nested_asset(nested_address));
     }
 
     template < typename Asset, typename Content >
-    asset_ptr content_asset<Asset, Content>::find_nested_asset(str_view name) const noexcept {
-        const auto iter = nested_content_.find(name);
-        return iter != nested_content_.end()
+    asset_ptr content_asset<Asset, Content>::find_nested_asset(str_view address) const noexcept {
+        const auto iter = nested_content_.find(make_hash(address::parent(address)));
+        if ( iter == nested_content_.end() ) {
+            return nullptr;
+        }
+        const str nested_asset = address::nested(address);
+        return nested_asset.empty()
             ? iter->second
-            : nullptr;
+            : iter->second->find_nested_asset(nested_asset);
     }
 
     //
@@ -76,9 +80,6 @@ namespace e2d
     template < typename T >
     asset_cache<T>::asset_cache(library& l)
     : library_(l) {}
-
-    template < typename T >
-    asset_cache<T>::~asset_cache() noexcept = default;
 
     template < typename T >
     typename asset_cache<T>::asset_ptr asset_cache<T>::find(str_hash address) const noexcept {

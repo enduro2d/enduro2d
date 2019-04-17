@@ -57,10 +57,15 @@ TEST_CASE("asset") {
 
             REQUIRE_FALSE(fa->find_nested_asset("none"));
             REQUIRE(fa->find_nested_asset("21"));
+            REQUIRE(fa->find_nested_asset("21:/2"));
             REQUIRE_FALSE(fa->find_nested_asset<binary_asset>("21"));
+            REQUIRE_FALSE(fa->find_nested_asset<binary_asset>("21:/2"));
             REQUIRE(fa->find_nested_asset<fake_nested_asset>("21"));
+            REQUIRE(fa->find_nested_asset<fake_nested_asset>("21:/2"));
             REQUIRE(fa->find_nested_asset<fake_nested_asset>("21")->content() == 21);
+            REQUIRE(fa->find_nested_asset<fake_nested_asset>("21:/2")->content() == 2);
             REQUIRE(fa->find_nested_asset<fake_nested_asset>("84")->content() == 84);
+            REQUIRE(fa->find_nested_asset<fake_nested_asset>("84:/8")->content() == 8);
         }
         {
             REQUIRE(l.load_asset<fake_asset, fake_nested_asset>("42:/21"));

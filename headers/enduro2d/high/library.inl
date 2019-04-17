@@ -14,6 +14,25 @@
 namespace e2d
 {
     //
+    // loading_asset
+    //
+
+    template < typename Asset >
+    loading_asset<Asset>::loading_asset(str_view address, promise_type promise)
+    : main_address_(address::parent(address))
+    , promise_(std::move(promise)) {}
+
+    template < typename Asset >
+    const str& loading_asset<Asset>::main_address() const noexcept {
+        return main_address_;
+    }
+
+    template < typename Asset >
+    const typename loading_asset<Asset>::promise_type& loading_asset<Asset>::promise() const noexcept {
+        return promise_;
+    }
+
+    //
     // library
     //
 
@@ -30,26 +49,37 @@ namespace e2d
 
     template < typename Asset >
     typename Asset::load_async_result library::load_main_asset_async(str_view address) const {
-        const auto main_address = address::parent(address);
-        const auto main_address_hash = make_hash(main_address);
+        const str main_address = address::parent(address);
+        const str_hash main_address_hash = make_hash(main_address);
 
-        if ( !modules::is_initialized<asset_cache<Asset>>() ) {
-            return Asset::load_async(*this, main_address);
+        std::lock_guard<std::recursive_mutex> guard(mutex_);
+
+        if ( modules::is_initialized<asset_cache<Asset>>() ) {
+            if ( auto cached_asset = the<asset_cache<Asset>>().find(main_address_hash) ) {
+                return stdex::make_resolved_promise(std::move(cached_asset));
+            }
         }
 
-        auto& cache = the<asset_cache<Asset>>();
-        if ( auto cached_asset = cache.find(main_address_hash) ) {
-            return stdex::make_resolved_promise(std::move(cached_asset));
+        if ( auto asset = find_loading_asset_<Asset>(main_address) )  {
+            return asset->promise();
         }
 
-        return Asset::load_async(*this, main_address)
-            .then([
-                &cache,
-                main_address_hash
-            ](const typename Asset::load_result& new_asset){
-                cache.store(main_address_hash, new_asset);
-                return new_asset;
-            });
+        auto p = Asset::load_async(*this, main_address)
+        .then([
+            this,
+            main_address,
+            main_address_hash
+        ](const typename Asset::load_result& new_asset){
+            std::lock_guard<std::recursive_mutex> guard(mutex_);
+            if ( modules::is_initialized<asset_cache<Asset>>() ) {
+                the<asset_cache<Asset>>().store(main_address_hash, new_asset);
+            }
+            remove_loading_asset_<Asset>(main_address);
+            return new_asset;
+        });
+
+        loading_assets_.push_back(new loading_asset<Asset>(address, p));
+        return p;
     }
 
     template < typename Asset, typename Nested >
@@ -65,25 +95,46 @@ namespace e2d
 
     template < typename Asset, typename Nested >
     typename Nested::load_async_result library::load_asset_async(str_view address) const {
-        return load_main_asset_async<Asset>(address::parent(address))
+        return load_main_asset_async<Asset>(address)
             .then([
-                address = str(address)
+                nested_address = address::nested(address)
             ](const typename Asset::load_result& main_asset){
-                asset_ptr nested_asset = main_asset;
-                str nested_address = address::nested(address);
-
-                while ( nested_asset && !nested_address.empty() ) {
-                    nested_asset = nested_asset->find_nested_asset(address::parent(nested_address));
-                    nested_address = address::nested(nested_address);
+                typename Nested::load_result nested_asset = nested_address.empty()
+                    ? dynamic_pointer_cast<Nested>(main_asset)
+                    : main_asset->template find_nested_asset<Nested>(nested_address);
+                if ( nested_asset ) {
+                    return nested_asset;
                 }
-
-                using nested_asset_type = typename Nested::asset_type;
-                if ( auto result = dynamic_pointer_cast<nested_asset_type>(nested_asset) ) {
-                    return result;
-                }
-
                 throw asset_loading_exception();
             });
+    }
+
+    template < typename Asset >
+    vector<loading_asset_base_iptr>::iterator
+    library::find_loading_asset_iter_(const str& main_address) const noexcept {
+        return std::find_if(
+            loading_assets_.begin(), loading_assets_.end(),
+            [&main_address](const loading_asset_base_iptr& asset) noexcept {
+                return asset->main_address() == main_address
+                    && dynamic_pointer_cast<loading_asset<Asset>>(asset);
+            });
+    }
+
+    template < typename Asset >
+    typename loading_asset<Asset>::ptr
+    library::find_loading_asset_(const str& main_address) const noexcept {
+        auto iter = find_loading_asset_iter_<Asset>(main_address);
+        return iter != loading_assets_.end()
+            ? static_pointer_cast<loading_asset<Asset>>(*iter)
+            : nullptr;
+    }
+
+    template < typename Asset >
+    void library::remove_loading_asset_(const str& main_address) const noexcept {
+        auto iter = find_loading_asset_iter_<Asset>(main_address);
+        if ( iter != loading_assets_.end() ) {
+            loading_assets_.erase(iter);
+        }
     }
 
     //
@@ -96,6 +147,11 @@ namespace e2d
             add_asset(iter->first, iter->second);
         }
         return *this;
+    }
+
+    template < typename Container >
+    asset_group& asset_group::add_assets(Container&& container) {
+        return add_assets(std::begin(container), std::end(container));
     }
 
     inline asset_group& asset_group::add_asset(str_view address, const asset_ptr& asset) {
@@ -112,6 +168,7 @@ namespace e2d
     template < typename Asset, typename Nested >
     typename Nested::load_result asset_group::find_asset(str_view address) const {
         const str main_address = address::parent(address);
+        const str nested_address = address::nested(address);
         auto iter = std::lower_bound(
             assets_.begin(), assets_.end(), main_address,
             [](const auto& l, const str& r) noexcept {
@@ -123,18 +180,11 @@ namespace e2d
             if ( !typed_main_asset ) {
                 continue;
             }
-
-            asset_ptr nested_asset = main_asset;
-            str nested_address = address::nested(address);
-
-            while ( nested_asset && !nested_address.empty() ) {
-                nested_asset = nested_asset->find_nested_asset(address::parent(nested_address));
-                nested_address = address::nested(nested_address);
-            }
-
-            using nested_asset_type = typename Nested::asset_type;
-            if ( auto result = dynamic_pointer_cast<nested_asset_type>(nested_asset) ) {
-                return result;
+            typename Nested::load_result nested_asset = nested_address.empty()
+                ? dynamic_pointer_cast<Nested>(typed_main_asset)
+                : typed_main_asset->template find_nested_asset<Nested>(nested_address);
+            if ( nested_asset ) {
+                return nested_asset;
             }
         }
         return nullptr;
