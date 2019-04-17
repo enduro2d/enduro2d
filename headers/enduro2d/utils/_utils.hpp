@@ -39,13 +39,13 @@ namespace e2d
 
 namespace e2d
 {
-    using str   = basic_string<char>;
-    using wstr  = basic_string<wchar_t>;
+    using str = basic_string<char>;
+    using wstr = basic_string<wchar_t>;
     using str16 = basic_string<char16_t>;
     using str32 = basic_string<char32_t>;
 
-    using str_view   = basic_string_view<char>;
-    using wstr_view  = basic_string_view<wchar_t>;
+    using str_view = basic_string_view<char>;
+    using wstr_view = basic_string_view<wchar_t>;
     using str16_view = basic_string_view<char16_t>;
     using str32_view = basic_string_view<char32_t>;
 
@@ -147,4 +147,36 @@ namespace e2d { namespace utils
     constexpr std::underlying_type_t<E> enum_to_underlying(E e) noexcept {
         return static_cast<std::underlying_type_t<E>>(e);
     }
+
+    //
+    // type_family
+    //
+
+    using type_family_id = u32;
+
+    namespace impl
+    {
+        template < typename Void = void >
+        class type_family_base {
+            static_assert(
+                std::is_void<Void>::value &&
+                std::is_unsigned<type_family_id>::value,
+                "unexpected internal error");
+        protected:
+            static type_family_id last_id_;
+        };
+
+        template < typename Void >
+        type_family_id type_family_base<Void>::last_id_ = 0u;
+    }
+
+    template < typename T >
+    class type_family final : public impl::type_family_base<> {
+    public:
+        static type_family_id id() noexcept {
+            static type_family_id self_id = ++last_id_;
+            assert(self_id > 0u && "type_family_id overflow");
+            return self_id;
+        }
+    };
 }}
