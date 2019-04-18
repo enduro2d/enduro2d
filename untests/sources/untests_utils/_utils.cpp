@@ -49,4 +49,11 @@ TEST_CASE("utils") {
             42u, str1, str1 + std::strlen(str1)
         ) == utils::sdbm_hash(42u, str2));
     }
+    {
+        utils::type_family_id id1 = utils::type_family<str16>::id();
+        utils::type_family_id id2 = utils::type_family<str32>::id();
+        REQUIRE(id1 != id2);
+        REQUIRE(id1 == utils::type_family<str16>::id());
+        REQUIRE(id2 == utils::type_family<str32>::id());
+    }
 }

@@ -50,11 +50,10 @@ namespace e2d
     class content_asset;
     class asset;
 
-    template < typename T >
-    class asset_cache;
-    class asset_cache_base;
-
     class library;
+    class asset_cache;
+    class asset_group;
+    class asset_dependencies;
 
     class atlas;
     class flipbook;

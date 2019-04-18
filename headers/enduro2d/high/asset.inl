@@ -56,33 +56,29 @@ namespace e2d
     }
 
     template < typename Asset, typename Content >
-    template < typename T >
-    intrusive_ptr<T> content_asset<Asset, Content>::find_nested_asset(str_view name) const noexcept {
-        return dynamic_pointer_cast<T>(find_nested_asset(name));
+    template < typename NestedAsset >
+    typename NestedAsset::ptr content_asset<Asset, Content>::find_nested_asset(str_view nested_address) const noexcept {
+        return dynamic_pointer_cast<NestedAsset>(find_nested_asset(nested_address));
     }
 
     template < typename Asset, typename Content >
-    asset_ptr content_asset<Asset, Content>::find_nested_asset(str_view name) const noexcept {
-        const auto iter = nested_content_.find(name);
-        return iter != nested_content_.end()
+    asset_ptr content_asset<Asset, Content>::find_nested_asset(str_view address) const noexcept {
+        const auto iter = nested_content_.find(make_hash(address::parent(address)));
+        if ( iter == nested_content_.end() ) {
+            return nullptr;
+        }
+        const str nested_asset = address::nested(address);
+        return nested_asset.empty()
             ? iter->second
-            : nullptr;
+            : iter->second->find_nested_asset(nested_asset);
     }
 
     //
-    // asset_cache
+    // typed_asset_cache
     //
 
     template < typename T >
-    asset_cache<T>::asset_cache(library& l)
-    : library_(l) {}
-
-    template < typename T >
-    asset_cache<T>::~asset_cache() noexcept = default;
-
-    template < typename T >
-    typename asset_cache<T>::asset_ptr asset_cache<T>::find(str_hash address) const noexcept {
-        std::lock_guard<std::mutex> guard(mutex_);
+    typename typed_asset_cache<T>::asset_ptr typed_asset_cache<T>::find(str_hash address) const noexcept {
         const auto iter = assets_.find(address);
         return iter != assets_.end()
             ? iter->second
@@ -90,26 +86,17 @@ namespace e2d
     }
 
     template < typename T >
-    void asset_cache<T>::store(str_hash address, const asset_ptr& asset) {
-        std::lock_guard<std::mutex> guard(mutex_);
+    void typed_asset_cache<T>::store(str_hash address, const asset_ptr& asset) {
         assets_[address] = asset;
     }
 
     template < typename T >
-    void asset_cache<T>::clear() noexcept {
-        std::lock_guard<std::mutex> guard(mutex_);
-        assets_.clear();
-    }
-
-    template < typename T >
-    std::size_t asset_cache<T>::asset_count() const noexcept {
-        std::lock_guard<std::mutex> guard(mutex_);
+    std::size_t typed_asset_cache<T>::asset_count() const noexcept {
         return assets_.size();
     }
 
     template < typename T >
-    std::size_t asset_cache<T>::unload_self_unused_assets() noexcept {
-        std::lock_guard<std::mutex> guard(mutex_);
+    std::size_t typed_asset_cache<T>::unload_unused_assets() noexcept {
         std::size_t result = 0u;
         for ( auto iter = assets_.begin(); iter != assets_.end(); ) {
             if ( !iter->second || 1 == iter->second->use_count() ) {
@@ -123,27 +110,61 @@ namespace e2d
     }
 
     //
-    // asset_factory
+    // asset_cache
     //
 
     template < typename Asset >
-    asset_factory& asset_factory::register_asset(str_hash type) {
-        return register_creator(type, [](const library& library, str_view address) {
-            return Asset::load_async(library, address)
-                .then([](const typename Asset::load_result& result){
-                    return static_pointer_cast<asset>(result);
-                });
-        });
+    void asset_cache::store(str_hash address, const typename Asset::ptr& asset) {
+        const auto family = utils::type_family<Asset>::id();
+        const auto iter = caches_.find(family);
+        typed_asset_cache<Asset>* cache = iter != caches_.end() && iter->second
+            ? static_cast<typed_asset_cache<Asset>*>(iter->second.get())
+            : nullptr;
+        if ( !cache ) {
+            cache = static_cast<typed_asset_cache<Asset>*>(caches_.emplace(
+                family,
+                std::make_unique<typed_asset_cache<Asset>>()).first->second.get());
+        }
+        cache->store(address, asset);
     }
 
-    inline asset_factory& asset_factory::register_creator(str_hash type, asset_creator creator) {
-        std::lock_guard<std::mutex> guard(mutex_);
-        bool success = creators_.insert(
-            std::make_pair(type, std::move(creator))).second;
-        if ( !success ) {
-            throw bad_asset_factory_operation();
-        }
-        return *this;
+    template < typename Asset >
+    typename Asset::ptr asset_cache::find(str_hash address) const noexcept {
+        const auto iter = caches_.find(utils::type_family<Asset>::id());
+        const typed_asset_cache<Asset>* cache = iter != caches_.end() && iter->second
+            ? static_cast<const typed_asset_cache<Asset>*>(iter->second.get())
+            : nullptr;
+        return cache
+            ? cache->find(address)
+            : nullptr;
+    }
+
+    template < typename Asset >
+    std::size_t asset_cache::asset_count() const noexcept {
+        const auto iter = caches_.find(utils::type_family<Asset>::id());
+        return iter != caches_.end() && iter->second
+            ? iter->second->asset_count()
+            : 0u;
+    }
+
+    inline std::size_t asset_cache::asset_count() const noexcept {
+        return std::accumulate(
+            caches_.begin(), caches_.end(), std::size_t(0),
+            [](std::size_t acc, const auto& p){
+                return p.second
+                    ? acc + p.second->asset_count()
+                    : acc;
+            });
+    }
+
+    inline std::size_t asset_cache::unload_unused_assets() noexcept {
+        return std::accumulate(
+            caches_.begin(), caches_.end(), std::size_t(0),
+            [](std::size_t acc, const auto& p){
+                return p.second
+                    ? acc + p.second->unload_unused_assets()
+                    : acc;
+            });
     }
 }
 
