@@ -15,6 +15,16 @@
 namespace e2d
 {
     //
+    // library_cancelled_exception
+    //
+
+    class library_cancelled_exception : public exception {
+        const char* what() const noexcept override {
+            return "library cancelled exception";
+        }
+    };
+
+    //
     // loading_asset_base
     //
 
@@ -28,7 +38,8 @@ namespace e2d
         loading_asset_base() = default;
         virtual ~loading_asset_base() noexcept = default;
 
-        virtual const str& main_address() const noexcept = 0;
+        virtual void cancel() noexcept = 0;
+        virtual str_hash address() const noexcept = 0;
     };
 
     //
@@ -41,13 +52,15 @@ namespace e2d
         using ptr = intrusive_ptr<loading_asset>;
         using promise_type = typename Asset::load_async_result;
     public:
-        loading_asset(str_view address, promise_type promise);
+        loading_asset(str_hash address, promise_type promise);
         ~loading_asset() noexcept override = default;
 
-        const str& main_address() const noexcept override;
+        void cancel() noexcept override;
+        str_hash address() const noexcept override;
+
         const promise_type& promise() const noexcept;
     private:
-        str main_address_;
+        str_hash address_;
         promise_type promise_;
     };
 
@@ -57,11 +70,14 @@ namespace e2d
 
     class library final : public module<library> {
     public:
-        library(const url& root);
+        library(const url& root, deferrer& deferrer);
         ~library() noexcept final;
 
         const url& root() const noexcept;
+        const asset_cache& cache() const noexcept;
+
         std::size_t unload_unused_assets() noexcept;
+        std::size_t loading_asset_count() const noexcept;
 
         template < typename Asset >
         typename Asset::load_result load_main_asset(str_view address) const;
@@ -77,16 +93,22 @@ namespace e2d
     private:
         template < typename Asset >
         vector<loading_asset_base_iptr>::iterator
-        find_loading_asset_iter_(const str& main_address) const noexcept;
+        find_loading_asset_iter_(str_hash address) const noexcept;
 
         template < typename Asset >
         typename loading_asset<Asset>::ptr
-        find_loading_asset_(const str& main_address) const noexcept;
+        find_loading_asset_(str_hash address) const noexcept;
 
         template < typename Asset >
-        void remove_loading_asset_(const str& main_address) const noexcept;
+        void remove_loading_asset_(str_hash address) const noexcept;
+
+        void cancel_all_loading_assets_() noexcept;
     private:
         url root_;
+        deferrer& deferrer_;
+        std::atomic<bool> cancelled_{false};
+    private:
+        mutable asset_cache cache_;
         mutable std::recursive_mutex mutex_;
         mutable vector<loading_asset_base_iptr> loading_assets_;
     };
@@ -99,12 +121,6 @@ namespace e2d
     public:
         asset_group() = default;
         ~asset_group() noexcept = default;
-
-        asset_group(asset_group&& other) noexcept = default;
-        asset_group& operator=(asset_group&& other) noexcept = default;
-
-        asset_group(const asset_group& other) = default;
-        asset_group& operator=(const asset_group& other) = default;
 
         template < typename Iter >
         asset_group& add_assets(Iter first, Iter last);
@@ -165,12 +181,6 @@ namespace e2d
     public:
         asset_dependencies() = default;
         ~asset_dependencies() noexcept = default;
-
-        asset_dependencies(asset_dependencies&& other) noexcept = default;
-        asset_dependencies& operator=(asset_dependencies&& other) noexcept = default;
-
-        asset_dependencies(const asset_dependencies& other) = default;
-        asset_dependencies& operator=(const asset_dependencies& other) = default;
 
         template < typename Asset >
         asset_dependencies& add_dependency(str_view address);

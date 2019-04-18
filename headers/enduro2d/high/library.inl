@@ -18,13 +18,18 @@ namespace e2d
     //
 
     template < typename Asset >
-    loading_asset<Asset>::loading_asset(str_view address, promise_type promise)
-    : main_address_(address::parent(address))
+    loading_asset<Asset>::loading_asset(str_hash address, promise_type promise)
+    : address_(address)
     , promise_(std::move(promise)) {}
 
     template < typename Asset >
-    const str& loading_asset<Asset>::main_address() const noexcept {
-        return main_address_;
+    void loading_asset<Asset>::cancel() noexcept {
+        promise_.reject(library_cancelled_exception());
+    }
+
+    template < typename Asset >
+    str_hash loading_asset<Asset>::address() const noexcept {
+        return address_;
     }
 
     template < typename Asset >
@@ -36,46 +41,75 @@ namespace e2d
     // library
     //
 
+    inline library::library(const url& root, deferrer& deferrer)
+    : root_(root)
+    , deferrer_(deferrer) {}
+
+    inline library::~library() noexcept {
+        std::unique_lock<std::recursive_mutex> lock(mutex_);
+        cancelled_.store(true);
+        cancel_all_loading_assets_();
+    }
+
+    inline const url& library::root() const noexcept {
+        return root_;
+    }
+
+    inline const asset_cache& library::cache() const noexcept {
+        return cache_;
+    }
+
+    inline std::size_t library::unload_unused_assets() noexcept {
+        return cache_.unload_unused_assets();
+    }
+
+    inline std::size_t library::loading_asset_count() const noexcept {
+        std::lock_guard<std::recursive_mutex> guard(mutex_);
+        return loading_assets_.size();
+    }
+
     template < typename Asset >
     typename Asset::load_result library::load_main_asset(str_view address) const {
         auto p = load_main_asset_async<Asset>(address);
-
-        if ( modules::is_initialized<deferrer>() ) {
-            the<deferrer>().active_safe_wait_promise(p);
-        }
-
+        deferrer_.active_safe_wait_promise(p);
         return p.get_or_default(nullptr);
     }
 
     template < typename Asset >
     typename Asset::load_async_result library::load_main_asset_async(str_view address) const {
+        if ( cancelled_ ) {
+            return stdex::make_rejected_promise<typename Asset::load_result>(library_cancelled_exception());
+        }
+
         const str main_address = address::parent(address);
         const str_hash main_address_hash = make_hash(main_address);
 
         std::lock_guard<std::recursive_mutex> guard(mutex_);
 
-        if ( modules::is_initialized<asset_cache<Asset>>() ) {
-            if ( auto cached_asset = the<asset_cache<Asset>>().find(main_address_hash) ) {
-                return stdex::make_resolved_promise(std::move(cached_asset));
-            }
+        if ( auto cached_asset = cache_.find<Asset>(main_address_hash) ) {
+            return stdex::make_resolved_promise(std::move(cached_asset));
         }
 
-        if ( auto asset = find_loading_asset_<Asset>(main_address) )  {
+        if ( auto asset = find_loading_asset_<Asset>(main_address_hash) )  {
             return asset->promise();
         }
 
         auto p = Asset::load_async(*this, main_address)
         .then([
             this,
-            main_address,
             main_address_hash
         ](const typename Asset::load_result& new_asset){
             std::lock_guard<std::recursive_mutex> guard(mutex_);
-            if ( modules::is_initialized<asset_cache<Asset>>() ) {
-                the<asset_cache<Asset>>().store(main_address_hash, new_asset);
-            }
-            remove_loading_asset_<Asset>(main_address);
+            cache_.store<Asset>(main_address_hash, new_asset);
+            remove_loading_asset_<Asset>(main_address_hash);
             return new_asset;
+        }).except([
+            this,
+            main_address_hash
+        ](std::exception_ptr e) -> typename Asset::load_result {
+            std::lock_guard<std::recursive_mutex> guard(mutex_);
+            remove_loading_asset_<Asset>(main_address_hash);
+            std::rethrow_exception(e);
         });
 
         loading_assets_.push_back(new loading_asset<Asset>(address, p));
@@ -85,11 +119,7 @@ namespace e2d
     template < typename Asset, typename Nested >
     typename Nested::load_result library::load_asset(str_view address) const {
         auto p = load_asset_async<Asset, Nested>(address);
-
-        if ( modules::is_initialized<deferrer>() ) {
-            the<deferrer>().active_safe_wait_promise(p);
-        }
-
+        deferrer_.active_safe_wait_promise(p);
         return p.get_or_default(nullptr);
     }
 
@@ -111,30 +141,37 @@ namespace e2d
 
     template < typename Asset >
     vector<loading_asset_base_iptr>::iterator
-    library::find_loading_asset_iter_(const str& main_address) const noexcept {
+    library::find_loading_asset_iter_(str_hash address) const noexcept {
         return std::find_if(
             loading_assets_.begin(), loading_assets_.end(),
-            [&main_address](const loading_asset_base_iptr& asset) noexcept {
-                return asset->main_address() == main_address
+            [address](const loading_asset_base_iptr& asset) noexcept {
+                return asset->address() == address
                     && dynamic_pointer_cast<loading_asset<Asset>>(asset);
             });
     }
 
     template < typename Asset >
     typename loading_asset<Asset>::ptr
-    library::find_loading_asset_(const str& main_address) const noexcept {
-        auto iter = find_loading_asset_iter_<Asset>(main_address);
+    library::find_loading_asset_(str_hash address) const noexcept {
+        auto iter = find_loading_asset_iter_<Asset>(address);
         return iter != loading_assets_.end()
             ? static_pointer_cast<loading_asset<Asset>>(*iter)
             : nullptr;
     }
 
     template < typename Asset >
-    void library::remove_loading_asset_(const str& main_address) const noexcept {
-        auto iter = find_loading_asset_iter_<Asset>(main_address);
+    void library::remove_loading_asset_(str_hash address) const noexcept {
+        auto iter = find_loading_asset_iter_<Asset>(address);
         if ( iter != loading_assets_.end() ) {
             loading_assets_.erase(iter);
         }
+    }
+
+    inline void library::cancel_all_loading_assets_() noexcept {
+        for ( const auto& asset : loading_assets_ ) {
+            asset->cancel();
+        }
+        loading_assets_.clear();
     }
 
     //

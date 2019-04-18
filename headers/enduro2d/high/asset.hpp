@@ -78,41 +78,57 @@ namespace e2d
 
     class asset_cache_base : private noncopyable {
     public:
-        asset_cache_base();
-        virtual ~asset_cache_base() noexcept;
+        asset_cache_base() = default;
+        virtual ~asset_cache_base() noexcept = default;
 
-        static std::size_t unload_all_unused_assets() noexcept;
-        virtual std::size_t unload_self_unused_assets() noexcept = 0;
+        virtual std::size_t asset_count() const noexcept = 0;
+        virtual std::size_t unload_unused_assets() noexcept = 0;
+    };
+
+    //
+    // typed_asset_cache
+    //
+
+    template < typename Asset >
+    class typed_asset_cache : public asset_cache_base {
+    public:
+        using asset_ptr = typename Asset::ptr;
+    public:
+        typed_asset_cache() = default;
+        ~typed_asset_cache() noexcept final = default;
+
+        asset_ptr find(str_hash address) const noexcept;
+        void store(str_hash address, const asset_ptr& asset);
+
+        std::size_t asset_count() const noexcept override;
+        std::size_t unload_unused_assets() noexcept override;
     private:
-        static std::mutex mutex_;
-        static hash_set<asset_cache_base*> caches_;
+        hash_map<str_hash, asset_ptr> assets_;
     };
 
     //
     // asset_cache
     //
 
-    template < typename Asset >
-    class asset_cache
-        : public asset_cache_base
-        , public module<asset_cache<Asset>> {
+    class asset_cache final {
     public:
-        using asset_ptr = typename Asset::ptr;
-    public:
-        asset_cache(library& l);
-        ~asset_cache() noexcept final = default;
+        asset_cache() = default;
+        ~asset_cache() noexcept = default;
 
-        asset_ptr find(str_hash address) const noexcept;
-        void store(str_hash address, const asset_ptr& asset);
+        template < typename Asset >
+        void store(str_hash address, const typename Asset::ptr& asset);
 
-        void clear() noexcept;
+        template < typename Asset >
+        typename Asset::ptr find(str_hash address) const noexcept;
+
+        template < typename Asset >
+        std::size_t asset_count() const noexcept;
         std::size_t asset_count() const noexcept;
 
-        std::size_t unload_self_unused_assets() noexcept override;
+        std::size_t unload_unused_assets() noexcept;
     private:
-        library& library_;
-        mutable std::mutex mutex_;
-        hash_map<str_hash, asset_ptr> assets_;
+        using asset_cache_uptr = std::unique_ptr<asset_cache_base>;
+        hash_map<utils::type_family_id, asset_cache_uptr> caches_;
     };
 }
 
