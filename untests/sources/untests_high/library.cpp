@@ -22,11 +22,37 @@ namespace
             modules::shutdown<starter>();
         }
     };
+
+    class fake_asset final : public content_asset<fake_asset, int> {
+    public:
+        static load_async_result load_async(const library& library, str_view address) {
+            E2D_UNUSED(library, address);
+            return stdex::make_resolved_promise(fake_asset::create(42));
+        }
+    };
+
+    class big_fake_asset final : public content_asset<big_fake_asset, int> {
+    public:
+        static load_async_result load_async(const library& library, str_view address) {
+            E2D_UNUSED(library, address);
+            return the<deferrer>().do_in_worker_thread([](){
+                std::this_thread::sleep_for(std::chrono::milliseconds(10));
+                return big_fake_asset::create(42);
+            });
+        }
+    };
 }
 
 TEST_CASE("library"){
     safe_starter_initializer initializer;
     library& l = the<library>();
+    {
+        {
+            auto p = l.load_asset_async<fake_asset>("");
+            REQUIRE(l.loading_asset_count() == 0);
+        }
+        REQUIRE(1u == l.unload_unused_assets());
+    }
     {
         binary_asset::ptr b1;
         binary_asset::ptr b2;
@@ -52,13 +78,12 @@ TEST_CASE("library"){
     }
     {
         {
-            auto p1 = l.load_asset_async<binary_asset>("binary_asset.bin");
+            auto p1 = l.load_asset_async<big_fake_asset>("");
             REQUIRE(l.loading_asset_count() == 1);
             the<deferrer>().active_safe_wait_promise(p1);
             REQUIRE(l.loading_asset_count() == 0);
 
             auto p2 = l.load_asset_async<binary_asset>("none_asset");
-            REQUIRE(l.loading_asset_count() == 1);
             the<deferrer>().active_safe_wait_promise(p2);
             REQUIRE(l.loading_asset_count() == 0);
         }
