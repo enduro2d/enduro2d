@@ -112,7 +112,11 @@ namespace e2d
             std::rethrow_exception(e);
         });
 
-        loading_assets_.push_back(new loading_asset<Asset>(main_address_hash, p));
+        const auto zero_us = time::to_chrono(make_microseconds(0));
+        if ( p.wait_for(zero_us) == stdex::promise_wait_status::timeout ) {
+            loading_assets_.push_back(new loading_asset<Asset>(main_address_hash, p));
+        }
+
         return p;
     }
 
