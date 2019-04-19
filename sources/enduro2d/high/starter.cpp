@@ -9,19 +9,6 @@
 #include <enduro2d/high/world.hpp>
 #include <enduro2d/high/library.hpp>
 
-#include <enduro2d/high/assets/atlas_asset.hpp>
-#include <enduro2d/high/assets/binary_asset.hpp>
-#include <enduro2d/high/assets/flipbook_asset.hpp>
-#include <enduro2d/high/assets/image_asset.hpp>
-#include <enduro2d/high/assets/material_asset.hpp>
-#include <enduro2d/high/assets/mesh_asset.hpp>
-#include <enduro2d/high/assets/model_asset.hpp>
-#include <enduro2d/high/assets/shader_asset.hpp>
-#include <enduro2d/high/assets/shape_asset.hpp>
-#include <enduro2d/high/assets/sprite_asset.hpp>
-#include <enduro2d/high/assets/text_asset.hpp>
-#include <enduro2d/high/assets/texture_asset.hpp>
-
 #include <enduro2d/high/systems/flipbook_system.hpp>
 #include <enduro2d/high/systems/render_system.hpp>
 
@@ -128,50 +115,12 @@ namespace e2d
 
     starter::starter(int argc, char *argv[], const parameters& params) {
         safe_module_initialize<engine>(argc, argv, params.engine_params());
-        safe_module_initialize<library>(params.library_root());
-        safe_module_initialize<asset_cache<atlas_asset>>(the<library>());
-        safe_module_initialize<asset_cache<binary_asset>>(the<library>());
-        safe_module_initialize<asset_cache<flipbook_asset>>(the<library>());
-        safe_module_initialize<asset_cache<image_asset>>(the<library>());
-        safe_module_initialize<asset_cache<material_asset>>(the<library>());
-        safe_module_initialize<asset_cache<mesh_asset>>(the<library>());
-        safe_module_initialize<asset_cache<model_asset>>(the<library>());
-        safe_module_initialize<asset_cache<shader_asset>>(the<library>());
-        safe_module_initialize<asset_cache<shape_asset>>(the<library>());
-        safe_module_initialize<asset_cache<sprite_asset>>(the<library>());
-        safe_module_initialize<asset_cache<text_asset>>(the<library>());
-        safe_module_initialize<asset_cache<texture_asset>>(the<library>());
-        safe_module_initialize<asset_factory>()
-            .register_asset<atlas_asset>("atlas")
-            .register_asset<binary_asset>("binary")
-            .register_asset<flipbook_asset>("flipbook")
-            .register_asset<image_asset>("image")
-            .register_asset<material_asset>("material")
-            .register_asset<mesh_asset>("mesh")
-            .register_asset<model_asset>("model")
-            .register_asset<shader_asset>("shader")
-            .register_asset<shape_asset>("shape")
-            .register_asset<sprite_asset>("sprite")
-            .register_asset<text_asset>("text")
-            .register_asset<texture_asset>("texture");
+        safe_module_initialize<library>(params.library_root(), the<deferrer>());
         safe_module_initialize<world>();
     }
 
     starter::~starter() noexcept {
         modules::shutdown<world>();
-        modules::shutdown<asset_factory>();
-        modules::shutdown<asset_cache<texture_asset>>();
-        modules::shutdown<asset_cache<text_asset>>();
-        modules::shutdown<asset_cache<sprite_asset>>();
-        modules::shutdown<asset_cache<shape_asset>>();
-        modules::shutdown<asset_cache<shader_asset>>();
-        modules::shutdown<asset_cache<model_asset>>();
-        modules::shutdown<asset_cache<mesh_asset>>();
-        modules::shutdown<asset_cache<material_asset>>();
-        modules::shutdown<asset_cache<image_asset>>();
-        modules::shutdown<asset_cache<flipbook_asset>>();
-        modules::shutdown<asset_cache<binary_asset>>();
-        modules::shutdown<asset_cache<atlas_asset>>();
         modules::shutdown<library>();
         modules::shutdown<engine>();
     }

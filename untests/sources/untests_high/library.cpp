@@ -22,11 +22,74 @@ namespace
             modules::shutdown<starter>();
         }
     };
+
+    class fake_asset final : public content_asset<fake_asset, int> {
+    public:
+        static load_async_result load_async(const library& library, str_view address) {
+            E2D_UNUSED(library, address);
+            return stdex::make_resolved_promise(fake_asset::create(42));
+        }
+    };
+
+    class big_fake_asset final : public content_asset<big_fake_asset, int> {
+    public:
+        static load_async_result load_async(const library& library, str_view address) {
+            E2D_UNUSED(library, address);
+            return the<deferrer>().do_in_worker_thread([](){
+                std::this_thread::sleep_for(std::chrono::milliseconds(10));
+                return big_fake_asset::create(42);
+            });
+        }
+    };
 }
 
 TEST_CASE("library"){
     safe_starter_initializer initializer;
     library& l = the<library>();
+    {
+        {
+            auto p = l.load_asset_async<fake_asset>("");
+            REQUIRE(l.loading_asset_count() == 0);
+        }
+        REQUIRE(1u == l.unload_unused_assets());
+    }
+    {
+        binary_asset::ptr b1;
+        binary_asset::ptr b2;
+
+        {
+            auto p1 = l.load_asset_async<binary_asset>("binary_asset.bin");
+            auto p2 = l.load_asset_async<binary_asset>("binary_asset.bin");
+
+            the<deferrer>().active_safe_wait_promise(p1);
+            the<deferrer>().active_safe_wait_promise(p2);
+
+            b1 = p1.get();
+            b2 = p2.get();
+            REQUIRE(b1 == b2);
+        }
+
+        b1.reset();
+        b2.reset();
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        REQUIRE(1u == l.unload_unused_assets());
+        REQUIRE(l.cache().asset_count<binary_asset>() == 0);
+    }
+    {
+        {
+            auto p1 = l.load_asset_async<big_fake_asset>("");
+            REQUIRE(l.loading_asset_count() == 1);
+            the<deferrer>().active_safe_wait_promise(p1);
+            REQUIRE(l.loading_asset_count() == 0);
+
+            auto p2 = l.load_asset_async<binary_asset>("none_asset");
+            the<deferrer>().active_safe_wait_promise(p2);
+            REQUIRE(l.loading_asset_count() == 0);
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        REQUIRE(1u == l.unload_unused_assets());
+    }
     {
         auto text_res = l.load_asset<text_asset>("text_asset.txt");
         REQUIRE(text_res);
@@ -36,15 +99,17 @@ TEST_CASE("library"){
         REQUIRE(text_res_from_cache);
         REQUIRE(text_res_from_cache.get() == text_res.get());
 
-        REQUIRE(0u == the<asset_cache<text_asset>>().unload_self_unused_assets());
-        REQUIRE(the<asset_cache<text_asset>>().asset_count() == 1);
+        REQUIRE(0u == l.unload_unused_assets());
+        REQUIRE(l.cache().asset_count() == 1);
+        REQUIRE(l.cache().asset_count<text_asset>() == 1);
 
         text_res.reset();
         text_res_from_cache.reset();
 
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
-        REQUIRE(1u == the<asset_cache<text_asset>>().unload_self_unused_assets());
-        REQUIRE(the<asset_cache<text_asset>>().asset_count() == 0);
+        REQUIRE(1u == l.unload_unused_assets());
+        REQUIRE(l.cache().asset_count() == 0);
+        REQUIRE(l.cache().asset_count<text_asset>() == 0);
     }
     {
         auto text_res = l.load_asset<text_asset>("text_asset.txt");
@@ -56,12 +121,14 @@ TEST_CASE("library"){
         REQUIRE(binary_res->content() == buffer("world", 5));
 
         REQUIRE(0u == l.unload_unused_assets());
+        REQUIRE(l.cache().asset_count() == 2);
 
         text_res.reset();
         binary_res.reset();
 
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
         REQUIRE(2u == l.unload_unused_assets());
+        REQUIRE(l.cache().asset_count() == 0);
     }
     {
         auto empty_res = l.load_asset<binary_asset>("empty_asset");
@@ -72,19 +139,19 @@ TEST_CASE("library"){
         REQUIRE(image_res);
         REQUIRE(!image_res->content().empty());
 
-        REQUIRE(the<asset_cache<image_asset>>().find("image.png"));
-        REQUIRE(the<asset_cache<binary_asset>>().find("image.png"));
+        REQUIRE(l.cache().find<image_asset>("image.png"));
+        REQUIRE(l.cache().find<binary_asset>("image.png"));
 
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
-        the<asset_cache<binary_asset>>().unload_self_unused_assets();
-        REQUIRE(the<asset_cache<image_asset>>().find("image.png"));
-        REQUIRE_FALSE(the<asset_cache<binary_asset>>().find("image.png"));
+        l.unload_unused_assets();
+        REQUIRE(l.cache().find<image_asset>("image.png"));
+        REQUIRE_FALSE(l.cache().find<binary_asset>("image.png"));
 
         image_res.reset();
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
-        the<asset_cache<image_asset>>().unload_self_unused_assets();
-        REQUIRE_FALSE(the<asset_cache<image_asset>>().find("image.png"));
-        REQUIRE_FALSE(the<asset_cache<binary_asset>>().find("image.png"));
+        l.unload_unused_assets();
+        REQUIRE_FALSE(l.cache().find<image_asset>("image.png"));
+        REQUIRE_FALSE(l.cache().find<binary_asset>("image.png"));
     }
     {
         if ( modules::is_initialized<render>() ) {
@@ -274,6 +341,42 @@ TEST_CASE("library"){
                 REQUIRE(pass.states().blending().rgb_equation() == render::blending_equation::subtract);
                 REQUIRE(pass.states().blending().alpha_equation() == render::blending_equation::reverse_subtract);
             }
+        }
+    }
+}
+
+TEST_CASE("asset_dependencies") {
+    safe_starter_initializer initializer;
+    library& l = the<library>();
+    {
+        auto ad = asset_dependencies()
+            .add_dependency<text_asset>("text_asset.txt")
+            .add_dependency<binary_asset>("binary_asset.bin");
+        auto g1_p = ad.load_async(l);
+        the<deferrer>().active_safe_wait_promise(g1_p);
+        asset_group g1 = g1_p.get();
+        REQUIRE(g1.find_asset<text_asset>("text_asset.txt"));
+        REQUIRE(g1.find_asset<binary_asset>("binary_asset.bin"));
+
+        ad.add_dependency<text_asset>("none_asset");
+        auto g2_p = ad.load_async(l);
+        the<deferrer>().active_safe_wait_promise(g2_p);
+    }
+    {
+        if ( modules::is_initialized<render>() ) {
+            auto ad = asset_dependencies()
+                .add_dependency<atlas_asset>("atlas.json:/sprite");
+            auto g1_p = ad.load_async(l);
+            the<deferrer>().active_safe_wait_promise(g1_p);
+            asset_group g1 = g1_p.get();
+            REQUIRE(g1.find_asset<atlas_asset>("atlas.json")
+                == l.load_asset<atlas_asset>("atlas.json"));
+            REQUIRE(g1.find_asset<atlas_asset, sprite_asset>("atlas.json:/sprite")
+                == l.load_asset<atlas_asset, sprite_asset>("atlas.json:/sprite"));
+
+            ad.add_dependency<sprite_asset>("atlas.json:/sprite");
+            auto g2_p = ad.load_async(l);
+            the<deferrer>().active_safe_wait_promise(g2_p);
         }
     }
 }
