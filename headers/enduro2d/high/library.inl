@@ -112,7 +112,7 @@ namespace e2d
             std::rethrow_exception(e);
         });
 
-        loading_assets_.push_back(new loading_asset<Asset>(address, p));
+        loading_assets_.push_back(new loading_asset<Asset>(main_address_hash, p));
         return p;
     }
 
