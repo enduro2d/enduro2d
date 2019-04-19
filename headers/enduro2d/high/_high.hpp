@@ -55,6 +55,8 @@ namespace e2d
     class asset_group;
     class asset_dependencies;
 
+    class component_factory;
+
     class atlas;
     class flipbook;
     class gobject;

@@ -46,7 +46,7 @@ namespace e2d
     , deferrer_(deferrer) {}
 
     inline library::~library() noexcept {
-        std::unique_lock<std::recursive_mutex> lock(mutex_);
+        std::lock_guard<std::recursive_mutex> guard(mutex_);
         cancelled_.store(true);
         cancel_all_loading_assets_();
     }
@@ -271,7 +271,7 @@ namespace e2d
         return *this;
     }
 
-    inline stdex::promise<asset_group> asset_dependencies::load_async(const library& library) {
+    inline stdex::promise<asset_group> asset_dependencies::load_async(const library& library) const {
         vector<stdex::promise<std::pair<str, asset_ptr>>> promises;
         promises.reserve(dependencies_.size());
         std::transform(

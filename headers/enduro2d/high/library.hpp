@@ -184,7 +184,7 @@ namespace e2d
 
         template < typename Asset >
         asset_dependencies& add_dependency(str_view address);
-        stdex::promise<asset_group> load_async(const library& library);
+        stdex::promise<asset_group> load_async(const library& library) const;
     private:
         vector<asset_dependency_base_iptr> dependencies_;
     };
