@@ -6,10 +6,15 @@
 
 #pragma once
 
-#include <enduro2d/high/_high.hpp>
+#include "_utils.hpp"
 
 #include <3rdparty/rapidjson/schema.h>
 #include <3rdparty/rapidjson/document.h>
+
+namespace e2d { namespace json_utils
+{
+    void add_common_schema_definitions(rapidjson::Document& schema);
+}}
 
 namespace e2d { namespace json_utils
 {
@@ -46,8 +51,6 @@ namespace e2d { namespace json_utils
     bool try_parse_value(const rapidjson::Value& root, str16& s) noexcept;
     bool try_parse_value(const rapidjson::Value& root, str32& s) noexcept;
     bool try_parse_value(const rapidjson::Value& root, str_hash& s) noexcept;
-
-    void add_common_schema_definitions(rapidjson::Document& schema);
 }}
 
 namespace e2d { namespace json_utils
@@ -65,10 +68,10 @@ namespace e2d { namespace json_utils
         std::is_integral<T>::value &&
         std::is_signed<T>::value, bool>
     try_parse_value(const rapidjson::Value& root, T& v) noexcept {
-        if ( !root.IsNumber() || !root.IsInt() ) {
+        if ( !root.IsNumber() || !root.IsInt64() ) {
             return false;
         }
-        const auto iv = root.GetInt();
+        const auto iv = root.GetInt64();
         if ( iv < std::numeric_limits<T>::min() ) {
             return false;
         }
@@ -84,11 +87,17 @@ namespace e2d { namespace json_utils
         std::is_integral<T>::value &&
         std::is_unsigned<T>::value, bool>
     try_parse_value(const rapidjson::Value& root, T& v) noexcept {
-        i32 iv{0};
-        if ( !try_parse_value(root, iv) || iv < 0 ) {
+        if ( !root.IsNumber() || !root.IsUint64() ) {
             return false;
         }
-        v = math::numeric_cast<T>(iv);
+        const auto uv = root.GetUint64();
+        if ( uv < std::numeric_limits<T>::min() ) {
+            return false;
+        }
+        if ( uv > std::numeric_limits<T>::max() ) {
+            return false;
+        }
+        v = math::numeric_cast<T>(uv);
         return true;
     }
 
@@ -111,10 +120,7 @@ namespace e2d { namespace json_utils
         try_parse_value(
             std::declval<const rapidjson::Value&>(),
             std::declval<T&>()));
-}}
 
-namespace e2d { namespace json_utils
-{
     template < typename T >
     std::enable_if_t<
         stdex::is_detected<json_utils::has_try_parse_value, T>::value,

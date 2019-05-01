@@ -6,7 +6,7 @@
 
 #include <enduro2d/high/assets/sprite_asset.hpp>
 
-#include "json_asset.hpp"
+#include <enduro2d/high/assets/json_asset.hpp>
 #include <enduro2d/high/assets/atlas_asset.hpp>
 #include <enduro2d/high/assets/texture_asset.hpp>
 

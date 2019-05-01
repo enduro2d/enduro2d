@@ -4,8 +4,7 @@
  * Copyright (C) 2018-2019, by Matvey Cherevko (blackmatov@gmail.com)
  ******************************************************************************/
 
-#include "xml_asset.hpp"
-
+#include <enduro2d/high/assets/xml_asset.hpp>
 #include <enduro2d/high/assets/text_asset.hpp>
 
 namespace

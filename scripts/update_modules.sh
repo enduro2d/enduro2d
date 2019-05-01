@@ -53,11 +53,11 @@ cp -rfv $MODULES_DIR/promise.hpp/jobber.hpp $HEADERS_RDPARTY_DIR/promise.hpp/job
 cp -rfv $MODULES_DIR/promise.hpp/promise.hpp $HEADERS_RDPARTY_DIR/promise.hpp/promise.hpp
 cp -rfv $MODULES_DIR/promise.hpp/scheduler.hpp $HEADERS_RDPARTY_DIR/promise.hpp/scheduler.hpp
 
-mkdir -p $SOURCES_RDPARTY_DIR/pugixml
-cp -rfv $MODULES_DIR/pugixml/src/. $SOURCES_RDPARTY_DIR/pugixml/
+mkdir -p $HEADERS_RDPARTY_DIR/pugixml
+cp -rfv $MODULES_DIR/pugixml/src/. $HEADERS_RDPARTY_DIR/pugixml/
 
-mkdir -p $SOURCES_RDPARTY_DIR/rapidjson
-cp -rfv $MODULES_DIR/rapidjson/include/rapidjson/. $SOURCES_RDPARTY_DIR/rapidjson
+mkdir -p $HEADERS_RDPARTY_DIR/rapidjson
+cp -rfv $MODULES_DIR/rapidjson/include/rapidjson/. $HEADERS_RDPARTY_DIR/rapidjson
 
 mkdir -p $SOURCES_RDPARTY_DIR/stb
 cp -fv $MODULES_DIR/stb/stb_image.h $SOURCES_RDPARTY_DIR/stb/stb_image.h

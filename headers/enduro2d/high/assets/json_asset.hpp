@@ -6,15 +6,14 @@
 
 #pragma once
 
-#include <enduro2d/high/library.hpp>
+#include "../_high.hpp"
 
-#include "xml_utils.hpp"
+#include "../library.hpp"
 
 namespace e2d
 {
-    class xml_asset final : public content_asset<xml_asset, pugi::xml_document> {
+    class json_asset final : public content_asset<json_asset, rapidjson::Document> {
     public:
-        using content_asset<xml_asset, pugi::xml_document>::content_asset;
         static load_async_result load_async(const library& library, str_view address);
     };
 }

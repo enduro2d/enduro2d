@@ -4,7 +4,11 @@
  * Copyright (C) 2018-2019, by Matvey Cherevko (blackmatov@gmail.com)
  ******************************************************************************/
 
-#include "json_utils.hpp"
+#include <enduro2d/utils/json_utils.hpp>
+
+#include <enduro2d/utils/color.hpp>
+#include <enduro2d/utils/color32.hpp>
+#include <enduro2d/utils/strings.hpp>
 
 namespace
 {
@@ -193,7 +197,6 @@ namespace
         if ( !defs_doc ) {
             rapidjson::Document doc;
             if ( doc.Parse(common_schema_definitions_source).HasParseError() ) {
-                the<debug>().error("JSON_UTILS: Failed to parse common schema definitions");
                 throw json_utils_exception();
             }
             defs_doc = std::make_unique<rapidjson::Document>(std::move(doc));
@@ -201,6 +204,15 @@ namespace
 
         return *defs_doc;
     }
+}
+
+namespace
+{
+    using namespace e2d;
+
+    //
+    // vec
+    //
 
     template < std::size_t N, typename V, typename FV >
     bool parse_vN(const rapidjson::Value& root, V& v, FV&& f) noexcept {
@@ -239,6 +251,26 @@ namespace
         return false;
     }
 
+    template < u32 N, typename V >
+    bool parse_vNi(const rapidjson::Value& root, V& v) noexcept {
+        return parse_vN<N>(root, v, [](const rapidjson::Value& jv){
+            E2D_ASSERT(jv.IsNumber());
+            return jv.GetInt();
+        });
+    }
+
+    template < u32 N, typename V >
+    bool parse_vNf(const rapidjson::Value& root, V& v) noexcept {
+        return parse_vN<N>(root, v, [](const rapidjson::Value& jv){
+            E2D_ASSERT(jv.IsNumber());
+            return jv.GetFloat();
+        });
+    }
+
+    //
+    // mat
+    //
+
     template < std::size_t N, typename V, typename FV >
     bool parse_mN(const rapidjson::Value& root, V& v, FV&& f) noexcept {
         if ( root.IsArray() ) {
@@ -267,6 +299,18 @@ namespace
         }
         return false;
     }
+
+    template < u32 N, typename V >
+    bool parse_mNf(const rapidjson::Value& root, V& v) noexcept {
+        return parse_mN<N>(root, v, [](const rapidjson::Value& jv){
+            E2D_ASSERT(jv.IsNumber());
+            return jv.GetFloat();
+        });
+    }
+
+    //
+    // rect
+    //
 
     template < typename V, typename FV >
     bool parse_b2(const rapidjson::Value& root, rect<V>& b, FV&& f) {
@@ -311,6 +355,26 @@ namespace
         return false;
     }
 
+    template < typename B >
+    bool parse_b2i(const rapidjson::Value& root, B& b) noexcept {
+        return parse_b2(root, b, [](const rapidjson::Value& jv){
+            E2D_ASSERT(jv.IsNumber());
+            return jv.GetInt();
+        });
+    }
+
+    template < typename B >
+    bool parse_b2f(const rapidjson::Value& root, B& b) noexcept {
+        return parse_b2(root, b, [](const rapidjson::Value& jv){
+            E2D_ASSERT(jv.IsNumber());
+            return jv.GetFloat();
+        });
+    }
+
+    //
+    // aabb
+    //
+
     template < typename V, typename FV >
     bool parse_b3(const rapidjson::Value& root, aabb<V>& b, FV&& f) {
         if ( root.IsObject() ) {
@@ -354,6 +418,26 @@ namespace
         return false;
     }
 
+    template < typename B >
+    bool parse_b3i(const rapidjson::Value& root, B& b) noexcept {
+        return parse_b3(root, b, [](const rapidjson::Value& jv){
+            E2D_ASSERT(jv.IsNumber());
+            return jv.GetInt();
+        });
+    }
+
+    template < typename B >
+    bool parse_b3f(const rapidjson::Value& root, B& b) noexcept {
+        return parse_b3(root, b, [](const rapidjson::Value& jv){
+            E2D_ASSERT(jv.IsNumber());
+            return jv.GetFloat();
+        });
+    }
+
+    //
+    // color
+    //
+
     bool parse_clr(const rapidjson::Value& root, color& c) {
         if ( root.IsNumber() ) {
             f32 cv = math::clamp(root.GetFloat(), 0.f, 1.f);
@@ -391,6 +475,10 @@ namespace
         return false;
     }
 
+    //
+    // color32
+    //
+
     bool parse_clr(const rapidjson::Value& root, color32& c) {
         if ( root.IsNumber() ) {
             u8 cv = math::numeric_cast<u8>(math::clamp(root.GetInt(), 0, 255));
@@ -427,63 +515,19 @@ namespace
 
         return false;
     }
-
-    template < u32 N, typename V >
-    bool parse_vNi(const rapidjson::Value& root, V& v) noexcept {
-        return parse_vN<N>(root, v, [](const rapidjson::Value& jv){
-            E2D_ASSERT(jv.IsNumber());
-            return jv.GetInt();
-        });
-    }
-
-    template < u32 N, typename V >
-    bool parse_vNf(const rapidjson::Value& root, V& v) noexcept {
-        return parse_vN<N>(root, v, [](const rapidjson::Value& jv){
-            E2D_ASSERT(jv.IsNumber());
-            return jv.GetFloat();
-        });
-    }
-
-    template < u32 N, typename V >
-    bool parse_mNf(const rapidjson::Value& root, V& v) noexcept {
-        return parse_mN<N>(root, v, [](const rapidjson::Value& jv){
-            E2D_ASSERT(jv.IsNumber());
-            return jv.GetFloat();
-        });
-    }
-
-    template < typename B >
-    bool parse_b2i(const rapidjson::Value& root, B& b) noexcept {
-        return parse_b2(root, b, [](const rapidjson::Value& jv){
-            E2D_ASSERT(jv.IsNumber());
-            return jv.GetInt();
-        });
-    }
-
-    template < typename B >
-    bool parse_b2f(const rapidjson::Value& root, B& b) noexcept {
-        return parse_b2(root, b, [](const rapidjson::Value& jv){
-            E2D_ASSERT(jv.IsNumber());
-            return jv.GetFloat();
-        });
-    }
-
-    template < typename B >
-    bool parse_b3i(const rapidjson::Value& root, B& b) noexcept {
-        return parse_b3(root, b, [](const rapidjson::Value& jv){
-            E2D_ASSERT(jv.IsNumber());
-            return jv.GetInt();
-        });
-    }
-
-    template < typename B >
-    bool parse_b3f(const rapidjson::Value& root, B& b) noexcept {
-        return parse_b3(root, b, [](const rapidjson::Value& jv){
-            E2D_ASSERT(jv.IsNumber());
-            return jv.GetFloat();
-        });
-    }
 }
+
+namespace e2d { namespace json_utils
+{
+    void add_common_schema_definitions(rapidjson::Document& schema) {
+        schema.AddMember(
+            "common_definitions",
+            rapidjson::Value(
+                common_schema_definitions(),
+                schema.GetAllocator()).Move(),
+            schema.GetAllocator());
+    }
+}}
 
 namespace e2d { namespace json_utils
 {
@@ -671,14 +715,5 @@ namespace e2d { namespace json_utils
             return false;
         }
         return true;
-    }
-
-    void add_common_schema_definitions(rapidjson::Document& schema) {
-        schema.AddMember(
-            "common_definitions",
-            rapidjson::Value(
-                common_schema_definitions(),
-                schema.GetAllocator()).Move(),
-            schema.GetAllocator());
     }
 }}

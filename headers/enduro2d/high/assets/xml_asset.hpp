@@ -4,13 +4,16 @@
  * Copyright (C) 2018-2019, by Matvey Cherevko (blackmatov@gmail.com)
  ******************************************************************************/
 
-#include "xml_utils.hpp"
+#pragma once
 
-namespace
+#include "../_high.hpp"
+
+#include "../library.hpp"
+
+namespace e2d
 {
-    using namespace e2d;
+    class xml_asset final : public content_asset<xml_asset, pugi::xml_document> {
+    public:
+        static load_async_result load_async(const library& library, str_view address);
+    };
 }
-
-namespace e2d { namespace xml_utils
-{
-}}

@@ -6,15 +6,10 @@
 
 #pragma once
 
-#include <enduro2d/high/library.hpp>
+#include "_utils.hpp"
 
-#include "json_utils.hpp"
+#include <3rdparty/pugixml/pugixml.hpp>
 
-namespace e2d
+namespace e2d { namespace xml_utils
 {
-    class json_asset final : public content_asset<json_asset, rapidjson::Document> {
-    public:
-        using content_asset<json_asset, rapidjson::Document>::content_asset;
-        static load_async_result load_async(const library& library, str_view address);
-    };
-}
+}}

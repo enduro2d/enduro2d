@@ -4,11 +4,12 @@
  * Copyright (C) 2018-2019, by Matvey Cherevko (blackmatov@gmail.com)
  ******************************************************************************/
 
-#pragma once
+#include <enduro2d/utils/xml_utils.hpp>
 
-#include <enduro2d/high/_high.hpp>
-
-#include <3rdparty/pugixml/pugixml.hpp>
+namespace
+{
+    using namespace e2d;
+}
 
 namespace e2d { namespace xml_utils
 {
