@@ -68,10 +68,10 @@ namespace e2d { namespace json_utils
         std::is_integral<T>::value &&
         std::is_signed<T>::value, bool>
     try_parse_value(const rapidjson::Value& root, T& v) noexcept {
-        if ( !root.IsNumber() || !root.IsInt64() ) {
+        if ( !root.IsInt() ) {
             return false;
         }
-        const auto iv = root.GetInt64();
+        const auto iv = root.GetInt();
         if ( iv < std::numeric_limits<T>::min() ) {
             return false;
         }
@@ -87,10 +87,10 @@ namespace e2d { namespace json_utils
         std::is_integral<T>::value &&
         std::is_unsigned<T>::value, bool>
     try_parse_value(const rapidjson::Value& root, T& v) noexcept {
-        if ( !root.IsNumber() || !root.IsUint64() ) {
+        if ( !root.IsUint() ) {
             return false;
         }
-        const auto uv = root.GetUint64();
+        const auto uv = root.GetUint();
         if ( uv < std::numeric_limits<T>::min() ) {
             return false;
         }
@@ -108,7 +108,7 @@ namespace e2d { namespace json_utils
         if ( !root.IsNumber() ) {
             return false;
         }
-        v = math::numeric_cast<T>(root.GetDouble());
+        v = math::numeric_cast<T>(root.GetFloat());
         return true;
     }
 }}
