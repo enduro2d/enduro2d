@@ -15,16 +15,9 @@ function(add_e2d_sample NAME)
     # executable
     #
 
-    add_executable(${SAMPLE_NAME}
-        ${SAMPLE_SOURCES})
-    target_link_libraries(${SAMPLE_NAME}
-        ${E2D_LIBRARIES})
-    target_include_directories(${SAMPLE_NAME}
-        PRIVATE ${E2D_INCLUDE_DIRS})
-    set_target_properties(${SAMPLE_NAME} PROPERTIES
-        CXX_STANDARD 14
-        CXX_STANDARD_REQUIRED YES
-        CXX_EXTENSIONS NO)
+    add_executable(${SAMPLE_NAME} ${SAMPLE_SOURCES})
+    target_link_libraries(${SAMPLE_NAME} enduro2d)
+    set_target_properties(${SAMPLE_NAME} PROPERTIES FOLDER samples)
 
     #
     # resources

@@ -102,25 +102,17 @@ file(GLOB_RECURSE E2D_3RDPARTY
 # e2d external 3rd party
 #
 
-find_package(OpenGL REQUIRED)
-find_package(Threads REQUIRED)
-
-if(APPLE)
-    find_library(Cocoa Cocoa)
-    find_library(IOKit IOKit)
-    find_library(CoreVideo CoreVideo)
-    find_library(Foundation Foundation)
-endif(APPLE)
-
 set(glew-cmake_BUILD_SHARED OFF CACHE BOOL "" FORCE)
 set(glew-cmake_BUILD_MULTI_CONTEXT OFF CACHE BOOL "" FORCE)
 add_subdirectory(modules/glew)
+set_target_properties(libglew_static PROPERTIES FOLDER modules)
 
 set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 add_subdirectory(modules/glfw)
+set_target_properties(glfw PROPERTIES FOLDER modules)
 
 #
 # e2d library target
@@ -136,16 +128,15 @@ source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES
     ${E2D_SOURCES}
     ${E2D_3RDPARTY})
 
+target_link_libraries(${PROJECT_NAME}
+  glfw
+  libglew_static)
+
 target_include_directories(${PROJECT_NAME}
-    PRIVATE headers
+    PUBLIC headers
     PRIVATE sources
     PRIVATE modules/glew/include
     PRIVATE modules/glfw/include)
-
-set_target_properties(${PROJECT_NAME} PROPERTIES
-    CXX_STANDARD 14
-    CXX_STANDARD_REQUIRED YES
-    CXX_EXTENSIONS NO)
 
 target_compile_options(${PROJECT_NAME}
     PRIVATE
@@ -155,39 +146,9 @@ target_compile_options(${PROJECT_NAME}
     $<$<OR:$<CXX_COMPILER_ID:GNU>,$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>>:
         -Wall -Wextra -Wpedantic>)
 
-#
-# e2d public variables
-#
+target_compile_features(${PROJECT_NAME}
+    PUBLIC cxx_std_14)
 
-set(E2D_LIBRARIES
-    enduro2d
-    glfw
-    libglew_static
-    ${OPENGL_gl_LIBRARY}
-    ${CMAKE_THREAD_LIBS_INIT})
-
-if(APPLE)
-    list(APPEND E2D_LIBRARIES
-        ${Cocoa}
-        ${IOKit}
-        ${CoreVideo}
-        ${Foundation})
-endif(APPLE)
-
-if(WIN32)
-    list(APPEND E2D_LIBRARIES
-        winmm.lib)
-endif(WIN32)
-
-set(E2D_INCLUDE_DIRS
-    ${CMAKE_CURRENT_SOURCE_DIR}/headers)
-
-get_directory_property(E2D_PARENT_DIRECTORY
-    PARENT_DIRECTORY)
-if(E2D_PARENT_DIRECTORY)
-    set(E2D_LIBRARIES ${E2D_LIBRARIES} PARENT_SCOPE)
-    set(E2D_INCLUDE_DIRS ${E2D_INCLUDE_DIRS} PARENT_SCOPE)
-endif(E2D_PARENT_DIRECTORY)
 
 #
 # subdirectories
