@@ -15,16 +15,9 @@ function(add_e2d_tests NAME)
     # executable
     #
 
-    add_executable(${TESTS_NAME}
-        ${TESTS_SOURCES})
-    target_link_libraries(${TESTS_NAME}
-        ${E2D_LIBRARIES})
-    target_include_directories(${TESTS_NAME}
-        PRIVATE ${E2D_INCLUDE_DIRS})
-    set_target_properties(${TESTS_NAME} PROPERTIES
-        CXX_STANDARD 14
-        CXX_STANDARD_REQUIRED YES
-        CXX_EXTENSIONS NO)
+    add_executable(${TESTS_NAME} ${TESTS_SOURCES})
+    target_link_libraries(${TESTS_NAME} enduro2d)
+    set_target_properties(${TESTS_NAME} PROPERTIES FOLDER untests)
 
     #
     # resources
