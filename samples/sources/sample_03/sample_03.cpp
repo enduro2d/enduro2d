@@ -82,50 +82,50 @@ namespace
                 return false;
             }
 
-            ecs::entity scene_e = the<world>().registry().create_entity();
+            auto scene_i = the<world>().instantiate();
 
-            ecs::entity_filler(scene_e)
+            scene_i->entity_filler()
                 .component<scene>()
-                .component<actor>(node::create(scene_e));
+                .component<actor>(node::create(scene_i));
 
-            node_iptr scene_r = scene_e.get_component<actor>().node();
+            node_iptr scene_r = scene_i->get_component<actor>().get().node();
 
             {
-                ecs::entity model_e = the<world>().registry().create_entity();
+                auto model_i = the<world>().instantiate();
 
-                ecs::entity_filler(model_e)
+                model_i->entity_filler()
                     .component<rotator>(rotator{v3f::unit_y()})
-                    .component<actor>(node::create(model_e, scene_r))
+                    .component<actor>(node::create(model_i, scene_r))
                     .component<renderer>(renderer()
                         .materials({model_mat}))
                     .component<model_renderer>(model_res);
 
-                node_iptr model_n = model_e.get_component<actor>().node();
+                node_iptr model_n = model_i->get_component<actor>().get().node();
                 model_n->scale(v3f{20.f});
                 model_n->translation(v3f{0.f,50.f,0.f});
             }
 
             {
-                ecs::entity sprite_e = the<world>().registry().create_entity();
+                auto sprite_i = the<world>().instantiate();
 
-                ecs::entity_filler(sprite_e)
+                sprite_i->entity_filler()
                     .component<rotator>(rotator{v3f::unit_z()})
-                    .component<actor>(node::create(sprite_e, scene_r))
+                    .component<actor>(node::create(sprite_i, scene_r))
                     .component<renderer>(renderer()
                         .materials({sprite_mat}))
                     .component<sprite_renderer>(sprite_res);
 
-                node_iptr sprite_n = sprite_e.get_component<actor>().node();
+                node_iptr sprite_n = sprite_i->get_component<actor>().get().node();
                 sprite_n->translation(v3f{0,-50.f,0});
             }
 
             {
                 for ( std::size_t i = 0; i < 2; ++i )
                 for ( std::size_t j = 0; j < 5; ++j ) {
-                    ecs::entity flipbook_e = the<world>().registry().create_entity();
+                    auto flipbook_i = the<world>().instantiate();
 
-                    ecs::entity_filler(flipbook_e)
-                        .component<actor>(node::create(flipbook_e, scene_r))
+                    flipbook_i->entity_filler()
+                        .component<actor>(node::create(flipbook_i, scene_r))
                         .component<renderer>(renderer()
                             .materials({sprite_mat}))
                         .component<sprite_renderer>(sprite_renderer()
@@ -135,7 +135,7 @@ namespace
                             .play("idle")
                             .looped(true));
 
-                    node_iptr flipbook_n = flipbook_e.get_component<actor>().node();
+                    node_iptr flipbook_n = flipbook_i->get_component<actor>().get().node();
                     flipbook_n->scale(v3f(2.f,2.f,1.f));
                     flipbook_n->translation(v3f{-80.f + j * 40.f, -200.f + i * 40.f, 0});
                 }
@@ -145,11 +145,11 @@ namespace
         }
 
         bool create_camera() {
-            ecs::entity camera_e = the<world>().registry().create_entity();
-            ecs::entity_filler(camera_e)
+            auto camera_i = the<world>().instantiate();
+            camera_i->entity_filler()
                 .component<camera>(camera()
                     .background({1.f, 0.4f, 0.f, 1.f}))
-                .component<actor>(node::create(camera_e));
+                .component<actor>(node::create(camera_i));
             return true;
         }
 

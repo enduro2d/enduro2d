@@ -9,47 +9,44 @@
 
 namespace e2d
 {
-    node::node(world& world)
-    : entity_(world.registry().create_entity()) {}
-
-    node::node(const ecs::entity& entity)
-    : entity_(entity) {}
+    node::node(const gobject_iptr& owner)
+    : owner_(owner) {}
 
     node::~node() noexcept {
         E2D_ASSERT(!parent_);
         remove_all_children();
     }
 
-    node_iptr node::create(world& world) {
-        return node_iptr(new node(world));
+    node_iptr node::create() {
+        return node_iptr(new node());
     }
 
-    node_iptr node::create(world& world, const node_iptr& parent) {
-        node_iptr child = create(world);
+    node_iptr node::create(const node_iptr& parent) {
+        node_iptr child = create();
         if ( parent ) {
             parent->add_child(child);
         }
         return child;
     }
 
-    node_iptr node::create(const ecs::entity& entity) {
-        return node_iptr(new node(entity));
+    node_iptr node::create(const gobject_iptr& owner) {
+        return node_iptr(new node(owner));
     }
 
-    node_iptr node::create(const ecs::entity& entity, const node_iptr& parent) {
-        node_iptr child = create(entity);
+    node_iptr node::create(const gobject_iptr& owner, const node_iptr& parent) {
+        node_iptr child = create(owner);
         if ( parent ) {
             parent->add_child(child);
         }
         return child;
     }
 
-    ecs::entity node::entity() noexcept {
-        return entity_;
+    gobject_iptr node::owner() noexcept {
+        return owner_;
     }
 
-    ecs::const_entity node::entity() const noexcept {
-        return entity_;
+    const_gobject_iptr node::owner() const noexcept {
+        return owner_;
     }
 
     void node::transform(const t3f& transform) noexcept {
