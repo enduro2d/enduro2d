@@ -83,8 +83,12 @@ namespace
             }
 
             ecs::entity scene_e = the<world>().registry().create_entity();
-            scene_e.assign_component<scene>(node::create(the<world>()));
-            node_iptr scene_r = scene_e.get_component<scene>().root();
+
+            ecs::entity_filler(scene_e)
+                .component<scene>()
+                .component<actor>(node::create(scene_e));
+
+            node_iptr scene_r = scene_e.get_component<actor>().node();
 
             {
                 ecs::entity model_e = the<world>().registry().create_entity();

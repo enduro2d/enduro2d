@@ -24,7 +24,26 @@ namespace
         "additionalProperties" : false,
         "properties" : {
             "prototype" : { "$ref": "#/common_definitions/address" },
-            "components" : { "type" : "object" }
+            "components" : { "type" : "object" },
+            "children" : {
+                "type" : "array",
+                "items" : { "$ref": "#/definitions/child" }
+            }
+        },
+        "definitions" : {
+            "child" : {
+                "type" : "object",
+                "required" : [],
+                "additionalProperties" : false,
+                "properties" : {
+                    "prototype" : { "$ref": "#/common_definitions/address" },
+                    "components" : { "type" : "object" },
+                    "children" : {
+                        "type" : "array",
+                        "items" : { "$ref": "#/definitions/child" }
+                    }
+                }
+            }
         }
     })json";
 

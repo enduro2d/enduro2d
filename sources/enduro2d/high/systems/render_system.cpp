@@ -64,10 +64,13 @@ namespace
         const auto comp = [](const scene& l, const scene& r) noexcept {
             return l.depth() < r.depth();
         };
-        const auto func = [&ctx](const ecs::const_entity&, const scene& scn) {
-            for_each_by_nodes(scn.root(), [&ctx](const const_node_iptr& node){
-                ctx.draw(node);
-            });
+        const auto func = [&ctx](const ecs::const_entity& scn_e, const scene&) {
+            const actor* scn_a = scn_e.find_component<actor>();
+            if ( scn_a && scn_a->node() ) {
+                for_each_by_nodes(scn_a->node(), [&ctx](const const_node_iptr& node){
+                    ctx.draw(node);
+                });
+            }
         };
         for_each_by_sorted_components<scene>(owner, comp, func);
     }

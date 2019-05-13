@@ -13,7 +13,7 @@
 namespace e2d
 {
     //
-    // bad_dbgui_operation
+    // bad_component_factory_operation
     //
 
     class bad_component_factory_operation final : public exception {
