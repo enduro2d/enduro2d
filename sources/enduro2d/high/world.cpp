@@ -8,8 +8,11 @@
 
 namespace e2d
 {
-    world::world() = default;
-    world::~world() noexcept = default;
+    world::~world() noexcept {
+        while ( !gobjects_.empty() ) {
+            destroy_instance(gobjects_.begin()->second);
+        }
+    }
 
     ecs::registry& world::registry() noexcept {
         return registry_;
@@ -20,27 +23,21 @@ namespace e2d
     }
 
     gobject_iptr world::instantiate() {
-        auto instance = gobject_iptr(new gobject(registry_));
-        intrusive_ptr_add_ref(instance.get());
-        gobjects_.push_back(*instance);
+        auto instance = make_intrusive<gobject>(registry_);
+        gobjects_.emplace(instance->entity().id(), instance);
         return instance;
     }
 
-    gobject_iptr world::instantiate(const prefab_asset::ptr& prefab) {
-        auto instance = prefab
-            ? gobject_iptr(new gobject(registry_, prefab->content().prototype()))
-            : gobject_iptr(new gobject(registry_));
-        intrusive_ptr_add_ref(instance.get());
-        gobjects_.push_back(*instance);
+    gobject_iptr world::instantiate(const prefab& prefab) {
+        auto instance = make_intrusive<gobject>(registry_, prefab.prototype());
+        gobjects_.emplace(instance->entity().id(), instance);
         return instance;
     }
 
-    gobject_iptr world::instantiate(const const_gobject_iptr& source) {
-        auto instance = source
-            ? gobject_iptr(new gobject(registry_, *source))
-            : gobject_iptr(new gobject(registry_));
-        intrusive_ptr_add_ref(instance.get());
-        gobjects_.push_back(*instance);
-        return instance;
+    void world::destroy_instance(const gobject_iptr& inst) noexcept {
+        if ( inst ) {
+            inst->entity().remove_all_components();
+            gobjects_.erase(inst->entity().id());
+        }
     }
 }

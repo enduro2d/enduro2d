@@ -197,7 +197,7 @@ namespace e2d
 
     inline asset_group& asset_group::add_asset(str_view address, const asset_ptr& asset) {
         str main_address = address::parent(address);
-        auto iter = std::upper_bound(
+        const auto iter = std::upper_bound(
             assets_.begin(), assets_.end(), main_address,
             [](const str& l, const auto& r){
                 return l < r.first;

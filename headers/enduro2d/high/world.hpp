@@ -8,8 +8,8 @@
 
 #include "_high.hpp"
 
+#include "prefab.hpp"
 #include "gobject.hpp"
-#include "assets/prefab_asset.hpp"
 
 namespace e2d
 {
@@ -29,17 +29,17 @@ namespace e2d
             priority_render_section_end = 4500
         };
     public:
-        world();
+        world() = default;
         ~world() noexcept final;
 
         ecs::registry& registry() noexcept;
         const ecs::registry& registry() const noexcept;
 
         gobject_iptr instantiate();
-        gobject_iptr instantiate(const prefab_asset::ptr& prefab);
-        gobject_iptr instantiate(const const_gobject_iptr& gobject);
+        gobject_iptr instantiate(const prefab& prefab);
+        void destroy_instance(const gobject_iptr& inst) noexcept;
     private:
         ecs::registry registry_;
-        world_gobjects gobjects_;
+        hash_map<ecs::entity_id, gobject_iptr> gobjects_;
     };
 }
