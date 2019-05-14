@@ -24,6 +24,13 @@ namespace e2d
     };
 
     //
+    // component_loader
+    //
+
+    template < typename Component >
+    class component_loader;
+
+    //
     // component_creator_base
     //
 

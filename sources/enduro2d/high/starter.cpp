@@ -10,14 +10,14 @@
 #include <enduro2d/high/library.hpp>
 #include <enduro2d/high/component.hpp>
 
-#include <enduro2d/high/components/actor.hpp>
-#include <enduro2d/high/components/camera.hpp>
-#include <enduro2d/high/components/flipbook_player.hpp>
-#include <enduro2d/high/components/flipbook_source.hpp>
-#include <enduro2d/high/components/model_renderer.hpp>
-#include <enduro2d/high/components/renderer.hpp>
-#include <enduro2d/high/components/scene.hpp>
-#include <enduro2d/high/components/sprite_renderer.hpp>
+#include <enduro2d/high/components/actor_l.hpp>
+#include <enduro2d/high/components/camera_l.hpp>
+#include <enduro2d/high/components/flipbook_player_l.hpp>
+#include <enduro2d/high/components/flipbook_source_l.hpp>
+#include <enduro2d/high/components/model_renderer_l.hpp>
+#include <enduro2d/high/components/renderer_l.hpp>
+#include <enduro2d/high/components/scene_l.hpp>
+#include <enduro2d/high/components/sprite_renderer_l.hpp>
 
 #include <enduro2d/high/systems/flipbook_system.hpp>
 #include <enduro2d/high/systems/render_system.hpp>
