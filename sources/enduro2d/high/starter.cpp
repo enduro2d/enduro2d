@@ -8,6 +8,16 @@
 
 #include <enduro2d/high/world.hpp>
 #include <enduro2d/high/library.hpp>
+#include <enduro2d/high/component.hpp>
+
+#include <enduro2d/high/components/actor.hpp>
+#include <enduro2d/high/components/camera.hpp>
+#include <enduro2d/high/components/flipbook_player.hpp>
+#include <enduro2d/high/components/flipbook_source.hpp>
+#include <enduro2d/high/components/model_renderer.hpp>
+#include <enduro2d/high/components/renderer.hpp>
+#include <enduro2d/high/components/scene.hpp>
+#include <enduro2d/high/components/sprite_renderer.hpp>
 
 #include <enduro2d/high/systems/flipbook_system.hpp>
 #include <enduro2d/high/systems/render_system.hpp>
@@ -115,6 +125,15 @@ namespace e2d
 
     starter::starter(int argc, char *argv[], const parameters& params) {
         safe_module_initialize<engine>(argc, argv, params.engine_params());
+        safe_module_initialize<component_factory>()
+            .register_component<actor>("actor")
+            .register_component<camera>("camera")
+            .register_component<flipbook_player>("flipbook_player")
+            .register_component<flipbook_source>("flipbook_source")
+            .register_component<model_renderer>("model_renderer")
+            .register_component<renderer>("renderer")
+            .register_component<scene>("scene")
+            .register_component<sprite_renderer>("sprite_renderer");
         safe_module_initialize<library>(params.library_root(), the<deferrer>());
         safe_module_initialize<world>();
     }
@@ -122,6 +141,7 @@ namespace e2d
     starter::~starter() noexcept {
         modules::shutdown<world>();
         modules::shutdown<library>();
+        modules::shutdown<component_factory>();
         modules::shutdown<engine>();
     }
 
