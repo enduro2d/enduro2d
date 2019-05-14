@@ -41,6 +41,10 @@ namespace e2d
         return child;
     }
 
+    void node::owner(const gobject_iptr& owner) noexcept {
+        owner_ = owner;
+    }
+
     gobject_iptr node::owner() noexcept {
         return owner_;
     }

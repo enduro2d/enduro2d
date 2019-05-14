@@ -26,15 +26,66 @@ namespace e2d
     }
 
     gobject_iptr world::instantiate() {
-        auto instance = make_intrusive<gobject>(registry_);
-        gobjects_.emplace(instance->entity().id(), instance);
-        return instance;
+        auto inst = make_intrusive<gobject>(registry_);
+        gobjects_.emplace(inst->entity().id(), inst);
+
+        try {
+            auto inst_a = inst->get_component<actor>();
+            if ( !inst_a.exists() ) {
+                inst_a.assign(node::create(inst));
+            }
+            if ( !inst_a.get().node() ) {
+                inst_a.get().node(node::create(inst));
+            }
+            if ( inst_a.get().node()->owner() != inst ) {
+                inst_a.get().node()->owner(inst);
+            }
+        } catch (...) {
+            destroy_instance(inst, true);
+            throw;
+        }
+
+        return inst;
     }
 
     gobject_iptr world::instantiate(const prefab& prefab) {
-        auto instance = make_intrusive<gobject>(registry_, prefab.prototype());
-        gobjects_.emplace(instance->entity().id(), instance);
-        return instance;
+        auto inst = make_intrusive<gobject>(registry_, prefab.prototype());
+        gobjects_.emplace(inst->entity().id(), inst);
+
+        try {
+            auto inst_a = inst->get_component<actor>();
+            if ( !inst_a.exists() ) {
+                inst_a.assign(node::create(inst));
+            }
+            if ( !inst_a.get().node() ) {
+                inst_a.get().node(node::create(inst));
+            }
+            if ( inst_a.get().node()->owner() != inst ) {
+                inst_a.get().node()->owner(inst);
+            }
+        } catch (...) {
+            destroy_instance(inst, true);
+            throw;
+        }
+
+        try {
+            for ( const auto& child_prefab : prefab.children() ) {
+                auto child = instantiate(child_prefab);
+                try {
+                    auto inst_a = inst->get_component<actor>();
+                    auto child_a = child->get_component<actor>();
+                    inst_a.get().node()->add_child(child_a.get().node());
+                } catch (...) {
+                    destroy_instance(child, true);
+                    throw;
+                }
+            }
+        } catch (...) {
+            destroy_instance(inst, true);
+            throw;
+        }
+
+        return inst;
     }
 
     void world::destroy_instance(const gobject_iptr& inst, bool recursive) noexcept {

@@ -29,11 +29,13 @@ namespace e2d
 
     void prefab::clear() noexcept {
         prototype_.clear();
+        children_.clear();
     }
 
     void prefab::swap(prefab& other) noexcept {
         using std::swap;
         swap(prototype_, other.prototype_);
+        swap(children_, other.children_);
     }
 
     prefab& prefab::assign(prefab&& other) noexcept {
@@ -48,6 +50,7 @@ namespace e2d
         if ( this != &other ) {
             prefab s;
             s.prototype_ = other.prototype_;
+            s.children_ = other.children_;
             swap(s);
         }
         return *this;
@@ -63,8 +66,26 @@ namespace e2d
         return *this;
     }
 
+    prefab& prefab::set_children(vector<prefab>&& children) noexcept {
+        children_ = std::move(children);
+        return *this;
+    }
+
+    prefab& prefab::set_children(const vector<prefab>& children) {
+        children_ = children;
+        return *this;
+    }
+
+    ecs::prototype& prefab::prototype() noexcept {
+        return prototype_;
+    }
+
     const ecs::prototype& prefab::prototype() const noexcept {
         return prototype_;
+    }
+
+    const vector<prefab>& prefab::children() const noexcept {
+        return children_;
     }
 }
 
@@ -75,7 +96,8 @@ namespace e2d
     }
 
     bool operator==(const prefab& l, const prefab& r) noexcept {
-        return l.prototype().empty() && r.prototype().empty();
+        return l.prototype().empty() && l.children().empty()
+            && r.prototype().empty() && r.children().empty();
     }
 
     bool operator!=(const prefab& l, const prefab& r) noexcept {

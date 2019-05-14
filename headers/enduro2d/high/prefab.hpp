@@ -30,9 +30,16 @@ namespace e2d
         prefab& set_prototype(ecs::prototype&& proto) noexcept;
         prefab& set_prototype(const ecs::prototype& proto);
 
+        prefab& set_children(vector<prefab>&& children) noexcept;
+        prefab& set_children(const vector<prefab>& children);
+
+        ecs::prototype& prototype() noexcept;
         const ecs::prototype& prototype() const noexcept;
+
+        const vector<prefab>& children() const noexcept;
     private:
         ecs::prototype prototype_;
+        vector<prefab> children_;
     };
 
     void swap(prefab& l, prefab& r) noexcept;
