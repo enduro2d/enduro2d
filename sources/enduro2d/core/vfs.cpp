@@ -327,7 +327,7 @@ namespace e2d
             if ( mz_zip_reader_file_stat(state_->archive.get(), i, &file_stat) ) {
                 const str_view filename{file_stat.m_filename};
                 if ( filename.length() > parent.length() && filename.starts_with(parent) ) {
-                    func(file_stat.m_filename, file_stat.m_is_directory);
+                    func(file_stat.m_filename, !!file_stat.m_is_directory);
                 }
             }
         }
