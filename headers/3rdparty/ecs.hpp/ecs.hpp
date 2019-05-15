@@ -991,6 +991,14 @@ namespace ecs_hpp
 
         T* find() noexcept;
         const T* find() const noexcept;
+
+        T& operator*();
+        const T& operator*() const;
+
+        T* operator->() noexcept;
+        const T* operator->() const noexcept;
+
+        explicit operator bool() const noexcept;
     private:
         entity owner_;
     };
@@ -1047,6 +1055,10 @@ namespace ecs_hpp
 
         const T& get() const;
         const T* find() const noexcept;
+
+        const T& operator*() const;
+        const T* operator->() const noexcept;
+        explicit operator bool() const noexcept;
     private:
         const_entity owner_;
     };
@@ -1690,6 +1702,31 @@ namespace ecs_hpp
     }
 
     template < typename T >
+    T& component<T>::operator*() {
+        return get();
+    }
+
+    template < typename T >
+    const T& component<T>::operator*() const {
+        return get();
+    }
+
+    template < typename T >
+    T* component<T>::operator->() noexcept {
+        return find();
+    }
+
+    template < typename T >
+    const T* component<T>::operator->() const noexcept {
+        return find();
+    }
+
+    template < typename T >
+    component<T>::operator bool() const noexcept {
+        return exists();
+    }
+
+    template < typename T >
     bool operator<(const component<T>& l, const component<T>& r) noexcept {
         return l.owner() < r.owner();
     }
@@ -1749,6 +1786,21 @@ namespace ecs_hpp
     template < typename T >
     const T* const_component<T>::find() const noexcept {
         return detail::as_const(owner_).template find_component<T>();
+    }
+
+    template < typename T >
+    const T& const_component<T>::operator*() const {
+        return get();
+    }
+
+    template < typename T >
+    const T* const_component<T>::operator->() const noexcept {
+        return find();
+    }
+
+    template < typename T >
+    const_component<T>::operator bool() const noexcept {
+        return exists();
     }
 
     template < typename T >
@@ -1862,7 +1914,7 @@ namespace ecs_hpp
         auto applier = std::make_unique<applier_t>(
             std::make_tuple(std::forward<Args>(args)...));
         const auto family = detail::type_family<T>::id();
-        appliers_.emplace(family, std::move(applier));
+        appliers_.insert_or_assign(family, std::move(applier));
         return *this;
     }
 

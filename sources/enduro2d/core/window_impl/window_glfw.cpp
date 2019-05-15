@@ -445,7 +445,7 @@ namespace e2d
             if ( self ) {
                 self->for_all_listeners(
                     &event_listener::on_window_focus,
-                    focused);
+                    !!focused);
             }
         }
 
@@ -454,7 +454,7 @@ namespace e2d
             if ( self ) {
                 self->for_all_listeners(
                     &event_listener::on_window_minimize,
-                    minimized);
+                    !!minimized);
             }
         }
     };
