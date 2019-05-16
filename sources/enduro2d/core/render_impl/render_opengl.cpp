@@ -802,12 +802,12 @@ namespace e2d
         }
 
         bool need_color =
-            utils::enum_to_underlying(external_texture)
-            & utils::enum_to_underlying(render_target::external_texture::color);
+            !!(utils::enum_to_underlying(external_texture)
+            & utils::enum_to_underlying(render_target::external_texture::color));
 
         bool need_depth =
-            utils::enum_to_underlying(external_texture)
-            & utils::enum_to_underlying(render_target::external_texture::depth);
+            !!(utils::enum_to_underlying(external_texture)
+            & utils::enum_to_underlying(render_target::external_texture::depth));
 
         texture_ptr color;
         texture_ptr depth;
@@ -925,14 +925,14 @@ namespace e2d
         E2D_ASSERT(is_in_main_thread());
 
         bool clear_color =
-            utils::enum_to_underlying(command.clear_buffer())
-            & utils::enum_to_underlying(clear_command::buffer::color);
+            !!(utils::enum_to_underlying(command.clear_buffer())
+            & utils::enum_to_underlying(clear_command::buffer::color));
         bool clear_depth =
-            utils::enum_to_underlying(command.clear_buffer())
-            & utils::enum_to_underlying(clear_command::buffer::depth);
+            !!(utils::enum_to_underlying(command.clear_buffer())
+            & utils::enum_to_underlying(clear_command::buffer::depth));
         bool clear_stencil =
-            utils::enum_to_underlying(command.clear_buffer())
-            & utils::enum_to_underlying(clear_command::buffer::stencil);
+            !!(utils::enum_to_underlying(command.clear_buffer())
+            & utils::enum_to_underlying(clear_command::buffer::stencil));
 
         const render_target_ptr& rt = state_->render_target();
         bool has_color = !rt || rt->state().color() || !rt->state().color_rb().empty();
@@ -1012,9 +1012,9 @@ namespace e2d
             case pixel_declaration::pixel_type::depth16:
                 return true;
             case pixel_declaration::pixel_type::depth24:
-                return GLEW_OES_depth24;
+                return !!GLEW_OES_depth24;
             case pixel_declaration::pixel_type::depth32:
-                return GLEW_OES_depth32;
+                return !!GLEW_OES_depth32;
             case pixel_declaration::pixel_type::depth24_stencil8:
                 return GLEW_OES_packed_depth_stencil
                     || GLEW_EXT_packed_depth_stencil;
@@ -1039,10 +1039,10 @@ namespace e2d
             case pixel_declaration::pixel_type::rgb_pvrtc4:
             case pixel_declaration::pixel_type::rgba_pvrtc2:
             case pixel_declaration::pixel_type::rgba_pvrtc4:
-                return GLEW_IMG_texture_compression_pvrtc;
+                return !!GLEW_IMG_texture_compression_pvrtc;
             case pixel_declaration::pixel_type::rgba_pvrtc2_v2:
             case pixel_declaration::pixel_type::rgba_pvrtc4_v2:
-                return GLEW_IMG_texture_compression_pvrtc2;
+                return !!GLEW_IMG_texture_compression_pvrtc2;
             default:
                 E2D_ASSERT_MSG(false, "unexpected pixel type");
                 return false;

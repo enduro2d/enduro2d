@@ -147,7 +147,7 @@ TEST_CASE("buffer") {
         REQUIRE((std::memcmp(b1.data(), "hello world", 11) == 0 && b1.size() == 11));
     }
     {
-    #ifndef E2D_BUILD_WITH_SANITIZER
+    #ifndef E2D_BUILD_WITH_ASAN
         const std::size_t msize = std::numeric_limits<std::size_t>::max();
         REQUIRE_THROWS_AS(buffer(msize), std::bad_alloc);
         REQUIRE_THROWS_AS(buffer(nullptr, msize), std::bad_alloc);

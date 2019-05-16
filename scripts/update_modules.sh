@@ -14,16 +14,14 @@ mkdir -p $UNTESTS_DIR
 mkdir -p $HEADERS_RDPARTY_DIR
 mkdir -p $SOURCES_RDPARTY_DIR
 
-git submodule init
-git submodule update
-git pull --recurse-submodules
-git submodule update --init --remote --recursive
+git submodule update --init --recursive
+git submodule update --remote
 
 mkdir -p $UNTESTS_DIR/catch
 cp -fv $MODULES_DIR/catch2/single_include/catch2/catch.hpp $UNTESTS_DIR/catch/catch.hpp
 
 mkdir -p $HEADERS_RDPARTY_DIR/ecs.hpp
-cp -rfv $MODULES_DIR/ecs.hpp/ecs.hpp $HEADERS_RDPARTY_DIR/ecs.hpp/ecs.hpp
+cp -rfv $MODULES_DIR/ecs.hpp/headers/ecs.hpp/. $HEADERS_RDPARTY_DIR/ecs.hpp/
 
 mkdir -p $SOURCES_RDPARTY_DIR/imgui
 cp -fv $MODULES_DIR/imgui/imgui.cpp $SOURCES_RDPARTY_DIR/imgui/imgui.cpp
@@ -48,16 +46,13 @@ cp -fv $MODULES_DIR/miniz/miniz_zip.c $SOURCES_RDPARTY_DIR/miniz/miniz_zip.c
 cp -fv $MODULES_DIR/miniz/miniz_zip.h $SOURCES_RDPARTY_DIR/miniz/miniz_zip.h
 
 mkdir -p $HEADERS_RDPARTY_DIR/promise.hpp
-cp -rfv $MODULES_DIR/promise.hpp/invoke.hpp $HEADERS_RDPARTY_DIR/promise.hpp/invoke.hpp
-cp -rfv $MODULES_DIR/promise.hpp/jobber.hpp $HEADERS_RDPARTY_DIR/promise.hpp/jobber.hpp
-cp -rfv $MODULES_DIR/promise.hpp/promise.hpp $HEADERS_RDPARTY_DIR/promise.hpp/promise.hpp
-cp -rfv $MODULES_DIR/promise.hpp/scheduler.hpp $HEADERS_RDPARTY_DIR/promise.hpp/scheduler.hpp
+cp -rfv $MODULES_DIR/promise.hpp/headers/promise.hpp/. $HEADERS_RDPARTY_DIR/promise.hpp/
 
 mkdir -p $SOURCES_RDPARTY_DIR/pugixml
 cp -rfv $MODULES_DIR/pugixml/src/. $SOURCES_RDPARTY_DIR/pugixml/
 
 mkdir -p $SOURCES_RDPARTY_DIR/rapidjson
-cp -rfv $MODULES_DIR/rapidjson/include/rapidjson/. $SOURCES_RDPARTY_DIR/rapidjson
+cp -rfv $MODULES_DIR/rapidjson/include/rapidjson/. $SOURCES_RDPARTY_DIR/rapidjson/
 
 mkdir -p $SOURCES_RDPARTY_DIR/stb
 cp -fv $MODULES_DIR/stb/stb_image.h $SOURCES_RDPARTY_DIR/stb/stb_image.h
