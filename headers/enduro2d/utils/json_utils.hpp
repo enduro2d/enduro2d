@@ -34,6 +34,8 @@ namespace e2d { namespace json_utils
     bool try_parse_value(const rapidjson::Value& root, m3f& v) noexcept;
     bool try_parse_value(const rapidjson::Value& root, m4f& v) noexcept;
 
+    bool try_parse_value(const rapidjson::Value& root, q4f& v) noexcept;
+
     bool try_parse_value(const rapidjson::Value& root, b2i& b) noexcept;
     bool try_parse_value(const rapidjson::Value& root, b3i& b) noexcept;
 

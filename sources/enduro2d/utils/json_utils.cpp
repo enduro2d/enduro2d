@@ -114,6 +114,38 @@ namespace
                 "items" : { "type" : "number" }
             }]
         },
+        "q4" : {
+            "anyOf" : [{
+                "type" : "number"
+            }, {
+                "type" : "object",
+                "required" : [ "angle", "axis" ],
+                "additionalProperties" : false,
+                "properties" : {
+                    "angle" : { "type" : "number" },
+                    "axis" : { "$ref": "#/common_definitions/v3" }
+                }
+            }, {
+                "type" : "object",
+                "required" : [ "roll", "pitch", "yaw" ],
+                "additionalProperties" : false,
+                "properties" : {
+                    "roll" : { "type" : "number" },
+                    "pitch" : { "type" : "number" },
+                    "yaw" : { "type" : "number" }
+                }
+            }, {
+                "type" : "array",
+                "minItems" : 3,
+                "maxItems" : 3,
+                "items" : { "type" : "number" }
+            }, {
+                "type" : "array",
+                "minItems" : 4,
+                "maxItems" : 4,
+                "items" : { "type" : "number" }
+            }]
+        },
         "b2" : {
             "anyOf" : [{
                 "type" : "array",
@@ -309,6 +341,80 @@ namespace
     template < u32 N, typename V >
     bool parse_mNf(const rapidjson::Value& root, V& v) noexcept {
         return parse_mN<N>(root, v, [](const rapidjson::Value& jv, f32& o){
+            if ( !jv.IsNumber() ) {
+                return false;
+            }
+            o = jv.GetFloat();
+            return true;
+        });
+    }
+
+    //
+    // quat
+    //
+
+    template < typename V, typename FV >
+    bool parse_q4(const rapidjson::Value& root, V& v, FV&& f) noexcept {
+        if ( root.IsNumber() ) {
+            typename V::value_type tv;
+            if ( f(root, tv) ) {
+                v = math::make_quat_from_axis_angle(
+                    make_deg(tv),
+                    vec3<typename V::value_type>::unit_z());
+                return true;
+            }
+        }
+
+        if ( root.IsObject() ) {
+            if ( root.HasMember("angle") && root.HasMember("axis") ) {
+                typename V::value_type tangle;
+                vec3<typename V::value_type> vaxis;
+                if ( f(root["angle"], tangle) && parse_vN<3>(root["axis"], vaxis, f) ) {
+                    v = math::make_quat_from_axis_angle(
+                        make_deg(tangle),
+                        vaxis);
+                    return true;
+                }
+            }
+
+            if ( root.HasMember("roll") && root.HasMember("pitch") && root.HasMember("yaw") ) {
+                typename V::value_type troll, tpitch, tyaw;
+                if ( f(root["roll"], troll) && f(root["pitch"], tpitch) && f(root["yaw"], tyaw) ) {
+                    v = math::make_quat_from_euler_angles(
+                        make_deg(troll),
+                        make_deg(tpitch),
+                        make_deg(tyaw));
+                    return true;
+                }
+            }
+        }
+
+        if ( root.IsArray() ) {
+            if ( root.Size() == 3 ) {
+                vec3<typename V::value_type> veuler;
+                if ( parse_vN<3>(root, veuler, f) ) {
+                    v = math::make_quat_from_euler_angles(
+                        make_deg(veuler.x),
+                        make_deg(veuler.y),
+                        make_deg(veuler.z));
+                    return true;
+                }
+            }
+
+            if ( root.Size() == 4 ) {
+                vec4<typename V::value_type>  vq;
+                if ( parse_vN<4>(root, vq, f) ) {
+                    v = V(vq);
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    bool parse_q4f(const rapidjson::Value& root, q4f& v) noexcept {
+        return parse_q4(root, v, [](const rapidjson::Value& jv, f32& o){
             if ( !jv.IsNumber() ) {
                 return false;
             }
@@ -657,6 +763,15 @@ namespace e2d { namespace json_utils
     bool try_parse_value(const rapidjson::Value& root, m4f& v) noexcept {
         m4f tv;
         if ( !parse_mNf<4>(root, tv) ) {
+            return false;
+        }
+        v = tv;
+        return true;
+    }
+
+    bool try_parse_value(const rapidjson::Value& root, q4f& v) noexcept {
+        q4f tv;
+        if ( !parse_q4f(root, tv) ) {
             return false;
         }
         v = tv;

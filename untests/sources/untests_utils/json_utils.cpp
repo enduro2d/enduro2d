@@ -36,6 +36,18 @@ namespace
         "m33_" : [1,2,3,3,4,5,5,6,7],
         "m44_" : [1,2,3,4,3,4,5,6,5,6,7,8,7,8,9,0],
 
+        "q0" : 42,
+        "q1" : { "angle" : -42, "axis" : [1,2,3] },
+        "q2" : { "roll" : 1, "pitch" : 2, "yaw" : 3 },
+        "q3" : [1,2,3],
+        "q4" : [1,2,3,4],
+        "q5_" : "hello",
+        "q6_" : { "angle" : -42 },
+        "q7_" : { "axis" : [1,2,3] },
+        "q8_" : { "angle" : -42, "axis" : "hello" },
+        "q9_" : { "roll" : 1, "pitch" : 2 },
+        "q10_" : { "roll" : 1, "pitch" : 2, "yaw" : {} },
+
         "b2_0" : { "x" : 1, "w" : 2 },
         "b2_1" : { "x" : 1, "y" : 2, "w" : 3, "h" : 4 },
         "b2_2" : { "x" : 1, "y" : -2, "w" : 3, "h" : 4 },
@@ -239,6 +251,25 @@ TEST_CASE("json_utils") {
         REQUIRE(json_utils::try_parse_value(doc["m44_"], m1));
         REQUIRE_FALSE(json_utils::try_parse_value(doc["m33_"], m1));
         REQUIRE(m0 == m1);
+    }
+    {
+        q4f q0, q1, q2, q3, q4, qe;
+        REQUIRE(json_utils::try_parse_value(doc["q0"], q0));
+        REQUIRE(json_utils::try_parse_value(doc["q1"], q1));
+        REQUIRE(json_utils::try_parse_value(doc["q2"], q2));
+        REQUIRE(json_utils::try_parse_value(doc["q3"], q3));
+        REQUIRE(json_utils::try_parse_value(doc["q4"], q4));
+        REQUIRE_FALSE(json_utils::try_parse_value(doc["q5_"], qe));
+        REQUIRE_FALSE(json_utils::try_parse_value(doc["q6_"], qe));
+        REQUIRE_FALSE(json_utils::try_parse_value(doc["q7_"], qe));
+        REQUIRE_FALSE(json_utils::try_parse_value(doc["q8_"], qe));
+        REQUIRE_FALSE(json_utils::try_parse_value(doc["q9_"], qe));
+        REQUIRE_FALSE(json_utils::try_parse_value(doc["q10_"], qe));
+        REQUIRE(q0 == math::make_quat_from_axis_angle(make_deg(42.f), v3f::unit_z()));
+        REQUIRE(q1 == math::make_quat_from_axis_angle(make_deg(-42.f), v3f(1.f,2.f,3.f)));
+        REQUIRE(q2 == math::make_quat_from_euler_angles(make_deg(1.f), make_deg(2.f), make_deg(3.f)));
+        REQUIRE(q3 == math::make_quat_from_euler_angles(make_deg(1.f), make_deg(2.f), make_deg(3.f)));
+        REQUIRE(q4 == q4f(1.f,2.f,3.f,4.f));
     }
     {
         v2f v0;
