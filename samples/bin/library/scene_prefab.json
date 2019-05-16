@@ -1,6 +1,5 @@
 {
     "components" : {
-        "actor" : {},
         "scene" : {}
     },
     "children" : [{
@@ -14,14 +13,22 @@
         "prototype" : "gnome_prefab.json",
         "components" : {
             "actor" : {
-                "translation" : [0,50,0]
+                "translation" : [0,50,0],
+                "scale" : 20
             }
         }
     }, {
         "prototype" : "ship_prefab.json",
         "components" : {
             "actor" : {
-                "translation" : [0,-50,0]
+                "translation" : [-50,-50,0]
+            }
+        }
+    }, {
+        "prototype" : "ship_prefab.json",
+        "components" : {
+            "actor" : {
+                "translation" : [50,-50,0]
             }
         }
     }]

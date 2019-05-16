@@ -1,6 +1,5 @@
 {
     "components" : {
-        "actor" : {},
         "renderer" : {},
         "model_renderer" : {}
     }

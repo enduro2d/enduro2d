@@ -20,7 +20,9 @@ namespace e2d
             "type" : "object",
             "required" : [],
             "additionalProperties" : false,
-            "properties" : {}
+            "properties" : {
+                "model" : { "$ref": "#/common_definitions/address" }
+            }
         })json";
 
         bool operator()(
@@ -28,16 +30,35 @@ namespace e2d
             const rapidjson::Value& root,
             asset_dependencies& dependencies) const
         {
+            if ( root.HasMember("model") ) {
+                dependencies.add_dependency<model_asset>(
+                    path::combine(parent_address, root["model"].GetString()));
+            }
+
             return true;
         }
 
-        model_renderer operator()(
+        bool operator()(
             str_view parent_address,
             const rapidjson::Value& root,
-            const asset_group& dependencies) const
+            const asset_group& dependencies,
+            model_renderer& component) const
         {
-            model_renderer component;
-            return component;
+            if ( root.HasMember("model") ) {
+                auto model = dependencies.find_asset<model_asset>(
+                    path::combine(parent_address, root["model"].GetString()));
+                if ( !model ) {
+                    the<debug>().error("MODEL_RENDERER: Dependency 'model' is not found:\n"
+                        "--> Parent address: %0\n"
+                        "--> Dependency address: %1",
+                        parent_address,
+                        root["model"].GetString());
+                    return false;
+                }
+                component.model(model);
+            }
+
+            return true;;
         }
     };
 }

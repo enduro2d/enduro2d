@@ -20,7 +20,11 @@ namespace e2d
             "type" : "object",
             "required" : [],
             "additionalProperties" : false,
-            "properties" : {}
+            "properties" : {
+                "tint" : { "$ref": "#/common_definitions/color" },
+                "filtering" : { "type" : "boolean" },
+                "sprite" : { "$ref": "#/common_definitions/address" }
+            }
         })json";
 
         bool operator()(
@@ -28,16 +32,53 @@ namespace e2d
             const rapidjson::Value& root,
             asset_dependencies& dependencies) const
         {
+            if ( root.HasMember("sprite") ) {
+                dependencies.add_dependency<sprite_asset>(
+                    path::combine(parent_address, root["sprite"].GetString()));
+            }
+
             return true;
         }
 
-        sprite_renderer operator()(
+        bool operator()(
             str_view parent_address,
             const rapidjson::Value& root,
-            const asset_group& dependencies) const
+            const asset_group& dependencies,
+            sprite_renderer& component) const
         {
-            sprite_renderer component;
-            return component;
+            if ( root.HasMember("tint") ) {
+                auto tint = component.tint();
+                if ( !json_utils::try_parse_value(root["tint"], tint) ) {
+                    the<debug>().error("SPRITE_RENDERER: Incorrect formatting of 'tint' property");
+                    return false;
+                }
+                component.tint(tint);
+            }
+
+            if ( root.HasMember("filtering") ) {
+                auto filtering = component.filtering();
+                if ( !json_utils::try_parse_value(root["filtering"], filtering) ) {
+                    the<debug>().error("SPRITE_RENDERER: Incorrect formatting of 'filtering' property");
+                    return false;
+                }
+                component.filtering(filtering);
+            }
+
+            if ( root.HasMember("sprite") ) {
+                auto sprite = dependencies.find_asset<sprite_asset>(
+                    path::combine(parent_address, root["sprite"].GetString()));
+                if ( !sprite ) {
+                    the<debug>().error("SPRITE_RENDERER: Dependency 'sprite' is not found:\n"
+                        "--> Parent address: %0\n"
+                        "--> Dependency address: %1",
+                        parent_address,
+                        root["sprite"].GetString());
+                    return false;
+                }
+                component.sprite(sprite);
+            }
+
+            return true;
         }
     };
 }

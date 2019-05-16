@@ -20,7 +20,9 @@ namespace e2d
             "type" : "object",
             "required" : [],
             "additionalProperties" : false,
-            "properties" : {}
+            "properties" : {
+                "flipbook" : { "$ref": "#/common_definitions/address" }
+            }
         })json";
 
         bool operator()(
@@ -28,16 +30,35 @@ namespace e2d
             const rapidjson::Value& root,
             asset_dependencies& dependencies) const
         {
+            if ( root.HasMember("flipbook") ) {
+                dependencies.add_dependency<flipbook_asset>(
+                    path::combine(parent_address, root["flipbook"].GetString()));
+            }
+
             return true;
         }
 
-        flipbook_source operator()(
+        bool operator()(
             str_view parent_address,
             const rapidjson::Value& root,
-            const asset_group& dependencies) const
+            const asset_group& dependencies,
+            flipbook_source& component) const
         {
-            flipbook_source component;
-            return component;
+            if ( root.HasMember("flipbook") ) {
+                auto flipbook = dependencies.find_asset<flipbook_asset>(
+                    path::combine(parent_address, root["flipbook"].GetString()));
+                if ( !flipbook ) {
+                    the<debug>().error("FLIPBOOK_SOURCE: Dependency 'flipbook' is not found:\n"
+                        "--> Parent address: %0\n"
+                        "--> Dependency address: %1",
+                        parent_address,
+                        root["flipbook"].GetString());
+                    return false;
+                }
+                component.flipbook(flipbook);
+            }
+
+            return true;
         }
     };
 }

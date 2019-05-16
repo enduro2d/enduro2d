@@ -7,6 +7,7 @@
 #pragma once
 
 #include "../_high.hpp"
+
 #include "../node.hpp"
 
 namespace e2d
