@@ -410,7 +410,7 @@ namespace e2d
 
     void node::update_world_matrix_() const noexcept {
         world_matrix_ = parent_
-            ? parent_->world_matrix() * local_matrix()
+            ? local_matrix() * parent_->world_matrix()
             : local_matrix();
     }
 }
