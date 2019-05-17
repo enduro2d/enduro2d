@@ -13,6 +13,35 @@
 
 namespace e2d
 {
+    //
+    // component_creator
+    //
+
+    template < typename Component >
+    bool component_creator<Component>::fill_prototype(
+        ecs::prototype& prototype,
+        const component_loader<>::fill_context& ctx) const
+    {
+        Component component;
+        if ( !loader_(ctx.parent_address, ctx.root, ctx.dependencies, component) ) {
+            return false;
+        }
+        prototype.component<Component>(component);
+        return true;
+    }
+
+    template < typename Component >
+    bool component_creator<Component>::collect_dependencies(
+        asset_dependencies& dependencies,
+        const component_loader<>::collect_context& ctx) const
+    {
+        return loader_(ctx.parent_address, ctx.root, dependencies);
+    }
+
+    //
+    // component_factory
+    //
+
     template < typename Component >
     component_factory& component_factory::register_component(str_hash type) {
         std::lock_guard<std::mutex> guard(mutex_);

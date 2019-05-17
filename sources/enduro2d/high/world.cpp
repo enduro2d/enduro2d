@@ -30,16 +30,12 @@ namespace e2d
         gobjects_.emplace(inst->entity().id(), inst);
 
         try {
+            auto inst_n = node::create(inst);
             auto inst_a = inst->get_component<actor>();
-            if ( !inst_a.exists() ) {
-                inst_a.assign(node::create(inst));
+            if ( inst_a && inst_a->node() ) {
+                inst_n->transform(inst_a->node()->transform());
             }
-            if ( !inst_a.get().node() ) {
-                inst_a.get().node(node::create(inst));
-            }
-            if ( inst_a.get().node()->owner() != inst ) {
-                inst_a.get().node()->owner(inst);
-            }
+            inst_a.assign(inst_n);
         } catch (...) {
             destroy_instance(inst, true);
             throw;
@@ -53,16 +49,12 @@ namespace e2d
         gobjects_.emplace(inst->entity().id(), inst);
 
         try {
+            auto inst_n = node::create(inst);
             auto inst_a = inst->get_component<actor>();
-            if ( !inst_a.exists() ) {
-                inst_a.assign(node::create(inst));
+            if ( inst_a && inst_a->node() ) {
+                inst_n->transform(inst_a->node()->transform());
             }
-            if ( !inst_a.get().node() ) {
-                inst_a.get().node(node::create(inst));
-            }
-            if ( inst_a.get().node()->owner() != inst ) {
-                inst_a.get().node()->owner(inst);
-            }
+            inst_a.assign(inst_n);
         } catch (...) {
             destroy_instance(inst, true);
             throw;
@@ -74,7 +66,7 @@ namespace e2d
                 try {
                     auto inst_a = inst->get_component<actor>();
                     auto child_a = child->get_component<actor>();
-                    inst_a.get().node()->add_child(child_a.get().node());
+                    inst_a->node()->add_child(child_a->node());
                 } catch (...) {
                     destroy_instance(child, true);
                     throw;
@@ -90,8 +82,8 @@ namespace e2d
 
     void world::destroy_instance(const gobject_iptr& inst, bool recursive) noexcept {
         if ( recursive ) {
-            node_iptr inst_n = inst && inst->get_component<actor>().exists()
-                ? inst->get_component<actor>().get().node()
+            node_iptr inst_n = inst && inst->get_component<actor>()
+                ? inst->get_component<actor>()->node()
                 : nullptr;
             if ( inst_n ) {
                 inst_n->for_each_child([this](const node_iptr& child_n){
