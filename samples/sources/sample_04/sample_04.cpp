@@ -44,7 +44,7 @@ namespace
         }
     };
 
-    class game final : public high_application {
+    class game final : public starter::application {
     public:
         bool initialize() final {
             return create_scene()

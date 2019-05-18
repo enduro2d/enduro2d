@@ -44,18 +44,18 @@ namespace e2d
     // application
     //
 
-    bool application::initialize() {
+    bool engine::application::initialize() {
         return true;
     }
 
-    void application::shutdown() noexcept {
+    void engine::application::shutdown() noexcept {
     }
 
-    bool application::frame_tick() {
+    bool engine::application::frame_tick() {
         return true;
     }
 
-    void application::frame_render() {
+    void engine::application::frame_render() {
     }
 
     //

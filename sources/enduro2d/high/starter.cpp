@@ -33,21 +33,21 @@ namespace
             : modules::initialize<Module>(std::forward<Args>(args)...);
     }
 
-    class starter_application final : public application {
+    class engine_application final : public engine::application {
     public:
-        starter_application(high_application_uptr application)
-        : high_application_(std::move(application)) {}
+        engine_application(starter::application_uptr application)
+        : application_(std::move(application)) {}
 
         bool initialize() final {
             ecs::registry_filler(the<world>().registry())
                 .system<flipbook_system>(world::priority_update)
                 .system<render_system>(world::priority_render);
-            return !high_application_ || high_application_->initialize();
+            return !application_ || application_->initialize();
         }
 
         void shutdown() noexcept final {
-            if ( high_application_ ) {
-                high_application_->shutdown();
+            if ( application_ ) {
+                application_->shutdown();
             }
         }
 
@@ -56,7 +56,7 @@ namespace
                 world::priority_update_section_begin,
                 world::priority_update_section_end);
             return !the<window>().should_close()
-                || (high_application_ && !high_application_->on_should_close());
+                || (application_ && !application_->on_should_close());
         }
 
         void frame_render() final {
@@ -65,24 +65,24 @@ namespace
                 world::priority_render_section_end);
         }
     private:
-        high_application_uptr high_application_;
+        starter::application_uptr application_;
     };
 }
 
 namespace e2d
 {
     //
-    // high_application
+    // starter::application
     //
 
-    bool high_application::initialize() {
+    bool starter::application::initialize() {
         return true;
     }
 
-    void high_application::shutdown() noexcept {
+    void starter::application::shutdown() noexcept {
     }
 
-    bool high_application::on_should_close() {
+    bool starter::application::on_should_close() {
         return true;
     }
 
@@ -145,9 +145,9 @@ namespace e2d
         modules::shutdown<engine>();
     }
 
-    bool starter::start(high_application_uptr app) {
+    bool starter::start(application_uptr app) {
         return the<engine>().start(
-            std::make_unique<starter_application>(
+            std::make_unique<engine_application>(
                 std::move(app)));
     }
 }

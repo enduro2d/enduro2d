@@ -90,7 +90,7 @@ namespace
             vertex2{color32::yellow()}};
     }
 
-    class game final : public application {
+    class game final : public engine::application {
     public:
         bool initialize() final {
             the<vfs>().register_scheme<archive_file_source>(
