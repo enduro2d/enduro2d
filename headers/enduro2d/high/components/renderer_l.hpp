@@ -30,15 +30,14 @@ namespace e2d
         })json";
 
         bool operator()(
-            str_view parent_address,
-            const rapidjson::Value& root,
-            asset_dependencies& dependencies) const
+            asset_dependencies& dependencies,
+            const component_loader<>::collect_context& ctx) const
         {
-            if ( root.HasMember("materials") ) {
-                const rapidjson::Value& materials_root = root["materials"];
+            if ( ctx.root.HasMember("materials") ) {
+                const rapidjson::Value& materials_root = ctx.root["materials"];
                 for ( rapidjson::SizeType i = 0; i < materials_root.Size(); ++i ) {
                     dependencies.add_dependency<material_asset>(
-                        path::combine(parent_address, materials_root[i].GetString()));
+                        path::combine(ctx.parent_address, materials_root[i].GetString()));
                 }
             }
 
@@ -46,35 +45,33 @@ namespace e2d
         }
 
         bool operator()(
-            str_view parent_address,
-            const rapidjson::Value& root,
-            const asset_group& dependencies,
-            renderer& component) const
+            renderer& component,
+            const component_loader<>::fill_context& ctx) const
         {
-            if ( root.HasMember("enabled") ) {
+            if ( ctx.root.HasMember("enabled") ) {
                 auto enabled = component.enabled();
-                if ( !json_utils::try_parse_value(root["enabled"], enabled) ) {
+                if ( !json_utils::try_parse_value(ctx.root["enabled"], enabled) ) {
                     the<debug>().error("FLIPBOOK_PLAYER: Incorrect formatting of 'enabled' property");
                     return false;
                 }
                 component.enabled(enabled);
             }
 
-            if ( root.HasMember("properties") ) {
+            if ( ctx.root.HasMember("properties") ) {
                 //TODO(BlackMat): add properties parsing
             }
 
-            if ( root.HasMember("materials") ) {
-                const rapidjson::Value& materials_root = root["materials"];
+            if ( ctx.root.HasMember("materials") ) {
+                const rapidjson::Value& materials_root = ctx.root["materials"];
                 vector<material_asset::ptr> materials(materials_root.Size());
                 for ( rapidjson::SizeType i = 0; i < materials_root.Size(); ++i ) {
-                    auto material = dependencies.find_asset<material_asset>(
-                        path::combine(parent_address, materials_root[i].GetString()));
+                    auto material = ctx.dependencies.find_asset<material_asset>(
+                        path::combine(ctx.parent_address, materials_root[i].GetString()));
                     if ( !material ) {
                         the<debug>().error("RENDERER: Dependency 'material' is not found:\n"
                             "--> Parent address: %0\n"
                             "--> Dependency address: %1",
-                            parent_address,
+                            ctx.parent_address,
                             materials_root[i].GetString());
                         return false;
                     }

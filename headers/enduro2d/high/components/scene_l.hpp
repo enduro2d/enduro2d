@@ -26,31 +26,20 @@ namespace e2d
         })json";
 
         bool operator()(
-            str_view parent_address,
-            const rapidjson::Value& root,
-            asset_dependencies& dependencies) const
+            asset_dependencies& dependencies,
+            const component_loader<>::collect_context& ctx) const
         {
-            E2D_UNUSED(
-                parent_address,
-                root,
-                dependencies);
-
+            E2D_UNUSED(dependencies, ctx);
             return true;
         }
 
         bool operator()(
-            str_view parent_address,
-            const rapidjson::Value& root,
-            const asset_group& dependencies,
-            scene& component) const
+            scene& component,
+            const component_loader<>::fill_context& ctx) const
         {
-            E2D_UNUSED(
-                parent_address,
-                dependencies);
-
-            if ( root.HasMember("depth") ) {
+            if ( ctx.root.HasMember("depth") ) {
                 auto depth = component.depth();
-                if ( !json_utils::try_parse_value(root["depth"], depth) ) {
+                if ( !json_utils::try_parse_value(ctx.root["depth"], depth) ) {
                     the<debug>().error("SCENE: Incorrect formatting of 'depth' property");
                     return false;
                 }

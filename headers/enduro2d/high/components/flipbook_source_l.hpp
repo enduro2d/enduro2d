@@ -26,33 +26,30 @@ namespace e2d
         })json";
 
         bool operator()(
-            str_view parent_address,
-            const rapidjson::Value& root,
-            asset_dependencies& dependencies) const
+            asset_dependencies& dependencies,
+            const component_loader<>::collect_context& ctx) const
         {
-            if ( root.HasMember("flipbook") ) {
+            if ( ctx.root.HasMember("flipbook") ) {
                 dependencies.add_dependency<flipbook_asset>(
-                    path::combine(parent_address, root["flipbook"].GetString()));
+                    path::combine(ctx.parent_address, ctx.root["flipbook"].GetString()));
             }
 
             return true;
         }
 
         bool operator()(
-            str_view parent_address,
-            const rapidjson::Value& root,
-            const asset_group& dependencies,
-            flipbook_source& component) const
+            flipbook_source& component,
+            const component_loader<>::fill_context& ctx) const
         {
-            if ( root.HasMember("flipbook") ) {
-                auto flipbook = dependencies.find_asset<flipbook_asset>(
-                    path::combine(parent_address, root["flipbook"].GetString()));
+            if ( ctx.root.HasMember("flipbook") ) {
+                auto flipbook = ctx.dependencies.find_asset<flipbook_asset>(
+                    path::combine(ctx.parent_address, ctx.root["flipbook"].GetString()));
                 if ( !flipbook ) {
                     the<debug>().error("FLIPBOOK_SOURCE: Dependency 'flipbook' is not found:\n"
                         "--> Parent address: %0\n"
                         "--> Dependency address: %1",
-                        parent_address,
-                        root["flipbook"].GetString());
+                        ctx.parent_address,
+                        ctx.root["flipbook"].GetString());
                     return false;
                 }
                 component.flipbook(flipbook);

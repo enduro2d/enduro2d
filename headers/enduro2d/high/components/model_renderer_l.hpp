@@ -26,33 +26,30 @@ namespace e2d
         })json";
 
         bool operator()(
-            str_view parent_address,
-            const rapidjson::Value& root,
-            asset_dependencies& dependencies) const
+            asset_dependencies& dependencies,
+            const component_loader<>::collect_context& ctx) const
         {
-            if ( root.HasMember("model") ) {
+            if ( ctx.root.HasMember("model") ) {
                 dependencies.add_dependency<model_asset>(
-                    path::combine(parent_address, root["model"].GetString()));
+                    path::combine(ctx.parent_address, ctx.root["model"].GetString()));
             }
 
             return true;
         }
 
         bool operator()(
-            str_view parent_address,
-            const rapidjson::Value& root,
-            const asset_group& dependencies,
-            model_renderer& component) const
+            model_renderer& component,
+            const component_loader<>::fill_context& ctx) const
         {
-            if ( root.HasMember("model") ) {
-                auto model = dependencies.find_asset<model_asset>(
-                    path::combine(parent_address, root["model"].GetString()));
+            if ( ctx.root.HasMember("model") ) {
+                auto model = ctx.dependencies.find_asset<model_asset>(
+                    path::combine(ctx.parent_address, ctx.root["model"].GetString()));
                 if ( !model ) {
                     the<debug>().error("MODEL_RENDERER: Dependency 'model' is not found:\n"
                         "--> Parent address: %0\n"
                         "--> Dependency address: %1",
-                        parent_address,
-                        root["model"].GetString());
+                        ctx.parent_address,
+                        ctx.root["model"].GetString());
                     return false;
                 }
                 component.model(model);

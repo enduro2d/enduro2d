@@ -31,76 +31,65 @@ namespace e2d
         })json";
 
         bool operator()(
-            str_view parent_address,
-            const rapidjson::Value& root,
-            asset_dependencies& dependencies) const
+            asset_dependencies& dependencies,
+            const component_loader<>::collect_context& ctx) const
         {
-            E2D_UNUSED(
-                parent_address,
-                root,
-                dependencies);
-
+            E2D_UNUSED(dependencies, ctx);
             return true;
         }
 
         bool operator()(
-            str_view parent_address,
-            const rapidjson::Value& root,
-            const asset_group& dependencies,
-            flipbook_player& component) const
+            flipbook_player& component,
+            const component_loader<>::fill_context& ctx) const
         {
-            E2D_UNUSED(
-                parent_address,
-                dependencies);
-
-            if ( root.HasMember("time") ) {
+            if ( ctx.root.HasMember("time") ) {
                 auto time = component.time();
-                if ( !json_utils::try_parse_value(root["time"], time) ) {
+                if ( !json_utils::try_parse_value(ctx.root["time"], time) ) {
                     the<debug>().error("FLIPBOOK_PLAYER: Incorrect formatting of 'time' property");
                     return false;
                 }
                 component.time(time);
             }
 
-            if ( root.HasMember("speed") ) {
+            if ( ctx.root.HasMember("speed") ) {
                 auto speed = component.speed();
-                if ( !json_utils::try_parse_value(root["speed"], speed) ) {
+                if ( !json_utils::try_parse_value(ctx.root["speed"], speed) ) {
                     the<debug>().error("FLIPBOOK_PLAYER: Incorrect formatting of 'speed' property");
                     return false;
                 }
                 component.speed(speed);
             }
 
-            if ( root.HasMember("looped") ) {
+            if ( ctx.root.HasMember("looped") ) {
                 auto looped = component.looped();
-                if ( !json_utils::try_parse_value(root["looped"], looped) ) {
+                if ( !json_utils::try_parse_value(ctx.root["looped"], looped) ) {
                     the<debug>().error("FLIPBOOK_PLAYER: Incorrect formatting of 'looped' property");
                     return false;
                 }
                 component.looped(looped);
             }
 
-            if ( root.HasMember("stopped") ) {
+            if ( ctx.root.HasMember("stopped") ) {
                 auto stopped = component.stopped();
-                if ( !json_utils::try_parse_value(root["stopped"], stopped) ) {
+                if ( !json_utils::try_parse_value(ctx.root["stopped"], stopped) ) {
                     the<debug>().error("FLIPBOOK_PLAYER: Incorrect formatting of 'stopped' property");
                     return false;
                 }
                 component.stopped(stopped);
             }
 
-            if ( root.HasMember("playing") ) {
+            if ( ctx.root.HasMember("playing") ) {
                 auto playing = component.playing();
-                if ( !json_utils::try_parse_value(root["playing"], playing) ) {
+                if ( !json_utils::try_parse_value(ctx.root["playing"], playing) ) {
                     the<debug>().error("FLIPBOOK_PLAYER: Incorrect formatting of 'playing' property");
                     return false;
                 }
                 component.playing(playing);
             }
 
-            if ( root.HasMember("sequence") ) {
+            if ( ctx.root.HasMember("sequence") ) {
                 auto sequence = component.sequence();
-                if ( !json_utils::try_parse_value(root["sequence"], sequence) ) {
+                if ( !json_utils::try_parse_value(ctx.root["sequence"], sequence) ) {
                     the<debug>().error("FLIPBOOK_PLAYER: Incorrect formatting of 'sequence' property");
                     return false;
                 }

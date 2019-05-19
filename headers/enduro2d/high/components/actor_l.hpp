@@ -28,53 +28,42 @@ namespace e2d
         })json";
 
         bool operator()(
-            str_view parent_address,
-            const rapidjson::Value& root,
-            asset_dependencies& dependencies) const
+            asset_dependencies& dependencies,
+            const component_loader<>::collect_context& ctx) const
         {
-            E2D_UNUSED(
-                parent_address,
-                root,
-                dependencies);
-
+            E2D_UNUSED(dependencies, ctx);
             return true;
         }
 
         bool operator()(
-            str_view parent_address,
-            const rapidjson::Value& root,
-            const asset_group& dependencies,
-            actor& component) const
+            actor& component,
+            const component_loader<>::fill_context& ctx) const
         {
-            E2D_UNUSED(
-                parent_address,
-                dependencies);
-
             if ( !component.node() ) {
                 component.node(node::create());
             }
 
-            if ( root.HasMember("translation") ) {
+            if ( ctx.root.HasMember("translation") ) {
                 auto translation = component.node()->translation();
-                if ( !json_utils::try_parse_value(root["translation"], translation) ) {
+                if ( !json_utils::try_parse_value(ctx.root["translation"], translation) ) {
                     the<debug>().error("ACTOR: Incorrect formatting of 'translation' property");
                     return false;
                 }
                 component.node()->translation(translation);
             }
 
-            if ( root.HasMember("rotation") ) {
+            if ( ctx.root.HasMember("rotation") ) {
                 auto rotation = component.node()->rotation();
-                if ( !json_utils::try_parse_value(root["rotation"], rotation) ) {
+                if ( !json_utils::try_parse_value(ctx.root["rotation"], rotation) ) {
                     the<debug>().error("ACTOR: Incorrect formatting of 'rotation' property");
                     return false;
                 }
                 component.node()->rotation(rotation);
             }
 
-            if ( root.HasMember("scale") ) {
+            if ( ctx.root.HasMember("scale") ) {
                 auto scale = component.node()->scale();
-                if ( !json_utils::try_parse_value(root["scale"], scale) ) {
+                if ( !json_utils::try_parse_value(ctx.root["scale"], scale) ) {
                     the<debug>().error("ACTOR: Incorrect formatting of 'scale' property");
                     return false;
                 }

@@ -23,9 +23,12 @@ namespace e2d
         const component_loader<>::fill_context& ctx) const
     {
         Component component;
-        if ( !loader_(ctx.parent_address, ctx.root, ctx.dependencies, component) ) {
+        prototype.apply_to_component(component);
+
+        if ( !loader_(component, ctx) ) {
             return false;
         }
+
         prototype.component<Component>(component);
         return true;
     }
@@ -35,7 +38,7 @@ namespace e2d
         asset_dependencies& dependencies,
         const component_loader<>::collect_context& ctx) const
     {
-        return loader_(ctx.parent_address, ctx.root, dependencies);
+        return loader_(dependencies, ctx);
     }
 
     //

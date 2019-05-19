@@ -29,62 +29,51 @@ namespace e2d
         })json";
 
         bool operator()(
-            str_view parent_address,
-            const rapidjson::Value& root,
-            asset_dependencies& dependencies) const
+            asset_dependencies& dependencies,
+            const component_loader<>::collect_context& ctx) const
         {
-            E2D_UNUSED(
-                parent_address,
-                root,
-                dependencies);
-
+            E2D_UNUSED(dependencies, ctx);
             return true;
         }
 
         bool operator()(
-            str_view parent_address,
-            const rapidjson::Value& root,
-            const asset_group& dependencies,
-            camera& component) const
+            camera& component,
+            const component_loader<>::fill_context& ctx) const
         {
-            E2D_UNUSED(
-                parent_address,
-                dependencies);
-
-            if ( root.HasMember("depth") ) {
+            if ( ctx.root.HasMember("depth") ) {
                 auto depth = component.depth();
-                if ( !json_utils::try_parse_value(root["depth"], depth) ) {
+                if ( !json_utils::try_parse_value(ctx.root["depth"], depth) ) {
                     the<debug>().error("CAMERA: Incorrect formatting of 'depth' property");
                     return false;
                 }
                 component.depth(depth);
             }
 
-            if ( root.HasMember("viewport") ) {
+            if ( ctx.root.HasMember("viewport") ) {
                 auto viewport = component.viewport();
-                if ( !json_utils::try_parse_value(root["viewport"], viewport) ) {
+                if ( !json_utils::try_parse_value(ctx.root["viewport"], viewport) ) {
                     the<debug>().error("CAMERA: Incorrect formatting of 'viewport' property");
                     return false;
                 }
                 component.viewport(viewport);
             }
 
-            if ( root.HasMember("projection") ) {
+            if ( ctx.root.HasMember("projection") ) {
                 auto projection = component.projection();
-                if ( !json_utils::try_parse_value(root["projection"], projection) ) {
+                if ( !json_utils::try_parse_value(ctx.root["projection"], projection) ) {
                     the<debug>().error("CAMERA: Incorrect formatting of 'projection' property");
                     return false;
                 }
                 component.projection(projection);
             }
 
-            if ( root.HasMember("target") ) {
+            if ( ctx.root.HasMember("target") ) {
                 //TODO(BlackMat): add 'target' property parsing
             }
 
-            if ( root.HasMember("background") ) {
+            if ( ctx.root.HasMember("background") ) {
                 auto background = component.background();
-                if ( !json_utils::try_parse_value(root["background"], background) ) {
+                if ( !json_utils::try_parse_value(ctx.root["background"], background) ) {
                     the<debug>().error("CAMERA: Incorrect formatting of 'background' property");
                     return false;
                 }
