@@ -8,7 +8,7 @@
 
 #include "../_high.hpp"
 
-#include "../node.hpp"
+#include "../component.hpp"
 
 namespace e2d
 {
@@ -20,6 +20,20 @@ namespace e2d
         i32 depth() const noexcept;
     private:
         i32 depth_ = 0;
+    };
+
+    template <>
+    class component_loader<scene> {
+    public:
+        static const char* schema_source;
+
+        bool operator()(
+            scene& component,
+            const component_loader<>::fill_context& ctx) const;
+
+        bool operator()(
+            asset_dependencies& dependencies,
+            const component_loader<>::collect_context& ctx) const;
     };
 }
 

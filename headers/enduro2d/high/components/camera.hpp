@@ -8,6 +8,8 @@
 
 #include "../_high.hpp"
 
+#include "../component.hpp"
+
 namespace e2d
 {
     class camera final {
@@ -31,6 +33,20 @@ namespace e2d
         m4f projection_ = m4f::identity();
         render_target_ptr target_ = nullptr;
         color background_ = color::clear();
+    };
+
+    template <>
+    class component_loader<camera> {
+    public:
+        static const char* schema_source;
+
+        bool operator()(
+            camera& component,
+            const component_loader<>::fill_context& ctx) const;
+
+        bool operator()(
+            asset_dependencies& dependencies,
+            const component_loader<>::collect_context& ctx) const;
     };
 }
 

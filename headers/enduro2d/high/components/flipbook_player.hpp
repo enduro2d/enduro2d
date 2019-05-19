@@ -8,6 +8,7 @@
 
 #include "../_high.hpp"
 
+#include "../component.hpp"
 #include "../assets/flipbook_asset.hpp"
 
 namespace e2d
@@ -49,6 +50,20 @@ namespace e2d
         bool looped_{false};
         bool playing_{false};
         str_hash sequence_;
+    };
+
+    template <>
+    class component_loader<flipbook_player> {
+    public:
+        static const char* schema_source;
+
+        bool operator()(
+            flipbook_player& component,
+            const component_loader<>::fill_context& ctx) const;
+            
+        bool operator()(
+            asset_dependencies& dependencies,
+            const component_loader<>::collect_context& ctx) const;
     };
 }
 

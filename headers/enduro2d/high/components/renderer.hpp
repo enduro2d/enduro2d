@@ -8,6 +8,7 @@
 
 #include "../_high.hpp"
 
+#include "../component.hpp"
 #include "../assets/material_asset.hpp"
 
 namespace e2d
@@ -34,6 +35,20 @@ namespace e2d
         bool enabled_ = true;
         render::property_block properties_;
         vector<material_asset::ptr> materials_;
+    };
+
+    template <>
+    class component_loader<renderer> {
+    public:
+        static const char* schema_source;
+
+        bool operator()(
+            renderer& component,
+            const component_loader<>::fill_context& ctx) const;
+            
+        bool operator()(
+            asset_dependencies& dependencies,
+            const component_loader<>::collect_context& ctx) const;
     };
 }
 

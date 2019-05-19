@@ -8,6 +8,7 @@
 
 #include "../_high.hpp"
 
+#include "../component.hpp"
 #include "../assets/sprite_asset.hpp"
 
 namespace e2d
@@ -29,6 +30,20 @@ namespace e2d
         color32 tint_ = color32::white();
         bool filtering_ = true;
         sprite_asset::ptr sprite_;
+    };
+
+    template <>
+    class component_loader<sprite_renderer> {
+    public:
+        static const char* schema_source;
+
+        bool operator()(
+            sprite_renderer& component,
+            const component_loader<>::fill_context& ctx) const;
+            
+        bool operator()(
+            asset_dependencies& dependencies,
+            const component_loader<>::collect_context& ctx) const;
     };
 }
 
