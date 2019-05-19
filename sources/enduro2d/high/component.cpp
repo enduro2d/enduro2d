@@ -8,6 +8,16 @@
 
 namespace e2d
 {
+    bool component_factory::validate_json(
+        str_hash type,
+        const rapidjson::Value& root) const
+    {
+        auto creator = find_creator(type);
+        return creator
+            ? creator->validate_json(root)
+            : false;
+    }
+
     bool component_factory::fill_prototype(
         str_hash type,
         ecs::prototype& prototype,

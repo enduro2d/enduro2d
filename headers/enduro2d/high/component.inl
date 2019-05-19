@@ -18,6 +18,38 @@ namespace e2d
     //
 
     template < typename Component >
+    component_creator<Component>::component_creator() {
+        rapidjson::Document doc;
+        if ( doc.Parse(loader_.schema_source).HasParseError() ) {
+            the<debug>().error("COMPONENT: Failed to parse component loader schema");
+            throw bad_component_factory_operation();
+        }
+        json_utils::add_common_schema_definitions(doc);
+        schema_ = std::make_unique<rapidjson::SchemaDocument>(doc);
+    }
+
+    template < typename Component >
+    bool component_creator<Component>::validate_json(
+        const rapidjson::Value& root) const
+    {
+        rapidjson::SchemaValidator validator(*schema_);
+        if ( root.Accept(validator) ) {
+            return true;
+        }
+        rapidjson::StringBuffer sb;
+        if ( !validator.GetInvalidDocumentPointer().StringifyUriFragment(sb) ) {
+            the<debug>().error("COMPONENT: Failed to validate component json");
+            return false;
+        }
+        the<debug>().error("COMPONENT: Failed to validate component json:\n"
+            "--> Invalid schema keyword: %0\n"
+            "--> Invalid document pointer: %1",
+            validator.GetInvalidSchemaKeyword(),
+            sb.GetString());
+        return false;
+    }
+
+    template < typename Component >
     bool component_creator<Component>::fill_prototype(
         ecs::prototype& prototype,
         const component_loader<>::fill_context& ctx) const

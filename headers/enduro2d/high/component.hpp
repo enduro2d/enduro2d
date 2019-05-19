@@ -74,6 +74,9 @@ namespace e2d
         component_creator_base() = default;
         virtual ~component_creator_base() noexcept = default;
 
+        virtual bool validate_json(
+            const rapidjson::Value& root) const = 0;
+
         virtual bool fill_prototype(
             ecs::prototype& prototype,
             const component_loader<>::fill_context& ctx) const = 0;
@@ -90,8 +93,11 @@ namespace e2d
     template < typename Component >
     class component_creator : public component_creator_base {
     public:
-        component_creator() = default;
+        component_creator();
         ~component_creator() noexcept override = default;
+
+        bool validate_json(
+            const rapidjson::Value& root) const override;
 
         bool fill_prototype(
             ecs::prototype& prototype,
@@ -102,6 +108,7 @@ namespace e2d
             const component_loader<>::collect_context& ctx) const override;
     private:
         component_loader<Component> loader_;
+        std::unique_ptr<rapidjson::SchemaDocument> schema_;
     };
 
     //
@@ -115,6 +122,10 @@ namespace e2d
 
         template < typename Component >
         component_factory& register_component(str_hash type);
+
+        bool validate_json(
+            str_hash type,
+            const rapidjson::Value& root) const;
 
         bool fill_prototype(
             str_hash type,

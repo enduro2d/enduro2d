@@ -12,6 +12,7 @@
 #include "assets/binary_asset.hpp"
 #include "assets/flipbook_asset.hpp"
 #include "assets/image_asset.hpp"
+#include "assets/json_asset.hpp"
 #include "assets/material_asset.hpp"
 #include "assets/mesh_asset.hpp"
 #include "assets/model_asset.hpp"
@@ -21,6 +22,7 @@
 #include "assets/sprite_asset.hpp"
 #include "assets/text_asset.hpp"
 #include "assets/texture_asset.hpp"
+#include "assets/xml_asset.hpp"
 
 #include "components/actor.hpp"
 #include "components/camera.hpp"
@@ -39,6 +41,7 @@
 #include "asset.inl"
 #include "atlas.hpp"
 #include "component.hpp"
+#include "component.inl"
 #include "flipbook.hpp"
 #include "gobject.hpp"
 #include "library.hpp"

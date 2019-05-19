@@ -24,6 +24,7 @@ namespace e2d
     class binary_asset;
     class flipbook_asset;
     class image_asset;
+    class json_asset;
     class material_asset;
     class mesh_asset;
     class model_asset;
@@ -33,6 +34,7 @@ namespace e2d
     class sprite_asset;
     class text_asset;
     class texture_asset;
+    class xml_asset;
 
     class actor;
     class camera;

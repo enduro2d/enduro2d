@@ -82,13 +82,26 @@ namespace
                 component_root != components_root.MemberEnd();
                 ++component_root )
             {
-                component_loader<>::collect_context ctx(
-                    parent_address,
-                    component_root->value);
-                the<component_factory>().collect_dependencies(
-                    component_root->name.GetString(),
-                    dependencies,
-                    ctx);
+                {
+                    bool success = the<component_factory>().validate_json(
+                        component_root->name.GetString(),
+                        component_root->value);
+                    if ( !success ) {
+                        throw prefab_asset_loading_exception();
+                    }
+                }
+                {
+                    component_loader<>::collect_context ctx(
+                        parent_address,
+                        component_root->value);
+                    bool success = the<component_factory>().collect_dependencies(
+                        component_root->name.GetString(),
+                        dependencies,
+                        ctx);
+                    if ( !success ) {
+                        throw prefab_asset_loading_exception();
+                    }
+                }
             }
         }
 
