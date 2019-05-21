@@ -12,7 +12,8 @@
 
 namespace e2d
 {
-    class json_asset final : public content_asset<json_asset, rapidjson::Document> {
+    using json_uptr = std::unique_ptr<rapidjson::Document>;
+    class json_asset final : public content_asset<json_asset, json_uptr> {
     public:
         static load_async_result load_async(const library& library, str_view address);
     };

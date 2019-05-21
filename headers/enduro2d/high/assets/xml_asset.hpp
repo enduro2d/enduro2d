@@ -12,7 +12,8 @@
 
 namespace e2d
 {
-    class xml_asset final : public content_asset<xml_asset, pugi::xml_document> {
+    using xml_uptr = std::unique_ptr<pugi::xml_document>;
+    class xml_asset final : public content_asset<xml_asset, xml_uptr> {
     public:
         static load_async_result load_async(const library& library, str_view address);
     };

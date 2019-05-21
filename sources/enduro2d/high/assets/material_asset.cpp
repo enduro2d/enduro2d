@@ -1172,24 +1172,41 @@ namespace e2d
         const library& library, str_view address)
     {
         return library.load_asset_async<json_asset>(address)
-            .then([
-                &library,
-                parent_address = path::parent_path(address)
-            ](const json_asset::load_result& material_data){
-                return the<deferrer>().do_in_worker_thread([material_data](){
-                    const rapidjson::Document& doc = material_data->content();
-                    rapidjson::SchemaValidator validator(material_asset_schema());
-                    if ( !doc.Accept(validator) ) {
-                        throw material_asset_loading_exception();
-                    }
-                })
-                .then([&library, parent_address, material_data](){
-                    return parse_material(
-                        library, parent_address, material_data->content());
-                })
-                .then([](const render::material& material){
-                    return material_asset::create(material);
-                });
+        .then([
+            &library,
+            address = str(address),
+            parent_address = path::parent_path(address)
+        ](const json_asset::load_result& material_data){
+            return the<deferrer>().do_in_worker_thread([address, material_data](){
+                const rapidjson::Document& doc = *material_data->content();
+                rapidjson::SchemaValidator validator(material_asset_schema());
+
+                if ( doc.Accept(validator) ) {
+                    return;
+                }
+
+                rapidjson::StringBuffer sb;
+                if ( validator.GetInvalidDocumentPointer().StringifyUriFragment(sb) ) {
+                    the<debug>().error("ASSET: Failed to validate asset json:\n"
+                        "--> Address: %0\n"
+                        "--> Invalid schema keyword: %1\n"
+                        "--> Invalid document pointer: %2",
+                        address,
+                        validator.GetInvalidSchemaKeyword(),
+                        sb.GetString());
+                } else {
+                    the<debug>().error("ASSET: Failed to validate asset json");
+                }
+
+                throw material_asset_loading_exception();
+            })
+            .then([&library, parent_address, material_data](){
+                return parse_material(
+                    library, parent_address, *material_data->content());
+            })
+            .then([](const render::material& material){
+                return material_asset::create(material);
             });
+        });
     }
 }

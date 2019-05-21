@@ -24,14 +24,14 @@ namespace e2d
         const library& library, str_view address)
     {
         return library.load_asset_async<binary_asset>(address)
-            .then([](const binary_asset::load_result& image_data){
-                return the<deferrer>().do_in_worker_thread([image_data](){
-                    image content;
-                    if ( !images::try_load_image(content, image_data->content()) ) {
-                        throw image_asset_loading_exception();
-                    }
-                    return image_asset::create(std::move(content));
-                });
+        .then([](const binary_asset::load_result& image_data){
+            return the<deferrer>().do_in_worker_thread([image_data](){
+                image content;
+                if ( !images::try_load_image(content, image_data->content()) ) {
+                    throw image_asset_loading_exception();
+                }
+                return image_asset::create(std::move(content));
             });
+        });
     }
 }

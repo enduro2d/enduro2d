@@ -208,18 +208,35 @@ namespace e2d
         return library.load_asset_async<json_asset>(address)
         .then([
             &library,
+            address = str(address),
             parent_address = path::parent_path(address)
         ](const json_asset::load_result& flipbook_data){
-            return the<deferrer>().do_in_worker_thread([flipbook_data](){
-                const rapidjson::Document& doc = flipbook_data->content();
+            return the<deferrer>().do_in_worker_thread([address, flipbook_data](){
+                const rapidjson::Document& doc = *flipbook_data->content();
                 rapidjson::SchemaValidator validator(flipbook_asset_schema());
-                if ( !doc.Accept(validator) ) {
-                    throw flipbook_asset_loading_exception();
+
+                if ( doc.Accept(validator) ) {
+                    return;
                 }
+
+                rapidjson::StringBuffer sb;
+                if ( validator.GetInvalidDocumentPointer().StringifyUriFragment(sb) ) {
+                    the<debug>().error("ASSET: Failed to validate asset json:\n"
+                        "--> Address: %0\n"
+                        "--> Invalid schema keyword: %1\n"
+                        "--> Invalid document pointer: %2",
+                        address,
+                        validator.GetInvalidSchemaKeyword(),
+                        sb.GetString());
+                } else {
+                    the<debug>().error("ASSET: Failed to validate asset json");
+                }
+
+                throw flipbook_asset_loading_exception();
             })
             .then([&library, parent_address, flipbook_data](){
                 return parse_flipbook(
-                    library, parent_address, flipbook_data->content());
+                    library, parent_address, *flipbook_data->content());
             })
             .then([](auto&& content){
                 return flipbook_asset::create(

@@ -24,15 +24,15 @@ namespace e2d
         const library& library, str_view address)
     {
         return library.load_asset_async<image_asset>(address)
-            .then([](const image_asset::load_result& texture_data){
-                return the<deferrer>().do_in_main_thread([texture_data](){
-                    const texture_ptr content = the<render>().create_texture(
-                        texture_data->content());
-                    if ( !content ) {
-                        throw texture_asset_loading_exception();
-                    }
-                    return texture_asset::create(content);
-                });
+        .then([](const image_asset::load_result& texture_data){
+            return the<deferrer>().do_in_main_thread([texture_data](){
+                const texture_ptr content = the<render>().create_texture(
+                    texture_data->content());
+                if ( !content ) {
+                    throw texture_asset_loading_exception();
+                }
+                return texture_asset::create(content);
             });
+        });
     }
 }

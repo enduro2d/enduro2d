@@ -182,22 +182,39 @@ namespace e2d
         return library.load_asset_async<json_asset>(address)
         .then([
             &library,
+            address = str(address),
             parent_address = path::parent_path(address)
         ](const json_asset::load_result& prefab_data){
-            return the<deferrer>().do_in_worker_thread([prefab_data](){
-                const rapidjson::Document& doc = prefab_data->content();
+            return the<deferrer>().do_in_worker_thread([address, prefab_data](){
+                const rapidjson::Document& doc = *prefab_data->content();
                 rapidjson::SchemaValidator validator(prefab_asset_schema());
-                if ( !doc.Accept(validator) ) {
-                    throw prefab_asset_loading_exception();
+
+                if ( doc.Accept(validator) ) {
+                    return;
                 }
+
+                rapidjson::StringBuffer sb;
+                if ( validator.GetInvalidDocumentPointer().StringifyUriFragment(sb) ) {
+                    the<debug>().error("ASSET: Failed to validate asset json:\n"
+                        "--> Address: %0\n"
+                        "--> Invalid schema keyword: %1\n"
+                        "--> Invalid document pointer: %2",
+                        address,
+                        validator.GetInvalidSchemaKeyword(),
+                        sb.GetString());
+                } else {
+                    the<debug>().error("ASSET: Failed to validate asset json");
+                }
+
+                throw prefab_asset_loading_exception();
             })
             .then([&library, parent_address, prefab_data](){
                 return collect_dependencies(
-                    library, parent_address, prefab_data->content());
+                    library, parent_address, *prefab_data->content());
             })
             .then([parent_address, prefab_data](const asset_group& dependencies){
                 return prefab_asset::create(parse_prefab(
-                    parent_address, prefab_data->content(), dependencies));
+                    parent_address, *prefab_data->content(), dependencies));
             });
         });
     }
