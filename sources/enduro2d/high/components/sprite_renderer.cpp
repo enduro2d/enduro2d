@@ -8,7 +8,7 @@
 
 namespace e2d
 {
-    const char* component_loader<sprite_renderer>::schema_source = R"json({
+    const char* factory_loader<sprite_renderer>::schema_source = R"json({
         "type" : "object",
         "required" : [],
         "additionalProperties" : false,
@@ -19,9 +19,9 @@ namespace e2d
         }
     })json";
 
-    bool component_loader<sprite_renderer>::operator()(
+    bool factory_loader<sprite_renderer>::operator()(
         sprite_renderer& component,
-        const component_loader<>::fill_context& ctx) const
+        const fill_context& ctx) const
     {
         if ( ctx.root.HasMember("tint") ) {
             auto tint = component.tint();
@@ -58,9 +58,9 @@ namespace e2d
         return true;
     }
 
-    bool component_loader<sprite_renderer>::operator()(
+    bool factory_loader<sprite_renderer>::operator()(
         asset_dependencies& dependencies,
-        const component_loader<>::collect_context& ctx) const
+        const collect_context& ctx) const
     {
         if ( ctx.root.HasMember("sprite") ) {
             dependencies.add_dependency<sprite_asset>(

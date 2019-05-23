@@ -7,8 +7,8 @@
 #include <enduro2d/high/starter.hpp>
 
 #include <enduro2d/high/world.hpp>
+#include <enduro2d/high/factory.hpp>
 #include <enduro2d/high/library.hpp>
-#include <enduro2d/high/component.hpp>
 
 #include <enduro2d/high/components/actor.hpp>
 #include <enduro2d/high/components/camera.hpp>
@@ -125,7 +125,7 @@ namespace e2d
 
     starter::starter(int argc, char *argv[], const parameters& params) {
         safe_module_initialize<engine>(argc, argv, params.engine_params());
-        safe_module_initialize<component_factory>()
+        safe_module_initialize<factory>()
             .register_component<actor>("actor")
             .register_component<camera>("camera")
             .register_component<flipbook_player>("flipbook_player")
@@ -141,7 +141,7 @@ namespace e2d
     starter::~starter() noexcept {
         modules::shutdown<world>();
         modules::shutdown<library>();
-        modules::shutdown<component_factory>();
+        modules::shutdown<factory>();
         modules::shutdown<engine>();
     }
 

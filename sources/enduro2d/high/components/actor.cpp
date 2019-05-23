@@ -8,7 +8,7 @@
 
 namespace e2d
 {
-    const char* component_loader<actor>::schema_source = R"json({
+    const char* factory_loader<actor>::schema_source = R"json({
         "type" : "object",
         "required" : [],
         "additionalProperties" : false,
@@ -19,9 +19,9 @@ namespace e2d
         }
     })json";
 
-    bool component_loader<actor>::operator()(
+    bool factory_loader<actor>::operator()(
         actor& component,
-        const component_loader<>::fill_context& ctx) const
+        const fill_context& ctx) const
     {
         if ( !component.node() ) {
             component.node(node::create());
@@ -57,9 +57,9 @@ namespace e2d
         return true;
     }
 
-    bool component_loader<actor>::operator()(
+    bool factory_loader<actor>::operator()(
         asset_dependencies& dependencies,
-        const component_loader<>::collect_context& ctx) const
+        const collect_context& ctx) const
     {
         E2D_UNUSED(dependencies, ctx);
         return true;

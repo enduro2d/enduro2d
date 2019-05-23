@@ -8,7 +8,7 @@
 
 #include "../_high.hpp"
 
-#include "../component.hpp"
+#include "../factory.hpp"
 
 namespace e2d
 {
@@ -36,17 +36,17 @@ namespace e2d
     };
 
     template <>
-    class component_loader<camera> {
+    class factory_loader<camera> final : factory_loader<> {
     public:
         static const char* schema_source;
 
         bool operator()(
             camera& component,
-            const component_loader<>::fill_context& ctx) const;
+            const fill_context& ctx) const;
 
         bool operator()(
             asset_dependencies& dependencies,
-            const component_loader<>::collect_context& ctx) const;
+            const collect_context& ctx) const;
     };
 }
 

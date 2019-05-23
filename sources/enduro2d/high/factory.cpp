@@ -4,11 +4,11 @@
  * Copyright (C) 2018-2019, by Matvey Cherevko (blackmatov@gmail.com)
  ******************************************************************************/
 
-#include <enduro2d/high/component.hpp>
+#include <enduro2d/high/factory.hpp>
 
 namespace e2d
 {
-    bool component_factory::validate_json(
+    bool factory::validate_json(
         str_hash type,
         const rapidjson::Value& root) const
     {
@@ -18,10 +18,10 @@ namespace e2d
             : false;
     }
 
-    bool component_factory::fill_prototype(
+    bool factory::fill_prototype(
         str_hash type,
         ecs::prototype& prototype,
-        const component_loader<>::fill_context& ctx) const
+        const factory_loader<>::fill_context& ctx) const
     {
         auto creator = find_creator(type);
         return creator
@@ -29,10 +29,10 @@ namespace e2d
             : false;
     }
 
-    bool component_factory::collect_dependencies(
+    bool factory::collect_dependencies(
         str_hash type,
         asset_dependencies& dependencies,
-        const component_loader<>::collect_context& ctx) const
+        const factory_loader<>::collect_context& ctx) const
     {
         auto creator = find_creator(type);
         return creator
@@ -40,7 +40,7 @@ namespace e2d
             : false;
     }
 
-    component_creator_base_iptr component_factory::find_creator(str_hash type) const {
+    factory_creator_iptr factory::find_creator(str_hash type) const {
         std::lock_guard<std::mutex> guard(mutex_);
         const auto iter = creators_.find(type);
         return iter != creators_.end()

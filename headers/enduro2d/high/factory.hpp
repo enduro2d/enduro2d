@@ -4,8 +4,8 @@
  * Copyright (C) 2018-2019, by Matvey Cherevko (blackmatov@gmail.com)
  ******************************************************************************/
 
-#ifndef E2D_INCLUDE_GUARD_DEE612552A524342A523868F34FF88BA
-#define E2D_INCLUDE_GUARD_DEE612552A524342A523868F34FF88BA
+#ifndef E2D_INCLUDE_GUARD_9C9B1BA27AAC42CBAA07890458076B81
+#define E2D_INCLUDE_GUARD_9C9B1BA27AAC42CBAA07890458076B81
 #pragma once
 
 #include "_high.hpp"
@@ -13,25 +13,25 @@
 namespace e2d
 {
     //
-    // bad_component_factory_operation
+    // bad_factory_operation
     //
 
-    class bad_component_factory_operation final : public exception {
+    class bad_factory_operation final : public exception {
     public:
         const char* what() const noexcept final {
-            return "bad component factory operation";
+            return "bad factory operation";
         }
     };
 
     //
-    // component_loader
+    // factory_loader
     //
 
     template < typename Component = void >
-    class component_loader;
+    class factory_loader;
 
     template <>
-    class component_loader<> {
+    class factory_loader<> {
     public:
         struct fill_context {
             const str parent_address;
@@ -57,71 +57,66 @@ namespace e2d
             : parent_address(std::move(nparent_address))
             , root(nroot) {}
         };
-    public:
     };
-    
+
     //
-    // component_creator_base
+    // factory_creator
     //
 
-    class component_creator_base;
-    using component_creator_base_iptr = intrusive_ptr<component_creator_base>;
+    class factory_creator;
+    using factory_creator_iptr = intrusive_ptr<factory_creator>;
 
-    class component_creator_base
+    class factory_creator
         : private noncopyable
-        , public ref_counter<component_creator_base> {
+        , public ref_counter<factory_creator> {
     public:
-        component_creator_base() = default;
-        virtual ~component_creator_base() noexcept = default;
+        factory_creator() = default;
+        virtual ~factory_creator() noexcept = default;
 
         virtual bool validate_json(
             const rapidjson::Value& root) const = 0;
 
         virtual bool fill_prototype(
             ecs::prototype& prototype,
-            const component_loader<>::fill_context& ctx) const = 0;
+            const factory_loader<>::fill_context& ctx) const = 0;
 
         virtual bool collect_dependencies(
             asset_dependencies& dependencies,
-            const component_loader<>::collect_context& ctx) const = 0;
+            const factory_loader<>::collect_context& ctx) const = 0;
     };
 
-    //
-    // component_creator
-    //
-
     template < typename Component >
-    class component_creator : public component_creator_base {
+    class typed_factory_creator final : public factory_creator {
     public:
-        component_creator();
-        ~component_creator() noexcept override = default;
+        typed_factory_creator();
+        ~typed_factory_creator() noexcept final = default;
 
         bool validate_json(
-            const rapidjson::Value& root) const override;
+            const rapidjson::Value& root) const final;
 
         bool fill_prototype(
             ecs::prototype& prototype,
-            const component_loader<>::fill_context& ctx) const override;
+            const factory_loader<>::fill_context& ctx) const final;
 
         bool collect_dependencies(
             asset_dependencies& dependencies,
-            const component_loader<>::collect_context& ctx) const override;
+            const factory_loader<>::collect_context& ctx) const final;
     private:
-        component_loader<Component> loader_;
+        factory_loader<Component> loader_;
         std::unique_ptr<rapidjson::SchemaDocument> schema_;
     };
 
     //
-    // component_factory
+    // factory
     //
 
-    class component_factory : public module<component_factory> {
+    class factory : public module<factory> {
     public:
-        component_factory() = default;
-        ~component_factory() noexcept final = default;
+        factory() = default;
+        ~factory() noexcept final = default;
 
         template < typename Component >
-        component_factory& register_component(str_hash type);
+        factory& register_component(str_hash type);
 
         bool validate_json(
             str_hash type,
@@ -130,19 +125,19 @@ namespace e2d
         bool fill_prototype(
             str_hash type,
             ecs::prototype& prototype,
-            const component_loader<>::fill_context& ctx) const;
+            const factory_loader<>::fill_context& ctx) const;
 
         bool collect_dependencies(
             str_hash type,
             asset_dependencies& dependencies,
-            const component_loader<>::collect_context& ctx) const;
+            const factory_loader<>::collect_context& ctx) const;
     private:
-        component_creator_base_iptr find_creator(str_hash type) const;
+        factory_creator_iptr find_creator(str_hash type) const;
     private:
         mutable std::mutex mutex_;
-        hash_map<str_hash, component_creator_base_iptr> creators_;
+        hash_map<str_hash, factory_creator_iptr> creators_;
     };
 }
 
-#include "component.inl"
+#include "factory.inl"
 #endif

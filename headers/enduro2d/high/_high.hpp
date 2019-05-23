@@ -52,12 +52,11 @@ namespace e2d
     class content_asset;
     class asset;
 
+    class factory;
     class library;
     class asset_cache;
     class asset_group;
     class asset_dependencies;
-
-    class component_factory;
 
     class atlas;
     class flipbook;

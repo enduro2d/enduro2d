@@ -8,7 +8,7 @@
 
 namespace e2d
 {
-    const char* component_loader<renderer>::schema_source = R"json({
+    const char* factory_loader<renderer>::schema_source = R"json({
         "type" : "object",
         "required" : [],
         "additionalProperties" : false,
@@ -21,9 +21,9 @@ namespace e2d
         }
     })json";
 
-    bool component_loader<renderer>::operator()(
+    bool factory_loader<renderer>::operator()(
         renderer& component,
-        const component_loader<>::fill_context& ctx) const
+        const fill_context& ctx) const
     {
         if ( ctx.root.HasMember("enabled") ) {
             auto enabled = component.enabled();
@@ -60,9 +60,9 @@ namespace e2d
         return true;
     }
 
-    bool component_loader<renderer>::operator()(
+    bool factory_loader<renderer>::operator()(
         asset_dependencies& dependencies,
-        const component_loader<>::collect_context& ctx) const
+        const collect_context& ctx) const
     {
         if ( ctx.root.HasMember("materials") ) {
             const rapidjson::Value& materials_root = ctx.root["materials"];

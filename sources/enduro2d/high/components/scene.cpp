@@ -8,7 +8,7 @@
 
 namespace e2d
 {
-    const char* component_loader<scene>::schema_source = R"json({
+    const char* factory_loader<scene>::schema_source = R"json({
         "type" : "object",
         "required" : [],
         "additionalProperties" : false,
@@ -17,9 +17,9 @@ namespace e2d
         }
     })json";
 
-    bool component_loader<scene>::operator()(
+    bool factory_loader<scene>::operator()(
         scene& component,
-        const component_loader<>::fill_context& ctx) const
+        const fill_context& ctx) const
     {
         if ( ctx.root.HasMember("depth") ) {
             auto depth = component.depth();
@@ -33,9 +33,9 @@ namespace e2d
         return true;
     }
 
-    bool component_loader<scene>::operator()(
+    bool factory_loader<scene>::operator()(
         asset_dependencies& dependencies,
-        const component_loader<>::collect_context& ctx) const
+        const collect_context& ctx) const
     {
         E2D_UNUSED(dependencies, ctx);
         return true;

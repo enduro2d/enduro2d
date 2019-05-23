@@ -8,7 +8,7 @@
 
 namespace e2d
 {
-    const char* component_loader<flipbook_source>::schema_source = R"json({
+    const char* factory_loader<flipbook_source>::schema_source = R"json({
         "type" : "object",
         "required" : [],
         "additionalProperties" : false,
@@ -17,9 +17,9 @@ namespace e2d
         }
     })json";
 
-    bool component_loader<flipbook_source>::operator()(
+    bool factory_loader<flipbook_source>::operator()(
         flipbook_source& component,
-        const component_loader<>::fill_context& ctx) const
+        const fill_context& ctx) const
     {
         if ( ctx.root.HasMember("flipbook") ) {
             auto flipbook = ctx.dependencies.find_asset<flipbook_asset>(
@@ -38,9 +38,9 @@ namespace e2d
         return true;
     }
 
-    bool component_loader<flipbook_source>::operator()(
+    bool factory_loader<flipbook_source>::operator()(
         asset_dependencies& dependencies,
-        const component_loader<>::collect_context& ctx) const
+        const collect_context& ctx) const
     {
         if ( ctx.root.HasMember("flipbook") ) {
             dependencies.add_dependency<flipbook_asset>(

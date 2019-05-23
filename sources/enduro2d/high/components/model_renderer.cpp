@@ -8,7 +8,7 @@
 
 namespace e2d
 {
-    const char* component_loader<model_renderer>::schema_source = R"json({
+    const char* factory_loader<model_renderer>::schema_source = R"json({
         "type" : "object",
         "required" : [],
         "additionalProperties" : false,
@@ -17,9 +17,9 @@ namespace e2d
         }
     })json";
 
-    bool component_loader<model_renderer>::operator()(
+    bool factory_loader<model_renderer>::operator()(
         model_renderer& component,
-        const component_loader<>::fill_context& ctx) const
+        const fill_context& ctx) const
     {
         if ( ctx.root.HasMember("model") ) {
             auto model = ctx.dependencies.find_asset<model_asset>(
@@ -38,9 +38,9 @@ namespace e2d
         return true;;
     }
 
-    bool component_loader<model_renderer>::operator()(
+    bool factory_loader<model_renderer>::operator()(
         asset_dependencies& dependencies,
-        const component_loader<>::collect_context& ctx) const
+        const collect_context& ctx) const
     {
         if ( ctx.root.HasMember("model") ) {
             dependencies.add_dependency<model_asset>(

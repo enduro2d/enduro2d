@@ -6,7 +6,7 @@
 
 #include <enduro2d/high/assets/prefab_asset.hpp>
 
-#include <enduro2d/high/component.hpp>
+#include <enduro2d/high/factory.hpp>
 #include <enduro2d/high/assets/json_asset.hpp>
 
 namespace
@@ -83,7 +83,7 @@ namespace
                 ++component_root )
             {
                 {
-                    bool success = the<component_factory>().validate_json(
+                    bool success = the<factory>().validate_json(
                         component_root->name.GetString(),
                         component_root->value);
                     if ( !success ) {
@@ -91,10 +91,10 @@ namespace
                     }
                 }
                 {
-                    component_loader<>::collect_context ctx(
+                    factory_loader<>::collect_context ctx(
                         parent_address,
                         component_root->value);
-                    bool success = the<component_factory>().collect_dependencies(
+                    bool success = the<factory>().collect_dependencies(
                         component_root->name.GetString(),
                         dependencies,
                         ctx);
@@ -145,11 +145,11 @@ namespace
                 component_root != components_root.MemberEnd();
                 ++component_root )
             {
-                component_loader<>::fill_context ctx(
+                factory_loader<>::fill_context ctx(
                     parent_address,
                     component_root->value,
                     dependencies);
-                the<component_factory>().fill_prototype(
+                the<factory>().fill_prototype(
                     component_root->name.GetString(),
                     content.prototype(),
                     ctx);
