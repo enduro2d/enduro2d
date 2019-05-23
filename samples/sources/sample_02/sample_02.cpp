@@ -244,7 +244,7 @@ namespace
     private:
         shader_ptr shader_;
         texture_ptr texture_;
-        index_buffer_ptr  index_buffer_;
+        index_buffer_ptr index_buffer_;
         vertex_buffer_ptr vertex_buffer_;
         render_target_ptr render_target_;
         render::property_block rt_props_;

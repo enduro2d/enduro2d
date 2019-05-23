@@ -199,7 +199,7 @@ namespace
         shader_ptr shader_;
         texture_ptr texture1_;
         texture_ptr texture2_;
-        index_buffer_ptr  index_buffer_;
+        index_buffer_ptr index_buffer_;
         vertex_buffer_ptr vertex_buffer1_;
         vertex_buffer_ptr vertex_buffer2_;
         render::material material_;

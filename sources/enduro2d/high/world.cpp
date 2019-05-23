@@ -94,4 +94,20 @@ namespace e2d
             gobjects_.erase(inst->entity().id());
         }
     }
+
+    gobject_iptr world::resolve(ecs::entity_id ent) const noexcept {
+        E2D_ASSERT(registry_.valid_entity(ent));
+        const auto iter = gobjects_.find(ent);
+        return iter != gobjects_.end()
+            ? iter->second
+            : nullptr;
+    }
+
+    gobject_iptr world::resolve(const ecs::const_entity& ent) const noexcept {
+        E2D_ASSERT(registry_.valid_entity(ent));
+        const auto iter = gobjects_.find(ent.id());
+        return iter != gobjects_.end()
+            ? iter->second
+            : nullptr;
+    }
 }
