@@ -18,23 +18,29 @@ namespace e2d
     //
 
     template < typename Asset >
-    loading_asset<Asset>::loading_asset(str_hash address, promise_type promise)
+    typed_loading_asset<Asset>::typed_loading_asset(str_hash address, promise_type promise)
     : address_(address)
     , promise_(std::move(promise)) {}
 
     template < typename Asset >
-    void loading_asset<Asset>::cancel() noexcept {
+    void typed_loading_asset<Asset>::cancel() noexcept {
         promise_.reject(library_cancelled_exception());
     }
 
     template < typename Asset >
-    str_hash loading_asset<Asset>::address() const noexcept {
+    str_hash typed_loading_asset<Asset>::address() const noexcept {
         return address_;
     }
 
     template < typename Asset >
-    const typename loading_asset<Asset>::promise_type& loading_asset<Asset>::promise() const noexcept {
+    const typename typed_loading_asset<Asset>::promise_type&
+    typed_loading_asset<Asset>::promise() const noexcept {
         return promise_;
+    }
+
+    template < typename Asset >
+    void typed_loading_asset<Asset>::wait(deferrer& deferrer) const noexcept {
+        deferrer.active_safe_wait_promise(promise_);
     }
 
     //
@@ -46,9 +52,8 @@ namespace e2d
     , deferrer_(deferrer) {}
 
     inline library::~library() noexcept {
-        std::lock_guard<std::recursive_mutex> guard(mutex_);
         cancelled_.store(true);
-        cancel_all_loading_assets_();
+        wait_all_loading_assets_();
     }
 
     inline const url& library::root() const noexcept {
@@ -77,14 +82,14 @@ namespace e2d
 
     template < typename Asset >
     typename Asset::load_async_result library::load_main_asset_async(str_view address) const {
-        if ( cancelled_ ) {
-            return stdex::make_rejected_promise<typename Asset::load_result>(library_cancelled_exception());
-        }
-
         const str main_address = address::parent(address);
         const str_hash main_address_hash = make_hash(main_address);
 
         std::lock_guard<std::recursive_mutex> guard(mutex_);
+
+        if ( cancelled_ ) {
+            return stdex::make_rejected_promise<typename Asset::load_result>(library_cancelled_exception());
+        }
 
         if ( auto cached_asset = cache_.find<Asset>(main_address_hash) ) {
             return stdex::make_resolved_promise(std::move(cached_asset));
@@ -135,7 +140,7 @@ namespace e2d
 
         const auto zero_us = time::to_chrono(make_microseconds(0));
         if ( p.wait_for(zero_us) == stdex::promise_wait_status::timeout ) {
-            loading_assets_.push_back(new loading_asset<Asset>(main_address_hash, p));
+            loading_assets_.push_back(new typed_loading_asset<Asset>(main_address_hash, p));
         }
 
         return p;
@@ -173,22 +178,22 @@ namespace e2d
     }
 
     template < typename Asset >
-    vector<loading_asset_base_iptr>::iterator
+    vector<loading_asset_iptr>::iterator
     library::find_loading_asset_iter_(str_hash address) const noexcept {
         return std::find_if(
             loading_assets_.begin(), loading_assets_.end(),
-            [address](const loading_asset_base_iptr& asset) noexcept {
+            [address](const loading_asset_iptr& asset) noexcept {
                 return asset->address() == address
-                    && dynamic_pointer_cast<loading_asset<Asset>>(asset);
+                    && dynamic_pointer_cast<typed_loading_asset<Asset>>(asset);
             });
     }
 
     template < typename Asset >
-    typename loading_asset<Asset>::ptr
+    typename typed_loading_asset<Asset>::ptr
     library::find_loading_asset_(str_hash address) const noexcept {
         auto iter = find_loading_asset_iter_<Asset>(address);
         return iter != loading_assets_.end()
-            ? static_pointer_cast<loading_asset<Asset>>(*iter)
+            ? static_pointer_cast<typed_loading_asset<Asset>>(*iter)
             : nullptr;
     }
 
@@ -200,11 +205,16 @@ namespace e2d
         }
     }
 
-    inline void library::cancel_all_loading_assets_() noexcept {
-        for ( const auto& asset : loading_assets_ ) {
-            asset->cancel();
+    inline void library::wait_all_loading_assets_() noexcept {
+        while ( true ) {
+            std::unique_lock<std::recursive_mutex> lock(mutex_);
+            if ( loading_assets_.empty() ) {
+                break;
+            }
+            const auto loading_asset_copy = loading_assets_.back();
+            lock.unlock();
+            loading_asset_copy->wait(deferrer_);
         }
-        loading_assets_.clear();
     }
 
     //

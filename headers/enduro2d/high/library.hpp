@@ -25,38 +25,36 @@ namespace e2d
     };
 
     //
-    // loading_asset_base
-    //
-
-    class loading_asset_base;
-    using loading_asset_base_iptr = intrusive_ptr<loading_asset_base>;
-
-    class loading_asset_base
-        : private noncopyable
-        , public ref_counter<loading_asset_base> {
-    public:
-        loading_asset_base() = default;
-        virtual ~loading_asset_base() noexcept = default;
-
-        virtual void cancel() noexcept = 0;
-        virtual str_hash address() const noexcept = 0;
-    };
-
-    //
     // loading_asset
     //
 
-    template < typename Asset >
-    class loading_asset : public loading_asset_base {
+    class loading_asset;
+    using loading_asset_iptr = intrusive_ptr<loading_asset>;
+
+    class loading_asset
+        : private noncopyable
+        , public ref_counter<loading_asset> {
     public:
-        using ptr = intrusive_ptr<loading_asset>;
+        loading_asset() = default;
+        virtual ~loading_asset() noexcept = default;
+
+        virtual void cancel() noexcept = 0;
+        virtual str_hash address() const noexcept = 0;
+        virtual void wait(deferrer& deferrer) const noexcept = 0;
+    };
+
+    template < typename Asset >
+    class typed_loading_asset : public loading_asset {
+    public:
+        using ptr = intrusive_ptr<typed_loading_asset>;
         using promise_type = typename Asset::load_async_result;
     public:
-        loading_asset(str_hash address, promise_type promise);
-        ~loading_asset() noexcept override = default;
+        typed_loading_asset(str_hash address, promise_type promise);
+        ~typed_loading_asset() noexcept override = default;
 
         void cancel() noexcept override;
         str_hash address() const noexcept override;
+        void wait(deferrer& deferrer) const noexcept override;
 
         const promise_type& promise() const noexcept;
     private:
@@ -92,17 +90,17 @@ namespace e2d
         typename Nested::load_async_result load_asset_async(str_view address) const;
     private:
         template < typename Asset >
-        vector<loading_asset_base_iptr>::iterator
+        vector<loading_asset_iptr>::iterator
         find_loading_asset_iter_(str_hash address) const noexcept;
 
         template < typename Asset >
-        typename loading_asset<Asset>::ptr
+        typename typed_loading_asset<Asset>::ptr
         find_loading_asset_(str_hash address) const noexcept;
 
         template < typename Asset >
         void remove_loading_asset_(str_hash address) const noexcept;
 
-        void cancel_all_loading_assets_() noexcept;
+        void wait_all_loading_assets_() noexcept;
     private:
         url root_;
         deferrer& deferrer_;
@@ -110,7 +108,7 @@ namespace e2d
     private:
         mutable asset_cache cache_;
         mutable std::recursive_mutex mutex_;
-        mutable vector<loading_asset_base_iptr> loading_assets_;
+        mutable vector<loading_asset_iptr> loading_assets_;
     };
 
     //
