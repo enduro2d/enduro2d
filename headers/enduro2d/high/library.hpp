@@ -182,7 +182,7 @@ namespace e2d
         asset_dependencies() = default;
         ~asset_dependencies() noexcept = default;
 
-        template < typename Asset >
+        template < typename Asset, typename Nested = Asset >
         asset_dependencies& add_dependency(str_view address);
         stdex::promise<asset_group> load_async(const library& library) const;
     private:

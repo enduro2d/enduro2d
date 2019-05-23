@@ -9,6 +9,7 @@
 #include "../_high.hpp"
 
 #include "../factory.hpp"
+#include "../assets/atlas_asset.hpp"
 #include "../assets/sprite_asset.hpp"
 
 namespace e2d

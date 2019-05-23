@@ -138,7 +138,7 @@ namespace
                     "--> Parent address: %0\n"
                     "--> Dependency address: %1",
                     parent_address,
-                    root["flipbook"].GetString());
+                    root["prototype"].GetString());
                 throw prefab_asset_loading_exception();
             }
             content = proto_res->content();
@@ -154,10 +154,13 @@ namespace
                     parent_address,
                     component_root->value,
                     dependencies);
-                the<factory>().fill_prototype(
+                bool success = the<factory>().fill_prototype(
                     component_root->name.GetString(),
                     content.prototype(),
                     ctx);
+                if ( !success ) {
+                    throw prefab_asset_loading_exception();
+                }
             }
         }
 

@@ -288,7 +288,7 @@ namespace e2d
     // asset_dependencies
     //
 
-    template < typename Asset >
+    template < typename Asset, typename Nested >
     asset_dependencies& asset_dependencies::add_dependency(str_view address) {
         asset_dependency_base_iptr dep(new asset_dependency<Asset>(address));
         auto iter = std::upper_bound(
