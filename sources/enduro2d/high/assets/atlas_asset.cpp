@@ -84,16 +84,19 @@ namespace
 
             E2D_ASSERT(sprite_json.HasMember("name"));
             if ( !json_utils::try_parse_value(sprite_json["name"], tsprite_descs[i].name) ) {
+                the<debug>().error("ATLAS: Incorrect formatting of 'name' property");
                 return false;
             }
 
             E2D_ASSERT(sprite_json.HasMember("pivot"));
             if ( !json_utils::try_parse_value(sprite_json["pivot"], tsprite_descs[i].pivot) ) {
+                the<debug>().error("ATLAS: Incorrect formatting of 'pivot' property");
                 return false;
             }
 
             E2D_ASSERT(sprite_json.HasMember("texrect"));
             if ( !json_utils::try_parse_value(sprite_json["texrect"], tsprite_descs[i].texrect) ) {
+                the<debug>().error("ATLAS: Incorrect formatting of 'texrect' property");
                 return false;
             }
         }

@@ -146,18 +146,21 @@ namespace
 
             f32 fps{0.f};
             if ( !json_utils::try_parse_value(sequence_json["fps"], fps) ) {
+                the<debug>().error("FLIPBOOK: Incorrect formatting of 'fps' property");
                 return stdex::make_rejected_promise<vector<flipbook::sequence>>(
                     flipbook_asset_loading_exception());
             }
 
             str_hash name_hash;
             if ( !json_utils::try_parse_value(sequence_json["name"], name_hash) ) {
+                the<debug>().error("FLIPBOOK: Incorrect formatting of 'name' property");
                 return stdex::make_rejected_promise<vector<flipbook::sequence>>(
                     flipbook_asset_loading_exception());
             }
 
             vector<std::size_t> frames;
             if ( !json_utils::try_parse_value(sequence_json["frames"], frames) ) {
+                the<debug>().error("FLIPBOOK: Incorrect formatting of 'frames' property");
                 return stdex::make_rejected_promise<vector<flipbook::sequence>>(
                     flipbook_asset_loading_exception());
             }

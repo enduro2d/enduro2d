@@ -14,6 +14,7 @@ namespace e2d
 {
     class shape_asset final : public content_asset<shape_asset, shape> {
     public:
+        static const char* type_name() noexcept { return "shape_asset"; }
         static load_async_result load_async(const library& library, str_view address);
     };
 }

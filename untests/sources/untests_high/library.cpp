@@ -25,6 +25,7 @@ namespace
 
     class fake_asset final : public content_asset<fake_asset, int> {
     public:
+        static const char* type_name() noexcept { return "fake_asset"; }
         static load_async_result load_async(const library& library, str_view address) {
             E2D_UNUSED(library, address);
             return stdex::make_resolved_promise(fake_asset::create(42));
@@ -33,6 +34,7 @@ namespace
 
     class big_fake_asset final : public content_asset<big_fake_asset, int> {
     public:
+        static const char* type_name() noexcept { return "big_fake_asset"; }
         static load_async_result load_async(const library& library, str_view address) {
             E2D_UNUSED(library, address);
             return the<deferrer>().do_in_worker_thread([](){

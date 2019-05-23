@@ -14,6 +14,7 @@ namespace e2d
 {
     class text_asset final : public content_asset<text_asset, str> {
     public:
+        static const char* type_name() noexcept { return "text_asset"; }
         static load_async_result load_async(const library& library, str_view address);
     };
 }

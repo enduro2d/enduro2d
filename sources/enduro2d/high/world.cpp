@@ -13,7 +13,7 @@ namespace e2d
 {
     world::~world() noexcept {
         while ( !gobjects_.empty() ) {
-            destroy_instance(gobjects_.begin()->second, true);
+            destroy_instance(gobjects_.begin()->second);
         }
     }
 
@@ -37,7 +37,7 @@ namespace e2d
             }
             inst_a.assign(inst_n);
         } catch (...) {
-            destroy_instance(inst, true);
+            destroy_instance(inst);
             throw;
         }
 
@@ -56,7 +56,7 @@ namespace e2d
             }
             inst_a.assign(inst_n);
         } catch (...) {
-            destroy_instance(inst, true);
+            destroy_instance(inst);
             throw;
         }
 
@@ -68,28 +68,26 @@ namespace e2d
                     auto child_a = child->get_component<actor>();
                     inst_a->node()->add_child(child_a->node());
                 } catch (...) {
-                    destroy_instance(child, true);
+                    destroy_instance(child);
                     throw;
                 }
             }
         } catch (...) {
-            destroy_instance(inst, true);
+            destroy_instance(inst);
             throw;
         }
 
         return inst;
     }
 
-    void world::destroy_instance(const gobject_iptr& inst, bool recursive) noexcept {
-        if ( recursive ) {
-            node_iptr inst_n = inst && inst->get_component<actor>()
-                ? inst->get_component<actor>()->node()
-                : nullptr;
-            if ( inst_n ) {
-                inst_n->for_each_child([this](const node_iptr& child_n){
-                    destroy_instance(child_n->owner(), true);
-                });
-            }
+    void world::destroy_instance(const gobject_iptr& inst) noexcept {
+        node_iptr inst_n = inst && inst->get_component<actor>()
+            ? inst->get_component<actor>()->node()
+            : nullptr;
+        if ( inst_n ) {
+            inst_n->for_each_child([this](const node_iptr& child_n){
+                destroy_instance(child_n->owner());
+            });
         }
         if ( inst ) {
             inst->entity().remove_all_components();

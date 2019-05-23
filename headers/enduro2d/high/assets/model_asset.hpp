@@ -15,6 +15,7 @@ namespace e2d
 {
     class model_asset final : public content_asset<model_asset, model> {
     public:
+        static const char* type_name() noexcept { return "model_asset"; }
         static load_async_result load_async(const library& library, str_view address);
     };
 }

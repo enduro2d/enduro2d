@@ -14,6 +14,7 @@ namespace e2d
 {
     class shader_asset final : public content_asset<shader_asset, shader_ptr> {
     public:
+        static const char* type_name() noexcept { return "shader_asset"; }
         static load_async_result load_async(const library& library, str_view address);
     };
 }

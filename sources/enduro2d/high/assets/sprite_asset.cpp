@@ -61,15 +61,15 @@ namespace
         v2f pivot;
         E2D_ASSERT(root.HasMember("pivot"));
         if ( !json_utils::try_parse_value(root["pivot"], pivot) ) {
-            return stdex::make_rejected_promise<sprite>(
-                sprite_asset_loading_exception());
+            the<debug>().error("SPRITE: Incorrect formatting of 'pivot' property");
+            return stdex::make_rejected_promise<sprite>(sprite_asset_loading_exception());
         }
 
         b2f texrect;
         E2D_ASSERT(root.HasMember("texrect"));
         if ( !json_utils::try_parse_value(root["texrect"], texrect) ) {
-            return stdex::make_rejected_promise<sprite>(
-                sprite_asset_loading_exception());
+            the<debug>().error("SPRITE: Incorrect formatting of 'texrect' property");
+            return stdex::make_rejected_promise<sprite>(sprite_asset_loading_exception());
         }
 
         return texture_p.then([

@@ -15,6 +15,7 @@ namespace e2d
 {
     class prefab_asset final : public content_asset<prefab_asset, prefab> {
     public:
+        static const char* type_name() noexcept { return "prefab_asset"; }
         static load_async_result load_async(const library& library, str_view address);
     };
 }

@@ -15,6 +15,7 @@ namespace e2d
 {
     class atlas_asset final : public content_asset<atlas_asset, atlas> {
     public:
+        static const char* type_name() noexcept { return "atlas_asset"; }
         static load_async_result load_async(const library& library, str_view address);
     };
 }

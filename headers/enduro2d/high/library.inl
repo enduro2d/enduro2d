@@ -105,10 +105,31 @@ namespace e2d
             return new_asset;
         }).except([
             this,
+            main_address,
             main_address_hash
         ](std::exception_ptr e) -> typename Asset::load_result {
-            std::lock_guard<std::recursive_mutex> guard(mutex_);
-            remove_loading_asset_<Asset>(main_address_hash);
+            {
+                std::lock_guard<std::recursive_mutex> guard(mutex_);
+                remove_loading_asset_<Asset>(main_address_hash);
+            }
+            try {
+                std::rethrow_exception(e);
+            } catch ( const std::exception& ee ) {
+                the<debug>().error("LIBRARY: Failed to load asset:\n"
+                    "--> Asset: %0\n"
+                    "--> Address: %1\n"
+                    "--> Exception: %2",
+                    Asset::type_name(),
+                    main_address,
+                    ee.what());
+            } catch (...) {
+                the<debug>().error("LIBRARY: Failed to load asset:\n"
+                    "--> Asset: %0\n"
+                    "--> Address: %1\n"
+                    "--> Exception: unexpected",
+                    Asset::type_name(),
+                    main_address);
+            }
             std::rethrow_exception(e);
         });
 
@@ -130,17 +151,25 @@ namespace e2d
     template < typename Asset, typename Nested >
     typename Nested::load_async_result library::load_asset_async(str_view address) const {
         return load_main_asset_async<Asset>(address)
-            .then([
-                nested_address = address::nested(address)
-            ](const typename Asset::load_result& main_asset){
-                typename Nested::load_result nested_asset = nested_address.empty()
-                    ? dynamic_pointer_cast<Nested>(main_asset)
-                    : main_asset->template find_nested_asset<Nested>(nested_address);
-                if ( nested_asset ) {
-                    return nested_asset;
-                }
-                throw asset_loading_exception();
-            });
+        .then([
+            address = str(address),
+            nested_address = address::nested(address)
+        ](const typename Asset::load_result& main_asset){
+            typename Nested::load_result nested_asset = nested_address.empty()
+                ? dynamic_pointer_cast<Nested>(main_asset)
+                : main_asset->template find_nested_asset<Nested>(nested_address);
+            if ( nested_asset ) {
+                return nested_asset;
+            }
+            the<debug>().error("LIBRARY: Failed to load asset:\n"
+                "--> Asset: %0\n"
+                "--> Nested: %1\n"
+                "--> Address: %2\n",
+                Asset::type_name(),
+                Nested::type_name(),
+                address);
+            throw asset_loading_exception();
+        });
     }
 
     template < typename Asset >

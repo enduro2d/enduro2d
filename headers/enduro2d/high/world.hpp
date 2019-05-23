@@ -37,7 +37,7 @@ namespace e2d
 
         gobject_iptr instantiate();
         gobject_iptr instantiate(const prefab& prefab);
-        void destroy_instance(const gobject_iptr& inst, bool recursive) noexcept;
+        void destroy_instance(const gobject_iptr& inst) noexcept;
     private:
         ecs::registry registry_;
         hash_map<ecs::entity_id, gobject_iptr> gobjects_;
