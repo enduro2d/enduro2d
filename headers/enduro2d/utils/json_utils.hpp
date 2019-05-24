@@ -118,16 +118,7 @@ namespace e2d { namespace json_utils
 namespace e2d { namespace json_utils
 {
     template < typename T >
-    using has_try_parse_value = decltype(
-        try_parse_value(
-            std::declval<const rapidjson::Value&>(),
-            std::declval<T&>()));
-
-    template < typename T >
-    std::enable_if_t<
-        stdex::is_detected<json_utils::has_try_parse_value, T>::value,
-        bool>
-    try_parse_value(const rapidjson::Value& root, vector<T>& v) {
+    bool try_parse_value(const rapidjson::Value& root, vector<T>& v) {
         if ( !root.IsArray() ) {
             return false;
         }
