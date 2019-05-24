@@ -8,6 +8,9 @@
 
 #include "_base.hpp"
 
+#include <3rdparty/flat.hpp/flat_set.hpp>
+#include <3rdparty/flat.hpp/flat_map.hpp>
+
 namespace e2d
 {
     using f32 = float;
@@ -72,4 +75,18 @@ namespace e2d
     template < typename Char
              , typename Traits = std::char_traits<Char> >
     using basic_string_view = std::basic_string_view<Char, Traits>;
+}
+
+namespace e2d
+{
+    template < typename Key
+             , typename Compare = std::less<>
+             , typename Container = std::vector<Key> >
+    using flat_set = flat_hpp::flat_set<Key, Compare, Container>;
+
+    template < typename Key
+             , typename Value
+             , typename Compare = std::less<>
+             , typename Container = std::vector<std::pair<Key, Value>> >
+    using flat_map = flat_hpp::flat_map<Key, Value, Compare, Container>;
 }
