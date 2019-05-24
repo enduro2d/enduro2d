@@ -63,7 +63,6 @@ namespace
 
 TEST_CASE("node") {
     safe_starter_initializer initializer;
-    world& w = the<world>();
     SECTION("empty_node") {
         auto n = node::create();
         REQUIRE(n);
