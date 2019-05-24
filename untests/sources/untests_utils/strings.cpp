@@ -255,6 +255,25 @@ TEST_CASE("strings") {
         REQUIRE(wildcard_match(mark_string("*abc*"), mark_pattern("***a*b*c***")) == true);
     }
     {
+        REQUIRE(strings::starts_with("", ""));
+        REQUIRE(strings::starts_with("hello_world", ""));
+        REQUIRE(strings::starts_with("hello_world", "hello"));
+        REQUIRE(strings::starts_with("hello_world", "hello_world"));
+        REQUIRE_FALSE(strings::starts_with("", "a"));
+        REQUIRE_FALSE(strings::starts_with("hello_world", "world"));
+        REQUIRE_FALSE(strings::starts_with("hello_world", "hello_world_42"));
+        REQUIRE_FALSE(strings::starts_with("hello_world", "42_hello_world"));
+
+        REQUIRE(strings::ends_with("", ""));
+        REQUIRE(strings::ends_with("hello_world", ""));
+        REQUIRE(strings::ends_with("hello_world", "world"));
+        REQUIRE(strings::ends_with("hello_world", "hello_world"));
+        REQUIRE_FALSE(strings::ends_with("", "a"));
+        REQUIRE_FALSE(strings::ends_with("hello_world", "hello"));
+        REQUIRE_FALSE(strings::ends_with("hello_world", "hello_world_42"));
+        REQUIRE_FALSE(strings::ends_with("hello_world", "42_hello_world"));
+    }
+    {
         char buf[6];
         REQUIRE_THROWS_AS(strings::format(buf, 0, "hello"), strings::bad_format_buffer);
         REQUIRE_THROWS_AS(strings::format(nullptr, sizeof(buf), "hello"), strings::bad_format_buffer);

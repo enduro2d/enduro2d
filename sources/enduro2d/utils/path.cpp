@@ -41,10 +41,10 @@ namespace e2d { namespace path
 {
     str combine(str_view lhs, str_view rhs) {
         if ( lhs.empty() || is_absolute(rhs) ) {
-            return rhs;
+            return str(rhs);
         }
         if ( rhs.empty() ) {
-            return lhs;
+            return str(lhs);
         }
         return is_directory_separator(lhs.back())
             ? str_view_concat(lhs, rhs)
@@ -54,15 +54,15 @@ namespace e2d { namespace path
     str remove_filename(str_view path) {
         const str name = filename(path);
         return name.empty()
-            ? path
-            : path.substr(0, path.length() - name.length());
+            ? str(path)
+            : str(path.substr(0, path.length() - name.length()));
     }
 
     str remove_extension(str_view path) {
         const str ext = extension(path);
         return ext.empty()
-            ? path
-            : path.substr(0, path.length() - ext.length());
+            ? str(path)
+            : str(path.substr(0, path.length() - ext.length()));
     }
 
     str replace_filename(str_view path, str_view filename) {
@@ -94,7 +94,7 @@ namespace e2d { namespace path
         const auto sep_e = std::find_if(
             path.crbegin(), path.crend(), &is_directory_separator);
         const auto sep_d = std::distance(sep_e, path.crend());
-        return path.substr(static_cast<std::size_t>(sep_d));
+        return str(path.substr(static_cast<std::size_t>(sep_d)));
     }
 
     str extension(str_view path) {
@@ -120,7 +120,7 @@ namespace e2d { namespace path
             return str();
         }
         const auto sep_d = std::distance(sep_b, path.crend());
-        return path.substr(0, static_cast<std::size_t>(sep_d));
+        return str(path.substr(0, static_cast<std::size_t>(sep_d)));
     }
 
     bool is_absolute(str_view path) noexcept {

@@ -327,4 +327,14 @@ namespace e2d { namespace strings
             utf8_iter(si, si, se), utf8_iter(se, si, se),
             utf8_iter(pi, pi, pe), utf8_iter(pe, pi, pe));
     }
+
+    bool starts_with(str_view input, str_view test) noexcept {
+        return input.length() >= test.length()
+            && 0 == input.compare(0, test.length(), test);
+    }
+
+    bool ends_with(str_view input, str_view test) noexcept {
+        return input.length() >= test.length()
+            && 0 == input.compare(input.length() - test.length(), test.length(), test);
+    }
 }}

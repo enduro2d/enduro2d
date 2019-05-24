@@ -118,6 +118,9 @@ namespace e2d
             str_view fmt, Args&&... args) noexcept;
 
         bool wildcard_match(str_view string, str_view pattern);
+
+        bool starts_with(str_view input, str_view test) noexcept;
+        bool ends_with(str_view input, str_view test) noexcept;
     }
 }
 

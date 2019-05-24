@@ -226,7 +226,7 @@ namespace e2d { namespace impl
 {
     read_file_uptr make_read_file(str_view path) noexcept {
         try {
-            return std::make_unique<read_file_winapi>(path);
+            return std::make_unique<read_file_winapi>(str(path));
         } catch (...) {
             return nullptr;
         }
@@ -234,7 +234,7 @@ namespace e2d { namespace impl
 
     write_file_uptr make_write_file(str_view path, bool append) noexcept {
         try {
-            return std::make_unique<write_file_winapi>(path, append);
+            return std::make_unique<write_file_winapi>(str(path), append);
         } catch (...) {
             return nullptr;
         }

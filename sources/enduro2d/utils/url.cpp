@@ -42,11 +42,11 @@ namespace
         const str_view::size_type sep_pos =
             str_view_search(schemepath, scheme_separator, 0);
         if ( str_view::npos == sep_pos ) {
-            return std::make_pair(str(), schemepath);
+            return std::make_pair(str(), str(schemepath));
         }
         return std::make_pair(
-            schemepath.substr(0, sep_pos),
-            schemepath.substr(sep_pos + scheme_separator.length()));
+            str(schemepath.substr(0, sep_pos)),
+            str(schemepath.substr(sep_pos + scheme_separator.length())));
     }
 }
 

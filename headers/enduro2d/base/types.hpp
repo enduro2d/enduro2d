@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include "stdex.hpp"
+#include "_base.hpp"
 
 namespace e2d
 {
@@ -41,26 +41,26 @@ namespace e2d
     using vector = std::vector<Value, Allocator>;
 
     template < typename Key
-             , typename Comp = std::less<Key>
+             , typename Comp = std::less<>
              , typename Allocator = std::allocator<Key> >
     using set = std::set<Key, Comp, Allocator>;
 
     template < typename Key
              , typename Value
-             , typename Comp = std::less<Key>
+             , typename Comp = std::less<>
              , typename Allocator = std::allocator<std::pair<const Key, Value>> >
     using map = std::map<Key, Value, Comp, Allocator>;
 
     template < typename Value
              , typename Hash = std::hash<Value>
-             , typename Pred = std::equal_to<Value>
+             , typename Pred = std::equal_to<>
              , typename Allocator = std::allocator<Value> >
     using hash_set = std::unordered_set<Value, Hash, Pred, Allocator>;
 
     template < typename Key
              , typename Value
              , typename Hash = std::hash<Key>
-             , typename Pred = std::equal_to<Key>
+             , typename Pred = std::equal_to<>
              , typename Allocator = std::allocator<std::pair<const Key, Value>> >
     using hash_map = std::unordered_map<Key, Value, Hash, Pred, Allocator>;
 
@@ -71,5 +71,5 @@ namespace e2d
 
     template < typename Char
              , typename Traits = std::char_traits<Char> >
-    using basic_string_view = stdex::basic_string_view<Char, Traits>;
+    using basic_string_view = std::basic_string_view<Char, Traits>;
 }

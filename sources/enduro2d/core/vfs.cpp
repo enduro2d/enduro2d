@@ -80,8 +80,8 @@ namespace e2d
     public:
         std::mutex mutex;
         stdex::jobber worker{1};
-        hash_map<str, url> aliases;
-        hash_map<str, file_source_uptr> schemes;
+        map<str, url> aliases;
+        map<str, file_source_uptr> schemes;
     public:
         url resolve_url(const url& url, u8 level = 0) const {
             if ( level > 32 ) {
@@ -121,7 +121,10 @@ namespace e2d
 
     bool vfs::unregister_scheme(str_view scheme) {
         std::lock_guard<std::mutex> guard(state_->mutex);
-        return state_->schemes.erase(scheme) > 0;
+        const auto iter = state_->schemes.find(scheme);
+        return iter != state_->schemes.end()
+            ? (state_->schemes.erase(iter), true)
+            : false;
     }
 
     bool vfs::register_scheme_alias(str_view scheme, url alias) {
@@ -132,7 +135,10 @@ namespace e2d
 
     bool vfs::unregister_scheme_alias(str_view scheme) {
         std::lock_guard<std::mutex> guard(state_->mutex);
-        return state_->aliases.erase(scheme) > 0;
+        const auto iter = state_->aliases.find(scheme);
+        return iter != state_->aliases.end()
+            ? (state_->aliases.erase(iter), true)
+            : false;
     }
 
     bool vfs::exists(const url& url) const {
@@ -326,7 +332,7 @@ namespace e2d
             mz_zip_archive_file_stat file_stat;
             if ( mz_zip_reader_file_stat(state_->archive.get(), i, &file_stat) ) {
                 const str_view filename{file_stat.m_filename};
-                if ( filename.length() > parent.length() && filename.starts_with(parent) ) {
+                if ( filename.length() > parent.length() && strings::starts_with(filename, parent) ) {
                     func(file_stat.m_filename, !!file_stat.m_is_directory);
                 }
             }
