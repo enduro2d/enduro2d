@@ -6,7 +6,7 @@
 
 #include <enduro2d/high/assets/flipbook_asset.hpp>
 
-#include "json_asset.hpp"
+#include <enduro2d/high/assets/json_asset.hpp>
 #include <enduro2d/high/assets/atlas_asset.hpp>
 #include <enduro2d/high/assets/sprite_asset.hpp>
 
@@ -146,18 +146,21 @@ namespace
 
             f32 fps{0.f};
             if ( !json_utils::try_parse_value(sequence_json["fps"], fps) ) {
+                the<debug>().error("FLIPBOOK: Incorrect formatting of 'fps' property");
                 return stdex::make_rejected_promise<vector<flipbook::sequence>>(
                     flipbook_asset_loading_exception());
             }
 
             str_hash name_hash;
             if ( !json_utils::try_parse_value(sequence_json["name"], name_hash) ) {
+                the<debug>().error("FLIPBOOK: Incorrect formatting of 'name' property");
                 return stdex::make_rejected_promise<vector<flipbook::sequence>>(
                     flipbook_asset_loading_exception());
             }
 
             vector<std::size_t> frames;
-            if ( !json_utils::try_parse_values(sequence_json["frames"], frames) ) {
+            if ( !json_utils::try_parse_value(sequence_json["frames"], frames) ) {
+                the<debug>().error("FLIPBOOK: Incorrect formatting of 'frames' property");
                 return stdex::make_rejected_promise<vector<flipbook::sequence>>(
                     flipbook_asset_loading_exception());
             }
@@ -208,18 +211,35 @@ namespace e2d
         return library.load_asset_async<json_asset>(address)
         .then([
             &library,
+            address = str(address),
             parent_address = path::parent_path(address)
         ](const json_asset::load_result& flipbook_data){
-            return the<deferrer>().do_in_worker_thread([flipbook_data](){
-                const rapidjson::Document& doc = flipbook_data->content();
+            return the<deferrer>().do_in_worker_thread([address, flipbook_data](){
+                const rapidjson::Document& doc = *flipbook_data->content();
                 rapidjson::SchemaValidator validator(flipbook_asset_schema());
-                if ( !doc.Accept(validator) ) {
-                    throw flipbook_asset_loading_exception();
+
+                if ( doc.Accept(validator) ) {
+                    return;
                 }
+
+                rapidjson::StringBuffer sb;
+                if ( validator.GetInvalidDocumentPointer().StringifyUriFragment(sb) ) {
+                    the<debug>().error("ASSET: Failed to validate asset json:\n"
+                        "--> Address: %0\n"
+                        "--> Invalid schema keyword: %1\n"
+                        "--> Invalid document pointer: %2",
+                        address,
+                        validator.GetInvalidSchemaKeyword(),
+                        sb.GetString());
+                } else {
+                    the<debug>().error("ASSET: Failed to validate asset json");
+                }
+
+                throw flipbook_asset_loading_exception();
             })
             .then([&library, parent_address, flipbook_data](){
                 return parse_flipbook(
-                    library, parent_address, flipbook_data->content());
+                    library, parent_address, *flipbook_data->content());
             })
             .then([](auto&& content){
                 return flipbook_asset::create(

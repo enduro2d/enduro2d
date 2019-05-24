@@ -6,7 +6,7 @@
 
 #include <enduro2d/high/assets/atlas_asset.hpp>
 
-#include "json_asset.hpp"
+#include <enduro2d/high/assets/json_asset.hpp>
 #include <enduro2d/high/assets/sprite_asset.hpp>
 #include <enduro2d/high/assets/texture_asset.hpp>
 
@@ -84,16 +84,19 @@ namespace
 
             E2D_ASSERT(sprite_json.HasMember("name"));
             if ( !json_utils::try_parse_value(sprite_json["name"], tsprite_descs[i].name) ) {
+                the<debug>().error("ATLAS: Incorrect formatting of 'name' property");
                 return false;
             }
 
             E2D_ASSERT(sprite_json.HasMember("pivot"));
             if ( !json_utils::try_parse_value(sprite_json["pivot"], tsprite_descs[i].pivot) ) {
+                the<debug>().error("ATLAS: Incorrect formatting of 'pivot' property");
                 return false;
             }
 
             E2D_ASSERT(sprite_json.HasMember("texrect"));
             if ( !json_utils::try_parse_value(sprite_json["texrect"], tsprite_descs[i].texrect) ) {
+                the<debug>().error("ATLAS: Incorrect formatting of 'texrect' property");
                 return false;
             }
         }
@@ -149,18 +152,35 @@ namespace e2d
         return library.load_asset_async<json_asset>(address)
         .then([
             &library,
+            address = str(address),
             parent_address = path::parent_path(address)
         ](const json_asset::load_result& atlas_data){
-            return the<deferrer>().do_in_worker_thread([atlas_data](){
-                const rapidjson::Document& doc = atlas_data->content();
+            return the<deferrer>().do_in_worker_thread([address, atlas_data](){
+                const rapidjson::Document& doc = *atlas_data->content();
                 rapidjson::SchemaValidator validator(atlas_asset_schema());
-                if ( !doc.Accept(validator) ) {
-                    throw atlas_asset_loading_exception();
+
+                if ( doc.Accept(validator) ) {
+                    return;
                 }
+
+                rapidjson::StringBuffer sb;
+                if ( validator.GetInvalidDocumentPointer().StringifyUriFragment(sb) ) {
+                    the<debug>().error("ASSET: Failed to validate asset json:\n"
+                        "--> Address: %0\n"
+                        "--> Invalid schema keyword: %1\n"
+                        "--> Invalid document pointer: %2",
+                        address,
+                        validator.GetInvalidSchemaKeyword(),
+                        sb.GetString());
+                } else {
+                    the<debug>().error("ASSET: Failed to validate asset json");
+                }
+
+                throw atlas_asset_loading_exception();
             })
             .then([&library, parent_address, atlas_data](){
                 return parse_atlas(
-                    library, parent_address, atlas_data->content());
+                    library, parent_address, *atlas_data->content());
             })
             .then([](const parse_atlas_result& result){
                 return atlas_asset::create(

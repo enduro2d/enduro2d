@@ -150,7 +150,7 @@ namespace
             vertex2{color32::yellow()}};
     }
 
-    class game final : public application {
+    class game final : public engine::application {
     public:
         bool initialize() final {
             the<vfs>().register_scheme<archive_file_source>(
@@ -264,7 +264,7 @@ namespace
     private:
         shader_ptr shader_;
         texture_ptr texture_;
-        index_buffer_ptr  index_buffer_;
+        index_buffer_ptr index_buffer_;
         vertex_buffer_ptr vertex_buffer1_;
         vertex_buffer_ptr vertex_buffer2_;
         render::material material_;

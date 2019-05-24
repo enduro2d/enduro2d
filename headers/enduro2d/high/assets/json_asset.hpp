@@ -6,15 +6,16 @@
 
 #pragma once
 
-#include <enduro2d/high/library.hpp>
+#include "../_high.hpp"
 
-#include "json_utils.hpp"
+#include "../library.hpp"
 
 namespace e2d
 {
-    class json_asset final : public content_asset<json_asset, rapidjson::Document> {
+    using json_uptr = std::unique_ptr<rapidjson::Document>;
+    class json_asset final : public content_asset<json_asset, json_uptr> {
     public:
-        using content_asset<json_asset, rapidjson::Document>::content_asset;
+        static const char* type_name() noexcept { return "json_asset"; }
         static load_async_result load_async(const library& library, str_view address);
     };
 }

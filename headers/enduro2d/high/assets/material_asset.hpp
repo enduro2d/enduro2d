@@ -14,6 +14,7 @@ namespace e2d
 {
     class material_asset final : public content_asset<material_asset, render::material> {
     public:
+        static const char* type_name() noexcept { return "material_asset"; }
         static load_async_result load_async(const library& library, str_view address);
     };
 }

@@ -14,6 +14,7 @@ namespace e2d
 {
     class binary_asset final : public content_asset<binary_asset, buffer> {
     public:
+        static const char* type_name() noexcept { return "binary_asset"; }
         static load_async_result load_async(const library& library, str_view address);
     };
 }

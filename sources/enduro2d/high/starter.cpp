@@ -7,7 +7,17 @@
 #include <enduro2d/high/starter.hpp>
 
 #include <enduro2d/high/world.hpp>
+#include <enduro2d/high/factory.hpp>
 #include <enduro2d/high/library.hpp>
+
+#include <enduro2d/high/components/actor.hpp>
+#include <enduro2d/high/components/camera.hpp>
+#include <enduro2d/high/components/flipbook_player.hpp>
+#include <enduro2d/high/components/flipbook_source.hpp>
+#include <enduro2d/high/components/model_renderer.hpp>
+#include <enduro2d/high/components/renderer.hpp>
+#include <enduro2d/high/components/scene.hpp>
+#include <enduro2d/high/components/sprite_renderer.hpp>
 
 #include <enduro2d/high/systems/flipbook_system.hpp>
 #include <enduro2d/high/systems/render_system.hpp>
@@ -23,21 +33,21 @@ namespace
             : modules::initialize<Module>(std::forward<Args>(args)...);
     }
 
-    class starter_application final : public application {
+    class engine_application final : public engine::application {
     public:
-        starter_application(high_application_uptr application)
-        : high_application_(std::move(application)) {}
+        engine_application(starter::application_uptr application)
+        : application_(std::move(application)) {}
 
         bool initialize() final {
             ecs::registry_filler(the<world>().registry())
                 .system<flipbook_system>(world::priority_update)
                 .system<render_system>(world::priority_render);
-            return !high_application_ || high_application_->initialize();
+            return !application_ || application_->initialize();
         }
 
         void shutdown() noexcept final {
-            if ( high_application_ ) {
-                high_application_->shutdown();
+            if ( application_ ) {
+                application_->shutdown();
             }
         }
 
@@ -46,7 +56,7 @@ namespace
                 world::priority_update_section_begin,
                 world::priority_update_section_end);
             return !the<window>().should_close()
-                || (high_application_ && !high_application_->on_should_close());
+                || (application_ && !application_->on_should_close());
         }
 
         void frame_render() final {
@@ -55,24 +65,24 @@ namespace
                 world::priority_render_section_end);
         }
     private:
-        high_application_uptr high_application_;
+        starter::application_uptr application_;
     };
 }
 
 namespace e2d
 {
     //
-    // high_application
+    // starter::application
     //
 
-    bool high_application::initialize() {
+    bool starter::application::initialize() {
         return true;
     }
 
-    void high_application::shutdown() noexcept {
+    void starter::application::shutdown() noexcept {
     }
 
-    bool high_application::on_should_close() {
+    bool starter::application::on_should_close() {
         return true;
     }
 
@@ -115,6 +125,15 @@ namespace e2d
 
     starter::starter(int argc, char *argv[], const parameters& params) {
         safe_module_initialize<engine>(argc, argv, params.engine_params());
+        safe_module_initialize<factory>()
+            .register_component<actor>("actor")
+            .register_component<camera>("camera")
+            .register_component<flipbook_player>("flipbook_player")
+            .register_component<flipbook_source>("flipbook_source")
+            .register_component<model_renderer>("model_renderer")
+            .register_component<renderer>("renderer")
+            .register_component<scene>("scene")
+            .register_component<sprite_renderer>("sprite_renderer");
         safe_module_initialize<library>(params.library_root(), the<deferrer>());
         safe_module_initialize<world>();
     }
@@ -122,12 +141,13 @@ namespace e2d
     starter::~starter() noexcept {
         modules::shutdown<world>();
         modules::shutdown<library>();
+        modules::shutdown<factory>();
         modules::shutdown<engine>();
     }
 
-    bool starter::start(high_application_uptr app) {
+    bool starter::start(application_uptr app) {
         return the<engine>().start(
-            std::make_unique<starter_application>(
+            std::make_unique<engine_application>(
                 std::move(app)));
     }
 }

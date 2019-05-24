@@ -16,6 +16,7 @@
 #include "image.hpp"
 #include "intrusive_list.hpp"
 #include "intrusive_ptr.hpp"
+#include "json_utils.hpp"
 #include "mesh.hpp"
 #include "module.hpp"
 #include "path.hpp"
@@ -26,3 +27,4 @@
 #include "strings.inl"
 #include "time.hpp"
 #include "url.hpp"
+#include "xml_utils.hpp"

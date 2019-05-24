@@ -24,10 +24,14 @@ namespace
     };
 
     class fake_nested_asset final : public content_asset<fake_nested_asset, int> {
+    public:
+        static const char* type_name() noexcept { return "fake_nested_asset"; }
     };
 
     class fake_asset final : public content_asset<fake_asset, int> {
     public:
+        static const char* type_name() noexcept { return "fake_asset"; }
+
         static load_async_result load_async(const library& library, str_view address) {
             E2D_UNUSED(library);
             return address == "42"

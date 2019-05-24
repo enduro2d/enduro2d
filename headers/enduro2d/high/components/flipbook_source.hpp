@@ -8,6 +8,7 @@
 
 #include "../_high.hpp"
 
+#include "../factory.hpp"
 #include "../assets/flipbook_asset.hpp"
 
 namespace e2d
@@ -21,6 +22,20 @@ namespace e2d
         const flipbook_asset::ptr& flipbook() const noexcept;
     private:
         flipbook_asset::ptr flipbook_;
+    };
+
+    template <>
+    class factory_loader<flipbook_source> final : factory_loader<> {
+    public:
+        static const char* schema_source;
+
+        bool operator()(
+            flipbook_source& component,
+            const fill_context& ctx) const;
+            
+        bool operator()(
+            asset_dependencies& dependencies,
+            const collect_context& ctx) const;
     };
 }
 

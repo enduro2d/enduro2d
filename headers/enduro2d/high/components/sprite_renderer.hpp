@@ -8,6 +8,8 @@
 
 #include "../_high.hpp"
 
+#include "../factory.hpp"
+#include "../assets/atlas_asset.hpp"
 #include "../assets/sprite_asset.hpp"
 
 namespace e2d
@@ -29,6 +31,20 @@ namespace e2d
         color32 tint_ = color32::white();
         bool filtering_ = true;
         sprite_asset::ptr sprite_;
+    };
+
+    template <>
+    class factory_loader<sprite_renderer> final : factory_loader<> {
+    public:
+        static const char* schema_source;
+
+        bool operator()(
+            sprite_renderer& component,
+            const fill_context& ctx) const;
+            
+        bool operator()(
+            asset_dependencies& dependencies,
+            const collect_context& ctx) const;
     };
 }
 

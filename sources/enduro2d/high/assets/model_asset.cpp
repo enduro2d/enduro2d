@@ -6,7 +6,7 @@
 
 #include <enduro2d/high/assets/model_asset.hpp>
 
-#include "json_asset.hpp"
+#include <enduro2d/high/assets/json_asset.hpp>
 
 namespace
 {
@@ -75,18 +75,35 @@ namespace e2d
         return library.load_asset_async<json_asset>(address)
         .then([
             &library,
+            address = str(address),
             parent_address = path::parent_path(address)
         ](const json_asset::load_result& model_data){
-            return the<deferrer>().do_in_worker_thread([model_data](){
-                const rapidjson::Document& doc = model_data->content();
+            return the<deferrer>().do_in_worker_thread([address, model_data](){
+                const rapidjson::Document& doc = *model_data->content();
                 rapidjson::SchemaValidator validator(model_asset_schema());
-                if ( !doc.Accept(validator) ) {
-                    throw model_asset_loading_exception();
+
+                if ( doc.Accept(validator) ) {
+                    return;
                 }
+
+                rapidjson::StringBuffer sb;
+                if ( validator.GetInvalidDocumentPointer().StringifyUriFragment(sb) ) {
+                    the<debug>().error("ASSET: Failed to validate asset json:\n"
+                        "--> Address: %0\n"
+                        "--> Invalid schema keyword: %1\n"
+                        "--> Invalid document pointer: %2",
+                        address,
+                        validator.GetInvalidSchemaKeyword(),
+                        sb.GetString());
+                } else {
+                    the<debug>().error("ASSET: Failed to validate asset json");
+                }
+
+                throw model_asset_loading_exception();
             })
             .then([&library, parent_address, model_data](){
                 return parse_model(
-                    library, parent_address, model_data->content());
+                    library, parent_address, *model_data->content());
             })
             .then([](auto&& content){
                 return model_asset::create(

@@ -14,6 +14,7 @@ namespace e2d
 {
     class texture_asset final : public content_asset<texture_asset, texture_ptr> {
     public:
+        static const char* type_name() noexcept { return "texture_asset"; }
         static load_async_result load_async(const library& library, str_view address);
     };
 }

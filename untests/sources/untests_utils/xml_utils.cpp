@@ -4,13 +4,8 @@
  * Copyright (C) 2018-2019, by Matvey Cherevko (blackmatov@gmail.com)
  ******************************************************************************/
 
-#include "xml_utils.hpp"
+#include "_utils.hpp"
+using namespace e2d;
 
-namespace
-{
-    using namespace e2d;
+TEST_CASE("xml_utils") {
 }
-
-namespace e2d { namespace xml_utils
-{
-}}

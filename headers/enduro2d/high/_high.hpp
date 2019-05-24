@@ -24,14 +24,17 @@ namespace e2d
     class binary_asset;
     class flipbook_asset;
     class image_asset;
+    class json_asset;
     class material_asset;
     class mesh_asset;
     class model_asset;
+    class prefab_asset;
     class shader_asset;
     class shape_asset;
     class sprite_asset;
     class text_asset;
     class texture_asset;
+    class xml_asset;
 
     class actor;
     class camera;
@@ -49,6 +52,7 @@ namespace e2d
     class content_asset;
     class asset;
 
+    class factory;
     class library;
     class asset_cache;
     class asset_group;
@@ -56,8 +60,10 @@ namespace e2d
 
     class atlas;
     class flipbook;
+    class gobject;
     class model;
     class node;
+    class prefab;
     class sprite;
     class starter;
     class world;

@@ -8,6 +8,9 @@
 
 #include "_high.hpp"
 
+#include "prefab.hpp"
+#include "gobject.hpp"
+
 namespace e2d
 {
     class world final : public module<world> {
@@ -26,12 +29,20 @@ namespace e2d
             priority_render_section_end = 4500
         };
     public:
-        world();
+        world() = default;
         ~world() noexcept final;
 
         ecs::registry& registry() noexcept;
         const ecs::registry& registry() const noexcept;
+
+        gobject_iptr instantiate();
+        gobject_iptr instantiate(const prefab& prefab);
+        void destroy_instance(const gobject_iptr& inst) noexcept;
+
+        gobject_iptr resolve(ecs::entity_id ent) const noexcept;
+        gobject_iptr resolve(const ecs::const_entity& ent) const noexcept;
     private:
         ecs::registry registry_;
+        hash_map<ecs::entity_id, gobject_iptr> gobjects_;
     };
 }

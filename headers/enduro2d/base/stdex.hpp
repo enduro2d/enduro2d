@@ -20,6 +20,48 @@ namespace e2d { namespace stdex
 }}
 
 //
+// void_t
+//
+
+namespace e2d { namespace stdex
+{
+    namespace impl
+    {
+        template < typename... Args >
+        struct make_void {
+            using type = void;
+        };
+    }
+
+    template < typename... Args >
+    using void_t = typename impl::make_void<Args...>::type;
+}}
+
+//
+// is_detected
+//
+
+namespace e2d { namespace stdex
+{
+    namespace impl
+    {
+        template < template <typename...> class Op
+                , typename AlwaysVoid
+                , typename... Args >
+        struct is_detected
+        : std::false_type {};
+
+        template < template <typename...> class Op
+                 , typename... Args >
+        struct is_detected<Op, stdex::void_t<Op<Args...>>, Args...>
+        : std::true_type {};
+    }
+
+    template < template <typename...> class Op, typename... Args >
+    using is_detected = typename impl::is_detected<Op, void, Args...>::type;
+}}
+
+//
 // basic_string_view
 //
 

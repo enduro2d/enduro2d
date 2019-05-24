@@ -6,7 +6,7 @@
 
 #include <enduro2d/high/assets/sprite_asset.hpp>
 
-#include "json_asset.hpp"
+#include <enduro2d/high/assets/json_asset.hpp>
 #include <enduro2d/high/assets/atlas_asset.hpp>
 #include <enduro2d/high/assets/texture_asset.hpp>
 
@@ -61,15 +61,15 @@ namespace
         v2f pivot;
         E2D_ASSERT(root.HasMember("pivot"));
         if ( !json_utils::try_parse_value(root["pivot"], pivot) ) {
-            return stdex::make_rejected_promise<sprite>(
-                sprite_asset_loading_exception());
+            the<debug>().error("SPRITE: Incorrect formatting of 'pivot' property");
+            return stdex::make_rejected_promise<sprite>(sprite_asset_loading_exception());
         }
 
         b2f texrect;
         E2D_ASSERT(root.HasMember("texrect"));
         if ( !json_utils::try_parse_value(root["texrect"], texrect) ) {
-            return stdex::make_rejected_promise<sprite>(
-                sprite_asset_loading_exception());
+            the<debug>().error("SPRITE: Incorrect formatting of 'texrect' property");
+            return stdex::make_rejected_promise<sprite>(sprite_asset_loading_exception());
         }
 
         return texture_p.then([
@@ -93,18 +93,35 @@ namespace e2d
         return library.load_asset_async<json_asset>(address)
         .then([
             &library,
+            address = str(address),
             parent_address = path::parent_path(address)
         ](const json_asset::load_result& sprite_data){
-            return the<deferrer>().do_in_worker_thread([sprite_data](){
-                const rapidjson::Document& doc = sprite_data->content();
+            return the<deferrer>().do_in_worker_thread([address, sprite_data](){
+                const rapidjson::Document& doc = *sprite_data->content();
                 rapidjson::SchemaValidator validator(sprite_asset_schema());
-                if ( !doc.Accept(validator) ) {
-                    throw sprite_asset_loading_exception();
+
+                if ( doc.Accept(validator) ) {
+                    return;
                 }
+
+                rapidjson::StringBuffer sb;
+                if ( validator.GetInvalidDocumentPointer().StringifyUriFragment(sb) ) {
+                    the<debug>().error("ASSET: Failed to validate asset json:\n"
+                        "--> Address: %0\n"
+                        "--> Invalid schema keyword: %1\n"
+                        "--> Invalid document pointer: %2",
+                        address,
+                        validator.GetInvalidSchemaKeyword(),
+                        sb.GetString());
+                } else {
+                    the<debug>().error("ASSET: Failed to validate asset json");
+                }
+
+                throw sprite_asset_loading_exception();
             })
             .then([&library, parent_address, sprite_data](){
                 return parse_sprite(
-                    library, parent_address, sprite_data->content());
+                    library, parent_address, *sprite_data->content());
             })
             .then([](auto&& content){
                 return sprite_asset::create(

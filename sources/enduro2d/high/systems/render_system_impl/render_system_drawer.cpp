@@ -66,11 +66,12 @@ namespace e2d { namespace render_system_impl
     void drawer::context::draw(
         const const_node_iptr& node)
     {
-        if ( !node || !node->entity().valid() ) {
+        if ( !node || !node->owner() ) {
             return;
         }
 
-        ecs::const_entity node_e = node->entity();
+        E2D_ASSERT(node->owner()->entity().valid());
+        ecs::const_entity node_e = node->owner()->entity();
         const renderer* node_r = node_e.find_component<renderer>();
 
         if ( node_r && node_r->enabled() ) {

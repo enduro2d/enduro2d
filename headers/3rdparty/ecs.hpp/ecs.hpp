@@ -1099,23 +1099,30 @@ namespace ecs_hpp
 {
     namespace detail
     {
-        class component_applier_base;
-        using component_applier_uptr = std::unique_ptr<component_applier_base>;
+        class applier_base;
+        using applier_uptr = std::unique_ptr<applier_base>;
 
-        class component_applier_base {
+        class applier_base {
         public:
-            virtual ~component_applier_base() = default;
-            virtual component_applier_uptr clone() const = 0;
-            virtual void apply_to(entity& ent, bool override) const = 0;
+            virtual ~applier_base() = default;
+            virtual applier_uptr clone() const = 0;
+            virtual void apply_to_entity(entity& ent, bool override) const = 0;
+        };
+
+        template < typename T >
+        class typed_applier : public applier_base {
+        public:
+            virtual void apply_to_component(T& component) const = 0;
         };
 
         template < typename T, typename... Args >
-        class component_applier final : public component_applier_base {
+        class typed_applier_with_args final : public typed_applier<T> {
         public:
-            component_applier(std::tuple<Args...>&& args);
-            component_applier(const std::tuple<Args...>& args);
-            component_applier_uptr clone() const override;
-            void apply_to(entity& ent, bool override) const override;
+            typed_applier_with_args(std::tuple<Args...>&& args);
+            typed_applier_with_args(const std::tuple<Args...>& args);
+            applier_uptr clone() const override;
+            void apply_to_entity(entity& ent, bool override) const override;
+            void apply_to_component(T& component) const override;
         private:
             std::tuple<Args...> args_;
         };
@@ -1147,11 +1154,13 @@ namespace ecs_hpp
         prototype& merge_with(const prototype& other, bool override) &;
         prototype&& merge_with(const prototype& other, bool override) &&;
 
-        void apply_to(entity& ent, bool override) const;
+        template < typename T >
+        bool apply_to_component(T& component) const;
+        void apply_to_entity(entity& ent, bool override) const;
     private:
         detail::sparse_map<
             family_id,
-            detail::component_applier_uptr> appliers_;
+            detail::applier_uptr> appliers_;
     };
 
     void swap(prototype& l, prototype& r) noexcept;
@@ -1840,31 +1849,38 @@ namespace ecs_hpp
     namespace detail
     {
         template < typename T, typename... Args >
-        component_applier<T,Args...>::component_applier(std::tuple<Args...>&& args)
+        typed_applier_with_args<T, Args...>::typed_applier_with_args(std::tuple<Args...>&& args)
         : args_(std::move(args)) {}
 
         template < typename T, typename... Args >
-        component_applier<T,Args...>::component_applier(const std::tuple<Args...>& args)
+        typed_applier_with_args<T, Args...>::typed_applier_with_args(const std::tuple<Args...>& args)
         : args_(args) {}
 
         template < typename T, typename... Args >
-        component_applier_uptr component_applier<T,Args...>::clone() const {
-            return std::make_unique<component_applier>(args_);
+        applier_uptr typed_applier_with_args<T, Args...>::clone() const {
+            return std::make_unique<typed_applier_with_args>(args_);
         }
 
         template < typename T, typename... Args >
-        void component_applier<T,Args...>::apply_to(entity& ent, bool override) const {
+        void typed_applier_with_args<T, Args...>::apply_to_entity(entity& ent, bool override) const {
             detail::tiny_tuple_apply([&ent, override](const Args&... args){
                 if ( override || !ent.exists_component<T>() ) {
                     ent.assign_component<T>(args...);
                 }
             }, args_);
         }
+
+        template < typename T, typename... Args >
+        void typed_applier_with_args<T, Args...>::apply_to_component(T& component) const {
+            detail::tiny_tuple_apply([&component](const Args&... args){
+                component = T(args...);
+            }, args_);
+        }
     }
 
     inline prototype::prototype(const prototype& other) {
-        for ( const family_id id : other.appliers_ ) {
-            appliers_.insert(id, other.appliers_.get(id)->clone());
+        for ( const family_id family : other.appliers_ ) {
+            appliers_.insert(family, other.appliers_.get(family)->clone());
         }
     }
 
@@ -1908,7 +1924,7 @@ namespace ecs_hpp
 
     template < typename T, typename... Args >
     prototype& prototype::component(Args&&... args) & {
-        using applier_t = detail::component_applier<
+        using applier_t = detail::typed_applier_with_args<
             T,
             std::decay_t<Args>...>;
         auto applier = std::make_unique<applier_t>(
@@ -1925,11 +1941,11 @@ namespace ecs_hpp
     }
 
     inline prototype& prototype::merge_with(const prototype& other, bool override) & {
-        for ( const auto family_id : other.appliers_ ) {
-            if ( override || !appliers_.has(family_id) ) {
+        for ( const auto family : other.appliers_ ) {
+            if ( override || !appliers_.has(family) ) {
                 appliers_.insert_or_assign(
-                    family_id,
-                    other.appliers_.get(family_id)->clone());
+                    family,
+                    other.appliers_.get(family)->clone());
             }
         }
         return *this;
@@ -1940,9 +1956,22 @@ namespace ecs_hpp
         return std::move(*this);
     }
 
-    inline void prototype::apply_to(entity& ent, bool override) const {
-        for ( const auto family_id : appliers_ ) {
-            appliers_.get(family_id)->apply_to(ent, override);
+    template < typename T >
+    bool prototype::apply_to_component(T& component) const {
+        const auto family = detail::type_family<T>::id();
+        const auto applier_base_ptr = appliers_.find(family);
+        if ( !applier_base_ptr ) {
+            return false;
+        }
+        using applier_t = detail::typed_applier<T>;
+        const auto applier = static_cast<applier_t*>(applier_base_ptr->get());
+        applier->apply_to_component(component);
+        return true;
+    }
+
+    inline void prototype::apply_to_entity(entity& ent, bool override) const {
+        for ( const auto family : appliers_ ) {
+            appliers_.get(family)->apply_to_entity(ent, override);
         }
     }
 
@@ -2096,7 +2125,7 @@ namespace ecs_hpp
     inline entity registry::create_entity(const prototype& proto) {
         auto ent = create_entity();
         try {
-            proto.apply_to(ent, true);
+            proto.apply_to_entity(ent, true);
         } catch (...) {
             destroy_entity(ent);
             throw;
@@ -2108,8 +2137,8 @@ namespace ecs_hpp
         assert(valid_entity(proto));
         entity ent = create_entity();
         try {
-            for ( const auto family_id : storages_ ) {
-                storages_.get(family_id)->clone(proto, ent.id());
+            for ( const auto family : storages_ ) {
+                storages_.get(family)->clone(proto, ent.id());
             }
         } catch (...) {
             destroy_entity(ent);
@@ -2161,8 +2190,8 @@ namespace ecs_hpp
     inline std::size_t registry::remove_all_components(const uentity& ent) noexcept {
         assert(valid_entity(ent));
         std::size_t removed_count = 0u;
-        for ( const auto family_id : storages_ ) {
-            if ( storages_.get(family_id)->remove(ent) ) {
+        for ( const auto family : storages_ ) {
+            if ( storages_.get(family)->remove(ent) ) {
                 ++removed_count;
             }
         }
@@ -2246,8 +2275,8 @@ namespace ecs_hpp
     inline std::size_t registry::entity_component_count(const const_uentity& ent) const noexcept {
         assert(valid_entity(ent));
         std::size_t component_count = 0u;
-        for ( const auto family_id : storages_ ) {
-            if ( storages_.get(family_id)->has(ent) ) {
+        for ( const auto family : storages_ ) {
+            if ( storages_.get(family)->has(ent) ) {
                 ++component_count;
             }
         }
@@ -2348,8 +2377,8 @@ namespace ecs_hpp
         memory_usage_info info;
         info.entities += free_entity_ids_.capacity() * sizeof(free_entity_ids_[0]);
         info.entities += entity_ids_.memory_usage();
-        for ( const auto family_id : storages_ ) {
-            info.components += storages_.get(family_id)->memory_usage();
+        for ( const auto family : storages_ ) {
+            info.components += storages_.get(family)->memory_usage();
         }
         return info;
     }

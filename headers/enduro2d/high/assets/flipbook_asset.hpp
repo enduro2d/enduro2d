@@ -15,6 +15,7 @@ namespace e2d
 {
     class flipbook_asset final : public content_asset<flipbook_asset, flipbook> {
     public:
+        static const char* type_name() noexcept { return "flipbook_asset"; }
         static load_async_result load_async(const library& library, str_view address);
     };
 }

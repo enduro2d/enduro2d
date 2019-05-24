@@ -24,9 +24,9 @@ namespace e2d
     {
         const auto asset_url = library.root() / address;
         return the<vfs>().load_as_string_async(asset_url)
-            .then([](auto&& content){
-                return text_asset::create(
-                    std::forward<decltype(content)>(content));
-            });
+        .then([](auto&& content){
+            return text_asset::create(
+                std::forward<decltype(content)>(content));
+        });
     }
 }

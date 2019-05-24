@@ -6,7 +6,7 @@
 
 #include <enduro2d/high/assets/shader_asset.hpp>
 
-#include "json_asset.hpp"
+#include <enduro2d/high/assets/json_asset.hpp>
 #include <enduro2d/high/assets/text_asset.hpp>
 
 namespace
@@ -87,25 +87,42 @@ namespace e2d
         const library& library, str_view address)
     {
         return library.load_asset_async<json_asset>(address)
-            .then([
-                &library,
-                parent_address = path::parent_path(address)
-            ](const json_asset::load_result& shader_data){
-                return the<deferrer>().do_in_worker_thread([shader_data](){
-                    const rapidjson::Document& doc = shader_data->content();
-                    rapidjson::SchemaValidator validator(shader_asset_schema());
-                    if ( !doc.Accept(validator) ) {
-                        throw shader_asset_loading_exception();
-                    }
-                })
-                .then([&library, parent_address, shader_data](){
-                    return parse_shader(
-                        library, parent_address, shader_data->content());
-                })
-                .then([](auto&& content){
-                    return shader_asset::create(
-                        std::forward<decltype(content)>(content));
-                });
+        .then([
+            &library,
+            address = str(address),
+            parent_address = path::parent_path(address)
+        ](const json_asset::load_result& shader_data){
+            return the<deferrer>().do_in_worker_thread([address, shader_data](){
+                const rapidjson::Document& doc = *shader_data->content();
+                rapidjson::SchemaValidator validator(shader_asset_schema());
+
+                if ( doc.Accept(validator) ) {
+                    return;
+                }
+
+                rapidjson::StringBuffer sb;
+                if ( validator.GetInvalidDocumentPointer().StringifyUriFragment(sb) ) {
+                    the<debug>().error("ASSET: Failed to validate asset json:\n"
+                        "--> Address: %0\n"
+                        "--> Invalid schema keyword: %1\n"
+                        "--> Invalid document pointer: %2",
+                        address,
+                        validator.GetInvalidSchemaKeyword(),
+                        sb.GetString());
+                } else {
+                    the<debug>().error("ASSET: Failed to validate asset json");
+                }
+
+                throw shader_asset_loading_exception();
+            })
+            .then([&library, parent_address, shader_data](){
+                return parse_shader(
+                    library, parent_address, *shader_data->content());
+            })
+            .then([](auto&& content){
+                return shader_asset::create(
+                    std::forward<decltype(content)>(content));
             });
+        });
     }
 }
