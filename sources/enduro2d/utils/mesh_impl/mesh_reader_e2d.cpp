@@ -14,7 +14,7 @@ namespace
     const str_view mesh_file_signature = "e2d_mesh";
 
     template < typename T >
-    input_sequence& iseq_read_vector_pods(input_sequence& iseq, std::vector<T>& v) {
+    input_sequence& iseq_read_vector_pods(input_sequence& iseq, vector<T>& v) {
         return iseq.read(v.data(), v.size() * sizeof(T));
     }
 

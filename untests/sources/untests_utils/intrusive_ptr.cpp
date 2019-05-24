@@ -247,7 +247,7 @@ TEST_CASE("intrusive_ptr") {
     }
     {
         auto p1 = make_intrusive<obj_t>(10);
-        std::unordered_set<intrusive_ptr<obj_t>> s;
+        hash_set<intrusive_ptr<obj_t>> s;
         s.insert(p1);
     }
     {

@@ -12,7 +12,7 @@ namespace e2d
 {
     class window::state final : private e2d::noncopyable {
     public:
-        using listeners_t = std::vector<event_listener_uptr>;
+        using listeners_t = vector<event_listener_uptr>;
     public:
         listeners_t listeners;
         std::recursive_mutex rmutex;

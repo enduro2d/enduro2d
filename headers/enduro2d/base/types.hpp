@@ -33,13 +33,6 @@ namespace e2d
     : public std::exception {};
 
     template < typename Value
-             , std::size_t Size >
-    using array = std::array<Value, Size>;
-
-    template < std::size_t Size >
-    using bitset = std::bitset<Size>;
-
-    template < typename Value
              , typename Allocator = std::allocator<Value> >
     using vector = std::vector<Value, Allocator>;
 
@@ -81,12 +74,12 @@ namespace e2d
 {
     template < typename Key
              , typename Compare = std::less<>
-             , typename Container = std::vector<Key> >
+             , typename Container = vector<Key> >
     using flat_set = flat_hpp::flat_set<Key, Compare, Container>;
 
     template < typename Key
              , typename Value
              , typename Compare = std::less<>
-             , typename Container = std::vector<std::pair<Key, Value>> >
+             , typename Container = vector<std::pair<Key, Value>> >
     using flat_map = flat_hpp::flat_map<Key, Value, Compare, Container>;
 }
