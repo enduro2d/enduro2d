@@ -451,9 +451,7 @@ namespace e2d
 namespace std
 {
     template < typename T >
-    struct hash<e2d::intrusive_ptr<T>> final
-        : std::unary_function<e2d::intrusive_ptr<T>, std::size_t>
-    {
+    struct hash<e2d::intrusive_ptr<T>> final {
         std::size_t operator()(const e2d::intrusive_ptr<T>& p) const noexcept {
             return std::hash<T*>()(p.get());
         }

@@ -81,9 +81,7 @@ namespace e2d
 namespace std
 {
     template <>
-    struct hash<e2d::url>
-        : std::unary_function<e2d::url, std::size_t>
-    {
+    struct hash<e2d::url> {
         std::size_t operator()(const e2d::url& u) const noexcept {
             return e2d::math::numeric_cast<std::size_t>(
                 e2d::utils::sdbm_hash(

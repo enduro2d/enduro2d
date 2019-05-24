@@ -182,9 +182,7 @@ namespace e2d
 namespace std
 {
     template < typename Char >
-    struct hash<e2d::basic_string_hash<Char>>
-        : std::unary_function<e2d::basic_string_hash<Char>, std::size_t>
-    {
+    struct hash<e2d::basic_string_hash<Char>> {
         std::size_t operator()(e2d::basic_string_hash<Char> hs) const noexcept {
             return e2d::math::numeric_cast<std::size_t>(hs.hash());
         }
