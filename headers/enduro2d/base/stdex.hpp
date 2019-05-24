@@ -8,17 +8,6 @@
 
 #include "macros.hpp"
 
-#include <3rdparty/variant/variant.hpp>
-
-//
-// variant
-//
-
-namespace e2d { namespace stdex
-{
-    using namespace mpark;
-}}
-
 //
 // void_t
 //

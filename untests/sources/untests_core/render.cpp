@@ -40,16 +40,16 @@ TEST_CASE("render"){
             REQUIRE_FALSE(pb1.property<i32>("f"));
             REQUIRE(pb1.property("i"));
             REQUIRE(pb1.property("f"));
-            REQUIRE(stdex::get<i32>(*pb1.property("i")) == 42);
-            REQUIRE(stdex::get<f32>(*pb1.property("f")) == 1.f);
+            REQUIRE(std::get<i32>(*pb1.property("i")) == 42);
+            REQUIRE(std::get<f32>(*pb1.property("f")) == 1.f);
             {
                 f32 acc = 0.f;
                 pb1.foreach_by_properties([&acc](str_hash n, const render::property_value& v){
                     if ( n == make_hash("f") ) {
-                        acc += stdex::get<f32>(v);
+                        acc += std::get<f32>(v);
                     }
                     if ( n == make_hash("i") ) {
-                        acc += stdex::get<i32>(v);
+                        acc += std::get<i32>(v);
                     }
                 });
                 REQUIRE(math::approximately(acc, 43.f));
