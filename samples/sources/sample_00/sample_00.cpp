@@ -68,11 +68,11 @@ namespace
         }
     };
 
-    array<u8,6> generate_quad_indices() noexcept {
+    std::array<u8,6> generate_quad_indices() noexcept {
         return {0, 1, 2, 2, 1, 3};
     }
 
-    array<vertex1,4> generate_quad_vertices(const v2u& size) noexcept {
+    std::array<vertex1,4> generate_quad_vertices(const v2u& size) noexcept {
         f32 hw = size.x * 0.5f;
         f32 hh = size.y * 0.5f;
         return {
@@ -82,7 +82,7 @@ namespace
             vertex1{{ hw, -hh, 0.f}, {1, 0}}};
     }
 
-    array<vertex2,4> generate_quad_colors() noexcept {
+    std::array<vertex2,4> generate_quad_colors() noexcept {
         return {
             vertex2{color32::red()},
             vertex2{color32::green()},

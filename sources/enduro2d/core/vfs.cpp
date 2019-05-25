@@ -114,8 +114,7 @@ namespace e2d
     bool vfs::register_scheme(str_view scheme, file_source_uptr source) {
         std::lock_guard<std::mutex> guard(state_->mutex);
         return (source && source->valid())
-            ? state_->schemes.insert(
-                std::make_pair(scheme, std::move(source))).second
+            ? state_->schemes.emplace(scheme, std::move(source)).second
             : false;
     }
 
@@ -129,8 +128,7 @@ namespace e2d
 
     bool vfs::register_scheme_alias(str_view scheme, url alias) {
         std::lock_guard<std::mutex> guard(state_->mutex);
-        return state_->aliases.insert(
-            std::make_pair(scheme, alias)).second;
+        return state_->aliases.emplace(scheme, std::move(alias)).second;
     }
 
     bool vfs::unregister_scheme_alias(str_view scheme) {

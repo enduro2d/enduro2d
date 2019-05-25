@@ -590,7 +590,7 @@ TEST_CASE("node") {
     }
     SECTION("for_each_child") {
         auto p = node::create();
-        array<node_iptr, 3> ns{
+        std::array<node_iptr, 3> ns{
             node::create(p),
             node::create(p),
             node::create(p)};
