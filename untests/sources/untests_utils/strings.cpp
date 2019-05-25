@@ -315,10 +315,10 @@ TEST_CASE("strings") {
         REQUIRE_FALSE(strings::rformat_nothrow(s, "%"));
         char buf[5] = {0};
         std::size_t length = 0;
-        REQUIRE(strings::format_nothrow(buf, E2D_COUNTOF(buf), &length, "%0", "hell"));
+        REQUIRE(strings::format_nothrow(buf, std::size(buf), &length, "%0", "hell"));
         REQUIRE(length == 4);
         REQUIRE(str(buf) == str("hell"));
-        REQUIRE_FALSE(strings::format_nothrow(buf, E2D_COUNTOF(buf), &length, "%0", "hello"));
+        REQUIRE_FALSE(strings::format_nothrow(buf, std::size(buf), &length, "%0", "hello"));
     }
     {
         REQUIRE(strings::rformat(str_view("%0"), 42) == "42");
@@ -506,14 +506,14 @@ TEST_CASE("strings") {
             }
             {
                 char buf[1];
-                strings::format(buf, E2D_COUNTOF(buf), "%0", "\0");
+                strings::format(buf, std::size(buf), "%0", "\0");
                 REQUIRE(str(buf) == str(""));
             }
             {
                 char buf[2];
-                REQUIRE_THROWS_AS(strings::format(buf, E2D_COUNTOF(buf), "%0%1", 1, 20), strings::bad_format_buffer);
+                REQUIRE_THROWS_AS(strings::format(buf, std::size(buf), "%0%1", 1, 20), strings::bad_format_buffer);
                 REQUIRE(str(buf) == str("1"));
-                REQUIRE_THROWS_AS(strings::format(buf, E2D_COUNTOF(buf), "%0%1", 20, 1), strings::bad_format_buffer);
+                REQUIRE_THROWS_AS(strings::format(buf, std::size(buf), "%0%1", 20, 1), strings::bad_format_buffer);
                 REQUIRE(str(buf) == str("2"));
             }
         }

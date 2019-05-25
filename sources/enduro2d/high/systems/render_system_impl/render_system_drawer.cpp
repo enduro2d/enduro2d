@@ -202,8 +202,8 @@ namespace e2d { namespace render_system_impl
             batcher_.batch(
                 mat_a,
                 property_cache_,
-                indices, E2D_COUNTOF(indices),
-                vertices, E2D_COUNTOF(vertices));
+                indices, std::size(indices),
+                vertices, std::size(vertices));
         } catch (...) {
             property_cache_.clear();
             throw;

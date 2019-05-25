@@ -14,10 +14,4 @@ TEST_CASE("macros") {
             REQUIRE_FALSE(m[i]);
         }
     }
-    SECTION("E2D_COUNTOF") {
-        u32 arr[12];
-        u32 arr2[E2D_COUNTOF(arr)];
-        REQUIRE(E2D_COUNTOF(arr) == 12);
-        REQUIRE(E2D_COUNTOF(arr2) == 12);
-    }
 }

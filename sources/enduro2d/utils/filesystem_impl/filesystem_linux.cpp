@@ -52,7 +52,7 @@ namespace
 
     bool extract_working_directory(str& dst) {
         char buf[PATH_MAX + 1] = {0};
-        if ( ::getcwd(buf, E2D_COUNTOF(buf) - 1) ) {
+        if ( ::getcwd(buf, std::size(buf) - 1) ) {
             dst.assign(buf);
             return true;
         }
@@ -61,7 +61,7 @@ namespace
 
     bool extract_executable_path(str& dst) {
         char buf[PATH_MAX + 1] = {0};
-        if ( ::readlink("/proc/self/exe", buf, E2D_COUNTOF(buf) - 1) != -1 ) {
+        if ( ::readlink("/proc/self/exe", buf, std::size(buf) - 1) != -1 ) {
             dst.assign(buf);
             return true;
         }

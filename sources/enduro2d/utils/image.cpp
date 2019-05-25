@@ -38,7 +38,7 @@ namespace
 
     const data_format_description& get_data_format_description(image_data_format format) noexcept {
         const std::size_t findex = static_cast<std::underlying_type_t<image_data_format>>(format);
-        E2D_ASSERT(findex < E2D_COUNTOF(data_format_descriptions));
+        E2D_ASSERT(findex < std::size(data_format_descriptions));
         const data_format_description& fdesc = data_format_descriptions[findex];
         E2D_ASSERT(fdesc.format == format);
         return fdesc;

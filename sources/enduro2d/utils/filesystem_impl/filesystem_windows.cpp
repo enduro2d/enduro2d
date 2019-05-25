@@ -51,7 +51,7 @@ namespace
     bool extract_working_directory(str& dst) {
         WCHAR buf[MAX_PATH + 1] = {0};
         const DWORD len = ::GetCurrentDirectoryW(
-            math::numeric_cast<DWORD>(E2D_COUNTOF(buf) - 1),
+            math::numeric_cast<DWORD>(std::size(buf) - 1),
             buf);
         if ( len > 0 && len <= MAX_PATH ) {
             dst = make_utf8(buf);
@@ -74,7 +74,7 @@ namespace
         const DWORD len = ::GetModuleFileNameW(
             0,
             buf,
-            math::numeric_cast<DWORD>(E2D_COUNTOF(buf) - 1));
+            math::numeric_cast<DWORD>(std::size(buf) - 1));
         if ( len > 0 && len <= MAX_PATH ) {
             dst = make_utf8(buf);
             return true;

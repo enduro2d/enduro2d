@@ -105,8 +105,8 @@ namespace
             }
             {
                 char title_buf[128] = {0};
-                strings::format(title_buf, E2D_COUNTOF(title_buf), w.title());
-                if ( ImGui::InputText("title", title_buf, E2D_COUNTOF(title_buf)) ) {
+                strings::format(title_buf, std::size(title_buf), w.title());
+                if ( ImGui::InputText("title", title_buf, std::size(title_buf)) ) {
                     w.set_title(title_buf);
                 }
             }

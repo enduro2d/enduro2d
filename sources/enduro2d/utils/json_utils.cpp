@@ -258,7 +258,7 @@ namespace
 
         if ( root.IsObject() ) {
             const char* const props[] = { "x", "y", "z", "w" };
-            for ( std::size_t i = 0; i < math::min(N, E2D_COUNTOF(props)); ++i ) {
+            for ( std::size_t i = 0; i < math::min(N, std::size(props)); ++i ) {
                 if ( root.HasMember(props[i]) ) {
                     const auto& jv = root[props[i]];
                     if ( !f(jv, v[i]) ) {
@@ -431,7 +431,7 @@ namespace
     bool parse_b2(const rapidjson::Value& root, rect<V>& b, FV&& f) {
         if ( root.IsObject() ) {
             const char* const props[] = { "x", "y", "w", "h" };
-            for ( std::size_t i = 0; i < E2D_COUNTOF(props); ++i ) {
+            for ( std::size_t i = 0; i < std::size(props); ++i ) {
                 if ( root.HasMember(props[i]) ) {
                     const auto& jv = root[props[i]];
                     if ( !f(jv, b[i]) ) {
@@ -497,7 +497,7 @@ namespace
     bool parse_b3(const rapidjson::Value& root, aabb<V>& b, FV&& f) {
         if ( root.IsObject() ) {
             const char* const props[] = { "x", "y", "z", "w", "h", "d" };
-            for ( std::size_t i = 0; i < E2D_COUNTOF(props); ++i ) {
+            for ( std::size_t i = 0; i < std::size(props); ++i ) {
                 if ( root.HasMember(props[i]) ) {
                     const auto& jv = root[props[i]];
                     if ( !f(jv, b[i]) ) {
@@ -568,7 +568,7 @@ namespace
 
         if ( root.IsObject() ) {
             const char* const props[] = { "r", "g", "b", "a" };
-            for ( std::size_t i = 0; i < E2D_COUNTOF(props); ++i ) {
+            for ( std::size_t i = 0; i < std::size(props); ++i ) {
                 if ( root.HasMember(props[i]) ) {
                     const auto& jv = root[props[i]];
                     if ( !jv.IsNumber() ) {
@@ -609,7 +609,7 @@ namespace
 
         if ( root.IsObject() ) {
             const char* const props[] = { "r", "g", "b", "a" };
-            for ( std::size_t i = 0; i < E2D_COUNTOF(props); ++i ) {
+            for ( std::size_t i = 0; i < std::size(props); ++i ) {
                 if ( root.HasMember(props[i]) ) {
                     const auto& jv = root[props[i]];
                     if ( !jv.IsUint() ) {

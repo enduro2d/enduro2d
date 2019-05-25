@@ -37,7 +37,7 @@ namespace
         void on_keyboard_key(keyboard_key key, u32 scancode, keyboard_key_action act) noexcept final {
             E2D_UNUSED(scancode);
             auto key_i = utils::enum_to_underlying(key);
-            if ( key_i < E2D_COUNTOF(io_.KeysDown) ) {
+            if ( key_i < std::size(io_.KeysDown) ) {
                 switch ( act ) {
                     case keyboard_key_action::press:
                     case keyboard_key_action::repeat:
