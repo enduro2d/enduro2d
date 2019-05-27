@@ -80,8 +80,8 @@ namespace e2d
     public:
         std::mutex mutex;
         stdex::jobber worker{1};
-        map<str, url> aliases;
-        map<str, file_source_uptr> schemes;
+        flat_map<str, url> aliases;
+        flat_map<str, file_source_uptr> schemes;
     public:
         url resolve_url(const url& url, u8 level = 0) const {
             if ( level > 32 ) {
@@ -118,7 +118,7 @@ namespace e2d
             : false;
     }
 
-    bool vfs::unregister_scheme(str_view scheme) {
+    bool vfs::unregister_scheme(str_view scheme) noexcept {
         std::lock_guard<std::mutex> guard(state_->mutex);
         const auto iter = state_->schemes.find(scheme);
         return iter != state_->schemes.end()
@@ -131,7 +131,7 @@ namespace e2d
         return state_->aliases.emplace(scheme, std::move(alias)).second;
     }
 
-    bool vfs::unregister_scheme_alias(str_view scheme) {
+    bool vfs::unregister_scheme_alias(str_view scheme) noexcept {
         std::lock_guard<std::mutex> guard(state_->mutex);
         const auto iter = state_->aliases.find(scheme);
         return iter != state_->aliases.end()

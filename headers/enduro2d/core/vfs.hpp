@@ -42,10 +42,10 @@ namespace e2d
         template < typename T, typename... Args >
         bool register_scheme(str_view scheme, Args&&... args);
         bool register_scheme(str_view scheme, file_source_uptr source);
-        bool unregister_scheme(str_view scheme);
+        bool unregister_scheme(str_view scheme) noexcept;
 
         bool register_scheme_alias(str_view scheme, url alias);
-        bool unregister_scheme_alias(str_view scheme);
+        bool unregister_scheme_alias(str_view scheme) noexcept;
 
         bool exists(const url& url) const;
 
