@@ -76,109 +76,67 @@ namespace e2d
     #undef DEFINE_ADD_ATTRIBUTE_SPECIALIZATION
 
     //
-    // render::property_map::entry
-    //
-
-    template < typename T >
-    render::property_map<T>::entry::entry(str_hash k, T&& v)
-    : key(k), value(std::move(v)) {}
-
-    template < typename T >
-    render::property_map<T>::entry::entry(str_hash k, const T& v)
-    : key(k), value(v) {}
-
-    template < typename T >
-    bool render::property_map<T>::entry::operator==(const entry& other) const {
-        return key == other.key
-            && value == other.value;
-    }
-
-    //
     // render::property_map
     //
 
     template < typename T >
     T* render::property_map<T>::find(str_hash key) noexcept {
-        const auto iter = std::lower_bound(
-            entries_.begin(), entries_.end(), key,
-            [](const entry& e, str_hash key){
-                return e.key < key;
-            });
-        if ( iter != entries_.end() && iter->key == key ) {
-            return &iter->value;
-        }
-        return nullptr;
+        const auto iter = values_.find(key);
+        return iter != values_.end()
+            ? &iter->second
+            : nullptr;
     }
 
     template < typename T >
     const T* render::property_map<T>::find(str_hash key) const noexcept {
-        const auto iter = std::lower_bound(
-            entries_.begin(), entries_.end(), key,
-            [](const entry& e, str_hash key){
-                return e.key < key;
-            });
-        if ( iter != entries_.end() && iter->key == key ) {
-            return &iter->value;
-        }
-        return nullptr;
+        const auto iter = values_.find(key);
+        return iter != values_.end()
+            ? &iter->second
+            : nullptr;
     }
 
     template < typename T >
     void render::property_map<T>::assign(str_hash key, T&& value) {
-        const auto iter = std::lower_bound(
-            entries_.begin(), entries_.end(), key,
-            [](const entry& e, str_hash key){
-                return e.key < key;
-            });
-        if ( iter != entries_.end() && iter->key == key ) {
-            iter->value = std::move(value);
-        } else {
-            entries_.emplace(iter, key, std::move(value));
-        }
+        values_[key] = std::move(value);
     }
 
     template < typename T >
     void render::property_map<T>::assign(str_hash key, const T& value) {
-        const auto iter = std::lower_bound(
-            entries_.begin(), entries_.end(), key,
-            [](const entry& e, str_hash key){
-                return e.key < key;
-            });
-        if ( iter != entries_.end() && iter->key == key ) {
-            iter->value = value;
-        } else {
-            entries_.emplace(iter, key, value);
-        }
+        values_[key] = value;
     }
 
     template < typename T >
     void render::property_map<T>::clear() noexcept {
-        entries_.clear();
+        values_.clear();
     }
 
     template < typename T >
     std::size_t render::property_map<T>::size() const noexcept {
-        return entries_.size();
+        return values_.size();
     }
 
     template < typename T >
     template < typename F >
     void render::property_map<T>::foreach(F&& f) const {
-        for ( std::size_t i = 0, e = entries_.size(); i < e; ++i ) {
-            f(entries_[i].key, entries_[i].value);
+        for ( const auto& p : values_ ) {
+            f(p.first, p.second);
         }
     }
 
     template < typename T >
     void render::property_map<T>::merge(const property_map& other) {
-        other.foreach([this](str_hash name, const T& value){
-            assign(name, value);
-        });
+        if ( this != &other ) {
+            other.foreach([this](str_hash name, const T& value){
+                assign(name, value);
+            });
+        }
     }
 
     template < typename T >
     bool render::property_map<T>::equals(const property_map& other) const noexcept {
-        return entries_ == other.entries_;
+        return this == &other
+            ? true
+            : values_ == other.values_;
     }
 
     //

@@ -640,15 +640,7 @@ namespace e2d
             void merge(const property_map& other);
             bool equals(const property_map& other) const noexcept;
         private:
-            struct entry {
-                str_hash key;
-                T value;
-            public:
-                entry(str_hash k, T&& v);
-                entry(str_hash k, const T& v);
-                bool operator==(const entry& other) const;
-            };
-            vector<entry> entries_;
+            flat_map<str_hash, T> values_;
         };
 
         class property_block final {
