@@ -15,55 +15,21 @@
 #include <type_traits>
 #include <initializer_list>
 
+#include "detail/pair_compare.hpp"
+#include "detail/is_transparent.hpp"
+
 namespace flat_hpp
 {
-    namespace detail
-    {
-        template < typename Value, typename Compare >
-        class flat_map_compare : public Compare {
-        public:
-            flat_map_compare() = default;
-
-            flat_map_compare(const Compare& compare)
-            : Compare(compare) {}
-
-            bool operator()(
-                const typename Value::first_type& l,
-                const typename Value::first_type& r) const
-            {
-                return Compare::operator()(l, r);
-            }
-
-            bool operator()(
-                const typename Value::first_type& l,
-                const Value& r) const
-            {
-                return Compare::operator()(l, r.first);
-            }
-
-            bool operator()(
-                const Value& l,
-                const typename Value::first_type& r) const
-            {
-                return Compare::operator()(l.first, r);
-            }
-
-            bool operator()(const Value& l, const Value& r) const {
-                return Compare::operator()(l.first, r.first);
-            }
-        };
-    }
-
     template < typename Key
              , typename Value
              , typename Compare = std::less<Key>
              , typename Container = std::vector<std::pair<Key, Value>> >
     class flat_map
-        : private detail::flat_map_compare<
+        : private detail::pair_compare<
             typename Container::value_type,
             Compare>
     {
-        using base_type = detail::flat_map_compare<
+        using base_type = detail::pair_compare<
             typename Container::value_type,
             Compare>;
     public:
@@ -299,6 +265,30 @@ namespace flat_hpp
             throw std::out_of_range("flat_map::at: key not found");
         }
 
+        template < typename K >
+        std::enable_if_t<
+            detail::is_transparent_v<Compare, K>,
+            mapped_type&>
+        at(const K& key) {
+            const iterator iter = find(key);
+            if ( iter != end() ) {
+                return iter->second;
+            }
+            throw std::out_of_range("flat_map::at: key not found");
+        }
+
+        template < typename K >
+        std::enable_if_t<
+            detail::is_transparent_v<Compare, K>,
+            const mapped_type&>
+        at(const K& key) const {
+            const const_iterator iter = find(key);
+            if ( iter != end() ) {
+                return iter->second;
+            }
+            throw std::out_of_range("flat_map::at: key not found");
+        }
+
         std::pair<iterator, bool> insert(value_type&& value) {
             const iterator iter = lower_bound(value.first);
             return iter == end() || this->operator()(value, *iter)
@@ -362,7 +352,7 @@ namespace flat_hpp
         }
 
         size_type erase(const key_type& key) {
-            const iterator iter = find(key);
+            const const_iterator iter = find(key);
             return iter != end()
                 ? (erase(iter), 1)
                 : 0;
@@ -384,16 +374,47 @@ namespace flat_hpp
             return iter != end() ? 1 : 0;
         }
 
+        template < typename K >
+        std::enable_if_t<
+            detail::is_transparent_v<Compare, K>,
+            size_type>
+        count(const K& key) const {
+            const const_iterator iter = find(key);
+            return iter != end() ? 1 : 0;
+        }
+
         iterator find(const key_type& key) {
             const iterator iter = lower_bound(key);
-            return iter != end() && !this->operator()(key, iter->first)
+            return iter != end() && !this->operator()(key, *iter)
                 ? iter
                 : end();
         }
 
         const_iterator find(const key_type& key) const {
             const const_iterator iter = lower_bound(key);
-            return iter != end() && !this->operator()(key, iter->first)
+            return iter != end() && !this->operator()(key, *iter)
+                ? iter
+                : end();
+        }
+
+        template < typename K >
+        std::enable_if_t<
+            detail::is_transparent_v<Compare, K>,
+            iterator>
+        find(const K& key) {
+            const iterator iter = lower_bound(key);
+            return iter != end() && !this->operator()(key, *iter)
+                ? iter
+                : end();
+        }
+
+        template < typename K >
+        std::enable_if_t<
+            detail::is_transparent_v<Compare, K>,
+            const_iterator>
+        find(const K& key) const {
+            const const_iterator iter = lower_bound(key);
+            return iter != end() && !this->operator()(key, *iter)
                 ? iter
                 : end();
         }
@@ -408,6 +429,24 @@ namespace flat_hpp
             return std::equal_range(begin(), end(), key, comp);
         }
 
+        template < typename K >
+        std::enable_if_t<
+            detail::is_transparent_v<Compare, K>,
+            std::pair<iterator, iterator>>
+        equal_range(const K& key) {
+            const base_type& comp = *this;
+            return std::equal_range(begin(), end(), key, comp);
+        }
+
+        template < typename K >
+        std::enable_if_t<
+            detail::is_transparent_v<Compare, K>,
+            std::pair<const_iterator, const_iterator>>
+        equal_range(const K& key) const {
+            const base_type& comp = *this;
+            return std::equal_range(begin(), end(), key, comp);
+        }
+
         iterator lower_bound(const key_type& key) {
             const base_type& comp = *this;
             return std::lower_bound(begin(), end(), key, comp);
@@ -418,12 +457,48 @@ namespace flat_hpp
             return std::lower_bound(begin(), end(), key, comp);
         }
 
+        template < typename K >
+        std::enable_if_t<
+            detail::is_transparent_v<Compare, K>,
+            iterator>
+        lower_bound(const K& key) {
+            const base_type& comp = *this;
+            return std::lower_bound(begin(), end(), key, comp);
+        }
+
+        template < typename K >
+        std::enable_if_t<
+            detail::is_transparent_v<Compare, K>,
+            const_iterator>
+        lower_bound(const K& key) const {
+            const base_type& comp = *this;
+            return std::lower_bound(begin(), end(), key, comp);
+        }
+
         iterator upper_bound(const key_type& key) {
             const base_type& comp = *this;
             return std::upper_bound(begin(), end(), key, comp);
         }
 
         const_iterator upper_bound(const key_type& key) const {
+            const base_type& comp = *this;
+            return std::upper_bound(begin(), end(), key, comp);
+        }
+
+        template < typename K >
+        std::enable_if_t<
+            detail::is_transparent_v<Compare, K>,
+            iterator>
+        upper_bound(const K& key) {
+            const base_type& comp = *this;
+            return std::upper_bound(begin(), end(), key, comp);
+        }
+
+        template < typename K >
+        std::enable_if_t<
+            detail::is_transparent_v<Compare, K>,
+            const_iterator>
+        upper_bound(const K& key) const {
             const base_type& comp = *this;
             return std::upper_bound(begin(), end(), key, comp);
         }

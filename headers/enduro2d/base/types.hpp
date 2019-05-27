@@ -8,6 +8,7 @@
 
 #include "_base.hpp"
 
+#include <3rdparty/variant/variant.hpp>
 #include <3rdparty/flat.hpp/flat_set.hpp>
 #include <3rdparty/flat.hpp/flat_map.hpp>
 
@@ -37,21 +38,21 @@ namespace e2d
     using vector = std::vector<Value, Allocator>;
 
     template < typename Key
-             , typename Comp = std::less<>
+             , typename Compare = std::less<>
              , typename Allocator = std::allocator<Key> >
-    using set = std::set<Key, Comp, Allocator>;
+    using set = std::set<Key, Compare, Allocator>;
 
     template < typename Key
              , typename Value
-             , typename Comp = std::less<>
+             , typename Compare = std::less<>
              , typename Allocator = std::allocator<std::pair<const Key, Value>> >
-    using map = std::map<Key, Value, Comp, Allocator>;
+    using map = std::map<Key, Value, Compare, Allocator>;
 
-    template < typename Value
-             , typename Hash = std::hash<Value>
+    template < typename Key
+             , typename Hash = std::hash<Key>
              , typename Pred = std::equal_to<>
-             , typename Allocator = std::allocator<Value> >
-    using hash_set = std::unordered_set<Value, Hash, Pred, Allocator>;
+             , typename Allocator = std::allocator<Key> >
+    using hash_set = std::unordered_set<Key, Hash, Pred, Allocator>;
 
     template < typename Key
              , typename Value
@@ -82,4 +83,9 @@ namespace e2d
              , typename Compare = std::less<>
              , typename Container = vector<std::pair<Key, Value>> >
     using flat_map = flat_hpp::flat_map<Key, Value, Compare, Container>;
+}
+
+namespace e2d::stdex
+{
+    using namespace mpark;
 }

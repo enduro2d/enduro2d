@@ -15,6 +15,8 @@
 #include <type_traits>
 #include <initializer_list>
 
+#include "detail/is_transparent.hpp"
+
 namespace flat_hpp
 {
     template < typename Key
@@ -277,7 +279,7 @@ namespace flat_hpp
         }
 
         size_type erase(const key_type& key) {
-            const iterator iter = find(key);
+            const const_iterator iter = find(key);
             return iter != end()
                 ? (erase(iter), 1)
                 : 0;
@@ -299,6 +301,15 @@ namespace flat_hpp
             return iter != end() ? 1 : 0;
         }
 
+        template < typename K >
+        std::enable_if_t<
+            detail::is_transparent_v<Compare, K>,
+            size_type>
+        count(const K& key) const {
+            const const_iterator iter = find(key);
+            return iter != end() ? 1 : 0;
+        }
+
         iterator find(const key_type& key) {
             const iterator iter = lower_bound(key);
             return iter != end() && !this->operator()(key, *iter)
@@ -313,11 +324,49 @@ namespace flat_hpp
                 : end();
         }
 
+        template < typename K >
+        std::enable_if_t<
+            detail::is_transparent_v<Compare, K>,
+            iterator>
+        find(const K& key) {
+            const iterator iter = lower_bound(key);
+            return iter != end() && !this->operator()(key, *iter)
+                ? iter
+                : end();
+        }
+
+        template < typename K >
+        std::enable_if_t<
+            detail::is_transparent_v<Compare, K>,
+            const_iterator>
+        find(const K& key) const {
+            const const_iterator iter = lower_bound(key);
+            return iter != end() && !this->operator()(key, *iter)
+                ? iter
+                : end();
+        }
+
         std::pair<iterator, iterator> equal_range(const key_type& key) {
             return std::equal_range(begin(), end(), key, key_comp());
         }
 
         std::pair<const_iterator, const_iterator> equal_range(const key_type& key) const {
+            return std::equal_range(begin(), end(), key, key_comp());
+        }
+
+        template < typename K >
+        std::enable_if_t<
+            detail::is_transparent_v<Compare, K>,
+            std::pair<iterator, iterator>>
+        equal_range(const K& key) {
+            return std::equal_range(begin(), end(), key, key_comp());
+        }
+
+        template < typename K >
+        std::enable_if_t<
+            detail::is_transparent_v<Compare, K>,
+            std::pair<const_iterator, const_iterator>>
+        equal_range(const K& key) const {
             return std::equal_range(begin(), end(), key, key_comp());
         }
 
@@ -329,11 +378,43 @@ namespace flat_hpp
             return std::lower_bound(begin(), end(), key, key_comp());
         }
 
+        template < typename K >
+        std::enable_if_t<
+            detail::is_transparent_v<Compare, K>,
+            iterator>
+        lower_bound(const K& key) {
+            return std::lower_bound(begin(), end(), key, key_comp());
+        }
+
+        template < typename K >
+        std::enable_if_t<
+            detail::is_transparent_v<Compare, K>,
+            const_iterator>
+        lower_bound(const K& key) const {
+            return std::lower_bound(begin(), end(), key, key_comp());
+        }
+
         iterator upper_bound(const key_type& key) {
             return std::upper_bound(begin(), end(), key, key_comp());
         }
 
         const_iterator upper_bound(const key_type& key) const {
+            return std::upper_bound(begin(), end(), key, key_comp());
+        }
+
+        template < typename K >
+        std::enable_if_t<
+            detail::is_transparent_v<Compare, K>,
+            iterator>
+        upper_bound(const K& key) {
+            return std::upper_bound(begin(), end(), key, key_comp());
+        }
+
+        template < typename K >
+        std::enable_if_t<
+            detail::is_transparent_v<Compare, K>,
+            const_iterator>
+        upper_bound(const K& key) const {
             return std::upper_bound(begin(), end(), key, key_comp());
         }
 

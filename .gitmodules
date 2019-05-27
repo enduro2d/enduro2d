@@ -34,3 +34,6 @@
 [submodule "modules/flat.hpp"]
 	path = modules/flat.hpp
 	url = https://github.com/BlackMATov/flat.hpp
+[submodule "modules/variant"]
+	path = modules/variant
+	url = https://github.com/mpark/variant

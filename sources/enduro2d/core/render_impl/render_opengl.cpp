@@ -114,7 +114,7 @@ namespace
         pb.foreach_by_properties([&debug, &ps](str_hash name, const render::property_value& value) noexcept {
             ps->state().with_uniform_location(name, [&debug, &value](const uniform_info& ui) noexcept {
                 E2D_ASSERT(!value.valueless_by_exception());
-                std::visit(property_block_value_visitor(debug, ui), value);
+                stdex::visit(property_block_value_visitor(debug, ui), value);
             });
         });
         GLint unit = 0;
