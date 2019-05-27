@@ -131,39 +131,35 @@ namespace e2d
         template < typename Asset, typename Nested = Asset >
         typename Nested::load_result find_asset(str_view address) const;
     private:
-        vector<std::pair<str, asset_ptr>> assets_;
-    };
-
-    //
-    // asset_dependency_base
-    //
-
-    class asset_dependency_base;
-    using asset_dependency_base_iptr = intrusive_ptr<asset_dependency_base>;
-
-    class asset_dependency_base
-        : private noncopyable
-        , public ref_counter<asset_dependency_base> {
-    public:
-        asset_dependency_base() = default;
-        virtual ~asset_dependency_base() noexcept = default;
-
-        virtual const str& main_address() const noexcept = 0;
-        virtual stdex::promise<asset_ptr> load_async(const library& library) = 0;
+        flat_multimap<str, asset_ptr> assets_;
     };
 
     //
     // asset_dependency
     //
 
+    class asset_dependency;
+    using asset_dependency_iptr = intrusive_ptr<asset_dependency>;
+
+    class asset_dependency
+        : private noncopyable
+        , public ref_counter<asset_dependency> {
+    public:
+        asset_dependency() = default;
+        virtual ~asset_dependency() noexcept = default;
+
+        virtual const str& main_address() const noexcept = 0;
+        virtual stdex::promise<asset_ptr> load_async(const library& library) = 0;
+    };
+
     template < typename Asset >
-    class asset_dependency : public asset_dependency_base {
+    class typed_asset_dependency : public asset_dependency {
     public:
         using asset_type = Asset;
         using load_result = typename Asset::load_result;
     public:
-        asset_dependency(str_view address);
-        ~asset_dependency() noexcept override;
+        typed_asset_dependency(str_view address);
+        ~typed_asset_dependency() noexcept override;
 
         const str& main_address() const noexcept override;
         stdex::promise<asset_ptr> load_async(const library& library) override;
@@ -184,7 +180,7 @@ namespace e2d
         asset_dependencies& add_dependency(str_view address);
         stdex::promise<asset_group> load_async(const library& library) const;
     private:
-        vector<asset_dependency_base_iptr> dependencies_;
+        flat_multimap<str, asset_dependency_iptr> dependencies_;
     };
 }
 

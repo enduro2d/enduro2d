@@ -11,6 +11,8 @@
 #include <3rdparty/variant/variant.hpp>
 #include <3rdparty/flat.hpp/flat_set.hpp>
 #include <3rdparty/flat.hpp/flat_map.hpp>
+#include <3rdparty/flat.hpp/flat_multiset.hpp>
+#include <3rdparty/flat.hpp/flat_multimap.hpp>
 
 namespace e2d
 {
@@ -72,6 +74,17 @@ namespace e2d
              , typename Compare = std::less<>
              , typename Container = vector<std::pair<Key, Value>> >
     using flat_map = flat_hpp::flat_map<Key, Value, Compare, Container>;
+
+    template < typename Key
+             , typename Compare = std::less<>
+             , typename Container = vector<Key> >
+    using flat_multiset = flat_hpp::flat_multiset<Key, Compare, Container>;
+
+    template < typename Key
+             , typename Value
+             , typename Compare = std::less<>
+             , typename Container = vector<std::pair<Key, Value>> >
+    using flat_multimap = flat_hpp::flat_multimap<Key, Value, Compare, Container>;
 }
 
 namespace e2d::stdex

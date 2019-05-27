@@ -236,12 +236,7 @@ namespace e2d
 
     inline asset_group& asset_group::add_asset(str_view address, const asset_ptr& asset) {
         str main_address = address::parent(address);
-        const auto iter = std::upper_bound(
-            assets_.begin(), assets_.end(), main_address,
-            [](const str& l, const auto& r){
-                return l < r.first;
-            });
-        assets_.insert(iter, std::make_pair(std::move(main_address), asset));
+        assets_.emplace(std::move(main_address), asset);
         return *this;
     }
 
@@ -249,12 +244,8 @@ namespace e2d
     typename Nested::load_result asset_group::find_asset(str_view address) const {
         const str main_address = address::parent(address);
         const str nested_address = address::nested(address);
-        auto iter = std::lower_bound(
-            assets_.begin(), assets_.end(), main_address,
-            [](const auto& l, const str& r) noexcept {
-                return l.first < r;
-            });
-        for ( ; iter != assets_.end() && iter->first == main_address; ++iter ) {
+        const auto [first, last] = assets_.equal_range(main_address);
+        for ( auto iter = first; iter != last; ++iter ) {
             asset_ptr main_asset = iter->second;
             typename Asset::load_result typed_main_asset = dynamic_pointer_cast<Asset>(main_asset);
             if ( !typed_main_asset ) {
@@ -275,20 +266,20 @@ namespace e2d
     //
 
     template < typename Asset >
-    asset_dependency<Asset>::asset_dependency(str_view address)
+    typed_asset_dependency<Asset>::typed_asset_dependency(str_view address)
     : main_address_(address::parent(address)) {}
 
     template < typename Asset >
-    asset_dependency<Asset>::~asset_dependency() noexcept = default;
+    typed_asset_dependency<Asset>::~typed_asset_dependency() noexcept = default;
 
     template < typename Asset >
-    const str& asset_dependency<Asset>::main_address() const noexcept {
+    const str& typed_asset_dependency<Asset>::main_address() const noexcept {
         return main_address_;
     }
 
     template < typename Asset >
-    stdex::promise<asset_ptr> asset_dependency<Asset>::load_async(const library& library) {
-        return library.load_main_asset_async<Asset>(main_address())
+    stdex::promise<asset_ptr> typed_asset_dependency<Asset>::load_async(const library& library) {
+        return library.load_main_asset_async<Asset>(main_address_)
         .then([](const typename Asset::load_result& main_asset){
             return asset_ptr(main_asset);
         });
@@ -300,31 +291,24 @@ namespace e2d
 
     template < typename Asset, typename Nested >
     asset_dependencies& asset_dependencies::add_dependency(str_view address) {
-        asset_dependency_base_iptr dep(new asset_dependency<Asset>(address));
-        auto iter = std::upper_bound(
-            dependencies_.begin(), dependencies_.end(), dep->main_address(),
-            [](const str& l, const auto& r){
-                return l < r->main_address();
-            });
-        dependencies_.insert(iter, std::move(dep));
+        asset_dependency_iptr dep(new typed_asset_dependency<Asset>(address));
+        dependencies_.emplace(dep->main_address(), std::move(dep));
         return *this;
     }
 
     inline stdex::promise<asset_group> asset_dependencies::load_async(const library& library) const {
         vector<stdex::promise<std::pair<str, asset_ptr>>> promises;
         promises.reserve(dependencies_.size());
-        std::transform(
-            dependencies_.begin(), dependencies_.end(), std::back_inserter(promises),
-            [&library](const asset_dependency_base_iptr& dep){
-                return dep->load_async(library)
-                .then([main_address = dep->main_address()](const asset_ptr& asset){
-                    return std::make_pair(main_address, asset);
-                });
-            });
+        for ( const auto& [_, dep] : dependencies_ ) {
+            promises.push_back(dep->load_async(library).then([
+                dep = dep
+            ](const asset_ptr& asset){
+                return std::make_pair(dep->main_address(), asset);
+            }));
+        }
         return stdex::make_all_promise(std::move(promises))
         .then([](const vector<std::pair<str, asset_ptr>>& results){
-            return asset_group()
-                .add_assets(results.begin(), results.end());
+            return asset_group().add_assets(results);
         });
     }
 }
