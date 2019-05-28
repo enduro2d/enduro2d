@@ -127,7 +127,7 @@ namespace e2d
 
     template < typename Char >
     u32 basic_string_hash<Char>::calculate_hash(basic_string_view<Char> str) noexcept {
-        u32 hash = utils::sdbm_hash(str.cbegin(), str.cend());
+        u32 hash = utils::sdbm_hash(str);
         debug_check_collisions(hash, str);
         return hash;
     }
@@ -184,7 +184,7 @@ namespace std
     template < typename Char >
     struct hash<e2d::basic_string_hash<Char>> {
         std::size_t operator()(e2d::basic_string_hash<Char> hs) const noexcept {
-            return e2d::math::numeric_cast<std::size_t>(hs.hash());
+            return hs.hash();
         }
     };
 }
@@ -441,17 +441,17 @@ namespace e2d { namespace strings
         template < typename Tuple >
         std::enable_if_t<std::tuple_size<Tuple>::value <= 10, std::size_t>
         format_impl(char* dst, std::size_t size, str_view fmt, const Tuple& targs) {
-            const char* format_i = fmt.cbegin();
-            const char* const format_e = fmt.cend();
-            if ( !format_i ) {
-                throw bad_format();
-            }
+            str_view::const_iterator format_i = fmt.cbegin();
+            const str_view::const_iterator format_e = fmt.cend();
+
             if ( !dst != !size ) {
                 throw bad_format_buffer();
             }
+
             std::size_t result = 0;
             const char* const b_dst = dst;
             const char* const e_dst = b_dst ? b_dst + size : nullptr;
+
             while ( format_i != format_e ) {
                 if ( *format_i != '%' ) {
                     if ( dst && dst == e_dst - 1 ) {

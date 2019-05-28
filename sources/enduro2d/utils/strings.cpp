@@ -267,7 +267,7 @@ namespace e2d { namespace strings
         // Inspired by:
         // https://www.codeproject.com/Articles/1088/Wildcard-string-compare-globbing
 
-        using utf8_iter = utf8::iterator<const char*>;
+        using utf8_iter = utf8::iterator<str_view::const_iterator>;
 
         static bool wildcard_match_impl(
             utf8_iter string_i, utf8_iter string_e,

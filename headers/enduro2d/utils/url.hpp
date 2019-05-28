@@ -83,9 +83,9 @@ namespace std
     template <>
     struct hash<e2d::url> {
         std::size_t operator()(const e2d::url& u) const noexcept {
-            return e2d::math::numeric_cast<std::size_t>(
-                e2d::utils::sdbm_hash(
-                    e2d::utils::sdbm_hash(u.scheme().c_str()), u.path().c_str()));
+            return e2d::utils::hash_combine(
+                std::hash<e2d::str>()(u.scheme()),
+                std::hash<e2d::str>()(u.path()));
         }
     };
 }

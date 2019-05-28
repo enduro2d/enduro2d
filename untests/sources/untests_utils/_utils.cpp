@@ -33,14 +33,18 @@ TEST_CASE("utils") {
         REQUIRE(utils::sdbm_hash("") == 0u);
         REQUIRE(utils::sdbm_hash(1u, "") == 1u);
 
-        REQUIRE(utils::sdbm_hash<char>(nullptr, nullptr) == 0u);
-        REQUIRE(utils::sdbm_hash<char>(1u, nullptr, nullptr) == 1u);
+        str_view empty_view;
+        REQUIRE(utils::sdbm_hash(empty_view.cbegin(), empty_view.cend()) == 0u);
+        REQUIRE(utils::sdbm_hash(1u, empty_view.cbegin(), empty_view.cend()) == 1u);
 
         const char* str1 = "hello";
         const char* str2 = "hello";
+        str_view str3{str1};
 
         REQUIRE(utils::sdbm_hash(str1) == utils::sdbm_hash(str2));
         REQUIRE(utils::sdbm_hash(42u, str1) == utils::sdbm_hash(42u, str2));
+        REQUIRE(utils::sdbm_hash(str1) == utils::sdbm_hash(str3));
+        REQUIRE(utils::sdbm_hash(str1) == utils::sdbm_hash(str3.cbegin(), str3.cend()));
 
         REQUIRE(utils::sdbm_hash(
             str1, str1 + std::strlen(str1)
@@ -48,6 +52,12 @@ TEST_CASE("utils") {
         REQUIRE(utils::sdbm_hash(
             42u, str1, str1 + std::strlen(str1)
         ) == utils::sdbm_hash(42u, str2));
+        REQUIRE(utils::sdbm_hash(
+            42u, str1, str1 + std::strlen(str1)
+        ) == utils::sdbm_hash(42u, str3.cbegin(), str3.cend()));
+        REQUIRE(utils::sdbm_hash(
+            42u, str1, str1 + std::strlen(str1)
+        ) == utils::sdbm_hash(42u, str3));
     }
     {
         utils::type_family_id id1 = utils::type_family<str16>::id();

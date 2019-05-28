@@ -105,10 +105,10 @@ namespace e2d { namespace utils
             return init;
         }
 
-        template < typename Char >
-        u32 sdbm_hash_impl(u32 init, const Char* begin, const Char* const end) noexcept {
-            while ( begin != end ) {
-                init = (*begin++) + (init << 6u) + (init << 16u) - init;
+        template < typename Iter >
+        u32 sdbm_hash_impl(u32 init, Iter first, Iter last) noexcept {
+            while ( first != last ) {
+                init = (*first++) + (init << 6u) + (init << 16u) - init;
             }
             return init;
         }
@@ -120,10 +120,14 @@ namespace e2d { namespace utils
         return impl::sdbm_hash_impl(0u, str);
     }
 
-    template < typename Char >
-    u32 sdbm_hash(const Char* begin, const Char* const end) noexcept {
-        E2D_ASSERT(begin <= end);
-        return impl::sdbm_hash_impl(0u, begin, end);
+    template < typename Char, typename Traits >
+    u32 sdbm_hash(basic_string_view<Char, Traits> str) noexcept {
+        return impl::sdbm_hash_impl(0u, str.cbegin(), str.cend());
+    }
+
+    template < typename Iter >
+    u32 sdbm_hash(Iter first, Iter last) noexcept {
+        return impl::sdbm_hash_impl(0u, first, last);
     }
 
     template < typename Char >
@@ -132,10 +136,22 @@ namespace e2d { namespace utils
         return impl::sdbm_hash_impl(init, str);
     }
 
-    template < typename Char >
-    u32 sdbm_hash(u32 init, const Char* begin, const Char* const end) noexcept {
-        E2D_ASSERT(begin <= end);
-        return impl::sdbm_hash_impl(init, begin, end);
+    template < typename Char, typename Traits >
+    u32 sdbm_hash(u32 init, basic_string_view<Char, Traits> str) noexcept {
+        return impl::sdbm_hash_impl(init, str.cbegin(), str.cend());
+    }
+
+    template < typename Iter >
+    u32 sdbm_hash(u32 init, Iter first, Iter last) noexcept {
+        return impl::sdbm_hash_impl(init, first, last);
+    }
+
+    //
+    // hash_combine
+    //
+
+    inline std::size_t hash_combine(std::size_t l, std::size_t r) noexcept {
+        return l ^ (r + 0x9e3779b9 + (l << 6) + (l >> 2));
     }
 
     //
