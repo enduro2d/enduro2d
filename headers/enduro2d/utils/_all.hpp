@@ -9,6 +9,7 @@
 #include "_utils.hpp"
 
 #include "buffer.hpp"
+#include "buffer_view.hpp"
 #include "color.hpp"
 #include "color32.hpp"
 #include "filesystem.hpp"

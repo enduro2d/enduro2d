@@ -86,7 +86,7 @@ namespace e2d
     };
 }
 
-namespace e2d { namespace utils
+namespace e2d::utils
 {
     //
     // sdbm_hash
@@ -159,7 +159,7 @@ namespace e2d { namespace utils
     //
 
     template < typename E
-             , typename = std::enable_if<std::is_enum<E>::value> >
+             , typename = std::enable_if<std::is_enum_v<E>> >
     constexpr std::underlying_type_t<E> enum_to_underlying(E e) noexcept {
         return static_cast<std::underlying_type_t<E>>(e);
     }
@@ -175,8 +175,8 @@ namespace e2d { namespace utils
         template < typename Void = void >
         class type_family_base {
             static_assert(
-                std::is_void<Void>::value &&
-                std::is_unsigned<type_family_id>::value,
+                std::is_void_v<Void> &&
+                std::is_unsigned_v<type_family_id>,
                 "unexpected internal error");
         protected:
             static type_family_id last_id_;
@@ -191,8 +191,8 @@ namespace e2d { namespace utils
     public:
         static type_family_id id() noexcept {
             static type_family_id self_id = ++last_id_;
-            assert(self_id > 0u && "type_family_id overflow");
+            E2D_ASSERT_MSG(self_id > 0u, "type_family_id overflow");
             return self_id;
         }
     };
-}}
+}
