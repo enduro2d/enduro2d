@@ -15,7 +15,7 @@ namespace e2d
     template < typename T >
     class vec2 final {
         static_assert(
-            std::is_arithmetic<T>::value,
+            std::is_arithmetic_v<T>,
             "type of 'vec2' must be arithmetic");
     public:
         using self_type = vec2;
@@ -45,7 +45,7 @@ namespace e2d
         const T* data() const noexcept;
 
         T& operator[](std::size_t index) noexcept;
-        T  operator[](std::size_t index) const noexcept;
+        T operator[](std::size_t index) const noexcept;
 
         vec2& operator+=(T v) noexcept;
         vec2& operator-=(T v) noexcept;
@@ -376,7 +376,7 @@ namespace e2d
     }
 }
 
-namespace e2d { namespace math
+namespace e2d::math
 {
     //
     // approximately
@@ -421,7 +421,7 @@ namespace e2d { namespace math
     }
 
     template < typename T >
-    std::enable_if_t<std::is_floating_point<T>::value, T>
+    std::enable_if_t<std::is_floating_point_v<T>, T>
     length(const vec2<T>& v) noexcept {
         return math::sqrt(length_squared(v));
     }
@@ -439,7 +439,7 @@ namespace e2d { namespace math
     }
 
     template < typename T >
-    std::enable_if_t<std::is_floating_point<T>::value, T>
+    std::enable_if_t<std::is_floating_point_v<T>, T>
     distance(const vec2<T>& l, const vec2<T>& r) noexcept {
         return math::sqrt(distance_squared(l, r));
     }
@@ -449,7 +449,7 @@ namespace e2d { namespace math
     //
 
     template < typename T >
-    std::enable_if_t<std::is_floating_point<T>::value, vec2<T>>
+    std::enable_if_t<std::is_floating_point_v<T>, vec2<T>>
     normalized(
         const vec2<T>& v,
         T precision = math::default_precision<T>()) noexcept
@@ -510,7 +510,7 @@ namespace e2d { namespace math
     //
 
     template < typename T >
-    std::enable_if_t<std::is_floating_point<T>::value, vec2<T>>
+    std::enable_if_t<std::is_floating_point_v<T>, vec2<T>>
     lerp(const vec2<T>& l, const vec2<T>& r, T v) noexcept {
         return {
             math::lerp(l.x, r.x, v),
@@ -518,7 +518,7 @@ namespace e2d { namespace math
     }
 
     template < typename T >
-    std::enable_if_t<std::is_floating_point<T>::value, vec2<T>>
+    std::enable_if_t<std::is_floating_point_v<T>, vec2<T>>
     lerp(const vec2<T>& l, const vec2<T>& r, const vec2<T>& v) noexcept {
         return {
             math::lerp(l.x, r.x, v.x),
@@ -526,7 +526,7 @@ namespace e2d { namespace math
     }
 
     template < typename T >
-    std::enable_if_t<std::is_floating_point<T>::value, vec2<T>>
+    std::enable_if_t<std::is_floating_point_v<T>, vec2<T>>
     inverse_lerp(const vec2<T>& l, const vec2<T>& r, const vec2<T>& v) noexcept {
         return {
             math::inverse_lerp(l.x, r.x, v.x),
@@ -543,4 +543,4 @@ namespace e2d { namespace math
             !math::is_finite(v.x) ||
             !math::is_finite(v.y);
     }
-}}
+}
