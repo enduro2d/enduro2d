@@ -24,8 +24,8 @@ namespace e2d
             vector<std::size_t> frames;
         };
     public:
-        flipbook();
-        ~flipbook() noexcept;
+        flipbook() = default;
+        ~flipbook() noexcept = default;
 
         flipbook(flipbook&& other) noexcept;
         flipbook& operator=(flipbook&& other) noexcept;

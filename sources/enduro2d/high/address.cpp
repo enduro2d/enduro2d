@@ -17,7 +17,7 @@ namespace
     }
 }
 
-namespace e2d { namespace address
+namespace e2d::address
 {
     str parent(str_view address) {
         const auto sep_e = str_view_search(address, address_separator);
@@ -36,4 +36,4 @@ namespace e2d { namespace address
         const auto sep_d = std::distance(address.begin(), sep_e);
         return str(address.substr(static_cast<std::size_t>(sep_d) + address_separator.size()));
     }
-}}
+}

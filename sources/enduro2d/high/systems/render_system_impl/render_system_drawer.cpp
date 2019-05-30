@@ -21,7 +21,7 @@ namespace
     const str_hash sprite_texture_sampler_hash = "u_texture";
 }
 
-namespace e2d { namespace render_system_impl
+namespace e2d::render_system_impl
 {
     //
     // drawer::context
@@ -223,4 +223,4 @@ namespace e2d { namespace render_system_impl
     : engine_(e)
     , render_(r)
     , batcher_(d, r) {}
-}}
+}

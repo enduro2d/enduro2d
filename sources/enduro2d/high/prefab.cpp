@@ -8,9 +8,6 @@
 
 namespace e2d
 {
-    prefab::prefab() = default;
-    prefab::~prefab() noexcept = default;
-
     prefab::prefab(prefab&& other) noexcept {
         assign(std::move(other));
     }

@@ -14,8 +14,8 @@ namespace e2d
 {
     class model final {
     public:
-        model();
-        ~model() noexcept;
+        model() = default;
+        ~model() noexcept = default;
 
         model(model&& other) noexcept;
         model& operator=(model&& other) noexcept;

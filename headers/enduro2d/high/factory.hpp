@@ -4,8 +4,6 @@
  * Copyright (C) 2018-2019, by Matvey Cherevko (blackmatov@gmail.com)
  ******************************************************************************/
 
-#ifndef E2D_INCLUDE_GUARD_9C9B1BA27AAC42CBAA07890458076B81
-#define E2D_INCLUDE_GUARD_9C9B1BA27AAC42CBAA07890458076B81
 #pragma once
 
 #include "_high.hpp"
@@ -140,4 +138,3 @@ namespace e2d
 }
 
 #include "factory.inl"
-#endif

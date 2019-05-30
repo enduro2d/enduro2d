@@ -144,9 +144,6 @@ namespace
 
 namespace e2d
 {
-    model::model() = default;
-    model::~model() noexcept = default;
-
     model::model(model&& other) noexcept {
         assign(std::move(other));
     }

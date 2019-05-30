@@ -4,11 +4,10 @@
  * Copyright (C) 2018-2019, by Matvey Cherevko (blackmatov@gmail.com)
  ******************************************************************************/
 
-#ifndef E2D_INCLUDE_GUARD_6FD0B1DD12004CF78E7AC5FBBC36E854
-#define E2D_INCLUDE_GUARD_6FD0B1DD12004CF78E7AC5FBBC36E854
 #pragma once
 
 #include "_high.hpp"
+
 #include "asset.hpp"
 
 namespace e2d
@@ -167,5 +166,3 @@ namespace e2d
             });
     }
 }
-
-#endif

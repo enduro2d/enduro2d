@@ -14,7 +14,7 @@
 #include "render_system_base.hpp"
 #include "render_system_batcher.hpp"
 
-namespace e2d { namespace render_system_impl
+namespace e2d::render_system_impl
 {
     class bad_drawer_operation final : public exception {
     public:
@@ -68,9 +68,9 @@ namespace e2d { namespace render_system_impl
         render& render_;
         batcher_type batcher_;
     };
-}}
+}
 
-namespace e2d { namespace render_system_impl
+namespace e2d::render_system_impl
 {
     template < typename F >
     void drawer::with(const camera& cam, const const_node_iptr& cam_n, F&& f) {
@@ -78,4 +78,4 @@ namespace e2d { namespace render_system_impl
         std::forward<F>(f)(ctx);
         ctx.flush();
     }
-}}
+}

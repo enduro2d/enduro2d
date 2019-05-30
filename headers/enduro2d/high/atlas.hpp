@@ -14,8 +14,8 @@ namespace e2d
 {
     class atlas final {
     public:
-        atlas();
-        ~atlas() noexcept;
+        atlas() = default;
+        ~atlas() noexcept = default;
 
         atlas(atlas&& other) noexcept;
         atlas& operator=(atlas&& other) noexcept;

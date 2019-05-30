@@ -8,9 +8,6 @@
 
 namespace e2d
 {
-    flipbook::flipbook() = default;
-    flipbook::~flipbook() noexcept = default;
-
     flipbook::flipbook(flipbook&& other) noexcept {
         assign(std::move(other));
     }

@@ -4,8 +4,6 @@
  * Copyright (C) 2018-2019, by Matvey Cherevko (blackmatov@gmail.com)
  ******************************************************************************/
 
-#ifndef E2D_INCLUDE_GUARD_1122A7CA62954AEF9E0A787064D28F73
-#define E2D_INCLUDE_GUARD_1122A7CA62954AEF9E0A787064D28F73
 #pragma once
 
 #include "_high.hpp"
@@ -133,4 +131,3 @@ namespace e2d
 }
 
 #include "asset.inl"
-#endif
