@@ -11,6 +11,14 @@ matrix:
       env: MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
     - os: linux
       dist: trusty
+      addons: { apt: { sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-trusty-5.0"], packages: ["xorg-dev", "clang-5.0", "g++-7"] } }
+      env: MATRIX_EVAL="CC=clang-5.0 && CXX=clang++-5.0"
+    - os: linux
+      dist: trusty
+      addons: { apt: { sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-trusty-6.0"], packages: ["xorg-dev", "clang-6.0", "g++-7"] } }
+      env: MATRIX_EVAL="CC=clang-6.0 && CXX=clang++-6.0"
+    - os: linux
+      dist: trusty
       addons: { apt: { sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-trusty-7"], packages: ["xorg-dev", "clang-7", "g++-7"] } }
       env: MATRIX_EVAL="CC=clang-7 && CXX=clang++-7"
     - os: linux
