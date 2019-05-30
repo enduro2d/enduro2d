@@ -207,7 +207,7 @@ namespace e2d
     }
 }
 
-namespace e2d { namespace images
+namespace e2d::images
 {
     bool try_load_image(
         image& dst,
@@ -258,4 +258,4 @@ namespace e2d { namespace images
         return try_save_image(src, format, file_data)
             && streams::try_write_tail(file_data, dst);
     }
-}}
+}

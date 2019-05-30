@@ -8,7 +8,7 @@
 
 #include "_utils.hpp"
 
-namespace e2d { namespace path
+namespace e2d::path
 {
     str combine(str_view lhs, str_view rhs);
 
@@ -25,4 +25,4 @@ namespace e2d { namespace path
 
     bool is_absolute(str_view path) noexcept;
     bool is_relative(str_view path) noexcept;
-}}
+}

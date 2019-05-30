@@ -638,7 +638,7 @@ namespace
     }
 }
 
-namespace e2d { namespace json_utils
+namespace e2d::json_utils
 {
     void add_common_schema_definitions(rapidjson::Document& schema) {
         schema.AddMember(
@@ -648,9 +648,9 @@ namespace e2d { namespace json_utils
                 schema.GetAllocator()).Move(),
             schema.GetAllocator());
     }
-}}
+}
 
-namespace e2d { namespace json_utils
+namespace e2d::json_utils
 {
     bool try_parse_value(const rapidjson::Value& root, v2i& v) noexcept {
         v2i tv;
@@ -868,10 +868,10 @@ namespace e2d { namespace json_utils
         }
         try {
             s = make_utf8(root.GetString());
+            return true;
         } catch (...) {
             return false;
         }
-        return true;
     }
 
     bool try_parse_value(const rapidjson::Value& root, wstr& s) noexcept {
@@ -880,10 +880,10 @@ namespace e2d { namespace json_utils
         }
         try {
             s = make_wide(root.GetString());
+            return true;
         } catch (...) {
             return false;
         }
-        return true;
     }
 
     bool try_parse_value(const rapidjson::Value& root, str16& s) noexcept {
@@ -892,10 +892,10 @@ namespace e2d { namespace json_utils
         }
         try {
             s = make_utf16(root.GetString());
+            return true;
         } catch (...) {
             return false;
         }
-        return true;
     }
 
     bool try_parse_value(const rapidjson::Value& root, str32& s) noexcept {
@@ -904,10 +904,10 @@ namespace e2d { namespace json_utils
         }
         try {
             s = make_utf32(root.GetString());
+            return true;
         } catch (...) {
             return false;
         }
-        return true;
     }
 
     bool try_parse_value(const rapidjson::Value& root, str_hash& s) noexcept {
@@ -916,9 +916,9 @@ namespace e2d { namespace json_utils
         }
         try {
             s = make_hash(root.GetString());
+            return true;
         } catch (...) {
             return false;
         }
-        return true;
     }
-}}
+}

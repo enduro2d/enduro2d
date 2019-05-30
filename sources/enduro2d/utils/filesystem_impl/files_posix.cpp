@@ -183,7 +183,7 @@ namespace
     };
 }
 
-namespace e2d { namespace impl
+namespace e2d::impl
 {
     read_file_uptr make_read_file(str_view path) noexcept {
         try {
@@ -200,6 +200,6 @@ namespace e2d { namespace impl
             return nullptr;
         }
     }
-}}
+}
 
 #endif

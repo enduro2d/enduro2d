@@ -4,8 +4,6 @@
  * Copyright (C) 2018-2019, by Matvey Cherevko (blackmatov@gmail.com)
  ******************************************************************************/
 
-#ifndef E2D_INCLUDE_GUARD_271E0872955E4A59980866CBF737BDC1
-#define E2D_INCLUDE_GUARD_271E0872955E4A59980866CBF737BDC1
 #pragma once
 
 #include "_utils.hpp"
@@ -19,6 +17,9 @@ namespace e2d
         }
     };
 
+    class input_stream;
+    using input_stream_uptr = std::unique_ptr<input_stream>;
+
     class input_stream : private noncopyable {
     public:
         virtual ~input_stream() noexcept = default;
@@ -27,7 +28,9 @@ namespace e2d
         virtual std::size_t tell() const = 0;
         virtual std::size_t length() const noexcept = 0;
     };
-    using input_stream_uptr = std::unique_ptr<input_stream>;
+
+    class output_stream;
+    using output_stream_uptr = std::unique_ptr<output_stream>;
 
     class output_stream : private noncopyable {
     public:
@@ -37,7 +40,6 @@ namespace e2d
         virtual std::size_t tell() const = 0;
         virtual void flush() const = 0;
     };
-    using output_stream_uptr = std::unique_ptr<output_stream>;
 }
 
 namespace e2d
@@ -99,7 +101,7 @@ namespace e2d
     input_stream_uptr make_memory_stream(buffer data) noexcept;
 }
 
-namespace e2d { namespace streams
+namespace e2d::streams
 {
     bool try_read_tail(
         str& dst,
@@ -116,7 +118,6 @@ namespace e2d { namespace streams
     bool try_write_tail(
         const buffer& src,
         const output_stream_uptr& stream) noexcept;
-}}
+}
 
 #include "streams.inl"
-#endif

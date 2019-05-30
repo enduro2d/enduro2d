@@ -93,7 +93,7 @@ namespace e2d
     bool operator!=(const image& l, const image& r) noexcept;
 }
 
-namespace e2d { namespace images
+namespace e2d::images
 {
     bool try_load_image(
         image& dst,
@@ -112,4 +112,4 @@ namespace e2d { namespace images
         const image& src,
         image_file_format format,
         const output_stream_uptr& dst) noexcept;
-}}
+}

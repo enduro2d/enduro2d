@@ -92,7 +92,7 @@ namespace
     }
 }
 
-namespace e2d { namespace filesystem { namespace impl
+namespace e2d::filesystem::impl
 {
     bool remove_file(str_view path) {
         const wstr wide_path = make_wide(path);
@@ -169,6 +169,6 @@ namespace e2d { namespace filesystem { namespace impl
                 return false;
         }
     }
-}}}
+}
 
 #endif

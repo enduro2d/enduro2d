@@ -72,8 +72,8 @@ namespace e2d
         assign(schemepath);
     }
 
-    url::url(str_view scheme, str_view path) noexcept {
-        assign(scheme, path);
+    url::url(str scheme, str path) noexcept {
+        assign(std::move(scheme), std::move(path));
     }
 
     url& url::assign(url&& other) noexcept {
@@ -96,9 +96,9 @@ namespace e2d
         return assign(std::move(nscheme), std::move(npath));
     }
 
-    url& url::assign(str_view scheme, str_view path) noexcept {
-        scheme_ = scheme;
-        path_ = path;
+    url& url::assign(str scheme, str path) noexcept {
+        scheme_ = std::move(scheme);
+        path_ = std::move(path);
         return *this;
     }
 

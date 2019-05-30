@@ -4,8 +4,6 @@
  * Copyright (C) 2018-2019, by Matvey Cherevko (blackmatov@gmail.com)
  ******************************************************************************/
 
-#ifndef E2D_INCLUDE_GUARD_5BC5A803A3694674845E9953209E8CBE
-#define E2D_INCLUDE_GUARD_5BC5A803A3694674845E9953209E8CBE
 #pragma once
 
 #include "_utils.hpp"
@@ -13,12 +11,6 @@
 
 namespace e2d
 {
-    template < typename Char >
-    basic_string_hash<Char>::basic_string_hash() noexcept = default;
-
-    template < typename Char >
-    basic_string_hash<Char>::~basic_string_hash() noexcept = default;
-
     template < typename Char >
     basic_string_hash<Char>::basic_string_hash(
         basic_string_hash&& other) noexcept
@@ -189,7 +181,7 @@ namespace std
     };
 }
 
-namespace e2d { namespace strings
+namespace e2d::strings
 {
     //
     // exceptions
@@ -268,7 +260,7 @@ namespace e2d { namespace strings
 
     template < typename T >
     class format_arg<T, std::enable_if_t<
-        std::is_integral<T>::value && std::is_signed<T>::value>>
+        std::is_integral_v<T> && std::is_signed_v<T>>>
     {
         T value_;
         u8 width_;
@@ -292,7 +284,7 @@ namespace e2d { namespace strings
 
     template < typename T >
     class format_arg<T, std::enable_if_t<
-        std::is_integral<T>::value && std::is_unsigned<T>::value>>
+        std::is_integral_v<T> && std::is_unsigned_v<T>>>
     {
         T value_;
         u8 width_;
@@ -316,7 +308,7 @@ namespace e2d { namespace strings
 
     template < typename T >
     class format_arg<T, std::enable_if_t<
-        std::is_floating_point<T>::value>>
+        std::is_floating_point_v<T>>>
     {
         T value_;
         u8 width_;
@@ -404,20 +396,28 @@ namespace e2d { namespace strings
     namespace impl
     {
         template < typename T >
-        struct is_arg_impl : std::false_type {};
-        template < typename U >
-        struct is_arg_impl<format_arg<U>> : std::true_type {};
-        template < typename T >
-        struct is_arg : is_arg_impl<std::remove_cv_t<T>> {};
+        struct is_arg_impl
+        : std::false_type {};
 
         template < typename T >
-        std::enable_if_t<is_arg<std::decay_t<T>>::value, T>
+        struct is_arg_impl<format_arg<T>>
+        : std::true_type {};
+
+        template < typename T >
+        struct is_arg
+        : is_arg_impl<std::remove_cv_t<T>> {};
+
+        template < typename T >
+        inline constexpr bool is_arg_v = is_arg<T>::value;
+
+        template < typename T >
+        std::enable_if_t<is_arg_v<std::decay_t<T>>, T>
         wrap_arg(T&& arg) {
             return std::forward<T>(arg);
         }
 
         template < typename T >
-        std::enable_if_t<!is_arg<std::decay_t<T>>::value, format_arg<std::decay_t<T>>>
+        std::enable_if_t<!is_arg_v<std::decay_t<T>>, format_arg<std::decay_t<T>>>
         wrap_arg(T&& value) {
             return make_format_arg(std::forward<T>(value));
         }
@@ -602,6 +602,4 @@ namespace e2d { namespace strings
             return false;
         }
     }
-}}
-
-#endif
+}

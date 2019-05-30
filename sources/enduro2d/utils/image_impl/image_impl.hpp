@@ -9,7 +9,7 @@
 #include <enduro2d/utils/image.hpp>
 #include <enduro2d/utils/buffer.hpp>
 
-namespace e2d { namespace images { namespace impl
+namespace e2d::images::impl
 {
     bool try_load_image_dds(image& dst, const buffer& src) noexcept;
     bool try_load_image_pvr(image& dst, const buffer& src) noexcept;
@@ -20,4 +20,4 @@ namespace e2d { namespace images { namespace impl
     bool try_save_image_png(const image& src, buffer& dst) noexcept;
     bool try_save_image_pvr(const image& src, buffer& dst) noexcept;
     bool try_save_image_tga(const image& src, buffer& dst) noexcept;
-}}}
+}

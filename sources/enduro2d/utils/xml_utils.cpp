@@ -11,6 +11,6 @@ namespace
     using namespace e2d;
 }
 
-namespace e2d { namespace xml_utils
+namespace e2d::xml_utils
 {
-}}
+}

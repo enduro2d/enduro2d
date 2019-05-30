@@ -226,7 +226,7 @@ namespace e2d
     }
 }
 
-namespace e2d { namespace math
+namespace e2d::math
 {
     //
     // approximately
@@ -279,4 +279,4 @@ namespace e2d { namespace math
     bool contains_nan(const unit<T, Tag>& u) noexcept {
         return !math::is_finite(u.value);
     }
-}}
+}

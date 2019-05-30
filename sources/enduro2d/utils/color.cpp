@@ -238,7 +238,7 @@ namespace e2d
     }
 }
 
-namespace e2d { namespace math
+namespace e2d::math
 {
     //
     // approximately
@@ -312,9 +312,9 @@ namespace e2d { namespace math
             || !math::is_finite(c.b)
             || !math::is_finite(c.a);
     }
-}}
+}
 
-namespace e2d { namespace colors
+namespace e2d::colors
 {
     u32 pack_color(const color& c) noexcept {
         return
@@ -331,4 +331,4 @@ namespace e2d { namespace colors
             math::numeric_cast<u8>((argb >>  0) & 0xFF) / 255.f,
             math::numeric_cast<u8>((argb >> 24) & 0xFF) / 255.f);
     }
-}}
+}

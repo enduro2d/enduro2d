@@ -78,7 +78,7 @@ namespace
     }
 }
 
-namespace e2d { namespace filesystem { namespace impl
+namespace e2d::filesystem::impl
 {
     bool remove_file(str_view path) {
         return 0 == ::unlink(make_utf8(path).c_str())
@@ -145,6 +145,6 @@ namespace e2d { namespace filesystem { namespace impl
                 return false;
         }
     }
-}}}
+}
 
 #endif

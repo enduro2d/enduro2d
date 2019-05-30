@@ -38,7 +38,7 @@ namespace e2d
         const f32* data() const noexcept;
 
         f32& operator[](std::size_t index) noexcept;
-        f32  operator[](std::size_t index) const noexcept;
+        f32 operator[](std::size_t index) const noexcept;
 
         color& operator+=(f32 v) noexcept;
         color& operator-=(f32 v) noexcept;
@@ -74,7 +74,7 @@ namespace e2d
     color operator/(color l, const color& r) noexcept;
 }
 
-namespace e2d { namespace math
+namespace e2d::math
 {
     bool approximately(const color& l, const color& r) noexcept;
     bool approximately(const color& l, const color& r, f32 precision) noexcept;
@@ -88,10 +88,10 @@ namespace e2d { namespace math
     color saturated(const color& c) noexcept;
 
     bool contains_nan(const color& c) noexcept;
-}}
+}
 
-namespace e2d { namespace colors
+namespace e2d::colors
 {
     u32 pack_color(const color& c) noexcept;
     color unpack_color(u32 argb) noexcept;
-}}
+}

@@ -94,7 +94,7 @@ namespace
     }
 }
 
-namespace e2d { namespace shapes { namespace impl
+namespace e2d::shapes::impl
 {
     bool try_load_shape_e2d(shape& dst, const buffer& src) noexcept {
         try {
@@ -103,8 +103,7 @@ namespace e2d { namespace shapes { namespace impl
                 && check_signature(stream)
                 && load_shape(dst, stream);
         } catch (...) {
-            // nothing
+            return false;
         }
-        return false;
     }
-}}}
+}

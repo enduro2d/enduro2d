@@ -37,7 +37,7 @@ namespace
     }
 }
 
-namespace e2d { namespace path
+namespace e2d::path
 {
     str combine(str_view lhs, str_view rhs) {
         if ( lhs.empty() || is_absolute(rhs) ) {
@@ -132,4 +132,4 @@ namespace e2d { namespace path
     bool is_relative(str_view path) noexcept {
         return !is_absolute(path);
     }
-}}
+}

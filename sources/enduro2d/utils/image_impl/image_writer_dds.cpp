@@ -27,7 +27,7 @@ namespace
     }
 }
 
-namespace e2d { namespace images { namespace impl
+namespace e2d::images::impl
 {
     bool try_save_image_dds(const image& src, buffer& dst) noexcept {
         E2D_UNUSED(src, dst);
@@ -37,4 +37,4 @@ namespace e2d { namespace images { namespace impl
         }
         return false;
     }
-}}}
+}

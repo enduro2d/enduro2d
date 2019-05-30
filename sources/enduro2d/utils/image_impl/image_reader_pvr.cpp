@@ -6,11 +6,11 @@
 
 #include "image_impl.hpp"
 
-namespace e2d { namespace images { namespace impl
+namespace e2d::images::impl
 {
     bool try_load_image_pvr(image& dst, const buffer& src) noexcept {
         //TODO(BlackMat): implme
         E2D_UNUSED(dst, src);
         return false;
     }
-}}}
+}

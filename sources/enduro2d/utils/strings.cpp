@@ -260,7 +260,7 @@ namespace e2d
     }
 }
 
-namespace e2d { namespace strings
+namespace e2d::strings
 {
     namespace impl
     {
@@ -337,4 +337,4 @@ namespace e2d { namespace strings
         return input.length() >= test.length()
             && 0 == input.compare(input.length() - test.length(), test.length(), test);
     }
-}}
+}

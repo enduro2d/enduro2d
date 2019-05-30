@@ -29,8 +29,8 @@
 #  error E2D_FILES_MODE not detected
 #endif
 
-namespace e2d { namespace impl
+namespace e2d::impl
 {
     read_file_uptr make_read_file(str_view path) noexcept;
     write_file_uptr make_write_file(str_view path, bool append) noexcept;
-}}
+}

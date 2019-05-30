@@ -23,6 +23,7 @@
 #include "path.hpp"
 #include "shape.hpp"
 #include "streams.hpp"
+#include "streams.inl"
 #include "strfmts.hpp"
 #include "strings.hpp"
 #include "strings.inl"

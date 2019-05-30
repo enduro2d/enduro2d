@@ -112,7 +112,7 @@ namespace
     }
 }
 
-namespace e2d { namespace meshes { namespace impl
+namespace e2d::meshes::impl
 {
     bool try_load_mesh_e2d(mesh& dst, const buffer& src) noexcept {
         try {
@@ -121,8 +121,7 @@ namespace e2d { namespace meshes { namespace impl
                 && check_signature(stream)
                 && load_mesh(dst, stream);
         } catch (...) {
-            // nothing
+            return false;
         }
-        return false;
     }
-}}}
+}

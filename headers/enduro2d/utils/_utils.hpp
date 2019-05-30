@@ -15,6 +15,8 @@ namespace e2d
     class buffer_view;
     class color;
     class color32;
+    class read_file;
+    class write_file;
     class image;
     class mesh;
     class shape;

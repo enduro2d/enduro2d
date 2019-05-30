@@ -13,14 +13,14 @@
 #include "color32.hpp"
 #include "strings.hpp"
 
-namespace e2d { namespace strings
+namespace e2d::strings
 {
     //
     // vec2
     //
 
     template < typename T >
-    class format_arg<vec2<T>, std::enable_if_t<std::is_integral<T>::value>> {
+    class format_arg<vec2<T>, std::enable_if_t<std::is_integral_v<T>>> {
         vec2<T> value_;
         u8 width_;
     public:
@@ -37,7 +37,7 @@ namespace e2d { namespace strings
     };
 
     template < typename T >
-    class format_arg<vec2<T>, std::enable_if_t<std::is_floating_point<T>::value>> {
+    class format_arg<vec2<T>, std::enable_if_t<std::is_floating_point_v<T>>> {
         vec2<T> value_;
         u8 width_;
         u8 precision_;
@@ -59,7 +59,7 @@ namespace e2d { namespace strings
     //
 
     template < typename T >
-    class format_arg<vec3<T>, std::enable_if_t<std::is_integral<T>::value>> {
+    class format_arg<vec3<T>, std::enable_if_t<std::is_integral_v<T>>> {
         vec3<T> value_;
         u8 width_;
     public:
@@ -77,7 +77,7 @@ namespace e2d { namespace strings
     };
 
     template < typename T >
-    class format_arg<vec3<T>, std::enable_if_t<std::is_floating_point<T>::value>> {
+    class format_arg<vec3<T>, std::enable_if_t<std::is_floating_point_v<T>>> {
         vec3<T> value_;
         u8 width_;
         u8 precision_;
@@ -100,7 +100,7 @@ namespace e2d { namespace strings
     //
 
     template < typename T >
-    class format_arg<vec4<T>, std::enable_if_t<std::is_integral<T>::value>> {
+    class format_arg<vec4<T>, std::enable_if_t<std::is_integral_v<T>>> {
         vec4<T> value_;
         u8 width_;
     public:
@@ -119,7 +119,7 @@ namespace e2d { namespace strings
     };
 
     template < typename T >
-    class format_arg<vec4<T>, std::enable_if_t<std::is_floating_point<T>::value>> {
+    class format_arg<vec4<T>, std::enable_if_t<std::is_floating_point_v<T>>> {
         vec4<T> value_;
         u8 width_;
         u8 precision_;
@@ -143,7 +143,7 @@ namespace e2d { namespace strings
     //
 
     template < typename T >
-    class format_arg<quat<T>, std::enable_if_t<std::is_integral<T>::value>> {
+    class format_arg<quat<T>, std::enable_if_t<std::is_integral_v<T>>> {
         quat<T> value_;
         u8 width_;
     public:
@@ -162,7 +162,7 @@ namespace e2d { namespace strings
     };
 
     template < typename T >
-    class format_arg<quat<T>, std::enable_if_t<std::is_floating_point<T>::value>> {
+    class format_arg<quat<T>, std::enable_if_t<std::is_floating_point_v<T>>> {
         quat<T> value_;
         u8 width_;
         u8 precision_;
@@ -186,7 +186,7 @@ namespace e2d { namespace strings
     //
 
     template < typename T >
-    class format_arg<rect<T>, std::enable_if_t<std::is_integral<T>::value>> {
+    class format_arg<rect<T>, std::enable_if_t<std::is_integral_v<T>>> {
         rect<T> value_;
         u8 width_;
     public:
@@ -205,7 +205,7 @@ namespace e2d { namespace strings
     };
 
     template < typename T >
-    class format_arg<rect<T>, std::enable_if_t<std::is_floating_point<T>::value>> {
+    class format_arg<rect<T>, std::enable_if_t<std::is_floating_point_v<T>>> {
         rect<T> value_;
         u8 width_;
         u8 precision_;
@@ -229,7 +229,7 @@ namespace e2d { namespace strings
     //
 
     template < typename T >
-    class format_arg<aabb<T>, std::enable_if_t<std::is_integral<T>::value>> {
+    class format_arg<aabb<T>, std::enable_if_t<std::is_integral_v<T>>> {
         aabb<T> value_;
         u8 width_;
     public:
@@ -250,7 +250,7 @@ namespace e2d { namespace strings
     };
 
     template < typename T >
-    class format_arg<aabb<T>, std::enable_if_t<std::is_floating_point<T>::value>> {
+    class format_arg<aabb<T>, std::enable_if_t<std::is_floating_point_v<T>>> {
         aabb<T> value_;
         u8 width_;
         u8 precision_;
@@ -276,7 +276,7 @@ namespace e2d { namespace strings
     //
 
     template < typename T >
-    class format_arg<mat2<T>, std::enable_if_t<std::is_integral<T>::value>> {
+    class format_arg<mat2<T>, std::enable_if_t<std::is_integral_v<T>>> {
         mat2<T> value_;
         u8 width_;
     public:
@@ -293,7 +293,7 @@ namespace e2d { namespace strings
     };
 
     template < typename T >
-    class format_arg<mat2<T>, std::enable_if_t<std::is_floating_point<T>::value>> {
+    class format_arg<mat2<T>, std::enable_if_t<std::is_floating_point_v<T>>> {
         mat2<T> value_;
         u8 width_;
         u8 precision_;
@@ -315,7 +315,7 @@ namespace e2d { namespace strings
     //
 
     template < typename T >
-    class format_arg<mat3<T>, std::enable_if_t<std::is_integral<T>::value>> {
+    class format_arg<mat3<T>, std::enable_if_t<std::is_integral_v<T>>> {
         mat3<T> value_;
         u8 width_;
     public:
@@ -333,7 +333,7 @@ namespace e2d { namespace strings
     };
 
     template < typename T >
-    class format_arg<mat3<T>, std::enable_if_t<std::is_floating_point<T>::value>> {
+    class format_arg<mat3<T>, std::enable_if_t<std::is_floating_point_v<T>>> {
         mat3<T> value_;
         u8 width_;
         u8 precision_;
@@ -356,7 +356,7 @@ namespace e2d { namespace strings
     //
 
     template < typename T >
-    class format_arg<mat4<T>, std::enable_if_t<std::is_integral<T>::value>> {
+    class format_arg<mat4<T>, std::enable_if_t<std::is_integral_v<T>>> {
         mat4<T> value_;
         u8 width_;
     public:
@@ -375,7 +375,7 @@ namespace e2d { namespace strings
     };
 
     template < typename T >
-    class format_arg<mat4<T>, std::enable_if_t<std::is_floating_point<T>::value>> {
+    class format_arg<mat4<T>, std::enable_if_t<std::is_floating_point_v<T>>> {
         mat4<T> value_;
         u8 width_;
         u8 precision_;
@@ -399,7 +399,7 @@ namespace e2d { namespace strings
     //
 
     template < typename T >
-    class format_arg<rad<T>, std::enable_if_t<std::is_integral<T>::value>> {
+    class format_arg<rad<T>, std::enable_if_t<std::is_integral_v<T>>> {
         rad<T> value_;
         u8 width_;
     public:
@@ -415,7 +415,7 @@ namespace e2d { namespace strings
     };
 
     template < typename T >
-    class format_arg<rad<T>, std::enable_if_t<std::is_floating_point<T>::value>> {
+    class format_arg<rad<T>, std::enable_if_t<std::is_floating_point_v<T>>> {
         rad<T> value_;
         u8 width_;
         u8 precision_;
@@ -436,7 +436,7 @@ namespace e2d { namespace strings
     //
 
     template < typename T >
-    class format_arg<deg<T>, std::enable_if_t<std::is_integral<T>::value>> {
+    class format_arg<deg<T>, std::enable_if_t<std::is_integral_v<T>>> {
         deg<T> value_;
         u8 width_;
     public:
@@ -452,7 +452,7 @@ namespace e2d { namespace strings
     };
 
     template < typename T >
-    class format_arg<deg<T>, std::enable_if_t<std::is_floating_point<T>::value>> {
+    class format_arg<deg<T>, std::enable_if_t<std::is_floating_point_v<T>>> {
         deg<T> value_;
         u8 width_;
         u8 precision_;
@@ -478,7 +478,7 @@ namespace e2d { namespace strings
     public:
         template < typename U >
         explicit format_arg(U&& value)
-            noexcept(noexcept(std::is_nothrow_constructible<url, U>::value))
+            noexcept(noexcept(std::is_nothrow_constructible_v<url, U>))
         : value_(std::forward<U>(value)) {}
 
         std::ptrdiff_t write(char* dst, size_t size) const {
@@ -499,7 +499,7 @@ namespace e2d { namespace strings
     public:
         template < typename U >
         explicit format_arg(U&& value, u8 width = 0)
-            noexcept(noexcept(std::is_nothrow_constructible<str, U>::value))
+            noexcept(noexcept(std::is_nothrow_constructible_v<str, U>))
         : value_(std::forward<U>(value)), width_(width) {}
 
         std::ptrdiff_t write(char* dst, size_t size) const {
@@ -527,7 +527,7 @@ namespace e2d { namespace strings
     public:
         template < typename U >
         explicit format_arg(U&& value, u8 width = 0)
-            noexcept(noexcept(std::is_nothrow_constructible<wstr, U>::value))
+            noexcept(noexcept(std::is_nothrow_constructible_v<wstr, U>))
         : value_(std::forward<U>(value)), width_(width) {}
 
         std::ptrdiff_t write(char* dst, size_t size) const {
@@ -555,7 +555,7 @@ namespace e2d { namespace strings
     public:
         template < typename U >
         explicit format_arg(U&& value, u8 width = 0)
-            noexcept(noexcept(std::is_nothrow_constructible<str16, U>::value))
+            noexcept(noexcept(std::is_nothrow_constructible_v<str16, U>))
         : value_(std::forward<U>(value)), width_(width) {}
 
         std::ptrdiff_t write(char* dst, size_t size) const {
@@ -583,7 +583,7 @@ namespace e2d { namespace strings
     public:
         template < typename U >
         explicit format_arg(U&& value, u8 width = 0)
-            noexcept(noexcept(std::is_nothrow_constructible<str32, U>::value))
+            noexcept(noexcept(std::is_nothrow_constructible_v<str32, U>))
         : value_(std::forward<U>(value)), width_(width) {}
 
         std::ptrdiff_t write(char* dst, size_t size) const {
@@ -652,7 +652,7 @@ namespace e2d { namespace strings
     //
 
     template < typename T >
-    class format_arg<seconds<T>, std::enable_if_t<std::is_integral<T>::value>> {
+    class format_arg<seconds<T>, std::enable_if_t<std::is_integral_v<T>>> {
         seconds<T> value_;
         u8 width_;
     public:
@@ -668,7 +668,7 @@ namespace e2d { namespace strings
     };
 
     template < typename T >
-    class format_arg<seconds<T>, std::enable_if_t<std::is_floating_point<T>::value>> {
+    class format_arg<seconds<T>, std::enable_if_t<std::is_floating_point_v<T>>> {
         seconds<T> value_;
         u8 width_;
         u8 precision_;
@@ -689,7 +689,7 @@ namespace e2d { namespace strings
     //
 
     template < typename T >
-    class format_arg<milliseconds<T>, std::enable_if_t<std::is_integral<T>::value>> {
+    class format_arg<milliseconds<T>, std::enable_if_t<std::is_integral_v<T>>> {
         milliseconds<T> value_;
         u8 width_;
     public:
@@ -705,7 +705,7 @@ namespace e2d { namespace strings
     };
 
     template < typename T >
-    class format_arg<milliseconds<T>, std::enable_if_t<std::is_floating_point<T>::value>> {
+    class format_arg<milliseconds<T>, std::enable_if_t<std::is_floating_point_v<T>>> {
         milliseconds<T> value_;
         u8 width_;
         u8 precision_;
@@ -726,7 +726,7 @@ namespace e2d { namespace strings
     //
 
     template < typename T >
-    class format_arg<microseconds<T>, std::enable_if_t<std::is_integral<T>::value>> {
+    class format_arg<microseconds<T>, std::enable_if_t<std::is_integral_v<T>>> {
         microseconds<T> value_;
         u8 width_;
     public:
@@ -742,7 +742,7 @@ namespace e2d { namespace strings
     };
 
     template < typename T >
-    class format_arg<microseconds<T>, std::enable_if_t<std::is_floating_point<T>::value>> {
+    class format_arg<microseconds<T>, std::enable_if_t<std::is_floating_point_v<T>>> {
         microseconds<T> value_;
         u8 width_;
         u8 precision_;
@@ -757,4 +757,4 @@ namespace e2d { namespace strings
                     make_format_arg(value_.value, width_, precision_)));
         }
     };
-}}
+}

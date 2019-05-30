@@ -220,7 +220,7 @@ namespace e2d
     }
 }
 
-namespace e2d { namespace shapes
+namespace e2d::shapes
 {
     bool try_load_shape(
         shape& dst,
@@ -237,4 +237,4 @@ namespace e2d { namespace shapes
         return streams::try_read_tail(file_data, src)
             && try_load_shape(dst, file_data);
     }
-}}
+}
