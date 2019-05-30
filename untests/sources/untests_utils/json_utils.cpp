@@ -91,7 +91,7 @@ namespace
         "f1" : 2,
         "f_" : "hi",
 
-        "vv" : [1,2,3],
+        "vv" : [1,2,2,3],
         "vv_" : "hello"
     })json";
 }
@@ -131,8 +131,28 @@ TEST_CASE("json_utils") {
 
         vector<int> vv;
         REQUIRE(json_utils::try_parse_value(doc["vv"], vv));
-        REQUIRE(vv == vector<int>{1,2,3});
+        REQUIRE(vv == vector<int>{1,2,2,3});
         REQUIRE_FALSE(json_utils::try_parse_value(doc["vv_"], vv));
+
+        hash_set<int> hs;
+        REQUIRE(json_utils::try_parse_value(doc["vv"], hs));
+        REQUIRE(hs == hash_set<int>{1,2,3});
+        REQUIRE_FALSE(json_utils::try_parse_value(doc["vv_"], hs));
+
+        hash_multiset<int> hms;
+        REQUIRE(json_utils::try_parse_value(doc["vv"], hms));
+        REQUIRE(hms == hash_multiset<int>{1,2,2,3});
+        REQUIRE_FALSE(json_utils::try_parse_value(doc["vv_"], hms));
+
+        flat_set<int> fs;
+        REQUIRE(json_utils::try_parse_value(doc["vv"], fs));
+        REQUIRE(fs == flat_set<int>{1,2,3});
+        REQUIRE_FALSE(json_utils::try_parse_value(doc["vv_"], fs));
+
+        flat_multiset<int> fms;
+        REQUIRE(json_utils::try_parse_value(doc["vv"], fms));
+        REQUIRE(fms == flat_multiset<int>{1,2,2,3});
+        REQUIRE_FALSE(json_utils::try_parse_value(doc["vv_"], fms));
     }
     {
         str s0;

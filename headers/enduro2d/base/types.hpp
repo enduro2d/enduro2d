@@ -46,11 +46,24 @@ namespace e2d
     using hash_set = std::unordered_set<Key, Hash, Pred, Allocator>;
 
     template < typename Key
+             , typename Hash = std::hash<Key>
+             , typename Pred = std::equal_to<>
+             , typename Allocator = std::allocator<Key> >
+    using hash_multiset = std::unordered_multiset<Key, Hash, Pred, Allocator>;
+
+    template < typename Key
              , typename Value
              , typename Hash = std::hash<Key>
              , typename Pred = std::equal_to<>
              , typename Allocator = std::allocator<std::pair<const Key, Value>> >
     using hash_map = std::unordered_map<Key, Value, Hash, Pred, Allocator>;
+
+    template < typename Key
+             , typename Value
+             , typename Hash = std::hash<Key>
+             , typename Pred = std::equal_to<>
+             , typename Allocator = std::allocator<std::pair<const Key, Value>> >
+    using hash_multimap = std::unordered_multimap<Key, Value, Hash, Pred, Allocator>;
 
     template < typename Char
              , typename Traits = std::char_traits<Char>
@@ -70,15 +83,15 @@ namespace e2d
     using flat_set = flat_hpp::flat_set<Key, Compare, Container>;
 
     template < typename Key
+             , typename Compare = std::less<>
+             , typename Container = vector<Key> >
+    using flat_multiset = flat_hpp::flat_multiset<Key, Compare, Container>;
+
+    template < typename Key
              , typename Value
              , typename Compare = std::less<>
              , typename Container = vector<std::pair<Key, Value>> >
     using flat_map = flat_hpp::flat_map<Key, Value, Compare, Container>;
-
-    template < typename Key
-             , typename Compare = std::less<>
-             , typename Container = vector<Key> >
-    using flat_multiset = flat_hpp::flat_multiset<Key, Compare, Container>;
 
     template < typename Key
              , typename Value
