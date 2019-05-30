@@ -38,6 +38,7 @@
 #define E2D_PLATFORM_IOS     2
 #define E2D_PLATFORM_MACOSX  3
 #define E2D_PLATFORM_WINDOWS 4
+#define E2D_PLATFORM_BSD     5
 
 #ifndef E2D_PLATFORM
 #  if defined(__linux__) || defined(__linux) || defined(linux)
@@ -51,6 +52,8 @@
 #    endif
 #  elif defined(_WIN32) || defined(__WIN32__) || defined(WIN32)
 #    define E2D_PLATFORM E2D_PLATFORM_WINDOWS
+#  elif defined(__FreeBSD__)
+#    define E2D_PLATFORM E2D_PLATFORM_BSD
 #  endif
 #endif
 

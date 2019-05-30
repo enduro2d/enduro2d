@@ -8,6 +8,7 @@
 
 #if defined(E2D_FILES_MODE) && E2D_FILES_MODE == E2D_FILES_MODE_POSIX
 
+#include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
 

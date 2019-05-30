@@ -79,6 +79,8 @@
 
 #elif defined(WIN32) || defined(__WIN32__) || defined(_WIN32) || defined(_MSC_VER) || defined(__MINGW32__)
 #  define CATCH_PLATFORM_WINDOWS
+#elif defined(__FreeBSD__)
+#  define CATCH_PLATFORM_BSD
 #endif
 
 // end catch_platform.h
@@ -6030,7 +6032,7 @@ namespace Catch {
 
     #define CATCH_TRAP() __asm__("int $3\n" : : ) /* NOLINT */
 
-#elif defined(CATCH_PLATFORM_LINUX)
+#elif defined(CATCH_PLATFORM_LINUX) || defined(CATCH_PLATFORM_BSD)
     // If we can use inline assembler, do it because this allows us to break
     // directly at the location of the failing check instead of breaking inside
     // raise() called from it, i.e. one stack frame below.
@@ -8413,7 +8415,7 @@ namespace Catch {
 // end catch_debug_console.cpp
 // start catch_debugger.cpp
 
-#ifdef CATCH_PLATFORM_MAC
+#if defined(CATCH_PLATFORM_MAC) || defined(CATCH_PLATFORM_BSD)
 
 #  include <assert.h>
 #  include <stdbool.h>
@@ -8425,6 +8427,10 @@ namespace Catch {
 #ifdef __apple_build_version__
     // These headers will only compile with AppleClang (XCode)
     // For other compilers (Clang, GCC, ... ) we need to exclude them
+#  include <sys/sysctl.h>
+#endif
+
+#ifdef CATCH_PLATFORM_BSD
 #  include <sys/sysctl.h>
 #endif
 
