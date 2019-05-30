@@ -33,14 +33,11 @@ namespace
 
 namespace e2d
 {
-    debug::debug() = default;
-    debug::~debug() noexcept = default;
-
     debug::sink& debug::register_sink(sink_uptr sink) {
         return register_sink_ex(level::trace, std::move(sink));
     }
 
-    void debug::unregister_sink(const sink& sink) {
+    void debug::unregister_sink(const sink& sink) noexcept {
         std::lock_guard<std::mutex> guard(mutex_);
         sinks_.erase(std::remove_if(
             sinks_.begin(), sinks_.end(),

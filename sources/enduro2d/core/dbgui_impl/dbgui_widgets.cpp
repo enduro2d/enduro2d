@@ -119,7 +119,7 @@ namespace
     }
 }
 
-namespace e2d { namespace dbgui_widgets
+namespace e2d::dbgui_widgets
 {
     void show_main_menu() {
         static bool show_engine = false;
@@ -148,4 +148,4 @@ namespace e2d { namespace dbgui_widgets
             show_debug_window(&show_window);
         }
     }
-}}
+}

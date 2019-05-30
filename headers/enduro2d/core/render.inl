@@ -4,11 +4,10 @@
  * Copyright (C) 2018-2019, by Matvey Cherevko (blackmatov@gmail.com)
  ******************************************************************************/
 
-#ifndef E2D_INCLUDE_GUARD_8247225BE32B4135BDAECEEE88535A86
-#define E2D_INCLUDE_GUARD_8247225BE32B4135BDAECEEE88535A86
 #pragma once
 
 #include "_core.hpp"
+
 #include "render.hpp"
 
 namespace e2d
@@ -118,8 +117,8 @@ namespace e2d
     template < typename T >
     template < typename F >
     void render::property_map<T>::foreach(F&& f) const {
-        for ( const auto& p : values_ ) {
-            f(p.first, p.second);
+        for ( const auto& [name, value] : values_ ) {
+            f(name, value);
         }
     }
 
@@ -211,5 +210,3 @@ namespace e2d
         return *this;
     }
 }
-
-#endif

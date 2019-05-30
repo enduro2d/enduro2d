@@ -7,6 +7,7 @@
 #pragma once
 
 #include "_core.hpp"
+
 #include "window.hpp"
 
 namespace e2d

@@ -5,6 +5,7 @@
  ******************************************************************************/
 
 #include <enduro2d/core/window.hpp>
+
 #include <enduro2d/core/debug.hpp>
 
 namespace e2d

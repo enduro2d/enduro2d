@@ -4,8 +4,6 @@
  * Copyright (C) 2018-2019, by Matvey Cherevko (blackmatov@gmail.com)
  ******************************************************************************/
 
-#ifndef E2D_INCLUDE_GUARD_64EC1BED88C24F57851A315A761E9D48
-#define E2D_INCLUDE_GUARD_64EC1BED88C24F57851A315A761E9D48
 #pragma once
 
 #include "_core.hpp"
@@ -1005,4 +1003,3 @@ namespace e2d
 }
 
 #include "render.inl"
-#endif

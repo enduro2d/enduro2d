@@ -48,7 +48,7 @@
 #   define GL_CHECK_CODE(dbg, code) E2D_UNUSED(dbg); code;
 #endif
 
-namespace e2d { namespace opengl
+namespace e2d::opengl
 {
     class gl_buffer_id final : private noncopyable {
         gl_buffer_id(debug& debug, GLuint id, GLenum target, bool owned) noexcept;
@@ -192,9 +192,9 @@ namespace e2d { namespace opengl
     bool operator!=(const gl_texture_id& l, const gl_texture_id& r) noexcept;
     bool operator!=(const gl_framebuffer_id& l, const gl_framebuffer_id& r) noexcept;
     bool operator!=(const gl_renderbuffer_id& l, const gl_renderbuffer_id& r) noexcept;
-}}
+}
 
-namespace e2d { namespace opengl
+namespace e2d::opengl
 {
     enum class uniform_type : u8 {
         signed_integer,
@@ -234,9 +234,9 @@ namespace e2d { namespace opengl
 
     const char* uniform_type_to_cstr(uniform_type ut) noexcept;
     const char* attribute_type_to_cstr(attribute_type at) noexcept;
-}}
+}
 
-namespace e2d { namespace opengl
+namespace e2d::opengl
 {
     GLenum convert_image_data_format_to_external_format(image_data_format f) noexcept;
     GLenum convert_image_data_format_to_external_data_type(image_data_format f) noexcept;
@@ -275,9 +275,9 @@ namespace e2d { namespace opengl
     const char* gl_error_code_to_cstr(GLenum e) noexcept;
     const char* gl_framebuffer_status_to_cstr(GLenum s) noexcept;
     GLenum gl_target_to_get_target(GLenum t) noexcept;
-}}
+}
 
-namespace e2d { namespace opengl
+namespace e2d::opengl
 {
     void gl_trace_info(debug& debug) noexcept;
     void gl_trace_limits(debug& debug) noexcept;
@@ -307,9 +307,9 @@ namespace e2d { namespace opengl
         debug& debug,
         const v2u& size,
         GLenum format);
-}}
+}
 
-namespace e2d { namespace opengl
+namespace e2d::opengl
 {
     struct uniform_info {
         str_hash name;
@@ -354,9 +354,9 @@ namespace e2d { namespace opengl
         debug& debug,
         GLuint program,
         vector<attribute_info>& attributes);
-}}
+}
 
-namespace e2d { namespace opengl
+namespace e2d::opengl
 {
     //
     // with_gl_use_program
@@ -492,7 +492,7 @@ namespace e2d { namespace opengl
     void with_gl_bind_renderbuffer(debug& debug, const gl_renderbuffer_id& renderbuffer, F&& f, Args&&... args) {
         with_gl_bind_renderbuffer(debug, renderbuffer.target(), *renderbuffer, std::forward<F>(f), std::forward<Args>(args)...);
     }
-}}
+}
 
 #endif
 #endif

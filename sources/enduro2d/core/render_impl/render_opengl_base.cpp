@@ -97,7 +97,7 @@ namespace
     }
 }
 
-namespace e2d { namespace opengl
+namespace e2d::opengl
 {
     //
     // gl_buffer_id
@@ -639,9 +639,9 @@ namespace e2d { namespace opengl
     bool operator!=(const gl_renderbuffer_id& l, const gl_renderbuffer_id& r) noexcept {
         return !(l == r);
     }
-}}
+}
 
-namespace e2d { namespace opengl
+namespace e2d::opengl
 {
     const char* uniform_type_to_cstr(uniform_type ut) noexcept {
         #define DEFINE_CASE(x) case uniform_type::x: return #x
@@ -684,9 +684,9 @@ namespace e2d { namespace opengl
         }
         #undef DEFINE_CASE
     }
-}}
+}
 
-namespace e2d { namespace opengl
+namespace e2d::opengl
 {
     GLenum convert_image_data_format_to_external_format(image_data_format f) noexcept {
         #define DEFINE_CASE(x,y) case image_data_format::x: return y
@@ -1176,9 +1176,9 @@ namespace e2d { namespace opengl
         }
         #undef DEFINE_CASE
     }
-}}
+}
 
-namespace e2d { namespace opengl
+namespace e2d::opengl
 {
     void gl_trace_info(debug& debug) noexcept {
         const char* vendor = nullptr;
@@ -1409,9 +1409,9 @@ namespace e2d { namespace opengl
         });
         return id;
     }
-}}
+}
 
-namespace e2d { namespace opengl
+namespace e2d::opengl
 {
     void grab_program_uniforms(
         debug& debug,
@@ -1488,7 +1488,7 @@ namespace e2d { namespace opengl
                 glsl_type_to_attribute_type(type));
         }
     }
-}}
+}
 
 #endif
 #endif
