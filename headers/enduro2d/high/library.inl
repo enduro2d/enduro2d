@@ -298,9 +298,9 @@ namespace e2d
     inline stdex::promise<asset_group> asset_dependencies::load_async(const library& library) const {
         vector<stdex::promise<std::pair<str, asset_ptr>>> promises;
         promises.reserve(dependencies_.size());
-        for ( const auto& [_, dep] : dependencies_ ) {
-            promises.push_back(dep->load_async(library).then([
-                dep = dep
+        for ( const auto& dp : dependencies_ ) {
+            promises.push_back(dp.second->load_async(library).then([
+                dep = dp.second
             ](const asset_ptr& asset){
                 return std::make_pair(dep->main_address(), asset);
             }));
