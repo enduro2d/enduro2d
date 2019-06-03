@@ -6,7 +6,7 @@
 
 #include <enduro2d/core/vfs.hpp>
 
-#include <3rdparty/miniz/miniz_zip.h>
+#include <3rdparty/miniz/miniz.h>
 
 namespace
 {

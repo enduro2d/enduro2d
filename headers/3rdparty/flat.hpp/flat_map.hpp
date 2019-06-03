@@ -6,24 +6,14 @@
 
 #pragma once
 
-#include <vector>
-#include <memory>
-#include <utility>
-#include <iterator>
-#include <algorithm>
-#include <functional>
-#include <type_traits>
-#include <initializer_list>
-
-#include "detail/pair_compare.hpp"
-#include "detail/is_transparent.hpp"
+#include "flat_fwd.hpp"
 
 namespace flat_hpp
 {
     template < typename Key
              , typename Value
-             , typename Compare = std::less<Key>
-             , typename Container = std::vector<std::pair<Key, Value>> >
+             , typename Compare
+             , typename Container >
     class flat_map
         : private detail::pair_compare<
             typename Container::value_type,
@@ -82,48 +72,140 @@ namespace flat_hpp
 
         template < typename InputIter >
         flat_map(InputIter first, InputIter last) {
-            insert(first, last);
+            from_range_(first, last);
+        }
+
+        template < typename InputIter >
+        flat_map(sorted_range_t, InputIter first, InputIter last) {
+            from_range_(sorted_range, first, last);
+        }
+
+        template < typename InputIter >
+        flat_map(sorted_unique_range_t, InputIter first, InputIter last) {
+            from_range_(sorted_unique_range, first, last);
         }
 
         template < typename InputIter >
         flat_map(InputIter first, InputIter last, const Compare& c)
         : base_type(c) {
-            insert(first, last);
+            from_range_(first, last);
+        }
+
+        template < typename InputIter >
+        flat_map(sorted_range_t, InputIter first, InputIter last, const Compare& c)
+        : base_type(c) {
+            from_range_(sorted_range, first, last);
+        }
+
+        template < typename InputIter >
+        flat_map(sorted_unique_range_t, InputIter first, InputIter last, const Compare& c)
+        : base_type(c) {
+            from_range_(sorted_unique_range, first, last);
         }
 
         template < typename InputIter, typename Allocator >
         flat_map(InputIter first, InputIter last, const Allocator& a)
         : data_(a) {
-            insert(first, last);
+            from_range_(first, last);
         }
 
-        template < typename InputIter , typename Allocator >
+        template < typename InputIter, typename Allocator >
+        flat_map(sorted_range_t, InputIter first, InputIter last, const Allocator& a)
+        : data_(a) {
+            from_range_(sorted_range, first, last);
+        }
+
+        template < typename InputIter, typename Allocator >
+        flat_map(sorted_unique_range_t, InputIter first, InputIter last, const Allocator& a)
+        : data_(a) {
+            from_range_(sorted_unique_range, first, last);
+        }
+
+        template < typename InputIter, typename Allocator >
         flat_map(InputIter first, InputIter last, const Compare& c, const Allocator& a)
         : base_type(c)
         , data_(a) {
-            insert(first, last);
+            from_range_(first, last);
+        }
+
+        template < typename InputIter, typename Allocator >
+        flat_map(sorted_range_t, InputIter first, InputIter last, const Compare& c, const Allocator& a)
+        : base_type(c)
+        , data_(a) {
+            from_range_(sorted_range, first, last);
+        }
+
+        template < typename InputIter, typename Allocator >
+        flat_map(sorted_unique_range_t, InputIter first, InputIter last, const Compare& c, const Allocator& a)
+        : base_type(c)
+        , data_(a) {
+            from_range_(sorted_unique_range, first, last);
         }
 
         flat_map(std::initializer_list<value_type> ilist) {
-            insert(ilist);
+            from_range_(ilist.begin(), ilist.end());
+        }
+
+        flat_map(sorted_range_t, std::initializer_list<value_type> ilist) {
+            from_range_(sorted_range, ilist.begin(), ilist.end());
+        }
+
+        flat_map(sorted_unique_range_t, std::initializer_list<value_type> ilist) {
+            from_range_(sorted_unique_range, ilist.begin(), ilist.end());
         }
 
         flat_map(std::initializer_list<value_type> ilist, const Compare& c)
         : base_type(c) {
-            insert(ilist);
+            from_range_(ilist.begin(), ilist.end());
+        }
+
+        flat_map(sorted_range_t, std::initializer_list<value_type> ilist, const Compare& c)
+        : base_type(c) {
+            from_range_(sorted_range, ilist.begin(), ilist.end());
+        }
+
+        flat_map(sorted_unique_range_t, std::initializer_list<value_type> ilist, const Compare& c)
+        : base_type(c) {
+            from_range_(sorted_unique_range, ilist.begin(), ilist.end());
         }
 
         template < typename Allocator >
         flat_map(std::initializer_list<value_type> ilist, const Allocator& a)
         : data_(a) {
-            insert(ilist);
+            from_range_(ilist.begin(), ilist.end());
+        }
+
+        template < typename Allocator >
+        flat_map(sorted_range_t, std::initializer_list<value_type> ilist, const Allocator& a)
+        : data_(a) {
+            from_range_(sorted_range, ilist.begin(), ilist.end());
+        }
+
+        template < typename Allocator >
+        flat_map(sorted_unique_range_t, std::initializer_list<value_type> ilist, const Allocator& a)
+        : data_(a) {
+            from_range_(sorted_unique_range, ilist.begin(), ilist.end());
         }
 
         template < typename Allocator >
         flat_map(std::initializer_list<value_type> ilist, const Compare& c, const Allocator& a)
         : base_type(c)
         , data_(a) {
-            insert(ilist);
+            from_range_(ilist.begin(), ilist.end());
+        }
+
+        template < typename Allocator >
+        flat_map(sorted_range_t, std::initializer_list<value_type> ilist, const Compare& c, const Allocator& a)
+        : base_type(c)
+        , data_(a) {
+            from_range_(sorted_range, ilist.begin(), ilist.end());
+        }
+
+        template < typename Allocator >
+        flat_map(sorted_unique_range_t, std::initializer_list<value_type> ilist, const Compare& c, const Allocator& a)
+        : base_type(c)
+        , data_(a) {
+            from_range_(sorted_unique_range, ilist.begin(), ilist.end());
         }
 
         template < typename Allocator >
@@ -317,15 +399,44 @@ namespace flat_hpp
                 : insert(value).first;
         }
 
+        template < typename TT >
+        std::pair<iterator, bool> insert_or_assign(key_type&& key, TT&& value) {
+            iterator iter = lower_bound(key);
+            if ( iter == end() || this->operator()(key, *iter) ) {
+                iter = emplace_hint(iter, std::move(key), std::forward<TT>(value));
+                return {iter, true};
+            }
+            (*iter).second = std::forward<TT>(value);
+            return {iter, false};
+        }
+
+        template < typename TT >
+        std::pair<iterator, bool> insert_or_assign(const key_type& key, TT&& value) {
+            iterator iter = lower_bound(key);
+            if ( iter == end() || this->operator()(key, *iter) ) {
+                iter = emplace_hint(iter, key, std::forward<TT>(value));
+                return {iter, true};
+            }
+            (*iter).second = std::forward<TT>(value);
+            return {iter, false};
+        }
+
         template < typename InputIter >
         void insert(InputIter first, InputIter last) {
-            while ( first != last ) {
-                insert(*first++);
-            }
+            insert_range_(first, last);
+        }
+
+        template < typename InputIter >
+        void insert(sorted_range_t, InputIter first, InputIter last) {
+            insert_range_(sorted_range, first, last);
         }
 
         void insert(std::initializer_list<value_type> ilist) {
-            insert(ilist.begin(), ilist.end());
+            insert_range_(ilist.begin(), ilist.end());
+        }
+
+        void insert(sorted_range_t, std::initializer_list<value_type> ilist) {
+            insert_range_(sorted_range, ilist.begin(), ilist.end());
         }
 
         template < typename... Args >
@@ -336,6 +447,26 @@ namespace flat_hpp
         template < typename... Args >
         iterator emplace_hint(const_iterator hint, Args&&... args) {
             return insert(hint, value_type(std::forward<Args>(args)...));
+        }
+
+        template < typename... Args >
+        std::pair<iterator, bool> try_emplace(key_type&& key, Args&&... args) {
+            iterator iter = lower_bound(key);
+            if ( iter == end() || this->operator()(key, *iter) ) {
+                iter = emplace_hint(iter, std::move(key), std::forward<Args>(args)...);
+                return {iter, true};
+            }
+            return {iter, false};
+        }
+
+        template < typename... Args >
+        std::pair<iterator, bool> try_emplace(const key_type& key, Args&&... args) {
+            iterator iter = lower_bound(key);
+            if ( iter == end() || this->operator()(key, *iter) ) {
+                iter = emplace_hint(iter, key, std::forward<Args>(args)...);
+                return {iter, true};
+            }
+            return {iter, false};
         }
 
         void clear()
@@ -417,6 +548,18 @@ namespace flat_hpp
             return iter != end() && !this->operator()(key, *iter)
                 ? iter
                 : end();
+        }
+
+        bool contains(const key_type& key) const {
+            return find(key) != end();
+        }
+
+        template < typename K >
+        std::enable_if_t<
+            detail::is_transparent_v<Compare, K>,
+            bool>
+        contains(const K& key) const {
+            return find(key) != end();
         }
 
         std::pair<iterator, iterator> equal_range(const key_type& key) {
@@ -509,6 +652,57 @@ namespace flat_hpp
 
         value_compare value_comp() const {
             return value_compare(key_comp());
+        }
+    private:
+        template < typename Iter >
+        void from_range_(Iter first, Iter last) {
+            assert(data_.empty());
+            data_.insert(data_.end(), first, last);
+            std::sort(data_.begin(), data_.end(), value_comp());
+            data_.erase(
+                std::unique(data_.begin(), data_.end(),
+                    detail::eq_compare<value_compare>(value_comp())),
+                data_.end());
+        }
+
+        template < typename Iter >
+        void from_range_(sorted_range_t, Iter first, Iter last) {
+            assert(data_.empty());
+            assert(detail::is_sorted(first, last, value_comp()));
+            data_.insert(data_.end(), first, last);
+            data_.erase(
+                std::unique(data_.begin(), data_.end(),
+                    detail::eq_compare<value_compare>(value_comp())),
+                data_.end());
+        }
+
+        template < typename Iter >
+        void from_range_(sorted_unique_range_t, Iter first, Iter last) {
+            assert(data_.empty());
+            assert(detail::is_sorted_unique(first, last, value_comp()));
+            data_.insert(data_.end(), first, last);
+        }
+    private:
+        template < typename Iter >
+        void insert_range_(Iter first, Iter last) {
+            const auto mid_iter = data_.insert(data_.end(), first, last);
+            std::sort(mid_iter, data_.end(), value_comp());
+            std::inplace_merge(data_.begin(), mid_iter, data_.end(), value_comp());
+            data_.erase(
+                std::unique(data_.begin(), data_.end(),
+                    detail::eq_compare<value_compare>(value_comp())),
+                data_.end());
+        }
+
+        template < typename Iter >
+        void insert_range_(sorted_range_t, Iter first, Iter last) {
+            assert(detail::is_sorted(first, last, value_comp()));
+            const auto mid_iter = data_.insert(data_.end(), first, last);
+            std::inplace_merge(data_.begin(), mid_iter, data_.end(), value_comp());
+            data_.erase(
+                std::unique(data_.begin(), data_.end(),
+                    detail::eq_compare<value_compare>(value_comp())),
+                data_.end());
         }
     private:
         container_type data_;
