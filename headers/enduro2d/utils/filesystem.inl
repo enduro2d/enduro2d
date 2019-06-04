@@ -6,7 +6,6 @@
 
 #pragma once
 
-#include "_utils.hpp"
 #include "filesystem.hpp"
 
 namespace e2d::filesystem

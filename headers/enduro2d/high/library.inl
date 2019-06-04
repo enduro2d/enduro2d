@@ -6,8 +6,6 @@
 
 #pragma once
 
-#include "_high.hpp"
-
 #include "library.hpp"
 
 namespace e2d

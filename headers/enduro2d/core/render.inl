@@ -6,8 +6,6 @@
 
 #pragma once
 
-#include "_core.hpp"
-
 #include "render.hpp"
 
 namespace e2d

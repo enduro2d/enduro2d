@@ -6,7 +6,6 @@
 
 #pragma once
 
-#include "_utils.hpp"
 #include "strings.hpp"
 
 namespace e2d
