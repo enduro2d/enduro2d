@@ -17,17 +17,18 @@ namespace e2d
         f32 b = 1.f;
         f32 a = 1.f;
     public:
-        static const color& clear() noexcept;   /// (0; 0; 0; 0)
-        static const color& black() noexcept;   /// (0; 0; 0; 1)
-        static const color& white() noexcept;   /// (1; 1; 1; 1)
-        static const color& red() noexcept;     /// (1; 0; 0; 1)
-        static const color& green() noexcept;   /// (0; 1; 0; 1)
-        static const color& blue() noexcept;    /// (0; 0; 1; 1)
-        static const color& yellow() noexcept;  /// (1; 1; 0; 1)
-        static const color& magenta() noexcept; /// (1; 0; 1; 1)
-        static const color& cyan() noexcept;    /// (0; 1; 1; 1)
+        static const color& clear() noexcept;
+        static const color& black() noexcept;
+        static const color& white() noexcept;
+        static const color& red() noexcept;
+        static const color& green() noexcept;
+        static const color& blue() noexcept;
+        static const color& yellow() noexcept;
+        static const color& magenta() noexcept;
+        static const color& cyan() noexcept;
     public:
         color() noexcept = default;
+
         color(const color& other) noexcept = default;
         color& operator=(const color& other) noexcept = default;
 
@@ -85,7 +86,6 @@ namespace e2d::math
     color minimized(const color& c, const color& cmin) noexcept;
     color maximized(const color& c, const color& cmax) noexcept;
     color clamped(const color& c, const color& cmin, const color& cmax) noexcept;
-    color saturated(const color& c) noexcept;
 
     bool contains_nan(const color& c) noexcept;
 }

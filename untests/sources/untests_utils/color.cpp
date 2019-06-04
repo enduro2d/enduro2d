@@ -115,13 +115,6 @@ TEST_CASE("color") {
         REQUIRE(math::clamped(v0, color(4,5,6,7), color(9,9,9,9)) == color(4,5,6,7));
         REQUIRE(math::clamped(v0, color(6,5,4,3), color(9,9,9,9)) == color(6,5,5,6));
         REQUIRE(math::clamped(v0, color(7,6,5,4), color(9,9,9,9)) == color(7,6,5,6));
-
-        REQUIRE(math::saturated(color(-1,-2,-3,-4)) == color(0,0,0,0));
-        REQUIRE(math::saturated(color( 2, 3, 4, 5)) == color(1,1,1,1));
-        REQUIRE(math::saturated(color(-1, 3, 4, 5)) == color(0,1,1,1));
-
-        REQUIRE(math::saturated(color(2,0.6f,2,0.7f)) == color(1,0.6f,1,0.7f));
-        REQUIRE(math::saturated(color(0.6f,-2,2,2)) == color(0.6f,0,1,1));
     }
     {
         {

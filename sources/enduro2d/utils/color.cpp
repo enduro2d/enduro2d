@@ -298,10 +298,6 @@ namespace e2d::math
             math::clamp(c.a, cmin.a, cmax.a));
     }
 
-    color saturated(const color& c) noexcept {
-        return clamped(c, color::clear(), color::white());
-    }
-
     //
     // contains_nan
     //
