@@ -72,7 +72,7 @@ namespace e2d
     std::unique_ptr<BaseT> module<BaseT>::instance_;
 }
 
-namespace e2d { namespace modules
+namespace e2d::modules
 {
     template < typename ImplT, typename... Args >
     ImplT& initialize(Args&&... args) {
@@ -97,4 +97,4 @@ namespace e2d { namespace modules
         using BaseT = typename ImplT::base_type;
         return static_cast<ImplT&>(module<BaseT>::instance());
     }
-}}
+}

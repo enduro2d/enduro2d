@@ -877,9 +877,7 @@ namespace ecs_hpp
 namespace std
 {
     template <>
-    struct hash<ecs_hpp::entity> final
-        : std::unary_function<const ecs_hpp::entity&, std::size_t>
-    {
+    struct hash<ecs_hpp::entity> final {
         std::size_t operator()(const ecs_hpp::entity& ent) const noexcept {
             return ecs_hpp::detail::hash_combine(
                 std::hash<const ecs_hpp::registry*>()(&ent.owner()),
@@ -947,9 +945,7 @@ namespace ecs_hpp
 namespace std
 {
     template <>
-    struct hash<ecs_hpp::const_entity> final
-        : std::unary_function<const ecs_hpp::const_entity&, std::size_t>
-    {
+    struct hash<ecs_hpp::const_entity> final {
         std::size_t operator()(const ecs_hpp::const_entity& ent) const noexcept {
             return ecs_hpp::detail::hash_combine(
                 std::hash<const ecs_hpp::registry*>()(&ent.owner()),
@@ -1020,9 +1016,7 @@ namespace ecs_hpp
 namespace std
 {
     template < typename T >
-    struct hash<ecs_hpp::component<T>>
-        : std::unary_function<const ecs_hpp::component<T>&, std::size_t>
-    {
+    struct hash<ecs_hpp::component<T>> {
         std::size_t operator()(const ecs_hpp::component<T>& comp) const noexcept {
             return std::hash<ecs_hpp::entity>()(comp.owner());
         }
@@ -1080,9 +1074,7 @@ namespace ecs_hpp
 namespace std
 {
     template < typename T >
-    struct hash<ecs_hpp::const_component<T>>
-        : std::unary_function<const ecs_hpp::const_component<T>&, std::size_t>
-    {
+    struct hash<ecs_hpp::const_component<T>> {
         std::size_t operator()(const ecs_hpp::const_component<T>& comp) const noexcept {
             return std::hash<ecs_hpp::const_entity>()(comp.owner());
         }

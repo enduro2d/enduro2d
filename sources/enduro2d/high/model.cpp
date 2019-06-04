@@ -76,7 +76,7 @@ namespace
         {
             const std::size_t uv_count = math::min(
                 mesh.uvs_channel_count(),
-                E2D_COUNTOF(uv_buffer_decls));
+                std::size(uv_buffer_decls));
             for ( std::size_t i = 0; i < uv_count; ++i ) {
                 const vector<v2f>& uvs = mesh.uvs(i);
                 const vertex_buffer_ptr uv_buffer = render.create_vertex_buffer(
@@ -92,7 +92,7 @@ namespace
         {
             const std::size_t color_count = math::min(
                 mesh.colors_channel_count(),
-                E2D_COUNTOF(uv_buffer_decls));
+                std::size(uv_buffer_decls));
             for ( std::size_t i = 0; i < color_count; ++i ) {
                 const vector<color32>& colors = mesh.colors(i);
                 const vertex_buffer_ptr color_buffer = render.create_vertex_buffer(
@@ -144,9 +144,6 @@ namespace
 
 namespace e2d
 {
-    model::model() = default;
-    model::~model() noexcept = default;
-
     model::model(model&& other) noexcept {
         assign(std::move(other));
     }

@@ -6,7 +6,7 @@
 
 #include <enduro2d/core/vfs.hpp>
 
-#include <3rdparty/miniz/miniz_zip.h>
+#include <3rdparty/miniz/miniz.h>
 
 namespace
 {
@@ -80,8 +80,8 @@ namespace e2d
     public:
         std::mutex mutex;
         stdex::jobber worker{1};
-        hash_map<str, url> aliases;
-        hash_map<str, file_source_uptr> schemes;
+        flat_map<str, url> aliases;
+        flat_map<str, file_source_uptr> schemes;
     public:
         url resolve_url(const url& url, u8 level = 0) const {
             if ( level > 32 ) {
@@ -114,25 +114,29 @@ namespace e2d
     bool vfs::register_scheme(str_view scheme, file_source_uptr source) {
         std::lock_guard<std::mutex> guard(state_->mutex);
         return (source && source->valid())
-            ? state_->schemes.insert(
-                std::make_pair(scheme, std::move(source))).second
+            ? state_->schemes.emplace(scheme, std::move(source)).second
             : false;
     }
 
-    bool vfs::unregister_scheme(str_view scheme) {
+    bool vfs::unregister_scheme(str_view scheme) noexcept {
         std::lock_guard<std::mutex> guard(state_->mutex);
-        return state_->schemes.erase(scheme) > 0;
+        const auto iter = state_->schemes.find(scheme);
+        return iter != state_->schemes.end()
+            ? (state_->schemes.erase(iter), true)
+            : false;
     }
 
     bool vfs::register_scheme_alias(str_view scheme, url alias) {
         std::lock_guard<std::mutex> guard(state_->mutex);
-        return state_->aliases.insert(
-            std::make_pair(scheme, alias)).second;
+        return state_->aliases.emplace(scheme, std::move(alias)).second;
     }
 
-    bool vfs::unregister_scheme_alias(str_view scheme) {
+    bool vfs::unregister_scheme_alias(str_view scheme) noexcept {
         std::lock_guard<std::mutex> guard(state_->mutex);
-        return state_->aliases.erase(scheme) > 0;
+        const auto iter = state_->aliases.find(scheme);
+        return iter != state_->aliases.end()
+            ? (state_->aliases.erase(iter), true)
+            : false;
     }
 
     bool vfs::exists(const url& url) const {
@@ -326,7 +330,7 @@ namespace e2d
             mz_zip_archive_file_stat file_stat;
             if ( mz_zip_reader_file_stat(state_->archive.get(), i, &file_stat) ) {
                 const str_view filename{file_stat.m_filename};
-                if ( filename.length() > parent.length() && filename.starts_with(parent) ) {
+                if ( filename.length() > parent.length() && strings::starts_with(filename, parent) ) {
                     func(file_stat.m_filename, !!file_stat.m_is_directory);
                 }
             }

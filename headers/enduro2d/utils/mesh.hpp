@@ -97,7 +97,7 @@ namespace e2d
     bool operator!=(const mesh& l, const mesh& r) noexcept;
 }
 
-namespace e2d { namespace meshes
+namespace e2d::meshes
 {
     bool try_load_mesh(
         mesh& dst,
@@ -106,4 +106,4 @@ namespace e2d { namespace meshes
     bool try_load_mesh(
         mesh& dst,
         const input_stream_uptr& src) noexcept;
-}}
+}

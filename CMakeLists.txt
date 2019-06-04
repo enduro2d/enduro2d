@@ -142,7 +142,7 @@ target_compile_options(${PROJECT_NAME}
         -Wno-deprecated-declarations>)
 
 target_compile_features(${PROJECT_NAME}
-    PUBLIC cxx_std_14)
+    PUBLIC cxx_std_17)
 
 target_compile_definitions(${PROJECT_NAME}
     PUBLIC

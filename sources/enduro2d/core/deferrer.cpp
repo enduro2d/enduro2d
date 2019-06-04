@@ -11,8 +11,6 @@ namespace e2d
     deferrer::deferrer()
     : worker_(math::max(2u, std::thread::hardware_concurrency()) - 1u) {}
 
-    deferrer::~deferrer() noexcept = default;
-
     stdex::jobber& deferrer::worker() noexcept {
         return worker_;
     }

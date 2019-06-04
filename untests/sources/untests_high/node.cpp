@@ -63,7 +63,6 @@ namespace
 
 TEST_CASE("node") {
     safe_starter_initializer initializer;
-    world& w = the<world>();
     SECTION("empty_node") {
         auto n = node::create();
         REQUIRE(n);
@@ -591,7 +590,7 @@ TEST_CASE("node") {
     }
     SECTION("for_each_child") {
         auto p = node::create();
-        array<node_iptr, 3> ns{
+        std::array<node_iptr, 3> ns{
             node::create(p),
             node::create(p),
             node::create(p)};

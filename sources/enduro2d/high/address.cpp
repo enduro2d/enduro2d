@@ -17,15 +17,15 @@ namespace
     }
 }
 
-namespace e2d { namespace address
+namespace e2d::address
 {
     str parent(str_view address) {
         const auto sep_e = str_view_search(address, address_separator);
         if ( sep_e == address.end() ) {
-            return address;
+            return str(address);
         }
         const auto sep_d = std::distance(address.begin(), sep_e);
-        return address.substr(0, static_cast<std::size_t>(sep_d));
+        return str(address.substr(0, static_cast<std::size_t>(sep_d)));
     }
 
     str nested(str_view address) {
@@ -34,6 +34,6 @@ namespace e2d { namespace address
             return str();
         }
         const auto sep_d = std::distance(address.begin(), sep_e);
-        return address.substr(static_cast<std::size_t>(sep_d) + address_separator.size());
+        return str(address.substr(static_cast<std::size_t>(sep_d) + address_separator.size()));
     }
-}}
+}

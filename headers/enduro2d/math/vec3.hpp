@@ -15,7 +15,7 @@ namespace e2d
     template < typename T >
     class vec3 final {
         static_assert(
-            std::is_arithmetic<T>::value,
+            std::is_arithmetic_v<T>,
             "type of 'vec3' must be arithmetic");
     public:
         using self_type = vec3;
@@ -47,7 +47,7 @@ namespace e2d
         const T* data() const noexcept;
 
         T& operator[](std::size_t index) noexcept;
-        T  operator[](std::size_t index) const noexcept;
+        T operator[](std::size_t index) const noexcept;
 
         vec3& operator+=(T v) noexcept;
         vec3& operator-=(T v) noexcept;
@@ -415,7 +415,7 @@ namespace e2d
     }
 }
 
-namespace e2d { namespace math
+namespace e2d::math
 {
     //
     // approximately
@@ -475,7 +475,7 @@ namespace e2d { namespace math
     }
 
     template < typename T >
-    std::enable_if_t<std::is_floating_point<T>::value, T>
+    std::enable_if_t<std::is_floating_point_v<T>, T>
     length(const vec3<T>& v) noexcept {
         return math::sqrt(length_squared(v));
     }
@@ -494,7 +494,7 @@ namespace e2d { namespace math
     }
 
     template < typename T >
-    std::enable_if_t<std::is_floating_point<T>::value, T>
+    std::enable_if_t<std::is_floating_point_v<T>, T>
     distance(const vec3<T>& l, const vec3<T>& r) noexcept {
         return math::sqrt(distance_squared(l, r));
     }
@@ -504,7 +504,7 @@ namespace e2d { namespace math
     //
 
     template < typename T >
-    std::enable_if_t<std::is_floating_point<T>::value, vec3<T>>
+    std::enable_if_t<std::is_floating_point_v<T>, vec3<T>>
     normalized(
         const vec3<T>& v,
         T precision = math::default_precision<T>()) noexcept
@@ -602,4 +602,4 @@ namespace e2d { namespace math
             !math::is_finite(v.y) ||
             !math::is_finite(v.z);
     }
-}}
+}

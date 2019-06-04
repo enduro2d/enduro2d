@@ -200,7 +200,7 @@ TEST_CASE("buffer_view") {
         REQUIRE(v4.data() == b1.data());
         REQUIRE(v4.size() == 10);
 
-        array<u32,5> b2{'h', 'e', 'l', 'l', 'o'};
+        std::array<u32,5> b2{'h', 'e', 'l', 'l', 'o'};
         buffer_view v5(b2);
         REQUIRE(v5.data() == b2.data());
         REQUIRE(v5.size() == 20);

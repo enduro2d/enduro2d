@@ -18,7 +18,7 @@ namespace e2d
     template < typename T >
     class mat2 final {
         static_assert(
-            std::is_arithmetic<T>::value,
+            std::is_arithmetic_v<T>,
             "type of 'mat2' must be arithmetic");
     public:
         using self_type = mat2;
@@ -263,7 +263,7 @@ namespace e2d
     }
 }
 
-namespace e2d { namespace math
+namespace e2d::math
 {
     //
     // make_scale_matrix
@@ -302,7 +302,7 @@ namespace e2d { namespace math
     //
 
     template < typename T, typename AngleTag >
-    std::enable_if_t<std::is_floating_point<T>::value, mat2<T>>
+    std::enable_if_t<std::is_floating_point_v<T>, mat2<T>>
     make_rotation_matrix2(const unit<T, AngleTag>& angle) noexcept {
         const T cs = math::cos(angle);
         const T sn = math::sin(angle);
@@ -316,7 +316,7 @@ namespace e2d { namespace math
     //
 
     template < typename T >
-    std::enable_if_t<std::is_floating_point<T>::value, std::pair<mat2<T>, bool>>
+    std::enable_if_t<std::is_floating_point_v<T>, std::pair<mat2<T>, bool>>
     inversed(
         const mat2<T>& m,
         T precision = math::default_precision<T>()) noexcept
@@ -349,4 +349,4 @@ namespace e2d { namespace math
             mm[0], mm[2],
             mm[1], mm[3]};
     }
-}}
+}

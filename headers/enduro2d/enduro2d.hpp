@@ -4,6 +4,8 @@
  * Copyright (C) 2018-2019, by Matvey Cherevko (blackmatov@gmail.com)
  ******************************************************************************/
 
+#pragma once
+
 #include "base/_all.hpp"
 #include "core/_all.hpp"
 #include "high/_all.hpp"

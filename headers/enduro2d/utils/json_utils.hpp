@@ -11,12 +11,12 @@
 #include <3rdparty/rapidjson/schema.h>
 #include <3rdparty/rapidjson/document.h>
 
-namespace e2d { namespace json_utils
+namespace e2d::json_utils
 {
     void add_common_schema_definitions(rapidjson::Document& schema);
-}}
+}
 
-namespace e2d { namespace json_utils
+namespace e2d::json_utils
 {
     bool try_parse_value(const rapidjson::Value& root, v2i& v) noexcept;
     bool try_parse_value(const rapidjson::Value& root, v3i& v) noexcept;
@@ -53,9 +53,9 @@ namespace e2d { namespace json_utils
     bool try_parse_value(const rapidjson::Value& root, str16& s) noexcept;
     bool try_parse_value(const rapidjson::Value& root, str32& s) noexcept;
     bool try_parse_value(const rapidjson::Value& root, str_hash& s) noexcept;
-}}
+}
 
-namespace e2d { namespace json_utils
+namespace e2d::json_utils
 {
     inline bool try_parse_value(const rapidjson::Value& root, bool& v) noexcept {
         if ( !root.IsBool() ) {
@@ -67,8 +67,8 @@ namespace e2d { namespace json_utils
 
     template < typename T >
     std::enable_if_t<
-        std::is_integral<T>::value &&
-        std::is_signed<T>::value, bool>
+        std::is_integral_v<T> &&
+        std::is_signed_v<T>, bool>
     try_parse_value(const rapidjson::Value& root, T& v) noexcept {
         if ( !root.IsInt() ) {
             return false;
@@ -86,8 +86,8 @@ namespace e2d { namespace json_utils
 
     template < typename T >
     std::enable_if_t<
-        std::is_integral<T>::value &&
-        std::is_unsigned<T>::value, bool>
+        std::is_integral_v<T> &&
+        std::is_unsigned_v<T>, bool>
     try_parse_value(const rapidjson::Value& root, T& v) noexcept {
         if ( !root.IsUint() ) {
             return false;
@@ -105,7 +105,7 @@ namespace e2d { namespace json_utils
 
     template < typename T >
     std::enable_if_t<
-        std::is_floating_point<T>::value, bool>
+        std::is_floating_point_v<T>, bool>
     try_parse_value(const rapidjson::Value& root, T& v) noexcept {
         if ( !root.IsNumber() ) {
             return false;
@@ -113,21 +113,12 @@ namespace e2d { namespace json_utils
         v = math::numeric_cast<T>(root.GetFloat());
         return true;
     }
-}}
+}
 
-namespace e2d { namespace json_utils
+namespace e2d::json_utils
 {
     template < typename T >
-    using has_try_parse_value = decltype(
-        try_parse_value(
-            std::declval<const rapidjson::Value&>(),
-            std::declval<T&>()));
-
-    template < typename T >
-    std::enable_if_t<
-        stdex::is_detected<json_utils::has_try_parse_value, T>::value,
-        bool>
-    try_parse_value(const rapidjson::Value& root, vector<T>& v) {
+    bool try_parse_value(const rapidjson::Value& root, vector<T>& v) {
         if ( !root.IsArray() ) {
             return false;
         }
@@ -140,4 +131,44 @@ namespace e2d { namespace json_utils
         v = std::move(tv);
         return true;
     }
-}}
+
+    template < typename T >
+    bool try_parse_value(const rapidjson::Value& root, hash_set<T>& v) {
+        vector<T> tv;
+        if ( !try_parse_value(root, tv) ) {
+            return false;
+        }
+        v = hash_set<T>(tv.cbegin(), tv.cend());
+        return true;
+    }
+
+    template < typename T >
+    bool try_parse_value(const rapidjson::Value& root, hash_multiset<T>& v) {
+        vector<T> tv;
+        if ( !try_parse_value(root, tv) ) {
+            return false;
+        }
+        v = hash_multiset<T>(tv.cbegin(), tv.cend());
+        return true;
+    }
+
+    template < typename T >
+    bool try_parse_value(const rapidjson::Value& root, flat_set<T>& v) {
+        vector<T> tv;
+        if ( !try_parse_value(root, tv) ) {
+            return false;
+        }
+        v = flat_set<T>(tv.cbegin(), tv.cend());
+        return true;
+    }
+
+    template < typename T >
+    bool try_parse_value(const rapidjson::Value& root, flat_multiset<T>& v) {
+        vector<T> tv;
+        if ( !try_parse_value(root, tv) ) {
+            return false;
+        }
+        v = flat_multiset<T>(tv.cbegin(), tv.cend());
+        return true;
+    }
+}

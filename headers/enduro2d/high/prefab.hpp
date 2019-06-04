@@ -12,8 +12,8 @@ namespace e2d
 {
     class prefab final {
     public:
-        prefab();
-        ~prefab() noexcept;
+        prefab() = default;
+        ~prefab() noexcept = default;
 
         prefab(prefab&& other) noexcept;
         prefab& operator=(prefab&& other) noexcept;

@@ -14,7 +14,7 @@ namespace e2d
     template < typename T >
     class aabb final {
         static_assert(
-            std::is_arithmetic<T>::value,
+            std::is_arithmetic_v<T>,
             "type of 'aabb' must be arithmetic");
     public:
         using self_type = aabb;
@@ -22,6 +22,9 @@ namespace e2d
     public:
         vec3<T> position;
         vec3<T> size;
+    public:
+        static const aabb& zero() noexcept;
+        static const aabb& unit() noexcept;
     public:
         aabb() noexcept = default;
         aabb(const aabb& other) noexcept = default;
@@ -40,7 +43,7 @@ namespace e2d
         const T* data() const noexcept;
 
         T& operator[](std::size_t index) noexcept;
-        T  operator[](std::size_t index) const noexcept;
+        T operator[](std::size_t index) const noexcept;
 
         aabb& operator+=(T v) noexcept;
         aabb& operator-=(T v) noexcept;
@@ -56,6 +59,18 @@ namespace e2d
 
 namespace e2d
 {
+    template < typename T >
+    const aabb<T>& aabb<T>::zero() noexcept {
+        static const aabb<T> zero{0, 0, 0, 0, 0, 0};
+        return zero;
+    }
+
+    template < typename T >
+    const aabb<T>& aabb<T>::unit() noexcept {
+        static const aabb<T> unit{0, 0, 0, 1, 1, 1};
+        return unit;
+    }
+
     template < typename T >
     aabb<T>::aabb(T w, T h, T l) noexcept
     : size(w, h, l) {}
@@ -283,7 +298,7 @@ namespace e2d
     }
 }
 
-namespace e2d { namespace math
+namespace e2d::math
 {
     //
     // make_minmax_aabb
@@ -291,8 +306,11 @@ namespace e2d { namespace math
 
     template < typename T >
     aabb<T> make_minmax_aabb(T x1, T y1, T z1, T x2, T y2, T z2) noexcept {
-        const vec3<T> min = {math::min(x1, x2), math::min(y1, y2), math::min(z1, z2)};
-        const vec3<T> max = {math::max(x1, x2), math::max(y1, y2), math::max(z1, z2)};
+        std::tie(x1, x2) = math::minmax(x1, x2);
+        std::tie(y1, y2) = math::minmax(y1, y2);
+        std::tie(z1, z2) = math::minmax(z1, z2);
+        const vec3<T> min = {x1, y1, z1};
+        const vec3<T> max = {x2, y2, z2};
         return {min, max - min};
     }
 
@@ -414,4 +432,4 @@ namespace e2d { namespace math
         return math::contains_nan(r.position)
             || math::contains_nan(r.size);
     }
-}}
+}

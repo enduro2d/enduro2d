@@ -8,9 +8,6 @@
 
 namespace e2d
 {
-    atlas::atlas() = default;
-    atlas::~atlas() noexcept = default;
-
     atlas::atlas(atlas&& other) noexcept {
         assign(std::move(other));
     }

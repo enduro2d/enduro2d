@@ -4,8 +4,6 @@
  * Copyright (C) 2018-2019, by Matvey Cherevko (blackmatov@gmail.com)
  ******************************************************************************/
 
-#ifndef E2D_INCLUDE_GUARD_27EFFE66AA124FFB862BE95C2FF38017
-#define E2D_INCLUDE_GUARD_27EFFE66AA124FFB862BE95C2FF38017
 #pragma once
 
 #include "node.hpp"
@@ -46,5 +44,3 @@ namespace e2d
         return count;
     }
 }
-
-#endif

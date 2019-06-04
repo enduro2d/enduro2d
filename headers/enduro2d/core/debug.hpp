@@ -25,13 +25,13 @@ namespace e2d
         };
         using sink_uptr = std::unique_ptr<sink>;
     public:
-        debug();
-        ~debug() noexcept final;
+        debug() = default;
+        ~debug() noexcept final = default;
 
         template < typename T, typename... Args >
         T& register_sink(Args&&... args);
         sink& register_sink(sink_uptr sink);
-        void unregister_sink(const sink& sink);
+        void unregister_sink(const sink& sink) noexcept;
 
         template < typename T, typename... Args >
         T& register_sink_ex(level min_lvl, Args&&... args);
@@ -104,9 +104,9 @@ namespace e2d
                 E2D_ASSERT_MSG(false, "DEBUG: ignored log formatting exception");
                 return *this;
             }
-            for ( const auto& pair : sinks_ ) {
-                if ( lvl >= pair.first && pair.second ) {
-                    bool success = pair.second->on_message(lvl, formatted_text);
+            for ( const auto& [slvl, sink] : sinks_ ) {
+                if ( lvl >= slvl && sink ) {
+                    bool success = sink->on_message(lvl, formatted_text);
                     E2D_UNUSED(success);
                     E2D_ASSERT_MSG(success, "DEBUG: ignored failed log sink call");
                 }

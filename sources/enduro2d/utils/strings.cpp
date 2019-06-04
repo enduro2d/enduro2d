@@ -260,14 +260,14 @@ namespace e2d
     }
 }
 
-namespace e2d { namespace strings
+namespace e2d::strings
 {
     namespace impl
     {
         // Inspired by:
         // https://www.codeproject.com/Articles/1088/Wildcard-string-compare-globbing
 
-        using utf8_iter = utf8::iterator<const char*>;
+        using utf8_iter = utf8::iterator<str_view::const_iterator>;
 
         static bool wildcard_match_impl(
             utf8_iter string_i, utf8_iter string_e,
@@ -327,4 +327,14 @@ namespace e2d { namespace strings
             utf8_iter(si, si, se), utf8_iter(se, si, se),
             utf8_iter(pi, pi, pe), utf8_iter(pe, pi, pe));
     }
-}}
+
+    bool starts_with(str_view input, str_view test) noexcept {
+        return input.length() >= test.length()
+            && 0 == input.compare(0, test.length(), test);
+    }
+
+    bool ends_with(str_view input, str_view test) noexcept {
+        return input.length() >= test.length()
+            && 0 == input.compare(input.length() - test.length(), test.length(), test);
+    }
+}

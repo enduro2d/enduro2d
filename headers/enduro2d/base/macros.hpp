@@ -45,12 +45,3 @@
 
 template < typename... Ts >
 constexpr void E2D_UNUSED(Ts&&...) noexcept {}
-
-//
-// E2D_COUNTOF
-//
-
-template < typename T, std::size_t N >
-constexpr std::size_t E2D_COUNTOF(const T(&)[N]) noexcept {
-    return N;
-}

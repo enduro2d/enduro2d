@@ -249,7 +249,7 @@ namespace e2d
     public:
         using window_uptr = std::unique_ptr<
             GLFWwindow, void(*)(GLFWwindow*)>;
-        using listeners_t = std::vector<event_listener_uptr>;
+        using listeners_t = vector<event_listener_uptr>;
     public:
         listeners_t listeners;
         std::recursive_mutex rmutex;

@@ -10,7 +10,7 @@
 
 #include <enduro2d/high/assets/material_asset.hpp>
 
-namespace e2d { namespace render_system_impl
+namespace e2d::render_system_impl
 {
     class bad_batcher_operation final : public exception {
     public:
@@ -71,9 +71,9 @@ namespace e2d { namespace render_system_impl
         static std::size_t calculate_new_buffer_size(
             std::size_t esize, std::size_t osize, std::size_t nsize);
     };
-}}
+}
 
-namespace e2d { namespace render_system_impl
+namespace e2d::render_system_impl
 {
     template < typename Index, typename Vertex >
     batcher<Index, Vertex>::batcher(debug& debug, render& render)
@@ -266,4 +266,4 @@ namespace e2d { namespace render_system_impl
         }
         return math::max(osize * 2u, nsize);
     }
-}}
+}

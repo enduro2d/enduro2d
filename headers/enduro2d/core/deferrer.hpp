@@ -13,7 +13,7 @@ namespace e2d
     class deferrer final : public module<deferrer> {
     public:
         deferrer();
-        ~deferrer() noexcept final;
+        ~deferrer() noexcept final = default;
 
         stdex::jobber& worker() noexcept;
         const stdex::jobber& worker() const noexcept;

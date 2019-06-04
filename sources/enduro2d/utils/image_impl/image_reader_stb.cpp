@@ -16,11 +16,11 @@
 #define STBI_ONLY_TGA
 #define STBI_ONLY_JPEG
 
-#define STBI_FREE(ptr)          std::free(ptr)
-#define STBI_MALLOC(size)       std::malloc(size)
+#define STBI_FREE(ptr) std::free(ptr)
+#define STBI_MALLOC(size) std::malloc(size)
 #define STBI_REALLOC(ptr,nsize) std::realloc(ptr, nsize)
 
-#define STBI_ASSERT(expr)       E2D_ASSERT(expr)
+#define STBI_ASSERT(expr) E2D_ASSERT(expr)
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <3rdparty/stb/stb_image.h>
@@ -77,7 +77,7 @@ namespace
     }
 }
 
-namespace e2d { namespace images { namespace impl
+namespace e2d::images::impl
 {
     bool try_load_image_stb(image& dst, const buffer& src) noexcept {
         v2u img_size;
@@ -86,4 +86,4 @@ namespace e2d { namespace images { namespace impl
         return img_ptr
             && image_from_stb_description(dst, img_ptr, img_size, img_channels);
     }
-}}}
+}

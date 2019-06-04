@@ -14,7 +14,7 @@ namespace
     const str_view shape_file_signature = "e2d_shape";
 
     template < typename T >
-    input_sequence& iseq_read_vector_pods(input_sequence& iseq, std::vector<T>& v) {
+    input_sequence& iseq_read_vector_pods(input_sequence& iseq, vector<T>& v) {
         return iseq.read(v.data(), v.size() * sizeof(T));
     }
 
@@ -94,7 +94,7 @@ namespace
     }
 }
 
-namespace e2d { namespace shapes { namespace impl
+namespace e2d::shapes::impl
 {
     bool try_load_shape_e2d(shape& dst, const buffer& src) noexcept {
         try {
@@ -103,8 +103,7 @@ namespace e2d { namespace shapes { namespace impl
                 && check_signature(stream)
                 && load_shape(dst, stream);
         } catch (...) {
-            // nothing
+            return false;
         }
-        return false;
     }
-}}}
+}

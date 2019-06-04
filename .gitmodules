@@ -7,9 +7,6 @@
 [submodule "modules/utfcpp"]
 	path = modules/utfcpp
 	url = https://github.com/nemtrif/utfcpp
-[submodule "modules/variant"]
-	path = modules/variant
-	url = https://github.com/mpark/variant
 [submodule "modules/pugixml"]
 	path = modules/pugixml
 	url = https://github.com/zeux/pugixml
@@ -34,3 +31,9 @@
 [submodule "modules/miniz"]
 	path = modules/miniz
 	url = https://github.com/richgel999/miniz
+[submodule "modules/flat.hpp"]
+	path = modules/flat.hpp
+	url = https://github.com/BlackMATov/flat.hpp
+[submodule "modules/variant"]
+	path = modules/variant
+	url = https://github.com/mpark/variant

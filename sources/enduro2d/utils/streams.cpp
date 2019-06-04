@@ -211,7 +211,7 @@ namespace e2d
     }
 }
 
-namespace e2d { namespace streams
+namespace e2d::streams
 {
     bool try_read_tail(str& dst, const input_stream_uptr& stream) noexcept {
         return stream
@@ -244,4 +244,4 @@ namespace e2d { namespace streams
                 .success()
             : false;
     }
-}}
+}

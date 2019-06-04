@@ -4,21 +4,12 @@
  * Copyright (C) 2018-2019, by Matvey Cherevko (blackmatov@gmail.com)
  ******************************************************************************/
 
-#ifndef E2D_INCLUDE_GUARD_5BC5A803A3694674845E9953209E8CBE
-#define E2D_INCLUDE_GUARD_5BC5A803A3694674845E9953209E8CBE
 #pragma once
 
-#include "_utils.hpp"
 #include "strings.hpp"
 
 namespace e2d
 {
-    template < typename Char >
-    basic_string_hash<Char>::basic_string_hash() noexcept = default;
-
-    template < typename Char >
-    basic_string_hash<Char>::~basic_string_hash() noexcept = default;
-
     template < typename Char >
     basic_string_hash<Char>::basic_string_hash(
         basic_string_hash&& other) noexcept
@@ -127,7 +118,7 @@ namespace e2d
 
     template < typename Char >
     u32 basic_string_hash<Char>::calculate_hash(basic_string_view<Char> str) noexcept {
-        u32 hash = utils::sdbm_hash(str.cbegin(), str.cend());
+        u32 hash = utils::sdbm_hash(str);
         debug_check_collisions(hash, str);
         return hash;
     }
@@ -182,16 +173,14 @@ namespace e2d
 namespace std
 {
     template < typename Char >
-    struct hash<e2d::basic_string_hash<Char>>
-        : std::unary_function<e2d::basic_string_hash<Char>, std::size_t>
-    {
+    struct hash<e2d::basic_string_hash<Char>> {
         std::size_t operator()(e2d::basic_string_hash<Char> hs) const noexcept {
-            return e2d::math::numeric_cast<std::size_t>(hs.hash());
+            return hs.hash();
         }
     };
 }
 
-namespace e2d { namespace strings
+namespace e2d::strings
 {
     //
     // exceptions
@@ -270,7 +259,7 @@ namespace e2d { namespace strings
 
     template < typename T >
     class format_arg<T, std::enable_if_t<
-        std::is_integral<T>::value && std::is_signed<T>::value>>
+        std::is_integral_v<T> && std::is_signed_v<T>>>
     {
         T value_;
         u8 width_;
@@ -294,7 +283,7 @@ namespace e2d { namespace strings
 
     template < typename T >
     class format_arg<T, std::enable_if_t<
-        std::is_integral<T>::value && std::is_unsigned<T>::value>>
+        std::is_integral_v<T> && std::is_unsigned_v<T>>>
     {
         T value_;
         u8 width_;
@@ -318,7 +307,7 @@ namespace e2d { namespace strings
 
     template < typename T >
     class format_arg<T, std::enable_if_t<
-        std::is_floating_point<T>::value>>
+        std::is_floating_point_v<T>>>
     {
         T value_;
         u8 width_;
@@ -406,20 +395,28 @@ namespace e2d { namespace strings
     namespace impl
     {
         template < typename T >
-        struct is_arg_impl : std::false_type {};
-        template < typename U >
-        struct is_arg_impl<format_arg<U>> : std::true_type {};
-        template < typename T >
-        struct is_arg : is_arg_impl<std::remove_cv_t<T>> {};
+        struct is_arg_impl
+        : std::false_type {};
 
         template < typename T >
-        std::enable_if_t<is_arg<std::decay_t<T>>::value, T>
+        struct is_arg_impl<format_arg<T>>
+        : std::true_type {};
+
+        template < typename T >
+        struct is_arg
+        : is_arg_impl<std::remove_cv_t<T>> {};
+
+        template < typename T >
+        inline constexpr bool is_arg_v = is_arg<T>::value;
+
+        template < typename T >
+        std::enable_if_t<is_arg_v<std::decay_t<T>>, T>
         wrap_arg(T&& arg) {
             return std::forward<T>(arg);
         }
 
         template < typename T >
-        std::enable_if_t<!is_arg<std::decay_t<T>>::value, format_arg<std::decay_t<T>>>
+        std::enable_if_t<!is_arg_v<std::decay_t<T>>, format_arg<std::decay_t<T>>>
         wrap_arg(T&& value) {
             return make_format_arg(std::forward<T>(value));
         }
@@ -443,17 +440,17 @@ namespace e2d { namespace strings
         template < typename Tuple >
         std::enable_if_t<std::tuple_size<Tuple>::value <= 10, std::size_t>
         format_impl(char* dst, std::size_t size, str_view fmt, const Tuple& targs) {
-            const char* format_i = fmt.cbegin();
-            const char* const format_e = fmt.cend();
-            if ( !format_i ) {
-                throw bad_format();
-            }
+            str_view::const_iterator format_i = fmt.cbegin();
+            const str_view::const_iterator format_e = fmt.cend();
+
             if ( !dst != !size ) {
                 throw bad_format_buffer();
             }
+
             std::size_t result = 0;
             const char* const b_dst = dst;
             const char* const e_dst = b_dst ? b_dst + size : nullptr;
+
             while ( format_i != format_e ) {
                 if ( *format_i != '%' ) {
                     if ( dst && dst == e_dst - 1 ) {
@@ -604,6 +601,4 @@ namespace e2d { namespace strings
             return false;
         }
     }
-}}
-
-#endif
+}

@@ -8,7 +8,7 @@
 
 #include <enduro2d/high/_high.hpp>
 
-namespace e2d { namespace render_system_impl
+namespace e2d::render_system_impl
 {
     struct index_u8 {
         using type = u8;
@@ -44,4 +44,4 @@ namespace e2d { namespace render_system_impl
                 .add_attribute<color32>("a_tint").normalized();
         }
     };
-}}
+}

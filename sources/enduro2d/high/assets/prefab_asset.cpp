@@ -92,7 +92,7 @@ namespace
                 }
                 {
                     factory_loader<>::collect_context ctx(
-                        parent_address,
+                        str(parent_address),
                         component_root->value);
                     bool success = the<factory>().collect_dependencies(
                         component_root->name.GetString(),
@@ -151,7 +151,7 @@ namespace
                 ++component_root )
             {
                 factory_loader<>::fill_context ctx(
-                    parent_address,
+                    str(parent_address),
                     component_root->value,
                     dependencies);
                 bool success = the<factory>().fill_prototype(

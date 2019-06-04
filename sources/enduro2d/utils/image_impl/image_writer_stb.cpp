@@ -8,11 +8,11 @@
 
 #define STBI_WRITE_NO_STDIO
 
-#define STBIW_FREE(ptr)          std::free(ptr)
-#define STBIW_MALLOC(size)       std::malloc(size)
+#define STBIW_FREE(ptr) std::free(ptr)
+#define STBIW_MALLOC(size) std::malloc(size)
 #define STBIW_REALLOC(ptr,nsize) std::realloc(ptr, nsize)
 
-#define STBIW_ASSERT(expr)       E2D_ASSERT(expr)
+#define STBIW_ASSERT(expr) E2D_ASSERT(expr)
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <3rdparty/stb/stb_image_write.h>
@@ -41,7 +41,7 @@ namespace
     }
 }
 
-namespace e2d { namespace images { namespace impl
+namespace e2d::images::impl
 {
     bool try_save_image_jpg(const image& src, buffer& dst) noexcept {
         int img_w = math::numeric_cast<int>(src.size().x);
@@ -96,4 +96,4 @@ namespace e2d { namespace images { namespace impl
         }
         return false;
     }
-}}}
+}

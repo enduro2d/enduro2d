@@ -16,13 +16,13 @@
 
 #include <3rdparty/imgui/imgui.h>
 
-namespace e2d { namespace dbgui_shaders
+namespace e2d::dbgui_shaders
 {
     const char* vertex_source_cstr() noexcept;
     const char* fragment_source_cstr() noexcept;
-}}
+}
 
-namespace e2d { namespace dbgui_widgets
+namespace e2d::dbgui_widgets
 {
     void show_main_menu();
-}}
+}

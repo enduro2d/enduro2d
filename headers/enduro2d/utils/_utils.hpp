@@ -15,6 +15,8 @@ namespace e2d
     class buffer_view;
     class color;
     class color32;
+    class read_file;
+    class write_file;
     class image;
     class mesh;
     class shape;
@@ -86,7 +88,7 @@ namespace e2d
     };
 }
 
-namespace e2d { namespace utils
+namespace e2d::utils
 {
     //
     // sdbm_hash
@@ -105,10 +107,10 @@ namespace e2d { namespace utils
             return init;
         }
 
-        template < typename Char >
-        u32 sdbm_hash_impl(u32 init, const Char* begin, const Char* const end) noexcept {
-            while ( begin != end ) {
-                init = (*begin++) + (init << 6u) + (init << 16u) - init;
+        template < typename Iter >
+        u32 sdbm_hash_impl(u32 init, Iter first, Iter last) noexcept {
+            while ( first != last ) {
+                init = (*first++) + (init << 6u) + (init << 16u) - init;
             }
             return init;
         }
@@ -120,10 +122,14 @@ namespace e2d { namespace utils
         return impl::sdbm_hash_impl(0u, str);
     }
 
-    template < typename Char >
-    u32 sdbm_hash(const Char* begin, const Char* const end) noexcept {
-        E2D_ASSERT(begin <= end);
-        return impl::sdbm_hash_impl(0u, begin, end);
+    template < typename Char, typename Traits >
+    u32 sdbm_hash(basic_string_view<Char, Traits> str) noexcept {
+        return impl::sdbm_hash_impl(0u, str.cbegin(), str.cend());
+    }
+
+    template < typename Iter >
+    u32 sdbm_hash(Iter first, Iter last) noexcept {
+        return impl::sdbm_hash_impl(0u, first, last);
     }
 
     template < typename Char >
@@ -132,10 +138,22 @@ namespace e2d { namespace utils
         return impl::sdbm_hash_impl(init, str);
     }
 
-    template < typename Char >
-    u32 sdbm_hash(u32 init, const Char* begin, const Char* const end) noexcept {
-        E2D_ASSERT(begin <= end);
-        return impl::sdbm_hash_impl(init, begin, end);
+    template < typename Char, typename Traits >
+    u32 sdbm_hash(u32 init, basic_string_view<Char, Traits> str) noexcept {
+        return impl::sdbm_hash_impl(init, str.cbegin(), str.cend());
+    }
+
+    template < typename Iter >
+    u32 sdbm_hash(u32 init, Iter first, Iter last) noexcept {
+        return impl::sdbm_hash_impl(init, first, last);
+    }
+
+    //
+    // hash_combine
+    //
+
+    inline std::size_t hash_combine(std::size_t l, std::size_t r) noexcept {
+        return l ^ (r + 0x9e3779b9 + (l << 6) + (l >> 2));
     }
 
     //
@@ -143,7 +161,7 @@ namespace e2d { namespace utils
     //
 
     template < typename E
-             , typename = std::enable_if<std::is_enum<E>::value> >
+             , typename = std::enable_if<std::is_enum_v<E>> >
     constexpr std::underlying_type_t<E> enum_to_underlying(E e) noexcept {
         return static_cast<std::underlying_type_t<E>>(e);
     }
@@ -159,8 +177,8 @@ namespace e2d { namespace utils
         template < typename Void = void >
         class type_family_base {
             static_assert(
-                std::is_void<Void>::value &&
-                std::is_unsigned<type_family_id>::value,
+                std::is_void_v<Void> &&
+                std::is_unsigned_v<type_family_id>,
                 "unexpected internal error");
         protected:
             static type_family_id last_id_;
@@ -175,8 +193,8 @@ namespace e2d { namespace utils
     public:
         static type_family_id id() noexcept {
             static type_family_id self_id = ++last_id_;
-            assert(self_id > 0u && "type_family_id overflow");
+            E2D_ASSERT_MSG(self_id > 0u, "type_family_id overflow");
             return self_id;
         }
     };
-}}
+}

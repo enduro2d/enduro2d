@@ -18,7 +18,7 @@ namespace e2d
     }
 }
 
-namespace e2d { namespace filesystem
+namespace e2d::filesystem
 {
     bool remove(str_view path) {
         return remove_file(path)
@@ -118,4 +118,4 @@ namespace e2d { namespace filesystem
     bool extract_predef_path(str& dst, predef_path path_type) {
         return impl::extract_predef_path(dst, path_type);
     }
-}}
+}

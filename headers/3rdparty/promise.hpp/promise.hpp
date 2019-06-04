@@ -1296,9 +1296,7 @@ namespace promise_hpp
 namespace std
 {
     template < typename T >
-    struct hash<promise_hpp::promise<T>>
-        : std::unary_function<promise_hpp::promise<T>, std::size_t>
-    {
+    struct hash<promise_hpp::promise<T>> final {
         std::size_t operator()(const promise_hpp::promise<T>& p) const noexcept {
             return p.hash();
         }

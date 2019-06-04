@@ -21,7 +21,7 @@ namespace e2d
     template < typename T >
     class mat4 final {
         static_assert(
-            std::is_arithmetic<T>::value,
+            std::is_arithmetic_v<T>,
             "type of 'mat4' must be arithmetic");
     public:
         using self_type = mat4;
@@ -320,7 +320,7 @@ namespace e2d
     }
 }
 
-namespace e2d { namespace math
+namespace e2d::math
 {
     //
     // make_scale_matrix
@@ -401,7 +401,7 @@ namespace e2d { namespace math
     //
 
     template < typename T, typename AngleTag >
-    std::enable_if_t<std::is_floating_point<T>::value, mat4<T>>
+    std::enable_if_t<std::is_floating_point_v<T>, mat4<T>>
     make_rotation_matrix4(
         const unit<T, AngleTag>& angle,
         T axis_x,
@@ -516,7 +516,7 @@ namespace e2d { namespace math
     //
 
     template < typename T >
-    std::enable_if_t<std::is_floating_point<T>::value, mat4<T>>
+    std::enable_if_t<std::is_floating_point_v<T>, mat4<T>>
     make_loot_at_lh_matrix4(const vec3<T>& eye, const vec3<T>& at, const vec3<T>& up) noexcept {
         const vec3<T> az = normalized(at - eye);
         const vec3<T> ax = normalized(math::cross(up, az));
@@ -536,7 +536,7 @@ namespace e2d { namespace math
     //
 
     template < typename T >
-    std::enable_if_t<std::is_floating_point<T>::value, mat4<T>>
+    std::enable_if_t<std::is_floating_point_v<T>, mat4<T>>
     make_loot_at_rh_matrix4(const vec3<T>& eye, const vec3<T>& at, const vec3<T>& up) noexcept {
         const vec3<T> az = normalized(eye - at);
         const vec3<T> ax = normalized(math::cross(up, az));
@@ -556,7 +556,7 @@ namespace e2d { namespace math
     //
 
     template < typename T >
-    std::enable_if_t<std::is_floating_point<T>::value, mat4<T>>
+    std::enable_if_t<std::is_floating_point_v<T>, mat4<T>>
     make_orthogonal_lh_matrix4(T width, T height, T znear, T zfar) noexcept {
         E2D_ASSERT(!math::is_near_zero(width, T(0)));
         E2D_ASSERT(!math::is_near_zero(height, T(0)));
@@ -573,7 +573,7 @@ namespace e2d { namespace math
     }
 
     template < typename T >
-    std::enable_if_t<std::is_floating_point<T>::value, mat4<T>>
+    std::enable_if_t<std::is_floating_point_v<T>, mat4<T>>
     make_orthogonal_lh_matrix4(const vec2<T>& size, T znear, T zfar) {
         return make_orthogonal_lh_matrix4(size.x, size.y, znear, zfar);
     }
@@ -583,7 +583,7 @@ namespace e2d { namespace math
     //
 
     template < typename T >
-    std::enable_if_t<std::is_floating_point<T>::value, mat4<T>>
+    std::enable_if_t<std::is_floating_point_v<T>, mat4<T>>
     make_orthogonal_rh_matrix4(T width, T height, T znear, T zfar) noexcept {
         E2D_ASSERT(!math::is_near_zero(width, T(0)));
         E2D_ASSERT(!math::is_near_zero(height, T(0)));
@@ -600,7 +600,7 @@ namespace e2d { namespace math
     }
 
     template < typename T >
-    std::enable_if_t<std::is_floating_point<T>::value, mat4<T>>
+    std::enable_if_t<std::is_floating_point_v<T>, mat4<T>>
     make_orthogonal_rh_matrix4(const vec2<T>& size, T znear, T zfar) {
         return make_orthogonal_rh_matrix4(size.x, size.y, znear, zfar);
     }
@@ -610,7 +610,7 @@ namespace e2d { namespace math
     //
 
     template < typename T, typename AngleTag >
-    std::enable_if_t<std::is_floating_point<T>::value, mat4<T>>
+    std::enable_if_t<std::is_floating_point_v<T>, mat4<T>>
     make_perspective_lh_matrix4(const unit<T, AngleTag>& fov, T aspect, T znear, T zfar) noexcept {
         E2D_ASSERT(!math::is_near_zero(aspect, T(0)));
         E2D_ASSERT(!math::approximately(znear, zfar, T(0)));
@@ -619,7 +619,7 @@ namespace e2d { namespace math
         const T sx = sy / aspect;
         const T sz = zfar / (zfar - znear);
         const T tz = -znear * zfar / (zfar - znear);
-        return  {
+        return {
             sx,   T(0), T(0), T(0),
             T(0), sy,   T(0), T(0),
             T(0), T(0), sz,   T(1),
@@ -631,7 +631,7 @@ namespace e2d { namespace math
     //
 
     template < typename T, typename AngleTag >
-    std::enable_if_t<std::is_floating_point<T>::value, mat4<T>>
+    std::enable_if_t<std::is_floating_point_v<T>, mat4<T>>
     make_perspective_rh_matrix4(const unit<T, AngleTag>& fov, T aspect, T znear, T zfar) noexcept {
         E2D_ASSERT(!math::is_near_zero(aspect, T(0)));
         E2D_ASSERT(!math::approximately(znear, zfar, T(0)));
@@ -652,7 +652,7 @@ namespace e2d { namespace math
     //
 
     template < typename T >
-    std::enable_if_t<std::is_floating_point<T>::value, std::pair<mat4<T>, bool>>
+    std::enable_if_t<std::is_floating_point_v<T>, std::pair<mat4<T>, bool>>
     inversed(
         const mat4<T>& m,
         T precision = math::default_precision<T>()) noexcept
@@ -733,4 +733,4 @@ namespace e2d { namespace math
             mm[2], mm[6], mm[10], mm[14],
             mm[3], mm[7], mm[11], mm[15]};
     }
-}}
+}

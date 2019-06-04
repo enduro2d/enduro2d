@@ -10,6 +10,6 @@
 
 #include <3rdparty/pugixml/pugixml.hpp>
 
-namespace e2d { namespace xml_utils
+namespace e2d::xml_utils
 {
-}}
+}

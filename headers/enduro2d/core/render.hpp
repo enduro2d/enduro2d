@@ -4,8 +4,6 @@
  * Copyright (C) 2018-2019, by Matvey Cherevko (blackmatov@gmail.com)
  ******************************************************************************/
 
-#ifndef E2D_INCLUDE_GUARD_64EC1BED88C24F57851A315A761E9D48
-#define E2D_INCLUDE_GUARD_64EC1BED88C24F57851A315A761E9D48
 #pragma once
 
 #include "_core.hpp"
@@ -194,7 +192,7 @@ namespace e2d
         std::size_t bytes_per_vertex() const noexcept;
     private:
         constexpr static std::size_t max_attribute_count = 8;
-        array<attribute_info, max_attribute_count> attributes_;
+        std::array<attribute_info, max_attribute_count> attributes_;
         std::size_t attribute_count_ = 0;
         std::size_t bytes_per_vertex_ = 0;
     };
@@ -640,15 +638,7 @@ namespace e2d
             void merge(const property_map& other);
             bool equals(const property_map& other) const noexcept;
         private:
-            struct entry {
-                str_hash key;
-                T value;
-            public:
-                entry(str_hash k, T&& v);
-                entry(str_hash k, const T& v);
-                bool operator==(const entry& other) const;
-            };
-            vector<entry> entries_;
+            flat_map<str_hash, T> values_;
         };
 
         class property_block final {
@@ -728,7 +718,7 @@ namespace e2d
             const property_block& properties() const noexcept;
         private:
             constexpr static std::size_t max_pass_count = 8;
-            array<pass_state, max_pass_count> passes_;
+            std::array<pass_state, max_pass_count> passes_;
             std::size_t pass_count_ = 0;
             property_block properties_;
         };
@@ -755,7 +745,7 @@ namespace e2d
         private:
             constexpr static std::size_t max_vertices_count = 8;
             index_buffer_ptr indices_;
-            array<vertex_buffer_ptr, max_vertices_count> vertices_;
+            std::array<vertex_buffer_ptr, max_vertices_count> vertices_;
             std::size_t vertices_count_ = 0;
             topology topology_ = topology::triangles;
         };
@@ -880,7 +870,7 @@ namespace e2d
             const command_value& command(std::size_t index) const noexcept;
             std::size_t command_count() const noexcept;
         private:
-            array<command_value, N> commands_;
+            std::array<command_value, N> commands_;
             std::size_t command_count_ = 0;
         };
 
@@ -1013,4 +1003,3 @@ namespace e2d
 }
 
 #include "render.inl"
-#endif

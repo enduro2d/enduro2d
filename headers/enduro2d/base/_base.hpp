@@ -19,8 +19,6 @@
 #include <atomic>
 #include <thread>
 
-#include <set>
-#include <map>
 #include <tuple>
 #include <array>
 #include <bitset>

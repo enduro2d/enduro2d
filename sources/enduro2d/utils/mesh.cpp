@@ -295,7 +295,7 @@ namespace e2d
     }
 }
 
-namespace e2d { namespace meshes
+namespace e2d::meshes
 {
     bool try_load_mesh(
         mesh& dst,
@@ -312,4 +312,4 @@ namespace e2d { namespace meshes
         return streams::try_read_tail(file_data, src)
             && try_load_mesh(dst, file_data);
     }
-}}
+}

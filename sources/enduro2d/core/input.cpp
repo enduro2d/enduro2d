@@ -17,11 +17,11 @@ namespace e2d
         mutable std::mutex mutex;
         v2f cursor_pos;
         v2f scroll_delta;
-        bitset<
+        std::bitset<
             utils::enum_to_underlying(mouse_button::unknown) + 1> pressed;
-        bitset<
+        std::bitset<
             utils::enum_to_underlying(mouse_button::unknown) + 1> just_pressed;
-        bitset<
+        std::bitset<
             utils::enum_to_underlying(mouse_button::unknown) + 1> just_released;
     public:
         std::size_t button_index(mouse_button btn) const noexcept {
@@ -80,11 +80,11 @@ namespace e2d
     public:
         mutable std::mutex mutex;
         str32 input_text;
-        bitset<
+        std::bitset<
             utils::enum_to_underlying(keyboard_key::unknown) + 1> pressed;
-        bitset<
+        std::bitset<
             utils::enum_to_underlying(keyboard_key::unknown) + 1> just_pressed;
-        bitset<
+        std::bitset<
             utils::enum_to_underlying(keyboard_key::unknown) + 1> just_released;
     public:
         std::size_t key_index(keyboard_key key) const noexcept {
@@ -260,7 +260,7 @@ namespace e2d
         return state_->just_released.test(index);
     }
 
-    void keyboard::extract_pressed_keys(std::vector<keyboard_key>& dst) const {
+    void keyboard::extract_pressed_keys(vector<keyboard_key>& dst) const {
         std::lock_guard<std::mutex> guard(state_->mutex);
         for ( std::size_t i = 0; i < state_->pressed.size(); ++i ) {
             if ( state_->pressed.test(i) ) {
@@ -269,7 +269,7 @@ namespace e2d
         }
     }
 
-    void keyboard::extract_just_pressed_keys(std::vector<keyboard_key>& dst) const {
+    void keyboard::extract_just_pressed_keys(vector<keyboard_key>& dst) const {
         std::lock_guard<std::mutex> guard(state_->mutex);
         for ( std::size_t i = 0; i < state_->just_pressed.size(); ++i ) {
             if ( state_->just_pressed.test(i) ) {
@@ -278,7 +278,7 @@ namespace e2d
         }
     }
 
-    void keyboard::extract_just_released_keys(std::vector<keyboard_key>& dst) const {
+    void keyboard::extract_just_released_keys(vector<keyboard_key>& dst) const {
         std::lock_guard<std::mutex> guard(state_->mutex);
         for ( std::size_t i = 0; i < state_->just_released.size(); ++i ) {
             if ( state_->just_released.test(i) ) {

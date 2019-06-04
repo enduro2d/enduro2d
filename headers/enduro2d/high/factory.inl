@@ -4,11 +4,8 @@
  * Copyright (C) 2018-2019, by Matvey Cherevko (blackmatov@gmail.com)
  ******************************************************************************/
 
-#ifndef E2D_INCLUDE_GUARD_6CDF0C8E49C9459EB7762C8AF7F7ED85
-#define E2D_INCLUDE_GUARD_6CDF0C8E49C9459EB7762C8AF7F7ED85
 #pragma once
 
-#include "_high.hpp"
 #include "factory.hpp"
 
 namespace e2d
@@ -88,4 +85,3 @@ namespace e2d
         return *this;
     }
 }
-#endif

@@ -40,7 +40,7 @@ namespace
     )glsl";
 }
 
-namespace e2d { namespace dbgui_shaders
+namespace e2d::dbgui_shaders
 {
     const char* vertex_source_cstr() noexcept {
         return vs_src_cstr;
@@ -49,4 +49,4 @@ namespace e2d { namespace dbgui_shaders
     const char* fragment_source_cstr() noexcept {
         return fs_src_cstr;
     }
-}}
+}

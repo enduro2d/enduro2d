@@ -80,7 +80,7 @@ TEST_CASE("input"){
             input i;
             const mouse& m = i.mouse();
 
-            std::vector<mouse_button> buttons;
+            vector<mouse_button> buttons;
             m.extract_pressed_buttons(buttons);
             m.extract_just_pressed_buttons(buttons);
             m.extract_just_released_buttons(buttons);
@@ -208,7 +208,7 @@ TEST_CASE("input"){
             input i;
             const keyboard& k = i.keyboard();
 
-            std::vector<keyboard_key> keys;
+            vector<keyboard_key> keys;
             k.extract_pressed_keys(keys);
             k.extract_just_pressed_keys(keys);
             k.extract_just_released_keys(keys);

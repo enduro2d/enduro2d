@@ -60,7 +60,7 @@ namespace
         }
     };
 
-    array<u8,36> generate_cube_indices() noexcept {
+    std::array<u8,36> generate_cube_indices() noexcept {
         return {
             0,  1,  2,
             2,  3,  0,
@@ -81,7 +81,7 @@ namespace
             22, 23, 20};
     }
 
-    array<vertex1,24> generate_cube_vertices(const v3f& size) noexcept {
+    std::array<vertex1,24> generate_cube_vertices(const v3f& size) noexcept {
         f32 x = size.x * 0.5f;
         f32 y = size.y * 0.5f;
         f32 z = size.z * 0.5f;
@@ -117,7 +117,7 @@ namespace
             vertex1{{-x,  y,  z}, {0, 0}}};
     }
 
-    array<vertex2,24> generate_cube_colors() noexcept {
+    std::array<vertex2,24> generate_cube_colors() noexcept {
         return {
             vertex2{color32::red()},
             vertex2{color32::green()},

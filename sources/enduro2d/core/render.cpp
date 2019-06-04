@@ -48,7 +48,7 @@ namespace
 
     const pixel_type_description& get_pixel_type_description(pixel_declaration::pixel_type type) noexcept {
         const std::size_t index = math::numeric_cast<std::size_t>(utils::enum_to_underlying(type));
-        E2D_ASSERT(index < E2D_COUNTOF(pixel_type_descriptions));
+        E2D_ASSERT(index < std::size(pixel_type_descriptions));
         const pixel_type_description& desc = pixel_type_descriptions[index];
         E2D_ASSERT(desc.type == type);
         return desc;

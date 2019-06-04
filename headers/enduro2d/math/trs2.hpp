@@ -16,7 +16,7 @@ namespace e2d
     template < typename T >
     class trs2 final {
         static_assert(
-            std::is_arithmetic<T>::value,
+            std::is_arithmetic_v<T>,
             "type of 'trs2' must be arithmetic");
     public:
         using self_type = trs2;
@@ -115,7 +115,7 @@ namespace e2d
     }
 }
 
-namespace e2d { namespace math
+namespace e2d::math
 {
     template < typename T >
     trs2<T> make_translation_trs2(const vec2<T>& t) noexcept {
@@ -149,4 +149,4 @@ namespace e2d { namespace math
             || contains_nan(v.rotation)
             || contains_nan(v.scale);
     }
-}}
+}

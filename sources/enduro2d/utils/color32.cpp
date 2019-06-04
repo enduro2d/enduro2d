@@ -238,7 +238,7 @@ namespace e2d
     }
 }
 
-namespace e2d { namespace math
+namespace e2d::math
 {
     //
     // approximately
@@ -297,9 +297,20 @@ namespace e2d { namespace math
             math::clamp(c.b, cmin.b, cmax.b),
             math::clamp(c.a, cmin.a, cmax.a));
     }
-}}
 
-namespace e2d { namespace colors
+    //
+    // contains_nan
+    //
+
+    bool contains_nan(const color32& c) noexcept {
+        return !math::is_finite(c.r)
+            || !math::is_finite(c.g)
+            || !math::is_finite(c.b)
+            || !math::is_finite(c.a);
+    }
+}
+
+namespace e2d::colors
 {
     u32 pack_color32(const color32& c) noexcept {
         return
@@ -316,4 +327,4 @@ namespace e2d { namespace colors
             math::numeric_cast<u8>((argb >>  0) & 0xFF),
             math::numeric_cast<u8>((argb >> 24) & 0xFF));
     }
-}}
+}

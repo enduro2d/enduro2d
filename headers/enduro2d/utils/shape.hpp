@@ -77,7 +77,7 @@ namespace e2d
     bool operator!=(const shape& l, const shape& r) noexcept;
 }
 
-namespace e2d { namespace shapes
+namespace e2d::shapes
 {
     bool try_load_shape(
         shape& dst,
@@ -86,4 +86,4 @@ namespace e2d { namespace shapes
     bool try_load_shape(
         shape& dst,
         const input_stream_uptr& src) noexcept;
-}}
+}

@@ -86,7 +86,7 @@ namespace e2d
     };
 }
 
-namespace e2d { namespace time
+namespace e2d::time
 {
     template < typename T >
     std::chrono::duration<T, std::ratio<1ll, 1ll>>
@@ -120,9 +120,9 @@ namespace e2d { namespace time
     microseconds<T> to_microseconds(const unit<T, Tag>& u) noexcept {
         return u.template convert_to<microseconds_tag>();
     }
-}}
+}
 
-namespace e2d { namespace time
+namespace e2d::time
 {
     template < typename T >
     const seconds<T>& second() noexcept {
@@ -177,9 +177,9 @@ namespace e2d { namespace time
         static microseconds<T> hour_us = to_microseconds(hour<T>());
         return hour_us;
     }
-}}
+}
 
-namespace e2d { namespace time
+namespace e2d::time
 {
     template < typename TimeTag, typename T = i64 >
     unit<T, TimeTag> now() noexcept {
@@ -196,7 +196,7 @@ namespace e2d { namespace time
     }
 
     template < typename T = i64 >
-    inline unit<T, milliseconds_tag> now_ms() noexcept {
+    unit<T, milliseconds_tag> now_ms() noexcept {
         return now<milliseconds_tag, T>();
     }
 
@@ -204,4 +204,4 @@ namespace e2d { namespace time
     unit<T, microseconds_tag> now_us() noexcept {
         return now<microseconds_tag, T>();
     }
-}}
+}

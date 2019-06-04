@@ -105,8 +105,8 @@ namespace
             }
             {
                 char title_buf[128] = {0};
-                strings::format(title_buf, E2D_COUNTOF(title_buf), w.title());
-                if ( ImGui::InputText("title", title_buf, E2D_COUNTOF(title_buf)) ) {
+                strings::format(title_buf, std::size(title_buf), w.title());
+                if ( ImGui::InputText("title", title_buf, std::size(title_buf)) ) {
                     w.set_title(title_buf);
                 }
             }
@@ -119,7 +119,7 @@ namespace
     }
 }
 
-namespace e2d { namespace dbgui_widgets
+namespace e2d::dbgui_widgets
 {
     void show_main_menu() {
         static bool show_engine = false;
@@ -148,4 +148,4 @@ namespace e2d { namespace dbgui_widgets
             show_debug_window(&show_window);
         }
     }
-}}
+}

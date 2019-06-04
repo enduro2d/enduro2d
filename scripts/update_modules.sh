@@ -23,6 +23,9 @@ cp -fv $MODULES_DIR/catch2/single_include/catch2/catch.hpp $UNTESTS_DIR/catch/ca
 mkdir -p $HEADERS_RDPARTY_DIR/ecs.hpp
 cp -rfv $MODULES_DIR/ecs.hpp/headers/ecs.hpp/. $HEADERS_RDPARTY_DIR/ecs.hpp/
 
+mkdir -p $HEADERS_RDPARTY_DIR/flat.hpp
+cp -rfv $MODULES_DIR/flat.hpp/headers/flat.hpp/. $HEADERS_RDPARTY_DIR/flat.hpp/
+
 mkdir -p $SOURCES_RDPARTY_DIR/imgui
 cp -fv $MODULES_DIR/imgui/imgui.cpp $SOURCES_RDPARTY_DIR/imgui/imgui.cpp
 cp -fv $MODULES_DIR/imgui/imgui.h $SOURCES_RDPARTY_DIR/imgui/imgui.h

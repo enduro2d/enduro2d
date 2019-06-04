@@ -10,7 +10,7 @@
 #include <enduro2d/utils/strings.hpp>
 #include <enduro2d/utils/filesystem.hpp>
 
-namespace e2d { namespace filesystem { namespace impl
+namespace e2d::filesystem::impl
 {
     bool remove_file(str_view path);
     bool remove_directory(str_view path);
@@ -23,4 +23,4 @@ namespace e2d { namespace filesystem { namespace impl
     bool trace_directory(str_view path, const trace_func& func);
 
     bool extract_predef_path(str& dst, predef_path path_type);
-}}}
+}

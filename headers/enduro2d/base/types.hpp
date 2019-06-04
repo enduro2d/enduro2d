@@ -6,7 +6,13 @@
 
 #pragma once
 
-#include "stdex.hpp"
+#include "_base.hpp"
+
+#include <3rdparty/variant/variant.hpp>
+#include <3rdparty/flat.hpp/flat_set.hpp>
+#include <3rdparty/flat.hpp/flat_map.hpp>
+#include <3rdparty/flat.hpp/flat_multiset.hpp>
+#include <3rdparty/flat.hpp/flat_multimap.hpp>
 
 namespace e2d
 {
@@ -30,39 +36,34 @@ namespace e2d
     : public std::exception {};
 
     template < typename Value
-             , std::size_t Size >
-    using array = std::array<Value, Size>;
-
-    template < std::size_t Size >
-    using bitset = std::bitset<Size>;
-
-    template < typename Value
              , typename Allocator = std::allocator<Value> >
     using vector = std::vector<Value, Allocator>;
 
     template < typename Key
-             , typename Comp = std::less<Key>
+             , typename Hash = std::hash<Key>
+             , typename Pred = std::equal_to<>
              , typename Allocator = std::allocator<Key> >
-    using set = std::set<Key, Comp, Allocator>;
+    using hash_set = std::unordered_set<Key, Hash, Pred, Allocator>;
 
     template < typename Key
-             , typename Value
-             , typename Comp = std::less<Key>
-             , typename Allocator = std::allocator<std::pair<const Key, Value>> >
-    using map = std::map<Key, Value, Comp, Allocator>;
-
-    template < typename Value
-             , typename Hash = std::hash<Value>
-             , typename Pred = std::equal_to<Value>
-             , typename Allocator = std::allocator<Value> >
-    using hash_set = std::unordered_set<Value, Hash, Pred, Allocator>;
+             , typename Hash = std::hash<Key>
+             , typename Pred = std::equal_to<>
+             , typename Allocator = std::allocator<Key> >
+    using hash_multiset = std::unordered_multiset<Key, Hash, Pred, Allocator>;
 
     template < typename Key
              , typename Value
              , typename Hash = std::hash<Key>
-             , typename Pred = std::equal_to<Key>
+             , typename Pred = std::equal_to<>
              , typename Allocator = std::allocator<std::pair<const Key, Value>> >
     using hash_map = std::unordered_map<Key, Value, Hash, Pred, Allocator>;
+
+    template < typename Key
+             , typename Value
+             , typename Hash = std::hash<Key>
+             , typename Pred = std::equal_to<>
+             , typename Allocator = std::allocator<std::pair<const Key, Value>> >
+    using hash_multimap = std::unordered_multimap<Key, Value, Hash, Pred, Allocator>;
 
     template < typename Char
              , typename Traits = std::char_traits<Char>
@@ -71,5 +72,35 @@ namespace e2d
 
     template < typename Char
              , typename Traits = std::char_traits<Char> >
-    using basic_string_view = stdex::basic_string_view<Char, Traits>;
+    using basic_string_view = std::basic_string_view<Char, Traits>;
+}
+
+namespace e2d
+{
+    template < typename Key
+             , typename Compare = std::less<>
+             , typename Container = vector<Key> >
+    using flat_set = flat_hpp::flat_set<Key, Compare, Container>;
+
+    template < typename Key
+             , typename Compare = std::less<>
+             , typename Container = vector<Key> >
+    using flat_multiset = flat_hpp::flat_multiset<Key, Compare, Container>;
+
+    template < typename Key
+             , typename Value
+             , typename Compare = std::less<>
+             , typename Container = vector<std::pair<Key, Value>> >
+    using flat_map = flat_hpp::flat_map<Key, Value, Compare, Container>;
+
+    template < typename Key
+             , typename Value
+             , typename Compare = std::less<>
+             , typename Container = vector<std::pair<Key, Value>> >
+    using flat_multimap = flat_hpp::flat_multimap<Key, Value, Compare, Container>;
+}
+
+namespace e2d::stdex
+{
+    using namespace mpark;
 }

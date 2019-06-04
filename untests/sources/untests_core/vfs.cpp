@@ -8,8 +8,8 @@
 using namespace e2d;
 
 TEST_CASE("vfs"){
-    const str_view file_path = "vfs_file_name";
-    const str_view nofile_path = "vfs_file_name2";
+    const str file_path = "vfs_file_name";
+    const str nofile_path = "vfs_file_name2";
     {
         REQUIRE(filesystem::remove_file(nofile_path));
         REQUIRE(filesystem::create_file(file_path));
