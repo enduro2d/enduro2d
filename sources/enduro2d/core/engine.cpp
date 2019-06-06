@@ -14,6 +14,7 @@
 #include <enduro2d/core/render.hpp>
 #include <enduro2d/core/vfs.hpp>
 #include <enduro2d/core/window.hpp>
+#include <enduro2d/core/audio_engine.hpp>
 
 namespace
 {
@@ -174,6 +175,11 @@ namespace e2d
         return *this;
     }
 
+    engine::parameters& engine::parameters::without_sound(bool value) {
+        without_sound_ = value;
+        return *this;
+    }
+    
     engine::parameters& engine::parameters::debug_params(const debug_parameters& value) {
         debug_params_ = value;
         return *this;
@@ -200,6 +206,10 @@ namespace e2d
     bool& engine::parameters::without_graphics() noexcept {
         return without_graphics_;
     }
+    
+    bool& engine::parameters::without_sound() noexcept {
+        return without_graphics_;
+    }
 
     engine::debug_parameters& engine::parameters::debug_params() noexcept {
         return debug_params_;
@@ -223,6 +233,10 @@ namespace e2d
 
     const bool& engine::parameters::without_graphics() const noexcept {
         return without_graphics_;
+    }
+    
+    const bool& engine::parameters::without_sound() const noexcept {
+        return without_sound_;
     }
 
     const engine::debug_parameters& engine::parameters::debug_params() const noexcept {
@@ -403,6 +417,14 @@ namespace e2d
                 the<input>(),
                 the<render>(),
                 the<window>());
+        }
+        
+        // aetup audio
+        
+        if ( !params.without_sound() )
+        {
+            safe_module_initialize<audio_engine>(
+                the<debug>());
         }
     }
 

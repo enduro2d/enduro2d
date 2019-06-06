@@ -1,0 +1,158 @@
+
+#include "audio_bass_impl.hpp"
+#include "enduro2d/core/debug.hpp"
+#include <3rdparty/bass/bass.h>
+
+#if defined(E2D_AUDIO_MODE) && E2D_AUDIO_MODE == E2D_AUDIO_MODE_BASS
+
+namespace e2d
+{
+
+    //
+    // sound_stream
+    //
+
+    sound_stream::sound_stream(internal_state_uptr state)
+    : state_(std::move(state)) {
+        E2D_ASSERT(state_);
+    }
+    
+    const sound_stream::internal_state& sound_stream::state() const noexcept {
+        return *state_;
+    }
+
+    //
+    // sound_source
+    //
+    
+    sound_source::sound_source(internal_state_uptr state)
+    : state_(std::move(state)) {
+        E2D_ASSERT(state_);
+    }
+    
+    const sound_source::internal_state& sound_source::state() const noexcept {
+        return *state_;
+    }
+    
+    void sound_source::play() noexcept {
+        if ( !BASS_ChannelPlay(state().channel(), false) )
+            state_->dbg().error("AUDIO: Failed to play sound");
+    }
+    
+    void sound_source::stop() noexcept {
+        BASS_ChannelStop(state().channel());
+    }
+    
+    void sound_source::pause() noexcept {
+        BASS_ChannelPause(state().channel());
+    }
+    
+    void sound_source::looping(bool value) noexcept {
+        BASS_ChannelFlags(state().channel(), value ? BASS_SAMPLE_LOOP : 0, BASS_SAMPLE_LOOP); 
+    }
+    
+    bool sound_source::looping() noexcept {
+        return math::check_all_flags(BASS_ChannelFlags(state().channel(), 0, 0), BASS_SAMPLE_LOOP);
+    }
+    
+    void sound_source::volume(float value) noexcept {
+        BASS_ChannelSetAttribute(state().channel(), BASS_ATTRIB_VOL, value);
+    }
+    
+    float sound_source::volume() const noexcept {
+        float volume = 1.0f;
+        BASS_ChannelGetAttribute(state().channel(), BASS_ATTRIB_VOL, &volume);
+        return volume;
+    }
+    
+    void sound_source::position(seconds<float> pos) noexcept {
+        auto byte_pos = BASS_ChannelSeconds2Bytes(state().channel(), pos.value);
+        BASS_ChannelSetPosition(state().channel(), byte_pos, BASS_POS_BYTE);
+    }
+    
+    seconds<float> sound_source::position() const noexcept {
+        auto byte_pos = BASS_ChannelGetPosition(state().channel(), BASS_POS_BYTE);
+        return seconds<float>{float(BASS_ChannelBytes2Seconds(state().channel(), byte_pos))};
+    }
+    
+    seconds<float> sound_source::duration() const noexcept {
+        auto byte_len = BASS_ChannelGetLength(state().channel(), BASS_POS_BYTE);
+        return seconds<float>{float(BASS_ChannelBytes2Seconds(state().channel(), byte_len))};
+    }
+    
+    //
+    // audio_engine
+    //
+    
+    audio_engine::audio_engine(debug& d)
+    : state_(std::make_unique<internal_state>(d)) {
+        if ( !BASS_Init(-1, 44100, BASS_DEVICE_3D, nullptr, nullptr) ) {
+            state_->dbg().error("AUDIO: Initialization failed");
+            return;
+        }
+    }
+    
+    audio_engine::~audio_engine() noexcept {
+        BASS_Free();
+    }
+    
+    sound_stream_ptr audio_engine::create_stream(
+        buffer_view sound_data) {
+        if (sound_data.empty()) {
+            state_->dbg().error("AUDIO: Sound data is empty");
+            return nullptr;
+        }
+        HSAMPLE sample = BASS_SampleLoad(true, sound_data.data(), 0, sound_data.size(), 4, BASS_SAMPLE_OVER_POS );
+        if (sample == 0) {
+            state_->dbg().error("AUDIO: Failed to load sound sample, code (%0)", std::to_string(BASS_ErrorGetCode()));
+            return nullptr;
+        }
+        return std::make_shared<sound_stream>(
+                std::make_unique<sound_stream::internal_state>(state_->dbg(), sample));
+    }
+    
+    sound_stream_ptr audio_engine::create_stream(
+        const input_stream_uptr& file_stream) {
+        buffer file_data;
+        if (!streams::try_read_tail(file_data, file_stream)) {
+            state_->dbg().error("AUDIO: Failed to read file");
+            return nullptr;
+        }
+        return create_stream(buffer_view(file_data));
+    }
+    
+    sound_source_ptr audio_engine::create_source(
+        const sound_stream_ptr &stream) {
+        if (!stream) {
+            state_->dbg().error("AUDIO: stream is null");
+            return nullptr;
+        }
+        HCHANNEL channel = BASS_SampleGetChannel(stream->state().sound(), false);
+        if (!channel) {
+            state_->dbg().error("AUDIO: can net retruve sound channel");
+            return nullptr;
+        }
+        return std::make_shared<sound_source>(
+                std::make_unique<sound_source::internal_state>(state_->dbg(), channel));
+    }
+    
+    void audio_engine::volume(float value) noexcept {
+        BASS_SetVolume(value);
+    }
+    
+    float audio_engine::volume() const noexcept {
+        return BASS_GetVolume();
+    }
+    
+    void audio_engine::resume() noexcept {
+        if ( !BASS_Start() )
+            state_->dbg().error("AUDIO: Failed to resume audio output");
+    }
+    
+    void audio_engine::pause() noexcept {
+        if ( !BASS_Pause() )
+            state_->dbg().error("AUDIO: Failed to resume audio output");
+    }
+}
+
+#endif
