@@ -98,6 +98,22 @@ namespace e2d
         return {};
     }
     
+    void sound_source::position3d(const v3f &value) noexcept {
+        E2D_UNUSED(value);
+    }
+    
+    v3f sound_source::position3d() const noexcept {
+        return {};
+    }
+    
+    void sound_source::velocity(const v3f &value) noexcept {
+        E2D_UNUSED(value);
+    }
+    
+    v3f sound_source::velocity() const noexcept {
+        return {};
+    }
+    
     //
     // audio_engine
     //
@@ -140,6 +156,25 @@ namespace e2d
     }
     
     void audio_engine::pause() noexcept {
+    }
+    
+    void audio_engine::listener_position(const v3f &value) noexcept {
+        E2D_UNUSED(value);
+    }
+    
+    v3f audio_engine::listener_position() const noexcept {
+        return {};
+    }
+    
+    void audio_engine::listener_velocity(const v3f &value) noexcept {
+        E2D_UNUSED(value);
+    }
+    
+    v3f audio_engine::listener_velocity() const noexcept {
+        return {};
+    }
+    
+    void audio_engine::apply3d() noexcept {
     }
 }
 

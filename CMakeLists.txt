@@ -151,6 +151,20 @@ target_compile_definitions(${PROJECT_NAME}
         -D_SCL_SECURE_NO_WARNINGS>)
 
 #
+# bass
+#
+
+if (${CMAKE_SYSTEM_NAME} STREQUAL "iOS")
+	link_directories( "sources/3rdparty/bass/ios" )
+	target_link_libraries(${PROJECT_NAME} PUBLIC "bass")
+endif()
+if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
+	link_directories( "sources/3rdparty/bass/mac" )
+	target_link_libraries(${PROJECT_NAME} PUBLIC "bass.dylib")
+endif()
+
+
+#
 # subdirectories
 #
 

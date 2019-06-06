@@ -60,6 +60,12 @@ namespace e2d
         [[nodiscard]] seconds<float> position() const noexcept;
         [[nodiscard]] seconds<float> duration() const noexcept;
         
+        void position3d(const v3f &value) noexcept;
+        [[nodiscard]] v3f position3d() const noexcept;
+        
+        void velocity(const v3f &value) noexcept;
+        [[nodiscard]] v3f velocity() const noexcept;
+        
     private:
         internal_state_uptr state_;
     };
@@ -87,6 +93,15 @@ namespace e2d
         
         void resume() noexcept;
         void pause() noexcept;
+        
+        // Applies changes made to the 3D system.
+        void apply3d() noexcept;
+        
+        void listener_position(const v3f &value) noexcept;
+        [[nodiscard]] v3f listener_position() const noexcept;
+        
+        void listener_velocity(const v3f &value) noexcept;
+        [[nodiscard]] v3f listener_velocity() const noexcept;
         
     private:
         class internal_state;

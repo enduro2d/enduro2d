@@ -80,6 +80,28 @@ namespace e2d
         return seconds<float>{float(BASS_ChannelBytes2Seconds(state().channel(), byte_len))};
     }
     
+    void sound_source::position3d(const v3f &value) noexcept {
+        BASS_3DVECTOR pos = {value.x, value.y, value.z};
+        BASS_ChannelGet3DPosition(state().channel(), &pos, nullptr, nullptr);
+    }
+    
+    v3f sound_source::position3d() const noexcept {
+        BASS_3DVECTOR pos = {};
+        BASS_ChannelSet3DPosition(state().channel(), &pos, nullptr, nullptr);
+        return v3f(pos.x, pos.y, pos.z);
+    }
+    
+    void sound_source::velocity(const v3f &value) noexcept {
+        BASS_3DVECTOR vel = {value.x, value.y, value.z};
+        BASS_ChannelGet3DPosition(state().channel(), nullptr, nullptr, &vel);
+    }
+    
+    v3f sound_source::velocity() const noexcept {
+        BASS_3DVECTOR vel = {};
+        BASS_ChannelSet3DPosition(state().channel(), nullptr, nullptr, &vel);
+        return v3f(vel.x, vel.y, vel.z);
+    }
+    
     //
     // audio_engine
     //
@@ -152,6 +174,32 @@ namespace e2d
     void audio_engine::pause() noexcept {
         if ( !BASS_Pause() )
             state_->dbg().error("AUDIO: Failed to resume audio output");
+    }
+    
+    void audio_engine::listener_position(const v3f &value) noexcept {
+        BASS_3DVECTOR pos = {value.x, value.y, value.z};
+        BASS_Set3DPosition(&pos, nullptr, nullptr, nullptr);
+    }
+    
+    v3f audio_engine::listener_position() const noexcept {
+        BASS_3DVECTOR pos = {};
+        BASS_Get3DPosition(&pos, nullptr, nullptr, nullptr);
+        return v3f{pos.x, pos.y, pos.z};
+    }
+    
+    void audio_engine::listener_velocity(const v3f &value) noexcept {
+        BASS_3DVECTOR vel = {value.x, value.y, value.z};
+        BASS_Set3DPosition(nullptr, &vel, nullptr, nullptr);
+    }
+    
+    v3f audio_engine::listener_velocity() const noexcept {
+        BASS_3DVECTOR vel = {};
+        BASS_Get3DPosition(nullptr, &vel, nullptr, nullptr);
+        return v3f{vel.x, vel.y, vel.z};
+    }
+    
+    void audio_engine::apply3d() noexcept {
+        BASS_Apply3D();
     }
 }
 
