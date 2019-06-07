@@ -123,17 +123,23 @@ namespace e2d
         E2D_UNUSED(d);
     }
 
-    audio::audio() noexcept {
+    audio::~audio() noexcept {
     }
 
-    sound_stream_ptr audio::create_stream(
+    sound_stream_ptr audio::preload_stream(
         buffer_view sound_data) {
         E2D_UNUSED(sound_data);
         return nullptr;
     }
 
-    sound_stream_ptr audio::create_stream(
+    sound_stream_ptr audio::preload_stream(
         const input_stream_uptr& file_stream) {
+        E2D_UNUSED(file_stream);
+        return nullptr;
+    }
+
+    sound_stream_ptr audio::create_stream(
+        input_stream_uptr file_stream) {
         E2D_UNUSED(file_stream);
         return nullptr;
     }
@@ -142,6 +148,10 @@ namespace e2d
         const sound_stream_ptr &stream) {
         E2D_UNUSED(stream);
         return nullptr;
+    }
+
+    bool audio::initialized() const noexcept {
+        return false;
     }
 
     void audio::volume(f32 value) noexcept {

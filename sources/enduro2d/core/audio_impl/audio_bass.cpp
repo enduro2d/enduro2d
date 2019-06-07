@@ -21,6 +21,24 @@ namespace e2d
         return *state_;
     }
 
+    static void CALLBACK sound_stream_close_proc(void *) {
+    }
+
+    static QWORD CALLBACK sound_stream_length_proc(void *user) {
+        auto* self = static_cast<input_stream*>(user);
+        return self->length();
+    }
+
+    static DWORD CALLBACK sound_stream_read_proc(void *buffer, DWORD length, void *user) {
+        auto* self = static_cast<input_stream*>(user);
+        return self->read(buffer, length);
+    }
+
+    static BOOL CALLBACK sound_stream_seek_proc(QWORD offset, void *user) {
+        auto* self = static_cast<input_stream*>(user);
+        return self->seek(offset, false);
+    }
+
     //
     // sound_source
     //
@@ -45,6 +63,10 @@ namespace e2d
 
     void sound_source::pause() noexcept {
         BASS_ChannelPause(state().channel());
+    }
+
+    bool sound_source::playing() const noexcept {
+        return BASS_ChannelIsActive(state().channel()) == BASS_ACTIVE_PLAYING;
     }
 
     void sound_source::looping(bool value) noexcept {
@@ -112,50 +134,99 @@ namespace e2d
             state_->dbg().error("AUDIO: Initialization failed");
             return;
         }
+        initialized_ = true;
+        // uaw one additional thread for streaming
+        BASS_SetConfig(BASS_CONFIG_UPDATETHREADS, 1);
+
     }
 
     audio::~audio() noexcept {
         BASS_Free();
     }
 
-    sound_stream_ptr audio::create_stream(
+    sound_stream_ptr audio::preload_stream(
         buffer_view sound_data) {
-        if (sound_data.empty()) {
+        if ( !initialized_ ) {
+            state_->dbg().error("AUDIO: Not initialized");
+            return nullptr;
+        }
+        if ( sound_data.empty() ) {
             state_->dbg().error("AUDIO: Sound data is empty");
             return nullptr;
         }
-        HSAMPLE sample = BASS_SampleLoad(true, sound_data.data(), 0, sound_data.size(), 4, BASS_SAMPLE_OVER_POS );
-        if (sample == 0) {
+        HSAMPLE sample = BASS_SampleLoad(true, sound_data.data(), 0, sound_data.size(), max_channels_, BASS_SAMPLE_OVER_POS );
+        if ( sample == 0 ) {
             state_->dbg().error("AUDIO: Failed to load sound sample, code (%0)", std::to_string(BASS_ErrorGetCode()));
             return nullptr;
         }
         return std::make_shared<sound_stream>(
-                std::make_unique<sound_stream::internal_state>(state_->dbg(), sample));
+                std::make_unique<sound_stream::internal_state>(state_->dbg(), sample, nullptr));
     }
 
-    sound_stream_ptr audio::create_stream(
+    sound_stream_ptr audio::preload_stream(
         const input_stream_uptr& file_stream) {
+        if ( !initialized_ ) {
+            state_->dbg().error("AUDIO: Not initialized");
+            return nullptr;
+        }
         buffer file_data;
-        if (!streams::try_read_tail(file_data, file_stream)) {
+        if ( !streams::try_read_tail(file_data, file_stream) ) {
             state_->dbg().error("AUDIO: Failed to read file");
             return nullptr;
         }
-        return create_stream(buffer_view(file_data));
+        return preload_stream(buffer_view(file_data));
+    }
+
+    sound_stream_ptr audio::create_stream(
+        input_stream_uptr file_stream) {
+        if ( !initialized_ ) {
+            state_->dbg().error("AUDIO: Not initialized");
+            return nullptr;
+        }
+        if ( !file_stream ) {
+            state_->dbg().error("AUDIO: file stream is null");
+            return nullptr;
+        }
+        BASS_FILEPROCS procs;
+        procs.close = &sound_stream_close_proc;
+        procs.length = &sound_stream_length_proc;
+        procs.read = &sound_stream_read_proc;
+        procs.seek = &sound_stream_seek_proc;
+        HSTREAM stream = BASS_StreamCreateFileUser(STREAMFILE_NOBUFFER, 0, &procs, file_stream.get());
+        if ( stream == 0 ) {
+            state_->dbg().error("AUDIO: Failed to create sound stream, code (%0)", std::to_string(BASS_ErrorGetCode()));
+            return nullptr;
+        }
+        return std::make_shared<sound_stream>(
+                std::make_unique<sound_stream::internal_state>(state_->dbg(), stream, std::move(file_stream)));
     }
 
     sound_source_ptr audio::create_source(
         const sound_stream_ptr &stream) {
-        if (!stream) {
+        if ( !initialized_ ) {
+            state_->dbg().error("AUDIO: Not initialized");
+            return nullptr;
+        }
+        if ( !stream ) {
             state_->dbg().error("AUDIO: stream is null");
             return nullptr;
         }
-        HCHANNEL channel = BASS_SampleGetChannel(stream->state().sound(), false);
-        if (!channel) {
-            state_->dbg().error("AUDIO: can net retruve sound channel");
+        HCHANNEL channel = 0;
+        if ( stream->state().stream() )
+            channel = stream->state().sound();
+        else
+            channel = BASS_SampleGetChannel(stream->state().sound(), false);
+            
+        if ( !channel ) {
+            state_->dbg().error("AUDIO: can net retrive sound channel");
             return nullptr;
         }
         return std::make_shared<sound_source>(
-                std::make_unique<sound_source::internal_state>(state_->dbg(), channel));
+                std::make_unique<sound_source::internal_state>(state_->dbg(), stream, channel));
+    }
+
+    bool audio::initialized() const noexcept {
+        return initialized_;
     }
 
     void audio::volume(f32 value) noexcept {
@@ -167,11 +238,19 @@ namespace e2d
     }
 
     void audio::resume() noexcept {
+        if ( !initialized_ ) {
+            state_->dbg().error("AUDIO: Not initialized");
+            return;
+        }
         if ( !BASS_Start() )
             state_->dbg().error("AUDIO: Failed to resume audio output");
     }
 
     void audio::pause() noexcept {
+        if ( !initialized_ ) {
+            state_->dbg().error("AUDIO: Not initialized");
+            return;
+        }
         if ( !BASS_Pause() )
             state_->dbg().error("AUDIO: Failed to resume audio output");
     }

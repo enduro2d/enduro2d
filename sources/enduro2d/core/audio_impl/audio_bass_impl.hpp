@@ -16,14 +16,17 @@ namespace e2d
     public:
         internal_state(
             debug& debug,
-            HSAMPLE sound);
-        ~internal_state() noexcept = default;
+            DWORD sound,
+            input_stream_uptr stream);
+        ~internal_state() noexcept;
     public:
-        debug& dbg() const noexcept;
-        HSAMPLE sound() const noexcept;
+        [[nodiscard]] debug& dbg() const noexcept;
+        [[nodiscard]] DWORD sound() const noexcept;
+        [[nodiscard]] const input_stream_uptr& stream() const noexcept;
     private:
         debug& debug_;
-        HSAMPLE sound_;
+        DWORD sound_;
+        input_stream_uptr stream_;
     };
 
     //
@@ -34,14 +37,16 @@ namespace e2d
     public:
         internal_state(
             debug& debug,
+            const sound_stream_ptr& stream,
             HCHANNEL channel);
         ~internal_state() noexcept = default;
     public:
-        debug& dbg() const noexcept;
-        HCHANNEL channel() const noexcept;
+        [[nodiscard]] debug& dbg() const noexcept;
+        [[nodiscard]] HCHANNEL channel() const noexcept;
     private:
         debug& debug_;
         HCHANNEL channel_;
+        sound_stream_ptr stream_;
     };
 
     //
@@ -53,7 +58,7 @@ namespace e2d
         internal_state(debug& debug);
         ~internal_state() noexcept = default;
     public:
-        debug& dbg() const noexcept;
+        [[nodiscard]] debug& dbg() const noexcept;
     private:
         debug& debug_;
     };

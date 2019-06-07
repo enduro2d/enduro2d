@@ -430,6 +430,7 @@ namespace e2d
 
     engine::~engine() noexcept {
         modules::shutdown<dbgui>();
+        modules::shutdown<audio>();
         modules::shutdown<render>();
         modules::shutdown<window>();
         modules::shutdown<input>();

@@ -12,10 +12,19 @@ namespace e2d
 
     sound_stream::internal_state::internal_state(
         debug& debug,
-        HSAMPLE sound)
+        DWORD sound,
+        input_stream_uptr stream)
     : debug_(debug)
-    , sound_(sound){
+    , sound_(sound)
+    , stream_(std::move(stream)){
         E2D_ASSERT(sound);
+    }
+
+    sound_stream::internal_state::~internal_state() noexcept {
+        if ( stream_ )
+            BASS_StreamFree(sound_);
+        else
+            BASS_SampleFree(sound_);
     }
 
     debug& sound_stream::internal_state::dbg() const noexcept {
@@ -26,15 +35,21 @@ namespace e2d
         return sound_;
     }
 
+    const input_stream_uptr& sound_stream::internal_state::stream() const noexcept {
+        return stream_;
+    }
+    
     //
     // sound_source::internal_state
     //
 
     sound_source::internal_state::internal_state(
         debug& debug,
+        const sound_stream_ptr& stream,
         HCHANNEL channel)
     : debug_(debug)
-    , channel_(channel) {
+    , channel_(channel)
+    , stream_(stream) {
         E2D_ASSERT(channel);
     }
 

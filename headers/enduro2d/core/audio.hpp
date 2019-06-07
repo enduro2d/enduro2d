@@ -49,6 +49,7 @@ namespace e2d
         void play() noexcept;
         void stop() noexcept;
         void pause() noexcept;
+        [[nodiscard]] bool playing() const noexcept;
 
         void looping(bool value) noexcept;
         [[nodiscard]] bool looping() noexcept;
@@ -82,19 +83,26 @@ namespace e2d
         void volume(f32 value) noexcept;
         [[nodiscard]] f32 volume() const noexcept;
 
-        sound_stream_ptr create_stream(
+        // preloaded sound supports multiple sources
+        [[nodiscard]] sound_stream_ptr preload_stream(
             buffer_view sound_data);
 
-        sound_stream_ptr create_stream(
+        [[nodiscard]] sound_stream_ptr preload_stream(
             const input_stream_uptr& file_stream);
 
-        sound_source_ptr create_source(
+        // stream supports only one source
+        [[nodiscard]] sound_stream_ptr create_stream(
+            input_stream_uptr file_stream);
+
+        [[nodiscard]] sound_source_ptr create_source(
             const sound_stream_ptr &stream);
+
+        [[nodiscard]] bool initialized() const noexcept;
 
         void resume() noexcept;
         void pause() noexcept;
 
-        // Applies changes made to the 3D system.
+        // applies changes made to the 3D system.
         void apply3d() noexcept;
 
         void listener_position(const v3f& value) noexcept;
@@ -106,6 +114,8 @@ namespace e2d
     private:
         class internal_state;
         std::unique_ptr<internal_state> state_;
+        bool initialized_ {false};
+        static constexpr u32 max_channels_ = 4;
     };
 
 }
