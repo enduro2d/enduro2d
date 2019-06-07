@@ -155,12 +155,15 @@ target_compile_definitions(${PROJECT_NAME}
 #
 
 if (${CMAKE_SYSTEM_NAME} STREQUAL "iOS")
-	link_directories( "sources/3rdparty/bass/ios" )
-	target_link_libraries(${PROJECT_NAME} PUBLIC "bass")
+    link_directories( "sources/3rdparty/bass/ios" )
+    target_link_libraries(${PROJECT_NAME} PUBLIC "bass")
 endif()
 if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
-	link_directories( "sources/3rdparty/bass/mac" )
-	target_link_libraries(${PROJECT_NAME} PUBLIC "bass.dylib")
+    link_directories( "sources/3rdparty/bass/mac" )
+    target_link_libraries(${PROJECT_NAME} PUBLIC "bass.dylib")
+    add_custom_target(CopyBassLibs
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/sources/3rdparty/bass/mac/$<CONFIG>/libbass.dylib" "${CMAKE_BINARY_DIR}/lib/$<CONFIG>/libbass.dylib")
+    add_dependencies(${PROJECT_NAME} CopyBassLibs)
 endif()
 
 
