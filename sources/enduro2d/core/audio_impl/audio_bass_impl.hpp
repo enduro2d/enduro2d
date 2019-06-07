@@ -7,11 +7,11 @@
 
 namespace e2d
 {
-    
+
     //
     // sound_stream::internal_state
     //
-    
+
     class sound_stream::internal_state final : private e2d::noncopyable {
     public:
         internal_state(
@@ -25,11 +25,11 @@ namespace e2d
         debug& debug_;
         HSAMPLE sound_;
     };
-        
+
     //
     // sound_source::internal_state
     //
-    
+
     class sound_source::internal_state final : private e2d::noncopyable {
     public:
         internal_state(
@@ -43,11 +43,11 @@ namespace e2d
         debug& debug_;
         HCHANNEL channel_;
     };
-    
+
     //
     // audio::internal_state
     //
-    
+
     class audio::internal_state final : private e2d::noncopyable {
     public:
         internal_state(debug& debug);
@@ -57,7 +57,7 @@ namespace e2d
     private:
         debug& debug_;
     };
-    
+
 }
 
 #endif

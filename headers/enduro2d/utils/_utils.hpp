@@ -66,6 +66,8 @@ namespace e2d
     using milliseconds = unit<T, milliseconds_tag>;
     template < typename T >
     using microseconds = unit<T, microseconds_tag>;
+    
+    using secf = seconds<f32>;
 }
 
 namespace e2d
