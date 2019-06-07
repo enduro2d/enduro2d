@@ -31,12 +31,24 @@ namespace e2d
 
     static DWORD CALLBACK sound_stream_read_proc(void *buffer, DWORD length, void *user) {
         auto* self = static_cast<input_stream*>(user);
-        return self->read(buffer, length);
+        DWORD result;
+        try {
+            result = self->read(buffer, length);
+        } catch (...) {
+            result = DWORD(-1);
+        }
+        return result;
     }
 
     static BOOL CALLBACK sound_stream_seek_proc(QWORD offset, void *user) {
         auto* self = static_cast<input_stream*>(user);
-        return self->seek(offset, false);
+        bool result;
+        try {
+            result = self->seek(offset, false) == offset;
+        } catch(...) {
+            result = false;
+        }
+        return result;
     }
 
     //
@@ -192,7 +204,7 @@ namespace e2d
         procs.length = &sound_stream_length_proc;
         procs.read = &sound_stream_read_proc;
         procs.seek = &sound_stream_seek_proc;
-        HSTREAM stream = BASS_StreamCreateFileUser(STREAMFILE_NOBUFFER, 0, &procs, file_stream.get());
+        HSTREAM stream = BASS_StreamCreateFileUser(STREAMFILE_NOBUFFER, BASS_ASYNCFILE, &procs, file_stream.get());
         if ( stream == 0 ) {
             state_->dbg().error("AUDIO: Failed to create sound stream, code (%0)", std::to_string(BASS_ErrorGetCode()));
             return nullptr;
