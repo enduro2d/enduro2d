@@ -1,6 +1,6 @@
 #pragma once
 
-#include "audio_engine.hpp"
+#include "audio.hpp"
 #include <3rdparty/bass/bass.h>
 
 #if defined(E2D_AUDIO_MODE) && E2D_AUDIO_MODE == E2D_AUDIO_MODE_BASS
@@ -45,10 +45,10 @@ namespace e2d
     };
     
     //
-    // audio_engine::internal_state
+    // audio::internal_state
     //
     
-    class audio_engine::internal_state final : private e2d::noncopyable {
+    class audio::internal_state final : private e2d::noncopyable {
     public:
         internal_state(debug& debug);
         ~internal_state() noexcept = default;

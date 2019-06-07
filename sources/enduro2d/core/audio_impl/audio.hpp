@@ -1,6 +1,6 @@
 #pragma once
 
-#include <enduro2d/core/audio_engine.hpp>
+#include <enduro2d/core/audio.hpp>
 
 #define E2D_AUDIO_MODE_NONE 1
 #define E2D_AUDIO_MODE_FMOD 2

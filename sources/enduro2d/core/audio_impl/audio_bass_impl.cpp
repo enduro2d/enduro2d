@@ -47,14 +47,14 @@ namespace e2d
     }
     
     //
-    // audio_engine::internal_state
+    // audio::internal_state
     //
     
-    audio_engine::internal_state::internal_state(debug& debug)
+    audio::internal_state::internal_state(debug& debug)
     : debug_(debug) {
     }
     
-    debug& audio_engine::internal_state::dbg() const noexcept {
+    debug& audio::internal_state::dbg() const noexcept {
         return debug_;
     }
 }

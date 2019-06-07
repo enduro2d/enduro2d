@@ -103,10 +103,10 @@ namespace e2d
     }
     
     //
-    // audio_engine
+    // audio
     //
     
-    audio_engine::audio_engine(debug& d)
+    audio::audio(debug& d)
     : state_(std::make_unique<internal_state>(d)) {
         if ( !BASS_Init(-1, 44100, BASS_DEVICE_3D, nullptr, nullptr) ) {
             state_->dbg().error("AUDIO: Initialization failed");
@@ -114,11 +114,11 @@ namespace e2d
         }
     }
     
-    audio_engine::~audio_engine() noexcept {
+    audio::~audio() noexcept {
         BASS_Free();
     }
     
-    sound_stream_ptr audio_engine::create_stream(
+    sound_stream_ptr audio::create_stream(
         buffer_view sound_data) {
         if (sound_data.empty()) {
             state_->dbg().error("AUDIO: Sound data is empty");
@@ -133,7 +133,7 @@ namespace e2d
                 std::make_unique<sound_stream::internal_state>(state_->dbg(), sample));
     }
     
-    sound_stream_ptr audio_engine::create_stream(
+    sound_stream_ptr audio::create_stream(
         const input_stream_uptr& file_stream) {
         buffer file_data;
         if (!streams::try_read_tail(file_data, file_stream)) {
@@ -143,7 +143,7 @@ namespace e2d
         return create_stream(buffer_view(file_data));
     }
     
-    sound_source_ptr audio_engine::create_source(
+    sound_source_ptr audio::create_source(
         const sound_stream_ptr &stream) {
         if (!stream) {
             state_->dbg().error("AUDIO: stream is null");
@@ -158,47 +158,47 @@ namespace e2d
                 std::make_unique<sound_source::internal_state>(state_->dbg(), channel));
     }
     
-    void audio_engine::volume(float value) noexcept {
+    void audio::volume(float value) noexcept {
         BASS_SetVolume(value);
     }
     
-    float audio_engine::volume() const noexcept {
+    float audio::volume() const noexcept {
         return BASS_GetVolume();
     }
     
-    void audio_engine::resume() noexcept {
+    void audio::resume() noexcept {
         if ( !BASS_Start() )
             state_->dbg().error("AUDIO: Failed to resume audio output");
     }
     
-    void audio_engine::pause() noexcept {
+    void audio::pause() noexcept {
         if ( !BASS_Pause() )
             state_->dbg().error("AUDIO: Failed to resume audio output");
     }
     
-    void audio_engine::listener_position(const v3f &value) noexcept {
+    void audio::listener_position(const v3f &value) noexcept {
         BASS_3DVECTOR pos = {value.x, value.y, value.z};
         BASS_Set3DPosition(&pos, nullptr, nullptr, nullptr);
     }
     
-    v3f audio_engine::listener_position() const noexcept {
+    v3f audio::listener_position() const noexcept {
         BASS_3DVECTOR pos = {};
         BASS_Get3DPosition(&pos, nullptr, nullptr, nullptr);
         return v3f{pos.x, pos.y, pos.z};
     }
     
-    void audio_engine::listener_velocity(const v3f &value) noexcept {
+    void audio::listener_velocity(const v3f &value) noexcept {
         BASS_3DVECTOR vel = {value.x, value.y, value.z};
         BASS_Set3DPosition(nullptr, &vel, nullptr, nullptr);
     }
     
-    v3f audio_engine::listener_velocity() const noexcept {
+    v3f audio::listener_velocity() const noexcept {
         BASS_3DVECTOR vel = {};
         BASS_Get3DPosition(nullptr, &vel, nullptr, nullptr);
         return v3f{vel.x, vel.y, vel.z};
     }
     
-    void audio_engine::apply3d() noexcept {
+    void audio::apply3d() noexcept {
         BASS_Apply3D();
     }
 }

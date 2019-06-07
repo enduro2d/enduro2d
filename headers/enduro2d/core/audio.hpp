@@ -71,13 +71,13 @@ namespace e2d
     };
     
     //
-    // audio_engine
+    // audio
     //
     
-    class audio_engine final : public module<audio_engine> {
+    class audio final : public module<audio> {
     public:
-        audio_engine(debug& d);
-        ~audio_engine() noexcept;
+        audio(debug& d);
+        ~audio() noexcept;
         
         void volume(float value) noexcept;
         [[nodiscard]] float volume() const noexcept;

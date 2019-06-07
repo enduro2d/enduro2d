@@ -14,7 +14,7 @@
 #include <enduro2d/core/render.hpp>
 #include <enduro2d/core/vfs.hpp>
 #include <enduro2d/core/window.hpp>
-#include <enduro2d/core/audio_engine.hpp>
+#include <enduro2d/core/audio.hpp>
 
 namespace
 {
@@ -423,7 +423,7 @@ namespace e2d
         
         if ( !params.without_sound() )
         {
-            safe_module_initialize<audio_engine>(
+            safe_module_initialize<audio>(
                 the<debug>());
         }
     }
