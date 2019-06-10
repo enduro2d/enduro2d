@@ -10,7 +10,6 @@
 
 namespace e2d
 {
-
     //
     // sound_stream::internal_state
     //
@@ -26,10 +25,11 @@ namespace e2d
     }
 
     sound_stream::internal_state::~internal_state() noexcept {
-        if ( stream_ )
+        if ( stream_ ) {
             BASS_StreamFree(sound_);
-        else
+        } else {
             BASS_SampleFree(sound_);
+        }
     }
 
     debug& sound_stream::internal_state::dbg() const noexcept {
@@ -72,10 +72,26 @@ namespace e2d
 
     audio::internal_state::internal_state(debug& debug)
     : debug_(debug) {
+        if ( !BASS_Init(-1, 44100, 0, nullptr, nullptr) ) {
+            debug_.error("AUDIO: Initialization failed");
+            return;
+        }
+        initialized_ = true;
+        BASS_SetConfig(BASS_CONFIG_UPDATETHREADS, 1);
+    }
+
+    audio::internal_state::~internal_state() noexcept {
+        if ( initialized_ ) {
+            BASS_Free();
+        }
     }
 
     debug& audio::internal_state::dbg() const noexcept {
         return debug_;
+    }
+
+    bool audio::internal_state::initialized() const noexcept {
+        return initialized_;
     }
 }
 

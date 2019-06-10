@@ -1,4 +1,3 @@
-
 /*******************************************************************************
  * This file is part of the "Enduro2D"
  * For conditions of distribution and use, see copyright notice in LICENSE.md
@@ -6,14 +5,44 @@
  ******************************************************************************/
 
 #include "audio_bass_impl.hpp"
-#include "enduro2d/core/debug.hpp"
-#include <3rdparty/bass/bass.h>
 
 #if defined(E2D_AUDIO_MODE) && E2D_AUDIO_MODE == E2D_AUDIO_MODE_BASS
 
+namespace
+{
+    using namespace e2d;
+
+    u32 max_sound_channels = 4;
+
+    void sound_stream_close_proc(void*) noexcept {
+    }
+
+    QWORD sound_stream_length_proc(void* user) noexcept {
+        auto* self = static_cast<input_stream*>(user);
+        return self->length();
+    }
+
+    DWORD sound_stream_read_proc(void* buffer, DWORD length, void* user) noexcept {
+        auto* self = static_cast<input_stream*>(user);
+        try {
+            return self->read(buffer, length);
+        } catch (...) {
+            return -1;
+        }
+    }
+
+    BOOL sound_stream_seek_proc(QWORD offset, void* user) noexcept {
+        auto* self = static_cast<input_stream*>(user);
+        try {
+            return offset == self->seek(offset, false);
+        } catch(...) {
+            return false;
+        }
+    }
+}
+
 namespace e2d
 {
-
     //
     // sound_stream
     //
@@ -25,36 +54,6 @@ namespace e2d
 
     const sound_stream::internal_state& sound_stream::state() const noexcept {
         return *state_;
-    }
-
-    static void CALLBACK sound_stream_close_proc(void *) {
-    }
-
-    static QWORD CALLBACK sound_stream_length_proc(void *user) {
-        auto* self = static_cast<input_stream*>(user);
-        return self->length();
-    }
-
-    static DWORD CALLBACK sound_stream_read_proc(void *buffer, DWORD length, void *user) {
-        auto* self = static_cast<input_stream*>(user);
-        DWORD result;
-        try {
-            result = self->read(buffer, length);
-        } catch (...) {
-            result = DWORD(-1);
-        }
-        return result;
-    }
-
-    static BOOL CALLBACK sound_stream_seek_proc(QWORD offset, void *user) {
-        auto* self = static_cast<input_stream*>(user);
-        bool result;
-        try {
-            result = self->seek(offset, false) == offset;
-        } catch(...) {
-            result = false;
-        }
-        return result;
     }
 
     //
@@ -71,8 +70,9 @@ namespace e2d
     }
 
     void sound_source::play() noexcept {
-        if ( !BASS_ChannelPlay(state().channel(), false) )
+        if ( !BASS_ChannelPlay(state().channel(), TRUE) ) {
             state_->dbg().error("AUDIO: Failed to play sound");
+        }
     }
 
     void sound_source::stop() noexcept {
@@ -81,6 +81,12 @@ namespace e2d
 
     void sound_source::pause() noexcept {
         BASS_ChannelPause(state().channel());
+    }
+
+    void sound_source::resume() noexcept {
+        if ( !BASS_ChannelPlay(state().channel(), FALSE) ) {
+            state_->dbg().error("AUDIO: Failed to resume sound");
+        }
     }
 
     bool sound_source::playing() const noexcept {
@@ -92,7 +98,9 @@ namespace e2d
     }
 
     bool sound_source::looping() noexcept {
-        return math::check_all_flags(BASS_ChannelFlags(state().channel(), 0, 0), BASS_SAMPLE_LOOP);
+        return math::check_all_flags(
+            BASS_ChannelFlags(state().channel(), 0, 0),
+            static_cast<DWORD>(BASS_SAMPLE_LOOP));
     }
 
     void sound_source::volume(f32 value) noexcept {
@@ -106,40 +114,18 @@ namespace e2d
     }
 
     void sound_source::position(secf pos) noexcept {
-        auto byte_pos = BASS_ChannelSeconds2Bytes(state().channel(), pos.value);
+        QWORD byte_pos = BASS_ChannelSeconds2Bytes(state().channel(), pos.value);
         BASS_ChannelSetPosition(state().channel(), byte_pos, BASS_POS_BYTE);
     }
 
     secf sound_source::position() const noexcept {
-        auto byte_pos = BASS_ChannelGetPosition(state().channel(), BASS_POS_BYTE);
+        QWORD byte_pos = BASS_ChannelGetPosition(state().channel(), BASS_POS_BYTE);
         return secf{f32(BASS_ChannelBytes2Seconds(state().channel(), byte_pos))};
     }
 
     secf sound_source::duration() const noexcept {
-        auto byte_len = BASS_ChannelGetLength(state().channel(), BASS_POS_BYTE);
+        QWORD byte_len = BASS_ChannelGetLength(state().channel(), BASS_POS_BYTE);
         return secf{f32(BASS_ChannelBytes2Seconds(state().channel(), byte_len))};
-    }
-
-    void sound_source::position3d(const v3f& value) noexcept {
-        BASS_3DVECTOR pos = {value.x, value.y, value.z};
-        BASS_ChannelGet3DPosition(state().channel(), &pos, nullptr, nullptr);
-    }
-
-    v3f sound_source::position3d() const noexcept {
-        BASS_3DVECTOR pos = {};
-        BASS_ChannelSet3DPosition(state().channel(), &pos, nullptr, nullptr);
-        return v3f(pos.x, pos.y, pos.z);
-    }
-
-    void sound_source::velocity(const v3f& value) noexcept {
-        BASS_3DVECTOR vel = {value.x, value.y, value.z};
-        BASS_ChannelGet3DPosition(state().channel(), nullptr, nullptr, &vel);
-    }
-
-    v3f sound_source::velocity() const noexcept {
-        BASS_3DVECTOR vel = {};
-        BASS_ChannelSet3DPosition(state().channel(), nullptr, nullptr, &vel);
-        return v3f(vel.x, vel.y, vel.z);
     }
 
     //
@@ -147,104 +133,127 @@ namespace e2d
     //
 
     audio::audio(debug& d)
-    : state_(std::make_unique<internal_state>(d)) {
-        if ( !BASS_Init(-1, 44100, BASS_DEVICE_3D, nullptr, nullptr) ) {
-            state_->dbg().error("AUDIO: Initialization failed");
-            return;
-        }
-        initialized_ = true;
-        // uaw one additional thread for streaming
-        BASS_SetConfig(BASS_CONFIG_UPDATETHREADS, 1);
-
-    }
+    : state_(std::make_unique<internal_state>(d)) {}
 
     audio::~audio() noexcept {
-        BASS_Free();
     }
 
     sound_stream_ptr audio::preload_stream(
-        buffer_view sound_data) {
-        if ( !initialized_ ) {
+        buffer_view sound_data)
+    {
+        if ( !state_->initialized() ) {
             state_->dbg().error("AUDIO: Not initialized");
             return nullptr;
         }
+
         if ( sound_data.empty() ) {
             state_->dbg().error("AUDIO: Sound data is empty");
             return nullptr;
         }
-        HSAMPLE sample = BASS_SampleLoad(true, sound_data.data(), 0, sound_data.size(), max_channels_, BASS_SAMPLE_OVER_POS);
+
+        HSAMPLE sample = BASS_SampleLoad(
+            TRUE,
+            sound_data.data(),
+            0,
+            sound_data.size(),
+            max_sound_channels,
+            BASS_SAMPLE_OVER_POS);
+
         if ( sample == 0 ) {
-            state_->dbg().error("AUDIO: Failed to load sound sample, code (%0)", BASS_ErrorGetCode());
+            state_->dbg().error(
+                "AUDIO: Failed to load sound sample, code (%0)",
+                BASS_ErrorGetCode());
             return nullptr;
         }
+
         return std::make_shared<sound_stream>(
-                std::make_unique<sound_stream::internal_state>(state_->dbg(), sample, nullptr));
+            std::make_unique<sound_stream::internal_state>(
+                state_->dbg(), sample, nullptr));
     }
 
     sound_stream_ptr audio::preload_stream(
-        const input_stream_uptr& file_stream) {
-        if ( !initialized_ ) {
+        const input_stream_uptr& file_stream)
+    {
+        if ( !state_->initialized() ) {
             state_->dbg().error("AUDIO: Not initialized");
             return nullptr;
         }
+
         buffer file_data;
         if ( !streams::try_read_tail(file_data, file_stream) ) {
             state_->dbg().error("AUDIO: Failed to read file");
             return nullptr;
         }
+
         return preload_stream(buffer_view(file_data));
     }
 
     sound_stream_ptr audio::create_stream(
-        input_stream_uptr file_stream) {
-        if ( !initialized_ ) {
+        input_stream_uptr file_stream)
+    {
+        if ( !state_->initialized() ) {
             state_->dbg().error("AUDIO: Not initialized");
             return nullptr;
         }
+
         if ( !file_stream ) {
             state_->dbg().error("AUDIO: file stream is null");
             return nullptr;
         }
-        BASS_FILEPROCS procs;
-        procs.close = &sound_stream_close_proc;
-        procs.length = &sound_stream_length_proc;
-        procs.read = &sound_stream_read_proc;
-        procs.seek = &sound_stream_seek_proc;
-        HSTREAM stream = BASS_StreamCreateFileUser(STREAMFILE_NOBUFFER, BASS_ASYNCFILE, &procs, file_stream.get());
+
+        BASS_FILEPROCS file_procs = {
+            sound_stream_close_proc,
+            sound_stream_length_proc,
+            sound_stream_read_proc,
+            sound_stream_seek_proc};
+
+        HSTREAM stream = BASS_StreamCreateFileUser(
+            STREAMFILE_NOBUFFER,
+            BASS_ASYNCFILE,
+            &file_procs,
+            file_stream.get());
+
         if ( stream == 0 ) {
-            state_->dbg().error("AUDIO: Failed to create sound stream, code (%0)", std::to_string(BASS_ErrorGetCode()));
+            state_->dbg().error(
+                "AUDIO: Failed to create sound stream, code (%0)",
+                BASS_ErrorGetCode());
             return nullptr;
         }
+
         return std::make_shared<sound_stream>(
-                std::make_unique<sound_stream::internal_state>(state_->dbg(), stream, std::move(file_stream)));
+            std::make_unique<sound_stream::internal_state>(
+                state_->dbg(), stream, std::move(file_stream)));
     }
 
     sound_source_ptr audio::create_source(
-        const sound_stream_ptr &stream) {
-        if ( !initialized_ ) {
+        const sound_stream_ptr& stream)
+    {
+        if ( !state_->initialized() ) {
             state_->dbg().error("AUDIO: Not initialized");
             return nullptr;
         }
+
         if ( !stream ) {
             state_->dbg().error("AUDIO: stream is null");
             return nullptr;
         }
-        HCHANNEL channel = 0;
-        if ( stream->state().stream() )
-            channel = stream->state().sound(); // sound stream has only one channel
-        else
-            channel = BASS_SampleGetChannel(stream->state().sound(), false);
+
+        HCHANNEL channel = stream->state().stream()
+            ? channel = stream->state().sound()
+            : BASS_SampleGetChannel(stream->state().sound(), FALSE);
             
         if ( !channel ) {
             state_->dbg().error("AUDIO: can net retrive sound channel");
             return nullptr;
         }
+
         return std::make_shared<sound_source>(
-                std::make_unique<sound_source::internal_state>(state_->dbg(), stream, channel));
+            std::make_unique<sound_source::internal_state>(
+                state_->dbg(), stream, channel));
     }
 
     bool audio::initialized() const noexcept {
-        return initialized_;
+        return state_->initialized();
     }
 
     void audio::volume(f32 value) noexcept {
@@ -256,47 +265,25 @@ namespace e2d
     }
 
     void audio::resume() noexcept {
-        if ( !initialized_ ) {
+        if ( !state_->initialized() ) {
             state_->dbg().error("AUDIO: Not initialized");
             return;
         }
-        if ( !BASS_Start() )
+
+        if ( !BASS_Start() ) {
             state_->dbg().error("AUDIO: Failed to resume audio output");
+        }
     }
 
     void audio::pause() noexcept {
-        if ( !initialized_ ) {
+        if ( !state_->initialized() ) {
             state_->dbg().error("AUDIO: Not initialized");
             return;
         }
-        if ( !BASS_Pause() )
+
+        if ( !BASS_Pause() ) {
             state_->dbg().error("AUDIO: Failed to resume audio output");
-    }
-
-    void audio::listener_position(const v3f &value) noexcept {
-        BASS_3DVECTOR pos = {value.x, value.y, value.z};
-        BASS_Set3DPosition(&pos, nullptr, nullptr, nullptr);
-    }
-
-    v3f audio::listener_position() const noexcept {
-        BASS_3DVECTOR pos = {};
-        BASS_Get3DPosition(&pos, nullptr, nullptr, nullptr);
-        return v3f{pos.x, pos.y, pos.z};
-    }
-
-    void audio::listener_velocity(const v3f &value) noexcept {
-        BASS_3DVECTOR vel = {value.x, value.y, value.z};
-        BASS_Set3DPosition(nullptr, &vel, nullptr, nullptr);
-    }
-
-    v3f audio::listener_velocity() const noexcept {
-        BASS_3DVECTOR vel = {};
-        BASS_Get3DPosition(nullptr, &vel, nullptr, nullptr);
-        return v3f{vel.x, vel.y, vel.z};
-    }
-
-    void audio::apply3d() noexcept {
-        BASS_Apply3D();
+        }
     }
 }
 

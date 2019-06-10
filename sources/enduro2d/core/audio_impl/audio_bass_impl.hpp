@@ -7,13 +7,21 @@
 #pragma once
 
 #include "audio.hpp"
-#include <3rdparty/bass/bass.h>
 
 #if defined(E2D_AUDIO_MODE) && E2D_AUDIO_MODE == E2D_AUDIO_MODE_BASS
 
+#if defined(E2D_PLATFORM)
+#  if E2D_PLATFORM == E2D_PLATFORM_LINUX
+#    include <3rdparty/bass/linux/bass.h>
+#  elif E2D_PLATFORM == E2D_PLATFORM_MACOSX
+#    include <3rdparty/bass/macosx/bass.h>
+#  elif E2D_PLATFORM == E2D_PLATFORM_WINDOWS
+#    include <3rdparty/bass/windows/bass.h>
+#  endif
+#endif
+
 namespace e2d
 {
-
     //
     // sound_stream::internal_state
     //
@@ -62,13 +70,14 @@ namespace e2d
     class audio::internal_state final : private e2d::noncopyable {
     public:
         internal_state(debug& debug);
-        ~internal_state() noexcept = default;
+        ~internal_state() noexcept;
     public:
         [[nodiscard]] debug& dbg() const noexcept;
+        [[nodiscard]] bool initialized() const noexcept;
     private:
         debug& debug_;
+        bool initialized_{false};
     };
-
 }
 
 #endif

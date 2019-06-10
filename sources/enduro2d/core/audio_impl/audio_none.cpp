@@ -10,7 +10,6 @@
 
 namespace e2d
 {
-
     //
     // sound_stream::internal_state
     //
@@ -76,6 +75,10 @@ namespace e2d
     void sound_source::pause() noexcept {
     }
 
+    bool sound_source::playing() const noexcept {
+        return false;
+    }
+
     void sound_source::looping(bool value) noexcept {
         E2D_UNUSED(value);
     }
@@ -92,8 +95,8 @@ namespace e2d
         return 1.0f;
     }
 
-    void sound_source::position(secf pos) noexcept {
-        E2D_UNUSED(pos);
+    void sound_source::position(secf value) noexcept {
+        E2D_UNUSED(value);
     }
 
     secf sound_source::position() const noexcept {
@@ -101,22 +104,6 @@ namespace e2d
     }
 
     secf sound_source::duration() const noexcept {
-        return {};
-    }
-
-    void sound_source::position3d(const v3f &value) noexcept {
-        E2D_UNUSED(value);
-    }
-
-    v3f sound_source::position3d() const noexcept {
-        return {};
-    }
-
-    void sound_source::velocity(const v3f &value) noexcept {
-        E2D_UNUSED(value);
-    }
-
-    v3f sound_source::velocity() const noexcept {
         return {};
     }
 
@@ -133,25 +120,29 @@ namespace e2d
     }
 
     sound_stream_ptr audio::preload_stream(
-        buffer_view sound_data) {
+        buffer_view sound_data)
+    {
         E2D_UNUSED(sound_data);
         return nullptr;
     }
 
     sound_stream_ptr audio::preload_stream(
-        const input_stream_uptr& file_stream) {
+        const input_stream_uptr& file_stream)
+    {
         E2D_UNUSED(file_stream);
         return nullptr;
     }
 
     sound_stream_ptr audio::create_stream(
-        input_stream_uptr file_stream) {
+        input_stream_uptr file_stream)
+    {
         E2D_UNUSED(file_stream);
         return nullptr;
     }
 
     sound_source_ptr audio::create_source(
-        const sound_stream_ptr &stream) {
+        const sound_stream_ptr& stream)
+    {
         E2D_UNUSED(stream);
         return nullptr;
     }
@@ -172,25 +163,6 @@ namespace e2d
     }
 
     void audio::pause() noexcept {
-    }
-
-    void audio::listener_position(const v3f &value) noexcept {
-        E2D_UNUSED(value);
-    }
-
-    v3f audio::listener_position() const noexcept {
-        return {};
-    }
-
-    void audio::listener_velocity(const v3f &value) noexcept {
-        E2D_UNUSED(value);
-    }
-
-    v3f audio::listener_velocity() const noexcept {
-        return {};
-    }
-
-    void audio::apply3d() noexcept {
     }
 }
 

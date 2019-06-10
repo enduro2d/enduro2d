@@ -25,6 +25,9 @@ namespace e2d
         using namespace scheduler_hpp;
     }
 
+    class audio;
+    class sound_stream;
+    class sound_source;
     class dbgui;
     class debug;
     class deferrer;
