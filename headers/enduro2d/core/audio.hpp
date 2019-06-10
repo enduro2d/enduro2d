@@ -93,7 +93,7 @@ namespace e2d
             input_stream_uptr file_stream);
 
         [[nodiscard]] sound_source_ptr create_source(
-            const sound_stream_ptr &stream);
+            const sound_stream_ptr& stream);
 
         [[nodiscard]] bool initialized() const noexcept;
 
