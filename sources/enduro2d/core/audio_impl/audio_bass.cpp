@@ -1,4 +1,10 @@
 
+/*******************************************************************************
+ * This file is part of the "Enduro2D"
+ * For conditions of distribution and use, see copyright notice in LICENSE.md
+ * Copyright (C) 2018-2019, by Matvey Cherevko (blackmatov@gmail.com)
+ ******************************************************************************/
+
 #include "audio_bass_impl.hpp"
 #include "enduro2d/core/debug.hpp"
 #include <3rdparty/bass/bass.h>
@@ -166,9 +172,9 @@ namespace e2d
             state_->dbg().error("AUDIO: Sound data is empty");
             return nullptr;
         }
-        HSAMPLE sample = BASS_SampleLoad(true, sound_data.data(), 0, sound_data.size(), max_channels_, BASS_SAMPLE_OVER_POS );
+        HSAMPLE sample = BASS_SampleLoad(true, sound_data.data(), 0, sound_data.size(), max_channels_, BASS_SAMPLE_OVER_POS);
         if ( sample == 0 ) {
-            state_->dbg().error("AUDIO: Failed to load sound sample, code (%0)", std::to_string(BASS_ErrorGetCode()));
+            state_->dbg().error("AUDIO: Failed to load sound sample, code (%0)", BASS_ErrorGetCode());
             return nullptr;
         }
         return std::make_shared<sound_stream>(
@@ -225,7 +231,7 @@ namespace e2d
         }
         HCHANNEL channel = 0;
         if ( stream->state().stream() )
-            channel = stream->state().sound();
+            channel = stream->state().sound(); // sound stream has only one channel
         else
             channel = BASS_SampleGetChannel(stream->state().sound(), false);
             
