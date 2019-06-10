@@ -14,27 +14,30 @@ namespace
 
     u32 max_sound_channels = 4;
 
-    void sound_stream_close_proc(void*) noexcept {
+    void CALLBACK sound_stream_close_proc(void* user) noexcept {
+        E2D_UNUSED(user);
     }
 
-    QWORD sound_stream_length_proc(void* user) noexcept {
+    QWORD CALLBACK sound_stream_length_proc(void* user) noexcept {
         auto* self = static_cast<input_stream*>(user);
-        return self->length();
+        return math::numeric_cast<QWORD>(self->length());
     }
 
-    DWORD sound_stream_read_proc(void* buffer, DWORD length, void* user) noexcept {
+    DWORD CALLBACK sound_stream_read_proc(void* buffer, DWORD length, void* user) noexcept {
         auto* self = static_cast<input_stream*>(user);
         try {
-            return self->read(buffer, length);
+            return math::numeric_cast<DWORD>(self->read(buffer, length));
         } catch (...) {
             return -1;
         }
     }
 
-    BOOL sound_stream_seek_proc(QWORD offset, void* user) noexcept {
+    BOOL CALLBACK sound_stream_seek_proc(QWORD offset, void* user) noexcept {
         auto* self = static_cast<input_stream*>(user);
         try {
-            return offset == self->seek(offset, false);
+            return offset == self->seek(
+                math::numeric_cast<std::ptrdiff_t>(offset),
+                false);
         } catch(...) {
             return false;
         }
@@ -239,7 +242,7 @@ namespace e2d
         }
 
         HCHANNEL channel = stream->state().stream()
-            ? channel = stream->state().sound()
+            ? stream->state().sound()
             : BASS_SampleGetChannel(stream->state().sound(), FALSE);
             
         if ( !channel ) {
