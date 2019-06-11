@@ -1,6 +1,12 @@
 cmake_minimum_required(VERSION 3.11 FATAL_ERROR)
 project(enduro2d)
 
+set(E2D_SYSTEM_NAME ${CMAKE_SYSTEM_NAME})
+set(E2D_ROOT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+
+message("E2D_SYSTEM_NAME: " ${E2D_SYSTEM_NAME})
+message("E2D_ROOT_DIRECTORY: " ${E2D_ROOT_DIRECTORY})
+
 #
 # linking mode
 #
@@ -107,6 +113,73 @@ set(glew-cmake_BUILD_MULTI_CONTEXT OFF CACHE BOOL "" FORCE)
 add_subdirectory(modules/glew)
 set_target_properties(libglew_static PROPERTIES FOLDER modules)
 
+if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+    if(CMAKE_SIZEOF_VOID_P EQUAL 4)
+        add_library(bass SHARED IMPORTED)
+        set_target_properties(bass PROPERTIES IMPORTED_IMPLIB
+            ${E2D_ROOT_DIRECTORY}/sources/3rdparty/bass/linux/x86/libbass.so)
+        set_target_properties(bass PROPERTIES IMPORTED_LOCATION
+            ${E2D_ROOT_DIRECTORY}/sources/3rdparty/bass/linux/x86/libbass.so)
+    elseif(CMAKE_SIZEOF_VOID_P EQUAL 8)
+        add_library(bass SHARED IMPORTED)
+        set_target_properties(bass PROPERTIES IMPORTED_IMPLIB
+            ${E2D_ROOT_DIRECTORY}/sources/3rdparty/bass/linux/x64/libbass.so)
+        set_target_properties(bass PROPERTIES IMPORTED_LOCATION
+            ${E2D_ROOT_DIRECTORY}/sources/3rdparty/bass/linux/x64/libbass.so)
+    endif()
+elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
+    add_library(bass SHARED IMPORTED)
+    set_target_properties(bass PROPERTIES IMPORTED_LOCATION
+        ${E2D_ROOT_DIRECTORY}/sources/3rdparty/bass/macosx/libbass.dylib)
+elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
+    if(CMAKE_SIZEOF_VOID_P EQUAL 4)
+        add_library(bass SHARED IMPORTED)
+        set_target_properties(bass PROPERTIES IMPORTED_IMPLIB
+            ${E2D_ROOT_DIRECTORY}/sources/3rdparty/bass/windows/x86/bass.lib)
+        set_target_properties(bass PROPERTIES IMPORTED_LOCATION
+            ${E2D_ROOT_DIRECTORY}/sources/3rdparty/bass/windows/x86/bass.dll)
+    elseif(CMAKE_SIZEOF_VOID_P EQUAL 8)
+        add_library(bass SHARED IMPORTED)
+        set_target_properties(bass PROPERTIES IMPORTED_IMPLIB
+            ${E2D_ROOT_DIRECTORY}/sources/3rdparty/bass/windows/x64/bass.lib)
+        set_target_properties(bass PROPERTIES IMPORTED_LOCATION
+            ${E2D_ROOT_DIRECTORY}/sources/3rdparty/bass/windows/x64/bass.dll)
+    endif()
+endif()
+
+function(add_e2d_shared_libraries_to_target TO)
+    if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+        if(CMAKE_SIZEOF_VOID_P EQUAL 4)
+            add_custom_command(TARGET ${TO} POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy
+                ${E2D_ROOT_DIRECTORY}/sources/3rdparty/bass/linux/x86/libbass.so
+                $<TARGET_FILE_DIR:${TO}>)
+        elseif(CMAKE_SIZEOF_VOID_P EQUAL 8)
+            add_custom_command(TARGET ${TO} POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy
+                ${E2D_ROOT_DIRECTORY}/sources/3rdparty/bass/linux/x64/libbass.so
+                $<TARGET_FILE_DIR:${TO}>)
+        endif()
+    elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
+        add_custom_command(TARGET ${TO} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy
+            ${E2D_ROOT_DIRECTORY}/sources/3rdparty/bass/macosx/libbass.dylib
+            $<TARGET_FILE_DIR:${TO}>)
+    elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
+        if(CMAKE_SIZEOF_VOID_P EQUAL 4)
+            add_custom_command(TARGET ${TO} POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy
+                ${E2D_ROOT_DIRECTORY}/sources/3rdparty/bass/windows/x86/bass.dll
+                $<TARGET_FILE_DIR:${TO}>)
+        elseif(CMAKE_SIZEOF_VOID_P EQUAL 8)
+            add_custom_command(TARGET ${TO} POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy
+                ${E2D_ROOT_DIRECTORY}/sources/3rdparty/bass/windows/x64/bass.dll
+                $<TARGET_FILE_DIR:${TO}>)
+        endif()
+    endif()
+endfunction(add_e2d_shared_libraries_to_target)
+
 #
 # e2d library target
 #
@@ -122,6 +195,7 @@ source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES
     ${E2D_3RDPARTY})
 
 target_link_libraries(${PROJECT_NAME}
+    PRIVATE bass
     PRIVATE glfw
     PRIVATE libglew_static
     PRIVATE $<$<CXX_COMPILER_ID:MSVC>:winmm.lib>)
@@ -149,23 +223,6 @@ target_compile_definitions(${PROJECT_NAME}
     $<$<CXX_COMPILER_ID:MSVC>:
         -D_CRT_SECURE_NO_WARNINGS
         -D_SCL_SECURE_NO_WARNINGS>)
-
-#
-# bass
-#
-
-if (${CMAKE_SYSTEM_NAME} STREQUAL "iOS")
-    link_directories( "sources/3rdparty/bass/ios" )
-    target_link_libraries(${PROJECT_NAME} PUBLIC "bass")
-endif()
-if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
-    link_directories( "sources/3rdparty/bass/mac" )
-    target_link_libraries(${PROJECT_NAME} PUBLIC "bass.dylib")
-    add_custom_target(CopyBassLibs
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/sources/3rdparty/bass/mac/$<CONFIG>/libbass.dylib" "${CMAKE_BINARY_DIR}/lib/$<CONFIG>/libbass.dylib")
-    add_dependencies(${PROJECT_NAME} CopyBassLibs)
-endif()
-
 
 #
 # subdirectories

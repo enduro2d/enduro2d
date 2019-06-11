@@ -1,3 +1,8 @@
+/*******************************************************************************
+ * This file is part of the "Enduro2D"
+ * For conditions of distribution and use, see copyright notice in LICENSE.md
+ * Copyright (C) 2018-2019, by Matvey Cherevko (blackmatov@gmail.com)
+ ******************************************************************************/
 
 #include "../common.hpp"
 using namespace e2d;
@@ -7,39 +12,36 @@ namespace
     class game final : public engine::application {
     public:
         bool initialize() final {
+            the<vfs>().register_scheme<archive_file_source>(
+                "rpgaudio",
+                the<vfs>().read(url("resources://bin/kenney_rpgaudio.zip")));
+
+            the<vfs>().register_scheme_alias(
+                "audio",
+                url("rpgaudio://Audio"));
             
-            auto fs_file = std::make_unique<filesystem_file_source>();
-            
-            auto sstream1 = the<audio>().preload_stream(fs_file->read("bin/library/Example.ogg"));
-            auto sstream2 = the<audio>().create_stream(fs_file->read("bin/library/Example.ogg"));
+            auto sstream1 = the<audio>().preload_stream(the<vfs>().read(url("audio://chop.ogg")));
+            auto sstream2 = the<audio>().create_stream(the<vfs>().read(url("audio://footstep00.ogg")));
 
             if ( !sstream1 || !sstream2 ) {
                 return false;
             }
 
-            sound_src1_ = the<audio>().create_source(sstream2);
-            sound_src2_ = the<audio>().create_source(sstream1);
-            sound_src3_ = the<audio>().create_source(sstream1);
+            sound_src1_ = the<audio>().create_source(sstream1);
+            sound_src2_ = the<audio>().create_source(sstream2);
             
-            if ( !sound_src1_ || !sound_src2_ || !sound_src3_ ) {
+            if ( !sound_src1_ || !sound_src2_ ) {
                 return false;
             }
-            
-            sound_src1_->play();
-            sound_src1_->looping(true);
 
-            sound_src2_->position(secf(1.0f));
             sound_src2_->looping(true);
             sound_src2_->play();
-            
-            sound_src3_->position(secf(2.0f));
-            sound_src3_->looping(true);
-            sound_src3_->play();
 
             return true;
         }
 
         bool frame_tick() final {
+            const mouse& m = the<input>().mouse();
             const keyboard& k = the<input>().keyboard();
 
             if ( the<window>().should_close() || k.is_key_just_released(keyboard_key::escape) ) {
@@ -52,6 +54,11 @@ namespace
 
             if ( k.is_key_pressed(keyboard_key::lsuper) && k.is_key_just_released(keyboard_key::enter) ) {
                 the<window>().toggle_fullscreen(!the<window>().fullscreen());
+            }
+
+            if ( m.is_any_button_pressed() ) {
+                sound_src1_->volume(m.cursor_pos().x / the<window>().real_size().x);
+                sound_src1_->play();
             }
 
             return true;
@@ -67,7 +74,6 @@ namespace
     private:
         sound_source_ptr sound_src1_;
         sound_source_ptr sound_src2_;
-        sound_source_ptr sound_src3_;
     };
 }
 

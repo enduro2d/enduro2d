@@ -8,6 +8,7 @@
 
 #include "_core.hpp"
 
+#include "audio.hpp"
 #include "dbgui.hpp"
 #include "debug.hpp"
 #include "deferrer.hpp"
@@ -18,4 +19,3 @@
 #include "render.inl"
 #include "vfs.hpp"
 #include "window.hpp"
-#include "audio.hpp"

@@ -6,6 +6,7 @@
 
 #include <enduro2d/core/engine.hpp>
 
+#include <enduro2d/core/audio.hpp>
 #include <enduro2d/core/dbgui.hpp>
 #include <enduro2d/core/debug.hpp>
 #include <enduro2d/core/deferrer.hpp>
@@ -14,7 +15,6 @@
 #include <enduro2d/core/render.hpp>
 #include <enduro2d/core/vfs.hpp>
 #include <enduro2d/core/window.hpp>
-#include <enduro2d/core/audio.hpp>
 
 namespace
 {
@@ -170,13 +170,13 @@ namespace e2d
         return *this;
     }
 
-    engine::parameters& engine::parameters::without_graphics(bool value) {
-        without_graphics_ = value;
+    engine::parameters& engine::parameters::without_audio(bool value) {
+        without_audio_ = value;
         return *this;
     }
 
-    engine::parameters& engine::parameters::without_sound(bool value) {
-        without_sound_ = value;
+    engine::parameters& engine::parameters::without_graphics(bool value) {
+        without_graphics_ = value;
         return *this;
     }
     
@@ -203,11 +203,11 @@ namespace e2d
         return company_name_;
     }
 
-    bool& engine::parameters::without_graphics() noexcept {
-        return without_graphics_;
+    bool& engine::parameters::without_audio() noexcept {
+        return without_audio_;
     }
-    
-    bool& engine::parameters::without_sound() noexcept {
+
+    bool& engine::parameters::without_graphics() noexcept {
         return without_graphics_;
     }
 
@@ -231,12 +231,12 @@ namespace e2d
         return company_name_;
     }
 
+    const bool& engine::parameters::without_audio() const noexcept {
+        return without_audio_;
+    }
+
     const bool& engine::parameters::without_graphics() const noexcept {
         return without_graphics_;
-    }
-    
-    const bool& engine::parameters::without_sound() const noexcept {
-        return without_sound_;
     }
 
     const engine::debug_parameters& engine::parameters::debug_params() const noexcept {
@@ -390,6 +390,13 @@ namespace e2d
 
         safe_module_initialize<input>();
 
+        // setup audio
+
+        if ( !params.without_audio() ) {
+            safe_module_initialize<audio>(
+                the<debug>());
+        }
+
         // setup graphics
 
         if ( !params.without_graphics() )
@@ -418,21 +425,13 @@ namespace e2d
                 the<render>(),
                 the<window>());
         }
-        
-        // aetup audio
-        
-        if ( !params.without_sound() )
-        {
-            safe_module_initialize<audio>(
-                the<debug>());
-        }
     }
 
     engine::~engine() noexcept {
         modules::shutdown<dbgui>();
-        modules::shutdown<audio>();
         modules::shutdown<render>();
         modules::shutdown<window>();
+        modules::shutdown<audio>();
         modules::shutdown<input>();
         modules::shutdown<vfs>();
         modules::shutdown<debug>();
