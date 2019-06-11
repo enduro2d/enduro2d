@@ -8,6 +8,7 @@
 
 #include "_core.hpp"
 
+#include "audio.hpp"
 #include "dbgui.hpp"
 #include "debug.hpp"
 #include "deferrer.hpp"

@@ -6,6 +6,7 @@
 
 #include <enduro2d/core/engine.hpp>
 
+#include <enduro2d/core/audio.hpp>
 #include <enduro2d/core/dbgui.hpp>
 #include <enduro2d/core/debug.hpp>
 #include <enduro2d/core/deferrer.hpp>
@@ -169,11 +170,16 @@ namespace e2d
         return *this;
     }
 
+    engine::parameters& engine::parameters::without_audio(bool value) {
+        without_audio_ = value;
+        return *this;
+    }
+
     engine::parameters& engine::parameters::without_graphics(bool value) {
         without_graphics_ = value;
         return *this;
     }
-
+    
     engine::parameters& engine::parameters::debug_params(const debug_parameters& value) {
         debug_params_ = value;
         return *this;
@@ -195,6 +201,10 @@ namespace e2d
 
     str& engine::parameters::company_name() noexcept {
         return company_name_;
+    }
+
+    bool& engine::parameters::without_audio() noexcept {
+        return without_audio_;
     }
 
     bool& engine::parameters::without_graphics() noexcept {
@@ -219,6 +229,10 @@ namespace e2d
 
     const str& engine::parameters::company_name() const noexcept {
         return company_name_;
+    }
+
+    const bool& engine::parameters::without_audio() const noexcept {
+        return without_audio_;
     }
 
     const bool& engine::parameters::without_graphics() const noexcept {
@@ -376,6 +390,13 @@ namespace e2d
 
         safe_module_initialize<input>();
 
+        // setup audio
+
+        if ( !params.without_audio() ) {
+            safe_module_initialize<audio>(
+                the<debug>());
+        }
+
         // setup graphics
 
         if ( !params.without_graphics() )
@@ -410,6 +431,7 @@ namespace e2d
         modules::shutdown<dbgui>();
         modules::shutdown<render>();
         modules::shutdown<window>();
+        modules::shutdown<audio>();
         modules::shutdown<input>();
         modules::shutdown<vfs>();
         modules::shutdown<debug>();
