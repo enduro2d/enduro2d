@@ -29,6 +29,7 @@ namespace e2d
     class mesh_asset;
     class model_asset;
     class prefab_asset;
+    class script_asset;
     class shader_asset;
     class shape_asset;
     class sprite_asset;
@@ -65,6 +66,7 @@ namespace e2d
     class model;
     class node;
     class prefab;
+    class script;
     class sprite;
     class starter;
     class world;
