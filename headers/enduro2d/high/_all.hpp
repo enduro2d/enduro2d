@@ -25,6 +25,7 @@
 #include "assets/xml_asset.hpp"
 
 #include "components/actor.hpp"
+#include "components/behaviour.hpp"
 #include "components/camera.hpp"
 #include "components/flipbook_player.hpp"
 #include "components/flipbook_source.hpp"

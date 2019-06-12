@@ -37,6 +37,7 @@ namespace e2d
     class xml_asset;
 
     class actor;
+    class behaviour;
     class camera;
     class flipbook_player;
     class flipbook_source;

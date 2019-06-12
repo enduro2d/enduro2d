@@ -11,6 +11,7 @@
 #include <enduro2d/high/library.hpp>
 
 #include <enduro2d/high/components/actor.hpp>
+#include <enduro2d/high/components/behaviour.hpp>
 #include <enduro2d/high/components/camera.hpp>
 #include <enduro2d/high/components/flipbook_player.hpp>
 #include <enduro2d/high/components/flipbook_source.hpp>
@@ -127,6 +128,7 @@ namespace e2d
         safe_module_initialize<engine>(argc, argv, params.engine_params());
         safe_module_initialize<factory>()
             .register_component<actor>("actor")
+            .register_component<behaviour>("behaviour")
             .register_component<camera>("camera")
             .register_component<flipbook_player>("flipbook_player")
             .register_component<flipbook_source>("flipbook_source")
