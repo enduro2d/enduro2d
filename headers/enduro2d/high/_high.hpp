@@ -8,6 +8,7 @@
 
 #include "../core/_all.hpp"
 
+#include <3rdparty/sol/sol.hpp>
 #include <3rdparty/ecs.hpp/ecs.hpp>
 
 namespace e2d
