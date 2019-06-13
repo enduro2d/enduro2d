@@ -48,6 +48,7 @@
 #include "gobject.hpp"
 #include "library.hpp"
 #include "library.inl"
+#include "luasol.hpp"
 #include "model.hpp"
 #include "node.hpp"
 #include "node.inl"

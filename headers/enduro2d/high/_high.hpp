@@ -69,6 +69,8 @@ namespace e2d
     class prefab;
     class script;
     class sprite;
+
+    class luasol;
     class starter;
     class world;
 }

@@ -7,6 +7,7 @@
 #include <enduro2d/high/starter.hpp>
 
 #include <enduro2d/high/world.hpp>
+#include <enduro2d/high/luasol.hpp>
 #include <enduro2d/high/factory.hpp>
 #include <enduro2d/high/library.hpp>
 
@@ -137,11 +138,13 @@ namespace e2d
             .register_component<scene>("scene")
             .register_component<sprite_renderer>("sprite_renderer");
         safe_module_initialize<library>(params.library_root(), the<deferrer>());
+        safe_module_initialize<luasol>();
         safe_module_initialize<world>();
     }
 
     starter::~starter() noexcept {
         modules::shutdown<world>();
+        modules::shutdown<luasol>();
         modules::shutdown<library>();
         modules::shutdown<factory>();
         modules::shutdown<engine>();
