@@ -6,18 +6,12 @@
 
 #pragma once
 
-#include "_high.hpp"
+#include <enduro2d/high/luasol.hpp>
 
-namespace e2d
+namespace e2d::bindings
 {
-    class luasol final : public module<luasol> {
-    public:
-        luasol();
-        ~luasol() noexcept final;
-
-        sol::state& lua() noexcept;
-        const sol::state& lua() const noexcept;
-    private:
-        sol::state lua_;
-    };
+    void bind_math(sol::state& l);
+    void bind_utils(sol::state& l);
+    void bind_core(sol::state& l);
+    void bind_high(sol::state& l);
 }

@@ -4,20 +4,12 @@
  * Copyright (C) 2018-2019, by Matvey Cherevko (blackmatov@gmail.com)
  ******************************************************************************/
 
-#pragma once
+#include "bindings.hpp"
 
-#include "_high.hpp"
-
-namespace e2d
+namespace e2d::bindings
 {
-    class luasol final : public module<luasol> {
-    public:
-        luasol();
-        ~luasol() noexcept final;
-
-        sol::state& lua() noexcept;
-        const sol::state& lua() const noexcept;
-    private:
-        sol::state lua_;
-    };
+    void bind_utils(sol::state& l) {
+        //TODO(BlackMat): implme
+        E2D_UNUSED(l);
+    }
 }
