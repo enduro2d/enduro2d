@@ -1,4 +1,6 @@
 -Iheaders
+-Iheaders/3rdparty
+-Iheaders/3rdparty/lua
 -Isources
 -std=c++17
 -stdlib=libc++
