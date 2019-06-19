@@ -11,18 +11,18 @@ message("E2D_ROOT_DIRECTORY: " ${E2D_ROOT_DIRECTORY})
 # linking mode
 #
 
-set(all_c_configs "CMAKE_C_FLAGS")
-set(all_cxx_configs "CMAKE_CXX_FLAGS")
+set(E2D_ALL_C_CONFIGS "CMAKE_C_FLAGS")
+set(E2D_ALL_CXX_CONFIGS "CMAKE_CXX_FLAGS")
 foreach(type ${CMAKE_CONFIGURATION_TYPES})
     string(TOUPPER ${type} build_type)
-    set(all_c_configs "${all_c_configs}" "CMAKE_C_FLAGS_${build_type}")
-    set(all_cxx_configs "${all_cxx_configs}" "CMAKE_CXX_FLAGS_${build_type}")
+    set(E2D_ALL_C_CONFIGS "${E2D_ALL_C_CONFIGS}" "CMAKE_C_FLAGS_${build_type}")
+    set(E2D_ALL_CXX_CONFIGS "${E2D_ALL_CXX_CONFIGS}" "CMAKE_CXX_FLAGS_${build_type}")
 endforeach()
 
 if(MSVC)
     option(USE_MSVC_RUNTIME_LIBRARY_DLL "Use MSVC runtime library DLL" OFF)
     if(NOT USE_MSVC_RUNTIME_LIBRARY_DLL)
-        foreach(flag ${all_c_configs} ${all_cxx_configs})
+        foreach(flag ${E2D_ALL_C_CONFIGS} ${E2D_ALL_CXX_CONFIGS})
             if(${flag} MATCHES "/MD")
                 string(REGEX REPLACE "/MD" "/MT" ${flag} "${${flag}}")
             endif()
@@ -33,25 +33,25 @@ if(MSVC)
     endif()
 endif(MSVC)
 
-set(shared_cxx_flags "")
+set(E2D_SHARED_CXX_FLAGS "")
 if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
-    set(shared_cxx_flags "-Wloop-analysis
-                          -Wpointer-arith
-                          -Wpessimizing-move
-                          -Wuninitialized
-                          -Werror=init-self
-                          -Werror=self-assign
-                          -Werror=self-move
-                          -Werror=infinite-recursion
-                          -Werror=dangling-else
-                          -Werror=large-by-value-copy
-                          -Werror=instantiation-after-specialization
-                          -Werror=array-bounds
-                          -Werror=missing-field-initializers
-                          -Werror=user-defined-literals
-                          -Werror=parentheses
-                          -Werror=address
-                          -Werror=return-stack-address")
+    set(E2D_SHARED_CXX_FLAGS "-Wloop-analysis
+                              -Wpointer-arith
+                              -Wpessimizing-move
+                              -Wuninitialized
+                              -Werror=init-self
+                              -Werror=self-assign
+                              -Werror=self-move
+                              -Werror=infinite-recursion
+                              -Werror=dangling-else
+                              -Werror=large-by-value-copy
+                              -Werror=instantiation-after-specialization
+                              -Werror=array-bounds
+                              -Werror=missing-field-initializers
+                              -Werror=user-defined-literals
+                              -Werror=parentheses
+                              -Werror=address
+                              -Werror=return-stack-address")
 
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
   
@@ -60,8 +60,8 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 endif()
 
 # append cxx flags for each configuration
-foreach(config ${all_cxx_configs})
-    set(${config} "${${config}} ${shared_cxx_flags}")
+foreach(config ${E2D_ALL_CXX_CONFIGS})
+    set(${config} "${${config}} ${E2D_SHARED_CXX_FLAGS}")
 endforeach()
 
 
