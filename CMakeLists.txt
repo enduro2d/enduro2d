@@ -11,19 +11,18 @@ message("E2D_ROOT_DIRECTORY: " ${E2D_ROOT_DIRECTORY})
 # linking mode
 #
 
+set(all_c_configs "CMAKE_C_FLAGS")
+set(all_cxx_configs "CMAKE_CXX_FLAGS")
+foreach(type ${CMAKE_CONFIGURATION_TYPES})
+    string(TOUPPER ${type} build_type)
+    set(all_c_configs "${all_c_configs}" "CMAKE_C_FLAGS_${build_type}")
+    set(all_cxx_configs "${all_cxx_configs}" "CMAKE_CXX_FLAGS_${build_type}")
+endforeach()
+
 if(MSVC)
     option(USE_MSVC_RUNTIME_LIBRARY_DLL "Use MSVC runtime library DLL" OFF)
     if(NOT USE_MSVC_RUNTIME_LIBRARY_DLL)
-        foreach(flag CMAKE_C_FLAGS
-                     CMAKE_C_FLAGS_DEBUG
-                     CMAKE_C_FLAGS_RELEASE
-                     CMAKE_C_FLAGS_MINSIZEREL
-                     CMAKE_C_FLAGS_RELWITHDEBINFO
-                     CMAKE_CXX_FLAGS
-                     CMAKE_CXX_FLAGS_DEBUG
-                     CMAKE_CXX_FLAGS_RELEASE
-                     CMAKE_CXX_FLAGS_MINSIZEREL
-                     CMAKE_CXX_FLAGS_RELWITHDEBINFO)
+        foreach(flag ${all_c_configs} ${all_cxx_configs})
             if(${flag} MATCHES "/MD")
                 string(REGEX REPLACE "/MD" "/MT" ${flag} "${${flag}}")
             endif()
