@@ -33,6 +33,22 @@ if(MSVC)
     endif()
 endif(MSVC)
 
+set(shared_cxx_flags "")
+if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
+    set(shared_cxx_flags "-std=c++1z -Wformat -Wno-switch -Wno-switch-enum -Wno-c++1z-extensions -Wloop-analysis -Wincrement-bool -Werror=init-self -Werror=self-assign -Werror=self-move -Werror=infinite-recursion -Werror=dangling-else -Werror=large-by-value-copy -Werror=instantiation-after-specialization -Werror=array-bounds -Werror=address -Werror=missing-field-initializers")
+
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+  
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+
+endif()
+
+# append cxx flags for each configuration
+foreach(config ${all_cxx_configs})
+    set(${config} "${${config}} ${shared_cxx_flags}")
+endforeach()
+
+
 #
 # coverage mode
 #
