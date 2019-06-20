@@ -146,7 +146,10 @@ TEST_CASE("images") {
             {"bin/images/ship_etc2.pvr", false, image_data_format(-1)},
             {"bin/images/ship_eac_rg11.pvr", false, image_data_format(-1)},
             {"bin/images/ship_rgba8.pvr", true, image_data_format::rgba8},
-            {"bin/images/ship_rgba.dds", true, image_data_format::rgba_dxt5}
+            {"bin/images/ship_rgba.dds", true, image_data_format::rgba_dxt5},
+            {"bin/images/ship_r8.pvr", true, image_data_format::g8},
+            {"bin/images/ship_rg8.pvr", true, image_data_format::ga8},
+            {"bin/images/ship_rgb8.pvr", true, image_data_format::rgb8}
         };
 
         for (auto& info : test_images) {

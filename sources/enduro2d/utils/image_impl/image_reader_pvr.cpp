@@ -64,6 +64,9 @@ namespace
         astc_12x10 = 39,
         astc_12x12 = 40,
         rgba8 = 0x08080808'61626772ull,
+        r8 = 0x00000008'00000072ull,
+        rg8 = 0x00000808'00006772ull,
+        rgb8 = 0x00080808'00626772ull,
     };
 
     enum class pvr_color_space : u32 {
@@ -168,6 +171,21 @@ namespace
         case pvr_pixel_format::rgba8:
             out_format = image_data_format::rgba8;
             out_bytes_per_block = 4;
+            out_block_size = v2u(1,1);
+            break;
+        case pvr_pixel_format::r8:
+            out_format = image_data_format::g8;
+            out_bytes_per_block = 1;
+            out_block_size = v2u(1,1);
+            break;
+        case pvr_pixel_format::rg8:
+            out_format = image_data_format::ga8;
+            out_bytes_per_block = 2;
+            out_block_size = v2u(1,1);
+            break;
+        case pvr_pixel_format::rgb8:
+            out_format = image_data_format::rgb8;
+            out_bytes_per_block = 3;
             out_block_size = v2u(1,1);
             break;
         default:
