@@ -696,4 +696,28 @@ namespace e2d::math
         E2D_ASSERT(!approximately(l, r, T(0)));
         return (v - l) / (r - l);
     }
+
+    //
+    // align_floor/align_ceil
+    //
+
+    template < typename T, typename U >
+    std::enable_if_t<
+        std::is_unsigned_v<T> &&
+        std::is_convertible_v<U,T>,
+        T>
+    align_ceil (T v, U alignment) {
+        T result = ((v + alignment - 1) / alignment) * alignment;
+        E2D_ASSERT(result >= v);
+        return result;
+    }
+
+    template < typename T, typename U >
+    std::enable_if_t<
+        std::is_unsigned_v<T> &&
+        std::is_convertible_v<U,T>,
+        T>
+    align_floor (T v, U alignment) {
+        return (v / alignment) * alignment;
+    }
 }
