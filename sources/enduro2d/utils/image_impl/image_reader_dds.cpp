@@ -8,9 +8,11 @@
 
 namespace
 {
-    using namespace e2d;
-    // from https://github.com/tlorach/nvFX/blob/master/samples/shared/nv_dds/nv_dds.h
+    // DDS format specification:
+    // https://docs.microsoft.com/en-us/windows/desktop/direct3ddds/dx-graphics-dds-pguide
 
+    using namespace e2d;
+    
     // pixel format flags
     const u32 ddsf_alphapixels = 0x00000001;
     const u32 ddsf_fourcc = 0x00000004;
@@ -145,8 +147,8 @@ namespace e2d::images::impl
         }
         const dds_header& hdr = ((const dds_header_with_magic*)src.data())->header;
         const u8* content = src.data() + sizeof(dds_header_with_magic);
-        if ( math::check_all_flags(ddsf_cubemap, hdr.dwCaps2) ||
-             math::check_all_flags(ddsf_volume, hdr.dwCaps2) ||
+        if ( math::check_all_flags(hdr.dwCaps2, ddsf_cubemap) ||
+             math::check_all_flags(hdr.dwCaps2, ddsf_volume) ||
              (hdr.dwDepth > 0) ) {
             return false; // cubemap and volume textures are not supported
         }

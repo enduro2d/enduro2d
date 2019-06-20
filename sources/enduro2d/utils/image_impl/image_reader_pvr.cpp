@@ -63,6 +63,7 @@ namespace
         astc_10x10 = 38,
         astc_12x10 = 39,
         astc_12x12 = 40,
+        rgba8 = 0x08080808'61626772ull,
     };
 
     enum class pvr_color_space : u32 {
@@ -113,53 +114,61 @@ namespace
     }
 
     bool get_pvr_format(const pvr_header& hdr, image_data_format& out_format, u32& out_bytes_per_block, v2u& out_block_size) {
+        if ( pvr_color_space(hdr.colorSpace) != pvr_color_space::linear ) {
+            return false; // only linear color space is supported
+        }
         const pvr_pixel_format fmt = pvr_pixel_format(hdr.pixelFormat0 | (u64(hdr.pixelFormat1) << 32));
         switch (fmt)
         {
         case pvr_pixel_format::pvrtc_2bpp_rgb:
-            out_format =image_data_format::rgb_pvrtc2;
+            out_format = image_data_format::rgb_pvrtc2;
             out_bytes_per_block = 8;
             out_block_size = v2u(8,4);
             break;
         case pvr_pixel_format::pvrtc_2bpp_rgba:
-            out_format =image_data_format::rgba_pvrtc2;
+            out_format = image_data_format::rgba_pvrtc2;
             out_bytes_per_block = 8;
             out_block_size = v2u(8,4);
             break;
         case pvr_pixel_format::pvrtc_4bpp_rgb:
-            out_format =image_data_format::rgb_pvrtc4;
+            out_format = image_data_format::rgb_pvrtc4;
             out_bytes_per_block = 8;
             out_block_size = v2u(4,4);
             break;
         case pvr_pixel_format::pvrtc_4bpp_rgba:
-            out_format =image_data_format::rgba_pvrtc4;
+            out_format = image_data_format::rgba_pvrtc4;
             out_bytes_per_block = 8;
             out_block_size = v2u(4,4);
             break;
         case pvr_pixel_format::pvrtc_ii_2bpp:
-            out_format =image_data_format::rgba_pvrtc2_v2;
+            out_format = image_data_format::rgba_pvrtc2_v2;
             out_bytes_per_block = 8;
             out_block_size = v2u(8,4);
             break;
         case pvr_pixel_format::pvrtc_ii_4bpp:
-            out_format =image_data_format::rgba_pvrtc4_v2;
+            out_format = image_data_format::rgba_pvrtc4_v2;
             out_bytes_per_block = 8;
             out_block_size = v2u(4,4);
             break;
         case pvr_pixel_format::dxt1:
-            out_format =image_data_format::rgb_dxt1;
+            out_format = image_data_format::rgb_dxt1;
             out_bytes_per_block = 8;
             out_block_size = v2u(4,4);
             break;
         case pvr_pixel_format::dxt3:
-            out_format =image_data_format::rgba_dxt3;
+            out_format = image_data_format::rgba_dxt3;
             out_bytes_per_block = 16;
             out_block_size = v2u(4,4);
             break;
         case pvr_pixel_format::dxt5:
-            out_format =image_data_format::rgba_dxt5;
+            out_format = image_data_format::rgba_dxt5;
             out_bytes_per_block = 16;
             out_block_size = v2u(4,4);
+            break;
+        case pvr_pixel_format::rgba8:
+            out_format = image_data_format::rgba8;
+            out_bytes_per_block = 4;
+            out_block_size = v2u(1,1);
             break;
         default:
             return false; // unsupported format
