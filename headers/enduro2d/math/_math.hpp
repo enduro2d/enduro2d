@@ -703,7 +703,7 @@ namespace e2d::math
 
     template < typename T, typename U >
     std::enable_if_t<
-        std::is_unsigned_v<T> &&
+        std::is_integral_v<T> &&
         std::is_convertible_v<U,T>,
         T>
     align_ceil (T v, U alignment) {
@@ -714,7 +714,7 @@ namespace e2d::math
 
     template < typename T, typename U >
     std::enable_if_t<
-        std::is_unsigned_v<T> &&
+        std::is_integral_v<T> &&
         std::is_convertible_v<U,T>,
         T>
     align_floor (T v, U alignment) {
