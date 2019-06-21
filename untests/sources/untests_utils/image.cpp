@@ -151,13 +151,16 @@ TEST_CASE("images") {
             {"bin/images/ship_rg8.pvr", true, image_data_format::ga8},
             {"bin/images/ship_rgb8.pvr", true, image_data_format::rgb8}
         };
+        str resources;
+        REQUIRE(filesystem::extract_predef_path(
+            resources,
+            filesystem::predef_path::resources));
 
         for (auto& info : test_images) {
-            image img;
-            input_stream_uptr stream = make_read_file(info.name);
+            input_stream_uptr stream = make_read_file(path::combine(resources, info.name));
             REQUIRE(stream);
-
-            REQUIRE(images::try_load_image(img, make_read_file(info.name)) == info.can_load);
+            image img;
+            REQUIRE(images::try_load_image(img, stream) == info.can_load);
             if ( info.can_load ) {
                 REQUIRE(img.format() == info.format);
                 REQUIRE(img.size().x == 64);

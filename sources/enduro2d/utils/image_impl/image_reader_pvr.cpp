@@ -109,8 +109,8 @@ namespace
     static_assert(sizeof(pvr_header) == 52, "invalid PVR header size");
 
     bool is_pvr(const void* data, std::size_t byte_size) {
-        if (byte_size > sizeof(pvr_header)) {
-            const pvr_header* hdr = (const pvr_header*) data;
+        if ( byte_size > sizeof(pvr_header) ) {
+            const pvr_header* hdr = reinterpret_cast<const pvr_header*>(data);
             return hdr->version == 0x03525650;
         }
         return false;
@@ -201,7 +201,7 @@ namespace e2d::images::impl
         if ( !is_pvr(src.data(), src.size()) ) {
             return false;
         }
-        const pvr_header& hdr = *(const pvr_header*)src.data();
+        const pvr_header& hdr = *reinterpret_cast<const pvr_header*>(src.data());
         const u8* content = src.data() + sizeof(pvr_header) + hdr.metaDataSize;
         if ( hdr.numSurfaces != 1 || hdr.numFaces != 1 || hdr.depth > 1 ) {
             return false; // cubemap and volume textures are not supported

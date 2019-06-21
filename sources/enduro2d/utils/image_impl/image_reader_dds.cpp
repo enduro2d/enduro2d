@@ -88,7 +88,7 @@ namespace
 
    bool is_dds(const void* data, std::size_t byte_size) {
         if ( byte_size > sizeof(dds_header_with_magic) ) {
-            const auto* hdr = (const dds_header_with_magic*) data;
+            const auto* hdr = reinterpret_cast<const dds_header_with_magic*>(data);
             return hdr->dwMagicFourCC == 0x20534444; // DDS
         }
         return false;
@@ -145,7 +145,7 @@ namespace e2d::images::impl
         if ( !is_dds(src.data(), src.size()) ) {
             return false;
         }
-        const dds_header& hdr = ((const dds_header_with_magic*)src.data())->header;
+        const dds_header& hdr = reinterpret_cast<const dds_header_with_magic*>(src.data())->header;
         const u8* content = src.data() + sizeof(dds_header_with_magic);
         if ( math::check_all_flags(hdr.dwCaps2, ddsf_cubemap) ||
              math::check_all_flags(hdr.dwCaps2, ddsf_volume) ||
