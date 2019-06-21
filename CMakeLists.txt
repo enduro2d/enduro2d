@@ -35,7 +35,7 @@ endif(MSVC)
 
 set(E2D_SHARED_CXX_FLAGS "")
 if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
-    set(E2D_SHARED_CXX_FLAGS "-Wloop-analysis
+    set(E2D_SHARED_CXX_FLAGS  -Wloop-analysis
                               -Wpointer-arith
                               -Wpessimizing-move
                               -Wuninitialized
@@ -51,7 +51,8 @@ if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
                               -Werror=user-defined-literals
                               -Werror=parentheses
                               -Werror=address
-                              -Werror=return-stack-address")
+                              -Werror=return-stack-address)
+    string(REPLACE ";" " " E2D_SHARED_CXX_FLAGS "${E2D_SHARED_CXX_FLAGS}")
 
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
   
