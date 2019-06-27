@@ -4,26 +4,29 @@ project(enduro2d)
 set(E2D_SYSTEM_NAME ${CMAKE_SYSTEM_NAME})
 set(E2D_ROOT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
-message("E2D_SYSTEM_NAME: " ${E2D_SYSTEM_NAME})
-message("E2D_ROOT_DIRECTORY: " ${E2D_ROOT_DIRECTORY})
+set(E2D_ALL_C_CONFIGS "CMAKE_C_FLAGS")
+set(E2D_ALL_CXX_CONFIGS "CMAKE_CXX_FLAGS")
+
+if(CMAKE_BUILD_TYPE)
+    string(TOUPPER ${CMAKE_BUILD_TYPE} build_type)
+    set(E2D_ALL_C_CONFIGS "${E2D_ALL_C_CONFIGS}" "CMAKE_C_FLAGS_${build_type}")
+    set(E2D_ALL_CXX_CONFIGS "${E2D_ALL_CXX_CONFIGS}" "CMAKE_CXX_FLAGS_${build_type}")
+endif()
+
+foreach(type ${CMAKE_CONFIGURATION_TYPES})
+    string(TOUPPER ${type} build_type)
+    set(E2D_ALL_C_CONFIGS "${E2D_ALL_C_CONFIGS}" "CMAKE_C_FLAGS_${build_type}")
+    set(E2D_ALL_CXX_CONFIGS "${E2D_ALL_CXX_CONFIGS}" "CMAKE_CXX_FLAGS_${build_type}")
+endforeach()
 
 #
 # linking mode
 #
 
 if(MSVC)
-    option(USE_MSVC_RUNTIME_LIBRARY_DLL "Use MSVC runtime library DLL" OFF)
-    if(NOT USE_MSVC_RUNTIME_LIBRARY_DLL)
-        foreach(flag CMAKE_C_FLAGS
-                     CMAKE_C_FLAGS_DEBUG
-                     CMAKE_C_FLAGS_RELEASE
-                     CMAKE_C_FLAGS_MINSIZEREL
-                     CMAKE_C_FLAGS_RELWITHDEBINFO
-                     CMAKE_CXX_FLAGS
-                     CMAKE_CXX_FLAGS_DEBUG
-                     CMAKE_CXX_FLAGS_RELEASE
-                     CMAKE_CXX_FLAGS_MINSIZEREL
-                     CMAKE_CXX_FLAGS_RELWITHDEBINFO)
+    option(E2D_BUILD_WITH_STATIC_CRT "Use static C runtime library" ON)
+    if(E2D_BUILD_WITH_STATIC_CRT)
+        foreach(flag ${E2D_ALL_C_CONFIGS} ${E2D_ALL_CXX_CONFIGS})
             if(${flag} MATCHES "/MD")
                 string(REGEX REPLACE "/MD" "/MT" ${flag} "${${flag}}")
             endif()
@@ -33,6 +36,38 @@ if(MSVC)
         endforeach()
     endif()
 endif(MSVC)
+
+#
+# compilation mode
+#
+
+set(E2D_SHARED_CXX_FLAGS "")
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    set(E2D_SHARED_CXX_FLAGS -Wloop-analysis
+                             -Wpointer-arith
+                             -Wpessimizing-move
+                             -Wuninitialized
+                             -Werror=init-self
+                             -Werror=self-assign
+                             -Werror=self-move
+                             -Werror=infinite-recursion
+                             -Werror=dangling-else
+                             -Werror=large-by-value-copy
+                             -Werror=instantiation-after-specialization
+                             -Werror=array-bounds
+                             -Werror=missing-field-initializers
+                             -Werror=user-defined-literals
+                             -Werror=parentheses
+                             -Werror=address
+                             -Werror=return-stack-address)
+    string(REPLACE ";" " " E2D_SHARED_CXX_FLAGS "${E2D_SHARED_CXX_FLAGS}")
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+endif()
+
+foreach(config ${E2D_ALL_CXX_CONFIGS})
+    set(${config} "${${config}} ${E2D_SHARED_CXX_FLAGS}")
+endforeach()
 
 #
 # coverage mode
