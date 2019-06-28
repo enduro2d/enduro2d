@@ -131,10 +131,11 @@ TEST_CASE("images") {
     }
     {
         struct img_info {
-            str_view name;
+            const char* name;
             bool can_load;
             image_data_format format;
         };
+
         const img_info test_images[] = {
             {"bin/images/ship_pvrtc_2bpp_rgba.pvr", true, image_data_format::rgba_pvrtc2},
             {"bin/images/ship_pvrtc_2bpp_rgb.pvr", true, image_data_format::rgb_pvrtc2},
@@ -151,12 +152,13 @@ TEST_CASE("images") {
             {"bin/images/ship_rg8.pvr", true, image_data_format::ga8},
             {"bin/images/ship_rgb8.pvr", true, image_data_format::rgb8}
         };
+
         str resources;
         REQUIRE(filesystem::extract_predef_path(
             resources,
             filesystem::predef_path::resources));
 
-        for (auto& info : test_images) {
+        for ( const auto& info : test_images ) {
             input_stream_uptr stream = make_read_file(path::combine(resources, info.name));
             REQUIRE(stream);
             image img;

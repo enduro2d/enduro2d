@@ -12,7 +12,7 @@ namespace
     // https://docs.microsoft.com/en-us/windows/desktop/direct3ddds/dx-graphics-dds-pguide
 
     using namespace e2d;
-    
+
     // pixel format flags
     const u32 ddsf_alphapixels = 0x00000001;
     const u32 ddsf_fourcc = 0x00000004;
@@ -24,33 +24,11 @@ namespace
     const u32 ddsf_volume = 0x00200000;
 
     // compressed texture types
-    const u32 fourcc_dxt1 = 0x31545844; //(MAKEFOURCC('D','X','T','1'))
-    const u32 fourcc_dxt3 = 0x33545844; //(MAKEFOURCC('D','X','T','3'))
-    const u32 fourcc_dxt5 = 0x35545844; //(MAKEFOURCC('D','X','T','5'))
+    const u32 fourcc_dxt1 = 0x31545844; // 'DXT1'
+    const u32 fourcc_dxt3 = 0x33545844; // 'DXT3'
+    const u32 fourcc_dxt5 = 0x35545844; // 'DXT5'
 
-    struct DXTColBlock
-    {
-        u16 col0;
-        u16 col1;
-
-        u8 row[4];
-    };
-
-    struct DXT3AlphaBlock
-    {
-        u16 row[4];
-    };
-
-    struct DXT5AlphaBlock
-    {
-        u8 alpha0;
-        u8 alpha1;
-
-        u8 row[6];
-    };
-
-    struct dds_pixelformat
-    {
+    struct dds_pixel_format {
         u32 dwSize;
         u32 dwFlags;
         u32 dwFourCC;
@@ -61,8 +39,8 @@ namespace
         u32 dwABitMask;
     };
 
-    struct dds_header
-    {
+    struct dds_header {
+        u32 dwMagic;
         u32 dwSize;
         u32 dwFlags;
         u32 dwHeight;
@@ -71,39 +49,34 @@ namespace
         u32 dwDepth;
         u32 dwMipMapCount;
         u32 dwReserved1[11];
-        dds_pixelformat ddspf;
+        dds_pixel_format ddspf;
         u32 dwCaps1;
         u32 dwCaps2;
         u32 dwReserved2[3];
     };
 
-    struct dds_header_with_magic
-    {
-        u32         dwMagicFourCC;
-        dds_header  header;
-    };
+    static_assert(sizeof(dds_pixel_format) == 32, "invalid dds_pixel_format structure size");
+    static_assert(sizeof(dds_header) == 128, "invalid dds_header structure size");
 
-    static_assert(sizeof(dds_pixelformat) == 32, "invalid DDSS pixelformat structure size");
-    static_assert(sizeof(dds_header) == 124, "invalid DDS header size");
-
-   bool is_dds(const void* data, std::size_t byte_size) {
-        if ( byte_size > sizeof(dds_header_with_magic) ) {
-            const auto* hdr = reinterpret_cast<const dds_header_with_magic*>(data);
-            return hdr->dwMagicFourCC == 0x20534444; // DDS
+    bool is_dds(const void* data, std::size_t byte_size) noexcept {
+        if ( byte_size > sizeof(dds_header) ) {
+            const auto* hdr = reinterpret_cast<const dds_header*>(data);
+            return hdr->dwMagic == 0x20534444; // 'DDS '
         }
         return false;
     }
 
-    bool get_dds_format(const dds_header& hdr, image_data_format& out_format, u32& out_bytes_per_block) {
-        out_format = image_data_format(-1);
-        out_bytes_per_block = 0;
+    bool get_dds_format(
+        const dds_header& hdr,
+        image_data_format& out_format,
+        u32& out_bytes_per_block) noexcept
+    {
         if ( math::check_all_flags(hdr.ddspf.dwFlags, ddsf_fourcc) ) {
-            switch (hdr.ddspf.dwFourCC)
-            {
+            switch ( hdr.ddspf.dwFourCC ) {
             case fourcc_dxt1:
                 out_format = math::check_all_flags(hdr.ddspf.dwFlags, ddsf_alphapixels)
-                                ? image_data_format::rgba_dxt1
-                                : image_data_format::rgb_dxt1;
+                    ? image_data_format::rgba_dxt1
+                    : image_data_format::rgb_dxt1;
                 out_bytes_per_block = 8;
                 break;
             case fourcc_dxt3:
@@ -115,17 +88,17 @@ namespace
                 out_bytes_per_block = 16;
                 break;
             default:
-                return false; // unsupported compressed format
+                return false;
             }
-        } else if ( math::check_all_flags(hdr.ddspf.dwFlags, ddsf_rgba|ddsf_rgb) && (hdr.ddspf.dwRGBBitCount == 32) ) {
-            out_bytes_per_block = 4;
+        } else if ( math::check_all_flags(hdr.ddspf.dwFlags, ddsf_rgba) && (hdr.ddspf.dwRGBBitCount == 32) ) {
             out_format = image_data_format::rgba8;
+            out_bytes_per_block = 4;
             if ( hdr.ddspf.dwRBitMask == 0x00FF0000 ) {
                 return false; // BGRA format is not supported
             }
         } else if ( math::check_all_flags(hdr.ddspf.dwFlags, ddsf_rgb) && (hdr.ddspf.dwRGBBitCount == 24) ) {
-            out_bytes_per_block = 3;
             out_format = image_data_format::rgb8;
+            out_bytes_per_block = 3;
             if (hdr.ddspf.dwRBitMask == 0x00FF0000) {
                 return false; // BGRA format is not supported
             }
@@ -134,6 +107,8 @@ namespace
         } else if ( hdr.ddspf.dwRGBBitCount == 8 ) {
             out_format = image_data_format::g8;
             out_bytes_per_block = 1;
+        } else {
+            return false;
         }
         return true;
     }
@@ -145,23 +120,26 @@ namespace e2d::images::impl
         if ( !is_dds(src.data(), src.size()) ) {
             return false;
         }
-        const dds_header& hdr = reinterpret_cast<const dds_header_with_magic*>(src.data())->header;
-        const u8* content = src.data() + sizeof(dds_header_with_magic);
+
+        const dds_header& hdr = *reinterpret_cast<const dds_header*>(src.data());
+        const u8* content = src.data() + sizeof(dds_header);
+
         if ( math::check_all_flags(hdr.dwCaps2, ddsf_cubemap) ||
              math::check_all_flags(hdr.dwCaps2, ddsf_volume) ||
-             (hdr.dwDepth > 0) ) {
-            return false; // cubemap and volume textures are not supported
+             (hdr.dwDepth > 0) )
+        {
+            return false;
         }
+
         image_data_format format = image_data_format(-1);
         u32 bytes_per_block = 0;
         if ( !get_dds_format(hdr, format, bytes_per_block) ) {
-            return false; // unsupported format
+            return false;
         }
-        //u32 num_mipmaps = (hdr.dwMipMapCount == 0) ? 1 : hdr.dwMipMapCount;
-        v2u dimension = v2u(hdr.dwWidth, hdr.dwHeight);
+
+        const v2u dimension = v2u(hdr.dwWidth, hdr.dwHeight);
         std::size_t size;
-        switch (format)
-        {
+        switch ( format ) {
         case image_data_format::rgb_dxt1:
         case image_data_format::rgba_dxt3:
         case image_data_format::rgba_dxt5:
@@ -171,6 +149,7 @@ namespace e2d::images::impl
             size = dimension.x * dimension.y * bytes_per_block;
             break;
         }
+
         dst = image(dimension, format, buffer(content, size));
         return true;
     }

@@ -661,8 +661,4 @@ TEST_CASE("math") {
         REQUIRE_FALSE(math::approximately<u32>(umin,umax,1));
         REQUIRE_FALSE(math::approximately<u32>(umax,umin,1));
     }
-    {
-        REQUIRE(math::align_ceil(11, 4) == 12);
-        REQUIRE(math::align_floor(11, 4u) == 8);
-    }
 }

@@ -118,7 +118,7 @@ namespace
 
     bool get_pvr_format(const pvr_header& hdr, image_data_format& out_format, u32& out_bytes_per_block, v2u& out_block_size) {
         if ( pvr_color_space(hdr.colorSpace) != pvr_color_space::linear ) {
-            return false; // only linear color space is supported
+            return false;
         }
         const pvr_pixel_format fmt = pvr_pixel_format(hdr.pixelFormat0 | (u64(hdr.pixelFormat1) << 32));
         switch (fmt)
@@ -189,7 +189,7 @@ namespace
             out_block_size = v2u(1,1);
             break;
         default:
-            return false; // unsupported format
+            return false;
         }
         return true;
     }
@@ -206,15 +206,11 @@ namespace e2d::images::impl
         if ( hdr.numSurfaces != 1 || hdr.numFaces != 1 || hdr.depth > 1 ) {
             return false; // cubemap and volume textures are not supported
         }
-        // TODO:
-        // if ( math::check_all_flags(hdr.flags, pvr_flags::premultiplied) ) {
-        //  ...
-        // }
         image_data_format format = image_data_format(-1);
         u32 bytes_per_block = 0;
         v2u block_size = v2u(1,1);
         if ( !get_pvr_format(hdr, format, bytes_per_block, block_size) ) {
-            return false; // unsupported format
+            return false;
         }
         v2u dimension = v2u(hdr.width, hdr.height);
         std::size_t size = bytes_per_block *
