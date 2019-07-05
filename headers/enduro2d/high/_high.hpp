@@ -35,6 +35,7 @@ namespace e2d
     class text_asset;
     class texture_asset;
     class xml_asset;
+    class sound_asset;
 
     class actor;
     class camera;

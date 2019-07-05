@@ -23,6 +23,7 @@
 #include "assets/text_asset.hpp"
 #include "assets/texture_asset.hpp"
 #include "assets/xml_asset.hpp"
+#include "assets/sound_asset.hpp"
 
 #include "components/actor.hpp"
 #include "components/camera.hpp"
