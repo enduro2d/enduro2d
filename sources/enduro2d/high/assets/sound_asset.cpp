@@ -21,10 +21,11 @@ namespace
 
     const char* sound_asset_schema_source = R"json({
         "type" : "object",
-        "required" : [ "sound"],
+        "required" : [ "sound", "stream" ],
         "additionalProperties" : false,
         "properties" : {
-            "sound" : { "$ref": "#/common_definitions/address" }
+            "sound" : { "$ref": "#/common_definitions/address" },
+            "stream" : { "type" : "boolean" }
         }
     })json";
 
@@ -52,15 +53,28 @@ namespace
         const rapidjson::Value& root)
     {
         E2D_ASSERT(root.HasMember("sound") && root["sound"].IsString());
-        auto sound_p = library.load_asset_async<binary_asset>(
-            path::combine(parent_address, root["sound"].GetString()));
+        str address = path::combine(parent_address, root["sound"].GetString());
 
-        return sound_p.then([](const binary_asset::load_result& sound_data){
-            return the<deferrer>().do_in_worker_thread([sound_data](){
-                return std::move(the<audio>().create_source(
-                                    the<audio>().preload_stream(sound_data->content())));
+        E2D_ASSERT(root.HasMember("stream") && root["stream"].IsBool());
+        bool stream = root["stream"].GetBool();
+
+        const auto asset_url = library.root() / address;
+        jobber_hpp::promise<sound_source_ptr> result;
+        if ( stream ) {
+            result.resolve(std::move(the<audio>().create_source(
+                                        the<audio>().create_stream(
+                                            the<vfs>().read(asset_url)))));
+        } else {
+            result = the<vfs>().load_async(asset_url)
+            .then([](auto&& content){
+                return the<deferrer>().do_in_main_thread([content](){
+                    return std::move(the<audio>().create_source(
+                                        the<audio>().preload_stream(content)));
+                });
             });
-        });
+        }
+
+        return result;
     }
 }
 
