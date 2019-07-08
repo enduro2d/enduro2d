@@ -136,6 +136,14 @@ file(GLOB_RECURSE E2D_3RDPARTY
 # e2d external 3rd party
 #
 
+if(USE_MSVC_RUNTIME_LIBRARY_DLL)
+    set(USE_STATIC_CRT OFF CACHE BOOL "" FORCE)
+else()
+    set(USE_STATIC_CRT ON CACHE BOOL "" FORCE)
+endif()
+add_subdirectory(modules/curly.hpp)
+set_target_properties(curly.hpp libcurl PROPERTIES FOLDER modules)
+
 set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
@@ -228,6 +236,9 @@ source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES
     ${E2D_HEADERS}
     ${E2D_SOURCES}
     ${E2D_3RDPARTY})
+
+target_link_libraries(${PROJECT_NAME}
+    PUBLIC curly.hpp)
 
 target_link_libraries(${PROJECT_NAME}
     PRIVATE bass
