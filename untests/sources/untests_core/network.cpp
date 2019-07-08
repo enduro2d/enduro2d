@@ -4,19 +4,8 @@
  * Copyright (C) 2018-2019, by Matvey Cherevko (blackmatov@gmail.com)
  ******************************************************************************/
 
-#pragma once
-
 #include "_core.hpp"
+using namespace e2d;
 
-#include "audio.hpp"
-#include "dbgui.hpp"
-#include "debug.hpp"
-#include "deferrer.hpp"
-#include "engine.hpp"
-#include "input.hpp"
-#include "network.hpp"
-#include "platform.hpp"
-#include "render.hpp"
-#include "render.inl"
-#include "vfs.hpp"
-#include "window.hpp"
+TEST_CASE("network"){
+}
