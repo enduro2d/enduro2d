@@ -10,6 +10,8 @@
 #include "../math/_all.hpp"
 #include "../utils/_all.hpp"
 
+#include <curly.hpp/curly.hpp>
+
 #include <3rdparty/promise.hpp/invoke.hpp>
 #include <3rdparty/promise.hpp/jobber.hpp>
 #include <3rdparty/promise.hpp/promise.hpp>
@@ -17,6 +19,11 @@
 
 namespace e2d
 {
+    namespace net
+    {
+        using namespace curly_hpp;
+    }
+
     namespace stdex
     {
         using namespace invoke_hpp;

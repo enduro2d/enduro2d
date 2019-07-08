@@ -12,6 +12,8 @@ namespace e2d
     public:
         internal_state() = default;
         ~internal_state() noexcept = default;
+    private:
+        net::performer performer_;
     };
 }
 

@@ -8,4 +8,12 @@
 using namespace e2d;
 
 TEST_CASE("network"){
+    network n;
+
+    SECTION("request"){
+        auto request = net::request_builder()
+            .url("http://httpbin.org/status/201")
+            .send();
+        REQUIRE(request.take().http_code() == 201u);
+    }
 }
