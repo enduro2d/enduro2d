@@ -21,11 +21,11 @@ namespace
 
     const char* sound_asset_schema_source = R"json({
         "type" : "object",
-        "required" : [ "sound", "stream" ],
+        "required" : [ "sound", "streaming" ],
         "additionalProperties" : false,
         "properties" : {
             "sound" : { "$ref": "#/common_definitions/address" },
-            "stream" : { "type" : "boolean" }
+            "streaming" : { "type" : "boolean" }
         }
     })json";
 
@@ -47,34 +47,45 @@ namespace
         return *schema;
     }
 
-    stdex::promise<sound_source_ptr> parse_sound(
+    stdex::promise<sound_stream_ptr> parse_sound(
         const library& library,
         str_view parent_address,
         const rapidjson::Value& root)
     {
         E2D_ASSERT(root.HasMember("sound") && root["sound"].IsString());
-        str address = path::combine(parent_address, root["sound"].GetString());
+        const str sound_address = path::combine(parent_address, root["sound"].GetString());
 
-        E2D_ASSERT(root.HasMember("stream") && root["stream"].IsBool());
-        bool stream = root["stream"].GetBool();
+        E2D_ASSERT(root.HasMember("streaming") && root["streaming"].IsBool());
+        const bool streaming = root["streaming"].GetBool();
 
-        const auto asset_url = library.root() / address;
-        jobber_hpp::promise<sound_source_ptr> result;
-        if ( stream ) {
-            result.resolve(std::move(the<audio>().create_source(
-                                        the<audio>().create_stream(
-                                            the<vfs>().read(asset_url)))));
+        if ( streaming ) {
+            return the<deferrer>().do_in_worker_thread([
+                sound_url = library.root() / sound_address
+            ](){
+                auto sound_file_stream = the<vfs>().read(sound_url);
+                if ( !sound_file_stream ) {
+                    throw sound_asset_loading_exception();
+                }
+                sound_stream_ptr content = the<audio>().create_stream(
+                    std::move(sound_file_stream));
+                if ( !content ) {
+                    throw sound_asset_loading_exception();
+                }
+                return content;
+            });
         } else {
-            result = the<vfs>().load_async(asset_url)
-            .then([](auto&& content){
-                return the<deferrer>().do_in_main_thread([content](){
-                    return std::move(the<audio>().create_source(
-                                        the<audio>().preload_stream(content)));
+            return library.load_asset_async<binary_asset>(sound_address)
+            .then([](const binary_asset::load_result& sound_data){
+                return the<deferrer>().do_in_worker_thread([sound_data](){
+                    sound_stream_ptr content = the<audio>().preload_stream(
+                        sound_data->content());
+                    if ( !content ) {
+                        throw sound_asset_loading_exception();
+                    }
+                    return content;
                 });
             });
         }
-
-        return result;
     }
 }
 
@@ -85,10 +96,10 @@ namespace e2d
     {
         return library.load_asset_async<json_asset>(address)
         .then([
-               &library,
-               address = str(address),
-               parent_address = path::parent_path(address)
-               ](const json_asset::load_result& sound_data){
+            &library,
+            address = str(address),
+            parent_address = path::parent_path(address)
+        ](const json_asset::load_result& sound_data){
             return the<deferrer>().do_in_worker_thread([address, sound_data](){
                 const rapidjson::Document& doc = *sound_data->content();
                 rapidjson::SchemaValidator validator(sound_asset_schema());
@@ -100,12 +111,12 @@ namespace e2d
                 rapidjson::StringBuffer sb;
                 if ( validator.GetInvalidDocumentPointer().StringifyUriFragment(sb) ) {
                     the<debug>().error("ASSET: Failed to validate asset json:\n"
-                                       "--> Address: %0\n"
-                                       "--> Invalid schema keyword: %1\n"
-                                       "--> Invalid document pointer: %2",
-                                       address,
-                                       validator.GetInvalidSchemaKeyword(),
-                                       sb.GetString());
+                        "--> Address: %0\n"
+                        "--> Invalid schema keyword: %1\n"
+                        "--> Invalid document pointer: %2",
+                        address,
+                        validator.GetInvalidSchemaKeyword(),
+                        sb.GetString());
                 } else {
                     the<debug>().error("ASSET: Failed to validate asset json");
                 }
@@ -117,7 +128,8 @@ namespace e2d
                     library, parent_address, *sound_data->content());
             })
             .then([](auto&& content){
-                return sound_asset::create(std::forward<decltype(content)>(content));
+                return sound_asset::create(
+                    std::forward<decltype(content)>(content));
             });
         });
     }

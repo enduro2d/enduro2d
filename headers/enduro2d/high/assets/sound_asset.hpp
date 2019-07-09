@@ -12,7 +12,7 @@
 
 namespace e2d
 {
-    class sound_asset final : public content_asset<sound_asset, sound_source_ptr> {
+    class sound_asset final : public content_asset<sound_asset, sound_stream_ptr> {
     public:
         static const char* type_name() noexcept { return "sound_asset"; }
         static load_async_result load_async(const library& library, str_view address);
