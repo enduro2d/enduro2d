@@ -31,6 +31,7 @@ namespace e2d
     class prefab_asset;
     class shader_asset;
     class shape_asset;
+    class sound_asset;
     class sprite_asset;
     class text_asset;
     class texture_asset;
