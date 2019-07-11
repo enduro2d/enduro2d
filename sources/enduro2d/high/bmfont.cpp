@@ -5,22 +5,21 @@
  ******************************************************************************/
 
 #include <enduro2d/high/bmfont.hpp>
-//#include <regex>
 #include <sstream>
 
 namespace e2d
 {
     bmfont_ptr bmfont::create (str_view content) {
         bmfont_ptr b = std::make_shared<bmfont>();
-        std::string s{content.data()};
+        str s{content.data()};
         std::replace(s.begin(), s.end(), '=', ' ');
         std::replace(s.begin(), s.end(), ',', ' ');
 
-        std::string tag;
-        std::string line;
+        str tag;
+        str line;
         std::stringstream data_stream(s);
-        std::vector<char_data> chars(120);
-        std::vector<kerning_data> kerning(120);
+        vector<char_data> chars(120);
+        vector<kerning_data> kerning(120);
         int chars_counter = 0;
         int kerning_counter = 0;
         while (getline(data_stream, line, '\n'))
@@ -39,34 +38,6 @@ namespace e2d
                         line_stream >>  b->info_.padding.down;
                         line_stream >>  b->info_.padding.left;
                     }
-
-//                    if (tag == "face") {
-//                        line_stream >>  b->info_.face;
-//                    } else if (tag == "size") {
-//                        line_stream >>  b->info_.size;
-//                    } else if (tag == "bold") {
-//                        line_stream >>  b->info_.bold;
-//                    } else if (tag == "italic") {
-//                        line_stream >>  b->info_.italic;
-//                    } else if (tag == "charset") {
-//                        line_stream >>  b->info_.charset;
-//                    } else if (tag == "unicode") {
-//                        line_stream >>  b->info_.unicode;
-//                    } else if (tag == "stretchH") {
-//                        line_stream >>  b->info_.stretchH;
-//                    } else if (tag == "smooth") {
-//                        line_stream >>  b->info_.smooth;
-//                    } else if (tag == "aa") {
-//                        line_stream >>  b->info_.aa;
-//                    } else if (tag == "padding") {
-//                        line_stream >>  b->info_.padding.up
-//                                    >>  b->info_.padding.right
-//                                    >>  b->info_.padding.down
-//                                    >>  b->info_.padding.left;
-//                    } else if (tag == "spacing") {
-//                        line_stream >>  b->info_.spacing.horizontal
-//                                    >>  b->info_.spacing.vertical;
-//                    }
                     line_stream >> tag;
                 }
             } else if (tag == "common") {
@@ -74,7 +45,7 @@ namespace e2d
                 line_stream >> tag;
                 while (!line_stream.eof()) {
                     if (tag == "lineHeight") {
-                        line_stream >>  b->common_.lineHeight;
+                        line_stream >>  b->common_.line_height;
                     } else if (tag == "pages") {
                         line_stream >>  b->common_.pages;
                          b->pages_.resize( b->common_.pages);
@@ -89,7 +60,7 @@ namespace e2d
                     if (tag == "id") {
                         line_stream >> id;
                     } else if (tag == "file") {
-                        std::string file;
+                        str file;
                         line_stream >> file;
                         //remove ""
                         file.erase(file.begin());
@@ -114,11 +85,10 @@ namespace e2d
             } else if (tag == "char") {
                 //char id=123 x=2 y=2 width=38 height=54 xoffset=0 yoffset=-3 xadvance=12 page=0 chnl=0 letter="{"
                 line_stream >> tag;
-                i32 id{-1};
-                char_data c;
+                char_data& c = chars[chars_counter++];
                 while (!line_stream.eof()) {
                     if (tag == "id") {
-                        line_stream >> id;
+                        line_stream >> c.id;
                     } else if (tag == "x") {
                         line_stream >> c.rect.position.x;
                     } else if (tag == "y") {
@@ -127,6 +97,7 @@ namespace e2d
                         line_stream >> c.rect.size.x;
                     } else if (tag == "height") {
                         line_stream >> c.rect.size.y;
+                        c.rect.position.y -= c.rect.size.y;
                     } else if (tag == "xoffset") {
                         line_stream >> c.xoffset;
                     } else if (tag == "yoffset") {
@@ -138,7 +109,6 @@ namespace e2d
                     }
                     line_stream >> tag;
                 }
-                chars[chars_counter++] = c;
             } else if (tag == "kernings") {
                 //kernings count=243
                 //this field may not exist!
@@ -155,7 +125,7 @@ namespace e2d
             } else if (tag == "kerning") {
                 //kerning first=86 second=101 amount=-2
                 line_stream >> tag;
-                kerning_data k;
+                kerning_data& k = kerning[kerning_counter++];
                 while (!line_stream.eof()) {
                     if (tag == "first") {
                         line_stream >> k.first;
@@ -166,7 +136,6 @@ namespace e2d
                     }
                     line_stream >> tag;
                 }
-                kerning[kerning_counter++] = k;
             }
         }
 
