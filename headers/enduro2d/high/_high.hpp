@@ -36,6 +36,7 @@ namespace e2d
     class text_asset;
     class texture_asset;
     class xml_asset;
+    class bmfont_asset;
 
     class actor;
     class camera;
@@ -68,4 +69,5 @@ namespace e2d
     class sprite;
     class starter;
     class world;
+    class bmfont;
 }
