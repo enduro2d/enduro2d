@@ -197,7 +197,7 @@ namespace e2d::strings
         std::memcpy(str, src.data(), src.size());
         const i64 tmp = std::strtoll(str, &end, 10);
 
-        if ( end != str + src.size() || errno ) {
+        if ( str == end || end != str + src.size() || errno ) {
             return false;
         }
 
@@ -228,7 +228,7 @@ namespace e2d::strings
         std::memcpy(str, src.data(), src.size());
         const i64 tmp = std::strtoll(str, &end, 10);
 
-        if ( end != str + src.size() || errno ) {
+        if ( str == end || end != str + src.size() || errno ) {
             return false;
         }
 
@@ -265,7 +265,7 @@ namespace e2d::strings
         std::memcpy(str, src.data(), src.size());
         const f32 tmp = std::strtof(str, &end);
 
-        if ( end != str + src.size() || errno ) {
+        if ( str == end || end != str + src.size() || errno ) {
             return false;
         }
 

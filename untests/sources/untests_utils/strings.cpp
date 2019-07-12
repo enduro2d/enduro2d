@@ -118,6 +118,7 @@ TEST_CASE("strings") {
             i8 v{111};
             REQUIRE((!try_parse(str_view(), v) && v == 111));
             REQUIRE((!try_parse("", v) && v == 111));
+            REQUIRE((!try_parse("  \t", v) && v == 111));
             REQUIRE((!try_parse("42hello", v) && v == 111));
             REQUIRE((!try_parse("world42", v) && v == 111));
             REQUIRE((!try_parse("42 ", v) && v == 111));
@@ -128,6 +129,7 @@ TEST_CASE("strings") {
             u8 uv{111};
             REQUIRE((!try_parse(str_view(), uv) && uv == 111));
             REQUIRE((!try_parse("", uv) && uv == 111));
+            REQUIRE((!try_parse("  \t", uv) && uv == 111));
             REQUIRE((!try_parse("42hello", uv) && uv == 111));
             REQUIRE((!try_parse("world42", uv) && uv == 111));
             REQUIRE((!try_parse("42 ", uv) && uv == 111));
@@ -150,12 +152,16 @@ TEST_CASE("strings") {
         }
         {
             f32 v32{11.22f};
+            REQUIRE((!try_parse("", v32) && math::approximately(v32, 11.22f)));
+            REQUIRE((!try_parse("  \t", v32) && math::approximately(v32, 11.22f)));
             REQUIRE((!try_parse("1.0E100", v32) && math::approximately(v32, 11.22f)));
             REQUIRE((!try_parse("1..4", v32) && math::approximately(v32, 11.22f)));
             REQUIRE((!try_parse("..14", v32) && math::approximately(v32, 11.22f)));
             REQUIRE((!try_parse("14..", v32) && math::approximately(v32, 11.22f)));
 
             f64 v64{11.22};
+            REQUIRE((!try_parse("", v64) && math::approximately(v64, 11.22)));
+            REQUIRE((!try_parse("  \t", v64) && math::approximately(v64, 11.22)));
             REQUIRE((!try_parse("1.0E400", v64) && math::approximately(v64, 11.22)));
             REQUIRE((!try_parse("1..4", v64) && math::approximately(v64, 11.22)));
             REQUIRE((!try_parse("..14", v64) && math::approximately(v64, 11.22)));
