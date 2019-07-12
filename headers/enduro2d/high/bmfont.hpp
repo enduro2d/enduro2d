@@ -17,36 +17,36 @@ namespace e2d
     class bmfont final {
     public:
         struct char_data {
-            u32 id;
+            u32 id{0};
             rect<i16> rect;
-            i16 xoffset;
-            i16 yoffset;
-            i16 xadvance;
-            i16 page;
-            i16 chnl;
+            i16 xoffset{0};
+            i16 yoffset{0};
+            i16 xadvance{0};
+            i16 page{0};
+            i16 chnl{0};
         };
 
         struct info_data {
             struct padding_data {
-                i16 up;
-                i16 right;
-                i16 down;
-                i16 left;
+                i16 up{0};
+                i16 right{0};
+                i16 down{0};
+                i16 left{0};
             };
 
-            u32 size;
+            u32 size{0};
             padding_data padding;
         };
 
         struct kerning_data {
-            u32 first;
-            u32 second;
-            i32 amount;
+            u32 first{0};
+            u32 second{0};
+            i32 amount{0};
         };
 
         struct common_data {
-            u32 line_height;
-            u32 pages;
+            u32 line_height{0};
+            u32 pages{0};
         };
 
         bmfont() = default;
