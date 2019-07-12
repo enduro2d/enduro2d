@@ -182,6 +182,58 @@ namespace std
 
 namespace e2d::strings
 {
+    template < typename T >
+    std::enable_if_t<std::is_integral_v<T>, bool>
+    try_parse(str_view src, T& dst) noexcept {
+        T tmp{0};
+        std::from_chars_result res = std::from_chars(
+            src.data(), src.data() + src.size(), tmp);
+        if ( res.ptr != src.data() + src.size() || res.ec != std::errc() ) {
+            return false;
+        }
+        dst = tmp;
+        return true;
+    }
+
+    template < typename T >
+    std::enable_if_t<std::is_same_v<T, f32>, T>
+    try_parse(str_view src, T& dst) noexcept {
+        if ( src.size() >= 128 ) {
+            return false;
+        }
+        char* str = static_cast<char*>(E2D_CLEAR_ALLOCA(src.size() + 1));
+        std::memcpy(str, src.data(), src.size());
+        errno = 0;
+        char* end = nullptr;
+        T tmp = std::strtof(str, &end);
+        if ( end != str + src.size() || errno ) {
+            return false;
+        }
+        dst = tmp;
+        return true;
+    }
+
+    template < typename T >
+    std::enable_if_t<std::is_same_v<T, f64>, T>
+    try_parse(str_view src, T& dst) noexcept {
+        if ( src.size() >= 512 ) {
+            return false;
+        }
+        char* str = static_cast<char*>(E2D_CLEAR_ALLOCA(src.size() + 1));
+        std::memcpy(str, src.data(), src.size());
+        errno = 0;
+        char* end = nullptr;
+        T tmp = std::strtod(str, &end);
+        if ( end != str + src.size() || errno ) {
+            return false;
+        }
+        dst = tmp;
+        return true;
+    }
+}
+
+namespace e2d::strings
+{
     //
     // exceptions
     //
