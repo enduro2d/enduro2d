@@ -195,7 +195,7 @@ namespace e2d::strings
         errno = 0;
         char* end = nullptr;
         std::memcpy(str, src.data(), src.size());
-        const i64 tmp = std::strtoll(str, &end, 10);
+        const i64 tmp = std::strtoll(str, &end, 0);
 
         if ( str == end || end != str + src.size() || errno ) {
             return false;
@@ -226,7 +226,7 @@ namespace e2d::strings
         errno = 0;
         char* end = nullptr;
         std::memcpy(str, src.data(), src.size());
-        const i64 tmp = std::strtoll(str, &end, 10);
+        const i64 tmp = std::strtoll(str, &end, 0);
 
         if ( str == end || end != str + src.size() || errno ) {
             return false;
@@ -239,10 +239,6 @@ namespace e2d::strings
         const u64 utmp = static_cast<u64>(tmp);
 
         if ( utmp > std::numeric_limits<T>::max() ) {
-            return false;
-        }
-
-        if ( utmp < std::numeric_limits<T>::lowest() ) {
             return false;
         }
 
