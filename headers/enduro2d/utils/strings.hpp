@@ -87,15 +87,21 @@ namespace e2d
 namespace e2d::strings
 {
     template < typename T >
-    std::enable_if_t<std::is_integral_v<T>, bool>
+    std::enable_if_t<
+        std::is_integral_v<T> && std::is_signed_v<T>,
+        bool>
     try_parse(str_view src, T& dst) noexcept;
 
     template < typename T >
-    std::enable_if_t<std::is_same_v<T, f32>, T>
+    std::enable_if_t<
+        std::is_integral_v<T> && std::is_unsigned_v<T>,
+        bool>
     try_parse(str_view src, T& dst) noexcept;
 
     template < typename T >
-    std::enable_if_t<std::is_same_v<T, f64>, T>
+    std::enable_if_t<
+        std::is_floating_point_v<T>,
+        bool>
     try_parse(str_view src, T& dst) noexcept;
 }
 

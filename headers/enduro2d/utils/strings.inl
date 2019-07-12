@@ -183,51 +183,101 @@ namespace std
 namespace e2d::strings
 {
     template < typename T >
-    std::enable_if_t<std::is_integral_v<T>, bool>
+    std::enable_if_t<
+        std::is_integral_v<T> && std::is_signed_v<T>,
+        bool>
     try_parse(str_view src, T& dst) noexcept {
-        T tmp{0};
-        std::from_chars_result res = std::from_chars(
-            src.data(), src.data() + src.size(), tmp);
-        if ( res.ptr != src.data() + src.size() || res.ec != std::errc() ) {
+        char str[32] = {'\0'};
+        if ( src.size() >= std::size(str) ) {
             return false;
         }
-        dst = tmp;
+
+        errno = 0;
+        char* end = nullptr;
+        std::memcpy(str, src.data(), src.size());
+        const i64 tmp = std::strtoll(str, &end, 10);
+
+        if ( end != str + src.size() || errno ) {
+            return false;
+        }
+
+        if ( tmp > std::numeric_limits<T>::max() ) {
+            return false;
+        }
+
+        if ( tmp < std::numeric_limits<T>::lowest() ) {
+            return false;
+        }
+
+        dst = static_cast<T>(tmp);
         return true;
     }
 
     template < typename T >
-    std::enable_if_t<std::is_same_v<T, f32>, T>
+    std::enable_if_t<
+        std::is_integral_v<T> && std::is_unsigned_v<T>,
+        bool>
     try_parse(str_view src, T& dst) noexcept {
-        if ( src.size() >= 128 ) {
+        char str[32] = {'\0'};
+        if ( src.size() >= std::size(str) ) {
             return false;
         }
-        char* str = static_cast<char*>(E2D_CLEAR_ALLOCA(src.size() + 1));
-        std::memcpy(str, src.data(), src.size());
+
         errno = 0;
         char* end = nullptr;
-        T tmp = std::strtof(str, &end);
+        std::memcpy(str, src.data(), src.size());
+        const i64 tmp = std::strtoll(str, &end, 10);
+
         if ( end != str + src.size() || errno ) {
             return false;
         }
-        dst = tmp;
+
+        if ( tmp < 0 ) {
+            return false;
+        }
+
+        const u64 utmp = static_cast<u64>(tmp);
+
+        if ( utmp > std::numeric_limits<T>::max() ) {
+            return false;
+        }
+
+        if ( utmp < std::numeric_limits<T>::lowest() ) {
+            return false;
+        }
+
+        dst = static_cast<T>(utmp);
         return true;
     }
 
     template < typename T >
-    std::enable_if_t<std::is_same_v<T, f64>, T>
+    std::enable_if_t<
+        std::is_floating_point_v<T>,
+        bool>
     try_parse(str_view src, T& dst) noexcept {
-        if ( src.size() >= 512 ) {
+        char str[128] = {'\0'};
+        if ( src.size() >= std::size(str) ) {
             return false;
         }
-        char* str = static_cast<char*>(E2D_CLEAR_ALLOCA(src.size() + 1));
-        std::memcpy(str, src.data(), src.size());
+
         errno = 0;
         char* end = nullptr;
-        T tmp = std::strtod(str, &end);
+        std::memcpy(str, src.data(), src.size());
+        const f32 tmp = std::strtof(str, &end);
+
         if ( end != str + src.size() || errno ) {
             return false;
         }
-        dst = tmp;
+
+        if ( tmp > std::numeric_limits<T>::max() ) {
+            return false;
+        }
+
+        if ( tmp < std::numeric_limits<T>::lowest() ) {
+            return false;
+        }
+
+        dst = static_cast<T>(tmp);
         return true;
     }
 }

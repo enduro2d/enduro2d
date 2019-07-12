@@ -101,7 +101,7 @@ TEST_CASE("strings") {
     }
     {
         using strings::try_parse;
-        
+
         {
             i8 v{111};
             REQUIRE((try_parse("42", v) && v == 42));
@@ -121,20 +121,29 @@ TEST_CASE("strings") {
             REQUIRE((!try_parse("42hello", v) && v == 111));
             REQUIRE((!try_parse("world42", v) && v == 111));
             REQUIRE((!try_parse("42 ", v) && v == 111));
-            REQUIRE((!try_parse(" 42", v) && v == 111));
             REQUIRE((!try_parse("-129", v) && v == 111));
             REQUIRE((!try_parse("128", v) && v == 111));
             REQUIRE((!try_parse("4.2", v) && v == 111));
+
+            u8 uv{111};
+            REQUIRE((!try_parse(str_view(), uv) && uv == 111));
+            REQUIRE((!try_parse("", uv) && uv == 111));
+            REQUIRE((!try_parse("42hello", uv) && uv == 111));
+            REQUIRE((!try_parse("world42", uv) && uv == 111));
+            REQUIRE((!try_parse("42 ", uv) && uv == 111));
+            REQUIRE((!try_parse("-1", uv) && uv == 111));
+            REQUIRE((!try_parse("256", uv) && uv == 111));
+            REQUIRE((!try_parse("4.2", uv) && uv == 111));
         }
         {
             f32 v32{11.22f};
-            REQUIRE((try_parse("4.23E10", v32) && math::approximately(v32, 4.23E10f)));
+            REQUIRE((try_parse("4.23E5", v32) && math::approximately(v32, 4.23e5f)));
             REQUIRE((try_parse("42", v32) && math::approximately(v32, 42.f)));
             REQUIRE((try_parse("-2.43", v32) && math::approximately(v32, -2.43f)));
             REQUIRE((try_parse("-24", v32) && math::approximately(v32, -24.f)));
 
             f64 v64{11.22f};
-            REQUIRE((try_parse("4.23E200", v64) && math::approximately(v64, 4.23e200)));
+            REQUIRE((try_parse("4.23E5", v64) && math::approximately(v64, 4.23e5)));
             REQUIRE((try_parse("42", v64) && math::approximately(v64, 42.)));
             REQUIRE((try_parse("-2.43", v64) && math::approximately(v64, -2.43)));
             REQUIRE((try_parse("-24", v64) && math::approximately(v64, -24.)));
