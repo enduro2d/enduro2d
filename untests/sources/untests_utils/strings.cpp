@@ -100,6 +100,88 @@ TEST_CASE("strings") {
         REQUIRE(make_utf32(str32_view(null_utf32, 0)) == make_utf32(U""));
     }
     {
+        using strings::try_parse;
+
+        {
+            i8 v{111};
+            REQUIRE((try_parse("42", v) && v == 42));
+            REQUIRE((try_parse("+42", v) && v == 42));
+            REQUIRE((try_parse("127", v) && v == 127));
+            REQUIRE((try_parse("0", v) && v == 0));
+            REQUIRE((try_parse("0xF", v) && v == 15));
+            REQUIRE((try_parse("052", v) && v == 42));
+            REQUIRE((try_parse("-052", v) && v == -42));
+            REQUIRE((try_parse("-128", v) && v == -128));
+
+            u8 uv{111};
+            REQUIRE((try_parse("42", uv) && uv == 42));
+            REQUIRE((try_parse("+42", uv) && uv == 42));
+            REQUIRE((try_parse("255", uv) && uv == 255));
+            REQUIRE((try_parse("0xFF", uv) && uv == 255));
+            REQUIRE((try_parse("052", uv) && uv == 42));
+            REQUIRE((try_parse("0", uv) && uv == 0));
+        }
+        {
+            i8 v{111};
+            REQUIRE((!try_parse(str_view(), v) && v == 111));
+            REQUIRE((!try_parse("", v) && v == 111));
+            REQUIRE((!try_parse("  \t", v) && v == 111));
+            REQUIRE((!try_parse("42hello", v) && v == 111));
+            REQUIRE((!try_parse("world42", v) && v == 111));
+            REQUIRE((!try_parse("42 ", v) && v == 111));
+            REQUIRE((!try_parse("-129", v) && v == 111));
+            REQUIRE((!try_parse("128", v) && v == 111));
+            REQUIRE((!try_parse("4.2", v) && v == 111));
+
+            u8 uv{111};
+            REQUIRE((!try_parse(str_view(), uv) && uv == 111));
+            REQUIRE((!try_parse("", uv) && uv == 111));
+            REQUIRE((!try_parse("  \t", uv) && uv == 111));
+            REQUIRE((!try_parse("42hello", uv) && uv == 111));
+            REQUIRE((!try_parse("world42", uv) && uv == 111));
+            REQUIRE((!try_parse("42 ", uv) && uv == 111));
+            REQUIRE((!try_parse("-1", uv) && uv == 111));
+            REQUIRE((!try_parse("256", uv) && uv == 111));
+            REQUIRE((!try_parse("4.2", uv) && uv == 111));
+        }
+        {
+            f32 v32{11.22f};
+            REQUIRE((try_parse("4.23E5", v32) && math::approximately(v32, 4.23e5f)));
+            REQUIRE((try_parse("4.23E-5", v32) && math::approximately(v32, 4.23e-5f)));
+            REQUIRE((try_parse("4.23E+5", v32) && math::approximately(v32, 4.23e+5f)));
+            REQUIRE((try_parse("42", v32) && math::approximately(v32, 42.f)));
+            REQUIRE((try_parse("+42", v32) && math::approximately(v32, 42.f)));
+            REQUIRE((try_parse("-2.43", v32) && math::approximately(v32, -2.43f)));
+            REQUIRE((try_parse("-24", v32) && math::approximately(v32, -24.f)));
+
+            f64 v64{11.22f};
+            REQUIRE((try_parse("4.23E5", v64) && math::approximately(v64, 4.23e5)));
+            REQUIRE((try_parse("4.23E-5", v64) && math::approximately(v64, 4.23e-5)));
+            REQUIRE((try_parse("4.23E+5", v64) && math::approximately(v64, 4.23e+5)));
+            REQUIRE((try_parse("42", v64) && math::approximately(v64, 42.)));
+            REQUIRE((try_parse("+42", v64) && math::approximately(v64, 42.)));
+            REQUIRE((try_parse("-2.43", v64) && math::approximately(v64, -2.43)));
+            REQUIRE((try_parse("-24", v64) && math::approximately(v64, -24.)));
+        }
+        {
+            f32 v32{11.22f};
+            REQUIRE((!try_parse("", v32) && math::approximately(v32, 11.22f)));
+            REQUIRE((!try_parse("  \t", v32) && math::approximately(v32, 11.22f)));
+            REQUIRE((!try_parse("1.0E100", v32) && math::approximately(v32, 11.22f)));
+            REQUIRE((!try_parse("1..4", v32) && math::approximately(v32, 11.22f)));
+            REQUIRE((!try_parse("..14", v32) && math::approximately(v32, 11.22f)));
+            REQUIRE((!try_parse("14..", v32) && math::approximately(v32, 11.22f)));
+
+            f64 v64{11.22};
+            REQUIRE((!try_parse("", v64) && math::approximately(v64, 11.22)));
+            REQUIRE((!try_parse("  \t", v64) && math::approximately(v64, 11.22)));
+            REQUIRE((!try_parse("1.0E400", v64) && math::approximately(v64, 11.22)));
+            REQUIRE((!try_parse("1..4", v64) && math::approximately(v64, 11.22)));
+            REQUIRE((!try_parse("..14", v64) && math::approximately(v64, 11.22)));
+            REQUIRE((!try_parse("14..", v64) && math::approximately(v64, 11.22)));
+        }
+    }
+    {
         using strings::wildcard_match;
 
         char invalid_utf[] = "\xe6\x97\xa5\xd1\x88\xfa";

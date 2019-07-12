@@ -31,7 +31,7 @@
 //
 
 #if defined(E2D_COMPILER) && E2D_COMPILER == E2D_COMPILER_MSVC
-#  define E2D_ALLOCA(size) _malloca((size))
+#  define E2D_ALLOCA(size) _alloca((size))
 #else
 #  define E2D_ALLOCA(size) alloca((size))
 #endif
