@@ -19,6 +19,7 @@
 #include "assets/prefab_asset.hpp"
 #include "assets/shader_asset.hpp"
 #include "assets/shape_asset.hpp"
+#include "assets/sound_asset.hpp"
 #include "assets/sprite_asset.hpp"
 #include "assets/text_asset.hpp"
 #include "assets/texture_asset.hpp"

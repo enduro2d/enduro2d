@@ -15,6 +15,7 @@ namespace
             modules::initialize<starter>(0, nullptr,
                 starter::parameters(
                     engine::parameters("asset_untests", "enduro2d")
+                        .without_audio(true)
                         .without_graphics(true)));
         }
 

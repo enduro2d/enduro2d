@@ -8,6 +8,7 @@
 
 #include <cmath>
 #include <cstdio>
+#include <cerrno>
 #include <climits>
 #include <cstring>
 #include <cstdint>

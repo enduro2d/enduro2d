@@ -118,14 +118,13 @@ namespace e2d
 namespace e2d
 {
     template < typename Tag, typename T, typename TP, typename TR >
-    class intrusive_list_iterator final
-        : public std::iterator<
-            std::bidirectional_iterator_tag,
-            T,
-            ptrdiff_t,
-            TP,
-            TR>
-    {
+    class intrusive_list_iterator final {
+    public:
+        using iterator_category = std::bidirectional_iterator_tag;
+        using value_type = T;
+        using difference_type = ptrdiff_t;
+        using pointer = TP;
+        using reference = TR&;
     public:
         using self_type = intrusive_list_iterator;
 

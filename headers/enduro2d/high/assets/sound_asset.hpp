@@ -4,14 +4,17 @@
  * Copyright (C) 2018-2019, by Matvey Cherevko (blackmatov@gmail.com)
  ******************************************************************************/
 
-#include "_high.hpp"
-using namespace e2d;
+#pragma once
 
-TEST_CASE("starter"){
-    modules::initialize<starter>(0, nullptr,
-        starter::parameters(
-            engine::parameters("starter_untests", "enduro2d")
-                .without_audio(true)
-                .without_graphics(true)));
-    modules::shutdown<starter>();
+#include "../_high.hpp"
+
+#include "../library.hpp"
+
+namespace e2d
+{
+    class sound_asset final : public content_asset<sound_asset, sound_stream_ptr> {
+    public:
+        static const char* type_name() noexcept { return "sound_asset"; }
+        static load_async_result load_async(const library& library, str_view address);
+    };
 }
