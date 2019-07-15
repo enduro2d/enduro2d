@@ -141,6 +141,8 @@ if(USE_MSVC_RUNTIME_LIBRARY_DLL)
 else()
     set(USE_STATIC_CRT ON CACHE BOOL "" FORCE)
 endif()
+set(USE_SYSTEM_CURL OFF CACHE BOOL "" FORCE)
+set(USE_EMBEDDED_CURL ON CACHE BOOL "" FORCE)
 add_subdirectory(modules/curly.hpp)
 set_target_properties(curly.hpp libcurl PROPERTIES FOLDER modules)
 
