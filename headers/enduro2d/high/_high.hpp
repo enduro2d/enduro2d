@@ -8,7 +8,7 @@
 
 #include "../core/_all.hpp"
 
-#include <3rdparty/ecs.hpp/ecs.hpp>
+#include <ecs.hpp/ecs.hpp>
 
 namespace e2d
 {

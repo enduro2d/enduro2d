@@ -10,13 +10,20 @@
 #include "../math/_all.hpp"
 #include "../utils/_all.hpp"
 
-#include <3rdparty/promise.hpp/invoke.hpp>
-#include <3rdparty/promise.hpp/jobber.hpp>
-#include <3rdparty/promise.hpp/promise.hpp>
-#include <3rdparty/promise.hpp/scheduler.hpp>
+#include <curly.hpp/curly.hpp>
+
+#include <promise.hpp/invoke.hpp>
+#include <promise.hpp/jobber.hpp>
+#include <promise.hpp/promise.hpp>
+#include <promise.hpp/scheduler.hpp>
 
 namespace e2d
 {
+    namespace net
+    {
+        using namespace curly_hpp;
+    }
+
     namespace stdex
     {
         using namespace invoke_hpp;
@@ -35,6 +42,7 @@ namespace e2d
     class mouse;
     class keyboard;
     class input;
+    class network;
     class platform;
     class render;
     class shader;

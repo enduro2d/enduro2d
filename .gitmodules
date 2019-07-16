@@ -37,3 +37,6 @@
 [submodule "modules/variant"]
 	path = modules/variant
 	url = https://github.com/mpark/variant
+[submodule "modules/curly.hpp"]
+	path = modules/curly.hpp
+	url = https://github.com/BlackMATov/curly.hpp

@@ -20,12 +20,6 @@ git submodule update --remote
 mkdir -p $UNTESTS_DIR/catch
 cp -fv $MODULES_DIR/catch2/single_include/catch2/catch.hpp $UNTESTS_DIR/catch/catch.hpp
 
-mkdir -p $HEADERS_RDPARTY_DIR/ecs.hpp
-cp -rfv $MODULES_DIR/ecs.hpp/headers/ecs.hpp/. $HEADERS_RDPARTY_DIR/ecs.hpp/
-
-mkdir -p $HEADERS_RDPARTY_DIR/flat.hpp
-cp -rfv $MODULES_DIR/flat.hpp/headers/flat.hpp/. $HEADERS_RDPARTY_DIR/flat.hpp/
-
 mkdir -p $SOURCES_RDPARTY_DIR/imgui
 cp -fv $MODULES_DIR/imgui/imgui.cpp $SOURCES_RDPARTY_DIR/imgui/imgui.cpp
 cp -fv $MODULES_DIR/imgui/imgui.h $SOURCES_RDPARTY_DIR/imgui/imgui.h
@@ -47,9 +41,6 @@ cp -fv $MODULES_DIR/miniz/miniz_tinfl.c $SOURCES_RDPARTY_DIR/miniz/miniz_tinfl.c
 cp -fv $MODULES_DIR/miniz/miniz_tinfl.h $SOURCES_RDPARTY_DIR/miniz/miniz_tinfl.h
 cp -fv $MODULES_DIR/miniz/miniz_zip.c $SOURCES_RDPARTY_DIR/miniz/miniz_zip.c
 cp -fv $MODULES_DIR/miniz/miniz_zip.h $SOURCES_RDPARTY_DIR/miniz/miniz_zip.h
-
-mkdir -p $HEADERS_RDPARTY_DIR/promise.hpp
-cp -rfv $MODULES_DIR/promise.hpp/headers/promise.hpp/. $HEADERS_RDPARTY_DIR/promise.hpp/
 
 mkdir -p $HEADERS_RDPARTY_DIR/pugixml
 cp -rfv $MODULES_DIR/pugixml/src/. $HEADERS_RDPARTY_DIR/pugixml/
