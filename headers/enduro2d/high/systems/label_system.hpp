@@ -8,14 +8,15 @@
 
 #include "../_high.hpp"
 
-#include "../library.hpp"
-#include "../bmfont.hpp"
-
 namespace e2d
 {
-    class bmfont_asset final : public content_asset<bmfont_asset, bmfont_ptr> {
+    class label_system final : public ecs::system {
     public:
-        static const char* type_name() noexcept { return "bmfont_asset"; }
-        static load_async_result load_async(const library& library, str_view address);
+        label_system();
+        ~label_system() noexcept final;
+        void process(ecs::registry& owner) override;
+    private:
+        class internal_state;
+        std::unique_ptr<internal_state> state_;
     };
 }

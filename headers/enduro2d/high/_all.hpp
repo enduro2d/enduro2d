@@ -24,7 +24,7 @@
 #include "assets/text_asset.hpp"
 #include "assets/texture_asset.hpp"
 #include "assets/xml_asset.hpp"
-#include "assets/bmfont_asset.hpp"
+#include "assets/font_asset.hpp"
 
 #include "components/actor.hpp"
 #include "components/camera.hpp"
@@ -34,9 +34,11 @@
 #include "components/renderer.hpp"
 #include "components/scene.hpp"
 #include "components/sprite_renderer.hpp"
+#include "components/label.hpp"
 
 #include "systems/flipbook_system.hpp"
 #include "systems/render_system.hpp"
+#include "systems/label_system.hpp"
 
 #include "address.hpp"
 #include "asset.hpp"

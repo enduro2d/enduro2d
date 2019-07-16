@@ -25,6 +25,7 @@ namespace e2d
     class input_sequence;
     class output_sequence;
     class url;
+    class font;
 
     template < typename T >
     class module;

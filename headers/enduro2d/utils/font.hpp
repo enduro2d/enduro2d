@@ -6,15 +6,15 @@
 
 #pragma once
 
-#include "_high.hpp"
+#include "_utils.hpp"
 
 namespace e2d
 {
-    class bmfont;
+    class font;
 
-    using bmfont_ptr = std::shared_ptr<bmfont>;
+    using font_ptr = std::shared_ptr<font>;
 
-    class bmfont final {
+    class font final {
     public:
         struct char_data {
             u32 id{0};
@@ -39,26 +39,32 @@ namespace e2d
         };
 
         struct kerning_data {
-            u32 first{0};
+            u64 first{0};
             u32 second{0};
             i32 amount{0};
         };
 
         struct common_data {
             u32 line_height{0};
+            u32 base{0};
             u32 pages{0};
+            u32 atlas_width{0};
+            u32 atlas_height{0};
         };
 
-        bmfont() = default;
-        ~bmfont() noexcept = default;
+        font() = default;
+        ~font() noexcept = default;
 
-        static bmfont_ptr create(str_view content);
+        static font_ptr create(str_view content);
+        char_data data (u32 charId) const noexcept;
+        common_data common() const noexcept;
 
+        i32 kerning (u32 first, u32 second) const noexcept;
     private:
         info_data info_;
         common_data common_;
         vector<str> pages_;
         vector<char_data> chars_;
-        vector<kerning_data> kerning_;
+        flat_map<u64,i32> kerning_;
     };
 }

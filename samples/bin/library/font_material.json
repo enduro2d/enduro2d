@@ -1,0 +1,21 @@
+{
+    "passes" : [{
+        "shader" : "model_shader.json",
+        "state_block" : {
+            "capabilities_state" : {
+                "depth_test" : false,
+                "blending" : true
+            },
+            "blending_state" : {
+                "src_factor" : "src_alpha",
+                "dst_factor" : "one_minus_src_alpha"
+            }
+        }
+    }],
+    "property_block" : {
+        "samplers" : [{
+            "name" : "u_texture",
+            "texture" : "boundsTestFont.png"
+        }]
+    }
+}

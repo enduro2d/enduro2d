@@ -36,7 +36,7 @@ namespace e2d
     class text_asset;
     class texture_asset;
     class xml_asset;
-    class bmfont_asset;
+    class font_asset;
 
     class actor;
     class camera;
@@ -46,9 +46,11 @@ namespace e2d
     class renderer;
     class scene;
     class sprite_renderer;
+    class label;
 
     class flipbook_system;
     class render_system;
+    class label_system;
 
     template < typename Asset, typename Content >
     class content_asset;
@@ -69,5 +71,4 @@ namespace e2d
     class sprite;
     class starter;
     class world;
-    class bmfont;
 }

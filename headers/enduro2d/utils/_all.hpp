@@ -30,3 +30,4 @@
 #include "time.hpp"
 #include "url.hpp"
 #include "xml_utils.hpp"
+#include "font.hpp"

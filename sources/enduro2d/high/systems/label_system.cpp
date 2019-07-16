@@ -1,0 +1,125 @@
+/*******************************************************************************
+ * This file is part of the "Enduro2D"
+ * For conditions of distribution and use, see copyright notice in LICENSE.md
+ * Copyright (C) 2018-2019, by Matvey Cherevko (blackmatov@gmail.com)
+ ******************************************************************************/
+
+#include <enduro2d/high/systems/label_system.hpp>
+
+
+#include <enduro2d/high/components/label.hpp>
+#include <enduro2d/utils/font.hpp>
+#include <enduro2d/high/components/model_renderer.hpp>
+
+
+namespace e2d
+{
+    //
+    // label_system::internal_state
+    //
+
+    class label_system::internal_state final : private noncopyable {
+    public:
+        internal_state() = default;
+        ~internal_state() noexcept = default;
+
+        void process(ecs::registry& owner) {
+            owner.for_joined_components<label, model_renderer>([](
+                const ecs::const_entity&,
+                label& l,
+                model_renderer& mr)
+            {
+                if (l.dirty()) {
+                    vector<v3f> vertices;
+                    vector<u32> indices;
+                    vector<v2f> uvs;
+                    vector<v3f> normals;
+                    f32 xoffset{0};
+                    f32 yoffset{0};
+                    str text = l.text();
+                    const auto& f = l.font()->content();
+                    auto common = f->common();
+                    v2f texture_size;
+                    texture_size.x = common.atlas_width;
+                    texture_size.y = common.atlas_height;
+
+                    vertices.resize(text.size() * 4);
+                    uvs.resize(vertices.size());
+                    indices.resize(text.size() * 6);
+                    f32 x_pos{0};
+                    f32 y_pos{0};
+                    u32 prev_char{0};
+                    for (size_t i = 0; i < text.size(); i++) {
+                        if ( text[i] == '\n' ) {
+                            y_pos -= f->common().line_height;
+                            x_pos = 0;
+                            prev_char = 0;
+                            continue;
+                        }
+                        auto data = f->data(text[i]);
+                        xoffset = 0;
+                        yoffset = data.yoffset;
+                        if ( prev_char != 0 ) {
+                            xoffset = f->kerning(prev_char, data.id);
+                        }
+                        prev_char = data.id;
+                        size_t start_vertices = i * 4;
+                        vertices[start_vertices    ] = v3f(x_pos + xoffset,
+                                                           y_pos + yoffset, 0);
+                        vertices[start_vertices + 1] = v3f(x_pos + xoffset,
+                                                           y_pos + data.rect.size.y + yoffset, 0);
+                        vertices[start_vertices + 2] = v3f(x_pos + data.rect.size.x + xoffset,
+                                                           y_pos + data.rect.size.y + yoffset, 0);
+                        vertices[start_vertices + 3] = v3f(x_pos + data.rect.size.x + xoffset,
+                                                           y_pos + yoffset, 0);
+
+                        uvs[start_vertices    ] = v2f(data.rect.position.x / texture_size.x,
+                                                 data.rect.position.y / texture_size.y);
+                        uvs[start_vertices + 1] = v2f(data.rect.position.x / texture_size.x,
+                                                 (data.rect.position.y + data.rect.size.y) / texture_size.y);
+                        uvs[start_vertices + 2] = v2f((data.rect.position.x + data.rect.size.x) / texture_size.x,
+                                                 (data.rect.position.y + data.rect.size.y) / texture_size.y);
+                        uvs[start_vertices + 3] = v2f((data.rect.position.x + data.rect.size.x) / texture_size.x,
+                                                 data.rect.position.y / texture_size.y);
+
+                        size_t start_indices = i * 6;
+                        indices[start_indices]     = start_vertices;
+                        indices[start_indices + 1] = start_vertices + 1;
+                        indices[start_indices + 2] = start_vertices + 2;
+                        indices[start_indices + 3] = start_vertices + 2;
+                        indices[start_indices + 4] = start_vertices + 3;
+                        indices[start_indices + 5] = start_vertices;
+
+                        x_pos += data.xadvance + xoffset;
+                    }
+
+                    mesh m;
+                    m.set_vertices(std::move(vertices));
+                    m.set_indices(0, std::move(indices));
+                    m.set_uvs(0, std::move(uvs));
+
+                    model content;
+                    content.set_mesh(mesh_asset::create(m));
+                    content.regenerate_geometry(the<render>());
+                    mr.model()->fill(content);
+                    l.dirty(false);
+
+                    const model& mod = mr.model()->content();
+                    (const_cast<model*>(&mod))->regenerate_geometry(the<render>());//TODO: const cast
+                }
+            });
+        }
+    };
+
+    //
+    // label_system
+    //
+
+    label_system::label_system()
+    : state_(new internal_state()) {}
+    label_system::~label_system() noexcept = default;
+
+    void label_system::process(ecs::registry& owner) {
+        state_->process(owner);
+    }
+}

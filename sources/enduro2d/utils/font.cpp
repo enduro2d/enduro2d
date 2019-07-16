@@ -4,13 +4,17 @@
  * Copyright (C) 2018-2019, by Matvey Cherevko (blackmatov@gmail.com)
  ******************************************************************************/
 
-#include <enduro2d/high/bmfont.hpp>
+#include <enduro2d/utils/font.hpp>
 #include <sstream>
 
 namespace e2d
 {
-    bmfont_ptr bmfont::create (str_view content) {
-        bmfont_ptr b = std::make_shared<bmfont>();
+    u64 makeKerningKey (u32 first, u32 second) noexcept {
+        return (static_cast<u64>(first) << 32) | static_cast<u64>(second);
+    }
+
+    font_ptr font::create (str_view content) {
+        font_ptr b = std::make_shared<font>();
         str s{content.data()};
         std::replace(s.begin(), s.end(), '=', ' ');
         std::replace(s.begin(), s.end(), ',', ' ');
@@ -46,9 +50,15 @@ namespace e2d
                 while (!line_stream.eof()) {
                     if (tag == "lineHeight") {
                         line_stream >>  b->common_.line_height;
+                    } else if (tag == "base") {
+                        line_stream >>  b->common_.base;
                     } else if (tag == "pages") {
                         line_stream >>  b->common_.pages;
                          b->pages_.resize( b->common_.pages);
+                    } else if (tag == "scaleW") {
+                        line_stream >>  b->common_.atlas_width;
+                    } else if (tag == "scaleH") {
+                        line_stream >>  b->common_.atlas_height;
                     }
                     line_stream >> tag;
                 }
@@ -93,15 +103,17 @@ namespace e2d
                         line_stream >> c.rect.position.x;
                     } else if (tag == "y") {
                         line_stream >> c.rect.position.y;
-                    } else if (tag == "widht") {
+                    } else if (tag == "width") {
                         line_stream >> c.rect.size.x;
                     } else if (tag == "height") {
                         line_stream >> c.rect.size.y;
-                        c.rect.position.y -= c.rect.size.y;
+                        c.rect.position.y = b->common_.atlas_height - c.rect.position.y - c.rect.size.y;
                     } else if (tag == "xoffset") {
                         line_stream >> c.xoffset;
                     } else if (tag == "yoffset") {
                         line_stream >> c.yoffset;
+                        c.yoffset = b->common_.base - c.yoffset - c.rect.size.y;
+//                        c.yoffset = -(b->common_.line_height - c.yoffset);
                     } else if (tag == "xadvance") {
                         line_stream >> c.xadvance;
                     } else if (tag == "page") {
@@ -139,9 +151,37 @@ namespace e2d
             }
         }
 
-         b->chars_.insert(b->chars_.begin(), chars.begin(), chars.begin()+chars_counter);
-         b->kerning_.insert(b->kerning_.begin(), kerning.begin(), kerning.begin()+kerning_counter);
+        b->chars_.insert(b->chars_.begin(), chars.begin(), chars.begin()+chars_counter);
+        b->kerning_.reserve(kerning_counter);
+        u64 key{0};
+        for ( int i = 0; i < kerning_counter; i++ ) {
+            b->kerning_.insert_or_assign(makeKerningKey(kerning[i].first,kerning[i].second),
+                                         kerning[i].amount);
+        }
 
         return b;
+    }
+
+    font::char_data font::data (u32 charId) const noexcept {
+        for ( auto& c: chars_ ) {
+            if (c.id == charId) {
+                return c;
+            }
+        }
+
+        return font::char_data();
+    }
+
+    font::common_data font::common() const noexcept {
+        return common_;
+    }
+
+    i32 font::kerning (u32 first, u32 second) const noexcept {
+        auto it = kerning_.find(makeKerningKey(first,second));
+        if (it != kerning_.end()) {
+            return it->second;
+        }
+
+        return 0;
     }
 }

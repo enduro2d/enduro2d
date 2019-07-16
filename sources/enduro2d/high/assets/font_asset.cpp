@@ -4,7 +4,7 @@
  * Copyright (C) 2018-2019, by Matvey Cherevko (blackmatov@gmail.com)
  ******************************************************************************/
 
-#include <enduro2d/high/assets/bmfont_asset.hpp>
+#include <enduro2d/high/assets/font_asset.hpp>
 #include <enduro2d/high/assets/text_asset.hpp>
 
 namespace
@@ -20,17 +20,17 @@ namespace
 
 namespace e2d
 {
-    bmfont_asset::load_async_result bmfont_asset::load_async(
+    font_asset::load_async_result font_asset::load_async(
         const library& library, str_view address)
     {
         return library.load_asset_async<text_asset>(address)
         .then([](const text_asset::load_result& text_data){
             return the<deferrer>().do_in_main_thread([text_data](){
-                auto font = bmfont::create(text_data->content());
+                auto font = font::create(text_data->content());
                 if ( !font ) {
                     throw bmfont_asset_loading_exception();
                 }
-                return bmfont_asset::create(font);
+                return font_asset::create(font);
             });
         });
     }
