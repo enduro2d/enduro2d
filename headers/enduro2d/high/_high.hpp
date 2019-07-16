@@ -8,8 +8,8 @@
 
 #include "../core/_all.hpp"
 
+#include <ecs.hpp/ecs.hpp>
 #include <3rdparty/sol/sol.hpp>
-#include <3rdparty/ecs.hpp/ecs.hpp>
 
 namespace e2d
 {
@@ -33,6 +33,7 @@ namespace e2d
     class script_asset;
     class shader_asset;
     class shape_asset;
+    class sound_asset;
     class sprite_asset;
     class text_asset;
     class texture_asset;

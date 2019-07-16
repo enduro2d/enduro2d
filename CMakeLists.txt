@@ -1,29 +1,42 @@
 cmake_minimum_required(VERSION 3.11 FATAL_ERROR)
+
+if(NOT DEFINED PROJECT_NAME)
+    set(E2D_BUILD_AS_STANDALONE ON)
+endif()
+
 project(enduro2d)
 
 set(E2D_SYSTEM_NAME ${CMAKE_SYSTEM_NAME})
 set(E2D_ROOT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
-message("E2D_SYSTEM_NAME: " ${E2D_SYSTEM_NAME})
-message("E2D_ROOT_DIRECTORY: " ${E2D_ROOT_DIRECTORY})
+if(NOT E2D_BUILD_AS_STANDALONE)
+    set(E2D_SYSTEM_NAME ${E2D_SYSTEM_NAME} PARENT_SCOPE)
+    set(E2D_ROOT_DIRECTORY ${E2D_ROOT_DIRECTORY} PARENT_SCOPE)
+endif()
+
+set(E2D_ALL_C_CONFIGS "CMAKE_C_FLAGS")
+set(E2D_ALL_CXX_CONFIGS "CMAKE_CXX_FLAGS")
+
+if(CMAKE_BUILD_TYPE)
+    string(TOUPPER ${CMAKE_BUILD_TYPE} build_type)
+    set(E2D_ALL_C_CONFIGS "${E2D_ALL_C_CONFIGS}" "CMAKE_C_FLAGS_${build_type}")
+    set(E2D_ALL_CXX_CONFIGS "${E2D_ALL_CXX_CONFIGS}" "CMAKE_CXX_FLAGS_${build_type}")
+endif()
+
+foreach(type ${CMAKE_CONFIGURATION_TYPES})
+    string(TOUPPER ${type} build_type)
+    set(E2D_ALL_C_CONFIGS "${E2D_ALL_C_CONFIGS}" "CMAKE_C_FLAGS_${build_type}")
+    set(E2D_ALL_CXX_CONFIGS "${E2D_ALL_CXX_CONFIGS}" "CMAKE_CXX_FLAGS_${build_type}")
+endforeach()
 
 #
 # linking mode
 #
 
 if(MSVC)
-    option(USE_MSVC_RUNTIME_LIBRARY_DLL "Use MSVC runtime library DLL" OFF)
-    if(NOT USE_MSVC_RUNTIME_LIBRARY_DLL)
-        foreach(flag CMAKE_C_FLAGS
-                     CMAKE_C_FLAGS_DEBUG
-                     CMAKE_C_FLAGS_RELEASE
-                     CMAKE_C_FLAGS_MINSIZEREL
-                     CMAKE_C_FLAGS_RELWITHDEBINFO
-                     CMAKE_CXX_FLAGS
-                     CMAKE_CXX_FLAGS_DEBUG
-                     CMAKE_CXX_FLAGS_RELEASE
-                     CMAKE_CXX_FLAGS_MINSIZEREL
-                     CMAKE_CXX_FLAGS_RELWITHDEBINFO)
+    option(E2D_BUILD_WITH_STATIC_CRT "Use static C runtime library" ON)
+    if(E2D_BUILD_WITH_STATIC_CRT)
+        foreach(flag ${E2D_ALL_C_CONFIGS} ${E2D_ALL_CXX_CONFIGS})
             if(${flag} MATCHES "/MD")
                 string(REGEX REPLACE "/MD" "/MT" ${flag} "${${flag}}")
             endif()
@@ -33,6 +46,38 @@ if(MSVC)
         endforeach()
     endif()
 endif(MSVC)
+
+#
+# compilation mode
+#
+
+set(E2D_SHARED_CXX_FLAGS "")
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    set(E2D_SHARED_CXX_FLAGS -Wloop-analysis
+                             -Wpointer-arith
+                             -Wpessimizing-move
+                             -Wuninitialized
+                             -Werror=init-self
+                             -Werror=self-assign
+                             -Werror=self-move
+                             -Werror=infinite-recursion
+                             -Werror=dangling-else
+                             -Werror=large-by-value-copy
+                             -Werror=instantiation-after-specialization
+                             -Werror=array-bounds
+                             -Werror=missing-field-initializers
+                             -Werror=user-defined-literals
+                             -Werror=parentheses
+                             -Werror=address
+                             -Werror=return-stack-address)
+    string(REPLACE ";" " " E2D_SHARED_CXX_FLAGS "${E2D_SHARED_CXX_FLAGS}")
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+endif()
+
+foreach(config ${E2D_ALL_CXX_CONFIGS})
+    set(${config} "${${config}} ${E2D_SHARED_CXX_FLAGS}")
+endforeach()
 
 #
 # coverage mode
@@ -101,15 +146,28 @@ file(GLOB_RECURSE E2D_3RDPARTY
 # e2d external 3rd party
 #
 
-set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
-set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
-set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+set(USE_STATIC_CRT ${E2D_BUILD_WITH_STATIC_CRT} CACHE INTERNAL "" FORCE)
+set(USE_SYSTEM_CURL OFF CACHE INTERNAL "" FORCE)
+set(USE_EMBEDDED_CURL ON CACHE INTERNAL "" FORCE)
+
+add_subdirectory(modules/curly.hpp)
+set_target_properties(curly.hpp libcurl PROPERTIES FOLDER modules)
+
+add_subdirectory(modules/ecs.hpp)
+add_subdirectory(modules/flat.hpp)
+add_subdirectory(modules/promise.hpp)
+
+set(GLFW_INSTALL OFF CACHE INTERNAL "" FORCE)
+set(GLFW_BUILD_DOCS OFF CACHE INTERNAL "" FORCE)
+set(GLFW_BUILD_TESTS OFF CACHE INTERNAL "" FORCE)
+set(GLFW_BUILD_EXAMPLES OFF CACHE INTERNAL "" FORCE)
+
 add_subdirectory(modules/glfw)
 set_target_properties(glfw PROPERTIES FOLDER modules)
 
-set(glew-cmake_BUILD_SHARED OFF CACHE BOOL "" FORCE)
-set(glew-cmake_BUILD_MULTI_CONTEXT OFF CACHE BOOL "" FORCE)
+set(glew-cmake_BUILD_SHARED OFF CACHE INTERNAL "" FORCE)
+set(glew-cmake_BUILD_MULTI_CONTEXT OFF CACHE INTERNAL "" FORCE)
+
 add_subdirectory(modules/glew)
 set_target_properties(libglew_static PROPERTIES FOLDER modules)
 
@@ -193,6 +251,12 @@ source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES
     ${E2D_HEADERS}
     ${E2D_SOURCES}
     ${E2D_3RDPARTY})
+
+target_link_libraries(${PROJECT_NAME}
+    PUBLIC curly.hpp
+    PUBLIC ecs.hpp
+    PUBLIC flat.hpp
+    PUBLIC promise.hpp)
 
 target_link_libraries(${PROJECT_NAME}
     PRIVATE bass

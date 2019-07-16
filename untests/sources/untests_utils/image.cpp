@@ -129,4 +129,46 @@ TEST_CASE("images") {
         REQUIRE(math::approximately(img.pixel32(1,0), color32::green(), 0));
         REQUIRE(math::approximately(img.pixel32(2,0), color32::blue(),  0));
     }
+    {
+        struct img_info {
+            const char* name;
+            bool can_load;
+            image_data_format format;
+        };
+
+        const img_info test_images[] = {
+            {"bin/images/ship_pvrtc_2bpp_rgba.pvr", true, image_data_format::rgba_pvrtc2},
+            {"bin/images/ship_pvrtc_2bpp_rgb.pvr", true, image_data_format::rgb_pvrtc2},
+            {"bin/images/ship_pvrtc_4bpp_rgba.pvr", true, image_data_format::rgba_pvrtc4},
+            {"bin/images/ship_pvrtc_4bpp_rgb.pvr", true, image_data_format::rgb_pvrtc4},
+            {"bin/images/ship_pvrtc_ii_2bpp.pvr", true, image_data_format::rgba_pvrtc2_v2},
+            {"bin/images/ship_pvrtc_ii_4bpp.pvr", true, image_data_format::rgba_pvrtc4_v2},
+            {"bin/images/ship_etc1.pvr", false, image_data_format(-1)},
+            {"bin/images/ship_etc2.pvr", false, image_data_format(-1)},
+            {"bin/images/ship_eac_rg11.pvr", false, image_data_format(-1)},
+            {"bin/images/ship_rgba8.pvr", true, image_data_format::rgba8},
+            {"bin/images/ship_rgba.dds", true, image_data_format::rgba_dxt5},
+            {"bin/images/ship_r8.pvr", true, image_data_format::g8},
+            {"bin/images/ship_rg8.pvr", true, image_data_format::ga8},
+            {"bin/images/ship_rgb8.pvr", true, image_data_format::rgb8}
+        };
+
+        str resources;
+        REQUIRE(filesystem::extract_predef_path(
+            resources,
+            filesystem::predef_path::resources));
+
+        for ( const auto& info : test_images ) {
+            input_stream_uptr stream = make_read_file(path::combine(resources, info.name));
+            REQUIRE(stream);
+            image img;
+            REQUIRE(images::try_load_image(img, stream) == info.can_load);
+            if ( info.can_load ) {
+                REQUIRE(img.format() == info.format);
+                REQUIRE(img.size().x == 64);
+                REQUIRE(img.size().y == 128);
+                REQUIRE(img.data().size() > 0);
+            }
+        }
+    }
 }

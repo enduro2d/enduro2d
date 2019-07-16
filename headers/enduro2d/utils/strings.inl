@@ -182,6 +182,104 @@ namespace std
 
 namespace e2d::strings
 {
+    template < typename T >
+    std::enable_if_t<
+        std::is_integral_v<T> && std::is_signed_v<T>,
+        bool>
+    try_parse(str_view src, T& dst) noexcept {
+        char str[32] = {'\0'};
+        if ( src.size() >= std::size(str) ) {
+            return false;
+        }
+
+        errno = 0;
+        char* end = nullptr;
+        std::memcpy(str, src.data(), src.size());
+        const i64 tmp = std::strtoll(str, &end, 0);
+
+        if ( str == end || end != str + src.size() || errno ) {
+            return false;
+        }
+
+        if ( tmp > std::numeric_limits<T>::max() ) {
+            return false;
+        }
+
+        if ( tmp < std::numeric_limits<T>::lowest() ) {
+            return false;
+        }
+
+        dst = static_cast<T>(tmp);
+        return true;
+    }
+
+    template < typename T >
+    std::enable_if_t<
+        std::is_integral_v<T> && std::is_unsigned_v<T>,
+        bool>
+    try_parse(str_view src, T& dst) noexcept {
+        char str[32] = {'\0'};
+        if ( src.size() >= std::size(str) ) {
+            return false;
+        }
+
+        errno = 0;
+        char* end = nullptr;
+        std::memcpy(str, src.data(), src.size());
+        const i64 tmp = std::strtoll(str, &end, 0);
+
+        if ( str == end || end != str + src.size() || errno ) {
+            return false;
+        }
+
+        if ( tmp < 0 ) {
+            return false;
+        }
+
+        const u64 utmp = static_cast<u64>(tmp);
+
+        if ( utmp > std::numeric_limits<T>::max() ) {
+            return false;
+        }
+
+        dst = static_cast<T>(utmp);
+        return true;
+    }
+
+    template < typename T >
+    std::enable_if_t<
+        std::is_floating_point_v<T>,
+        bool>
+    try_parse(str_view src, T& dst) noexcept {
+        char str[128] = {'\0'};
+        if ( src.size() >= std::size(str) ) {
+            return false;
+        }
+
+        errno = 0;
+        char* end = nullptr;
+        std::memcpy(str, src.data(), src.size());
+        const f32 tmp = std::strtof(str, &end);
+
+        if ( str == end || end != str + src.size() || errno ) {
+            return false;
+        }
+
+        if ( tmp > std::numeric_limits<T>::max() ) {
+            return false;
+        }
+
+        if ( tmp < std::numeric_limits<T>::lowest() ) {
+            return false;
+        }
+
+        dst = static_cast<T>(tmp);
+        return true;
+    }
+}
+
+namespace e2d::strings
+{
     //
     // exceptions
     //

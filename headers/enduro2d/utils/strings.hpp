@@ -86,6 +86,27 @@ namespace e2d
 
 namespace e2d::strings
 {
+    template < typename T >
+    std::enable_if_t<
+        std::is_integral_v<T> && std::is_signed_v<T>,
+        bool>
+    try_parse(str_view src, T& dst) noexcept;
+
+    template < typename T >
+    std::enable_if_t<
+        std::is_integral_v<T> && std::is_unsigned_v<T>,
+        bool>
+    try_parse(str_view src, T& dst) noexcept;
+
+    template < typename T >
+    std::enable_if_t<
+        std::is_floating_point_v<T>,
+        bool>
+    try_parse(str_view src, T& dst) noexcept;
+}
+
+namespace e2d::strings
+{
     class format_error;
     class bad_format;
     class bad_format_buffer;

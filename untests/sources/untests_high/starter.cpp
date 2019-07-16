@@ -11,6 +11,7 @@ TEST_CASE("starter"){
     modules::initialize<starter>(0, nullptr,
         starter::parameters(
             engine::parameters("starter_untests", "enduro2d")
+                .without_audio(true)
                 .without_graphics(true)));
     modules::shutdown<starter>();
 }

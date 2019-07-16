@@ -1,4 +1,4 @@
-// dear imgui, v1.71 WIP
+// dear imgui, v1.72 WIP
 // (widgets code)
 
 /*
@@ -63,10 +63,9 @@ Index of this file:
 #pragma clang diagnostic ignored "-Wdouble-promotion"       // warning: implicit conversion from 'float' to 'double' when passing argument to function  // using printf() is a misery with this as C++ va_arg ellipsis changes float to double.
 #endif
 #elif defined(__GNUC__)
+#pragma GCC diagnostic ignored "-Wpragmas"                  // warning: unknown option after '#pragma GCC diagnostic' kind
 #pragma GCC diagnostic ignored "-Wformat-nonliteral"        // warning: format not a string literal, format string not checked
-#if __GNUC__ >= 8
-#pragma GCC diagnostic ignored "-Wclass-memaccess"          // warning: 'memset/memcpy' clearing/writing an object of type 'xxxx' with no trivial copy-assignment; use assignment or value-initialization instead
-#endif
+#pragma GCC diagnostic ignored "-Wclass-memaccess"          // [__GNUC__ >= 8] warning: 'memset/memcpy' clearing/writing an object of type 'xxxx' with no trivial copy-assignment; use assignment or value-initialization instead
 #endif
 
 //-------------------------------------------------------------------------
@@ -896,13 +895,13 @@ void ImGui::Scrollbar(ImGuiAxis axis)
     ImRect bb;
     if (axis == ImGuiAxis_X)
     {
-        bb.Min = ImVec2(inner_rect.Min.x, outer_rect.Max.y - border_size - scrollbar_size);
+        bb.Min = ImVec2(inner_rect.Min.x, ImMax(outer_rect.Min.y, outer_rect.Max.y - border_size - scrollbar_size));
         bb.Max = ImVec2(inner_rect.Max.x, outer_rect.Max.y);
         rounding_corners |= ImDrawCornerFlags_BotLeft;
     }
     else
     {
-        bb.Min = ImVec2(outer_rect.Max.x - border_size - scrollbar_size, inner_rect.Min.y);
+        bb.Min = ImVec2(ImMax(outer_rect.Min.x, outer_rect.Max.x - border_size - scrollbar_size), inner_rect.Min.y);
         bb.Max = ImVec2(outer_rect.Max.x, window->InnerRect.Max.y);
         rounding_corners |= ((window->Flags & ImGuiWindowFlags_NoTitleBar) && !(window->Flags & ImGuiWindowFlags_MenuBar)) ? ImDrawCornerFlags_TopRight : 0;
     }
@@ -1002,10 +1001,17 @@ bool ImGui::Checkbox(const char* label, bool* v)
     const ImRect check_bb(pos, pos + ImVec2(square_sz, square_sz));
     RenderNavHighlight(total_bb, id);
     RenderFrame(check_bb.Min, check_bb.Max, GetColorU32((held && hovered) ? ImGuiCol_FrameBgActive : hovered ? ImGuiCol_FrameBgHovered : ImGuiCol_FrameBg), true, style.FrameRounding);
-    if (*v)
+    ImU32 check_col = GetColorU32(ImGuiCol_CheckMark);
+    if (window->DC.ItemFlags & ImGuiItemFlags_MixedValue)
+    {
+        // Undocumented tristate/mixed/indeterminate checkbox (#2644)
+        ImVec2 pad(ImMax(1.0f, (float)(int)(square_sz / 3.6f)), ImMax(1.0f, (float)(int)(square_sz / 3.6f)));
+        window->DrawList->AddRectFilled(check_bb.Min + pad, check_bb.Max - pad, check_col, style.FrameRounding);
+    }
+    else if (*v)
     {
         const float pad = ImMax(1.0f, (float)(int)(square_sz / 6.0f));
-        RenderCheckMark(check_bb.Min + ImVec2(pad, pad), GetColorU32(ImGuiCol_CheckMark), square_sz - pad*2.0f);
+        RenderCheckMark(check_bb.Min + ImVec2(pad, pad), check_col, square_sz - pad*2.0f);
     }
 
     if (g.LogEnabled)
@@ -1426,7 +1432,8 @@ bool ImGui::BeginCombo(const char* label, const char* preview_value, ImGuiComboF
         ImU32 bg_col = GetColorU32((popup_open || hovered) ? ImGuiCol_ButtonHovered : ImGuiCol_Button);
         ImU32 text_col = GetColorU32(ImGuiCol_Text);
         window->DrawList->AddRectFilled(ImVec2(value_x2, frame_bb.Min.y), frame_bb.Max, bg_col, style.FrameRounding, (w <= arrow_size) ? ImDrawCornerFlags_All : ImDrawCornerFlags_Right);
-        RenderArrow(window->DrawList, ImVec2(value_x2 + style.FramePadding.y, frame_bb.Min.y + style.FramePadding.y), text_col, ImGuiDir_Down);
+        if (value_x2 + arrow_size - style.FramePadding.x <= frame_bb.Max.x)
+            RenderArrow(window->DrawList, ImVec2(value_x2 + style.FramePadding.y, frame_bb.Min.y + style.FramePadding.y), text_col, ImGuiDir_Down, 1.0f);
     }
     RenderFrameBorder(frame_bb.Min, frame_bb.Max, style.FrameRounding);
     if (preview_value != NULL && !(flags & ImGuiComboFlags_NoPreview))
@@ -5143,7 +5150,7 @@ bool ImGui::TreeNodeBehavior(ImGuiID id, ImGuiTreeNodeFlags flags, const char* l
     {
         // Framed header expand a little outside the default padding
         frame_bb.Min.x -= (float)(int)(window->WindowPadding.x * 0.5f - 1.0f);
-        frame_bb.Max.x += (float)(int)(window->WindowPadding.x * 0.5f - 1.0f);
+        frame_bb.Max.x += (float)(int)(window->WindowPadding.x * 0.5f);
     }
 
     const float text_offset_x = (g.FontSize + (display_frame ? padding.x*3 : padding.x*2));   // Collapser arrow width + Spacing
@@ -7077,7 +7084,7 @@ bool ImGui::TabItemLabelAndCloseButton(ImDrawList* draw_list, const ImRect& bb, 
         text_pixel_clip_bb.Max.x -= close_button_sz;
     }
 
-    float ellipsis_max_x = close_button_visible ? -FLT_MAX : bb.Max.x;
+    float ellipsis_max_x = close_button_visible ? text_pixel_clip_bb.Max.x : bb.Max.x - 1.0f;
     RenderTextEllipsis(draw_list, text_ellipsis_clip_bb.Min, text_ellipsis_clip_bb.Max, text_pixel_clip_bb.Max.x, ellipsis_max_x, label, NULL, &label_size);
 
     return close_button_pressed;

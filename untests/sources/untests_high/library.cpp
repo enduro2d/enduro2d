@@ -15,6 +15,7 @@ namespace
             modules::initialize<starter>(0, nullptr,
                 starter::parameters(
                     engine::parameters("library_untests", "enduro2d")
+                        .without_audio(true)
                         .without_graphics(true)));
         }
 
@@ -154,6 +155,20 @@ TEST_CASE("library"){
         l.unload_unused_assets();
         REQUIRE_FALSE(l.cache().find<image_asset>("image.png"));
         REQUIRE_FALSE(l.cache().find<binary_asset>("image.png"));
+    }
+    {
+        if ( modules::is_initialized<audio>() ) {
+            auto sound_res = l.load_asset<sound_asset>("sound.json");
+            REQUIRE(sound_res);
+            REQUIRE(sound_res->content());
+
+            auto music_res = l.load_asset<sound_asset>("music.json");
+            REQUIRE(music_res);
+            REQUIRE(music_res->content());
+
+            auto fake_sound_res = l.load_asset<sound_asset>("fake_sound.json");
+            REQUIRE_FALSE(fake_sound_res);
+        }
     }
     {
         if ( modules::is_initialized<render>() ) {
