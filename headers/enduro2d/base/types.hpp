@@ -8,11 +8,12 @@
 
 #include "_base.hpp"
 
+#include <flat.hpp/flat_set.hpp>
+#include <flat.hpp/flat_map.hpp>
+#include <flat.hpp/flat_multiset.hpp>
+#include <flat.hpp/flat_multimap.hpp>
+
 #include <3rdparty/variant/variant.hpp>
-#include <3rdparty/flat.hpp/flat_set.hpp>
-#include <3rdparty/flat.hpp/flat_map.hpp>
-#include <3rdparty/flat.hpp/flat_multiset.hpp>
-#include <3rdparty/flat.hpp/flat_multimap.hpp>
 
 namespace e2d
 {

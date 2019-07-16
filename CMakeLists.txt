@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.11 FATAL_ERROR)
 
 if(NOT DEFINED PROJECT_NAME)
-    set(BUILD_AS_STANDALONE ON)
+    set(E2D_BUILD_AS_STANDALONE ON)
 endif()
 
 project(enduro2d)
@@ -9,7 +9,7 @@ project(enduro2d)
 set(E2D_SYSTEM_NAME ${CMAKE_SYSTEM_NAME})
 set(E2D_ROOT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
-if(NOT BUILD_AS_STANDALONE)
+if(NOT E2D_BUILD_AS_STANDALONE)
     set(E2D_SYSTEM_NAME ${E2D_SYSTEM_NAME} PARENT_SCOPE)
     set(E2D_ROOT_DIRECTORY ${E2D_ROOT_DIRECTORY} PARENT_SCOPE)
 endif()
@@ -153,6 +153,10 @@ set(USE_EMBEDDED_CURL ON CACHE INTERNAL "" FORCE)
 add_subdirectory(modules/curly.hpp)
 set_target_properties(curly.hpp libcurl PROPERTIES FOLDER modules)
 
+add_subdirectory(modules/ecs.hpp)
+add_subdirectory(modules/flat.hpp)
+add_subdirectory(modules/promise.hpp)
+
 set(GLFW_INSTALL OFF CACHE INTERNAL "" FORCE)
 set(GLFW_BUILD_DOCS OFF CACHE INTERNAL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE INTERNAL "" FORCE)
@@ -249,7 +253,10 @@ source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES
     ${E2D_3RDPARTY})
 
 target_link_libraries(${PROJECT_NAME}
-    PUBLIC curly.hpp)
+    PUBLIC curly.hpp
+    PUBLIC ecs.hpp
+    PUBLIC flat.hpp
+    PUBLIC promise.hpp)
 
 target_link_libraries(${PROJECT_NAME}
     PRIVATE bass
