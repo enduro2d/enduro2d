@@ -39,8 +39,12 @@ namespace e2d
             }
             if ( request.status() == net::req_status::cancelled ) {
                 promise.reject(request_cancelled_exception());
-            } else {
+                return;
+            }
+            try {
                 promise.reject(request_network_error(request.get_error()));
+            } catch (...) {
+                promise.reject(request_network_error());
             }
         });
         return {rb.send(), std::move(promise)};

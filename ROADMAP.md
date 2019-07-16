@@ -112,14 +112,13 @@
 
 - ### `advanced core`
 
-  - [ ] `audio`
+  - [x] `audio`
     ```
     vorbis, streaming
     ```
-    
-  - [ ] `network`
+
+  - [x] `network`
     ```
-    tcp/udp sockets
     http/https requests
     ```
 
@@ -132,7 +131,6 @@
     ```
 
   - [ ] `debug`
-
     ```
     system profilers
     hot library reloading
@@ -145,8 +143,7 @@
     component processing and joins
     ```
 
-  - [ ] `game objects`
-
+  - [x] `game objects`
     ```
     entity prefabs
     smart entity wrapper
@@ -171,4 +168,3 @@
     ```
     downloadable resource packs
     ```
-
