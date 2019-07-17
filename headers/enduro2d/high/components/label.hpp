@@ -18,6 +18,22 @@ namespace e2d
         label() = default;
         label(str32_view text);
 
+        label(label&& other) noexcept;
+        label& operator=(label&& other) noexcept;
+
+        label(const label& other);
+        label& operator=(const label& other);
+
+        label(str32_view text, font_asset::ptr font, color32 tint);
+
+        label& assign(label&& other) noexcept;
+        label& assign(const label& other);
+        label& assign(str32_view text, font_asset::ptr font, color32 tint);
+
+        void swap(label& other) noexcept;
+        void clear() noexcept;
+        bool empty() const noexcept;
+
         label& text(str32_view text);
         const str32& text() const noexcept;
 

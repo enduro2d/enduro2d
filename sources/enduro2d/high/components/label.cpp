@@ -50,3 +50,70 @@ namespace e2d
         return true;
     }
 }
+
+namespace e2d
+{
+    label::label(label&& other) noexcept {
+        assign(std::move(other));
+    }
+
+    label& label::operator=(label&& other) noexcept {
+        return assign(std::move(other));
+    }
+
+    label::label(const label& other) {
+        assign(other);
+    }
+
+    label& label::operator=(const label& other) {
+        return assign(other);
+    }
+
+    label::label(str32_view text, font_asset::ptr font, color32 tint) {
+        assign(text, font, tint);
+    }
+
+    label& label::assign(label&& other) noexcept {
+        if ( this != &other ) {
+            swap(other);
+            other.clear();
+        }
+        return *this;
+    }
+
+    label& label::assign(const label& other) {
+        if ( this != &other ) {
+            dirty_ = true;
+            text_ = other.text_;
+            font_ = other.font_;
+            tint_ = other.tint_;
+        }
+        return *this;
+    }
+
+    label& label::assign(str32_view text, font_asset::ptr font, color32 tint) {
+        dirty_ = false;
+        text_ = text;
+        font_ = font;
+        tint_ = tint;
+    }
+
+    void label::swap(label& other) noexcept {
+        using std::swap;
+        swap(dirty_, other.dirty_);
+        swap(text_, other.text_);
+        swap(font_, other.font_);
+        swap(tint_, other.tint_);
+    }
+
+    void label::clear() noexcept {
+        dirty_ = true;
+        text_.clear();
+        font_ = nullptr;
+        tint_ = color32::white();
+    }
+
+    bool label::empty() const noexcept {
+        return text_.empty();
+    }
+}
