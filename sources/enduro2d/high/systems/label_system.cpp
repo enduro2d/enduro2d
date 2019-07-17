@@ -49,6 +49,7 @@ namespace e2d
                     indices.resize(text.size() * 6);
                     f32 x_pos{0};
                     f32 y_pos{0};
+                    f32 kerning{0};
                     u32 prev_char{0};
                     for (size_t i = 0; i < text.size(); i++) {
                         if ( text[i] == '\n' ) {
@@ -60,10 +61,13 @@ namespace e2d
                         auto data = f.find_char(text[i]);
                         if ( data ) {
                             yoffset = data->yoffset;
-                            xoffset = 0;
+                            xoffset = data->xoffset;
                             if ( prev_char != 0 ) {
-                                xoffset = f.find_kerning(prev_char, data->id);
+                                kerning = f.find_kerning(prev_char, data->id);
+                            } else {
+                                kerning = 0;
                             }
+                            xoffset += kerning;
                             prev_char = data->id;
                             size_t start_vertices = i * 4;
                             vertices[start_vertices] = v3f(
@@ -109,7 +113,7 @@ namespace e2d
                             indices[start_indices + 4] = start_vertices + 3;
                             indices[start_indices + 5] = start_vertices;
 
-                            x_pos += data->xadvance + xoffset;
+                            x_pos += data->xadvance + kerning;
                         }
                     }
 
