@@ -16,20 +16,24 @@ namespace e2d
     class label final {
     public:
         label() = default;
-        label(const str_view text);
+        label(str32_view text);
 
-        label& text(const str_view text) noexcept;
-        const str& text() const noexcept;
+        label& text(str32_view text);
+        const str32& text() const noexcept;
 
         label& dirty(bool dirty) noexcept;
         bool dirty() const noexcept;
 
         label& font(const font_asset::ptr& font) noexcept;
         const font_asset::ptr&  font() const noexcept;
+
+        label& tint(const color32& value) noexcept;
+        const color32& tint() const noexcept;
     private:
         bool dirty_ = false;
-        str text_;
+        str32 text_;
         font_asset::ptr font_;
+        color32 tint_ = color32::white();
     };
 
     template <>
@@ -49,18 +53,19 @@ namespace e2d
 
 namespace e2d
 {
-    inline label::label(const str_view text)
-    : text_(text),
-    dirty_(false)
-    {}
+    inline label::label(str32_view text)
+    : dirty_(false)
+    {
+        text_ = make_utf32(text);
+    }
 
-    inline label& label::text(const str_view text) noexcept {
+    inline label& label::text(str32_view text) {
         text_ = text;
         dirty_ = true;
         return *this;
     }
 
-    inline const str& label::text() const noexcept {
+    inline const str32& label::text() const noexcept {
         return text_;
     }
 
@@ -81,5 +86,14 @@ namespace e2d
 
     inline const font_asset::ptr& label::font() const noexcept {
         return font_;
+    }
+
+    inline label& label::tint(const color32& value) noexcept {
+        tint_ = value;
+        return *this;
+    }
+
+    inline const color32& label::tint() const noexcept {
+        return tint_;
     }
 }

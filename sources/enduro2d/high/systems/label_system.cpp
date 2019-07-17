@@ -8,7 +8,6 @@
 
 
 #include <enduro2d/high/components/label.hpp>
-#include <enduro2d/utils/font.hpp>
 #include <enduro2d/high/components/model_renderer.hpp>
 
 
@@ -34,78 +33,97 @@ namespace e2d
                     vector<u32> indices;
                     vector<v2f> uvs;
                     vector<v3f> normals;
+                    vector<color32> colors;
                     f32 xoffset{0};
                     f32 yoffset{0};
-                    str text = l.text();
+                    str32 text = l.text();
                     const auto& f = l.font()->content();
-                    auto common = f->common();
+                    auto common = f.common();
                     v2f texture_size;
                     texture_size.x = common.atlas_width;
                     texture_size.y = common.atlas_height;
 
                     vertices.resize(text.size() * 4);
                     uvs.resize(vertices.size());
+                    colors.resize(vertices.size());
                     indices.resize(text.size() * 6);
                     f32 x_pos{0};
                     f32 y_pos{0};
                     u32 prev_char{0};
                     for (size_t i = 0; i < text.size(); i++) {
                         if ( text[i] == '\n' ) {
-                            y_pos -= f->common().line_height;
+                            y_pos -= f.common().line_height;
                             x_pos = 0;
                             prev_char = 0;
                             continue;
                         }
-                        auto data = f->data(text[i]);
-                        xoffset = 0;
-                        yoffset = data.yoffset;
-                        if ( prev_char != 0 ) {
-                            xoffset = f->kerning(prev_char, data.id);
+                        auto data = f.find_char(text[i]);
+                        if ( data ) {
+                            yoffset = data->yoffset;
+                            xoffset = 0;
+                            if ( prev_char != 0 ) {
+                                xoffset = f.find_kerning(prev_char, data->id);
+                            }
+                            prev_char = data->id;
+                            size_t start_vertices = i * 4;
+                            vertices[start_vertices] = v3f(
+                                x_pos + xoffset,
+                                y_pos + yoffset,
+                                0);
+                            vertices[start_vertices + 1] = v3f(
+                                x_pos + xoffset,
+                                y_pos + data->rect.size.y + yoffset,
+                                0);
+                            vertices[start_vertices + 2] = v3f(
+                                x_pos + data->rect.size.x + xoffset,
+                                y_pos + data->rect.size.y + yoffset,
+                                0);
+                            vertices[start_vertices + 3] = v3f(
+                                x_pos + data->rect.size.x + xoffset,
+                                y_pos + yoffset,
+                                0);
+
+                            uvs[start_vertices] = v2f(
+                                data->rect.position.x / texture_size.x,
+                                data->rect.position.y / texture_size.y);
+                            uvs[start_vertices + 1] = v2f(
+                                data->rect.position.x / texture_size.x,
+                                (data->rect.position.y + data->rect.size.y) / texture_size.y);
+                            uvs[start_vertices + 2] = v2f(
+                                (data->rect.position.x + data->rect.size.x) / texture_size.x,
+                                (data->rect.position.y + data->rect.size.y) / texture_size.y);
+                            uvs[start_vertices + 3] = v2f(
+                                (data->rect.position.x + data->rect.size.x) / texture_size.x,
+                                data->rect.position.y / texture_size.y);
+
+                            colors[start_vertices]     = l.tint();
+                            colors[start_vertices + 1] = l.tint();
+                            colors[start_vertices + 2] = l.tint();
+                            colors[start_vertices + 3] = l.tint();
+
+                            size_t start_indices = i * 6;
+                            indices[start_indices]     = start_vertices;
+                            indices[start_indices + 1] = start_vertices + 1;
+                            indices[start_indices + 2] = start_vertices + 2;
+                            indices[start_indices + 3] = start_vertices + 2;
+                            indices[start_indices + 4] = start_vertices + 3;
+                            indices[start_indices + 5] = start_vertices;
+
+                            x_pos += data->xadvance + xoffset;
                         }
-                        prev_char = data.id;
-                        size_t start_vertices = i * 4;
-                        vertices[start_vertices    ] = v3f(x_pos + xoffset,
-                                                           y_pos + yoffset, 0);
-                        vertices[start_vertices + 1] = v3f(x_pos + xoffset,
-                                                           y_pos + data.rect.size.y + yoffset, 0);
-                        vertices[start_vertices + 2] = v3f(x_pos + data.rect.size.x + xoffset,
-                                                           y_pos + data.rect.size.y + yoffset, 0);
-                        vertices[start_vertices + 3] = v3f(x_pos + data.rect.size.x + xoffset,
-                                                           y_pos + yoffset, 0);
-
-                        uvs[start_vertices    ] = v2f(data.rect.position.x / texture_size.x,
-                                                 data.rect.position.y / texture_size.y);
-                        uvs[start_vertices + 1] = v2f(data.rect.position.x / texture_size.x,
-                                                 (data.rect.position.y + data.rect.size.y) / texture_size.y);
-                        uvs[start_vertices + 2] = v2f((data.rect.position.x + data.rect.size.x) / texture_size.x,
-                                                 (data.rect.position.y + data.rect.size.y) / texture_size.y);
-                        uvs[start_vertices + 3] = v2f((data.rect.position.x + data.rect.size.x) / texture_size.x,
-                                                 data.rect.position.y / texture_size.y);
-
-                        size_t start_indices = i * 6;
-                        indices[start_indices]     = start_vertices;
-                        indices[start_indices + 1] = start_vertices + 1;
-                        indices[start_indices + 2] = start_vertices + 2;
-                        indices[start_indices + 3] = start_vertices + 2;
-                        indices[start_indices + 4] = start_vertices + 3;
-                        indices[start_indices + 5] = start_vertices;
-
-                        x_pos += data.xadvance + xoffset;
                     }
 
                     mesh m;
                     m.set_vertices(std::move(vertices));
                     m.set_indices(0, std::move(indices));
                     m.set_uvs(0, std::move(uvs));
+                    m.set_colors(0, std::move(colors));
 
                     model content;
                     content.set_mesh(mesh_asset::create(m));
                     content.regenerate_geometry(the<render>());
                     mr.model()->fill(content);
                     l.dirty(false);
-
-                    const model& mod = mr.model()->content();
-                    (const_cast<model*>(&mod))->regenerate_geometry(the<render>());//TODO: const cast
                 }
             });
         }

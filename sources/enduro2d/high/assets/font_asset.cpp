@@ -26,11 +26,8 @@ namespace e2d
         return library.load_asset_async<text_asset>(address)
         .then([](const text_asset::load_result& text_data){
             return the<deferrer>().do_in_main_thread([text_data](){
-                auto font = font::create(text_data->content());
-                if ( !font ) {
-                    throw bmfont_asset_loading_exception();
-                }
-                return font_asset::create(font);
+                auto f = font::create(text_data->content());
+                return font_asset::create(f);
             });
         });
     }

@@ -12,13 +12,11 @@ namespace e2d
 {
     class font;
 
-    using font_ptr = std::shared_ptr<font>;
-
     class font final {
     public:
         struct char_data {
             u32 id{0};
-            rect<i16> rect;
+            b2hi rect;
             i16 xoffset{0};
             i16 yoffset{0};
             i16 xadvance{0};
@@ -55,11 +53,11 @@ namespace e2d
         font() = default;
         ~font() noexcept = default;
 
-        static font_ptr create(str_view content);
-        char_data data (u32 charId) const noexcept;
+        static font create(str_view content);
+        const char_data* find_char(u32 charId) const noexcept;
         common_data common() const noexcept;
 
-        i32 kerning (u32 first, u32 second) const noexcept;
+        i32 find_kerning(u32 first, u32 second) const noexcept;
     private:
         info_data info_;
         common_data common_;

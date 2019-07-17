@@ -1,0 +1,4 @@
+{
+    "vertex" : "font_shader.vert",
+    "fragment" : "font_shader.frag"
+}

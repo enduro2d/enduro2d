@@ -61,8 +61,7 @@ namespace
         bool create_scene() {
             auto model_res = the<library>().load_asset<model_asset>("gnome_model.json");
             auto font_mat = the<library>().load_asset<material_asset>("font_material.json");
-            auto bmfont_res = the<library>().load_asset<font_asset>("boundsTestFont.fnt");
-//            auto bmfont_res = the<library>().load_asset<font_asset>("bmfont.fnt");
+            auto bmfont_res = the<library>().load_asset<font_asset>("bmruen.fnt");
 
             if ( !model_res || !font_mat || !bmfont_res ) {
                 return false;
@@ -81,7 +80,7 @@ namespace
 
                 label l;
                 l.font(bmfont_res);
-                l.text("Enduro2d\nis the best\ngame engine\nin the World!");
+                l.text(make_utf32("{Съешь же ещё\nthis мягких french\nбулок, да drink tea!}"));
 
                 label_i->entity_filler()
                 .component<actor>(node::create(label_i, scene_r))
