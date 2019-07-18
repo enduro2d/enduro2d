@@ -679,6 +679,12 @@ namespace ecs_hpp
                 return components_.unordered_erase(id);
             }
 
+            std::size_t remove_all() noexcept {
+                const std::size_t count = components_.size();
+                components_.clear();
+                return count;
+            }
+
             T* find(entity_id id) noexcept {
                 return components_.find(id);
             }
@@ -742,6 +748,12 @@ namespace ecs_hpp
 
             bool remove(entity_id id) noexcept override {
                 return components_.unordered_erase(id);
+            }
+
+            std::size_t remove_all() noexcept {
+                const std::size_t count = components_.size();
+                components_.clear();
+                return count;
             }
 
             T* find(entity_id id) noexcept {
@@ -1259,6 +1271,9 @@ namespace ecs_hpp
         bool exists_component(const const_uentity& ent) const noexcept;
 
         std::size_t remove_all_components(const uentity& ent) noexcept;
+
+        template < typename T >
+        std::size_t remove_all_components() noexcept;
 
         template < typename T >
         T& get_component(const uentity& ent);
@@ -2188,6 +2203,14 @@ namespace ecs_hpp
             }
         }
         return removed_count;
+    }
+
+    template < typename T >
+    std::size_t registry::remove_all_components() noexcept {
+        detail::component_storage<T>* storage = find_storage_<T>();
+        return storage
+            ? storage->remove_all()
+            : 0u;
     }
 
     template < typename T >
