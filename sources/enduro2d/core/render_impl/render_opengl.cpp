@@ -980,7 +980,6 @@ namespace e2d
     {
         E2D_ASSERT(is_in_main_thread());
         E2D_ASSERT(ibuffer);
-        E2D_ASSERT(!indices.empty());
         const std::size_t buffer_offset = offset * ibuffer->state().decl().bytes_per_index();
         E2D_ASSERT(indices.size() + buffer_offset <= ibuffer->state().size());
         E2D_ASSERT(indices.size() % ibuffer->state().decl().bytes_per_index() == 0);
@@ -1002,7 +1001,6 @@ namespace e2d
     {
         E2D_ASSERT(is_in_main_thread());
         E2D_ASSERT(vbuffer);
-        E2D_ASSERT(!vertices.empty());
         const std::size_t buffer_offset = offset * vbuffer->state().decl().bytes_per_vertex();
         E2D_ASSERT(vertices.size() + buffer_offset <= vbuffer->state().size());
         E2D_ASSERT(vertices.size() % vbuffer->state().decl().bytes_per_vertex() == 0);
@@ -1047,8 +1045,6 @@ namespace e2d
     {
         E2D_ASSERT(is_in_main_thread());
         E2D_ASSERT(tex);
-        E2D_ASSERT(!pixels.empty());
-        E2D_ASSERT(region.size.x > 0 && region.size.y > 0);
         E2D_ASSERT(region.position.x < tex->size().x && region.position.y < tex->size().y);
         E2D_ASSERT(region.position.x + region.size.x <= tex->size().x);
         E2D_ASSERT(region.position.y + region.size.y <= tex->size().y);
