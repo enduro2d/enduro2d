@@ -18,6 +18,126 @@ namespace
 
 namespace e2d
 {
+    font::font(font&& other) noexcept {
+        assign(std::move(other));
+    }
+
+    font& font::operator=(font&& other) noexcept {
+        return assign(std::move(other));
+    }
+
+    font::font(const font& other) {
+        assign(other);
+    }
+
+    font& font::operator=(const font& other) {
+        return assign(other);
+    }
+
+    font::font(
+        font::info_data&& info,
+        font::common_data&& common,
+        vector<str>&& pages,
+        vector<font::char_data>&& chars,
+        flat_map<u64,i32>&& kerning) noexcept {
+        assign(info, common, pages, chars, kerning);
+    }
+
+    font::font(
+        const font::info_data& info,
+        const font::common_data& common,
+        const vector<str>& pages,
+        const vector<font::char_data>& chars,
+        const flat_map<u64,i32>& kerning) {
+        assign(info, common, pages, chars, kerning);
+    }
+
+    font& font::assign(font&& other) noexcept {
+        if ( this != &other ) {
+            swap(other);
+            other.clear();
+        }
+        return *this;
+    }
+
+    font& font::assign(const font& other) {
+        if ( this != &other ) {
+            info_ = other.info_;
+            common_ = other.common_;
+            pages_ = other.pages_;
+            chars_ = other.chars_;
+            kerning_ = other.kerning_;
+        }
+        return *this;
+    }
+
+    font& font::assign(
+        font::info_data&& info,
+        font::common_data&& common,
+        vector<str>&& pages,
+        vector<font::char_data>&& chars,
+        flat_map<u64,i32>&& kerning) noexcept {
+        info_ = std::move(info);
+        common_ = std::move(common);
+        pages_ = std::move(pages);
+        chars_ = std::move(chars);
+        kerning_ = std::move(kerning);
+        return *this;
+    }
+
+    font& font::assign(
+        const font::info_data& info,
+        const font::common_data& common,
+        const vector<str>& pages,
+        const vector<font::char_data>& chars,
+        const flat_map<u64,i32>& kerning) {
+        info_ = info;
+        common_ = common;
+        pages_ = pages;
+        chars_ = chars;
+        kerning_ = kerning;
+        return *this;
+    }
+
+    void font::swap(font& other) noexcept {
+        using std::swap;
+        swap(info_, other.info_);
+        swap(common_, other.common_);
+        swap(pages_, other.pages_);
+        swap(chars_, other.chars_);
+        swap(kerning_, other.kerning_);
+    }
+
+    void font::clear() noexcept {
+        pages_.clear();
+        chars_.clear();
+        kerning_.clear();
+    }
+
+    bool font::empty() const noexcept {
+        return pages_.empty();
+    }
+
+    const font::info_data& font::info() const noexcept {
+        return info_;
+    }
+
+    const font::common_data& font::common() const noexcept {
+        return common_;
+    }
+
+    const vector<str>& font::pages() const noexcept {
+        return pages_;
+    }
+
+    const vector<font::char_data>& font::chars() const noexcept {
+        return chars_;
+    }
+
+    const flat_map<u64,i32>& font::kerning() const noexcept {
+        return kerning_;
+    }
+
     font font::create(str_view content) {
         font b;
         str s{content.data()};
@@ -41,11 +161,6 @@ namespace e2d
                 while (!line_stream.eof()) {
                     if (tag == "size") {
                         line_stream >>  b.info_.size;
-                    } else if (tag == "padding") {
-                        line_stream >>  b.info_.padding.up;
-                        line_stream >>  b.info_.padding.right;
-                        line_stream >>  b.info_.padding.down;
-                        line_stream >>  b.info_.padding.left;
                     }
                     line_stream >> tag;
                 }
@@ -118,7 +233,6 @@ namespace e2d
                     } else if (tag == "yoffset") {
                         line_stream >> c.yoffset;
                         c.yoffset = b.common_.base - c.yoffset - c.rect.size.y;
-//                        c.yoffset = -(b.common_.line_height - c.yoffset);
                     } else if (tag == "xadvance") {
                         line_stream >> c.xadvance;
                     } else if (tag == "page") {
@@ -176,10 +290,6 @@ namespace e2d
         return 0;
     }
 
-    font::common_data font::common() const noexcept {
-        return common_;
-    }
-
     i32 font::find_kerning(u32 first, u32 second) const noexcept {
         auto it = kerning_.find(make_kerning_key(first,second));
         if (it != kerning_.end()) {
@@ -187,5 +297,48 @@ namespace e2d
         }
 
         return 0;
+    }
+}
+
+
+namespace e2d
+{
+    bool operator==(const font::info_data& l, const font::info_data& r) noexcept {
+        return l.size == r.size;
+    }
+
+    bool operator==(const font::common_data& l, const font::common_data& r) noexcept {
+        return l.line_height == r.line_height
+        && l.base == r.base
+        && l.pages == r.pages
+        && l.atlas_width == r.atlas_width
+        && l.atlas_height == r.atlas_height;
+    }
+
+    bool operator==(const font::char_data& l, const font::char_data& r) noexcept {
+        return l.id == r.id
+        && l.rect == r.rect
+        && l.xoffset == r.xoffset
+        && l.yoffset == r.yoffset
+        && l.xadvance == r.xadvance
+        && l.page == r.page
+        && l.chnl == r.chnl;
+    }
+
+
+    void swap(font& l, font& r) noexcept {
+        l.swap(r);
+    }
+
+    bool operator==(const font& l, const font& r) noexcept {
+        return l.info() == r.info()
+        && l.common() == r.common()
+        && l.pages() == r.pages()
+        && l.chars() == r.chars()
+        && l.kerning() == r.kerning();
+    }
+
+    bool operator!=(const font& l, const font& r) noexcept {
+        return !(l == r);
     }
 }
