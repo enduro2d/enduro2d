@@ -251,23 +251,27 @@ namespace e2d
         return *this;
     }
     
-    render& render::update_buffer(const index_buffer_ptr& ibuffer, buffer_view indices, std::size_t offset) {
+    render& render::update_buffer(const index_buffer_ptr& ibuffer,
+                                  buffer_view indices,
+                                  std::size_t offset) {
         E2D_UNUSED(ibuffer, indices, offset);
         return *this;
     }
 
-    render& render::update_buffer(const vertex_buffer_ptr& vbuffer, buffer_view vertices, std::size_t offset) {
+    render& render::update_buffer(const vertex_buffer_ptr& vbuffer,
+                                  buffer_view vertices,
+                                  std::size_t offset) {
         E2D_UNUSED(vbuffer, vertices, offset);
         return *this;
     }
 
-    render& render::update_texture(const texture_ptr& tex, const image& img, v2u offset, u32 level) {
-        E2D_UNUSED(tex, img, offset, level);
+    render& render::update_texture(const texture_ptr& tex, const image& img, v2u offset) {
+        E2D_UNUSED(tex, img, offset);
         return *this;
     }
 
-    render& render::update_texture(const texture_ptr& tex, const void* data, v2u size, v2u offset, u32 level) {
-        E2D_UNUSED(tex, img, size, offset, level);
+    render& render::update_texture(const texture_ptr& tex, buffer_view data, v2u size, v2u offset) {
+        E2D_UNUSED(tex, img, size, offset);
         return *this;
     }
 

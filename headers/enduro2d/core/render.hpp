@@ -82,6 +82,8 @@ namespace e2d
         bool is_stencil() const noexcept;
         bool is_compressed() const noexcept;
         std::size_t bits_per_pixel() const noexcept;
+        v2u compressed_block_size() const noexcept;
+        std::size_t block_bits_per_pixel() const noexcept;
     private:
         pixel_type type_ = pixel_type::rgba8;
     };
@@ -938,10 +940,15 @@ namespace e2d
         render& execute(const target_command& command);
         render& execute(const viewport_command& command);
 
-        render& update_buffer(const index_buffer_ptr& ibuffer, buffer_view indices, std::size_t offset);
-        render& update_buffer(const vertex_buffer_ptr& vbuffer, buffer_view vertices, std::size_t offset);
-        render& update_texture(const texture_ptr& tex, const image& img, v2u offset, u32 level = 0);
-        render& update_texture(const texture_ptr& tex, const void* data, v2u size, v2u offset, u32 level = 0);
+        render& update_buffer(const index_buffer_ptr& ibuffer,
+                              buffer_view indices,
+                              std::size_t offset);
+        render& update_buffer(const vertex_buffer_ptr& vbuffer,
+                              buffer_view vertices,
+                              std::size_t offset);
+
+        render& update_texture(const texture_ptr& tex, const image& img, v2u offset);
+        render& update_texture(const texture_ptr& tex, buffer_view data, v2u size, v2u offset);
 
         const device_caps& device_capabilities() const noexcept;
         bool is_pixel_supported(const pixel_declaration& decl) const noexcept;

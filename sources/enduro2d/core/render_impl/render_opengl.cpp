@@ -1007,35 +1007,62 @@ namespace e2d
         return *this;
     }
 
-    render& render::update_texture(const texture_ptr& tex, const image& img, v2u offset, u32 level) {
+    render& render::update_texture(const texture_ptr& tex, const image& img, v2u offset) {
         E2D_ASSERT(is_in_main_thread());
         E2D_ASSERT(tex);
         const pixel_declaration decl =
             convert_image_data_format_to_pixel_declaration(img.format());
-        E2D_ASSERT(tex->decl() == decl);
-        return update_texture(tex, img.data().data(), img.size(), offset, level);
+        if(tex->decl() != decl) {
+            state_->dbg().error("RENDER: Failed to update texture:\n"
+                "--> Texture format: %0\n"
+                "--> Image format: %1",
+                pixel_declaration::pixel_type_to_cstr(tex->decl().type()),
+                pixel_declaration::pixel_type_to_cstr(decl.type()));
+            throw bad_render_operation();
+        }
+        return update_texture(tex, img.data(), img.size(), offset);
     }
 
-    render& render::update_texture(const texture_ptr& tex, const void* data, v2u size, v2u offset, u32 level) {
+    render& render::update_texture(const texture_ptr& tex, buffer_view data, v2u size, v2u offset) {
         E2D_ASSERT(is_in_main_thread());
         E2D_ASSERT(tex);
         E2D_ASSERT(offset.x < tex->size().x && offset.y < tex->size().y);
         E2D_ASSERT(offset.x + size.x <= tex->size().x);
         E2D_ASSERT(offset.y + size.y <= tex->size().y);
-        E2D_ASSERT(level == 0); // not supported yet
-        opengl::with_gl_bind_texture(state_->dbg(), tex->state().id(),
-            [&tex, data, &size, &offset, level]() noexcept {
-                GL_CHECK_CODE(tex->state().dbg(), glTexSubImage2D(
-                    tex->state().id().target(),
-                    math::numeric_cast<GLint>(level),
-                    math::numeric_cast<GLint>(offset.x),
-                    math::numeric_cast<GLint>(offset.y),
-                    math::numeric_cast<GLsizei>(size.x),
-                    math::numeric_cast<GLsizei>(size.y),
-                    convert_pixel_type_to_external_format(tex->state().decl().type()),
-                    convert_pixel_type_to_external_data_type(tex->state().decl().type()),
-                    data));
-            });
+        E2D_ASSERT(data.size() == size.y * ((size.x * tex->decl().bits_per_pixel()) / 8));
+
+        if (tex->decl().is_compressed()) {
+            const v2u block_size = tex->decl().compressed_block_size();
+            E2D_ASSERT(offset.x % block_size.x == 0 && offset.y % block_size.y == 0);
+            E2D_ASSERT(size.x % block_size.x == 0 && size.y % block_size.y == 0);
+            opengl::with_gl_bind_texture(state_->dbg(), tex->state().id(),
+                [&tex, &data, &size, &offset]() noexcept {
+                    GL_CHECK_CODE(tex->state().dbg(), glCompressedTexSubImage2D(
+                        tex->state().id().target(),
+                        0,
+                        math::numeric_cast<GLint>(offset.x),
+                        math::numeric_cast<GLint>(offset.y),
+                        math::numeric_cast<GLsizei>(size.x),
+                        math::numeric_cast<GLsizei>(size.y),
+                        convert_pixel_type_to_external_format(tex->state().decl().type()),
+                        math::numeric_cast<GLsizei>(data.size()),
+                        data.data()));
+                });
+        } else {
+            opengl::with_gl_bind_texture(state_->dbg(), tex->state().id(),
+                [&tex, &data, &size, &offset]() noexcept {
+                    GL_CHECK_CODE(tex->state().dbg(), glTexSubImage2D(
+                        tex->state().id().target(),
+                        0,
+                        math::numeric_cast<GLint>(offset.x),
+                        math::numeric_cast<GLint>(offset.y),
+                        math::numeric_cast<GLsizei>(size.x),
+                        math::numeric_cast<GLsizei>(size.y),
+                        convert_pixel_type_to_external_format(tex->state().decl().type()),
+                        convert_pixel_type_to_external_data_type(tex->state().decl().type()),
+                        data.data()));
+                });
+        }
         return *this;
     }
 
