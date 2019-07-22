@@ -980,6 +980,7 @@ namespace e2d
     {
         E2D_ASSERT(is_in_main_thread());
         E2D_ASSERT(ibuffer);
+        E2D_ASSERT(!indices.empty());
         const std::size_t buffer_offset = offset * ibuffer->state().decl().bytes_per_index();
         E2D_ASSERT(indices.size() + buffer_offset <= ibuffer->state().size());
         E2D_ASSERT(indices.size() % ibuffer->state().decl().bytes_per_index() == 0);
@@ -1001,6 +1002,7 @@ namespace e2d
     {
         E2D_ASSERT(is_in_main_thread());
         E2D_ASSERT(vbuffer);
+        E2D_ASSERT(!vertices.empty());
         const std::size_t buffer_offset = offset * vbuffer->state().decl().bytes_per_vertex();
         E2D_ASSERT(vertices.size() + buffer_offset <= vbuffer->state().size());
         E2D_ASSERT(vertices.size() % vbuffer->state().decl().bytes_per_vertex() == 0);
@@ -1026,6 +1028,7 @@ namespace e2d
             convert_image_data_format_to_pixel_declaration(img.format());
         if ( tex->decl() != decl ) {
             state_->dbg().error("RENDER: Failed to update texture:\n"
+                "--> Incompatible pixel formats:\n"
                 "--> Texture format: %0\n"
                 "--> Image format: %1",
                 pixel_declaration::pixel_type_to_cstr(tex->decl().type()),
@@ -1042,6 +1045,8 @@ namespace e2d
     {
         E2D_ASSERT(is_in_main_thread());
         E2D_ASSERT(tex);
+        E2D_ASSERT(!pixels.empty());
+        E2D_ASSERT(region.size.x > 0 && region.size.y > 0);
         E2D_ASSERT(region.position.x < tex->size().x && region.position.y < tex->size().y);
         E2D_ASSERT(region.position.x + region.size.x <= tex->size().x);
         E2D_ASSERT(region.position.y + region.size.y <= tex->size().y);
@@ -1137,6 +1142,7 @@ namespace e2d
     {
         E2D_ASSERT(tex);
         E2D_ASSERT(tex->decl().is_color() && !tex->decl().is_compressed());
+        E2D_ASSERT(region.size.x > 0 && region.size.y > 0);
         E2D_ASSERT(region.position.x + region.size.x <= tex->size().x);
         E2D_ASSERT(region.position.y + region.size.y <= tex->size().y);
 
@@ -1163,6 +1169,7 @@ namespace e2d
         image& result)
     {
         E2D_ASSERT(rt);
+        E2D_ASSERT(region.size.x > 0 && region.size.y > 0);
         E2D_ASSERT(region.position.x + region.size.x <= rt->size().x);
         E2D_ASSERT(region.position.y + region.size.y <= rt->size().y);
         grab_framebuffer_content(
@@ -1177,6 +1184,7 @@ namespace e2d
         const b2u& region,
         image& result)
     {
+        E2D_ASSERT(region.size.x > 0 && region.size.y > 0);
         E2D_ASSERT(region.position.x + region.size.x <= state_->wnd().real_size().x);
         E2D_ASSERT(region.position.y + region.size.y <= state_->wnd().real_size().y);
         grab_framebuffer_content(

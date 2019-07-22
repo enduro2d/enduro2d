@@ -195,7 +195,7 @@ TEST_CASE("render"){
 
             buffer src;
             src.resize(((tex->size().x * tex->decl().bits_per_pixel()) / 8u) * tex->size().y);
-            for (auto& c : src) {
+            for ( auto& c : src ) {
                 c = rand() % 255;
             }
             r.update_texture(tex, src, b2u(0, 0, 128, 128));
@@ -211,7 +211,7 @@ TEST_CASE("render"){
 
             buffer src;
             src.resize(((tex->size().x * tex->decl().bits_per_pixel()) / 8u) * tex->size().y);
-            for (auto& c : src) {
+            for ( auto& c : src ) {
                 c = rand() % 255;
             }
             r.update_texture(tex, src, b2u(0, 0, 128, 128));
@@ -225,7 +225,7 @@ TEST_CASE("render"){
                 REQUIRE(dst.format() == image_data_format::rgba8);
                 REQUIRE(dst.data().size() == src.size()*4);
                 bool equal = true;
-                for (size_t i = 0; i < src.size(); ++i) {
+                for ( size_t i = 0; i < src.size(); ++i ) {
                     equal &= (src.data()[i] == dst.data().data()[i*4+3]);
                 }
                 REQUIRE(equal);
@@ -237,7 +237,7 @@ TEST_CASE("render"){
 
             buffer src;
             src.resize(((tex->size().x * tex->decl().bits_per_pixel()) / 8u) * tex->size().y);
-            for (auto& c : src) {
+            for ( auto& c : src ) {
                 c = rand() % 255;
             }
             r.update_texture(tex, src, b2u(0, 0, 128, 128));
@@ -247,11 +247,11 @@ TEST_CASE("render"){
             if ( dst.format() == image_data_format::rgb8 ) {
                 REQUIRE(src == dst.data());
             } else {
-                // OpenGL ES 2 may not support Alpha8 format
+                // OpenGL ES 2 may not support RGB8 format
                 REQUIRE(dst.format() == image_data_format::rgba8);
                 REQUIRE(dst.data().size() == src.size()*4/3);
                 bool equal = true;
-                for (size_t i = 0, j = 0; i < src.size(); i += 3, j += 4) {
+                for ( size_t i = 0, j = 0; i < src.size(); i += 3, j += 4 ) {
                     equal &= (src.data()[i+0] == dst.data().data()[j+0]);
                     equal &= (src.data()[i+1] == dst.data().data()[j+1]);
                     equal &= (src.data()[i+2] == dst.data().data()[j+2]);
@@ -265,7 +265,7 @@ TEST_CASE("render"){
 
             buffer src;
             src.resize(((tex->size().x * tex->decl().bits_per_pixel()) / 8u) * tex->size().y);
-            for (auto& c : src) {
+            for ( auto& c : src ) {
                 c = rand() % 255;
             }
             r.update_texture(tex, src, b2u(0, 0, 57, 31));
@@ -281,7 +281,7 @@ TEST_CASE("render"){
 
             buffer src;
             src.resize(((31 * tex->decl().bits_per_pixel()) / 8u) * 44);
-            for (auto& c : src) {
+            for ( auto& c : src ) {
                 c = rand() % 255;
             }
             r.update_texture(tex, src, b2u(22, 17, 31, 44));
@@ -295,16 +295,29 @@ TEST_CASE("render"){
             
             bool equal = true;
             const size_t bpp = tex->decl().bits_per_pixel() / 8;
-            for (u32 y = 0; y < 44; ++y) {
+            for ( u32 y = 0; y < 44; ++y ) {
                 const u8* dst_row = dst.data().data() + ((y + 17) * 128 + 22) * bpp;
                 const u8* src_row = src.data() + (y * 31 * bpp);
-                for (u32 x = 0; x < 31 * bpp; ++x) {
-                    auto s = src_row[x];
-                    auto d = dst_row[x];
-                    equal &= (s == d);
+                for ( u32 x = 0; x < 31 * bpp; ++x ) {
+                    equal &= (src_row[x] == dst_row[x]);
                 }
             }
             REQUIRE(equal);
+        }
+        {
+            texture_ptr tex = r.create_texture(v2u(128,128), pixel_declaration::pixel_type::rgba8);
+            REQUIRE(tex != nullptr);
+            
+            buffer src;
+            src.resize(((31 * tex->decl().bits_per_pixel()) / 8u) * 44);
+            for ( auto& c : src ) {
+                c = rand() % 255;
+            }
+
+            image img(v2u(31, 44), image_data_format::ga8, src);
+            REQUIRE_THROWS_AS(
+                r.update_texture(tex, img, v2u(11,27)),
+                bad_render_operation);
         }
     }
 }
