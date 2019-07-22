@@ -175,16 +175,27 @@ namespace e2d
         window& wnd() const noexcept;
         const device_caps& device_capabilities() const noexcept;
         const render_target_ptr& render_target() const noexcept;
+        const opengl::gl_framebuffer_id& default_fb() const noexcept;
     public:
+        internal_state& reset_states() noexcept;
         internal_state& set_states(const state_block& sb) noexcept;
         internal_state& set_depth_state(const depth_state& ds) noexcept;
         internal_state& set_stencil_state(const stencil_state& ss) noexcept;
         internal_state& set_culling_state(const culling_state& cs) noexcept;
         internal_state& set_blending_state(const blending_state& bs) noexcept;
         internal_state& set_capabilities_state(const capabilities_state& cs) noexcept;
-
+        
+        internal_state& reset_shader_program() noexcept;
         internal_state& set_shader_program(const shader_ptr& sp) noexcept;
+        
+        internal_state& reset_render_target() noexcept;
         internal_state& set_render_target(const render_target_ptr& rt) noexcept;
+    private:
+        void set_depth_state_(const depth_state& ds) noexcept;
+        void set_stencil_state_(const stencil_state& ss) noexcept;
+        void set_culling_state_(const culling_state& cs) noexcept;
+        void set_blending_state_(const blending_state& bs) noexcept;
+        void set_capabilities_state_(const capabilities_state& cs) noexcept;
     private:
         debug& debug_;
         window& window_;

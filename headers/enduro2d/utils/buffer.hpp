@@ -37,6 +37,11 @@ namespace e2d
         u8* data() noexcept;
         const u8* data() const noexcept;
         std::size_t size() const noexcept;
+
+        const u8* begin() const noexcept;
+        const u8* end() const noexcept;
+        u8* begin() noexcept;
+        u8* end() noexcept;
     private:
         using data_t = std::unique_ptr<u8[]>;
         data_t data_;

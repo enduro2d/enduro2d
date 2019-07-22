@@ -49,6 +49,8 @@ namespace e2d
             depth32,
             depth24_stencil8,
 
+            g8,
+            ga8,
             rgb8,
             rgba8,
 
@@ -956,9 +958,25 @@ namespace e2d
 
         render& update_texture(
             const texture_ptr& tex,
-            buffer_view data,
-            v2u size,
-            v2u offset);
+            buffer_view pixels,
+            const b2u& region);
+
+        // very slow
+        render& grab_texture(
+            const texture_ptr& tex,
+            const b2u& region,
+            image& result);
+        
+        // very slow
+        render& grab_render_target(
+            const render_target_ptr& rt,
+            const b2u& region,
+            image& result);
+
+        // very slow
+        render& grab_screen(
+            const b2u& region,
+            image& result);
 
         const device_caps& device_capabilities() const noexcept;
         bool is_pixel_supported(const pixel_declaration& decl) const noexcept;

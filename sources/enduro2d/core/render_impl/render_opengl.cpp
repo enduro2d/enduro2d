@@ -1032,54 +1032,158 @@ namespace e2d
                 pixel_declaration::pixel_type_to_cstr(decl.type()));
             throw bad_render_operation();
         }
-        return update_texture(tex, img.data(), img.size(), offset);
+        return update_texture(tex, img.data(), b2u(offset, img.size()));
     }
 
     render& render::update_texture(
         const texture_ptr& tex,
-        buffer_view data,
-        v2u size,
-        v2u offset)
+        buffer_view pixels,
+        const b2u& region)
     {
         E2D_ASSERT(is_in_main_thread());
         E2D_ASSERT(tex);
-        E2D_ASSERT(offset.x < tex->size().x && offset.y < tex->size().y);
-        E2D_ASSERT(offset.x + size.x <= tex->size().x);
-        E2D_ASSERT(offset.y + size.y <= tex->size().y);
-        E2D_ASSERT(data.size() * 8u == size.y * size.x * tex->decl().bits_per_pixel());
+        E2D_ASSERT(region.position.x < tex->size().x && region.position.y < tex->size().y);
+        E2D_ASSERT(region.position.x + region.size.x <= tex->size().x);
+        E2D_ASSERT(region.position.y + region.size.y <= tex->size().y);
+        E2D_ASSERT(pixels.size() == region.size.y * ((region.size.x * tex->decl().bits_per_pixel()) / 8u));
 
         if ( tex->decl().is_compressed() ) {
             const v2u block_size = tex->decl().compressed_block_size();
-            E2D_ASSERT(offset.x % block_size.x == 0 && offset.y % block_size.y == 0);
-            E2D_ASSERT(size.x % block_size.x == 0 && size.y % block_size.y == 0);
+            E2D_ASSERT(region.position.x % block_size.x == 0 && region.position.y % block_size.y == 0);
+            E2D_ASSERT(region.size.x % block_size.x == 0 && region.size.y % block_size.y == 0);
             opengl::with_gl_bind_texture(state_->dbg(), tex->state().id(),
-                [&tex, &data, &size, &offset]() noexcept {
+                [&tex, &pixels, &region]() noexcept {
                     GL_CHECK_CODE(tex->state().dbg(), glCompressedTexSubImage2D(
                         tex->state().id().target(),
                         0,
-                        math::numeric_cast<GLint>(offset.x),
-                        math::numeric_cast<GLint>(offset.y),
-                        math::numeric_cast<GLsizei>(size.x),
-                        math::numeric_cast<GLsizei>(size.y),
+                        math::numeric_cast<GLint>(region.position.x),
+                        math::numeric_cast<GLint>(region.position.y),
+                        math::numeric_cast<GLsizei>(region.size.x),
+                        math::numeric_cast<GLsizei>(region.size.y),
                         convert_pixel_type_to_external_format(tex->state().decl().type()),
-                        math::numeric_cast<GLsizei>(data.size()),
-                        data.data()));
+                        math::numeric_cast<GLsizei>(pixels.size()),
+                        pixels.data()));
                 });
         } else {
             opengl::with_gl_bind_texture(state_->dbg(), tex->state().id(),
-                [&tex, &data, &size, &offset]() noexcept {
+                [&tex, &pixels, &region]() noexcept {
                     GL_CHECK_CODE(tex->state().dbg(), glTexSubImage2D(
                         tex->state().id().target(),
                         0,
-                        math::numeric_cast<GLint>(offset.x),
-                        math::numeric_cast<GLint>(offset.y),
-                        math::numeric_cast<GLsizei>(size.x),
-                        math::numeric_cast<GLsizei>(size.y),
+                        math::numeric_cast<GLint>(region.position.x),
+                        math::numeric_cast<GLint>(region.position.y),
+                        math::numeric_cast<GLsizei>(region.size.x),
+                        math::numeric_cast<GLsizei>(region.size.y),
                         convert_pixel_type_to_external_format(tex->state().decl().type()),
                         convert_pixel_type_to_external_data_type(tex->state().decl().type()),
-                        data.data()));
+                        pixels.data()));
                 });
         }
+        return *this;
+    }
+
+    static void grab_framebuffer_content(
+        debug& debug,
+        const opengl::gl_framebuffer_id& fb,
+        const b2u& region,
+        image& result)
+    {
+        with_gl_bind_framebuffer(debug, fb,
+            [&debug, &region, &result]() {
+                GLint format;
+                GLint type;
+                GL_CHECK_CODE(debug, glGetIntegerv(
+                    GL_IMPLEMENTATION_COLOR_READ_FORMAT,
+                    &format));
+                GL_CHECK_CODE(debug, glGetIntegerv(
+                    GL_IMPLEMENTATION_COLOR_READ_TYPE,
+                    &type));
+
+                image_data_format img_format;
+                if ( (format == GL_ALPHA || format == GL_LUMINANCE) && type == GL_UNSIGNED_BYTE ) {
+                    img_format = image_data_format::g8;
+                } else if ( format == GL_RGB && type == GL_UNSIGNED_BYTE ) {
+                    img_format = image_data_format::rgb8;
+                } else if ( format == GL_RGBA && type == GL_UNSIGNED_BYTE ) {
+                    img_format = image_data_format::rgba8;
+                } else {
+                    E2D_ASSERT_MSG(false, "unsupported pixel format");
+                    // OpenGL ES 2 already supports RGBA8 format for glReadPixels
+                    format = GL_RGBA;
+                    type = GL_UNSIGNED_BYTE;
+                    img_format = image_data_format::rgba8;
+                }
+                
+                pixel_declaration decl = convert_image_data_format_to_pixel_declaration(img_format);
+                buffer pixels;
+                pixels.resize(((decl.bits_per_pixel() * region.size.x) / 8u) * region.size.y);
+
+                GL_CHECK_CODE(debug, glReadPixels(
+                    math::numeric_cast<GLint>(region.position.x),
+                    math::numeric_cast<GLint>(region.position.y),
+                    math::numeric_cast<GLsizei>(region.size.x),
+                    math::numeric_cast<GLsizei>(region.size.y),
+                    format,
+                    type,
+                    pixels.data()));
+                result = image(region.size, img_format, std::move(pixels));
+            });
+    }
+    
+    render& render::grab_texture(
+        const texture_ptr& tex,
+        const b2u& region,
+        image& result)
+    {
+        E2D_ASSERT(tex);
+        E2D_ASSERT(tex->decl().is_color() && !tex->decl().is_compressed());
+        E2D_ASSERT(region.position.x + region.size.x <= tex->size().x);
+        E2D_ASSERT(region.position.y + region.size.y <= tex->size().y);
+
+        gl_framebuffer_id id = gl_framebuffer_id::create(state_->dbg(), GL_FRAMEBUFFER);
+        if ( id.empty() ) {
+            throw bad_render_operation();
+        }
+        gl_attach_texture(state_->dbg(), id, tex->state().id(), GL_COLOR_ATTACHMENT0);
+        GLenum fb_status = GL_FRAMEBUFFER_COMPLETE;
+        if ( !gl_check_framebuffer(state_->dbg(), id, &fb_status) ) {
+            throw bad_render_operation();
+        }
+        grab_framebuffer_content(
+            state_->dbg(),
+            id,
+            region,
+            result);
+        return *this;
+    }
+        
+    render& render::grab_render_target(
+        const render_target_ptr& rt,
+        const b2u& region,
+        image& result)
+    {
+        E2D_ASSERT(rt);
+        E2D_ASSERT(region.position.x + region.size.x <= rt->size().x);
+        E2D_ASSERT(region.position.y + region.size.y <= rt->size().y);
+        grab_framebuffer_content(
+            state_->dbg(),
+            rt->state().id(),
+            region,
+            result);
+        return *this;
+    }
+
+    render& render::grab_screen(
+        const b2u& region,
+        image& result)
+    {
+        E2D_ASSERT(region.position.x + region.size.x <= state_->wnd().real_size().x);
+        E2D_ASSERT(region.position.y + region.size.y <= state_->wnd().real_size().y);
+        grab_framebuffer_content(
+            state_->dbg(),
+            state_->default_fb(),
+            region,
+            result);
         return *this;
     }
 
@@ -1100,6 +1204,8 @@ namespace e2d
             case pixel_declaration::pixel_type::depth24_stencil8:
                 return GLEW_OES_packed_depth_stencil
                     || GLEW_EXT_packed_depth_stencil;
+            case pixel_declaration::pixel_type::g8:
+            case pixel_declaration::pixel_type::ga8:
             case pixel_declaration::pixel_type::rgb8:
             case pixel_declaration::pixel_type::rgba8:
                 return true;

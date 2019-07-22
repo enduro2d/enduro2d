@@ -26,7 +26,9 @@ namespace
         {"depth24",          24, false, true,  false, pixel_declaration::pixel_type::depth24,          false, v2u(1)},
         {"depth32",          32, false, true,  false, pixel_declaration::pixel_type::depth32,          false, v2u(1)},
         {"depth24_stencil8", 32, false, true,  true,  pixel_declaration::pixel_type::depth24_stencil8, false, v2u(1)},
-
+        
+        {"g8",                8, true,  false, false, pixel_declaration::pixel_type::g8,               false, v2u(1)},
+        {"ga8",              16, true,  false, false, pixel_declaration::pixel_type::ga8,              false, v2u(1)},
         {"rgb8",             24, true,  false, false, pixel_declaration::pixel_type::rgb8,             false, v2u(1)},
         {"rgba8",            32, true,  false, false, pixel_declaration::pixel_type::rgba8,            false, v2u(1)},
 

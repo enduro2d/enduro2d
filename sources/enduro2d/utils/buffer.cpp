@@ -107,6 +107,22 @@ namespace e2d
     std::size_t buffer::size() const noexcept {
         return size_;
     }
+
+    const u8* buffer::begin() const noexcept {
+        return data_.get();
+    }
+
+    const u8* buffer::end() const noexcept {
+        return data_.get() + size_;
+    }
+    
+    u8* buffer::begin() noexcept {
+        return data_.get();
+    }
+
+    u8* buffer::end() noexcept {
+        return data_.get() + size_;
+    }
 }
 
 namespace e2d

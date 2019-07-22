@@ -217,9 +217,7 @@ namespace e2d
         GL_CHECK_CODE(debug_, glPixelStorei(GL_PACK_ALIGNMENT, 1));
         GL_CHECK_CODE(debug_, glPixelStorei(GL_UNPACK_ALIGNMENT, 1));
 
-        set_states(state_block_);
-        set_shader_program(shader_program_);
-        set_render_target(render_target_);
+        reset_states();
     }
 
     debug& render::internal_state::dbg() const noexcept {
@@ -238,6 +236,19 @@ namespace e2d
         return render_target_;
     }
 
+    const opengl::gl_framebuffer_id& render::internal_state::default_fb() const noexcept {
+        return default_fb_;
+    }
+    
+    render::internal_state& render::internal_state::reset_states() noexcept {
+        set_depth_state_(state_block_.depth());
+        set_stencil_state_(state_block_.stencil());
+        set_culling_state_(state_block_.culling());
+        set_blending_state_(state_block_.blending());
+        set_capabilities_state_(state_block_.capabilities());
+        return *this;
+    }
+
     render::internal_state& render::internal_state::set_states(const state_block& sb) noexcept {
         set_depth_state(sb.depth());
         set_stencil_state(sb.stencil());
@@ -246,12 +257,8 @@ namespace e2d
         set_capabilities_state(sb.capabilities());
         return *this;
     }
-
-    render::internal_state& render::internal_state::set_depth_state(const depth_state& ds) noexcept {
-        if ( ds == state_block_.depth() ) {
-            return *this;
-        }
-
+    
+    void render::internal_state::set_depth_state_(const depth_state& ds) noexcept {
         GL_CHECK_CODE(debug_, glDepthRange(
             math::numeric_cast<GLclampd>(math::saturate(ds.range_near())),
             math::numeric_cast<GLclampd>(math::saturate(ds.range_far()))));
@@ -259,16 +266,19 @@ namespace e2d
             ds.write() ? GL_TRUE : GL_FALSE));
         GL_CHECK_CODE(debug_, glDepthFunc(
             convert_compare_func(ds.func())));
-
-        state_block_.depth(ds);
-        return *this;
     }
 
-    render::internal_state& render::internal_state::set_stencil_state(const stencil_state& ss) noexcept {
-        if ( ss == state_block_.stencil() ) {
+    render::internal_state& render::internal_state::set_depth_state(const depth_state& ds) noexcept {
+        if ( ds == state_block_.depth() ) {
             return *this;
         }
 
+        set_depth_state_(ds);
+        state_block_.depth(ds);
+        return *this;
+    }
+    
+    void render::internal_state::set_stencil_state_(const stencil_state& ss) noexcept {
         GL_CHECK_CODE(debug_, glStencilMask(
             math::numeric_cast<GLuint>(ss.write())));
         GL_CHECK_CODE(debug_, glStencilFunc(
@@ -279,9 +289,23 @@ namespace e2d
             convert_stencil_op(ss.sfail()),
             convert_stencil_op(ss.zfail()),
             convert_stencil_op(ss.pass())));
+    }
 
+    render::internal_state& render::internal_state::set_stencil_state(const stencil_state& ss) noexcept {
+        if ( ss == state_block_.stencil() ) {
+            return *this;
+        }
+
+        set_stencil_state_(ss);
         state_block_.stencil(ss);
         return *this;
+    }
+    
+    void render::internal_state::set_culling_state_(const culling_state& cs) noexcept {
+        GL_CHECK_CODE(debug_, glFrontFace(
+            convert_culling_mode(cs.mode())));
+        GL_CHECK_CODE(debug_, glCullFace(
+            convert_culling_face(cs.face())));
     }
 
     render::internal_state& render::internal_state::set_culling_state(const culling_state& cs) noexcept {
@@ -289,20 +313,12 @@ namespace e2d
             return *this;
         }
 
-        GL_CHECK_CODE(debug_, glFrontFace(
-            convert_culling_mode(cs.mode())));
-        GL_CHECK_CODE(debug_, glCullFace(
-            convert_culling_face(cs.face())));
-
+        set_culling_state_(cs);
         state_block_.culling(cs);
         return *this;
     }
-
-    render::internal_state& render::internal_state::set_blending_state(const blending_state& bs) noexcept {
-        if ( bs == state_block_.blending() ) {
-            return *this;
-        }
-
+    
+    void render::internal_state::set_blending_state_(const blending_state& bs) noexcept {
         GL_CHECK_CODE(debug_, glBlendColor(
             math::numeric_cast<GLclampf>(math::saturate(bs.constant_color().r)),
             math::numeric_cast<GLclampf>(math::saturate(bs.constant_color().g)),
@@ -321,12 +337,19 @@ namespace e2d
             (utils::enum_to_underlying(bs.color_mask()) & utils::enum_to_underlying(blending_color_mask::g)) != 0,
             (utils::enum_to_underlying(bs.color_mask()) & utils::enum_to_underlying(blending_color_mask::b)) != 0,
             (utils::enum_to_underlying(bs.color_mask()) & utils::enum_to_underlying(blending_color_mask::a)) != 0));
+    }
 
+    render::internal_state& render::internal_state::set_blending_state(const blending_state& bs) noexcept {
+        if ( bs == state_block_.blending() ) {
+            return *this;
+        }
+
+        set_blending_state_(bs);
         state_block_.blending(bs);
         return *this;
     }
-
-    render::internal_state& render::internal_state::set_capabilities_state(const capabilities_state& cs) noexcept {
+    
+    void render::internal_state::set_capabilities_state_(const capabilities_state& cs) noexcept {
         const auto enable_or_disable = [](GLenum cap, bool enable) noexcept {
             if ( enable ) {
                 glEnable(cap);
@@ -335,15 +358,18 @@ namespace e2d
             }
         };
 
-        if ( cs == state_block_.capabilities() ) {
-            return *this;
-        }
-
         GL_CHECK_CODE(debug_, enable_or_disable(GL_CULL_FACE, cs.culling()));
         GL_CHECK_CODE(debug_, enable_or_disable(GL_BLEND, cs.blending()));
         GL_CHECK_CODE(debug_, enable_or_disable(GL_DEPTH_TEST, cs.depth_test()));
         GL_CHECK_CODE(debug_, enable_or_disable(GL_STENCIL_TEST, cs.stencil_test()));
+    }
 
+    render::internal_state& render::internal_state::set_capabilities_state(const capabilities_state& cs) noexcept {
+        if ( cs == state_block_.capabilities() ) {
+            return *this;
+        }
+
+        set_capabilities_state_(cs);
         state_block_.capabilities(cs);
         return *this;
     }
@@ -361,6 +387,14 @@ namespace e2d
         shader_program_ = sp;
         return *this;
     }
+    
+    render::internal_state& render::internal_state::reset_shader_program() noexcept {
+        const gl_program_id& sp_id = shader_program_
+            ? shader_program_->state().id()
+            : default_sp_;
+        GL_CHECK_CODE(debug_, glUseProgram(*sp_id));
+        return *this;
+    }
 
     render::internal_state& render::internal_state::set_render_target(const render_target_ptr& rt) noexcept {
         if ( rt == render_target_ ) {
@@ -373,6 +407,14 @@ namespace e2d
         GL_CHECK_CODE(debug_, glBindFramebuffer(rt_id.target(), *rt_id));
 
         render_target_ = rt;
+        return *this;
+    }
+    
+    render::internal_state& render::internal_state::reset_render_target() noexcept {
+        const gl_framebuffer_id& rt_id = render_target_
+            ? render_target_->state().id()
+            : default_fb_;
+        GL_CHECK_CODE(debug_, glBindFramebuffer(rt_id.target(), *rt_id));
         return *this;
     }
 }
