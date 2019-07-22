@@ -165,11 +165,6 @@ namespace e2d
     v2u pixel_declaration::compressed_block_size() const noexcept {
         return get_pixel_type_description(type_).block_size;
     }
-    
-    std::size_t pixel_declaration::block_bits_per_pixel() const noexcept {
-        auto& desc = get_pixel_type_description(type_);
-        return desc.block_size.x * desc.block_size.y * desc.bits_per_pixel;
-    }
 
     bool operator==(const pixel_declaration& l, const pixel_declaration& r) noexcept {
         return l.type() == r.type();

@@ -973,7 +973,11 @@ namespace e2d
         return *this;
     }
     
-    render& render::update_buffer(const index_buffer_ptr& ibuffer, buffer_view indices, std::size_t offset) {
+    render& render::update_buffer(
+        const index_buffer_ptr& ibuffer,
+        buffer_view indices,
+        std::size_t offset)
+    {
         E2D_ASSERT(is_in_main_thread());
         E2D_ASSERT(ibuffer);
         const std::size_t buffer_offset = offset * ibuffer->state().decl().bytes_per_index();
@@ -990,7 +994,11 @@ namespace e2d
         return *this;
     }
 
-    render& render::update_buffer(const vertex_buffer_ptr& vbuffer, buffer_view vertices, std::size_t offset) {
+    render& render::update_buffer(
+        const vertex_buffer_ptr& vbuffer,
+        buffer_view vertices,
+        std::size_t offset)
+    {
         E2D_ASSERT(is_in_main_thread());
         E2D_ASSERT(vbuffer);
         const std::size_t buffer_offset = offset * vbuffer->state().decl().bytes_per_vertex();
@@ -1007,12 +1015,16 @@ namespace e2d
         return *this;
     }
 
-    render& render::update_texture(const texture_ptr& tex, const image& img, v2u offset) {
+    render& render::update_texture(
+        const texture_ptr& tex,
+        const image& img,
+        v2u offset)
+    {
         E2D_ASSERT(is_in_main_thread());
         E2D_ASSERT(tex);
         const pixel_declaration decl =
             convert_image_data_format_to_pixel_declaration(img.format());
-        if(tex->decl() != decl) {
+        if ( tex->decl() != decl ) {
             state_->dbg().error("RENDER: Failed to update texture:\n"
                 "--> Texture format: %0\n"
                 "--> Image format: %1",
@@ -1023,15 +1035,20 @@ namespace e2d
         return update_texture(tex, img.data(), img.size(), offset);
     }
 
-    render& render::update_texture(const texture_ptr& tex, buffer_view data, v2u size, v2u offset) {
+    render& render::update_texture(
+        const texture_ptr& tex,
+        buffer_view data,
+        v2u size,
+        v2u offset)
+    {
         E2D_ASSERT(is_in_main_thread());
         E2D_ASSERT(tex);
         E2D_ASSERT(offset.x < tex->size().x && offset.y < tex->size().y);
         E2D_ASSERT(offset.x + size.x <= tex->size().x);
         E2D_ASSERT(offset.y + size.y <= tex->size().y);
-        E2D_ASSERT(data.size() == size.y * ((size.x * tex->decl().bits_per_pixel()) / 8));
+        E2D_ASSERT(data.size() * 8u == size.y * size.x * tex->decl().bits_per_pixel());
 
-        if (tex->decl().is_compressed()) {
+        if ( tex->decl().is_compressed() ) {
             const v2u block_size = tex->decl().compressed_block_size();
             E2D_ASSERT(offset.x % block_size.x == 0 && offset.y % block_size.y == 0);
             E2D_ASSERT(size.x % block_size.x == 0 && size.y % block_size.y == 0);
