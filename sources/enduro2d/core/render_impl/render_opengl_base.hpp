@@ -17,7 +17,6 @@
 #if defined(E2D_BUILD_MODE) && E2D_BUILD_MODE == E2D_BUILD_MODE_DEBUG
 #   define GL_FLUSH_ERRORS(dbg)\
         for ( GLenum err = glGetError(); err != GL_NO_ERROR; err = glGetError() ) {\
-            E2D_ASSERT_MSG(false, "RENDER: GL_FLUSH_ERRORS()");\
             (dbg).log(err == GL_OUT_OF_MEMORY\
                 ? debug::level::fatal\
                 : debug::level::error,\
@@ -26,13 +25,13 @@
                 "--> Line: %1\n"\
                 "--> Code: %2",\
                 __FILE__, __LINE__, e2d::opengl::gl_error_code_to_cstr(err));\
+            E2D_ASSERT_MSG(false, "RENDER: GL_FLUSH_ERRORS()");\
             if ( err == GL_OUT_OF_MEMORY ) std::terminate();\
         }
 #   define GL_CHECK_CODE(dbg, code)\
         GL_FLUSH_ERRORS(dbg);\
         code;\
         for ( GLenum err = glGetError(); err != GL_NO_ERROR; err = glGetError() ) {\
-            E2D_ASSERT_MSG(false, #code);\
             (dbg).log(err == GL_OUT_OF_MEMORY\
                 ? debug::level::fatal\
                 : debug::level::error,\
@@ -41,6 +40,7 @@
                 "--> Line: %2\n"\
                 "--> Code: %3",\
                 #code, __FILE__, __LINE__, e2d::opengl::gl_error_code_to_cstr(err));\
+            E2D_ASSERT_MSG(false, #code);\
             if ( err == GL_OUT_OF_MEMORY ) std::terminate();\
         }
 #else
