@@ -1024,17 +1024,19 @@ namespace e2d
     {
         E2D_ASSERT(is_in_main_thread());
         E2D_ASSERT(tex);
+
         const pixel_declaration decl =
             convert_image_data_format_to_pixel_declaration(img.format());
         if ( tex->decl() != decl ) {
             state_->dbg().error("RENDER: Failed to update texture:\n"
-                "--> Incompatible pixel formats:\n"
+                "--> Info: incompatible pixel formats\n"
                 "--> Texture format: %0\n"
                 "--> Image format: %1",
                 pixel_declaration::pixel_type_to_cstr(tex->decl().type()),
                 pixel_declaration::pixel_type_to_cstr(decl.type()));
             throw bad_render_operation();
         }
+
         return update_texture(tex, img.data(), b2u(offset, img.size()));
     }
 
@@ -1084,6 +1086,7 @@ namespace e2d
                         pixels.data()));
                 });
         }
+
         return *this;
     }
 
