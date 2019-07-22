@@ -83,11 +83,12 @@ namespace
                 l.text(make_utf32("{Съешь же ещё\nthis мягких french\nбулок, да drink tea!}"));
 
                 label_i->entity_filler()
-                .component<actor>(node::create(label_i, scene_r))
-                .component<label>(l)
-                .component<renderer>(renderer()
-                                     .materials({font_mat}))
-                .component<model_renderer>(model_res);
+                    .component<actor>(node::create(label_i, scene_r))
+                    .component<label>(l)
+                    .component<label::dirty>(label::dirty())
+                    .component<renderer>(renderer()
+                                         .materials({font_mat}))
+                    .component<model_renderer>(model_res);
 
                 node_iptr label_n = label_i->get_component<actor>().get().node();
                 label_n->translation(v3f{-300.f,0.f,0.f});

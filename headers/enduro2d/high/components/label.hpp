@@ -15,30 +15,12 @@ namespace e2d
 {
     class label final {
     public:
+        class dirty final {};
+
         label() = default;
-        label(str32_view text);
-
-        label(label&& other) noexcept;
-        label& operator=(label&& other) noexcept;
-
-        label(const label& other);
-        label& operator=(const label& other);
-
-        label(str32_view text, font_asset::ptr font, color32 tint);
-
-        label& assign(label&& other) noexcept;
-        label& assign(const label& other);
-        label& assign(str32_view text, font_asset::ptr font, color32 tint);
-
-        void swap(label& other) noexcept;
-        void clear() noexcept;
-        bool empty() const noexcept;
-
+        
         label& text(str32_view text);
         const str32& text() const noexcept;
-
-        label& dirty(bool dirty) noexcept;
-        bool dirty() const noexcept;
 
         label& font(const font_asset::ptr& font) noexcept;
         const font_asset::ptr&  font() const noexcept;
@@ -46,7 +28,6 @@ namespace e2d
         label& tint(const color32& value) noexcept;
         const color32& tint() const noexcept;
     private:
-        bool dirty_ = false;
         str32 text_;
         font_asset::ptr font_;
         color32 tint_ = color32::white();
@@ -69,15 +50,8 @@ namespace e2d
 
 namespace e2d
 {
-    inline label::label(str32_view text)
-    : dirty_(false)
-    {
-        text_ = make_utf32(text);
-    }
-
     inline label& label::text(str32_view text) {
         text_ = text;
-        dirty_ = true;
         return *this;
     }
 
@@ -85,18 +59,8 @@ namespace e2d
         return text_;
     }
 
-    inline label& label::dirty(bool dirty) noexcept {
-        dirty_ = dirty;
-        return *this;
-    }
-
-    inline bool label::dirty() const noexcept {
-        return dirty_;
-    }
-
     inline label& label::font(const font_asset::ptr& font) noexcept {
         font_ = font;
-        dirty_ = true;
         return *this;
     }
 
