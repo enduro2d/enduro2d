@@ -264,7 +264,6 @@ namespace e2d
         explicit index_buffer(internal_state_uptr);
         ~index_buffer() noexcept;
     public:
-        void update(buffer_view indices, std::size_t offset) noexcept;
         std::size_t buffer_size() const noexcept;
         std::size_t index_count() const noexcept;
         const index_declaration& decl() const noexcept;
@@ -291,7 +290,6 @@ namespace e2d
         explicit vertex_buffer(internal_state_uptr);
         ~vertex_buffer() noexcept;
     public:
-        void update(buffer_view vertices, std::size_t offset) noexcept;
         std::size_t buffer_size() const noexcept;
         std::size_t vertex_count() const noexcept;
         const vertex_declaration& decl() const noexcept;
@@ -939,6 +937,11 @@ namespace e2d
         render& execute(const clear_command& command);
         render& execute(const target_command& command);
         render& execute(const viewport_command& command);
+
+        render& update_buffer(const index_buffer_ptr& ibuffer, buffer_view indices, std::size_t offset);
+        render& update_buffer(const vertex_buffer_ptr& vbuffer, buffer_view vertices, std::size_t offset);
+        render& update_texture(const texture_ptr& tex, const image& img, v2u offset, u32 level = 0);
+        render& update_texture(const texture_ptr& tex, const void* data, v2u size, v2u offset, u32 level = 0);
 
         const device_caps& device_capabilities() const noexcept;
         bool is_pixel_supported(const pixel_declaration& decl) const noexcept;

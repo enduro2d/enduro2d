@@ -355,20 +355,6 @@ namespace e2d
     }
     index_buffer::~index_buffer() noexcept = default;
 
-    void index_buffer::update(buffer_view indices, std::size_t offset) noexcept {
-        const std::size_t buffer_offset = offset * state_->decl().bytes_per_index();
-        E2D_ASSERT(indices.size() + buffer_offset <= state_->size());
-        E2D_ASSERT(indices.size() % state_->decl().bytes_per_index() == 0);
-        opengl::with_gl_bind_buffer(state_->dbg(), state_->id(),
-            [this, &indices, &buffer_offset]() noexcept {
-                GL_CHECK_CODE(state_->dbg(), glBufferSubData(
-                    state_->id().target(),
-                    math::numeric_cast<GLintptr>(buffer_offset),
-                    math::numeric_cast<GLsizeiptr>(indices.size()),
-                    indices.data()));
-            });
-    }
-
     std::size_t index_buffer::buffer_size() const noexcept {
         return state_->size();
     }
@@ -395,20 +381,6 @@ namespace e2d
         E2D_ASSERT(state_);
     }
     vertex_buffer::~vertex_buffer() noexcept = default;
-
-    void vertex_buffer::update(buffer_view vertices, std::size_t offset) noexcept {
-        const std::size_t buffer_offset = offset * state_->decl().bytes_per_vertex();
-        E2D_ASSERT(vertices.size() + buffer_offset <= state_->size());
-        E2D_ASSERT(vertices.size() % state_->decl().bytes_per_vertex() == 0);
-        opengl::with_gl_bind_buffer(state_->dbg(), state_->id(),
-            [this, &vertices, &buffer_offset]() noexcept {
-                GL_CHECK_CODE(state_->dbg(), glBufferSubData(
-                    state_->id().target(),
-                    math::numeric_cast<GLintptr>(buffer_offset),
-                    math::numeric_cast<GLsizeiptr>(vertices.size()),
-                    vertices.data()));
-            });
-    }
 
     std::size_t vertex_buffer::buffer_size() const noexcept {
         return state_->size();
@@ -998,6 +970,72 @@ namespace e2d
             GL_CHECK_CODE(state_->dbg(), glDisable(GL_SCISSOR_TEST));
         }
 
+        return *this;
+    }
+    
+    render& render::update_buffer(const index_buffer_ptr& ibuffer, buffer_view indices, std::size_t offset) {
+        E2D_ASSERT(is_in_main_thread());
+        E2D_ASSERT(ibuffer);
+        const std::size_t buffer_offset = offset * ibuffer->state().decl().bytes_per_index();
+        E2D_ASSERT(indices.size() + buffer_offset <= ibuffer->state().size());
+        E2D_ASSERT(indices.size() % ibuffer->state().decl().bytes_per_index() == 0);
+        opengl::with_gl_bind_buffer(ibuffer->state().dbg(), ibuffer->state().id(),
+            [&ibuffer, &indices, &buffer_offset]() noexcept {
+                GL_CHECK_CODE(ibuffer->state().dbg(), glBufferSubData(
+                    ibuffer->state().id().target(),
+                    math::numeric_cast<GLintptr>(buffer_offset),
+                    math::numeric_cast<GLsizeiptr>(indices.size()),
+                    indices.data()));
+            });
+        return *this;
+    }
+
+    render& render::update_buffer(const vertex_buffer_ptr& vbuffer, buffer_view vertices, std::size_t offset) {
+        E2D_ASSERT(is_in_main_thread());
+        E2D_ASSERT(vbuffer);
+        const std::size_t buffer_offset = offset * vbuffer->state().decl().bytes_per_vertex();
+        E2D_ASSERT(vertices.size() + buffer_offset <= vbuffer->state().size());
+        E2D_ASSERT(vertices.size() % vbuffer->state().decl().bytes_per_vertex() == 0);
+        opengl::with_gl_bind_buffer(vbuffer->state().dbg(), vbuffer->state().id(),
+            [&vbuffer, &vertices, &buffer_offset]() noexcept {
+                GL_CHECK_CODE(vbuffer->state().dbg(), glBufferSubData(
+                    vbuffer->state().id().target(),
+                    math::numeric_cast<GLintptr>(buffer_offset),
+                    math::numeric_cast<GLsizeiptr>(vertices.size()),
+                    vertices.data()));
+            });
+        return *this;
+    }
+
+    render& render::update_texture(const texture_ptr& tex, const image& img, v2u offset, u32 level) {
+        E2D_ASSERT(is_in_main_thread());
+        E2D_ASSERT(tex);
+        const pixel_declaration decl =
+            convert_image_data_format_to_pixel_declaration(img.format());
+        E2D_ASSERT(tex->decl() == decl);
+        return update_texture(tex, img.data().data(), img.size(), offset, level);
+    }
+
+    render& render::update_texture(const texture_ptr& tex, const void* data, v2u size, v2u offset, u32 level) {
+        E2D_ASSERT(is_in_main_thread());
+        E2D_ASSERT(tex);
+        E2D_ASSERT(offset.x < tex->size().x && offset.y < tex->size().y);
+        E2D_ASSERT(offset.x + size.x <= tex->size().x);
+        E2D_ASSERT(offset.y + size.y <= tex->size().y);
+        E2D_ASSERT(level == 0); // not supported yet
+        opengl::with_gl_bind_texture(state_->dbg(), tex->state().id(),
+            [&tex, data, &size, &offset, level]() noexcept {
+                GL_CHECK_CODE(tex->state().dbg(), glTexSubImage2D(
+                    tex->state().id().target(),
+                    math::numeric_cast<GLint>(level),
+                    math::numeric_cast<GLint>(offset.x),
+                    math::numeric_cast<GLint>(offset.y),
+                    math::numeric_cast<GLsizei>(size.x),
+                    math::numeric_cast<GLsizei>(size.y),
+                    convert_pixel_type_to_external_format(tex->state().decl().type()),
+                    convert_pixel_type_to_external_data_type(tex->state().decl().type()),
+                    data));
+            });
         return *this;
     }
 
