@@ -301,6 +301,147 @@ namespace
         static render::property_block props;
         return props;
     }
+    
+    void grab_framebuffer_content(
+        debug& debug,
+        const opengl::gl_framebuffer_id& fb,
+        const b2u& region,
+        image& result)
+    {
+        with_gl_bind_framebuffer(debug, fb,
+            [&debug, &region, &result]() {
+                GLint format;
+                GLint type;
+                GL_CHECK_CODE(debug, glGetIntegerv(
+                    GL_IMPLEMENTATION_COLOR_READ_FORMAT,
+                    &format));
+                GL_CHECK_CODE(debug, glGetIntegerv(
+                    GL_IMPLEMENTATION_COLOR_READ_TYPE,
+                    &type));
+
+                image_data_format img_format;
+                if ( (format == GL_ALPHA || format == GL_LUMINANCE) && type == GL_UNSIGNED_BYTE ) {
+                    img_format = image_data_format::g8;
+                } else if ( format == GL_RGB && type == GL_UNSIGNED_BYTE ) {
+                    img_format = image_data_format::rgb8;
+                } else if ( format == GL_RGBA && type == GL_UNSIGNED_BYTE ) {
+                    img_format = image_data_format::rgba8;
+                } else {
+                    E2D_ASSERT_MSG(false, "unsupported pixel format");
+                    // OpenGL ES 2 already supports RGBA8 format for glReadPixels
+                    format = GL_RGBA;
+                    type = GL_UNSIGNED_BYTE;
+                    img_format = image_data_format::rgba8;
+                }
+                
+                pixel_declaration decl = convert_image_data_format_to_pixel_declaration(img_format);
+                buffer pixels;
+                pixels.resize(((decl.bits_per_pixel() * region.size.x) / 8u) * region.size.y);
+
+                GL_CHECK_CODE(debug, glReadPixels(
+                    math::numeric_cast<GLint>(region.position.x),
+                    math::numeric_cast<GLint>(region.position.y),
+                    math::numeric_cast<GLsizei>(region.size.x),
+                    math::numeric_cast<GLsizei>(region.size.y),
+                    format,
+                    type,
+                    pixels.data()));
+                result = image(region.size, img_format, std::move(pixels));
+            });
+    }
+
+    void grab_compressed_texture(
+        render& render,
+        const texture_ptr& tex,
+        const b2u& region,
+        image& result)
+    {
+        const char vs_source[] = R"glsl(
+            #version 120
+
+            attribute vec2 a_position;
+            varying vec2 v_uv;
+
+            void main(){
+              v_uv = a_position * 0.5 + 0.5;
+              gl_Position = vec4(a_position.xy, 0.0, 1.0);
+            }
+        )glsl";
+
+        const char fs_source[] = R"glsl(
+            #version 120
+
+            uniform sampler2D u_texture;
+            varying vec2 v_uv;
+
+            void main(){
+              gl_FragColor = texture2D(u_texture, v_uv);
+            }
+        )glsl";
+
+        const v2f vertices[] = {
+            v2f(-1.0f, 1.0f), v2f(-1.0f, -1.0f), v2f(1.0f, 1.0f), v2f(1.0f, -1.0f)
+        };
+
+        shader_ptr shader = render.create_shader(vs_source, fs_source);
+        if ( !shader ) {
+            throw bad_render_operation();
+        }
+
+        vertex_buffer_ptr vbuffer = render.create_vertex_buffer(
+            buffer_view(vertices),
+            vertex_declaration().add_attribute<v2f>("a_position"),
+            vertex_buffer::usage::static_draw);
+        if ( !vbuffer ) {
+            throw bad_render_operation();
+        }
+        
+        render::geometry geometry;
+        geometry.add_vertices(vbuffer);
+        geometry.topo(render::topology::triangles_strip);
+        
+        render::material material;
+        material.add_pass(render::pass_state()
+            .shader(shader)
+            .properties(render::property_block()
+                .sampler("u_texture", render::sampler_state()
+                    .texture(tex)
+                    .min_filter(render::sampler_min_filter::nearest)
+                    .mag_filter(render::sampler_mag_filter::nearest))));
+
+        // convert compressed format to non-compressed
+        const auto convert_to_noncompressed = [](pixel_declaration decl) {
+            #define DEFINE_CASE(x, y) case pixel_declaration::pixel_type::x: return pixel_declaration::pixel_type::y;
+            switch ( decl.type() ) {
+                DEFINE_CASE(rgb_dxt1, rgba8)
+                DEFINE_CASE(rgba_dxt1, rgba8)
+                DEFINE_CASE(rgba_dxt3, rgba8)
+                DEFINE_CASE(rgba_dxt5, rgba8)
+                DEFINE_CASE(rgb_pvrtc2, rgba8)
+                DEFINE_CASE(rgb_pvrtc4, rgba8)
+                DEFINE_CASE(rgba_pvrtc2, rgba8)
+                DEFINE_CASE(rgba_pvrtc4, rgba8)
+                DEFINE_CASE(rgba_pvrtc2_v2, rgba8)
+                DEFINE_CASE(rgba_pvrtc4_v2, rgba8)
+                default:
+                    E2D_ASSERT_MSG(false, "unexpected pixel format");
+                    return  pixel_declaration::pixel_type::rgba8;
+            }
+            #undef DEFINE_CASE
+        };
+
+        render_target_ptr rt = render.create_render_target(
+            tex->size(),
+            convert_to_noncompressed(tex->decl()),
+            pixel_declaration::pixel_type::depth16,
+            render_target::external_texture::color);
+
+        render.execute(render::viewport_command(b2u(tex->size())));
+        render.execute(render::target_command(rt));
+        render.execute(render::draw_command(material, geometry));
+        render.grab_render_target(rt, region, result);
+    }
+    
 }
 
 namespace e2d
@@ -1065,7 +1206,7 @@ namespace e2d
                         math::numeric_cast<GLint>(region.position.y),
                         math::numeric_cast<GLsizei>(region.size.x),
                         math::numeric_cast<GLsizei>(region.size.y),
-                        convert_pixel_type_to_external_format(tex->state().decl().type()),
+                        convert_pixel_type_to_internal_format_e(tex->state().decl().type()),
                         math::numeric_cast<GLsizei>(pixels.size()),
                         pixels.data()));
                 });
@@ -1087,64 +1228,21 @@ namespace e2d
         return *this;
     }
 
-    static void grab_framebuffer_content(
-        debug& debug,
-        const opengl::gl_framebuffer_id& fb,
-        const b2u& region,
-        image& result)
-    {
-        with_gl_bind_framebuffer(debug, fb,
-            [&debug, &region, &result]() {
-                GLint format;
-                GLint type;
-                GL_CHECK_CODE(debug, glGetIntegerv(
-                    GL_IMPLEMENTATION_COLOR_READ_FORMAT,
-                    &format));
-                GL_CHECK_CODE(debug, glGetIntegerv(
-                    GL_IMPLEMENTATION_COLOR_READ_TYPE,
-                    &type));
-
-                image_data_format img_format;
-                if ( (format == GL_ALPHA || format == GL_LUMINANCE) && type == GL_UNSIGNED_BYTE ) {
-                    img_format = image_data_format::g8;
-                } else if ( format == GL_RGB && type == GL_UNSIGNED_BYTE ) {
-                    img_format = image_data_format::rgb8;
-                } else if ( format == GL_RGBA && type == GL_UNSIGNED_BYTE ) {
-                    img_format = image_data_format::rgba8;
-                } else {
-                    E2D_ASSERT_MSG(false, "unsupported pixel format");
-                    // OpenGL ES 2 already supports RGBA8 format for glReadPixels
-                    format = GL_RGBA;
-                    type = GL_UNSIGNED_BYTE;
-                    img_format = image_data_format::rgba8;
-                }
-                
-                pixel_declaration decl = convert_image_data_format_to_pixel_declaration(img_format);
-                buffer pixels;
-                pixels.resize(((decl.bits_per_pixel() * region.size.x) / 8u) * region.size.y);
-
-                GL_CHECK_CODE(debug, glReadPixels(
-                    math::numeric_cast<GLint>(region.position.x),
-                    math::numeric_cast<GLint>(region.position.y),
-                    math::numeric_cast<GLsizei>(region.size.x),
-                    math::numeric_cast<GLsizei>(region.size.y),
-                    format,
-                    type,
-                    pixels.data()));
-                result = image(region.size, img_format, std::move(pixels));
-            });
-    }
-    
     render& render::grab_texture(
         const texture_ptr& tex,
         const b2u& region,
         image& result)
     {
         E2D_ASSERT(tex);
-        E2D_ASSERT(tex->decl().is_color() && !tex->decl().is_compressed());
+        E2D_ASSERT(tex->decl().is_color());
         E2D_ASSERT(region.size.x > 0 && region.size.y > 0);
         E2D_ASSERT(region.position.x + region.size.x <= tex->size().x);
         E2D_ASSERT(region.position.y + region.size.y <= tex->size().y);
+
+        if ( tex->decl().is_compressed() ) {
+            grab_compressed_texture(*this, tex, region, result);
+            return *this;
+        }
 
         gl_framebuffer_id id = gl_framebuffer_id::create(state_->dbg(), GL_FRAMEBUFFER);
         if ( id.empty() ) {

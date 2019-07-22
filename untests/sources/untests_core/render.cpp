@@ -319,5 +319,25 @@ TEST_CASE("render"){
                 r.update_texture(tex, img, v2u(11,27)),
                 bad_render_operation);
         }
+
+        //if ( r.device_capabilities().dxt5_compression_supported ) // TODO: wait for android branch
+        {
+            str resources;
+            REQUIRE(filesystem::extract_predef_path(
+                resources,
+                filesystem::predef_path::resources));
+
+            image src;
+            REQUIRE(images::try_load_image(src, make_read_file(path::combine(resources, "bin/images/ship_rgba.dds"))));
+            
+            texture_ptr tex = r.create_texture(src.size(), pixel_declaration::pixel_type::rgba_dxt5);
+            REQUIRE(tex != nullptr);
+            r.update_texture(tex, src, v2u(0,0));
+            
+            image dst;
+            r.grab_texture(tex, b2u(src.size()), dst);
+            REQUIRE(dst.format() == image_data_format::rgba8);
+            REQUIRE(src.size() == dst.size());
+        }
     }
 }

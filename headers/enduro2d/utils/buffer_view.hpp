@@ -30,6 +30,9 @@ namespace e2d
         template < typename T, std::size_t N >
         buffer_view(const std::array<T,N>& buffer) noexcept;
 
+        template < typename T, std::size_t N >
+        buffer_view(const T (&buffer)[N]) noexcept;
+
         const void* data() const noexcept;
         std::size_t size() const noexcept;
         bool empty() const noexcept;
@@ -56,4 +59,9 @@ namespace e2d
     buffer_view::buffer_view(const std::array<T,N>& buffer) noexcept
     : data_(buffer.data())
     , size_(buffer.size() * sizeof(T)) {}
+    
+    template < typename T, std::size_t N >
+    buffer_view::buffer_view(const T (&buffer)[N]) noexcept
+    : data_(&buffer[0])
+    , size_(std::size(buffer) * sizeof(T)) {}
 }
