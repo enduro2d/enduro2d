@@ -32,6 +32,54 @@ namespace e2d
         assign(src, size);
     }
 
+    buffer::iterator buffer::begin() noexcept {
+        return data_.get();
+    }
+
+    buffer::const_iterator buffer::begin() const noexcept {
+        return data_.get();
+    }
+
+    buffer::const_iterator buffer::cbegin() const noexcept {
+        return data_.get();
+    }
+
+    buffer::iterator buffer::end() noexcept {
+        return data_.get() + size_;
+    }
+
+    buffer::const_iterator buffer::end() const noexcept {
+        return data_.get() + size_;
+    }
+
+    buffer::const_iterator buffer::cend() const noexcept {
+        return data_.get() + size_;
+    }
+
+    buffer::reverse_iterator buffer::rbegin() noexcept {
+        return reverse_iterator(end());
+    }
+
+    buffer::const_reverse_iterator buffer::rbegin() const noexcept {
+        return const_reverse_iterator(end());
+    }
+
+    buffer::const_reverse_iterator buffer::crbegin() const noexcept {
+        return const_reverse_iterator(end());
+    }
+
+    buffer::reverse_iterator buffer::rend() noexcept {
+        return reverse_iterator(begin());
+    }
+
+    buffer::const_reverse_iterator buffer::rend() const noexcept {
+        return const_reverse_iterator(begin());
+    }
+
+    buffer::const_reverse_iterator buffer::crend() const noexcept {
+        return const_reverse_iterator(begin());
+    }
+
     buffer& buffer::fill(u8 ch) noexcept {
         if ( data_ && size_) {
             std::memset(data_.get(), ch, size_);
@@ -106,22 +154,6 @@ namespace e2d
 
     std::size_t buffer::size() const noexcept {
         return size_;
-    }
-
-    const u8* buffer::begin() const noexcept {
-        return data_.get();
-    }
-
-    const u8* buffer::end() const noexcept {
-        return data_.get() + size_;
-    }
-    
-    u8* buffer::begin() noexcept {
-        return data_.get();
-    }
-
-    u8* buffer::end() noexcept {
-        return data_.get() + size_;
     }
 }
 
