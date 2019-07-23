@@ -11,9 +11,9 @@ namespace
 {
     using namespace e2d;
 
-    class bmfont_asset_loading_exception final : public asset_loading_exception {
+    class font_asset_loading_exception final : public asset_loading_exception {
         const char* what() const noexcept final {
-            return "shader asset loading exception";
+            return "font asset loading exception";
         }
     };
 }

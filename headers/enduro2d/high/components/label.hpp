@@ -15,19 +15,23 @@ namespace e2d
 {
     class label final {
     public:
-        class dirty final {};
+        class label_dirty final {};
 
         label() = default;
         
         label& text(str32_view text);
-        const str32& text() const noexcept;
+        [[nodiscard]] const str32& text() const noexcept;
 
         label& font(const font_asset::ptr& font) noexcept;
-        const font_asset::ptr&  font() const noexcept;
+        [[nodiscard]] const font_asset::ptr&  font() const noexcept;
 
         label& tint(const color32& value) noexcept;
-        const color32& tint() const noexcept;
+        [[nodiscard]] const color32& tint() const noexcept;
+
+        label& pivot(const v2f& pivot) noexcept;
+        [[nodiscard]] const v2f& pivot() const noexcept;
     private:
+        v2f pivot_ = v2f::zero();
         str32 text_;
         font_asset::ptr font_;
         color32 tint_ = color32::white();
@@ -46,6 +50,20 @@ namespace e2d
             asset_dependencies& dependencies,
             const collect_context& ctx) const;
     };
+
+    template <>
+    class factory_loader<label::label_dirty> final : factory_loader<> {
+    public:
+        static const char* schema_source;
+
+        bool operator()(
+            label::label_dirty& component,
+            const fill_context& ctx) const;
+
+        bool operator()(
+            asset_dependencies& dependencies,
+            const collect_context& ctx) const;
+    };
 }
 
 namespace e2d
@@ -55,7 +73,7 @@ namespace e2d
         return *this;
     }
 
-    inline const str32& label::text() const noexcept {
+    [[nodiscard]] inline const str32& label::text() const noexcept {
         return text_;
     }
 
@@ -64,7 +82,7 @@ namespace e2d
         return *this;
     }
 
-    inline const font_asset::ptr& label::font() const noexcept {
+    [[nodiscard]] inline const font_asset::ptr& label::font() const noexcept {
         return font_;
     }
 
@@ -73,7 +91,16 @@ namespace e2d
         return *this;
     }
 
-    inline const color32& label::tint() const noexcept {
+    [[nodiscard]] inline const color32& label::tint() const noexcept {
         return tint_;
+    }
+
+    inline label& label::pivot(const v2f& pivot) noexcept {
+        pivot_ = pivot;
+        return *this;
+    }
+
+    [[nodiscard]] inline const v2f& label::pivot() const noexcept {
+        return pivot_;
     }
 }

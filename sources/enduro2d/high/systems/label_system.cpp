@@ -7,6 +7,7 @@
 #include <enduro2d/high/systems/label_system.hpp>
 
 
+#include <enduro2d/high/components/actor.hpp>
 #include <enduro2d/high/components/label.hpp>
 #include <enduro2d/high/components/model_renderer.hpp>
 
@@ -23,10 +24,11 @@ namespace e2d
         ~internal_state() noexcept = default;
 
         void process(ecs::registry& owner) {
-            owner.for_joined_components<label, label::dirty, model_renderer>([](
+
+            owner.for_joined_components<label, label::label_dirty, model_renderer>([](
                 const ecs::const_entity&,
                 label& l,
-                label::dirty&,
+                label::label_dirty&,
                 model_renderer& mr)
             {
                 vector<v3f> vertices;
@@ -47,14 +49,14 @@ namespace e2d
                 uvs.resize(vertices.size());
                 colors.resize(vertices.size());
                 indices.resize(text.size() * 6);
-                f32 x_pos{0};
-                f32 y_pos{0};
+                f32 x_pos{-l.pivot().x};
+                f32 y_pos{-l.pivot().y};
                 f32 kerning{0};
                 u32 prev_char{0};
-                for (size_t i = 0; i < text.size(); i++) {
+                for ( size_t i = 0; i < text.size(); i++ ) {
                     if ( text[i] == '\n' ) {
                         y_pos -= f.common().line_height;
-                        x_pos = 0;
+                        x_pos = -l.pivot().x;
                         prev_char = 0;
                         continue;
                     }
@@ -129,7 +131,7 @@ namespace e2d
                 mr.model()->fill(content);
             });
 
-            owner.remove_all_components<label::dirty>();
+            owner.remove_all_components<label::label_dirty>();
         }
     };
 
