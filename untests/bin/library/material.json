@@ -55,11 +55,10 @@
             "texture" : "image.png",
             "wrap" : {
                 "s" : "clamp",
-                "t" : "repeat",
-                "r" : "mirror"
+                "t" : "repeat"
             },
             "filter" : {
-                "min" : "linear_mipmap_linear",
+                "min" : "linear",
                 "mag" : "linear"
             }
         }],

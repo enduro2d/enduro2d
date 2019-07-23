@@ -179,8 +179,7 @@ namespace
                                 "additionalProperties" : false,
                                 "properties" : {
                                     "s" : { "$ref" : "#/definitions/sampler_wrap" },
-                                    "t" : { "$ref" : "#/definitions/sampler_wrap" },
-                                    "r" : { "$ref" : "#/definitions/sampler_wrap" }
+                                    "t" : { "$ref" : "#/definitions/sampler_wrap" }
                                 }
                             }, {
                                 "$ref" : "#/definitions/sampler_wrap"
@@ -333,11 +332,7 @@ namespace
                     "type" : "string",
                     "enum" : [
                         "nearest",
-                        "linear",
-                        "nearest_mipmap_nearest",
-                        "linear_mipmap_nearest",
-                        "nearest_mipmap_linear",
-                        "linear_mipmap_linear"
+                        "linear"
                     ]
                 }
             }
@@ -471,10 +466,6 @@ namespace
     #define DEFINE_IF(x) if ( str == #x ) { filter = render::sampler_min_filter::x; return true; }
         DEFINE_IF(nearest);
         DEFINE_IF(linear);
-        DEFINE_IF(nearest_mipmap_nearest);
-        DEFINE_IF(linear_mipmap_nearest);
-        DEFINE_IF(nearest_mipmap_linear);
-        DEFINE_IF(linear_mipmap_linear);
     #undef DEFINE_IF
         return false;
     }
@@ -483,10 +474,6 @@ namespace
     #define DEFINE_IF(x,y) if ( str == #x ) { filter = render::sampler_mag_filter::y; return true; }
         DEFINE_IF(nearest, nearest);
         DEFINE_IF(linear, linear);
-        DEFINE_IF(nearest_mipmap_nearest, nearest);
-        DEFINE_IF(linear_mipmap_nearest, linear);
-        DEFINE_IF(nearest_mipmap_linear, nearest);
-        DEFINE_IF(linear_mipmap_linear, linear);
     #undef DEFINE_IF
         return false;
     }
@@ -551,16 +538,6 @@ namespace
                     auto wrap = content.t_wrap();
                     if ( parse_sampler_wrap(wrap_json["t"].GetString(), wrap) ) {
                         content.t_wrap(wrap);
-                    } else {
-                        E2D_ASSERT_MSG(false, "unexpected sampler wrap");
-                    }
-                }
-
-                if ( wrap_json.HasMember("r") ) {
-                    E2D_ASSERT(wrap_json["r"].IsString());
-                    auto wrap = content.r_wrap();
-                    if ( parse_sampler_wrap(wrap_json["r"].GetString(), wrap) ) {
-                        content.r_wrap(wrap);
                     } else {
                         E2D_ASSERT_MSG(false, "unexpected sampler wrap");
                     }

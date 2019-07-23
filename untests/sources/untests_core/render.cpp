@@ -33,8 +33,7 @@ TEST_CASE("render"){
             REQUIRE_FALSE(ss.texture());
             REQUIRE(ss.s_wrap() == render::sampler_wrap::repeat);
             REQUIRE(ss.t_wrap() == render::sampler_wrap::repeat);
-            REQUIRE(ss.r_wrap() == render::sampler_wrap::repeat);
-            REQUIRE(ss.min_filter() == render::sampler_min_filter::nearest_mipmap_linear);
+            REQUIRE(ss.min_filter() == render::sampler_min_filter::linear);
             REQUIRE(ss.mag_filter() == render::sampler_mag_filter::linear);
         }
         {
@@ -43,7 +42,6 @@ TEST_CASE("render"){
                 .filter(render::sampler_min_filter::linear, render::sampler_mag_filter::nearest);
             REQUIRE(ss.s_wrap() == render::sampler_wrap::clamp);
             REQUIRE(ss.t_wrap() == render::sampler_wrap::clamp);
-            REQUIRE(ss.r_wrap() == render::sampler_wrap::clamp);
             REQUIRE(ss.min_filter() == render::sampler_min_filter::linear);
             REQUIRE(ss.mag_filter() == render::sampler_mag_filter::nearest);
         }

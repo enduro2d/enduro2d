@@ -759,7 +759,7 @@ namespace e2d::opengl
             DEFINE_CASE(depth24, GL_DEPTH_COMPONENT24);
             DEFINE_CASE(depth32, GL_DEPTH_COMPONENT32);
             DEFINE_CASE(depth24_stencil8, GL_DEPTH24_STENCIL8);
-            
+
             DEFINE_CASE(g8, GL_ALPHA);
             DEFINE_CASE(ga8, GL_LUMINANCE_ALPHA);
             DEFINE_CASE(rgb8, GL_RGB);
@@ -909,10 +909,6 @@ namespace e2d::opengl
         switch ( f ) {
             DEFINE_CASE(nearest, GL_NEAREST);
             DEFINE_CASE(linear, GL_LINEAR);
-            DEFINE_CASE(nearest_mipmap_nearest, GL_NEAREST_MIPMAP_NEAREST);
-            DEFINE_CASE(linear_mipmap_nearest, GL_LINEAR_MIPMAP_NEAREST);
-            DEFINE_CASE(nearest_mipmap_linear, GL_NEAREST_MIPMAP_LINEAR);
-            DEFINE_CASE(linear_mipmap_linear, GL_LINEAR_MIPMAP_LINEAR);
             default:
                 E2D_ASSERT_MSG(false, "unexpected sampler min filter");
                 return 0;

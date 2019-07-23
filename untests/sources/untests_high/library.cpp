@@ -264,8 +264,7 @@ TEST_CASE("library"){
                 REQUIRE(sampler);
                 REQUIRE(sampler->s_wrap() == render::sampler_wrap::clamp);
                 REQUIRE(sampler->t_wrap() == render::sampler_wrap::repeat);
-                REQUIRE(sampler->r_wrap() == render::sampler_wrap::mirror);
-                REQUIRE(sampler->min_filter() == render::sampler_min_filter::linear_mipmap_linear);
+                REQUIRE(sampler->min_filter() == render::sampler_min_filter::linear);
                 REQUIRE(sampler->mag_filter() == render::sampler_mag_filter::linear);
                 REQUIRE(texture_res->content() == sampler->texture());
             }

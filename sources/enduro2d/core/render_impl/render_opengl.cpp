@@ -138,10 +138,6 @@ namespace
                         convert_sampler_wrap(sampler.t_wrap())));
                     GL_CHECK_CODE(debug, glTexParameteri(
                         texture_id.target(),
-                        GL_TEXTURE_WRAP_R,
-                        convert_sampler_wrap(sampler.r_wrap())));
-                    GL_CHECK_CODE(debug, glTexParameteri(
-                        texture_id.target(),
                         GL_TEXTURE_MIN_FILTER,
                         convert_sampler_filter(sampler.min_filter())));
                     GL_CHECK_CODE(debug, glTexParameteri(
@@ -544,16 +540,6 @@ namespace e2d
                     convert_image_data_format_to_external_data_type(image.format()),
                     image.data().data()));
             }
-        #if E2D_RENDER_MODE == E2D_RENDER_MODE_OPENGL
-            GL_CHECK_CODE(state_->dbg(), glTexParameteri(
-                id.target(),
-                GL_TEXTURE_MAX_LEVEL,
-                0));
-            GL_CHECK_CODE(state_->dbg(), glTexParameteri(
-                id.target(),
-                GL_TEXTURE_BASE_LEVEL,
-                0));
-        #endif
         });
 
         return std::make_shared<texture>(
@@ -972,7 +958,7 @@ namespace e2d
 
         return *this;
     }
-    
+
     render& render::update_buffer(
         const index_buffer_ptr& ibuffer,
         buffer_view indices,
