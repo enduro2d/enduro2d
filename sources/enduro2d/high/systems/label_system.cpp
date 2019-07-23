@@ -7,7 +7,6 @@
 #include <enduro2d/high/systems/label_system.hpp>
 
 
-#include <enduro2d/high/components/actor.hpp>
 #include <enduro2d/high/components/label.hpp>
 #include <enduro2d/high/components/model_renderer.hpp>
 
@@ -24,7 +23,6 @@ namespace e2d
         ~internal_state() noexcept = default;
 
         void process(ecs::registry& owner) {
-
             owner.for_joined_components<label, label::label_dirty, model_renderer>([](
                 const ecs::const_entity&,
                 label& l,
@@ -45,7 +43,14 @@ namespace e2d
                 texture_size.x = common.atlas_width;
                 texture_size.y = common.atlas_height;
 
-                vertices.resize(text.size() * 4);
+                size_t letters_size = text.size();
+                for ( size_t i = 0; i < text.size(); i++ ) {
+                    if ( text[i] == '\n' ) {
+                        letters_size--;
+                    }
+                }
+
+                vertices.resize(letters_size * 4);
                 uvs.resize(vertices.size());
                 colors.resize(vertices.size());
                 indices.resize(text.size() * 6);
@@ -53,6 +58,7 @@ namespace e2d
                 f32 y_pos{-l.pivot().y};
                 f32 kerning{0};
                 u32 prev_char{0};
+                u32 letters_counter{0};
                 for ( size_t i = 0; i < text.size(); i++ ) {
                     if ( text[i] == '\n' ) {
                         y_pos -= f.common().line_height;
@@ -71,7 +77,7 @@ namespace e2d
                         }
                         xoffset += kerning;
                         prev_char = data->id;
-                        size_t start_vertices = i * 4;
+                        size_t start_vertices = letters_counter * 4;
                         vertices[start_vertices] = v3f(
                             x_pos + xoffset,
                             y_pos + yoffset,
@@ -116,6 +122,7 @@ namespace e2d
                         indices[start_indices + 5] = start_vertices;
 
                         x_pos += data->xadvance + kerning;
+                        letters_counter++;
                     }
                 }
 

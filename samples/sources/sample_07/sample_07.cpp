@@ -59,42 +59,11 @@ namespace
         }
     private:
         bool create_scene() {
-            auto model_res = the<library>().load_asset<model_asset>("gnome_model.json");
-            auto font_mat = the<library>().load_asset<material_asset>("font_material.json");
-            auto bmfont_res = the<library>().load_asset<font_asset>("bmruen.fnt");
-
-            if ( !model_res || !font_mat || !bmfont_res ) {
-                return false;
-            }
-
-            auto scene_i = the<world>().instantiate();
-
-            scene_i->entity_filler()
-                .component<scene>()
-                .component<actor>(node::create(scene_i));
-
-            node_iptr scene_r = scene_i->get_component<actor>().get().node();
-
-            {
-                auto label_i = the<world>().instantiate();
-
-                label l;
-                l.font(bmfont_res);
-                l.text(make_utf32("{Съешь же ещё\nthis мягких french\nбулок, да drink tea!}"));
-
-                label_i->entity_filler()
-                    .component<actor>(node::create(label_i, scene_r))
-                    .component<label>(l)
-                    .component<label::dirty>(label::dirty())
-                    .component<renderer>(renderer()
-                                         .materials({font_mat}))
-                    .component<model_renderer>(model_res);
-
-                node_iptr label_n = label_i->get_component<actor>().get().node();
-                label_n->translation(v3f{-300.f,0.f,0.f});
-            }
-
-            return true;
+            auto scene_prefab_res = the<library>().load_asset<prefab_asset>("scene_bmf_prefab.json");
+            auto scene_go = scene_prefab_res
+            ? the<world>().instantiate(scene_prefab_res->content())
+            : nullptr;
+            return !!scene_go;
         }
 
         bool create_camera() {

@@ -83,22 +83,22 @@ namespace e2d
 
     
     const char* factory_loader<label::label_dirty>::schema_source = R"json({
-    "type" : "object",
-    "required" : [],
-    "additionalProperties" : false,
-    "properties" : {}
+        "type" : "object",
+        "required" : [],
+        "additionalProperties" : false,
+        "properties" : {}
     })json";
 
     bool factory_loader<label::label_dirty>::operator()(
-                                           label::label_dirty& component,
-                                           const fill_context& ctx) const
+        label::label_dirty& component,
+        const fill_context& ctx) const
     {
         return true;
     }
 
     bool factory_loader<label::label_dirty>::operator()(
-                                           asset_dependencies& dependencies,
-                                           const collect_context& ctx) const
+        asset_dependencies& dependencies,
+        const collect_context& ctx) const
     {
         if ( ctx.root.HasMember("font") ) {
             dependencies.add_dependency<font_asset>(
