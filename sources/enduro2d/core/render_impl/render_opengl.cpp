@@ -355,20 +355,6 @@ namespace e2d
     }
     index_buffer::~index_buffer() noexcept = default;
 
-    void index_buffer::update(buffer_view indices, std::size_t offset) noexcept {
-        const std::size_t buffer_offset = offset * state_->decl().bytes_per_index();
-        E2D_ASSERT(indices.size() + buffer_offset <= state_->size());
-        E2D_ASSERT(indices.size() % state_->decl().bytes_per_index() == 0);
-        opengl::with_gl_bind_buffer(state_->dbg(), state_->id(),
-            [this, &indices, &buffer_offset]() noexcept {
-                GL_CHECK_CODE(state_->dbg(), glBufferSubData(
-                    state_->id().target(),
-                    math::numeric_cast<GLintptr>(buffer_offset),
-                    math::numeric_cast<GLsizeiptr>(indices.size()),
-                    indices.data()));
-            });
-    }
-
     std::size_t index_buffer::buffer_size() const noexcept {
         return state_->size();
     }
@@ -395,20 +381,6 @@ namespace e2d
         E2D_ASSERT(state_);
     }
     vertex_buffer::~vertex_buffer() noexcept = default;
-
-    void vertex_buffer::update(buffer_view vertices, std::size_t offset) noexcept {
-        const std::size_t buffer_offset = offset * state_->decl().bytes_per_vertex();
-        E2D_ASSERT(vertices.size() + buffer_offset <= state_->size());
-        E2D_ASSERT(vertices.size() % state_->decl().bytes_per_vertex() == 0);
-        opengl::with_gl_bind_buffer(state_->dbg(), state_->id(),
-            [this, &vertices, &buffer_offset]() noexcept {
-                GL_CHECK_CODE(state_->dbg(), glBufferSubData(
-                    state_->id().target(),
-                    math::numeric_cast<GLintptr>(buffer_offset),
-                    math::numeric_cast<GLsizeiptr>(vertices.size()),
-                    vertices.data()));
-            });
-    }
 
     std::size_t vertex_buffer::buffer_size() const noexcept {
         return state_->size();
@@ -1000,6 +972,119 @@ namespace e2d
 
         return *this;
     }
+    
+    render& render::update_buffer(
+        const index_buffer_ptr& ibuffer,
+        buffer_view indices,
+        std::size_t offset)
+    {
+        E2D_ASSERT(is_in_main_thread());
+        E2D_ASSERT(ibuffer);
+        const std::size_t buffer_offset = offset * ibuffer->state().decl().bytes_per_index();
+        E2D_ASSERT(indices.size() + buffer_offset <= ibuffer->state().size());
+        E2D_ASSERT(indices.size() % ibuffer->state().decl().bytes_per_index() == 0);
+        opengl::with_gl_bind_buffer(ibuffer->state().dbg(), ibuffer->state().id(),
+            [&ibuffer, &indices, &buffer_offset]() noexcept {
+                GL_CHECK_CODE(ibuffer->state().dbg(), glBufferSubData(
+                    ibuffer->state().id().target(),
+                    math::numeric_cast<GLintptr>(buffer_offset),
+                    math::numeric_cast<GLsizeiptr>(indices.size()),
+                    indices.data()));
+            });
+        return *this;
+    }
+
+    render& render::update_buffer(
+        const vertex_buffer_ptr& vbuffer,
+        buffer_view vertices,
+        std::size_t offset)
+    {
+        E2D_ASSERT(is_in_main_thread());
+        E2D_ASSERT(vbuffer);
+        const std::size_t buffer_offset = offset * vbuffer->state().decl().bytes_per_vertex();
+        E2D_ASSERT(vertices.size() + buffer_offset <= vbuffer->state().size());
+        E2D_ASSERT(vertices.size() % vbuffer->state().decl().bytes_per_vertex() == 0);
+        opengl::with_gl_bind_buffer(vbuffer->state().dbg(), vbuffer->state().id(),
+            [&vbuffer, &vertices, &buffer_offset]() noexcept {
+                GL_CHECK_CODE(vbuffer->state().dbg(), glBufferSubData(
+                    vbuffer->state().id().target(),
+                    math::numeric_cast<GLintptr>(buffer_offset),
+                    math::numeric_cast<GLsizeiptr>(vertices.size()),
+                    vertices.data()));
+            });
+        return *this;
+    }
+
+    render& render::update_texture(
+        const texture_ptr& tex,
+        const image& img,
+        v2u offset)
+    {
+        E2D_ASSERT(is_in_main_thread());
+        E2D_ASSERT(tex);
+
+        const pixel_declaration decl =
+            convert_image_data_format_to_pixel_declaration(img.format());
+        if ( tex->decl() != decl ) {
+            state_->dbg().error("RENDER: Failed to update texture:\n"
+                "--> Info: incompatible pixel formats\n"
+                "--> Texture format: %0\n"
+                "--> Image format: %1",
+                pixel_declaration::pixel_type_to_cstr(tex->decl().type()),
+                pixel_declaration::pixel_type_to_cstr(decl.type()));
+            throw bad_render_operation();
+        }
+
+        return update_texture(tex, img.data(), b2u(offset, img.size()));
+    }
+
+    render& render::update_texture(
+        const texture_ptr& tex,
+        buffer_view pixels,
+        const b2u& region)
+    {
+        E2D_ASSERT(is_in_main_thread());
+        E2D_ASSERT(tex);
+        E2D_ASSERT(region.position.x < tex->size().x && region.position.y < tex->size().y);
+        E2D_ASSERT(region.position.x + region.size.x <= tex->size().x);
+        E2D_ASSERT(region.position.y + region.size.y <= tex->size().y);
+        E2D_ASSERT(pixels.size() == region.size.y * ((region.size.x * tex->decl().bits_per_pixel()) / 8u));
+
+        if ( tex->decl().is_compressed() ) {
+            const v2u block_size = tex->decl().compressed_block_size();
+            E2D_ASSERT(region.position.x % block_size.x == 0 && region.position.y % block_size.y == 0);
+            E2D_ASSERT(region.size.x % block_size.x == 0 && region.size.y % block_size.y == 0);
+            opengl::with_gl_bind_texture(state_->dbg(), tex->state().id(),
+                [&tex, &pixels, &region]() noexcept {
+                    GL_CHECK_CODE(tex->state().dbg(), glCompressedTexSubImage2D(
+                        tex->state().id().target(),
+                        0,
+                        math::numeric_cast<GLint>(region.position.x),
+                        math::numeric_cast<GLint>(region.position.y),
+                        math::numeric_cast<GLsizei>(region.size.x),
+                        math::numeric_cast<GLsizei>(region.size.y),
+                        convert_pixel_type_to_internal_format_e(tex->state().decl().type()),
+                        math::numeric_cast<GLsizei>(pixels.size()),
+                        pixels.data()));
+                });
+        } else {
+            opengl::with_gl_bind_texture(state_->dbg(), tex->state().id(),
+                [&tex, &pixels, &region]() noexcept {
+                    GL_CHECK_CODE(tex->state().dbg(), glTexSubImage2D(
+                        tex->state().id().target(),
+                        0,
+                        math::numeric_cast<GLint>(region.position.x),
+                        math::numeric_cast<GLint>(region.position.y),
+                        math::numeric_cast<GLsizei>(region.size.x),
+                        math::numeric_cast<GLsizei>(region.size.y),
+                        convert_pixel_type_to_external_format(tex->state().decl().type()),
+                        convert_pixel_type_to_external_data_type(tex->state().decl().type()),
+                        pixels.data()));
+                });
+        }
+
+        return *this;
+    }
 
     const render::device_caps& render::device_capabilities() const noexcept {
         E2D_ASSERT(is_in_main_thread());
@@ -1018,6 +1103,8 @@ namespace e2d
             case pixel_declaration::pixel_type::depth24_stencil8:
                 return GLEW_OES_packed_depth_stencil
                     || GLEW_EXT_packed_depth_stencil;
+            case pixel_declaration::pixel_type::g8:
+            case pixel_declaration::pixel_type::ga8:
             case pixel_declaration::pixel_type::rgb8:
             case pixel_declaration::pixel_type::rgba8:
                 return true;

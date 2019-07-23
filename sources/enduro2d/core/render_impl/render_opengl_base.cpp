@@ -723,6 +723,8 @@ namespace e2d::opengl
             DEFINE_CASE(depth24, GL_DEPTH_COMPONENT);
             DEFINE_CASE(depth32, GL_DEPTH_COMPONENT);
             DEFINE_CASE(depth24_stencil8, GL_DEPTH_STENCIL);
+            DEFINE_CASE(g8, GL_ALPHA);
+            DEFINE_CASE(ga8, GL_LUMINANCE_ALPHA);
             DEFINE_CASE(rgb8, GL_RGB);
             DEFINE_CASE(rgba8, GL_RGBA);
             default:
@@ -739,6 +741,8 @@ namespace e2d::opengl
             DEFINE_CASE(depth24, GL_UNSIGNED_INT);
             DEFINE_CASE(depth32, GL_UNSIGNED_INT);
             DEFINE_CASE(depth24_stencil8, GL_UNSIGNED_INT_24_8);
+            DEFINE_CASE(g8, GL_UNSIGNED_BYTE);
+            DEFINE_CASE(ga8, GL_UNSIGNED_BYTE);
             DEFINE_CASE(rgb8, GL_UNSIGNED_BYTE);
             DEFINE_CASE(rgba8, GL_UNSIGNED_BYTE);
             default:
@@ -755,7 +759,9 @@ namespace e2d::opengl
             DEFINE_CASE(depth24, GL_DEPTH_COMPONENT24);
             DEFINE_CASE(depth32, GL_DEPTH_COMPONENT32);
             DEFINE_CASE(depth24_stencil8, GL_DEPTH24_STENCIL8);
-
+            
+            DEFINE_CASE(g8, GL_ALPHA);
+            DEFINE_CASE(ga8, GL_LUMINANCE_ALPHA);
             DEFINE_CASE(rgb8, GL_RGB);
             DEFINE_CASE(rgba8, GL_RGBA);
 
@@ -786,8 +792,8 @@ namespace e2d::opengl
     pixel_declaration convert_image_data_format_to_pixel_declaration(image_data_format f) noexcept {
         #define DEFINE_CASE(x,y) case image_data_format::x: return pixel_declaration::pixel_type::y
         switch ( f ) {
-            DEFINE_CASE(g8, rgb8);
-            DEFINE_CASE(ga8, rgba8);
+            DEFINE_CASE(g8, g8);
+            DEFINE_CASE(ga8, ga8);
             DEFINE_CASE(rgb8, rgb8);
             DEFINE_CASE(rgba8, rgba8);
 
