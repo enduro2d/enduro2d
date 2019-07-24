@@ -134,7 +134,7 @@ namespace e2d
             .register_component<flipbook_player>("flipbook_player")
             .register_component<flipbook_source>("flipbook_source")
             .register_component<label>("label")
-            .register_component<label::label_dirty>("label_dirty")
+            .register_component<label::dirty>("label.dirty")
             .register_component<model_renderer>("model_renderer")
             .register_component<renderer>("renderer")
             .register_component<scene>("scene")

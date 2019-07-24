@@ -15,26 +15,53 @@ namespace e2d
 {
     class label final {
     public:
-        class label_dirty final {};
+        class dirty final {
+        };
+    public:
+        enum class haligns {
+            left,
+            center,
+            right
+        };
 
+        enum class valigns {
+            top,
+            center,
+            bottom,
+            baseline
+        };
+    public:
         label() = default;
-        
-        label& text(str32_view text);
+        label(const font_asset::ptr& font);
+
+        label& text(str32 value) noexcept;
         [[nodiscard]] const str32& text() const noexcept;
 
-        label& font(const font_asset::ptr& font) noexcept;
-        [[nodiscard]] const font_asset::ptr&  font() const noexcept;
+        label& font(const font_asset::ptr& value) noexcept;
+        [[nodiscard]] const font_asset::ptr& font() const noexcept;
 
         label& tint(const color32& value) noexcept;
         [[nodiscard]] const color32& tint() const noexcept;
 
-        label& pivot(const v2f& pivot) noexcept;
-        [[nodiscard]] const v2f& pivot() const noexcept;
+        label& width(f32 value) noexcept;
+        [[nodiscard]] f32 width() const noexcept;
+
+        label& haligh(haligns value) noexcept;
+        [[nodiscard]] haligns halign() const noexcept;
+
+        label& valigh(valigns value) noexcept;
+        [[nodiscard]] valigns valign() const noexcept;
+
+        label& filtering(bool value) noexcept;
+        bool filtering() const noexcept;
     private:
-        v2f pivot_ = v2f::zero();
         str32 text_;
         font_asset::ptr font_;
         color32 tint_ = color32::white();
+        f32 width_ = 0.f;
+        haligns haligh_ = haligns::left;
+        valigns valign_ = valigns::baseline;
+        bool filtering_ = true;
     };
 
     template <>
@@ -52,12 +79,12 @@ namespace e2d
     };
 
     template <>
-    class factory_loader<label::label_dirty> final : factory_loader<> {
+    class factory_loader<label::dirty> final : factory_loader<> {
     public:
         static const char* schema_source;
 
         bool operator()(
-            label::label_dirty& component,
+            label::dirty& component,
             const fill_context& ctx) const;
 
         bool operator()(
@@ -68,21 +95,24 @@ namespace e2d
 
 namespace e2d
 {
-    inline label& label::text(str32_view text) {
-        text_ = text;
+    inline label::label(const font_asset::ptr& value)
+    : font_(value) {}
+
+    inline label& label::text(str32 value) noexcept {
+        text_ = std::move(value);
         return *this;
     }
 
-    [[nodiscard]] inline const str32& label::text() const noexcept {
+    inline const str32& label::text() const noexcept {
         return text_;
     }
 
-    inline label& label::font(const font_asset::ptr& font) noexcept {
-        font_ = font;
+    inline label& label::font(const font_asset::ptr& value) noexcept {
+        font_ = value;
         return *this;
     }
 
-    [[nodiscard]] inline const font_asset::ptr& label::font() const noexcept {
+    inline const font_asset::ptr& label::font() const noexcept {
         return font_;
     }
 
@@ -91,16 +121,43 @@ namespace e2d
         return *this;
     }
 
-    [[nodiscard]] inline const color32& label::tint() const noexcept {
+    inline const color32& label::tint() const noexcept {
         return tint_;
     }
 
-    inline label& label::pivot(const v2f& pivot) noexcept {
-        pivot_ = pivot;
+    inline label& label::width(f32 value) noexcept {
+        width_ = value;
         return *this;
     }
 
-    [[nodiscard]] inline const v2f& label::pivot() const noexcept {
-        return pivot_;
+    inline f32 label::width() const noexcept {
+        return width_;
+    }
+
+    inline label& label::haligh(haligns value) noexcept {
+        haligh_ = value;
+        return *this;
+    }
+
+    inline label::haligns label::halign() const noexcept {
+        return haligh_;
+    }
+
+    inline label& label::valigh(valigns value) noexcept {
+        valign_ = value;
+        return *this;
+    }
+
+    inline label::valigns label::valign() const noexcept {
+        return valign_;
+    }
+
+    inline label& label::filtering(bool value) noexcept {
+        filtering_ = value;
+        return *this;
+    }
+
+    inline bool label::filtering() const noexcept {
+        return filtering_;
     }
 }

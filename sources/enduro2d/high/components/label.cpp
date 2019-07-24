@@ -6,6 +6,30 @@
 
 #include <enduro2d/high/components/label.hpp>
 
+namespace
+{
+    using namespace e2d;
+
+    bool parse_halign(str_view str, label::haligns& align) noexcept {
+    #define DEFINE_IF(x) if ( str == #x ) { align = label::haligns::x; return true; }
+        DEFINE_IF(left);
+        DEFINE_IF(center);
+        DEFINE_IF(right);
+    #undef DEFINE_IF
+        return false;
+    }
+
+    bool parse_valign(str_view str, label::valigns& align) noexcept {
+    #define DEFINE_IF(x) if ( str == #x ) { align = label::valigns::x; return true; }
+        DEFINE_IF(top);
+        DEFINE_IF(center);
+        DEFINE_IF(bottom);
+        DEFINE_IF(baseline);
+    #undef DEFINE_IF
+        return false;
+    }
+}
+
 namespace e2d
 {
     const char* factory_loader<label>::schema_source = R"json({
@@ -13,10 +37,32 @@ namespace e2d
         "required" : [],
         "additionalProperties" : false,
         "properties" : {
-            "font" : { "$ref": "#/common_definitions/address" },
             "text" : { "type" : "string" },
-            "pivot" : { "$ref": "#/common_definitions/v2" },
-            "tint" : { "$ref": "#/common_definitions/color" }
+            "font" : { "$ref": "#/common_definitions/address" },
+            "tint" : { "$ref": "#/common_definitions/color" },
+            "width" : { "type" : "number" },
+            "halign" : { "$ref": "#/definitions/haligns" },
+            "valign" : { "$ref": "#/definitions/valigns" },
+            "filtering" : { "type" : "boolean" }
+        },
+        "definitions" : {
+            "haligns" : {
+                "type" : "string",
+                "enum" : [
+                    "left",
+                    "center",
+                    "right"
+                ]
+            },
+            "valigns" : {
+                "type" : "string",
+                "enum" : [
+                    "top",
+                    "center",
+                    "bottom",
+                    "baseline"
+                ]
+            }
         }
     })json";
 
@@ -24,46 +70,72 @@ namespace e2d
         label& component,
         const fill_context& ctx) const
     {
-        i32 member_count = ctx.root.MemberCount();
+        if ( ctx.root.HasMember("text") ) {
+            str32 text = component.text();
+            if ( !json_utils::try_parse_value(ctx.root["text"], text) ) {
+                the<debug>().error("LABEL: Incorrect formatting of 'text' property");
+                return false;
+            }
+            component.text(std::move(text));
+        }
+
         if ( ctx.root.HasMember("font") ) {
             auto font = ctx.dependencies.find_asset<font_asset>(
                 path::combine(ctx.parent_address, ctx.root["font"].GetString()));
             if ( !font ) {
                 the<debug>().error("LABEL: Dependency 'font' is not found:\n"
-                                   "--> Parent address: %0\n"
-                                   "--> Dependency address: %1",
-                                   ctx.parent_address,
-                                   ctx.root["font"].GetString());
+                    "--> Parent address: %0\n"
+                    "--> Dependency address: %1",
+                    ctx.parent_address,
+                    ctx.root["font"].GetString());
                 return false;
             }
             component.font(font);
         }
 
-        if ( ctx.root.HasMember("text") ) {
-            str32 text;
-            if ( !json_utils::try_parse_value(ctx.root["text"], text) ) {
-                the<debug>().error("LABEL: Incorrect formatting of 'text' property");
-                return false;
-            }
-            component.text(text);
-        }
-
-        if ( ctx.root.HasMember("pivot") ) {
-            v2f pivot;
-            if ( !json_utils::try_parse_value(ctx.root["pivot"], pivot) ) {
-                the<debug>().error("LABEL: Incorrect formatting of 'pivot' property");
-                return false;
-            }
-            component.pivot(pivot);
-        }
-
         if ( ctx.root.HasMember("tint") ) {
-            auto tint = component.tint();
+            color32 tint = component.tint();
             if ( !json_utils::try_parse_value(ctx.root["tint"], tint) ) {
                 the<debug>().error("LABEL: Incorrect formatting of 'tint' property");
                 return false;
             }
             component.tint(tint);
+        }
+
+        if ( ctx.root.HasMember("width") ) {
+            f32 width = component.width();
+            if ( !json_utils::try_parse_value(ctx.root["width"], width) ) {
+                the<debug>().error("LABEL: Incorrect formatting of 'width' property");
+                return false;
+            }
+            component.width(width);
+        }
+
+        if ( ctx.root.HasMember("halign") ) {
+            label::haligns halign = component.halign();
+            if ( !parse_halign(ctx.root["halign"].GetString(), halign) ) {
+                the<debug>().error("LABEL: Incorrect formatting of 'halign' property");
+                return false;
+            }
+            component.haligh(halign);
+        }
+
+        if ( ctx.root.HasMember("valign") ) {
+            label::valigns valign = component.valign();
+            if ( !parse_valign(ctx.root["valign"].GetString(), valign) ) {
+                the<debug>().error("LABEL: Incorrect formatting of 'valign' property");
+                return false;
+            }
+            component.valigh(valign);
+        }
+
+        if ( ctx.root.HasMember("filtering") ) {
+            bool filtering = component.filtering();
+            if ( !json_utils::try_parse_value(ctx.root["filtering"], filtering) ) {
+                the<debug>().error("LABEL: Incorrect formatting of 'filtering' property");
+                return false;
+            }
+            component.filtering(filtering);
         }
 
         return true;
@@ -80,31 +152,30 @@ namespace e2d
 
         return true;
     }
+}
 
-    
-    const char* factory_loader<label::label_dirty>::schema_source = R"json({
+namespace e2d
+{
+    const char* factory_loader<label::dirty>::schema_source = R"json({
         "type" : "object",
         "required" : [],
         "additionalProperties" : false,
         "properties" : {}
     })json";
 
-    bool factory_loader<label::label_dirty>::operator()(
-        label::label_dirty& component,
+    bool factory_loader<label::dirty>::operator()(
+        label::dirty& component,
         const fill_context& ctx) const
     {
+        E2D_UNUSED(component, ctx);
         return true;
     }
 
-    bool factory_loader<label::label_dirty>::operator()(
+    bool factory_loader<label::dirty>::operator()(
         asset_dependencies& dependencies,
         const collect_context& ctx) const
     {
-        if ( ctx.root.HasMember("font") ) {
-            dependencies.add_dependency<font_asset>(
-                path::combine(ctx.parent_address, ctx.root["font"].GetString()));
-        }
-
+        E2D_UNUSED(dependencies, ctx);
         return true;
     }
 }
