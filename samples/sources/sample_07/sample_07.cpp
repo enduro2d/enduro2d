@@ -5,16 +5,10 @@
  ******************************************************************************/
 
 #include "../common.hpp"
-
-
 using namespace e2d;
 
 namespace
 {
-    struct rotator {
-        v3f axis;
-    };
-
     class game_system final : public ecs::system {
     public:
         void process(ecs::registry& owner) override {
@@ -78,7 +72,6 @@ namespace
         bool create_systems() {
             ecs::registry_filler(the<world>().registry())
                 .system<game_system>(world::priority_update)
-                .system<label_system>(world::priority_update)
                 .system<camera_system>(world::priority_pre_render);
             return true;
         }

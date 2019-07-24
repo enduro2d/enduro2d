@@ -14,6 +14,7 @@
 #include "color32.hpp"
 #include "filesystem.hpp"
 #include "filesystem.inl"
+#include "font.hpp"
 #include "image.hpp"
 #include "intrusive_list.hpp"
 #include "intrusive_ptr.hpp"
@@ -30,4 +31,3 @@
 #include "time.hpp"
 #include "url.hpp"
 #include "xml_utils.hpp"
-#include "font.hpp"
