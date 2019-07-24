@@ -9,6 +9,15 @@
 #include <enduro2d/high/components/renderer.hpp>
 #include <enduro2d/high/components/model_renderer.hpp>
 #include <enduro2d/high/components/sprite_renderer.hpp>
+#include <enduro2d/high/components/spine_renderer.hpp>
+#include <enduro2d/high/components/spine_player.hpp>
+
+#include <spine/AnimationState.h>
+#include <spine/Skeleton.h>
+#include <spine/VertexEffect.h>
+#include <spine/SkeletonClipping.h>
+#include <spine/RegionAttachment.h>
+#include <spine/MeshAttachment.h>
 
 namespace
 {
@@ -32,9 +41,11 @@ namespace e2d::render_system_impl
         const const_node_iptr& cam_n,
         engine& engine,
         render& render,
-        batcher_type& batcher)
+        batcher_type& batcher,
+        std::vector<batcher_type::vertex_type>& spine_vertices)
     : render_(render)
     , batcher_(batcher)
+    , spine_vertices_(spine_vertices)
     {
         const m4f& cam_w = cam_n
             ? cam_n->world_matrix()
@@ -82,6 +93,11 @@ namespace e2d::render_system_impl
             const sprite_renderer* spr_r = node_e.find_component<sprite_renderer>();
             if ( spr_r ) {
                 draw(node, *node_r, *spr_r);
+            }
+            const spine_renderer* spine_r = node_e.find_component<spine_renderer>();
+            const spine_player* spine_p = node_e.find_component<spine_player>();
+            if ( spine_r ) {
+                draw(node, *node_r, *spine_r, spine_p);
             }
         }
     }
@@ -210,6 +226,184 @@ namespace e2d::render_system_impl
         }
         property_cache_.clear();
     }
+    
+    void drawer::context::draw(
+        const const_node_iptr& node,
+        const renderer& node_r,
+        const spine_renderer& spine_r,
+        const spine_player* spine_p)
+    {
+        static_assert(sizeof(batcher_type::vertex_type) % sizeof(float) == 0, "invalid stride");
+        constexpr int stride = sizeof(batcher_type::vertex_type) / sizeof(float);
+
+        if ( !node || !node_r.enabled() ) {
+            return;
+        }
+
+        if ( node_r.materials().empty() ) {
+            return;
+        }
+
+        spSkeleton* skeleton = spine_r.skeleton().operator->();
+        spAnimationState* anim_state = spine_p ? spine_p->animation().operator->() : nullptr;
+        spSkeletonClipping* clipper = spine_r.clipper().operator->();
+        spVertexEffect* effect = spine_r.effect().operator->();
+        const material_asset::ptr& mat_a = node_r.materials().front();
+        float dt = 0.01f;
+
+        if ( !skeleton || !clipper || !mat_a ) {
+            return;
+        }
+
+        spSkeleton_update(skeleton, dt);
+        if ( anim_state ) {
+            spAnimationState_update(anim_state, dt);
+            spAnimationState_apply(anim_state, skeleton);
+        }
+        spSkeleton_updateWorldTransform(skeleton);
+
+    	const u16 quad_indices[6] = { 0, 1, 2, 2, 3, 0 };
+
+        if ( skeleton->color.a == 0 ) {
+            return;
+        }
+
+        if ( effect ) {
+            effect->begin(effect, skeleton);
+        }
+
+        for ( int i = 0; i < skeleton->slotsCount; ++i ) {
+            spSlot* slot = skeleton->drawOrder[i];
+            spAttachment* attachment = slot->attachment;
+            if ( !attachment ) {
+                continue;
+            }
+            if ( slot->color.a == 0 ) {
+                spSkeletonClipping_clipEnd(clipper, slot);
+                continue;
+            }
+
+            int vertex_count = 0;
+            const float* uvs = nullptr;
+            const u16* indices = nullptr;
+            int index_count = 0;
+            const spColor* attachment_color;
+            texture_ptr texture;
+
+            if ( attachment->type == SP_ATTACHMENT_REGION ) {
+                spRegionAttachment* region = reinterpret_cast<spRegionAttachment*>(attachment);
+                attachment_color = &region->color;
+
+                if ( attachment_color->a == 0 ) {
+                    spSkeletonClipping_clipEnd(clipper, slot);
+                    continue;
+                }
+                spRegionAttachment_computeWorldVertices(region, slot->bone, &spine_vertices_.data()->v.x, 0, stride);
+                vertex_count = 4;
+                uvs = region->uvs;
+                indices = quad_indices;
+                index_count = 6;
+                if ( texture_asset* asset = static_cast<texture_asset*>(static_cast<spAtlasRegion*>(region->rendererObject)->page->rendererObject) ) {
+                    texture = asset->content();
+                }
+            } else if ( attachment->type == SP_ATTACHMENT_MESH ) {
+                spMeshAttachment* mesh = reinterpret_cast<spMeshAttachment*>(attachment);
+                attachment_color = &mesh->color;
+
+                if ( attachment_color->a == 0 ) {
+                    spSkeletonClipping_clipEnd(clipper, slot);
+                    continue;
+                }
+                vertex_count = mesh->super.worldVerticesLength >> 1;
+                if ( vertex_count > spine_vertices_.size() ) {
+                    spine_vertices_.resize(vertex_count);
+                }
+                spVertexAttachment_computeWorldVertices(&mesh->super, slot, 0, mesh->super.worldVerticesLength, &spine_vertices_.data()->v.x, 0, stride);
+                uvs = mesh->uvs;
+                indices = mesh->triangles;
+                index_count = mesh->trianglesCount;
+                if ( texture_asset* asset = static_cast<texture_asset*>(static_cast<spAtlasRegion*>(mesh->rendererObject)->page->rendererObject) ) {
+                    texture = asset->content();
+                }
+            } else if ( attachment->type == SP_ATTACHMENT_CLIPPING ) {
+                spClippingAttachment* clip = reinterpret_cast<spClippingAttachment*>(attachment);
+                spSkeletonClipping_clipStart(clipper, slot, clip);
+                E2D_ASSERT(false);
+                continue;
+            } else {
+                continue;
+            }
+
+            const color32 color(
+                color(skeleton->color.r, skeleton->color.b, skeleton->color.g, skeleton->color.a) *
+                color(slot->color.r, slot->color.b, slot->color.g, slot->color.a) *
+                color(attachment_color->r, attachment_color->g, attachment_color->b, attachment_color->a));
+
+            switch ( slot->data->blendMode ) {
+                case SP_BLEND_MODE_NORMAL :
+                    break;
+                case SP_BLEND_MODE_ADDITIVE :
+                    break;
+                case SP_BLEND_MODE_MULTIPLY :
+                    break;
+                case SP_BLEND_MODE_SCREEN :
+                    break;
+                default :
+                    break;
+            }
+
+            /*const float* vertices = spine_vertices_.data();
+            if ( spSkeletonClipping_isClipping(clipper) ) {
+                spSkeletonClipping_clipTriangles(clipper, vertices, vertex_count, indices, index_count, uvs, 2);
+                vertices = clipper->clippedVertices->items;
+                vertex_count = clipper->clippedVertices->size >> 1;
+                uvs = clipper->clippedUVs->items;
+                indices = clipper->clippedTriangles->items;
+                index_count = clipper->clippedTriangles->size;
+            }*/
+
+            if ( effect ) {
+                E2D_ASSERT(false);
+            } else {
+                for ( int i = 0; i < index_count; ++i ) {
+                    int index = indices[i] << 1;
+                    auto& vert = spine_vertices_[indices[i]];
+                    vert.v.z = 0.0f;
+                    vert.t.x = uvs[index];
+                    vert.t.y = uvs[index+1];
+                    vert.c = color;
+                }
+            }
+            
+            try {
+                property_cache_
+                    .sampler(sprite_texture_sampler_hash, render::sampler_state()
+                        .texture(texture)
+                        .min_filter(render::sampler_min_filter::linear)
+                        .mag_filter(render::sampler_mag_filter::linear))
+                    .merge(node_r.properties());
+
+                batcher_.batch(
+                    mat_a,
+                    property_cache_,
+                    indices, index_count,
+                    spine_vertices_.data(), vertex_count);
+            } catch (...) {
+                property_cache_.clear();
+                throw;
+            }
+
+            spSkeletonClipping_clipEnd(clipper, slot);
+        }
+
+        spSkeletonClipping_clipEnd2(clipper);
+
+        if ( effect ) {
+            effect->end(effect);
+        }
+        
+        property_cache_.clear();
+    }
 
     void drawer::context::flush() {
         batcher_.flush();
@@ -222,5 +416,7 @@ namespace e2d::render_system_impl
     drawer::drawer(engine& e, debug& d, render& r)
     : engine_(e)
     , render_(r)
-    , batcher_(d, r) {}
+    , batcher_(d, r) {
+        spine_vertices_.resize(256);
+    }
 }
