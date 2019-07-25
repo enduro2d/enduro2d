@@ -1,3 +1,6 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:5b2d2131b3fe0d761de597e316a9001f3fefc7c03c503ec9b2bac538543893e1
-size 131
+{
+    "skeleton" : "raptor/raptor-pro.json-large",
+    "atlas" : "raptor/raptor.atlas",
+    "scale" : 1.0,
+    "premultiplied_alpha" : false
+}
