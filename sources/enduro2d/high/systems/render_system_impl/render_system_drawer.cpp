@@ -26,6 +26,7 @@ namespace
     const str_hash matrix_v_property_hash = "u_matrix_v";
     const str_hash matrix_p_property_hash = "u_matrix_p";
     const str_hash matrix_vp_property_hash = "u_matrix_vp";
+    const str_hash matrix_mvp_property_hash = "u_matrix_mvp";
     const str_hash game_time_property_hash = "u_game_time";
     const str_hash sprite_texture_sampler_hash = "u_texture";
 }
@@ -52,15 +53,15 @@ namespace e2d::render_system_impl
             : m4f::identity();
         const std::pair<m4f,bool> cam_w_inv = math::inversed(cam_w);
 
-        const m4f& m_v = cam_w_inv.second
+        view_mat_ = cam_w_inv.second
             ? cam_w_inv.first
             : m4f::identity();
-        const m4f& m_p = cam.projection();
+        proj_mat_ = cam.projection();
 
         batcher_.flush()
-            .property(matrix_v_property_hash, m_v)
-            .property(matrix_p_property_hash, m_p)
-            .property(matrix_vp_property_hash, m_v * m_p)
+            .property(matrix_v_property_hash, view_mat_)
+            .property(matrix_p_property_hash, proj_mat_)
+            .property(matrix_vp_property_hash, view_mat_ * proj_mat_)
             .property(game_time_property_hash, engine.time());
 
         render.execute(render::command_block<3>()
@@ -249,6 +250,7 @@ namespace e2d::render_system_impl
         spSkeletonClipping* clipper = spine_r.clipper().operator->();
         spVertexEffect* effect = spine_r.effect().operator->();
         const material_asset::ptr& mat_a = node_r.materials().front();
+        const m4f& mvp = node->world_matrix() * view_mat_ * proj_mat_;
         float dt = 0.01f;
 
         if ( !skeleton || !clipper || !mat_a ) {
@@ -271,6 +273,7 @@ namespace e2d::render_system_impl
         if ( effect ) {
             effect->begin(effect, skeleton);
         }
+        
 
         for ( int i = 0; i < skeleton->slotsCount; ++i ) {
             spSlot* slot = skeleton->drawOrder[i];
@@ -381,6 +384,7 @@ namespace e2d::render_system_impl
                         .texture(texture)
                         .min_filter(render::sampler_min_filter::linear)
                         .mag_filter(render::sampler_mag_filter::linear))
+                    .property(matrix_mvp_property_hash, mvp)
                     .merge(node_r.properties());
 
                 batcher_.batch(

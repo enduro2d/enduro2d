@@ -29,6 +29,7 @@ namespace
         "additionalProperties" : false,
         "properties" : {
             "skeleton" : { "$ref" : "#/common_definitions/address" },
+            "scale" : { "type" : "number" },
             "atlas" : { "$ref" : "#/common_definitions/address" },
             "premultiplied_alpha" : { "type" : "boolean" },
             "mix_animations" : {
@@ -127,15 +128,22 @@ namespace
                 nullptr),
             spAtlas_dispose);
 
+        float skeleton_scale = 1.0f;
+        if ( root.HasMember("scale") ) {
+            if ( !json_utils::try_parse_value(root["scale"], skeleton_scale) ) {
+                the<debug>().error("SPINE: Incorrect formating of 'scale' property");
+            }
+        }
+
+	    skeleton_json_ptr skeleton_json(spSkeletonJson_create(atlas.get()), spSkeletonJson_dispose);
+        skeleton_json->scale = skeleton_scale;
+
         E2D_ASSERT(root.HasMember("skeleton") && root["skeleton"].IsString());
         binary_asset::load_result skeleton_data = library.load_asset<binary_asset>(
             path::combine(parent_address, root["skeleton"].GetString()));
-	    skeleton_json_ptr json(
-            spSkeletonJson_create(atlas.get()),
-            spSkeletonJson_dispose);
 	    spine_model::skeleton_data_ptr skeleton(
             spSkeletonJson_readSkeletonData(
-                json.get(),
+                skeleton_json.get(),
                 reinterpret_cast<const char*>(skeleton_data->content().data())),
             spSkeletonData_dispose);
 

@@ -65,6 +65,8 @@ namespace e2d::render_system_impl
             batcher_type& batcher_;
             std::vector<batcher_type::vertex_type>& spine_vertices_;
             render::property_block property_cache_;
+            m4f view_mat_;
+            m4f proj_mat_;
         };
     public:
         drawer(engine& e, debug& d, render& r);
