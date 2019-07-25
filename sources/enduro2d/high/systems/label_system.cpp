@@ -32,14 +32,11 @@ namespace e2d
                 vector<v2f> uvs;
                 vector<v3f> normals;
                 vector<color32> colors;
-                f32 xoffset{0};
-                f32 yoffset{0};
+                v2f offset;
                 str32 text = l.text();
                 const auto& f = l.font()->content();
                 auto common = f.common();
-                v2f texture_size;
-                texture_size.x = common.atlas_width;
-                texture_size.y = common.atlas_height;
+                v2f texture_size = common.atlas_size.cast_to<f32>();
 
                 size_t letters_size = text.size();
                 for ( size_t i = 0; i < text.size(); i++ ) {
@@ -59,38 +56,37 @@ namespace e2d
                 u32 letters_counter{0};
                 for ( size_t i = 0; i < text.size(); i++ ) {
                     if ( text[i] == '\n' ) {
-                        y_pos -= f.common().line_height;
+                        y_pos -= f.common().line;
                         x_pos = 0.f;
                         prev_char = 0;
                         continue;
                     }
                     auto data = f.find_char(text[i]);
                     if ( data ) {
-                        yoffset = data->yoffset;
-                        xoffset = data->xoffset;
+                        offset = data->offset.cast_to<f32>();
                         if ( prev_char != 0 ) {
-                            kerning = f.find_kerning(prev_char, data->id);
+                            kerning = f.get_kerning(prev_char, data->id);
                         } else {
                             kerning = 0;
                         }
-                        xoffset += kerning;
+                        offset.x += kerning;
                         prev_char = data->id;
                         size_t start_vertices = letters_counter * 4;
                         vertices[start_vertices] = v3f(
-                            x_pos + xoffset,
-                            y_pos + yoffset,
+                            x_pos + offset.x,
+                            y_pos + offset.y,
                             0);
                         vertices[start_vertices + 1] = v3f(
-                            x_pos + xoffset,
-                            y_pos + data->rect.size.y + yoffset,
+                            x_pos + offset.x,
+                            y_pos + data->rect.size.y + offset.y,
                             0);
                         vertices[start_vertices + 2] = v3f(
-                            x_pos + data->rect.size.x + xoffset,
-                            y_pos + data->rect.size.y + yoffset,
+                            x_pos + data->rect.size.x + offset.x,
+                            y_pos + data->rect.size.y + offset.y,
                             0);
                         vertices[start_vertices + 3] = v3f(
-                            x_pos + data->rect.size.x + xoffset,
-                            y_pos + yoffset,
+                            x_pos + data->rect.size.x + offset.x,
+                            y_pos + offset.y,
                             0);
 
                         uvs[start_vertices] = v2f(
@@ -119,7 +115,7 @@ namespace e2d
                         indices[start_indices + 4] = start_vertices + 3;
                         indices[start_indices + 5] = start_vertices;
 
-                        x_pos += data->xadvance + kerning;
+                        x_pos += data->advance + kerning;
                         letters_counter++;
                     }
                 }

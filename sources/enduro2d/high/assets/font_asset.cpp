@@ -5,7 +5,7 @@
  ******************************************************************************/
 
 #include <enduro2d/high/assets/font_asset.hpp>
-#include <enduro2d/high/assets/text_asset.hpp>
+#include <enduro2d/high/assets/binary_asset.hpp>
 
 namespace
 {
@@ -23,11 +23,14 @@ namespace e2d
     font_asset::load_async_result font_asset::load_async(
         const library& library, str_view address)
     {
-        return library.load_asset_async<text_asset>(address)
-        .then([](const text_asset::load_result& text_data){
-            return the<deferrer>().do_in_main_thread([text_data](){
-                auto f = font::create(text_data->content());
-                return font_asset::create(f);
+        return library.load_asset_async<binary_asset>(address)
+        .then([](const binary_asset::load_result& font_data){
+            return the<deferrer>().do_in_worker_thread([font_data](){
+                font content;
+                if ( !fonts::try_load_font(content, font_data->content()) ) {
+                    throw font_asset_loading_exception();
+                }
+                return font_asset::create(std::move(content));
             });
         });
     }
