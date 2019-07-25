@@ -70,10 +70,22 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
                              -Werror=parentheses
                              -Werror=address
                              -Werror=return-stack-address)
-    string(REPLACE ";" " " E2D_SHARED_CXX_FLAGS "${E2D_SHARED_CXX_FLAGS}")
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    set(E2D_SHARED_CXX_FLAGS
+        /we4297   # function assumed not to throw an exception but does
+        /we4715   # not all control paths return a value
+        /we4716   # must return a value
+        /we4172   # returning address of local variable or temporary
+        /we4717   # recursive on all control paths, function will cause runtime stack overflow
+        /we4239   # conversion from 'type' to 'type &'
+        /we4238   # class rvalue used as lvalue
+        /we4700   # uninitialized local variable used
+        /we4706   # assignment within conditional expression
+        /we4554   # check operator precedence for possible error; use parentheses to clarify precedence
+        )
 endif()
+string(REPLACE ";" " " E2D_SHARED_CXX_FLAGS "${E2D_SHARED_CXX_FLAGS}")
 
 foreach(config ${E2D_ALL_CXX_CONFIGS})
     set(${config} "${${config}} ${E2D_SHARED_CXX_FLAGS}")
