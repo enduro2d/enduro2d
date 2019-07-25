@@ -20,10 +20,16 @@ namespace
         str tag, line;
         std::stringstream data_stream(s);
 
-        while ( getline(data_stream, line, '\n') ) {
+        while ( !data_stream.eof() && std::getline(data_stream, line) ) {
             std::stringstream line_stream(line);
-            line_stream >> tag;
+            line_stream.exceptions(std::ios::failbit | std::ios::badbit);
 
+            line_stream >> std::ws;
+            if ( line_stream.eof() ) {
+                continue;
+            }
+
+            line_stream >> tag;
             if ( tag == "info" ) {
                 // info face="Arial-Black" size=32 bold=0 italic=0 charset=""
                 //      unicode=0 stretchH=100 smooth=1 aa=1 padding=0,0,0,0 spacing=2,2
@@ -37,7 +43,9 @@ namespace
                     } else if ( tag == "size" ) {
                         line_stream >> data.info.size;
                     }
-                    line_stream >> tag;
+                    if ( !line_stream.eof() ) {
+                        line_stream >> tag;
+                    }
                 }
             } else if ( tag == "common" ) {
                 // common lineHeight=54 base=35 scaleW=512 scaleH=512 pages=1 packed=0
@@ -55,7 +63,9 @@ namespace
                     } else if ( tag == "scaleH" ) {
                         line_stream >> data.common.atlas_size.y;
                     }
-                    line_stream >> tag;
+                    if ( !line_stream.eof() ) {
+                        line_stream >> tag;
+                    }
                 }
             } else if ( tag == "page" ) {
                 // page id=0 file="arial.png"
@@ -70,18 +80,23 @@ namespace
                         page_data.file.erase(page_data.file.begin());
                         page_data.file.pop_back();
                     }
-                    line_stream >> tag;
+                    if ( !line_stream.eof() ) {
+                        line_stream >> tag;
+                    }
                 }
                 data.pages.insert(std::move(page_data));
             } else if ( tag == "chars" ) {
                 // chars count=95
+                line_stream >> tag;
                 while ( !line_stream.eof() ) {
                     if ( tag == "count" ) {
                         std::size_t count{0u};
                         line_stream >> count;
                         data.chars.reserve(count);
                     }
-                    line_stream >> tag;
+                    if ( !line_stream.eof() ) {
+                        line_stream >> tag;
+                    }
                 }
             } else if ( tag == "char" ) {
                 // char id=123 x=2 y=2 width=38 height=54
@@ -107,10 +122,6 @@ namespace
                         line_stream >> char_data.offset.x;
                     } else if ( tag == "yoffset" ) {
                         line_stream >> char_data.offset.y;
-                        char_data.offset.y =
-                            data.common.base -
-                            char_data.offset.y -
-                            char_data.rect.size.y;
                     } else if ( tag == "xadvance" ) {
                         line_stream >> char_data.advance;
                     } else if ( tag == "page" ) {
@@ -118,18 +129,23 @@ namespace
                     } else if ( tag == "chnl" ) {
                         line_stream >> char_data.chnl;
                     }
-                    line_stream >> tag;
+                    if ( !line_stream.eof() ) {
+                        line_stream >> tag;
+                    }
                 }
                 data.chars.insert(std::move(char_data));
             } else if ( tag == "kernings" ) {
                 // kernings count=243
+                line_stream >> tag;
                 while ( !line_stream.eof() ) {
                     if ( tag == "count" ) {
                         std::size_t count{0u};
                         line_stream >> count;
                         data.kernings.reserve(count);
                     }
-                    line_stream >> tag;
+                    if ( !line_stream.eof() ) {
+                        line_stream >> tag;
+                    }
                 }
             } else if ( tag == "kerning" ) {
                 // kerning first=86 second=101 amount=-2
@@ -143,7 +159,9 @@ namespace
                     } else if ( tag == "amount" ) {
                         line_stream >> k.amount;
                     }
-                    line_stream >> tag;
+                    if ( !line_stream.eof() ) {
+                        line_stream >> tag;
+                    }
                 }
                 data.kernings.insert(std::move(k));
             }
