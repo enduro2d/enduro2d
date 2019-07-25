@@ -9,6 +9,56 @@
 #include <enduro2d/high/components/label.hpp>
 #include <enduro2d/high/components/model_renderer.hpp>
 
+namespace
+{
+    using namespace e2d;
+
+    f32 get_x_pos(const label& l, f32 string_width) {
+        f32 x_pos{0};
+        switch ( l.halign() ) {
+            case label::haligns::left :
+                x_pos = 0;
+            break;
+            case label::haligns::center :
+                x_pos = -0.5f * string_width;
+            break;
+            case label::haligns::right :
+                x_pos = -string_width;
+            break;
+            default:
+                E2D_ASSERT_MSG(false,"label_system: uncknow horizontal align flag");
+            break;
+        }
+
+        return x_pos;
+    }
+
+    f32 get_top_pos(const label& l, u32 strings_count) {
+        const auto& f = l.font()->content();
+        f32 label_height = f.common().line * strings_count;
+        f32 top{0};
+        switch ( l.valign() ) {
+            case label::valigns::top :
+                top = label_height;
+            break;
+            case label::valigns::center :
+                top = 0.5f * label_height;
+            break;
+            case label::valigns::bottom :
+                top = 0;
+            break;
+            case label::valigns::baseline :
+                top = label_height - (f.common().line - f.common().base);
+            break;
+            default:
+                E2D_ASSERT_MSG(false,"label_system: uncknow vertical align flag");
+            break;
+        }
+
+        return top;
+    }
+}
+
 namespace e2d
 {
     //
@@ -38,10 +88,29 @@ namespace e2d
                 auto common = f.common();
                 v2f texture_size = common.atlas_size.cast_to<f32>();
 
-                size_t letters_size = text.size();
+                size_t strings_count{1};
                 for ( size_t i = 0; i < text.size(); i++ ) {
                     if ( text[i] == '\n' ) {
-                        letters_size--;
+                        strings_count++;
+                    }
+                }
+                size_t letters_size{0};
+                vector<f32> strings_width(strings_count);
+                std::fill(strings_width.begin(), strings_width.end(), 0);
+                f32 kerning{0};
+                u32 prev_char{0};
+                for ( size_t i = 0, string_ind = 0; i < text.size(); i++ ) {
+                    if ( text[i] != '\n' ) {
+                        auto data = f.find_char(text[i]);
+                        if ( data ) {
+                            letters_size++;
+                            prev_char != 0
+                            ? kerning = f.get_kerning(prev_char, data->id)
+                            : kerning = 0;
+                            strings_width[string_ind] += data->advance + kerning;
+                        }
+                    } else {
+                        string_ind++;
                     }
                 }
 
@@ -49,15 +118,14 @@ namespace e2d
                 uvs.resize(vertices.size());
                 colors.resize(vertices.size());
                 indices.resize(text.size() * 6);
-                f32 x_pos{0.f};
-                f32 y_pos{0.f};
-                f32 kerning{0};
-                u32 prev_char{0};
+                f32 x_pos = get_x_pos(l, strings_width[0]);
+                f32 y_pos = get_top_pos(l, strings_count);
                 u32 letters_counter{0};
-                for ( size_t i = 0; i < text.size(); i++ ) {
+                for ( size_t i = 0, string_ind = 0; i < text.size(); i++ ) {
                     if ( text[i] == '\n' ) {
-                        y_pos -= f.common().line;
-                        x_pos = 0.f;
+                        string_ind++;
+                        y_pos -= common.line;
+                        x_pos = get_x_pos(l, strings_width[string_ind]);
                         prev_char = 0;
                         continue;
                     }
@@ -74,19 +142,19 @@ namespace e2d
                         size_t start_vertices = letters_counter * 4;
                         vertices[start_vertices] = v3f(
                             x_pos + offset.x,
-                            y_pos + offset.y,
+                            y_pos - offset.y - data->rect.size.y,
                             0);
                         vertices[start_vertices + 1] = v3f(
                             x_pos + offset.x,
-                            y_pos + data->rect.size.y + offset.y,
+                            y_pos - offset.y,
                             0);
                         vertices[start_vertices + 2] = v3f(
                             x_pos + data->rect.size.x + offset.x,
-                            y_pos + data->rect.size.y + offset.y,
+                            y_pos - offset.y,
                             0);
                         vertices[start_vertices + 3] = v3f(
                             x_pos + data->rect.size.x + offset.x,
-                            y_pos + offset.y,
+                            y_pos - offset.y - data->rect.size.y,
                             0);
 
                         uvs[start_vertices] = v2f(
