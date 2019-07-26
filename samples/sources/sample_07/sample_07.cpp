@@ -67,20 +67,35 @@ namespace
                 .component<actor>(node::create(scene_i));
 
             node_iptr scene_r = scene_i->get_component<actor>().get().node();
-
+            
+        #if 1
             auto spine_i = the<world>().instantiate();
             spine_i->entity_filler()
                 .component<actor>(node::create(spine_i, scene_r))
-                .component<renderer>(renderer()
-                    .materials({spine_mat}))
-                .component<spine_renderer>(spine_renderer(spine_res))
-                .component<spine_player>(spine_player(spine_res)
-                    .set_animation(0, "walk", true)
                     .add_animation(1, "gun-grab", false, secf(2.0f)));
             
             node_iptr spine_n = spine_i->get_component<actor>().get().node();
             spine_n->scale(v3f(0.25f));
             spine_n->translation(v3f{-40.f, -100.f, 0.0f});
+        #else
+            // performace test
+            for ( std::size_t i = 0; i < 20; ++i )
+            for ( std::size_t j = 0; j < 40; ++j ) {
+                auto spine_i = the<world>().instantiate();
+                spine_i->entity_filler()
+                    .component<actor>(node::create(spine_i, scene_r))
+                    .component<renderer>(renderer()
+                        .materials({spine_mat}))
+                    .component<spine_renderer>(spine_renderer(spine_res))
+                    .component<spine_player>(spine_player(spine_res)
+                        .set_animation(0, "walk", true)
+                        .add_animation(1, "gun-grab", false, secf(2.0f)));
+            
+                node_iptr spine_n = spine_i->get_component<actor>().get().node();
+                spine_n->scale(v3f(0.05f));
+                spine_n->translation(v3f{-400.f, -300.f, 0.0f} + v3f{j * 30.f, i * 30.f, 0});
+            }
+        #endif
             return true;
         }
 
