@@ -83,30 +83,91 @@ namespace e2d
                 vector<v3f> normals;
                 vector<color32> colors;
                 v2f offset;
+                f32 kerning{0};
+                u32 prev_char{0};
                 str32 text = l.text();
+                if (text.empty()) {
+                    return;
+                }
                 const auto& f = l.font()->content();
                 auto common = f.common();
                 v2f texture_size = common.atlas_size.cast_to<f32>();
 
+                if ( l.width() != 0 ) {
+                    f32 word_width{0};
+                    f32 string_width{0};
+                    i32 last_space{-1};
+                    for ( size_t i = 0; i < text.size(); i++ ) {
+                        const auto& ch = text[i];
+                        if ( ch == '\n' ) {
+                            word_width = 0;
+                            string_width = 0;
+                            last_space = -1;
+                        } else {
+                            auto data = f.find_char(ch);
+                            if ( data ) {
+                                prev_char != 0
+                                    ? kerning = f.get_kerning(prev_char, data->id)
+                                    : kerning = 0;
+                                prev_char = ch;
+                                f32 char_width = data->advance + kerning;
+                                if ( ch == ' ' ) {
+                                    if ( string_width + word_width < l.width() ) {
+                                        if ( string_width + word_width + char_width < l.width() ) {
+                                            string_width += word_width + char_width;
+                                            word_width = 0;
+                                            last_space = i;
+                                        } else {
+                                            text[i] = '\n';
+                                            word_width = 0;
+                                            string_width = 0;
+                                            last_space = -1;
+                                        }
+                                    } else {
+                                        if ( last_space != -1 ) {
+                                            text[last_space] = '\n';
+                                            last_space = -1;
+                                            string_width = 0;
+                                            --i;
+                                        } else {
+                                            text[i] = '\n';
+                                            word_width = 0;
+                                            string_width = 0;
+                                        }
+                                    }
+                                } else {
+                                    word_width += char_width;
+                                    if ( i == text.size() - 1) {
+                                        if ( string_width + word_width > l.width() ) {
+                                            if ( last_space != -1 ) {
+                                                text[last_space] = '\n';
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
                 size_t strings_count{1};
                 for ( size_t i = 0; i < text.size(); i++ ) {
-                    if ( text[i] == '\n' ) {
+                    if ( text[i] == '\n' && i != text.size() - 1) {
                         strings_count++;
                     }
                 }
                 size_t letters_size{0};
                 vector<f32> strings_width(strings_count);
                 std::fill(strings_width.begin(), strings_width.end(), 0);
-                f32 kerning{0};
-                u32 prev_char{0};
+                prev_char = 0;
                 for ( size_t i = 0, string_ind = 0; i < text.size(); i++ ) {
                     if ( text[i] != '\n' ) {
                         auto data = f.find_char(text[i]);
                         if ( data ) {
                             letters_size++;
                             prev_char != 0
-                            ? kerning = f.get_kerning(prev_char, data->id)
-                            : kerning = 0;
+                                ? kerning = f.get_kerning(prev_char, data->id)
+                                : kerning = 0;
                             strings_width[string_ind] += data->advance + kerning;
                         }
                     } else {
@@ -121,22 +182,21 @@ namespace e2d
                 f32 x_pos = get_x_pos(l, strings_width[0]);
                 f32 y_pos = get_top_pos(l, strings_count);
                 u32 letters_counter{0};
-                for ( size_t i = 0, string_ind = 0; i < text.size(); i++ ) {
+                prev_char = 0;
+                for ( size_t i = 0, str_ind = 0; i < text.size(); i++ ) {
                     if ( text[i] == '\n' ) {
-                        string_ind++;
+                        str_ind++;
                         y_pos -= common.line;
-                        x_pos = get_x_pos(l, strings_width[string_ind]);
+                        x_pos = get_x_pos(l, strings_width[str_ind]);
                         prev_char = 0;
                         continue;
                     }
                     auto data = f.find_char(text[i]);
                     if ( data ) {
                         offset = data->offset.cast_to<f32>();
-                        if ( prev_char != 0 ) {
-                            kerning = f.get_kerning(prev_char, data->id);
-                        } else {
-                            kerning = 0;
-                        }
+                        prev_char != 0
+                            ? kerning = f.get_kerning(prev_char, data->id)
+                            : kerning = 0;
                         offset.x += kerning;
                         prev_char = data->id;
                         size_t start_vertices = letters_counter * 4;
