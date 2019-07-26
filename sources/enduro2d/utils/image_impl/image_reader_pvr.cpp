@@ -210,6 +210,7 @@ namespace e2d::images::impl
 
         const pvr_header& hdr = *reinterpret_cast<const pvr_header*>(src.data());
         const u8* content = src.data() + sizeof(pvr_header) + hdr.metaDataSize;
+        const std::size_t content_size = static_cast<std::size_t>(src.data() + src.size() - content);
 
         if ( hdr.numSurfaces != 1 || hdr.numFaces != 1 || hdr.depth > 1 ) {
             return false; // cubemap and volume textures are not supported
@@ -222,10 +223,14 @@ namespace e2d::images::impl
             return false;
         }
 
-        v2u dimension = v2u(hdr.width, hdr.height);
-        std::size_t size = bytes_per_block *
-            (dimension.x + block_size.x - 1) / block_size.x *
-            (dimension.y + block_size.y - 1) / block_size.y;
+        const v2u dimension = v2u(hdr.width, hdr.height);
+        const std::size_t size = bytes_per_block *
+            ((dimension.x + block_size.x - 1) / block_size.x) *
+            ((dimension.y + block_size.y - 1) / block_size.y);
+
+        if ( content_size != size ) {
+            return false;
+        }
 
         dst = image(dimension, format, buffer(content, size));
         return true;
