@@ -116,7 +116,7 @@ namespace
 
 namespace e2d::images::impl
 {
-    bool try_load_image_dds(image& dst, const buffer& src) noexcept {
+    bool load_image_dds(image& dst, const buffer& src) {
         if ( !is_dds(src.data(), src.size()) ) {
             return false;
         }
@@ -139,6 +139,7 @@ namespace e2d::images::impl
 
         const v2u dimension = v2u(hdr.dwWidth, hdr.dwHeight);
         std::size_t size;
+
         switch ( format ) {
         case image_data_format::rgb_dxt1:
         case image_data_format::rgba_dxt3:
