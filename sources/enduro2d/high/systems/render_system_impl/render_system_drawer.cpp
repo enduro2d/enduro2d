@@ -286,7 +286,7 @@ namespace e2d::render_system_impl
                 continue;
             }
 
-            int vertex_count = 0;
+            size_t vertex_count = 0;
             const float* uvs = nullptr;
             const u16* indices = nullptr;
             int index_count = 0;
@@ -337,9 +337,9 @@ namespace e2d::render_system_impl
                 continue;
             }
 
-            const color32 color(
-                color(skeleton->color.r, skeleton->color.b, skeleton->color.g, skeleton->color.a) *
-                color(slot->color.r, slot->color.b, slot->color.g, slot->color.a) *
+            const color32 vert_color(
+                color(skeleton->color.r, skeleton->color.g, skeleton->color.b, skeleton->color.a) *
+                color(slot->color.r, slot->color.g, slot->color.b, slot->color.a) *
                 color(attachment_color->r, attachment_color->g, attachment_color->b, attachment_color->a));
 
             switch ( slot->data->blendMode ) {
@@ -374,7 +374,7 @@ namespace e2d::render_system_impl
                     vert.v.z = 0.0f;
                     vert.t.x = uvs[index];
                     vert.t.y = uvs[index+1];
-                    vert.c = color;
+                    vert.c = vert_color;
                 }
             }
             
