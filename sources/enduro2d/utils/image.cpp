@@ -147,26 +147,16 @@ namespace e2d
         switch ( format_ ) {
             case image_data_format::g8:
                 E2D_ASSERT(bytes_per_pixel == 1);
-                return color32(pixel[0],
-                               pixel[0],
-                               pixel[0]);
+                return color32(pixel[0], pixel[0], pixel[0]);
             case image_data_format::ga8:
                 E2D_ASSERT(bytes_per_pixel == 2);
-                return color32(pixel[0],
-                               pixel[0],
-                               pixel[0],
-                               pixel[1]);
+                return color32(pixel[0], pixel[0], pixel[0], pixel[1]);
             case image_data_format::rgb8:
                 E2D_ASSERT(bytes_per_pixel == 3);
-                return color32(pixel[0],
-                               pixel[1],
-                               pixel[2]);
+                return color32(pixel[0], pixel[1], pixel[2]);
             case image_data_format::rgba8:
                 E2D_ASSERT(bytes_per_pixel == 4);
-                return color32(pixel[0],
-                               pixel[1],
-                               pixel[2],
-                               pixel[3]);
+                return color32(pixel[0], pixel[1], pixel[2], pixel[3]);
             default:
                 E2D_ASSERT_MSG(false, "unexpected image data format");
                 throw bad_image_access();
@@ -213,9 +203,13 @@ namespace e2d::images
         image& dst,
         const buffer& src) noexcept
     {
-        return impl::try_load_image_dds(dst, src)
-            || impl::try_load_image_pvr(dst, src)
-            || impl::try_load_image_stb(dst, src);
+        try {
+            return impl::load_image_dds(dst, src)
+                || impl::load_image_pvr(dst, src)
+                || impl::load_image_stb(dst, src);
+        } catch (...) {
+            return false;
+        }
     }
 
     bool try_load_image(
@@ -232,20 +226,24 @@ namespace e2d::images
         image_file_format format,
         buffer& dst) noexcept
     {
-        switch ( format ) {
-            case image_file_format::dds:
-                return impl::try_save_image_dds(src, dst);
-            case image_file_format::jpg:
-                return impl::try_save_image_jpg(src, dst);
-            case image_file_format::png:
-                return impl::try_save_image_png(src, dst);
-            case image_file_format::pvr:
-                return impl::try_save_image_pvr(src, dst);
-            case image_file_format::tga:
-                return impl::try_save_image_tga(src, dst);
-            default:
-                E2D_ASSERT_MSG(false, "unexpected image file format");
-                return false;
+        try {
+            switch ( format ) {
+                case image_file_format::dds:
+                    return impl::save_image_dds(src, dst);
+                case image_file_format::jpg:
+                    return impl::save_image_jpg(src, dst);
+                case image_file_format::png:
+                    return impl::save_image_png(src, dst);
+                case image_file_format::pvr:
+                    return impl::save_image_pvr(src, dst);
+                case image_file_format::tga:
+                    return impl::save_image_tga(src, dst);
+                default:
+                    E2D_ASSERT_MSG(false, "unexpected image file format");
+                    return false;
+            }
+        } catch (...) {
+            return false;
         }
     }
 

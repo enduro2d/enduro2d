@@ -35,7 +35,7 @@ namespace
 
 namespace e2d::images::impl
 {
-    bool try_save_image_pvr(const image& src, buffer& dst) noexcept {
+    bool save_image_pvr(const image& src, buffer& dst) {
         E2D_UNUSED(src, dst);
         if ( is_save_image_pvr_supported(src.format()) ) {
             //TODO(BlackMat): implme
