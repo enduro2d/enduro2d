@@ -1,3 +1,14 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:b20bd767ea8ad744e3af8c4bd353f010e9f4d65f17c34b70a974baf117ff7ecb
-size 349
+{
+    "passes" : [{
+        "shader" : "sprite_shader.json",
+        "state_block" : {
+            "blending_state" : {
+                "src_factor" : "src_alpha",
+                "dst_factor" : "one_minus_src_alpha"
+            },
+            "capabilities_state" : {
+                "blending" : true
+            }
+        }
+    }]
+}
