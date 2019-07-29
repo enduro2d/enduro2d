@@ -55,10 +55,10 @@ namespace e2d
     }
 
     color32::color32(const color& other) noexcept
-    : r(math::numeric_cast<u8>(math::round(math::saturate(other.r) * 255.f)))
-    , g(math::numeric_cast<u8>(math::round(math::saturate(other.g) * 255.f)))
-    , b(math::numeric_cast<u8>(math::round(math::saturate(other.b) * 255.f)))
-    , a(math::numeric_cast<u8>(math::round(math::saturate(other.a) * 255.f))) {}
+    : r(u8(other.r * 255.0f + 0.5f))
+    , g(u8(other.g * 255.0f + 0.5f))
+    , b(u8(other.b * 255.0f + 0.5f))
+    , a(u8(other.a * 255.0f + 0.5f)) {}
 
     color32::color32(u8 nr, u8 ng, u8 nb, u8 na) noexcept
     : r(nr)

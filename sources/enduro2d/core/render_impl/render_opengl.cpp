@@ -694,6 +694,7 @@ namespace e2d
         index_buffer::usage usage)
     {
         E2D_ASSERT(is_in_main_thread());
+        E2D_ASSERT(indices.size() > 0);
         E2D_ASSERT(indices.size() % decl.bytes_per_index() == 0);
 
         if ( !is_index_supported(decl) ) {
@@ -730,6 +731,7 @@ namespace e2d
         vertex_buffer::usage usage)
     {
         E2D_ASSERT(is_in_main_thread());
+        E2D_ASSERT(vertices.size() > 0);
         E2D_ASSERT(vertices.size() % decl.bytes_per_vertex() == 0);
 
         if ( !is_vertex_supported(decl) ) {
