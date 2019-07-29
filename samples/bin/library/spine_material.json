@@ -1,6 +1,6 @@
 {
     "passes" : [{
-        "shader" : "sprite_shader.json",
+        "shader" : "spine_shader.json",
         "state_block" : {
             "blending_state" : {
                 "src_factor" : "src_alpha",

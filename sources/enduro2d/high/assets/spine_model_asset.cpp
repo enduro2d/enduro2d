@@ -135,13 +135,13 @@ namespace
             }
         }
 
-	    skeleton_json_ptr skeleton_json(spSkeletonJson_create(atlas.get()), spSkeletonJson_dispose);
+        skeleton_json_ptr skeleton_json(spSkeletonJson_create(atlas.get()), spSkeletonJson_dispose);
         skeleton_json->scale = skeleton_scale;
 
         E2D_ASSERT(root.HasMember("skeleton") && root["skeleton"].IsString());
         binary_asset::load_result skeleton_data = library.load_asset<binary_asset>(
             path::combine(parent_address, root["skeleton"].GetString()));
-	    spine_model::skeleton_data_ptr skeleton(
+        spine_model::skeleton_data_ptr skeleton(
             spSkeletonJson_readSkeletonData(
                 skeleton_json.get(),
                 reinterpret_cast<const char*>(skeleton_data->content().data())),
@@ -192,7 +192,7 @@ void _spAtlasPage_disposeTexture (spAtlasPage* self) {
 
 char* _spUtil_readFile (const char* path, int* length) {
     E2D_ASSERT(false);
-	return _spReadFile(path, length);
+    return _spReadFile(path, length);
 }
 
 namespace e2d

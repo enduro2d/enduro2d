@@ -38,6 +38,7 @@
 
 #include "systems/flipbook_system.hpp"
 #include "systems/render_system.hpp"
+#include "systems/spine_system.hpp"
 
 #include "address.hpp"
 #include "asset.hpp"

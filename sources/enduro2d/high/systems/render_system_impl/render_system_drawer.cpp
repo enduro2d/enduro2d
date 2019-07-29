@@ -53,15 +53,15 @@ namespace e2d::render_system_impl
             : m4f::identity();
         const std::pair<m4f,bool> cam_w_inv = math::inversed(cam_w);
 
-        view_mat_ = cam_w_inv.second
+        const m4f& m_v = cam_w_inv.second
             ? cam_w_inv.first
             : m4f::identity();
-        proj_mat_ = cam.projection();
+        const m4f& m_p = cam.projection();
 
         batcher_.flush()
-            .property(matrix_v_property_hash, view_mat_)
-            .property(matrix_p_property_hash, proj_mat_)
-            .property(matrix_vp_property_hash, view_mat_ * proj_mat_)
+            .property(matrix_v_property_hash, m_v)
+            .property(matrix_p_property_hash, m_p)
+            .property(matrix_vp_property_hash, m_v * m_p)
             .property(game_time_property_hash, engine.time());
 
         render.execute(render::command_block<3>()
@@ -96,9 +96,8 @@ namespace e2d::render_system_impl
                 draw(node, *node_r, *spr_r);
             }
             const spine_renderer* spine_r = node_e.find_component<spine_renderer>();
-            const spine_player* spine_p = node_e.find_component<spine_player>();
             if ( spine_r ) {
-                draw(node, *node_r, *spine_r, spine_p);
+                draw(node, *node_r, *spine_r);
             }
         }
     }
@@ -231,8 +230,7 @@ namespace e2d::render_system_impl
     void drawer::context::draw(
         const const_node_iptr& node,
         const renderer& node_r,
-        const spine_renderer& spine_r,
-        const spine_player* spine_p)
+        const spine_renderer& spine_r)
     {
         static_assert(sizeof(batcher_type::vertex_type) % sizeof(float) == 0, "invalid stride");
         constexpr int stride = sizeof(batcher_type::vertex_type) / sizeof(float);
@@ -246,25 +244,15 @@ namespace e2d::render_system_impl
         }
 
         spSkeleton* skeleton = spine_r.skeleton().operator->();
-        spAnimationState* anim_state = spine_p ? spine_p->animation().operator->() : nullptr;
         spSkeletonClipping* clipper = spine_r.clipper().operator->();
         spVertexEffect* effect = spine_r.effect().operator->();
         const material_asset::ptr& mat_a = node_r.materials().front();
-        const m4f& mvp = node->world_matrix() * view_mat_ * proj_mat_;
-        float dt = 0.01f;
 
         if ( !skeleton || !clipper || !mat_a ) {
             return;
         }
 
-        spSkeleton_update(skeleton, dt);
-        if ( anim_state ) {
-            spAnimationState_update(anim_state, dt);
-            spAnimationState_apply(anim_state, skeleton);
-        }
-        spSkeleton_updateWorldTransform(skeleton);
-
-    	const u16 quad_indices[6] = { 0, 1, 2, 2, 3, 0 };
+        const u16 quad_indices[6] = { 0, 1, 2, 2, 3, 0 };
 
         if ( skeleton->color.a == 0 ) {
             return;
@@ -274,6 +262,9 @@ namespace e2d::render_system_impl
             effect->begin(effect, skeleton);
         }
         
+        const m3f sm = m3f(v3f(node->world_matrix()[0]),
+                            v3f(node->world_matrix()[1]),
+                            v3f(node->world_matrix()[3]));
 
         for ( int i = 0; i < skeleton->slotsCount; ++i ) {
             spSlot* slot = skeleton->drawOrder[i];
@@ -368,12 +359,11 @@ namespace e2d::render_system_impl
             if ( effect ) {
                 E2D_ASSERT(false);
             } else {
-                for ( int i = 0; i < index_count; ++i ) {
-                    int index = indices[i] << 1;
-                    auto& vert = spine_vertices_[indices[i]];
-                    vert.v.z = 0.0f;
-                    vert.t.x = uvs[index];
-                    vert.t.y = uvs[index+1];
+                for ( int j = 0; j < vertex_count; ++j ) {
+                    auto& vert = spine_vertices_[j];
+                    v2f v(vert.v.x, vert.v.y);
+                    vert.v = v3f(v.x, v.y, 1.0f) * sm;
+                    vert.t = v2f(uvs[j*2], uvs[j*2+1]);
                     vert.c = vert_color;
                 }
             }
@@ -384,7 +374,6 @@ namespace e2d::render_system_impl
                         .texture(texture)
                         .min_filter(render::sampler_min_filter::linear)
                         .mag_filter(render::sampler_mag_filter::linear))
-                    .property(matrix_mvp_property_hash, mvp)
                     .merge(node_r.properties());
 
                 batcher_.batch(

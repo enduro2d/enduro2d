@@ -72,6 +72,11 @@ namespace
             auto spine_i = the<world>().instantiate();
             spine_i->entity_filler()
                 .component<actor>(node::create(spine_i, scene_r))
+                .component<renderer>(renderer()
+                    .materials({spine_mat}))
+                .component<spine_renderer>(spine_renderer(spine_res))
+                .component<spine_player>(spine_player(spine_res)
+                    .set_animation(0, "walk", true)
                     .add_animation(1, "gun-grab", false, secf(2.0f)));
             
             node_iptr spine_n = spine_i->get_component<actor>().get().node();
@@ -111,7 +116,8 @@ namespace
         bool create_systems() {
             ecs::registry_filler(the<world>().registry())
                 .system<game_system>(world::priority_update)
-                .system<camera_system>(world::priority_pre_render);
+                .system<camera_system>(world::priority_pre_render)
+                .system<spine_system>(world::priority_update);
             return true;
         }
     };
