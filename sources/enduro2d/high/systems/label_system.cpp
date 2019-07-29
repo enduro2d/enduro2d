@@ -7,7 +7,10 @@
 #include <enduro2d/high/systems/label_system.hpp>
 
 #include <enduro2d/high/components/label.hpp>
+#include <enduro2d/high/components/renderer.hpp>
 #include <enduro2d/high/components/model_renderer.hpp>
+#include <enduro2d/high/assets/texture_asset.hpp>
+#include <enduro2d/high/assets/shader_asset.hpp>
 
 namespace
 {
@@ -71,10 +74,11 @@ namespace e2d
         ~internal_state() noexcept = default;
 
         void process(ecs::registry& owner) {
-            owner.for_joined_components<label::dirty, label, model_renderer>([](
+            owner.for_joined_components<label::dirty, label, renderer, model_renderer>([](
                 const ecs::const_entity&,
-                label::dirty&,
-                label& l,
+                const label::dirty&,
+                const label& l,
+                renderer& r,
                 model_renderer& mr)
             {
                 vector<v3f> vertices;
@@ -262,6 +266,41 @@ namespace e2d
                     mr.model(model_asset::create(content));
                 } else {
                     mr.model()->fill(content);
+                }
+
+                if ( r.materials().empty() ) {
+                    str page_file = f.find_page(0)->file;
+                    auto texture_p = the<library>().load_asset<texture_asset>(page_file);
+                    auto shader_p = the<library>().load_asset<shader_asset>("font_shader.json");
+
+                    if ( !texture_p || !shader_p ) {
+                        return;
+                    }
+
+                    const render::sampler_min_filter min_filter = l.filtering()
+                        ? render::sampler_min_filter::linear
+                        : render::sampler_min_filter::nearest;
+                    
+                    const render::sampler_mag_filter mag_filter = l.filtering()
+                        ? render::sampler_mag_filter::linear
+                        : render::sampler_mag_filter::nearest;
+
+                    render::material mat;
+                    mat.properties(render::property_block()
+                        .sampler("u_texture", render::sampler_state()
+                              .texture(texture_p->content())
+                              .min_filter(min_filter)
+                              .mag_filter(mag_filter)))
+                        .add_pass(render::pass_state()
+                            .states(render::state_block()
+                                .capabilities(render::capabilities_state()
+                                    .blending(true)
+                                    .depth_test(false))
+                                .blending(render::blending_state()
+                                    .src_factor(render::blending_factor::src_alpha)
+                                    .dst_factor(render::blending_factor::one_minus_src_alpha)))
+                            .shader(shader_p->content()));
+                    r.materials({material_asset::create(mat)});
                 }
             });
 
