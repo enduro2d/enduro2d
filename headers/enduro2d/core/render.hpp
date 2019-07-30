@@ -868,7 +868,16 @@ namespace e2d
             std::size_t command_count_ = 0;
         };
 
+        enum class api_profile {
+            unknown,
+            opengles2,
+            opengles3,
+            opengl_compat
+        };
+
         struct device_caps {
+            api_profile profile = api_profile::unknown;
+
             u32 max_texture_size = 0;
             u32 max_renderbuffer_size = 0;
             u32 max_cube_map_texture_size = 0;
@@ -886,6 +895,17 @@ namespace e2d
             bool npot_texture_supported = false;
             bool depth_texture_supported = false;
             bool render_target_supported = false;
+
+            bool element_index_uint = false;
+
+            bool depth16_supported = false;
+            bool depth24_supported = false;
+            bool depth32_supported = false;
+            bool depth24_stencil8_supported = false;
+
+            bool dxt_compression_supported = false;
+            bool pvrtc_compression_supported = false;
+            bool pvrtc2_compression_supported = false;
         };
     public:
         render(debug& d, window& w);
