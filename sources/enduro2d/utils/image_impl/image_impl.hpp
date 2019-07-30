@@ -11,13 +11,13 @@
 
 namespace e2d::images::impl
 {
-    bool try_load_image_dds(image& dst, const buffer& src) noexcept;
-    bool try_load_image_pvr(image& dst, const buffer& src) noexcept;
-    bool try_load_image_stb(image& dst, const buffer& src) noexcept;
+    bool load_image_dds(image& dst, const buffer& src);
+    bool load_image_pvr(image& dst, const buffer& src);
+    bool load_image_stb(image& dst, const buffer& src);
 
-    bool try_save_image_dds(const image& src, buffer& dst) noexcept;
-    bool try_save_image_jpg(const image& src, buffer& dst) noexcept;
-    bool try_save_image_png(const image& src, buffer& dst) noexcept;
-    bool try_save_image_pvr(const image& src, buffer& dst) noexcept;
-    bool try_save_image_tga(const image& src, buffer& dst) noexcept;
+    bool save_image_dds(const image& src, buffer& dst);
+    bool save_image_jpg(const image& src, buffer& dst);
+    bool save_image_png(const image& src, buffer& dst);
+    bool save_image_pvr(const image& src, buffer& dst);
+    bool save_image_tga(const image& src, buffer& dst);
 }

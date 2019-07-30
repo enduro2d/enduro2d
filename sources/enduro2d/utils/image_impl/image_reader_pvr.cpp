@@ -108,7 +108,7 @@ namespace
 
     static_assert(sizeof(pvr_header) == 52, "invalid PVR header size");
 
-    bool is_pvr(const void* data, std::size_t byte_size) {
+    bool is_pvr(const void* data, std::size_t byte_size) noexcept {
         if ( byte_size > sizeof(pvr_header) ) {
             const pvr_header* hdr = reinterpret_cast<const pvr_header*>(data);
             return hdr->version == 0x03525650;
@@ -116,11 +116,17 @@ namespace
         return false;
     }
 
-    bool get_pvr_format(const pvr_header& hdr, image_data_format& out_format, u32& out_bytes_per_block, v2u& out_block_size) {
+    bool get_pvr_format(
+        const pvr_header& hdr,
+        image_data_format& out_format,
+        u32& out_bytes_per_block,
+        v2u& out_block_size) noexcept
+    {
         if ( pvr_color_space(hdr.colorSpace) != pvr_color_space::linear ) {
             return false;
         }
-        const pvr_pixel_format fmt = pvr_pixel_format(hdr.pixelFormat0 | (u64(hdr.pixelFormat1) << 32));
+        const pvr_pixel_format fmt = pvr_pixel_format(
+            hdr.pixelFormat0 | (u64(hdr.pixelFormat1) << 32));
         switch (fmt)
         {
         case pvr_pixel_format::pvrtc_2bpp_rgb:
@@ -197,25 +203,35 @@ namespace
 
 namespace e2d::images::impl
 {
-    bool try_load_image_pvr(image& dst, const buffer& src) noexcept {
+    bool load_image_pvr(image& dst, const buffer& src) {
         if ( !is_pvr(src.data(), src.size()) ) {
             return false;
         }
+
         const pvr_header& hdr = *reinterpret_cast<const pvr_header*>(src.data());
         const u8* content = src.data() + sizeof(pvr_header) + hdr.metaDataSize;
+        const std::size_t content_size = static_cast<std::size_t>(src.data() + src.size() - content);
+
         if ( hdr.numSurfaces != 1 || hdr.numFaces != 1 || hdr.depth > 1 ) {
             return false; // cubemap and volume textures are not supported
         }
+
         image_data_format format = image_data_format(-1);
         u32 bytes_per_block = 0;
         v2u block_size = v2u(1,1);
         if ( !get_pvr_format(hdr, format, bytes_per_block, block_size) ) {
             return false;
         }
-        v2u dimension = v2u(hdr.width, hdr.height);
-        std::size_t size = bytes_per_block *
-            (dimension.x + block_size.x - 1) / block_size.x *
-            (dimension.y + block_size.y - 1) / block_size.y;
+
+        const v2u dimension = v2u(hdr.width, hdr.height);
+        const std::size_t size = bytes_per_block *
+            ((dimension.x + block_size.x - 1) / block_size.x) *
+            ((dimension.y + block_size.y - 1) / block_size.y);
+
+        if ( content_size != size ) {
+            return false;
+        }
+
         dst = image(dimension, format, buffer(content, size));
         return true;
     }

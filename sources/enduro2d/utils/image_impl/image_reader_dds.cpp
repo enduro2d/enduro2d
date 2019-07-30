@@ -69,7 +69,8 @@ namespace
     bool get_dds_format(
         const dds_header& hdr,
         image_data_format& out_format,
-        u32& out_bytes_per_block) noexcept
+        u32& out_bytes_per_block,
+        v2u& out_block_size) noexcept
     {
         if ( math::check_all_flags(hdr.ddspf.dwFlags, ddsf_fourcc) ) {
             switch ( hdr.ddspf.dwFourCC ) {
@@ -78,14 +79,17 @@ namespace
                     ? image_data_format::rgba_dxt1
                     : image_data_format::rgb_dxt1;
                 out_bytes_per_block = 8;
+                out_block_size = v2u(4,4);
                 break;
             case fourcc_dxt3:
                 out_format = image_data_format::rgba_dxt3;
                 out_bytes_per_block = 16;
+                out_block_size = v2u(4,4);
                 break;
             case fourcc_dxt5:
                 out_format = image_data_format::rgba_dxt5;
                 out_bytes_per_block = 16;
+                out_block_size = v2u(4,4);
                 break;
             default:
                 return false;
@@ -93,12 +97,14 @@ namespace
         } else if ( math::check_all_flags(hdr.ddspf.dwFlags, ddsf_rgba) && (hdr.ddspf.dwRGBBitCount == 32) ) {
             out_format = image_data_format::rgba8;
             out_bytes_per_block = 4;
+            out_block_size = v2u(1,1);
             if ( hdr.ddspf.dwRBitMask == 0x00FF0000 ) {
                 return false; // BGRA format is not supported
             }
         } else if ( math::check_all_flags(hdr.ddspf.dwFlags, ddsf_rgb) && (hdr.ddspf.dwRGBBitCount == 24) ) {
             out_format = image_data_format::rgb8;
             out_bytes_per_block = 3;
+            out_block_size = v2u(1,1);
             if (hdr.ddspf.dwRBitMask == 0x00FF0000) {
                 return false; // BGRA format is not supported
             }
@@ -107,6 +113,7 @@ namespace
         } else if ( hdr.ddspf.dwRGBBitCount == 8 ) {
             out_format = image_data_format::g8;
             out_bytes_per_block = 1;
+            out_block_size = v2u(1,1);
         } else {
             return false;
         }
@@ -116,13 +123,14 @@ namespace
 
 namespace e2d::images::impl
 {
-    bool try_load_image_dds(image& dst, const buffer& src) noexcept {
+    bool load_image_dds(image& dst, const buffer& src) {
         if ( !is_dds(src.data(), src.size()) ) {
             return false;
         }
 
         const dds_header& hdr = *reinterpret_cast<const dds_header*>(src.data());
         const u8* content = src.data() + sizeof(dds_header);
+        const std::size_t content_size = static_cast<std::size_t>(src.data() + src.size() - content);
 
         if ( math::check_all_flags(hdr.dwCaps2, ddsf_cubemap) ||
              math::check_all_flags(hdr.dwCaps2, ddsf_volume) ||
@@ -133,21 +141,18 @@ namespace e2d::images::impl
 
         image_data_format format = image_data_format(-1);
         u32 bytes_per_block = 0;
-        if ( !get_dds_format(hdr, format, bytes_per_block) ) {
+        v2u block_size = v2u(1,1);
+        if ( !get_dds_format(hdr, format, bytes_per_block, block_size) ) {
             return false;
         }
 
         const v2u dimension = v2u(hdr.dwWidth, hdr.dwHeight);
-        std::size_t size;
-        switch ( format ) {
-        case image_data_format::rgb_dxt1:
-        case image_data_format::rgba_dxt3:
-        case image_data_format::rgba_dxt5:
-            size = ((dimension.x+3)/4) * ((dimension.y+3)/4) * bytes_per_block;
-            break;
-        default:
-            size = dimension.x * dimension.y * bytes_per_block;
-            break;
+        const std::size_t size = bytes_per_block *
+            ((dimension.x + block_size.x - 1) / block_size.x) *
+            ((dimension.y + block_size.y - 1) / block_size.y);
+
+        if ( content_size != size ) {
+            return false;
         }
 
         dst = image(dimension, format, buffer(content, size));
