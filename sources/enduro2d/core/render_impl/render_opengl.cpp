@@ -1149,9 +1149,6 @@ namespace e2d
             case pixel_declaration::pixel_type::depth24:
                 return caps.depth_texture_supported
                     && caps.depth24_supported;
-            case pixel_declaration::pixel_type::depth32:
-                return caps.depth_texture_supported
-                    && caps.depth32_supported;
             case pixel_declaration::pixel_type::depth24_stencil8:
                 return caps.depth_texture_supported
                     && caps.depth24_stencil8_supported;

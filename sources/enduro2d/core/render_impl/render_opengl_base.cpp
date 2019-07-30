@@ -788,7 +788,6 @@ namespace e2d::opengl
         switch ( f ) {
             DEFINE_CASE(depth16, GL_DEPTH_COMPONENT);
             DEFINE_CASE(depth24, GL_DEPTH_COMPONENT);
-            DEFINE_CASE(depth32, GL_DEPTH_COMPONENT);
             DEFINE_CASE(depth24_stencil8, GL_DEPTH_STENCIL);
             DEFINE_CASE(g8, GL_ALPHA);
             DEFINE_CASE(ga8, GL_LUMINANCE_ALPHA);
@@ -806,7 +805,6 @@ namespace e2d::opengl
         switch ( f ) {
             DEFINE_CASE(depth16, GL_UNSIGNED_SHORT);
             DEFINE_CASE(depth24, GL_UNSIGNED_INT);
-            DEFINE_CASE(depth32, GL_UNSIGNED_INT);
             DEFINE_CASE(depth24_stencil8, GL_UNSIGNED_INT_24_8);
             DEFINE_CASE(g8, GL_UNSIGNED_BYTE);
             DEFINE_CASE(ga8, GL_UNSIGNED_BYTE);
@@ -824,7 +822,6 @@ namespace e2d::opengl
         switch ( f ) {
             DEFINE_CASE(depth16, GL_DEPTH_COMPONENT16);
             DEFINE_CASE(depth24, GL_DEPTH_COMPONENT24);
-            DEFINE_CASE(depth32, GL_DEPTH_COMPONENT32);
             DEFINE_CASE(depth24_stencil8, GL_DEPTH24_STENCIL8);
 
             DEFINE_CASE(g8, GL_ALPHA);
@@ -1388,7 +1385,7 @@ namespace e2d::opengl
 
         caps.render_target_supported =
             version >= gl_version::gl_300 ||
-            version >= gl_version::gles_300 ||
+            version >= gl_version::gles_200 ||
             gl_has_any_extension(debug,
                 "GL_OES_framebuffer_object",
                 "GL_ARB_framebuffer_object",
@@ -1412,13 +1409,6 @@ namespace e2d::opengl
             version >= gl_version::gles_300 ||
             gl_has_any_extension(debug,
                 "GL_OES_depth24",
-                "GL_ARB_depth_texture");
-
-        caps.depth32_supported =
-            version >= gl_version::gl_210 ||
-            version >= gl_version::gles_300 ||
-            gl_has_any_extension(debug,
-                "GL_OES_depth32",
                 "GL_ARB_depth_texture");
 
         caps.depth24_stencil8_supported =

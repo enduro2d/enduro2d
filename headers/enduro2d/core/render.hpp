@@ -46,7 +46,6 @@ namespace e2d
         enum class pixel_type : u8 {
             depth16,
             depth24,
-            depth32,
             depth24_stencil8,
 
             g8,
@@ -900,7 +899,6 @@ namespace e2d
 
             bool depth16_supported = false;
             bool depth24_supported = false;
-            bool depth32_supported = false;
             bool depth24_stencil8_supported = false;
 
             bool dxt_compression_supported = false;
