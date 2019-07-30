@@ -13,9 +13,7 @@ namespace
     public:
         safe_engine_initializer() {
             modules::initialize<engine>(0, nullptr,
-                    engine::parameters("renderer_untests", "enduro2d")
-                        .without_audio(true)
-                        .without_graphics(true));
+                engine::parameters("renderer_untests", "enduro2d"));
         }
 
         ~safe_engine_initializer() noexcept {
@@ -26,7 +24,6 @@ namespace
 
 TEST_CASE("render"){
     safe_engine_initializer initializer;
-
     SECTION("sampler_state"){
         {
             const auto ss = render::sampler_state();
@@ -260,8 +257,7 @@ TEST_CASE("render"){
                     bad_render_operation);
             }
 
-            //if ( r.device_capabilities().dxt5_compression_supported ) // TODO: wait for android branch
-            {
+            if ( r.device_capabilities().dxt_compression_supported ) {
                 str resources;
                 REQUIRE(filesystem::extract_predef_path(
                     resources,
