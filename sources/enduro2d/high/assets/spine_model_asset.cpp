@@ -5,10 +5,11 @@
  ******************************************************************************/
 
 #include <enduro2d/high/assets/spine_model_asset.hpp>
-
 #include <enduro2d/high/assets/json_asset.hpp>
 #include <enduro2d/high/assets/binary_asset.hpp>
 #include <enduro2d/high/assets/texture_asset.hpp>
+
+#include <enduro2d/core/vfs.hpp>
 
 #include <spine/SkeletonJson.h>
 #include <spine/extension.h>
@@ -191,8 +192,24 @@ void _spAtlasPage_disposeTexture (spAtlasPage* self) {
 }
 
 char* _spUtil_readFile (const char* path, int* length) {
-    E2D_ASSERT(false);
-    return _spReadFile(path, length);
+    try {
+        input_stream_uptr stream = the<vfs>().read(url(path));
+        if ( !stream ) {
+            throw;
+        }
+        size_t size = stream->length();
+	    char*  data = MALLOC(char, size);
+        size_t readn = 0;
+
+        for ( ; readn < size; ) {
+            readn += stream->read(data + readn, size - readn);
+        }
+        *length = math::numeric_cast<int>(readn);
+        return data;
+    } catch(...) {
+        the<debug>().error("SPINE: Failed to read file");
+    }
+    return nullptr;
 }
 
 namespace e2d
