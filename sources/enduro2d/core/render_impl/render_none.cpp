@@ -173,8 +173,8 @@ namespace e2d
     render::~render() noexcept = default;
 
     shader_ptr render::create_shader(
-        const str& vertex_source,
-        const str& fragment_source)
+        str_view vertex_source,
+        str_view fragment_source)
     {
         E2D_UNUSED(vertex_source, fragment_source);
         return nullptr;

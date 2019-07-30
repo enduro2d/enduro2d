@@ -14,6 +14,57 @@
 namespace
 {
     using namespace e2d;
+
+    const char* vertex_shader_header_cstr(render::api_profile profile) noexcept {
+        switch ( profile ) {
+        case e2d::render::api_profile::unknown:
+            return "";
+        case e2d::render::api_profile::opengles2:
+        case e2d::render::api_profile::opengles3:
+            return R"glsl(
+                precision highp int;
+                precision highp float;
+            )glsl";
+        case e2d::render::api_profile::opengl_compat:
+            return R"glsl(
+                #version 120
+                #define highp
+                #define mediump
+                #define lowp
+            )glsl";
+        default:
+            E2D_ASSERT_MSG(false, "unexpected render API profile");
+            return "";
+        }
+    }
+
+    const char* fragment_shader_header_cstr(render::api_profile profile) noexcept {
+        switch ( profile ) {
+        case e2d::render::api_profile::unknown:
+            return "";
+        case e2d::render::api_profile::opengles2:
+        case e2d::render::api_profile::opengles3:
+            return R"glsl(
+                precision mediump int;
+                precision mediump float;
+            )glsl";
+        case e2d::render::api_profile::opengl_compat:
+            return R"glsl(
+                #version 120
+                #define highp
+                #define mediump
+                #define lowp
+            )glsl";
+        default:
+            E2D_ASSERT_MSG(false, "unexpected render API profile");
+            return "";
+        }
+    }
+}
+
+namespace
+{
+    using namespace e2d;
     using namespace e2d::opengl;
 
     class property_block_value_visitor final : private noncopyable {
@@ -428,25 +479,36 @@ namespace e2d
     render::~render() noexcept = default;
 
     shader_ptr render::create_shader(
-        const str& vertex_source,
-        const str& fragment_source)
+        str_view vertex_source,
+        str_view fragment_source)
     {
         E2D_ASSERT(is_in_main_thread());
 
         gl_shader_id vs = gl_compile_shader(
-            state_->dbg(), vertex_source, GL_VERTEX_SHADER);
+            state_->dbg(),
+            vertex_shader_header_cstr(device_capabilities().profile),
+            vertex_source,
+            GL_VERTEX_SHADER);
+
         if ( vs.empty() ) {
             return nullptr;
         }
 
         gl_shader_id fs = gl_compile_shader(
-            state_->dbg(), fragment_source, GL_FRAGMENT_SHADER);
+            state_->dbg(),
+            fragment_shader_header_cstr(device_capabilities().profile),
+            fragment_source,
+            GL_FRAGMENT_SHADER);
+
         if ( fs.empty() ) {
             return nullptr;
         }
 
         gl_program_id ps = gl_link_program(
-            state_->dbg(), std::move(vs), std::move(fs));
+            state_->dbg(),
+            std::move(vs),
+            std::move(fs));
+
         if ( ps.empty() ) {
             return nullptr;
         }

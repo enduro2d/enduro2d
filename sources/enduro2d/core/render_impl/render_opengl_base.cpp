@@ -1441,14 +1441,32 @@ namespace e2d::opengl
                 "GL_IMG_texture_compression_pvrtc2");
     }
 
-    gl_shader_id gl_compile_shader(debug& debug, const str& source, GLenum type) noexcept {
+    gl_shader_id gl_compile_shader(
+        debug& debug,
+        str_view header,
+        str_view source,
+        GLenum type) noexcept
+    {
         gl_shader_id id = gl_shader_id::create(debug, type);
         if ( id.empty() ) {
             return id;
         }
-        const char* source_cstr = source.c_str();
-        GL_CHECK_CODE(debug, glShaderSource(*id, 1, &source_cstr, nullptr));
+
+        const GLchar* sources[] = {
+            header.empty() ? "" : header.data(),
+            source.empty() ? "" : source.data()};
+        const GLint source_lengths[] = {
+            math::numeric_cast<GLint>(header.size()),
+            math::numeric_cast<GLint>(source.size())};
+        static_assert(std::size(sources) == std::size(source_lengths));
+
+        GL_CHECK_CODE(debug, glShaderSource(
+            *id,
+            math::numeric_cast<GLsizei>(std::size(sources)),
+            sources,
+            source_lengths));
         GL_CHECK_CODE(debug, glCompileShader(*id));
+
         return process_shader_compilation_result(debug, *id)
             ? std::move(id)
             : gl_shader_id(debug);
@@ -1460,9 +1478,11 @@ namespace e2d::opengl
         if ( id.empty() ) {
             return id;
         }
+
         GL_CHECK_CODE(debug, glAttachShader(*id, *vs));
         GL_CHECK_CODE(debug, glAttachShader(*id, *fs));
         GL_CHECK_CODE(debug, glLinkProgram(*id));
+
         return process_program_linking_result(debug, *id)
             && process_program_validation_result(debug, *id)
             ? std::move(id)

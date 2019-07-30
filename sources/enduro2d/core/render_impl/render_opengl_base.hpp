@@ -299,8 +299,16 @@ namespace e2d::opengl
     void gl_trace_limits(debug& debug) noexcept;
     void gl_fill_device_caps(debug& debug, render::device_caps& caps) noexcept;
 
-    gl_shader_id gl_compile_shader(debug& debug, const str& source, GLenum type) noexcept;
-    gl_program_id gl_link_program(debug& debug, gl_shader_id vs, gl_shader_id fs) noexcept;
+    gl_shader_id gl_compile_shader(
+        debug& debug,
+        str_view header,
+        str_view source,
+        GLenum type) noexcept;
+
+    gl_program_id gl_link_program(
+        debug& debug,
+        gl_shader_id vs,
+        gl_shader_id fs) noexcept;
 
     bool gl_check_framebuffer(
         debug& debug,
