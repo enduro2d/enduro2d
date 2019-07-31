@@ -16,6 +16,10 @@ namespace
         }
     };
 
+    inline u64 make_kerning_key(u32 first, u32 second) noexcept {
+        return (static_cast<u64>(first) << 32) | static_cast<u64>(second);
+    }
+
     str read_tag(const str& buf, u32& pos) {
         str res;
         auto end = buf.find(' ', pos);
@@ -205,7 +209,11 @@ namespace
 
         data.kernings.reserve(kernings.size());
         for ( size_t i = 0; i < kernings.size(); i++ ) {
-            data.kernings.insert(std::make_pair(kernings[i].chars, kernings[i].amount));
+            auto& k = kernings[i];
+            data.kernings.insert(
+                std::make_pair(
+                    make_kerning_key(k.chars.first, k.chars.second),
+                    k.amount));
         }
 
         return data;
@@ -296,7 +304,7 @@ namespace e2d
         return data_.chars;
     }
 
-    const flat_map<std::pair<u32, u32>, i32>& font::kernings() const noexcept {
+    const flat_map<u64, i32>& font::kernings() const noexcept {
         return data_.kernings;
     }
 
@@ -315,7 +323,8 @@ namespace e2d
     }
 
     i32 font::get_kerning(u32 first, u32 second) const noexcept {
-        const auto iter = data_.kernings.find(std::make_pair(first, second));
+        u64 key = make_kerning_key(first, second);
+        const auto iter = data_.kernings.find(key);
         return iter != data_.kernings.end()
             ? iter->second
             : 0;

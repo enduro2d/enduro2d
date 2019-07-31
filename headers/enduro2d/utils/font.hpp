@@ -51,7 +51,7 @@ namespace e2d
             common_data common;
             flat_set<page_data> pages;
             flat_map<u32, char_data> chars;
-            flat_map<std::pair<u32, u32>, i32> kernings;
+            flat_map<u64, i32> kernings;
         };
     public:
         font() = default;
@@ -79,7 +79,7 @@ namespace e2d
         const common_data& common() const noexcept;
         const flat_set<page_data>& pages() const noexcept;
         const flat_map<u32, char_data>& chars() const noexcept;
-        const flat_map<std::pair<u32, u32>, i32>& kernings() const noexcept;
+        const flat_map<u64, i32>& kernings() const noexcept;
 
         const page_data* find_page(u32 id) const noexcept;
         const char_data* find_char(u32 id) const noexcept;
