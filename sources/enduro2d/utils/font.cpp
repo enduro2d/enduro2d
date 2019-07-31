@@ -10,161 +10,189 @@ namespace
 {
     using namespace e2d;
 
+    class bmfont_loading_exception : public exception {
+        const char* what() const noexcept override {
+            return "bmfont loading exception";
+        }
+    };
+
+    str read_tag(const str& buf, u32& pos) {
+        str res;
+        auto end = buf.find(' ', pos);
+        if ( end == str::npos ) {
+            throw bmfont_loading_exception();
+        } else {
+            res = buf.substr(pos, end - pos);
+            pos = end;
+        }
+
+        return res;
+    }
+
+    bool read_key(const str& buf, u32& pos, str& key) {
+        u32 start_pos = pos;
+        auto end = buf.find('=', pos);
+        if ( end != str::npos ) {
+            auto start = buf.rfind(' ', end);
+            if ( start != str::npos ) {
+                start++;
+                key = buf.substr(start, end - start);
+                pos = end + 1;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    i32 read_int(const str& buf, u32& pos) {
+        i32 res;
+        auto end = buf.find(' ', pos);
+        if ( end == str::npos ) {
+            end = buf.find('\n', pos);
+        }
+
+        if ( end == str::npos ) {
+            throw bmfont_loading_exception();
+        } else {
+            res = std::stoi(buf.substr(pos, end - pos));
+            pos = end;
+        }
+
+        return res;
+    }
+
+    str read_string(const str& buf, u32& pos) {
+        str res;
+        auto start = buf.find('"', pos);
+        if ( start == str::npos ) {
+            throw bmfont_loading_exception();
+        } else {
+            start++;
+            auto end = buf.find('"', start);
+            if ( end == str::npos ) {
+                throw bmfont_loading_exception();
+            } else {
+                res = buf.substr(start, end - start);
+                pos = end + 1;
+            }
+        }
+
+        return res;
+    }
+
     font::data load_font_data(str_view content) {
         str s(content);
         font::data data;
+        u32 pos{0};
+        str line;
+        str tag;
+        str key;
 
-        std::replace(s.begin(), s.end(), '=', ' ');
-        std::replace(s.begin(), s.end(), ',', ' ');
-
-        str tag, line;
-        std::stringstream data_stream(s);
-
-        while ( !data_stream.eof() && std::getline(data_stream, line) ) {
-            std::stringstream line_stream(line);
-            line_stream.exceptions(std::ios::failbit | std::ios::badbit);
-
-            line_stream >> std::ws;
-            if ( line_stream.eof() ) {
-                continue;
-            }
-
-            line_stream >> tag;
+        size_t start_line{0};
+        size_t end_line = s.find('\n', start_line);
+        while ( end_line != str::npos ) {
+            pos = 0;
+            line = s.substr(start_line, end_line - start_line + 1);
+            line[line.size()-1] = '\n';
+            tag = read_tag(line, pos);
             if ( tag == "info" ) {
                 // info face="Arial-Black" size=32 bold=0 italic=0 charset=""
                 //      unicode=0 stretchH=100 smooth=1 aa=1 padding=0,0,0,0 spacing=2,2
-                line_stream >> tag;
-                while ( !line_stream.eof() ) {
-                    if ( tag == "face" ) {
-                        line_stream >> data.info.face;
-                        // remove ""
-                        data.info.face.erase(data.info.face.begin());
-                        data.info.face.pop_back();
-                    } else if ( tag == "size" ) {
-                        line_stream >> data.info.size;
-                    }
-                    if ( !line_stream.eof() ) {
-                        line_stream >> tag;
+                while ( read_key(line, pos, key) ) {
+                    if ( key == "face" ) {
+                        data.info.face = read_string(line, pos);
+                    } else if ( key == "size" ) {
+                        data.info.size = read_int(line, pos);
                     }
                 }
             } else if ( tag == "common" ) {
                 // common lineHeight=54 base=35 scaleW=512 scaleH=512 pages=1 packed=0
-                line_stream >> tag;
-                while ( !line_stream.eof() ) {
-                    if ( tag == "lineHeight" ) {
-                        line_stream >> data.common.line;
-                    } else if ( tag == "base" ) {
-                        line_stream >> data.common.base;
-                    } else if ( tag == "pages" ) {
-                        line_stream >> data.common.pages;
-                        data.pages.reserve(data.common.pages);
-                    } else if ( tag == "scaleW" ) {
-                        line_stream >> data.common.atlas_size.x;
-                    } else if ( tag == "scaleH" ) {
-                        line_stream >> data.common.atlas_size.y;
-                    }
-                    if ( !line_stream.eof() ) {
-                        line_stream >> tag;
+                while ( read_key(line, pos, key) ) {
+                    if ( key == "lineHeight" ) {
+                        data.common.line = read_int(line, pos);
+                    } else if ( key == "base" ) {
+                        data.common.base = read_int(line, pos);
+                    } else if ( key == "scaleW" ) {
+                        data.common.atlas_size.x = read_int(line, pos);
+                    } else if ( key == "scaleH" ) {
+                        data.common.atlas_size.y = read_int(line, pos);
+                    } else if ( key == "pages" ) {
+                        data.common.pages = read_int(line, pos);
                     }
                 }
             } else if ( tag == "page" ) {
                 // page id=0 file="arial.png"
-                line_stream >> tag;
                 font::page_data page_data;
-                while ( !line_stream.eof() ) {
-                    if ( tag == "id" ) {
-                        line_stream >> page_data.id;
-                    } else if ( tag == "file" ) {
-                        line_stream >> page_data.file;
-                        // remove ""
-                        page_data.file.erase(page_data.file.begin());
-                        page_data.file.pop_back();
-                    }
-                    if ( !line_stream.eof() ) {
-                        line_stream >> tag;
+                while ( read_key(line, pos, key) ) {
+                    if ( key == "id" ) {
+                        page_data.id = read_int(line, pos);
+                    } else if ( key == "file" ) {
+                        page_data.file = read_string(line, pos);
                     }
                 }
                 data.pages.insert(std::move(page_data));
             } else if ( tag == "chars" ) {
                 // chars count=95
-                line_stream >> tag;
-                while ( !line_stream.eof() ) {
-                    if ( tag == "count" ) {
-                        std::size_t count{0u};
-                        line_stream >> count;
-                        data.chars.reserve(count);
-                    }
-                    if ( !line_stream.eof() ) {
-                        line_stream >> tag;
+                while ( read_key(line, pos, key) ) {
+                    if ( key == "count" ) {
+                        data.chars.reserve(read_int(line, pos));
                     }
                 }
             } else if ( tag == "char" ) {
                 // char id=123 x=2 y=2 width=38 height=54
                 //      xoffset=0 yoffset=-3 xadvance=12 page=0 chnl=0
-                line_stream >> tag;
                 font::char_data char_data;
-                while ( !line_stream.eof() ) {
-                    if ( tag == "id" ) {
-                        line_stream >> char_data.id;
-                    } else if ( tag == "x" ) {
-                        line_stream >> char_data.rect.position.x;
-                    } else if ( tag == "y" ) {
-                        line_stream >> char_data.rect.position.y;
-                    } else if ( tag == "width" ) {
-                        line_stream >> char_data.rect.size.x;
-                    } else if ( tag == "height" ) {
-                        line_stream >> char_data.rect.size.y;
+                while ( read_key(line, pos, key) ) {
+                    if ( key == "id" ) {
+                        char_data.id = read_int(line, pos);
+                    } else if ( key == "x" ) {
+                        char_data.rect.position.x = read_int(line, pos);
+                    } else if ( key == "y" ) {
+                        char_data.rect.position.y = read_int(line, pos);
+                    } else if ( key == "width" ) {
+                        char_data.rect.size.x = read_int(line, pos);
+                    } else if ( key == "height" ) {
+                        char_data.rect.size.y = read_int(line, pos);
                         char_data.rect.position.y =
                             data.common.atlas_size.y -
                             char_data.rect.position.y -
                             char_data.rect.size.y;
-                    } else if ( tag == "xoffset" ) {
-                        line_stream >> char_data.offset.x;
-                    } else if ( tag == "yoffset" ) {
-                        line_stream >> char_data.offset.y;
-                    } else if ( tag == "xadvance" ) {
-                        line_stream >> char_data.advance;
-                    } else if ( tag == "page" ) {
-                        line_stream >> char_data.page;
-                    } else if ( tag == "chnl" ) {
-                        line_stream >> char_data.chnl;
-                    }
-                    if ( !line_stream.eof() ) {
-                        line_stream >> tag;
+                    } else if ( key == "xoffset" ) {
+                        char_data.offset.x = read_int(line, pos);
+                    } else if ( key == "yoffset" ) {
+                        char_data.offset.y = read_int(line, pos);
+                    } else if ( key == "xadvance" ) {
+                        char_data.advance = read_int(line, pos);
+                    } else if ( key == "page" ) {
+                        char_data.page = read_int(line, pos);
+                    } else if ( key == "chnl" ) {
+                        char_data.chnl = read_int(line, pos);
                     }
                 }
                 data.chars.insert(std::move(char_data));
             } else if ( tag == "kernings" ) {
-                // kernings count=243
-                line_stream >> tag;
-                while ( !line_stream.eof() ) {
-                    if ( tag == "count" ) {
-                        std::size_t count{0u};
-                        line_stream >> count;
-                        data.kernings.reserve(count);
-                    }
-                    if ( !line_stream.eof() ) {
-                        line_stream >> tag;
+                while ( read_key(line, pos, key) ) {
+                    if ( key == "count" ) {
+                        data.kernings.reserve(read_int(line, pos));
                     }
                 }
             } else if ( tag == "kerning" ) {
-                // kerning first=86 second=101 amount=-2
-                line_stream >> tag;
                 font::kerning_data k;
-                while ( !line_stream.eof() ) {
-                    if ( tag == "first" ) {
-                        line_stream >> k.chars.first;
-                    } else if ( tag == "second" ) {
-                        line_stream >> k.chars.second;
-                    } else if ( tag == "amount" ) {
-                        line_stream >> k.amount;
-                    }
-                    if ( !line_stream.eof() ) {
-                        line_stream >> tag;
+                while ( read_key(line, pos, key) ) {
+                    if ( key == "first" ) {
+                        k.chars.first = read_int(line, pos);
+                    } else if ( key == "second" ) {
+                        k.chars.second = read_int(line, pos);
+                    } else if ( key == "amount" ) {
+                        k.amount = read_int(line, pos);
                     }
                 }
                 data.kernings.insert(std::move(k));
             }
+
+            start_line = end_line + 1;
+            end_line = s.find('\n', start_line);
         }
 
         return data;
