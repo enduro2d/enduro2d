@@ -30,7 +30,6 @@ namespace
     }
 
     bool read_key(const str& buf, u32& pos, str& key) {
-        u32 start_pos = pos;
         auto end = buf.find('=', pos);
         if ( end != str::npos ) {
             auto start = buf.rfind(' ', end);
@@ -83,12 +82,16 @@ namespace
 
     font::data load_font_data(str_view content) {
         str s(content);
-        font::data data;
         u32 pos{0};
         str line;
         str tag;
         str key;
+        font::data data;
+        vector<font::char_data> chars;
+        vector<font::kerning_data> kernings;
 
+        chars.reserve(120);
+        kernings.reserve(120);
         size_t start_line{0};
         size_t end_line = s.find('\n', start_line);
         while ( end_line != str::npos ) {
@@ -136,45 +139,45 @@ namespace
                 // chars count=95
                 while ( read_key(line, pos, key) ) {
                     if ( key == "count" ) {
-                        data.chars.reserve(read_int(line, pos));
+                        chars.reserve(read_int(line, pos));
                     }
                 }
             } else if ( tag == "char" ) {
                 // char id=123 x=2 y=2 width=38 height=54
                 //      xoffset=0 yoffset=-3 xadvance=12 page=0 chnl=0
-                font::char_data char_data;
+                font::char_data c;
                 while ( read_key(line, pos, key) ) {
                     if ( key == "id" ) {
-                        char_data.id = read_int(line, pos);
+                        c.id = read_int(line, pos);
                     } else if ( key == "x" ) {
-                        char_data.rect.position.x = read_int(line, pos);
+                        c.rect.position.x = read_int(line, pos);
                     } else if ( key == "y" ) {
-                        char_data.rect.position.y = read_int(line, pos);
+                        c.rect.position.y = read_int(line, pos);
                     } else if ( key == "width" ) {
-                        char_data.rect.size.x = read_int(line, pos);
+                        c.rect.size.x = read_int(line, pos);
                     } else if ( key == "height" ) {
-                        char_data.rect.size.y = read_int(line, pos);
-                        char_data.rect.position.y =
+                        c.rect.size.y = read_int(line, pos);
+                        c.rect.position.y =
                             data.common.atlas_size.y -
-                            char_data.rect.position.y -
-                            char_data.rect.size.y;
+                            c.rect.position.y -
+                            c.rect.size.y;
                     } else if ( key == "xoffset" ) {
-                        char_data.offset.x = read_int(line, pos);
+                        c.offset.x = read_int(line, pos);
                     } else if ( key == "yoffset" ) {
-                        char_data.offset.y = read_int(line, pos);
+                        c.offset.y = read_int(line, pos);
                     } else if ( key == "xadvance" ) {
-                        char_data.advance = read_int(line, pos);
+                        c.advance = read_int(line, pos);
                     } else if ( key == "page" ) {
-                        char_data.page = read_int(line, pos);
+                        c.page = read_int(line, pos);
                     } else if ( key == "chnl" ) {
-                        char_data.chnl = read_int(line, pos);
+                        c.chnl = read_int(line, pos);
                     }
                 }
-                data.chars.insert(std::move(char_data));
+                chars.push_back(std::move(c));
             } else if ( tag == "kernings" ) {
                 while ( read_key(line, pos, key) ) {
                     if ( key == "count" ) {
-                        data.kernings.reserve(read_int(line, pos));
+                        kernings.reserve(read_int(line, pos));
                     }
                 }
             } else if ( tag == "kerning" ) {
@@ -188,11 +191,21 @@ namespace
                         k.amount = read_int(line, pos);
                     }
                 }
-                data.kernings.insert(std::move(k));
+                kernings.push_back(std::move(k));
             }
 
             start_line = end_line + 1;
             end_line = s.find('\n', start_line);
+        }
+
+        data.chars.reserve(chars.size());
+        for ( size_t i = 0; i < chars.size(); i++ ) {
+            data.chars.insert(std::make_pair(chars[i].id, chars[i]));
+        }
+
+        data.kernings.reserve(kernings.size());
+        for ( size_t i = 0; i < kernings.size(); i++ ) {
+            data.kernings.insert(std::make_pair(kernings[i].chars, kernings[i].amount));
         }
 
         return data;
@@ -279,11 +292,11 @@ namespace e2d
         return data_.pages;
     }
 
-    const flat_set<font::char_data>& font::chars() const noexcept {
+    const flat_map<u32, font::char_data>& font::chars() const noexcept {
         return data_.chars;
     }
 
-    const flat_set<font::kerning_data>& font::kernings() const noexcept {
+    const flat_map<std::pair<u32, u32>, i32>& font::kernings() const noexcept {
         return data_.kernings;
     }
 
@@ -297,14 +310,14 @@ namespace e2d
     const font::char_data* font::find_char(u32 id) const noexcept {
         const auto iter = data_.chars.find(id);
         return iter != data_.chars.end()
-            ? &*iter
+            ? &iter->second
             : nullptr;
     }
 
     i32 font::get_kerning(u32 first, u32 second) const noexcept {
         const auto iter = data_.kernings.find(std::make_pair(first, second));
         return iter != data_.kernings.end()
-            ? iter->amount
+            ? iter->second
             : 0;
     }
 }

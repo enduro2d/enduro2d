@@ -42,7 +42,7 @@ namespace e2d
         };
 
         struct kerning_data {
-            std::pair<u32,u32> chars{0,0};
+            std::pair<u32, u32> chars{0,0};
             i32 amount{0};
         };
 
@@ -50,8 +50,8 @@ namespace e2d
             info_data info;
             common_data common;
             flat_set<page_data> pages;
-            flat_set<char_data> chars;
-            flat_set<kerning_data> kernings;
+            flat_map<u32, char_data> chars;
+            flat_map<std::pair<u32, u32>, i32> kernings;
         };
     public:
         font() = default;
@@ -78,8 +78,8 @@ namespace e2d
         const info_data& info() const noexcept;
         const common_data& common() const noexcept;
         const flat_set<page_data>& pages() const noexcept;
-        const flat_set<char_data>& chars() const noexcept;
-        const flat_set<kerning_data>& kernings() const noexcept;
+        const flat_map<u32, char_data>& chars() const noexcept;
+        const flat_map<std::pair<u32, u32>, i32>& kernings() const noexcept;
 
         const page_data* find_page(u32 id) const noexcept;
         const char_data* find_char(u32 id) const noexcept;
