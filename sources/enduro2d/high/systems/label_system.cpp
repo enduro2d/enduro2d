@@ -268,7 +268,8 @@ namespace e2d
                     mr.model()->fill(content);
                 }
 
-                if ( r.materials().front()->content().properties().sampler_count() == 0 ) {
+                if ( r.materials().size() > 0 &&
+                     r.materials().front()->content().properties().sampler_count() == 0 ) {
                     str page_file = f.find_page(0)->file;
                     auto texture_p = the<library>().load_asset<texture_asset>(page_file);
                     if ( !texture_p ) {
