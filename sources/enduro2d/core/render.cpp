@@ -24,9 +24,8 @@ namespace
     const pixel_type_description pixel_type_descriptions[] = {
         {"depth16",          16, false, true,  false, pixel_declaration::pixel_type::depth16,          false, v2u(1)},
         {"depth24",          24, false, true,  false, pixel_declaration::pixel_type::depth24,          false, v2u(1)},
-        {"depth32",          32, false, true,  false, pixel_declaration::pixel_type::depth32,          false, v2u(1)},
         {"depth24_stencil8", 32, false, true,  true,  pixel_declaration::pixel_type::depth24_stencil8, false, v2u(1)},
-        
+
         {"g8",                8, true,  false, false, pixel_declaration::pixel_type::g8,               false, v2u(1)},
         {"ga8",              16, true,  false, false, pixel_declaration::pixel_type::ga8,              false, v2u(1)},
         {"rgb8",             24, true,  false, false, pixel_declaration::pixel_type::rgb8,             false, v2u(1)},
@@ -163,7 +162,7 @@ namespace e2d
     std::size_t pixel_declaration::bits_per_pixel() const noexcept {
         return get_pixel_type_description(type_).bits_per_pixel;
     }
-    
+
     v2u pixel_declaration::compressed_block_size() const noexcept {
         return get_pixel_type_description(type_).block_size;
     }
@@ -654,7 +653,6 @@ namespace e2d
     render::sampler_state& render::sampler_state::wrap(sampler_wrap st) noexcept {
         s_wrap(st);
         t_wrap(st);
-        r_wrap(st);
         return *this;
     }
 
@@ -665,11 +663,6 @@ namespace e2d
 
     render::sampler_state& render::sampler_state::t_wrap(sampler_wrap t) noexcept {
         t_wrap_ = t;
-        return *this;
-    }
-
-    render::sampler_state& render::sampler_state::r_wrap(sampler_wrap r) noexcept {
-        r_wrap_ = r;
         return *this;
     }
 
@@ -699,10 +692,6 @@ namespace e2d
 
     render::sampler_wrap render::sampler_state::t_wrap() const noexcept {
         return t_wrap_;
-    }
-
-    render::sampler_wrap render::sampler_state::r_wrap() const noexcept {
-        return r_wrap_;
     }
 
     render::sampler_min_filter render::sampler_state::min_filter() const noexcept {
@@ -1239,7 +1228,6 @@ namespace e2d
         return l.texture() == r.texture()
             && l.s_wrap() == r.s_wrap()
             && l.t_wrap() == r.t_wrap()
-            && l.r_wrap() == r.r_wrap()
             && l.min_filter() == r.min_filter()
             && l.mag_filter() == r.mag_filter();
     }

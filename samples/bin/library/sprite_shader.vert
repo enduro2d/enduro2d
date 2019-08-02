@@ -1,5 +1,3 @@
-#version 120
-
 uniform mat4 u_matrix_vp;
 
 attribute vec3 a_vertex;

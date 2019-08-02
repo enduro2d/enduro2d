@@ -10,8 +10,6 @@ using namespace e2d;
 namespace
 {
     const char* vs_source_cstr = R"glsl(
-        #version 120
-
         attribute vec3 a_position;
         attribute vec2 a_uv;
         attribute vec4 a_color;
@@ -30,8 +28,6 @@ namespace
     )glsl";
 
     const char* fs_source_cstr = R"glsl(
-        #version 120
-
         uniform sampler2D u_texture;
         varying vec4 v_color;
         varying vec2 v_uv;

@@ -11,8 +11,21 @@
 #if defined(E2D_RENDER_MODE)
 #if E2D_RENDER_MODE == E2D_RENDER_MODE_OPENGL || E2D_RENDER_MODE == E2D_RENDER_MODE_OPENGLES
 
-#define GLEW_STATIC
-#include <GL/glew.h>
+#if E2D_RENDER_MODE == E2D_RENDER_MODE_OPENGL
+#  define GLEW_STATIC
+#  include <GL/glew.h>
+#elif E2D_RENDER_MODE == E2D_RENDER_MODE_OPENGLES
+#  include <GLES2/gl2.h>
+#  include <GLES2/gl2ext.h>
+
+// GL_OES_depth24
+#  define GL_DEPTH_COMPONENT24 GL_DEPTH_COMPONENT24_OES
+
+// GL_OES_packed_depth_stencil
+#  define GL_DEPTH_STENCIL GL_DEPTH_STENCIL_OES
+#  define GL_UNSIGNED_INT_24_8 GL_UNSIGNED_INT_24_8_OES
+#  define GL_DEPTH24_STENCIL8 GL_DEPTH24_STENCIL8_OES
+#endif
 
 #if defined(E2D_BUILD_MODE) && E2D_BUILD_MODE == E2D_BUILD_MODE_DEBUG
 #   define GL_FLUSH_ERRORS(dbg)\
@@ -283,8 +296,16 @@ namespace e2d::opengl
     void gl_trace_limits(debug& debug) noexcept;
     void gl_fill_device_caps(debug& debug, render::device_caps& caps) noexcept;
 
-    gl_shader_id gl_compile_shader(debug& debug, const str& source, GLenum type) noexcept;
-    gl_program_id gl_link_program(debug& debug, gl_shader_id vs, gl_shader_id fs) noexcept;
+    gl_shader_id gl_compile_shader(
+        debug& debug,
+        str_view header,
+        str_view source,
+        GLenum type) noexcept;
+
+    gl_program_id gl_link_program(
+        debug& debug,
+        gl_shader_id vs,
+        gl_shader_id fs) noexcept;
 
     bool gl_check_framebuffer(
         debug& debug,

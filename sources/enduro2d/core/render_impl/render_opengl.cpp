@@ -14,6 +14,57 @@
 namespace
 {
     using namespace e2d;
+
+    const char* vertex_shader_header_cstr(render::api_profile profile) noexcept {
+        switch ( profile ) {
+        case e2d::render::api_profile::unknown:
+            return "";
+        case e2d::render::api_profile::opengles2:
+        case e2d::render::api_profile::opengles3:
+            return R"glsl(
+                precision highp int;
+                precision highp float;
+            )glsl";
+        case e2d::render::api_profile::opengl_compat:
+            return R"glsl(
+                #version 120
+                #define highp
+                #define mediump
+                #define lowp
+            )glsl";
+        default:
+            E2D_ASSERT_MSG(false, "unexpected render API profile");
+            return "";
+        }
+    }
+
+    const char* fragment_shader_header_cstr(render::api_profile profile) noexcept {
+        switch ( profile ) {
+        case e2d::render::api_profile::unknown:
+            return "";
+        case e2d::render::api_profile::opengles2:
+        case e2d::render::api_profile::opengles3:
+            return R"glsl(
+                precision mediump int;
+                precision mediump float;
+            )glsl";
+        case e2d::render::api_profile::opengl_compat:
+            return R"glsl(
+                #version 120
+                #define highp
+                #define mediump
+                #define lowp
+            )glsl";
+        default:
+            E2D_ASSERT_MSG(false, "unexpected render API profile");
+            return "";
+        }
+    }
+}
+
+namespace
+{
+    using namespace e2d;
     using namespace e2d::opengl;
 
     class property_block_value_visitor final : private noncopyable {
@@ -136,10 +187,6 @@ namespace
                         texture_id.target(),
                         GL_TEXTURE_WRAP_T,
                         convert_sampler_wrap(sampler.t_wrap())));
-                    GL_CHECK_CODE(debug, glTexParameteri(
-                        texture_id.target(),
-                        GL_TEXTURE_WRAP_R,
-                        convert_sampler_wrap(sampler.r_wrap())));
                     GL_CHECK_CODE(debug, glTexParameteri(
                         texture_id.target(),
                         GL_TEXTURE_MIN_FILTER,
@@ -432,25 +479,36 @@ namespace e2d
     render::~render() noexcept = default;
 
     shader_ptr render::create_shader(
-        const str& vertex_source,
-        const str& fragment_source)
+        str_view vertex_source,
+        str_view fragment_source)
     {
         E2D_ASSERT(is_in_main_thread());
 
         gl_shader_id vs = gl_compile_shader(
-            state_->dbg(), vertex_source, GL_VERTEX_SHADER);
+            state_->dbg(),
+            vertex_shader_header_cstr(device_capabilities().profile),
+            vertex_source,
+            GL_VERTEX_SHADER);
+
         if ( vs.empty() ) {
             return nullptr;
         }
 
         gl_shader_id fs = gl_compile_shader(
-            state_->dbg(), fragment_source, GL_FRAGMENT_SHADER);
+            state_->dbg(),
+            fragment_shader_header_cstr(device_capabilities().profile),
+            fragment_source,
+            GL_FRAGMENT_SHADER);
+
         if ( fs.empty() ) {
             return nullptr;
         }
 
         gl_program_id ps = gl_link_program(
-            state_->dbg(), std::move(vs), std::move(fs));
+            state_->dbg(),
+            std::move(vs),
+            std::move(fs));
+
         if ( ps.empty() ) {
             return nullptr;
         }
@@ -544,16 +602,6 @@ namespace e2d
                     convert_image_data_format_to_external_data_type(image.format()),
                     image.data().data()));
             }
-        #if E2D_RENDER_MODE == E2D_RENDER_MODE_OPENGL
-            GL_CHECK_CODE(state_->dbg(), glTexParameteri(
-                id.target(),
-                GL_TEXTURE_MAX_LEVEL,
-                0));
-            GL_CHECK_CODE(state_->dbg(), glTexParameteri(
-                id.target(),
-                GL_TEXTURE_BASE_LEVEL,
-                0));
-        #endif
         });
 
         return std::make_shared<texture>(
@@ -972,7 +1020,7 @@ namespace e2d
 
         return *this;
     }
-    
+
     render& render::update_buffer(
         const index_buffer_ptr& ibuffer,
         buffer_view indices,
@@ -1093,16 +1141,17 @@ namespace e2d
 
     bool render::is_pixel_supported(const pixel_declaration& decl) const noexcept {
         E2D_ASSERT(is_in_main_thread());
+        const device_caps& caps = device_capabilities();
         switch ( decl.type() ) {
             case pixel_declaration::pixel_type::depth16:
-                return true;
+                return caps.depth_texture_supported
+                    && caps.depth16_supported;
             case pixel_declaration::pixel_type::depth24:
-                return !!GLEW_OES_depth24;
-            case pixel_declaration::pixel_type::depth32:
-                return !!GLEW_OES_depth32;
+                return caps.depth_texture_supported
+                    && caps.depth24_supported;
             case pixel_declaration::pixel_type::depth24_stencil8:
-                return GLEW_OES_packed_depth_stencil
-                    || GLEW_EXT_packed_depth_stencil;
+                return caps.depth_texture_supported
+                    && caps.depth24_stencil8_supported;
             case pixel_declaration::pixel_type::g8:
             case pixel_declaration::pixel_type::ga8:
             case pixel_declaration::pixel_type::rgb8:
@@ -1110,26 +1159,17 @@ namespace e2d
                 return true;
             case pixel_declaration::pixel_type::rgb_dxt1:
             case pixel_declaration::pixel_type::rgba_dxt1:
-                return GLEW_ANGLE_texture_compression_dxt1
-                    || GLEW_EXT_texture_compression_dxt1
-                    || GLEW_EXT_texture_compression_s3tc
-                    || GLEW_NV_texture_compression_s3tc;
             case pixel_declaration::pixel_type::rgba_dxt3:
-                return GLEW_ANGLE_texture_compression_dxt3
-                    || GLEW_EXT_texture_compression_s3tc
-                    || GLEW_NV_texture_compression_s3tc;
             case pixel_declaration::pixel_type::rgba_dxt5:
-                return GLEW_ANGLE_texture_compression_dxt5
-                    || GLEW_EXT_texture_compression_s3tc
-                    || GLEW_NV_texture_compression_s3tc;
+                return caps.dxt_compression_supported;
             case pixel_declaration::pixel_type::rgb_pvrtc2:
             case pixel_declaration::pixel_type::rgb_pvrtc4:
             case pixel_declaration::pixel_type::rgba_pvrtc2:
             case pixel_declaration::pixel_type::rgba_pvrtc4:
-                return !!GLEW_IMG_texture_compression_pvrtc;
+                return caps.pvrtc_compression_supported;
             case pixel_declaration::pixel_type::rgba_pvrtc2_v2:
             case pixel_declaration::pixel_type::rgba_pvrtc4_v2:
-                return !!GLEW_IMG_texture_compression_pvrtc2;
+                return caps.pvrtc2_compression_supported;
             default:
                 E2D_ASSERT_MSG(false, "unexpected pixel type");
                 return false;
@@ -1138,18 +1178,13 @@ namespace e2d
 
     bool render::is_index_supported(const index_declaration& decl) const noexcept {
         E2D_ASSERT(is_in_main_thread());
+        const device_caps& caps = device_capabilities();
         switch ( decl.type() ) {
             case index_declaration::index_type::unsigned_byte:
             case index_declaration::index_type::unsigned_short:
                 return true;
             case index_declaration::index_type::unsigned_int:
-        #if E2D_RENDER_MODE == E2D_RENDER_MODE_OPENGL
-                return true;
-        #elif E2D_RENDER_MODE == E2D_RENDER_MODE_OPENGLES
-                return GLEW_OES_element_index_uint;
-        #else
-        #   error unknown render mode
-        #endif
+                return caps.element_index_uint;
             default:
                 E2D_ASSERT_MSG(false, "unexpected index type");
                 return false;

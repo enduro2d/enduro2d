@@ -13,9 +13,7 @@ namespace
     public:
         safe_engine_initializer() {
             modules::initialize<engine>(0, nullptr,
-                    engine::parameters("renderer_untests", "enduro2d")
-                        .without_audio(true)
-                        .without_graphics(true));
+                engine::parameters("renderer_untests", "enduro2d"));
         }
 
         ~safe_engine_initializer() noexcept {
@@ -26,15 +24,13 @@ namespace
 
 TEST_CASE("render"){
     safe_engine_initializer initializer;
-
     SECTION("sampler_state"){
         {
             const auto ss = render::sampler_state();
             REQUIRE_FALSE(ss.texture());
             REQUIRE(ss.s_wrap() == render::sampler_wrap::repeat);
             REQUIRE(ss.t_wrap() == render::sampler_wrap::repeat);
-            REQUIRE(ss.r_wrap() == render::sampler_wrap::repeat);
-            REQUIRE(ss.min_filter() == render::sampler_min_filter::nearest_mipmap_linear);
+            REQUIRE(ss.min_filter() == render::sampler_min_filter::linear);
             REQUIRE(ss.mag_filter() == render::sampler_mag_filter::linear);
         }
         {
@@ -43,7 +39,6 @@ TEST_CASE("render"){
                 .filter(render::sampler_min_filter::linear, render::sampler_mag_filter::nearest);
             REQUIRE(ss.s_wrap() == render::sampler_wrap::clamp);
             REQUIRE(ss.t_wrap() == render::sampler_wrap::clamp);
-            REQUIRE(ss.r_wrap() == render::sampler_wrap::clamp);
             REQUIRE(ss.min_filter() == render::sampler_min_filter::linear);
             REQUIRE(ss.mag_filter() == render::sampler_mag_filter::nearest);
         }
@@ -262,8 +257,7 @@ TEST_CASE("render"){
                     bad_render_operation);
             }
 
-            //if ( r.device_capabilities().dxt5_compression_supported ) // TODO: wait for android branch
-            {
+            if ( r.device_capabilities().dxt_compression_supported ) {
                 str resources;
                 REQUIRE(filesystem::extract_predef_path(
                     resources,

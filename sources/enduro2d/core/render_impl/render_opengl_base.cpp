@@ -95,6 +95,73 @@ namespace
         }
         return success == GL_TRUE;
     }
+
+    template < typename... Ext >
+    bool gl_has_any_extension(debug& debug, Ext... required) noexcept {
+        const GLubyte* all_extensions = nullptr;
+        GL_CHECK_CODE(debug, all_extensions = glGetString(GL_EXTENSIONS));
+        if ( !all_extensions ) {
+            return false;
+        }
+        str_view extensions(reinterpret_cast<const char*>(all_extensions));
+        while ( !extensions.empty() ) {
+            const auto sep_pos = extensions.find(' ');
+            const str_view current = sep_pos != str_view::npos
+                ? extensions.substr(0, sep_pos)
+                : extensions;
+            for ( const auto& req : {required...} ) {
+                if ( req == current ) {
+                    return true;
+                }
+            }
+            extensions = sep_pos != str_view::npos
+                ? extensions.substr(sep_pos + 1)
+                : str_view();
+        }
+        return false;
+    }
+
+    enum class gl_version : u32 {
+        gl_bit_ = 1 << 28,
+        gles_bit_ = 2 << 28,
+
+        gl_210 = 210 | gl_bit_,
+        gl_300 = 300 | gl_bit_,
+        gles_200 = 200 | gles_bit_,
+        gles_300 = 300 | gles_bit_
+    };
+
+    bool operator>=(gl_version lhs, gl_version rhs) noexcept {
+        constexpr u32 mask = u32(gl_version::gl_bit_)
+                           | u32(gl_version::gles_bit_);
+        return (u32(lhs) & mask) == (u32(rhs) & mask)
+            && (u32(lhs) & ~mask) >= (u32(rhs) & ~mask);
+    }
+
+    gl_version gl_get_version(debug& debug) noexcept {
+        const GLubyte* ver = nullptr;
+        GL_CHECK_CODE(debug, ver = glGetString(GL_VERSION));
+
+        GLint major = 2, minor = 1;
+        if ( ver ) {
+            const str_view ver_str = str_view(reinterpret_cast<const char*>(ver));
+            const std::size_t dot = ver_str.find('.');
+            if ( dot > 0 && dot + 1 < ver_str.length() ) {
+                major = ver[dot - 1] - '0';
+                minor = ver[dot + 1] - '0';
+            }
+        }
+
+    #if E2D_RENDER_MODE == E2D_RENDER_MODE_OPENGL
+        const u32 ver_bit = u32(gl_version::gl_bit_);
+    #elif E2D_RENDER_MODE == E2D_RENDER_MODE_OPENGLES
+        const u32 ver_bit = u32(gl_version::gles_bit_);
+    #else
+    #   error unknown render mode
+    #endif
+
+        return gl_version(ver_bit | (major * 100 + minor * 10));
+    }
 }
 
 namespace e2d::opengl
@@ -721,7 +788,6 @@ namespace e2d::opengl
         switch ( f ) {
             DEFINE_CASE(depth16, GL_DEPTH_COMPONENT);
             DEFINE_CASE(depth24, GL_DEPTH_COMPONENT);
-            DEFINE_CASE(depth32, GL_DEPTH_COMPONENT);
             DEFINE_CASE(depth24_stencil8, GL_DEPTH_STENCIL);
             DEFINE_CASE(g8, GL_ALPHA);
             DEFINE_CASE(ga8, GL_LUMINANCE_ALPHA);
@@ -739,7 +805,6 @@ namespace e2d::opengl
         switch ( f ) {
             DEFINE_CASE(depth16, GL_UNSIGNED_SHORT);
             DEFINE_CASE(depth24, GL_UNSIGNED_INT);
-            DEFINE_CASE(depth32, GL_UNSIGNED_INT);
             DEFINE_CASE(depth24_stencil8, GL_UNSIGNED_INT_24_8);
             DEFINE_CASE(g8, GL_UNSIGNED_BYTE);
             DEFINE_CASE(ga8, GL_UNSIGNED_BYTE);
@@ -757,9 +822,8 @@ namespace e2d::opengl
         switch ( f ) {
             DEFINE_CASE(depth16, GL_DEPTH_COMPONENT16);
             DEFINE_CASE(depth24, GL_DEPTH_COMPONENT24);
-            DEFINE_CASE(depth32, GL_DEPTH_COMPONENT32);
             DEFINE_CASE(depth24_stencil8, GL_DEPTH24_STENCIL8);
-            
+
             DEFINE_CASE(g8, GL_ALPHA);
             DEFINE_CASE(ga8, GL_LUMINANCE_ALPHA);
             DEFINE_CASE(rgb8, GL_RGB);
@@ -909,10 +973,6 @@ namespace e2d::opengl
         switch ( f ) {
             DEFINE_CASE(nearest, GL_NEAREST);
             DEFINE_CASE(linear, GL_LINEAR);
-            DEFINE_CASE(nearest_mipmap_nearest, GL_NEAREST_MIPMAP_NEAREST);
-            DEFINE_CASE(linear_mipmap_nearest, GL_LINEAR_MIPMAP_NEAREST);
-            DEFINE_CASE(nearest_mipmap_linear, GL_NEAREST_MIPMAP_LINEAR);
-            DEFINE_CASE(linear_mipmap_linear, GL_LINEAR_MIPMAP_LINEAR);
             default:
                 E2D_ASSERT_MSG(false, "unexpected sampler min filter");
                 return 0;
@@ -1302,30 +1362,101 @@ namespace e2d::opengl
         caps.max_vertex_uniform_vectors = math::numeric_cast<u32>(max_vertex_uniform_vectors);
         caps.max_fragment_uniform_vectors = math::numeric_cast<u32>(max_fragment_uniform_vectors);
 
+        const gl_version version = gl_get_version(debug);
+
+        caps.profile =
+            version >= gl_version::gles_300 ? render::api_profile::opengles3 :
+            version >= gl_version::gles_200 ? render::api_profile::opengles2 :
+            render::api_profile::opengl_compat;
+
         caps.npot_texture_supported =
-            GLEW_OES_texture_npot ||
-            GLEW_ARB_texture_non_power_of_two;
+            version >= gl_version::gl_210 ||
+            version >= gl_version::gles_300 ||
+            gl_has_any_extension(debug,
+                "GL_OES_texture_npot",
+                "GL_ARB_texture_non_power_of_two");
 
         caps.depth_texture_supported =
-            GLEW_OES_depth_texture ||
-            GLEW_ARB_depth_texture ||
-            GLEW_ANGLE_depth_texture ||
-            GLEW_SGIX_depth_texture;
+            version >= gl_version::gl_210 ||
+            version >= gl_version::gles_300 ||
+            gl_has_any_extension(debug,
+                "GL_OES_depth_texture",
+                "GL_ARB_depth_texture");
 
         caps.render_target_supported =
-            GLEW_OES_framebuffer_object ||
-            GLEW_ARB_framebuffer_object ||
-            GLEW_EXT_framebuffer_object;
+            version >= gl_version::gl_300 ||
+            version >= gl_version::gles_200 ||
+            gl_has_any_extension(debug,
+                "GL_OES_framebuffer_object",
+                "GL_ARB_framebuffer_object",
+                "GL_EXT_framebuffer_object");
+
+        caps.element_index_uint =
+            version >= gl_version::gl_210 ||
+            version >= gl_version::gles_300 ||
+            gl_has_any_extension(debug,
+                "GL_OES_element_index_uint");
+
+        caps.depth16_supported =
+            version >= gl_version::gl_210 ||
+            version >= gl_version::gles_300 ||
+            gl_has_any_extension(debug,
+                "GL_OES_depth_texture",
+                "GL_ARB_depth_texture");
+
+        caps.depth24_supported =
+            version >= gl_version::gl_210 ||
+            version >= gl_version::gles_300 ||
+            gl_has_any_extension(debug,
+                "GL_OES_depth24",
+                "GL_ARB_depth_texture");
+
+        caps.depth24_stencil8_supported =
+            version >= gl_version::gl_300 ||
+            version >= gl_version::gles_300 ||
+            gl_has_any_extension(debug,
+                "GL_OES_packed_depth_stencil",
+                "GL_EXT_packed_depth_stencil");
+
+        caps.dxt_compression_supported =
+            gl_has_any_extension(debug,
+                "GL_EXT_texture_compression_s3tc");
+
+        caps.pvrtc_compression_supported =
+            gl_has_any_extension(debug,
+                "GL_IMG_texture_compression_pvrtc");
+
+        caps.pvrtc2_compression_supported =
+            gl_has_any_extension(debug,
+                "GL_IMG_texture_compression_pvrtc2");
     }
 
-    gl_shader_id gl_compile_shader(debug& debug, const str& source, GLenum type) noexcept {
+    gl_shader_id gl_compile_shader(
+        debug& debug,
+        str_view header,
+        str_view source,
+        GLenum type) noexcept
+    {
         gl_shader_id id = gl_shader_id::create(debug, type);
         if ( id.empty() ) {
             return id;
         }
-        const char* source_cstr = source.c_str();
-        GL_CHECK_CODE(debug, glShaderSource(*id, 1, &source_cstr, nullptr));
+
+        const GLchar* sources[] = {
+            header.empty() ? "" : header.data(),
+            source.empty() ? "" : source.data()};
+        const GLint source_lengths[] = {
+            math::numeric_cast<GLint>(header.size()),
+            math::numeric_cast<GLint>(source.size())};
+        static_assert(std::size(sources) == std::size(source_lengths));
+
+        GL_CHECK_CODE(debug, glShaderSource(
+            *id,
+            math::numeric_cast<GLsizei>(std::size(sources)),
+            sources,
+            source_lengths));
         GL_CHECK_CODE(debug, glCompileShader(*id));
+
         return process_shader_compilation_result(debug, *id)
             ? std::move(id)
             : gl_shader_id(debug);
@@ -1337,9 +1468,11 @@ namespace e2d::opengl
         if ( id.empty() ) {
             return id;
         }
+
         GL_CHECK_CODE(debug, glAttachShader(*id, *vs));
         GL_CHECK_CODE(debug, glAttachShader(*id, *fs));
         GL_CHECK_CODE(debug, glLinkProgram(*id));
+
         return process_program_linking_result(debug, *id)
             && process_program_validation_result(debug, *id)
             ? std::move(id)

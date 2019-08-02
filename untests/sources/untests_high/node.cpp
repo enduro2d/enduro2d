@@ -14,9 +14,7 @@ namespace
         safe_starter_initializer() {
             modules::initialize<starter>(0, nullptr,
                 starter::parameters(
-                    engine::parameters("world_untests", "enduro2d")
-                        .without_audio(true)
-                        .without_graphics(true)));
+                    engine::parameters("world_untests", "enduro2d")));
         }
 
         ~safe_starter_initializer() noexcept {
