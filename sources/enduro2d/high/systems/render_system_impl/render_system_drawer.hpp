@@ -36,8 +36,7 @@ namespace e2d::render_system_impl
                 const const_node_iptr& cam_n,
                 engine& engine,
                 render& render,
-                batcher_type& batcher,
-                std::vector<batcher_type::vertex_type>& spine_vertices);
+                batcher_type& batcher);
             ~context() noexcept;
 
             void draw(
@@ -62,7 +61,6 @@ namespace e2d::render_system_impl
         private:
             render& render_;
             batcher_type& batcher_;
-            std::vector<batcher_type::vertex_type>& spine_vertices_;
             render::property_block property_cache_;
         };
     public:
@@ -74,7 +72,6 @@ namespace e2d::render_system_impl
         engine& engine_;
         render& render_;
         batcher_type batcher_;
-        std::vector<batcher_type::vertex_type> spine_vertices_;
     };
 }
 
@@ -82,7 +79,7 @@ namespace e2d::render_system_impl
 {
     template < typename F >
     void drawer::with(const camera& cam, const const_node_iptr& cam_n, F&& f) {
-        context ctx{cam, cam_n, engine_, render_, batcher_, spine_vertices_};
+        context ctx{cam, cam_n, engine_, render_, batcher_};
         std::forward<F>(f)(ctx);
         ctx.flush();
     }

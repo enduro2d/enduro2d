@@ -29,6 +29,24 @@ namespace
     const str_hash matrix_mvp_property_hash = "u_matrix_mvp";
     const str_hash game_time_property_hash = "u_game_time";
     const str_hash sprite_texture_sampler_hash = "u_texture";
+
+    const render::blending_state blend_normal = render::blending_state()
+        .factor(render::blending_factor::src_alpha, render::blending_factor::one_minus_src_alpha);
+    const render::blending_state blend_additive = render::blending_state()
+        .factor(render::blending_factor::src_alpha, render::blending_factor::one);
+    const render::blending_state blend_multiply = render::blending_state()
+        .factor(render::blending_factor::dst_color, render::blending_factor::one_minus_src_alpha);
+    const render::blending_state blend_screen = render::blending_state()
+        .factor(render::blending_factor::one, render::blending_factor::one_minus_src_color);
+    
+    const render::blending_state blend_normal_pma = render::blending_state()
+        .factor(render::blending_factor::one, render::blending_factor::one_minus_src_alpha);
+    const render::blending_state blend_additive_pma = render::blending_state()
+        .factor(render::blending_factor::one, render::blending_factor::one);
+    const render::blending_state blend_multiply_pma = render::blending_state()
+        .factor(render::blending_factor::dst_color, render::blending_factor::one_minus_src_alpha);
+    const render::blending_state blend_screen_pma = render::blending_state()
+        .factor(render::blending_factor::one, render::blending_factor::one_minus_src_color);
 }
 
 namespace e2d::render_system_impl
@@ -42,11 +60,9 @@ namespace e2d::render_system_impl
         const const_node_iptr& cam_n,
         engine& engine,
         render& render,
-        batcher_type& batcher,
-        std::vector<batcher_type::vertex_type>& spine_vertices)
+        batcher_type& batcher)
     : render_(render)
     , batcher_(batcher)
-    , spine_vertices_(spine_vertices)
     {
         const m4f& cam_w = cam_n
             ? cam_n->world_matrix()
@@ -232,8 +248,9 @@ namespace e2d::render_system_impl
         const renderer& node_r,
         const spine_renderer& spine_r)
     {
-        static_assert(sizeof(batcher_type::vertex_type) % sizeof(float) == 0, "invalid stride");
-        constexpr int stride = sizeof(batcher_type::vertex_type) / sizeof(float);
+        constexpr int stride = 2;
+        std::vector<batcher_type::vertex_type> batch_vertices; // TODO: optimize
+        std::vector<float> temp_vertices;
 
         if ( !node || !node_r.enabled() ) {
             return;
@@ -246,9 +263,10 @@ namespace e2d::render_system_impl
         spSkeleton* skeleton = spine_r.skeleton().operator->();
         spSkeletonClipping* clipper = spine_r.clipper().operator->();
         spVertexEffect* effect = spine_r.effect().operator->();
-        const material_asset::ptr& mat_a = node_r.materials().front();
+        const material_asset::ptr& src_mat = node_r.materials().front();
+        const bool use_premultiplied_alpha = spine_r.model()->content().premultiplied_alpha();
 
-        if ( !skeleton || !clipper || !mat_a ) {
+        if ( !skeleton || !clipper || !src_mat ) {
             return;
         }
 
@@ -262,9 +280,7 @@ namespace e2d::render_system_impl
             effect->begin(effect, skeleton);
         }
         
-        const m3f sm = m3f(v3f(node->world_matrix()[0]),
-                            v3f(node->world_matrix()[1]),
-                            v3f(node->world_matrix()[3]));
+        const m4f& sm = node->world_matrix();
 
         for ( int i = 0; i < skeleton->slotsCount; ++i ) {
             spSlot* slot = skeleton->drawOrder[i];
@@ -277,7 +293,7 @@ namespace e2d::render_system_impl
                 continue;
             }
 
-            size_t vertex_count = 0;
+            int vertex_count = 0;
             const float* uvs = nullptr;
             const u16* indices = nullptr;
             int index_count = 0;
@@ -292,8 +308,11 @@ namespace e2d::render_system_impl
                     spSkeletonClipping_clipEnd(clipper, slot);
                     continue;
                 }
-                spRegionAttachment_computeWorldVertices(region, slot->bone, &spine_vertices_.data()->v.x, 0, stride);
-                vertex_count = 4;
+                if ( temp_vertices.size() < 8 ) {
+                    temp_vertices.resize(8);
+                }
+                spRegionAttachment_computeWorldVertices(region, slot->bone, temp_vertices.data(), 0, stride);
+                vertex_count = 8;
                 uvs = region->uvs;
                 indices = quad_indices;
                 index_count = 6;
@@ -308,11 +327,11 @@ namespace e2d::render_system_impl
                     spSkeletonClipping_clipEnd(clipper, slot);
                     continue;
                 }
-                vertex_count = mesh->super.worldVerticesLength >> 1;
-                if ( vertex_count > spine_vertices_.size() ) {
-                    spine_vertices_.resize(vertex_count);
+                vertex_count = mesh->super.worldVerticesLength;
+                if ( vertex_count > int(temp_vertices.size()) ) {
+                    temp_vertices.resize(vertex_count);
                 }
-                spVertexAttachment_computeWorldVertices(&mesh->super, slot, 0, mesh->super.worldVerticesLength, &spine_vertices_.data()->v.x, 0, stride);
+                spVertexAttachment_computeWorldVertices(&mesh->super, slot, 0, mesh->super.worldVerticesLength, temp_vertices.data(), 0, stride);
                 uvs = mesh->uvs;
                 indices = mesh->triangles;
                 index_count = mesh->trianglesCount;
@@ -322,7 +341,6 @@ namespace e2d::render_system_impl
             } else if ( attachment->type == SP_ATTACHMENT_CLIPPING ) {
                 spClippingAttachment* clip = reinterpret_cast<spClippingAttachment*>(attachment);
                 spSkeletonClipping_clipStart(clipper, slot, clip);
-                E2D_ASSERT(false);
                 continue;
             } else {
                 continue;
@@ -333,59 +351,71 @@ namespace e2d::render_system_impl
                 color(slot->color.r, slot->color.g, slot->color.b, slot->color.a) *
                 color(attachment_color->r, attachment_color->g, attachment_color->b, attachment_color->a));
 
+            render::blending_state blend_mode;
             switch ( slot->data->blendMode ) {
                 case SP_BLEND_MODE_NORMAL :
+                    blend_mode = use_premultiplied_alpha ? blend_normal_pma : blend_normal;
                     break;
                 case SP_BLEND_MODE_ADDITIVE :
+                    blend_mode = use_premultiplied_alpha ? blend_additive_pma : blend_additive;
                     break;
                 case SP_BLEND_MODE_MULTIPLY :
+                    blend_mode = use_premultiplied_alpha ? blend_multiply_pma : blend_multiply;
                     break;
                 case SP_BLEND_MODE_SCREEN :
+                    blend_mode = use_premultiplied_alpha ? blend_screen_pma : blend_screen;
                     break;
                 default :
+                    E2D_ASSERT_MSG(false, "unexpected blend mode for slot");
                     break;
             }
-
-            /*const float* vertices = spine_vertices_.data();
+            
+            material_asset::ptr mat_a = material_asset::create(src_mat->content());
+            const_cast<render::state_block&>(mat_a->content().pass(0).states()).blending(blend_mode);
+            
+            const float* vertices = temp_vertices.data();
             if ( spSkeletonClipping_isClipping(clipper) ) {
-                spSkeletonClipping_clipTriangles(clipper, vertices, vertex_count, indices, index_count, uvs, 2);
+                spSkeletonClipping_clipTriangles(
+                    clipper,
+                    temp_vertices.data(), vertex_count,
+                    const_cast<u16*>(indices), index_count,
+                    const_cast<float*>(uvs),
+                    stride);
                 vertices = clipper->clippedVertices->items;
-                vertex_count = clipper->clippedVertices->size >> 1;
+                vertex_count = clipper->clippedVertices->size;
                 uvs = clipper->clippedUVs->items;
                 indices = clipper->clippedTriangles->items;
                 index_count = clipper->clippedTriangles->size;
-            }*/
+            }
 
-            if ( effect ) {
-                E2D_ASSERT(false);
-            } else {
-                for ( int j = 0; j < vertex_count; ++j ) {
-                    auto& vert = spine_vertices_[j];
-                    v2f v(vert.v.x, vert.v.y);
-                    vert.v = v3f(v.x, v.y, 1.0f) * sm;
-                    vert.t = v2f(uvs[j*2], uvs[j*2+1]);
-                    vert.c = vert_color;
+            batch_vertices.resize(vertex_count >> 1);
+            for ( size_t j = 0; j < batch_vertices.size(); ++j ) {
+                auto& vert = batch_vertices[j];
+                v2f v(vertices[j*2], vertices[j*2+1]);
+                vert.v = v3f(v4f(v.x, v.y, 0.0f, 1.0f) * sm);
+                vert.t = v2f(uvs[j*2], uvs[j*2+1]);
+                vert.c = vert_color;
+            }
+
+            if ( index_count ) {
+                try {
+                    property_cache_
+                        .sampler(sprite_texture_sampler_hash, render::sampler_state()
+                            .texture(texture)
+                            .min_filter(render::sampler_min_filter::linear)
+                            .mag_filter(render::sampler_mag_filter::linear))
+                        .merge(node_r.properties());
+
+                    batcher_.batch(
+                        mat_a,
+                        property_cache_,
+                        indices, index_count,
+                        batch_vertices.data(), batch_vertices.size());
+                } catch (...) {
+                    property_cache_.clear();
+                    throw;
                 }
             }
-            
-            try {
-                property_cache_
-                    .sampler(sprite_texture_sampler_hash, render::sampler_state()
-                        .texture(texture)
-                        .min_filter(render::sampler_min_filter::linear)
-                        .mag_filter(render::sampler_mag_filter::linear))
-                    .merge(node_r.properties());
-
-                batcher_.batch(
-                    mat_a,
-                    property_cache_,
-                    indices, index_count,
-                    spine_vertices_.data(), vertex_count);
-            } catch (...) {
-                property_cache_.clear();
-                throw;
-            }
-
             spSkeletonClipping_clipEnd(clipper, slot);
         }
 
@@ -409,7 +439,5 @@ namespace e2d::render_system_impl
     drawer::drawer(engine& e, debug& d, render& r)
     : engine_(e)
     , render_(r)
-    , batcher_(d, r) {
-        spine_vertices_.resize(256);
-    }
+    , batcher_(d, r) {}
 }
