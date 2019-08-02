@@ -9,7 +9,6 @@
 #include <enduro2d/high/assets/binary_asset.hpp>
 #include <enduro2d/high/assets/texture_asset.hpp>
 
-#include <enduro2d/core/vfs.hpp>
 
 #include <spine/SkeletonJson.h>
 #include <spine/extension.h>
@@ -172,7 +171,7 @@ namespace
     }
 }
 
-void _spAtlasPage_createTexture (spAtlasPage* self, const char* path) {
+extern "C" void _spAtlasPage_createTexture (spAtlasPage* self, const char* path) {
     try {
         texture_asset::load_result texture = the<library>().load_asset<texture_asset>(path);
         if ( !texture ) {
@@ -186,25 +185,26 @@ void _spAtlasPage_createTexture (spAtlasPage* self, const char* path) {
     }
 }
 
-void _spAtlasPage_disposeTexture (spAtlasPage* self) {
-    // acquire by smart pointer and release
-    texture_asset::ptr(static_cast<texture_asset*>(self->rendererObject), false);
+extern "C" void _spAtlasPage_disposeTexture (spAtlasPage* self) {
+    // decrease ref counter
+    E2D_UNUSED(texture_asset::ptr(static_cast<texture_asset*>(self->rendererObject), false));
 }
 
-char* _spUtil_readFile (const char* path, int* length) {
+extern "C" char* _spUtil_readFile (const char* path, int* length) {
     try {
-        input_stream_uptr stream = the<vfs>().read(url(path));
-        if ( !stream ) {
+        binary_asset::load_result file = the<library>().load_asset<binary_asset>(path);
+        if ( !file ) {
             throw;
         }
-        size_t size = stream->length();
-	    char*  data = MALLOC(char, size);
-        size_t readn = 0;
-
-        for ( ; readn < size; ) {
-            readn += stream->read(data + readn, size - readn);
+        if ( file->content().size() > std::numeric_limits<int>::max() ) {
+            throw;
         }
-        *length = math::numeric_cast<int>(readn);
+        *length = math::numeric_cast<int>(file->content().size());
+	    char*  data = MALLOC(char, *length);
+        if ( !data ) {
+            throw;
+        }
+        memcpy(data, file->content().data(), *length);
         return data;
     } catch(...) {
         the<debug>().error("SPINE: Failed to read file");
