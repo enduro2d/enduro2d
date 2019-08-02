@@ -9,8 +9,8 @@
 #include <enduro2d/high/assets/binary_asset.hpp>
 #include <enduro2d/high/assets/texture_asset.hpp>
 
-
 #include <spine/SkeletonJson.h>
+#include <spine/SkeletonBinary.h>
 #include <spine/extension.h>
 
 using namespace e2d;
@@ -115,7 +115,7 @@ namespace
         const rapidjson::Value& root)
     {
         using skeleton_json_ptr = std::unique_ptr<spSkeletonJson, void(*)(spSkeletonJson*)>;
-        stdex::promise<spine_model> result;
+        using skeleton_bin_ptr = std::unique_ptr<spSkeletonBinary, void(*)(spSkeletonBinary*)>;
 
         E2D_ASSERT(root.HasMember("atlas") && root["atlas"].IsString());
         binary_asset::load_result atlas_data = library.load_asset<binary_asset>(
@@ -135,17 +135,55 @@ namespace
             }
         }
 
-        skeleton_json_ptr skeleton_json(spSkeletonJson_create(atlas.get()), spSkeletonJson_dispose);
-        skeleton_json->scale = skeleton_scale;
-
         E2D_ASSERT(root.HasMember("skeleton") && root["skeleton"].IsString());
-        binary_asset::load_result skeleton_data = library.load_asset<binary_asset>(
-            path::combine(parent_address, root["skeleton"].GetString()));
-        spine_model::skeleton_data_ptr skeleton(
-            spSkeletonJson_readSkeletonData(
-                skeleton_json.get(),
-                reinterpret_cast<const char*>(skeleton_data->content().data())),
-            spSkeletonData_dispose);
+        const str ext = path::extension(root["skeleton"].GetString());
+        spine_model::skeleton_data_ptr skeleton;
+
+        if ( ext == ".skel" ) {
+	        skeleton_bin_ptr skeleton_binary(
+                spSkeletonBinary_create(atlas.get()),
+                spSkeletonBinary_dispose);
+            skeleton_binary->scale = skeleton_scale;
+
+            binary_asset::load_result skeleton_data = library.load_asset<binary_asset>(
+                path::combine(parent_address, root["skeleton"].GetString()));
+            skeleton = spine_model::skeleton_data_ptr(
+                spSkeletonBinary_readSkeletonData(
+                    skeleton_binary.get(),
+                    reinterpret_cast<const unsigned char*>(skeleton_data->content().data()),
+                    math::numeric_cast<int>(skeleton_data->content().size())),
+                spSkeletonData_dispose);
+
+            if ( !skeleton ) {
+                the<debug>().error("SPINE: Failed to read skeleton binary data:\n"
+                    "--> Error: $s",
+                    skeleton_binary->error);
+                return stdex::make_rejected_promise<spine_model>(
+                    spine_model_asset_loading_exception());
+            }
+        } else {
+            skeleton_json_ptr skeleton_json(
+                spSkeletonJson_create(atlas.get()),
+                spSkeletonJson_dispose);
+            skeleton_json->scale = skeleton_scale;
+
+            binary_asset::load_result skeleton_data = library.load_asset<binary_asset>(
+                path::combine(parent_address, root["skeleton"].GetString()));
+            skeleton = spine_model::skeleton_data_ptr(
+                spSkeletonJson_readSkeletonData(
+                    skeleton_json.get(),
+                    reinterpret_cast<const char*>(skeleton_data->content().data())),
+                spSkeletonData_dispose);
+
+            if ( !skeleton ) {
+                the<debug>().error("SPINE: Failed to read skeleton json data:\n"
+                    "--> Error: $s",
+                    skeleton_json->error);
+                return stdex::make_rejected_promise<spine_model>(
+                    spine_model_asset_loading_exception());
+            }
+        }
+
 
         bool pma = false;
         if ( root.HasMember("premultiplied_alpha") ) {
@@ -161,13 +199,12 @@ namespace
         if ( root.HasMember("mix_animations") ) {
             const auto& mix_animations_json = root["mix_animations"];
             if ( !parse_mix_animations(mix_animations_json, content) ) {
-                result.reject(spine_model_asset_loading_exception());
-                return result;
+                return stdex::make_rejected_promise<spine_model>(
+                    spine_model_asset_loading_exception());
             }
         }
 
-        result.resolve(std::move(content));
-        return result;
+        return stdex::make_resolved_promise(std::move(content));
     }
 }
 
@@ -245,9 +282,6 @@ namespace e2d
                 }
 
                 throw spine_model_asset_loading_exception();
-            })
-            .except([](auto&){
-                E2D_ASSERT(false);
             })
             .then([&library, parent_address, spine_data](){
                 return parse_spine_model(
