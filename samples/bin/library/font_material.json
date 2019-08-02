@@ -12,10 +12,5 @@
             }
         }
     }],
-    "property_block" : {
-        "samplers" : [{
-            "name" : "u_texture",
-            "texture" : "bmruen.png"
-        }]
-    }
+    "property_block" : {}
 }
