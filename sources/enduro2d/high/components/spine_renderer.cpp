@@ -11,16 +11,21 @@
 
 namespace e2d
 {
-    spine_renderer::spine_renderer(const spine_model_asset::ptr& model)
-    : model_(model) {
-        E2D_ASSERT(model_);
-        E2D_ASSERT(model_->content().skeleton());
-        E2D_ASSERT(model_->content().atlas());
+    spine_renderer::spine_renderer(const spine_model_asset::ptr& model) {
+        this->model(model);
+    }
+    
+    spine_renderer& spine_renderer::model(const spine_model_asset::ptr& value) {
+        E2D_ASSERT(value);
+        E2D_ASSERT(value->content().skeleton());
+        E2D_ASSERT(value->content().atlas());
+        model_ = value;
 
         skeleton_ = skeleton_ptr(spSkeleton_create(model_->content().skeleton().get()), spSkeleton_dispose);
         clipping_ = clipping_ptr(spSkeletonClipping_create(), spSkeletonClipping_dispose);
+        return *this;
     }
-    
+
     spine_renderer& spine_renderer::skin(const str& value) {
         spSkeleton_setSkinByName(skeleton_.get(), value.empty() ? nullptr : value.c_str());
         return *this;
@@ -58,7 +63,26 @@ namespace e2d
         "additionalProperties" : false,
         "properties" : {
             "model" : { "$ref": "#/common_definitions/address" },
-            "skin" : { "$ref": "#/common_definitions/name" }
+            "skin" : { "$ref": "#/common_definitions/name" },
+            "attachments" : {
+                "type" : "array",
+                "items" : { "$ref": "#/definitions/spine_attachment_array" }
+            }
+        },
+        "definitions" : {
+            "spine_attachment_array" : {
+                "type" : "array",
+                "items" : { "$ref": "#/definitions/spine_attachment" }
+            },
+            "spine_attachment" : {
+                "type" : "object",
+                "required" : [ "slot", "name" ],
+                "additionalProperties" : false,
+                "properties" : {
+                    "slot" : { "$ref": "#/common_definitions/name" },
+                    "name" : { "$ref": "#/common_definitions/name" }
+                }
+            }
         }
     })json";
     
@@ -66,6 +90,29 @@ namespace e2d
         spine_renderer& component,
         const fill_context& ctx) const
     {
+        if ( ctx.root.HasMember("model") ) {
+            auto model = ctx.dependencies.find_asset<spine_model_asset>(
+                path::combine(ctx.parent_address, ctx.root["model"].GetString()));
+            if ( !model ) {
+                the<debug>().error("SPINE RENDERER: Dependency 'model' is not found:\n"
+                    "--> Parent address: %s\n"
+                    "--> Dependency address: $s",
+                    ctx.parent_address,
+                    ctx.root["model"].GetString());
+                return false;
+            }
+            component.model(model);
+        }
+
+        if ( ctx.root.HasMember("skin") ) {
+            str skin;
+            if ( !json_utils::try_parse_value(ctx.root["skin"], skin) ) {
+                the<debug>().error("SPINE RENDERER: Incorrect formatting of 'skin' property");
+                return false;
+            }
+            component.skin(skin);
+        }
+
         return false;
     }
 
@@ -73,6 +120,16 @@ namespace e2d
         asset_dependencies& dependencies,
         const collect_context& ctx) const
     {
+        if ( ctx.root.HasMember("model") ) {
+            dependencies.add_dependency<spine_model_asset>(
+                path::combine(ctx.parent_address, ctx.root["model"].GetString()));
+        }
+        
+        if ( ctx.root.HasMember("skin") ) {
+            dependencies.add_dependency<spine_model_asset>(
+                path::combine(ctx.parent_address, ctx.root["skin"].GetString()));
+        }
+
         return false;
     }
 }

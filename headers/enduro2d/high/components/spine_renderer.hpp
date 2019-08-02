@@ -26,7 +26,8 @@ namespace e2d
     public:
         spine_renderer() = default;
         spine_renderer(const spine_model_asset::ptr& model);
-
+        
+        spine_renderer& model(const spine_model_asset::ptr& value);
         spine_renderer& skin(const str& value);
         spine_renderer& attachment(const str& slot, const str& name);
 
