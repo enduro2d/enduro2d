@@ -268,12 +268,10 @@ namespace e2d
                     mr.model()->fill(content);
                 }
 
-                if ( r.materials().empty() ) {
+                if ( r.materials().front()->content().properties().sampler_count() == 0 ) {
                     str page_file = f.find_page(0)->file;
                     auto texture_p = the<library>().load_asset<texture_asset>(page_file);
-                    auto shader_p = the<library>().load_asset<shader_asset>("font_shader.json");
-
-                    if ( !texture_p || !shader_p ) {
+                    if ( !texture_p ) {
                         return;
                     }
 
@@ -285,22 +283,11 @@ namespace e2d
                         ? render::sampler_mag_filter::linear
                         : render::sampler_mag_filter::nearest;
 
-                    render::material mat;
-                    mat.properties(render::property_block()
+                    r.properties(render::property_block()
                         .sampler("u_texture", render::sampler_state()
-                              .texture(texture_p->content())
-                              .min_filter(min_filter)
-                              .mag_filter(mag_filter)))
-                        .add_pass(render::pass_state()
-                            .states(render::state_block()
-                                .capabilities(render::capabilities_state()
-                                    .blending(true)
-                                    .depth_test(false))
-                                .blending(render::blending_state()
-                                    .src_factor(render::blending_factor::src_alpha)
-                                    .dst_factor(render::blending_factor::one_minus_src_alpha)))
-                            .shader(shader_p->content()));
-                    r.materials({material_asset::create(mat)});
+                            .texture(texture_p->content())
+                            .min_filter(min_filter)
+                            .mag_filter(mag_filter)));
                 }
             });
 
