@@ -23,9 +23,7 @@ namespace
     str read_tag(const str& buf, u32& pos) {
         str res;
         auto end = buf.find(' ', pos);
-        if ( end == str::npos ) {
-            throw bmfont_loading_exception();
-        } else {
+        if ( end != str::npos ) {
             res = buf.substr(pos, end - pos);
             pos = end;
         }
@@ -49,7 +47,7 @@ namespace
     }
 
     i32 read_int(const str& buf, u32& pos) {
-        i32 res;
+        i32 res{0};
         auto end = buf.find(' ', pos);
         if ( end == str::npos ) {
             end = buf.find('\n', pos);
@@ -94,6 +92,10 @@ namespace
         vector<font::char_data> chars;
         vector<font::kerning_data> kernings;
 
+        if (s.back() != '\n') {
+            s.push_back('\n');
+        }
+
         chars.reserve(120);
         kernings.reserve(120);
         size_t start_line{0};
@@ -101,7 +103,6 @@ namespace
         while ( end_line != str::npos ) {
             pos = 0;
             line = s.substr(start_line, end_line - start_line + 1);
-            line[line.size()-1] = '\n';
             tag = read_tag(line, pos);
             if ( tag == "info" ) {
                 // info face="Arial-Black" size=32 bold=0 italic=0 charset=""
@@ -197,9 +198,12 @@ namespace
                 }
                 kernings.push_back(std::move(k));
             }
-
-            start_line = end_line + 1;
+            start_line = s.find_first_not_of(' ', end_line + 1);
             end_line = s.find('\n', start_line);
+        }
+
+        if (chars.empty()) {
+            throw bmfont_loading_exception();
         }
 
         data.chars.reserve(chars.size());
