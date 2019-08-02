@@ -14,6 +14,7 @@
 #include "deferrer.hpp"
 #include "engine.hpp"
 #include "input.hpp"
+#include "network.hpp"
 #include "platform.hpp"
 #include "render.hpp"
 #include "render.inl"

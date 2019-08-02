@@ -21,6 +21,27 @@ namespace
 {
     using namespace e2d;
 
+    struct stb_write_context {
+        vector<u8> data;
+        std::exception_ptr exception{nullptr};
+    };
+
+    void stb_write_callback(void *context, void *data, int size) {
+        E2D_ASSERT(context && data && size > 0);
+        stb_write_context& ctx = *static_cast<stb_write_context*>(context);
+        if ( ctx.exception ) {
+            return;
+        }
+        try {
+            ctx.data.insert(
+                ctx.data.cend(),
+                reinterpret_cast<u8*>(data),
+                reinterpret_cast<u8*>(data) + math::numeric_cast<std::size_t>(size));
+        } catch (...) {
+            ctx.exception = std::current_exception();
+        }
+    }
+
     int stb_channels_from_image_format(image_data_format format) noexcept {
         switch ( format ) {
             case image_data_format::g8:    return 1;
@@ -30,70 +51,85 @@ namespace
             default:                       return 0;
         }
     }
-
-    void stb_write_callback(void *context, void *data, int size) {
-        E2D_ASSERT(context && data && size > 0);
-        vector<u8>& ctx = *static_cast<vector<u8>*>(context);
-        ctx.insert(
-            ctx.cend(),
-            reinterpret_cast<u8*>(data),
-            reinterpret_cast<u8*>(data) + math::numeric_cast<std::size_t>(size));
-    }
 }
 
 namespace e2d::images::impl
 {
-    bool try_save_image_jpg(const image& src, buffer& dst) noexcept {
+    bool save_image_jpg(const image& src, buffer& dst) {
         int img_w = math::numeric_cast<int>(src.size().x);
         int img_h = math::numeric_cast<int>(src.size().y);
         int img_c = stb_channels_from_image_format(src.format());
-        try {
-            vector<u8> data;
-            if ( 0 != stbi_write_jpg_to_func(
-                stb_write_callback, &data, img_w, img_h, img_c, src.data().data(), 80) )
-            {
-                dst.assign(data.data(), data.size());
-                return true;
-            }
-        } catch (...) {
-            // nothing
+        const auto write_ctx = std::make_unique<stb_write_context>();
+
+        if ( !stbi_write_jpg_to_func(
+            stb_write_callback,
+            write_ctx.get(),
+            img_w,
+            img_h,
+            img_c,
+            src.data().data(),
+            80) )
+        {
+            return false;
         }
-        return false;
+
+        if ( write_ctx->exception ) {
+            std::rethrow_exception(write_ctx->exception);
+        }
+
+        dst.assign(write_ctx->data.data(), write_ctx->data.size());
+        return true;
     }
 
-    bool try_save_image_png(const image& src, buffer& dst) noexcept {
+    bool save_image_png(const image& src, buffer& dst) {
         int img_w = math::numeric_cast<int>(src.size().x);
         int img_h = math::numeric_cast<int>(src.size().y);
         int img_c = stb_channels_from_image_format(src.format());
-        try {
-            vector<u8> data;
-            if ( 0 != stbi_write_png_to_func(
-                stb_write_callback, &data, img_w, img_h, img_c, src.data().data(), img_w * img_c) )
-            {
-                dst.assign(data.data(), data.size());
-                return true;
-            }
-        } catch (...) {
-            // nothing
+        const auto write_ctx = std::make_unique<stb_write_context>();
+
+        if ( !stbi_write_png_to_func(
+            stb_write_callback,
+            write_ctx.get(),
+            img_w,
+            img_h,
+            img_c,
+            src.data().data(),
+            img_w * img_c) )
+        {
+            return false;
         }
-        return false;
+
+        if ( write_ctx->exception ) {
+            std::rethrow_exception(write_ctx->exception);
+        }
+
+        dst.assign(write_ctx->data.data(), write_ctx->data.size());
+        return true;
     }
 
-    bool try_save_image_tga(const image& src, buffer& dst) noexcept {
+    bool save_image_tga(const image& src, buffer& dst) {
         int img_w = math::numeric_cast<int>(src.size().x);
         int img_h = math::numeric_cast<int>(src.size().y);
         int img_c = stb_channels_from_image_format(src.format());
-        try {
-            vector<u8> data;
-            if ( 0 != stbi_write_tga_to_func(
-                stb_write_callback, &data, img_w, img_h, img_c, src.data().data()) )
-            {
-                dst.assign(data.data(), data.size());
-                return true;
-            }
-        } catch (...) {
-            // nothing
+        const auto write_ctx = std::make_unique<stb_write_context>();
+
+        vector<u8> data;
+        if ( !stbi_write_tga_to_func(
+            stb_write_callback,
+            write_ctx.get(),
+            img_w,
+            img_h,
+            img_c,
+            src.data().data()) )
+        {
+            return false;
         }
-        return false;
+
+        if ( write_ctx->exception ) {
+            std::rethrow_exception(write_ctx->exception);
+        }
+
+        dst.assign(write_ctx->data.data(), write_ctx->data.size());
+        return true;
     }
 }

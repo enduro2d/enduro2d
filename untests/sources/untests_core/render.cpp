@@ -7,15 +7,30 @@
 #include "_core.hpp"
 using namespace e2d;
 
+namespace
+{
+    class safe_engine_initializer final : private noncopyable {
+    public:
+        safe_engine_initializer() {
+            modules::initialize<engine>(0, nullptr,
+                engine::parameters("renderer_untests", "enduro2d"));
+        }
+
+        ~safe_engine_initializer() noexcept {
+            modules::shutdown<engine>();
+        }
+    };
+}
+
 TEST_CASE("render"){
+    safe_engine_initializer initializer;
     SECTION("sampler_state"){
         {
             const auto ss = render::sampler_state();
             REQUIRE_FALSE(ss.texture());
             REQUIRE(ss.s_wrap() == render::sampler_wrap::repeat);
             REQUIRE(ss.t_wrap() == render::sampler_wrap::repeat);
-            REQUIRE(ss.r_wrap() == render::sampler_wrap::repeat);
-            REQUIRE(ss.min_filter() == render::sampler_min_filter::nearest_mipmap_linear);
+            REQUIRE(ss.min_filter() == render::sampler_min_filter::linear);
             REQUIRE(ss.mag_filter() == render::sampler_mag_filter::linear);
         }
         {
@@ -24,7 +39,6 @@ TEST_CASE("render"){
                 .filter(render::sampler_min_filter::linear, render::sampler_mag_filter::nearest);
             REQUIRE(ss.s_wrap() == render::sampler_wrap::clamp);
             REQUIRE(ss.t_wrap() == render::sampler_wrap::clamp);
-            REQUIRE(ss.r_wrap() == render::sampler_wrap::clamp);
             REQUIRE(ss.min_filter() == render::sampler_min_filter::linear);
             REQUIRE(ss.mag_filter() == render::sampler_mag_filter::nearest);
         }
@@ -168,5 +182,94 @@ TEST_CASE("render"){
         vd4 = vd3;
         REQUIRE(vd4 != vd);
         REQUIRE(vd4 == vd3);
+    }
+    SECTION("update_texture"){
+        if ( modules::is_initialized<render>() ) {
+            render& r = the<render>();
+            {
+                texture_ptr tex = r.create_texture(v2u(128,128), pixel_declaration::pixel_type::rgba8);
+                REQUIRE(tex != nullptr);
+
+                buffer src;
+                src.resize(((tex->size().x * tex->decl().bits_per_pixel()) / 8u) * tex->size().y);
+                for ( auto& c : src ) {
+                    c = rand() % 255;
+                }
+                REQUIRE_NOTHROW(r.update_texture(tex, src, b2u(0, 0, 128, 128)));
+            }
+            {
+                texture_ptr tex = r.create_texture(v2u(128,128), pixel_declaration::pixel_type::g8);
+                REQUIRE(tex != nullptr);
+
+                buffer src;
+                src.resize(((tex->size().x * tex->decl().bits_per_pixel()) / 8u) * tex->size().y);
+                for ( auto& c : src ) {
+                    c = rand() % 255;
+                }
+                REQUIRE_NOTHROW(r.update_texture(tex, src, b2u(0, 0, 128, 128)));
+            }
+            {
+                texture_ptr tex = r.create_texture(v2u(128,128), pixel_declaration::pixel_type::rgb8);
+                REQUIRE(tex != nullptr);
+
+                buffer src;
+                src.resize(((tex->size().x * tex->decl().bits_per_pixel()) / 8u) * tex->size().y);
+                for ( auto& c : src ) {
+                    c = rand() % 255;
+                }
+                REQUIRE_NOTHROW(r.update_texture(tex, src, b2u(0, 0, 128, 128)));
+            }
+            {
+                texture_ptr tex = r.create_texture(v2u(57,31), pixel_declaration::pixel_type::rgba8);
+                REQUIRE(tex != nullptr);
+
+                buffer src;
+                src.resize(((tex->size().x * tex->decl().bits_per_pixel()) / 8u) * tex->size().y);
+                for ( auto& c : src ) {
+                    c = rand() % 255;
+                }
+                REQUIRE_NOTHROW(r.update_texture(tex, src, b2u(0, 0, 57, 31)));
+            }
+            {
+                texture_ptr tex = r.create_texture(v2u(128,128), pixel_declaration::pixel_type::rgba8);
+                REQUIRE(tex != nullptr);
+
+                buffer src;
+                src.resize(((31 * tex->decl().bits_per_pixel()) / 8u) * 44);
+                for ( auto& c : src ) {
+                    c = rand() % 255;
+                }
+                REQUIRE_NOTHROW(r.update_texture(tex, src, b2u(22, 17, 31, 44)));
+            }
+            {
+                texture_ptr tex = r.create_texture(v2u(128,128), pixel_declaration::pixel_type::rgba8);
+                REQUIRE(tex != nullptr);
+
+                buffer src;
+                src.resize(((31 * tex->decl().bits_per_pixel()) / 8u) * 44);
+                for ( auto& c : src ) {
+                    c = rand() % 255;
+                }
+
+                image img(v2u(31, 44), image_data_format::ga8, src);
+                REQUIRE_THROWS_AS(
+                    r.update_texture(tex, img, v2u(11,27)),
+                    bad_render_operation);
+            }
+
+            if ( r.device_capabilities().dxt_compression_supported ) {
+                str resources;
+                REQUIRE(filesystem::extract_predef_path(
+                    resources,
+                    filesystem::predef_path::resources));
+
+                image src;
+                REQUIRE(images::try_load_image(src, make_read_file(path::combine(resources, "bin/images/ship_rgba.dds"))));
+
+                texture_ptr tex = r.create_texture(src.size(), pixel_declaration::pixel_type::rgba_dxt5);
+                REQUIRE(tex != nullptr);
+                REQUIRE_NOTHROW(r.update_texture(tex, src, v2u(0,0)));
+            }
+        }
     }
 }

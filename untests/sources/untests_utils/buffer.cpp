@@ -170,6 +170,22 @@ TEST_CASE("buffer") {
         }
     #endif
     }
+    {
+        const u8 data[] = {1,2,3};
+        buffer b(data, std::size(data) * sizeof(data[0]));
+
+        const auto con_str = [](std::string acc, u8 ch){
+            return acc + std::to_string(ch);
+        };
+
+        REQUIRE(std::accumulate(b.begin(), b.end(), std::string(), con_str) == "123");
+        REQUIRE(std::accumulate(std::as_const(b).begin(), std::as_const(b).end(), std::string(), con_str) == "123");
+        REQUIRE(std::accumulate(b.cbegin(), b.cend(), std::string(), con_str) == "123");
+
+        REQUIRE(std::accumulate(b.rbegin(), b.rend(), std::string(), con_str) == "321");
+        REQUIRE(std::accumulate(std::as_const(b).rbegin(), std::as_const(b).rend(), std::string(), con_str) == "321");
+        REQUIRE(std::accumulate(b.crbegin(), b.crend(), std::string(), con_str) == "321");
+    }
 }
 
 TEST_CASE("buffer_view") {
