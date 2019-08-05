@@ -22,8 +22,11 @@ namespace e2d
         spine_player() = default;
         spine_player(const spine_model_asset::ptr& model);
         
-        spine_player& set_animation(int track, const str& name, bool loop);
-        spine_player& add_animation(int track, const str& name, bool loop, secf delay);
+        spine_player& set_animation(u32 track, const str& name, bool loop);
+        spine_player& add_animation(u32 track, const str& name, bool loop, secf delay);
+        spine_player& add_empty_animation(u32 track, secf duration, secf delay);
+        spine_player& clear(u32 track);
+        spine_player& clear();
         
         const animation_ptr& animation() const noexcept;
         const spine_model_asset::ptr& model() const noexcept;
@@ -45,8 +48,4 @@ namespace e2d
             asset_dependencies& dependencies,
             const collect_context& ctx) const;
     };
-}
-
-namespace e2d
-{
 }

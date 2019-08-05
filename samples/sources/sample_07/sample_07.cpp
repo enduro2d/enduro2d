@@ -53,10 +53,11 @@ namespace
         }
     private:
         bool create_scene() {
-            auto spine_res = the<library>().load_asset<spine_model_asset>("spine_raptor.json");
+            auto spine_raptor = the<library>().load_asset<spine_model_asset>("spine_raptor.json");
+            auto spine_coin = the<library>().load_asset<spine_model_asset>("spine_coin.json");
             auto spine_mat = the<library>().load_asset<material_asset>("spine_material.json");
 
-            if ( !spine_res || !spine_mat ) {
+            if ( !spine_raptor || !spine_coin || !spine_mat ) {
                 return false;
             }
             
@@ -69,19 +70,33 @@ namespace
             node_iptr scene_r = scene_i->get_component<actor>().get().node();
             
         #if 1
-            auto spine_i = the<world>().instantiate();
-            spine_i->entity_filler()
-                .component<actor>(node::create(spine_i, scene_r))
+            auto coin_i = the<world>().instantiate();
+            coin_i->entity_filler()
+                .component<actor>(node::create(coin_i, scene_r))
                 .component<renderer>(renderer()
                     .materials({spine_mat}))
-                .component<spine_renderer>(spine_renderer(spine_res))
-                .component<spine_player>(spine_player(spine_res)
+                .component<spine_renderer>(spine_renderer(spine_coin))
+                .component<spine_player>(spine_player(spine_coin)
+                    .set_animation(0, "animation", true));
+            
+            node_iptr coin_n = coin_i->get_component<actor>().get().node();
+            coin_n->scale(v3f(0.5f));
+            coin_n->translation(v3f{150.0f, 0.0f, 0.0f});
+
+            auto raptor_i = the<world>().instantiate();
+            raptor_i->entity_filler()
+                .component<actor>(node::create(raptor_i, scene_r))
+                .component<renderer>(renderer()
+                    .materials({spine_mat}))
+                .component<spine_renderer>(spine_renderer(spine_raptor))
+                .component<spine_player>(spine_player(spine_raptor)
                     .set_animation(0, "walk", true)
                     .add_animation(1, "gun-grab", false, secf(2.0f)));
             
-            node_iptr spine_n = spine_i->get_component<actor>().get().node();
-            spine_n->scale(v3f(0.25f));
-            spine_n->translation(v3f{-40.f, -100.f, 0.0f});
+            node_iptr raptor_n = raptor_i->get_component<actor>().get().node();
+            raptor_n->scale(v3f(0.25f));
+            raptor_n->translation(v3f{-170.f, -100.f, 0.0f});
+
         #else
             // performace test
             for ( std::size_t i = 0; i < 20; ++i )
@@ -91,8 +106,8 @@ namespace
                     .component<actor>(node::create(spine_i, scene_r))
                     .component<renderer>(renderer()
                         .materials({spine_mat}))
-                    .component<spine_renderer>(spine_renderer(spine_res))
-                    .component<spine_player>(spine_player(spine_res)
+                    .component<spine_renderer>(spine_renderer(spine_raptor))
+                    .component<spine_player>(spine_player(spine_raptor)
                         .set_animation(0, "walk", true)
                         .add_animation(1, "gun-grab", false, secf(2.0f)));
             

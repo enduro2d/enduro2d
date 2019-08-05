@@ -84,22 +84,22 @@ namespace
 
         for ( rapidjson::SizeType i = 0; i < root.Size(); ++i ) {
             E2D_ASSERT(root[i].IsObject());
-            const auto& sprite_json = root[i];
+            const auto& item_json = root[i];
 
-            E2D_ASSERT(sprite_json.HasMember("from_anim"));
-            if ( !json_utils::try_parse_value(sprite_json["from_anim"], from_anim) ) {
+            E2D_ASSERT(item_json.HasMember("from_anim"));
+            if ( !json_utils::try_parse_value(item_json["from_anim"], from_anim) ) {
                 the<debug>().error("SPINE: Incorrect formatting of 'from_anim' property");
                 return false;
             }
 
-            E2D_ASSERT(sprite_json.HasMember("to_anim"));
-            if ( !json_utils::try_parse_value(sprite_json["to_anim"], to_anim) ) {
+            E2D_ASSERT(item_json.HasMember("to_anim"));
+            if ( !json_utils::try_parse_value(item_json["to_anim"], to_anim) ) {
                 the<debug>().error("SPINE: Incorrect formatting of 'to_anim' property");
                 return false;
             }
 
-            E2D_ASSERT(sprite_json.HasMember("duration"));
-            if ( !json_utils::try_parse_value(sprite_json["duration"], duration.value) ) {
+            E2D_ASSERT(item_json.HasMember("duration"));
+            if ( !json_utils::try_parse_value(item_json["duration"], duration.value) ) {
                 the<debug>().error("SPINE: Incorrect formatting of 'duration' property");
                 return false;
             }
