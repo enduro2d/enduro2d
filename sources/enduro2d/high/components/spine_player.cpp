@@ -122,10 +122,16 @@ namespace e2d
         const fill_context& ctx) const
     {
         if ( ctx.root.HasMember("model") ) {
-            
-            spine_model_asset::load_result model =
-                the<library>().load_asset<spine_model_asset>(
-                    path::combine(ctx.parent_address, ctx.root["model"].GetString()));
+            auto model = ctx.dependencies.find_asset<spine_model_asset>(
+                path::combine(ctx.parent_address, ctx.root["model"].GetString()));
+            if ( !model ) {
+                the<debug>().error("SPINE_PLAYER: Dependency 'model' is not found:\n"
+                    "--> Parent address: %s\n"
+                    "--> Dependency address: $s",
+                    ctx.parent_address,
+                    ctx.root["model"].GetString());
+                return false;
+            }
             component = spine_player(model);
         } else {
             the<debug>().error("SPINE_PLAYER: Property 'model' is not found");
