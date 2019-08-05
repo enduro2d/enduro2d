@@ -70,6 +70,10 @@ namespace e2d::images::impl
             hdr.ddspf.dwSize = 32;
             hdr.ddspf.dwFlags = 0;
             hdr.ddspf.dwFourCC = 0;
+            hdr.ddspf.dwRBitMask = 0;
+            hdr.ddspf.dwGBitMask = 0;
+            hdr.ddspf.dwBBitMask = 0;
+            hdr.ddspf.dwABitMask = 0;
             switch ( src.format() ) {
                 case image_data_format::g8:
                     hdr.ddspf.dwRGBBitCount = 8;
@@ -77,13 +81,18 @@ namespace e2d::images::impl
                 case image_data_format::rgb8:
                     hdr.ddspf.dwFlags |= ddsf_rgb;
                     hdr.ddspf.dwRGBBitCount = 24;
-                    hdr.ddspf.dwRBitMask = 0x00FF0000;
+                    hdr.ddspf.dwRBitMask = 0x000000FF;
                     hdr.ddspf.dwGBitMask = 0x0000FF00;
-                    hdr.ddspf.dwBBitMask = 0x000000FF;
+                    hdr.ddspf.dwBBitMask = 0x00FF0000;
+                    hdr.ddspf.dwABitMask = 0x00000000;
                     break;
                 case image_data_format::rgba8:
                     hdr.ddspf.dwFlags |= ddsf_rgba;
                     hdr.ddspf.dwRGBBitCount = 32;
+                    hdr.ddspf.dwRBitMask = 0x000000FF;
+                    hdr.ddspf.dwGBitMask = 0x0000FF00;
+                    hdr.ddspf.dwBBitMask = 0x00FF0000;
+                    hdr.ddspf.dwABitMask = 0xFF000000;
                     break;
                 case image_data_format::rgb_dxt1:
                     hdr.ddspf.dwFlags |= ddsf_fourcc;
