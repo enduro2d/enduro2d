@@ -96,7 +96,7 @@ namespace e2d::images::impl
             hdr.pixelFormat0 = pixel_format & 0x00000000'FFFFFFFFull;
             hdr.pixelFormat1 = pixel_format >> 32;
             hdr.colorSpace = static_cast<u32>(pvr_color_space::linear);
-            hdr.channelType = 2;//unsigned byte
+            hdr.channelType = static_cast<u32>(pvr_channel_type::ubyte);
             hdr.height = src.size().y;
             hdr.width = src.size().x;
             hdr.depth = 0;
