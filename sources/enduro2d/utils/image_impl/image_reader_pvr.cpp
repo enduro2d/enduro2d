@@ -5,6 +5,7 @@
  ******************************************************************************/
 
 #include "image_impl.hpp"
+#include "image_impl_structures.hpp"
 
 namespace
 {
@@ -12,101 +13,7 @@ namespace
     // https://cdn.imgtec.com/sdk-documentation/PVR+File+Format.Specification.pdf
 
     using namespace e2d;
-
-    enum class pvr_flags : u32 {
-        none = 0,
-        premultiplied = 0x02,
-    };
-
-    enum class pvr_pixel_format : u64 {
-        pvrtc_2bpp_rgb = 0,
-        pvrtc_2bpp_rgba = 1,
-        pvrtc_4bpp_rgb = 2,
-        pvrtc_4bpp_rgba = 3,
-        pvrtc_ii_2bpp = 4,
-        pvrtc_ii_4bpp = 5,
-        etc1 = 6,
-        dxt1 = 7,
-        dxt2 = 8,
-        dxt3 = 9,
-        dxt4 = 10,
-        dxt5 = 11,
-        bc1 = 7,
-        bc2 = 9,
-        bc3 = 11,
-        bc4 = 12,
-        bc5 = 13,
-        bc6 = 14,
-        bc7 = 15,
-        uyvy = 16,
-        yuy2 = 17,
-        bw_1bpp = 18,
-        r9g9b9e5 = 19,
-        rgbg8888 = 20,
-        grgb8888 = 21,
-        etc2_rgb = 22,
-        etc2_rgba = 23,
-        etc2_rgb_a1 = 24,
-        eac_r11 = 25,
-        eac_rg11 = 26,
-        astc_4x4 = 27,
-        astc_5x4 = 28,
-        astc_5x5 = 29,
-        astc_6x5 = 30,
-        astc_6x6 = 31,
-        astc_8x5 = 32,
-        astc_8x6 = 33,
-        astc_8x8 = 34,
-        astc_10x5 = 35,
-        astc_10x6 = 36,
-        astc_10x8 = 37,
-        astc_10x10 = 38,
-        astc_12x10 = 39,
-        astc_12x12 = 40,
-        rgba8 = 0x08080808'61626772ull,
-        r8 = 0x00000008'00000072ull,
-        rg8 = 0x00000808'00006772ull,
-        rgb8 = 0x00080808'00626772ull,
-    };
-
-    enum class pvr_color_space : u32 {
-        linear = 0,
-        srgb = 1,
-    };
-
-    enum class pvr_channel_type : u32 {
-        byte_unorm = 0,
-        byte_snorm = 1,
-        ubyte = 2,
-        sbyte = 3,
-        short_unorm = 4,
-        short_snorm = 5,
-        ushort = 6,
-        sshort = 7,
-        int_unorm = 8,
-        int_snorm = 9,
-        uint = 10,
-        sint = 11,
-        sfloat = 12,
-    };
-
-    struct pvr_header {
-        u32 version;
-        u32 flags;
-        u32 pixelFormat0;
-        u32 pixelFormat1;
-        u32 colorSpace;
-        u32 channelType;
-        u32 height;
-        u32 width;
-        u32 depth;
-        u32 numSurfaces;
-        u32 numFaces;
-        u32 mipMapCount;
-        u32 metaDataSize;
-    };
-
-    static_assert(sizeof(pvr_header) == 52, "invalid PVR header size");
+    using namespace e2d::images::impl::pvr;
 
     bool is_pvr(const void* data, std::size_t byte_size) noexcept {
         if ( byte_size > sizeof(pvr_header) ) {

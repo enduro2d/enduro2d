@@ -53,6 +53,16 @@ TEST_CASE("images") {
             image_file_format::tga,
             make_write_file("image_save_test.tga", false)));
         REQUIRE(filesystem::file_exists("image_save_test.tga"));
+        REQUIRE(images::try_save_image(
+            img,
+            image_file_format::pvr,
+            make_write_file("image_save_test.pvr", false)));
+        REQUIRE(filesystem::file_exists("image_save_test.pvr"));
+        REQUIRE(images::try_save_image(
+            img,
+            image_file_format::dds,
+            make_write_file("image_save_test.dds", false)));
+        REQUIRE(filesystem::file_exists("image_save_test.dds"));
     }
     {
         image img;
@@ -77,11 +87,27 @@ TEST_CASE("images") {
         REQUIRE(math::approximately(img.pixel32(0,0), color32::red(),   0u));
         REQUIRE(math::approximately(img.pixel32(1,0), color32::green(), 0u));
         REQUIRE(math::approximately(img.pixel32(2,0), color32::blue(),  0u));
+
+        REQUIRE(images::try_load_image(img, make_read_file("image_save_test.pvr")));
+        REQUIRE(img.size() == v2u(3,1));
+        REQUIRE(img.format() == image_data_format::rgb8);
+        REQUIRE(math::approximately(img.pixel32(0,0), color32::red(),   0u));
+        REQUIRE(math::approximately(img.pixel32(1,0), color32::green(), 0u));
+        REQUIRE(math::approximately(img.pixel32(2,0), color32::blue(),  0u));
+
+        REQUIRE(images::try_load_image(img, make_read_file("image_save_test.dds")));
+        REQUIRE(img.size() == v2u(3,1));
+        REQUIRE(img.format() == image_data_format::rgb8);
+        REQUIRE(math::approximately(img.pixel32(0,0), color32::red(),   0u));
+        REQUIRE(math::approximately(img.pixel32(1,0), color32::green(), 0u));
+        REQUIRE(math::approximately(img.pixel32(2,0), color32::blue(),  0u));
     }
     {
         REQUIRE(filesystem::remove_file("image_save_test.jpg"));
         REQUIRE(filesystem::remove_file("image_save_test.png"));
         REQUIRE(filesystem::remove_file("image_save_test.tga"));
+        REQUIRE(filesystem::remove_file("image_save_test.pvr"));
+        REQUIRE(filesystem::remove_file("image_save_test.dds"));
         const u8 img_data[] = {255,0,0, 0,255,0, 0,0,255};
         image img(v2u(3,1), image_data_format::rgb8, buffer(img_data, sizeof(img_data)));
         buffer buf;
@@ -100,6 +126,16 @@ TEST_CASE("images") {
             image_file_format::tga,
             buf));
         REQUIRE(filesystem::try_write_all(buf, "image_save_test.tga", false));
+        REQUIRE(images::try_save_image(
+            img,
+            image_file_format::pvr,
+            buf));
+        REQUIRE(filesystem::try_write_all(buf, "image_save_test.pvr", false));
+        REQUIRE(images::try_save_image(
+            img,
+            image_file_format::dds,
+            buf));
+        REQUIRE(filesystem::try_write_all(buf, "image_save_test.dds", false));
     }
     {
         image img;
@@ -122,6 +158,22 @@ TEST_CASE("images") {
         REQUIRE(math::approximately(img.pixel32(2,0), color32::blue(),  0));
 
         REQUIRE(filesystem::try_read_all(buf, "image_save_test.tga"));
+        REQUIRE(images::try_load_image(img, buf));
+        REQUIRE(img.size() == v2u(3,1));
+        REQUIRE(img.format() == image_data_format::rgb8);
+        REQUIRE(math::approximately(img.pixel32(0,0), color32::red(),   0));
+        REQUIRE(math::approximately(img.pixel32(1,0), color32::green(), 0));
+        REQUIRE(math::approximately(img.pixel32(2,0), color32::blue(),  0));
+
+        REQUIRE(filesystem::try_read_all(buf, "image_save_test.pvr"));
+        REQUIRE(images::try_load_image(img, buf));
+        REQUIRE(img.size() == v2u(3,1));
+        REQUIRE(img.format() == image_data_format::rgb8);
+        REQUIRE(math::approximately(img.pixel32(0,0), color32::red(),   0));
+        REQUIRE(math::approximately(img.pixel32(1,0), color32::green(), 0));
+        REQUIRE(math::approximately(img.pixel32(2,0), color32::blue(),  0));
+
+        REQUIRE(filesystem::try_read_all(buf, "image_save_test.dds"));
         REQUIRE(images::try_load_image(img, buf));
         REQUIRE(img.size() == v2u(3,1));
         REQUIRE(img.format() == image_data_format::rgb8);

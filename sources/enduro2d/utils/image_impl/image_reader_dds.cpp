@@ -5,6 +5,7 @@
  ******************************************************************************/
 
 #include "image_impl.hpp"
+#include "image_impl_structures.hpp"
 
 namespace
 {
@@ -12,51 +13,7 @@ namespace
     // https://docs.microsoft.com/en-us/windows/desktop/direct3ddds/dx-graphics-dds-pguide
 
     using namespace e2d;
-
-    // pixel format flags
-    const u32 ddsf_alphapixels = 0x00000001;
-    const u32 ddsf_fourcc = 0x00000004;
-    const u32 ddsf_rgb = 0x00000040;
-    const u32 ddsf_rgba = 0x00000041;
-
-    // dwCaps2 flags
-    const u32 ddsf_cubemap = 0x00000200;
-    const u32 ddsf_volume = 0x00200000;
-
-    // compressed texture types
-    const u32 fourcc_dxt1 = 0x31545844; // 'DXT1'
-    const u32 fourcc_dxt3 = 0x33545844; // 'DXT3'
-    const u32 fourcc_dxt5 = 0x35545844; // 'DXT5'
-
-    struct dds_pixel_format {
-        u32 dwSize;
-        u32 dwFlags;
-        u32 dwFourCC;
-        u32 dwRGBBitCount;
-        u32 dwRBitMask;
-        u32 dwGBitMask;
-        u32 dwBBitMask;
-        u32 dwABitMask;
-    };
-
-    struct dds_header {
-        u32 dwMagic;
-        u32 dwSize;
-        u32 dwFlags;
-        u32 dwHeight;
-        u32 dwWidth;
-        u32 dwPitchOrLinearSize;
-        u32 dwDepth;
-        u32 dwMipMapCount;
-        u32 dwReserved1[11];
-        dds_pixel_format ddspf;
-        u32 dwCaps1;
-        u32 dwCaps2;
-        u32 dwReserved2[3];
-    };
-
-    static_assert(sizeof(dds_pixel_format) == 32, "invalid dds_pixel_format structure size");
-    static_assert(sizeof(dds_header) == 128, "invalid dds_header structure size");
+    using namespace e2d::images::impl::dds;
 
     bool is_dds(const void* data, std::size_t byte_size) noexcept {
         if ( byte_size > sizeof(dds_header) ) {
