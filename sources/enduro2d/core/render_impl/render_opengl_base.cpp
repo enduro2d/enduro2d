@@ -127,6 +127,7 @@ namespace
 
         gl_210 = 210 | gl_bit_,
         gl_300 = 300 | gl_bit_,
+        gl_410 = 410 | gl_bit_,
         gles_200 = 200 | gles_bit_,
         gles_300 = 300 | gles_bit_
     };
@@ -1367,7 +1368,8 @@ namespace e2d::opengl
         caps.profile =
             version >= gl_version::gles_300 ? render::api_profile::opengles3 :
             version >= gl_version::gles_200 ? render::api_profile::opengles2 :
-            render::api_profile::opengl_compat;
+            version >= gl_version::gl_410 ? render::api_profile::opengl4_compat :
+            render::api_profile::opengl2_compat;
 
         caps.npot_texture_supported =
             version >= gl_version::gl_210 ||
@@ -1429,6 +1431,10 @@ namespace e2d::opengl
         caps.pvrtc2_compression_supported =
             gl_has_any_extension(debug,
                 "GL_IMG_texture_compression_pvrtc2");
+    }
+    
+    bool gl_has_extension(debug& debug, str_view name) noexcept {
+        return gl_has_any_extension(debug, name);
     }
 
     gl_shader_id gl_compile_shader(

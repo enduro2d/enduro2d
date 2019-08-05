@@ -871,7 +871,8 @@ namespace e2d
             unknown,
             opengles2,
             opengles3,
-            opengl_compat
+            opengl2_compat,
+            opengl4_compat
         };
 
         struct device_caps {
