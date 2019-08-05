@@ -1194,7 +1194,6 @@ namespace e2d
         E2D_ASSERT(is_in_main_thread());
         const device_caps& caps = device_capabilities();
         switch ( decl.type() ) {
-            case index_declaration::index_type::unsigned_byte:
             case index_declaration::index_type::unsigned_short:
                 return true;
             case index_declaration::index_type::unsigned_int:

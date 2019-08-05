@@ -102,7 +102,6 @@ namespace e2d
     class index_declaration final {
     public:
         enum class index_type : u8 {
-            unsigned_byte,
             unsigned_short,
             unsigned_int
         };

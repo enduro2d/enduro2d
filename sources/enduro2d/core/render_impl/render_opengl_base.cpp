@@ -885,7 +885,6 @@ namespace e2d::opengl
     GLenum convert_index_type(index_declaration::index_type it) noexcept {
         #define DEFINE_CASE(x,y) case index_declaration::index_type::x: return y;
         switch ( it ) {
-            DEFINE_CASE(unsigned_byte, GL_UNSIGNED_BYTE);
             DEFINE_CASE(unsigned_short, GL_UNSIGNED_SHORT);
             DEFINE_CASE(unsigned_int, GL_UNSIGNED_INT);
             default:
