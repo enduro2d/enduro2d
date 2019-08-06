@@ -14,10 +14,11 @@
 
 namespace e2d
 {
-    spine_system::spine_system()
-    {}
+    spine_system::spine_system() {}
 
-    spine_system::~spine_system() noexcept = default;
+    spine_system::~spine_system() noexcept {
+        spAnimationState_disposeStatics();
+    }
 
     void spine_system::process(ecs::registry& owner) {
         float dt = the<engine>().delta_time();

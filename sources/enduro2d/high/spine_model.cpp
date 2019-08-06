@@ -80,8 +80,11 @@ namespace e2d
 
     spine_model& spine_model::mix_animations(const str& from, const str& to, secf duration) {
         E2D_ASSERT(animation_);
-       spAnimationStateData_setMixByName(animation_.get(), from.c_str(), to.c_str(), duration.value);
-       return *this;
+        E2D_ASSERT(spSkeletonData_findAnimation(animation_->skeletonData, from.c_str()));
+        E2D_ASSERT(spSkeletonData_findAnimation(animation_->skeletonData, to.c_str()));
+
+        spAnimationStateData_setMixByName(animation_.get(), from.c_str(), to.c_str(), duration.value);
+        return *this;
     }
 
     const spine_model::atlas_ptr& spine_model::atlas() const noexcept {

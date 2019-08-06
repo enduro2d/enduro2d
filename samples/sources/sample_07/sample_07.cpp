@@ -11,6 +11,11 @@ namespace
 {
     class game_system final : public ecs::system {
     public:
+        game_system(gobject_iptr raptor)
+        : raptor_gobj_(raptor) {}
+
+        ~game_system() noexcept override {}
+
         void process(ecs::registry& owner) override {
             E2D_UNUSED(owner);
             const keyboard& k = the<input>().keyboard();
@@ -26,7 +31,35 @@ namespace
             if ( k.is_key_pressed(keyboard_key::lsuper) && k.is_key_just_released(keyboard_key::enter) ) {
                 the<window>().toggle_fullscreen(!the<window>().fullscreen());
             }
+            
+            // use keys R, J, G to start animations
+            if ( raptor_gobj_ ) {
+                if ( k.is_key_just_pressed(keyboard_key::r) ) {
+                    auto player = raptor_gobj_->get_component<spine_player>();
+                    if ( player ) {
+                        (*player).set_animation(0, "roar")
+                            .add_animation(0, "walk", true);
+                    }
+                }
+                if ( k.is_key_just_pressed(keyboard_key::j) ) {
+                    auto player = raptor_gobj_->get_component<spine_player>();
+                    if ( player ) {
+                        (*player).set_animation(0, "jump")
+                            .add_animation(0, "walk", true);
+                    }
+                }
+                if ( k.is_key_just_pressed(keyboard_key::g) ) {
+                    auto player = raptor_gobj_->get_component<spine_player>();
+                    if ( player ) {
+                        (*player).set_animation(1, "gun-grab")
+                            .add_animation(1, "gun-holster", secf(3.0f));
+                    }
+                }
+            }
         }
+
+    private:
+        gobject_iptr raptor_gobj_;
     };
     
     class camera_system final : public ecs::system {
@@ -69,7 +102,6 @@ namespace
 
             node_iptr scene_r = scene_i->get_component<actor>().get().node();
             
-        #if 1
             auto coin_i = the<world>().instantiate();
             coin_i->entity_filler()
                 .component<actor>(node::create(coin_i, scene_r))
@@ -80,42 +112,22 @@ namespace
                     .set_animation(0, "animation", true));
             
             node_iptr coin_n = coin_i->get_component<actor>().get().node();
-            coin_n->scale(v3f(0.5f));
-            coin_n->translation(v3f{150.0f, 0.0f, 0.0f});
+            coin_n->scale(v3f(0.125f));
+            coin_n->translation(v3f{200.0f, 200.0f, 0.0f});
 
-            auto raptor_i = the<world>().instantiate();
-            raptor_i->entity_filler()
-                .component<actor>(node::create(raptor_i, scene_r))
+            raptor_gobj_ = the<world>().instantiate();
+            raptor_gobj_->entity_filler()
+                .component<actor>(node::create(raptor_gobj_, scene_r))
                 .component<renderer>(renderer()
                     .materials({spine_mat}))
                 .component<spine_renderer>(spine_renderer(spine_raptor))
                 .component<spine_player>(spine_player(spine_raptor)
-                    .set_animation(0, "walk", true)
-                    .add_animation(1, "gun-grab", false, secf(2.0f)));
+                    .set_animation(0, "walk", true));
             
-            node_iptr raptor_n = raptor_i->get_component<actor>().get().node();
+            node_iptr raptor_n = raptor_gobj_->get_component<actor>().get().node();
             raptor_n->scale(v3f(0.25f));
-            raptor_n->translation(v3f{-170.f, -100.f, 0.0f});
+            raptor_n->translation(v3f{-80.f, -100.f, 0.0f});
 
-        #else
-            // performace test
-            for ( std::size_t i = 0; i < 20; ++i )
-            for ( std::size_t j = 0; j < 40; ++j ) {
-                auto spine_i = the<world>().instantiate();
-                spine_i->entity_filler()
-                    .component<actor>(node::create(spine_i, scene_r))
-                    .component<renderer>(renderer()
-                        .materials({spine_mat}))
-                    .component<spine_renderer>(spine_renderer(spine_raptor))
-                    .component<spine_player>(spine_player(spine_raptor)
-                        .set_animation(0, "walk", true)
-                        .add_animation(1, "gun-grab", false, secf(2.0f)));
-            
-                node_iptr spine_n = spine_i->get_component<actor>().get().node();
-                spine_n->scale(v3f(0.05f));
-                spine_n->translation(v3f{-400.f, -300.f, 0.0f} + v3f{j * 30.f, i * 30.f, 0});
-            }
-        #endif
             return true;
         }
 
@@ -130,11 +142,14 @@ namespace
 
         bool create_systems() {
             ecs::registry_filler(the<world>().registry())
-                .system<game_system>(world::priority_update)
+                .system<game_system>(world::priority_update, raptor_gobj_)
                 .system<camera_system>(world::priority_pre_render)
                 .system<spine_system>(world::priority_update);
             return true;
         }
+
+    private:
+        gobject_iptr raptor_gobj_;
     };
 }
 

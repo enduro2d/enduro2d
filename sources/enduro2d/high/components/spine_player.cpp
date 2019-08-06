@@ -41,6 +41,10 @@ namespace e2d
         return *this;
     }
 
+    spine_player& spine_player::add_animation(u32 track, const str& name, secf delay) {
+        return add_animation(track, name, false, delay);
+    }
+
     spine_player& spine_player::add_animation(u32 track, const str& name, bool loop, secf delay) {
         E2D_ASSERT(model_ && animation_);
         E2D_ASSERT(track < max_track_count);

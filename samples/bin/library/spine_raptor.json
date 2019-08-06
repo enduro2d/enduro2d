@@ -1,6 +1,38 @@
 {
-    "skeleton" : "raptor/raptor-pro.json-large",
-    "atlas" : "raptor/raptor.atlas",
-    "scale" : 1.0,
-    "premultiplied_alpha" : false
+    "skeleton": "raptor/raptor-pro.json-large",
+    "atlas": "raptor/raptor.atlas",
+    "scale": 1.0,
+    "premultiplied_alpha": false,
+    "mix_animations": [
+        {
+            "from_anim": "walk",
+            "to_anim": "roar",
+            "duration": 0.5
+        },
+        {
+            "from_anim": "roar",
+            "to_anim": "walk",
+            "duration": 0.5
+        },
+        {
+            "from_anim": "walk",
+            "to_anim": "jump",
+            "duration": 0.5
+        },
+        {
+            "from_anim": "jump",
+            "to_anim": "walk",
+            "duration": 0.5
+        },
+        {
+            "from_anim": "roar",
+            "to_anim": "jump",
+            "duration": 0.5
+        },
+        {
+            "from_anim": "jump",
+            "to_anim": "roar",
+            "duration": 0.5
+        }
+    ]
 }

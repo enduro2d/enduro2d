@@ -32,10 +32,7 @@ namespace
             "scale" : { "type" : "number" },
             "atlas" : { "$ref" : "#/common_definitions/address" },
             "premultiplied_alpha" : { "type" : "boolean" },
-            "mix_animations" : {
-                "type" : "array",
-                "items" : { "$ref": "#/definitions/spine_animation_mix_array" }
-            }
+            "mix_animations" : { "$ref": "#/definitions/spine_animation_mix_array" }
         },
         "definitions" : {
             "spine_animation_mix_array" : {
