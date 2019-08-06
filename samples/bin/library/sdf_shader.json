@@ -1,0 +1,4 @@
+{
+    "vertex" : "sdf_shader.vert",
+    "fragment" : "sdf_shader.frag"
+}
