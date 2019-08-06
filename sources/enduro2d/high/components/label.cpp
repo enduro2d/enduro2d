@@ -43,7 +43,13 @@ namespace e2d
             "width" : { "type" : "number" },
             "halign" : { "$ref": "#/definitions/haligns" },
             "valign" : { "$ref": "#/definitions/valigns" },
-            "filtering" : { "type" : "boolean" }
+            "filtering" : { "type" : "boolean" },
+            "smoothing" : { "type" : "number" },
+            "outline_distance" : { "type" : "number" },
+            "outline_color" : { "$ref": "#/common_definitions/color" },
+            "shadow_smoothing" : { "type" : "number" },
+            "shadow_offset" : { "$ref": "#/common_definitions/v2" },
+            "shadow_color" : { "$ref": "#/common_definitions/color" }
         },
         "definitions" : {
             "haligns" : {
@@ -136,6 +142,60 @@ namespace e2d
                 return false;
             }
             component.filtering(filtering);
+        }
+
+        if ( ctx.root.HasMember("smoothing") ) {
+            f32 smoothing = component.filtering();
+            if ( !json_utils::try_parse_value(ctx.root["smoothing"], smoothing) ) {
+                the<debug>().error("LABEL: Incorrect formatting of 'smoothing' property");
+                return false;
+            }
+            component.smoothing(smoothing);
+        }
+
+        if ( ctx.root.HasMember("outline_distance") ) {
+            f32 outline_distance = component.outline_distance();
+            if ( !json_utils::try_parse_value(ctx.root["outline_distance"], outline_distance) ) {
+                the<debug>().error("LABEL: Incorrect formatting of 'outline_distance' property");
+                return false;
+            }
+            component.outline_distance(outline_distance);
+        }
+
+        if ( ctx.root.HasMember("outline_color") ) {
+            color32 outline_color = component.outline_color();
+            if ( !json_utils::try_parse_value(ctx.root["outline_color"], outline_color) ) {
+                the<debug>().error("LABEL: Incorrect formatting of 'outline_color' property");
+                return false;
+            }
+            component.outline_color(outline_color);
+        }
+
+        if ( ctx.root.HasMember("shadow_smoothing") ) {
+            f32 shadow_smoothing = component.shadow_smoothing();
+            if ( !json_utils::try_parse_value(ctx.root["shadow_smoothing"], shadow_smoothing) ) {
+                the<debug>().error("LABEL: Incorrect formatting of 'shadow_smoothing' property");
+                return false;
+            }
+            component.shadow_smoothing(shadow_smoothing);
+        }
+
+        if ( ctx.root.HasMember("shadow_offset") ) {
+            v2f shadow_offset = component.shadow_offset();
+            if ( !json_utils::try_parse_value(ctx.root["shadow_offset"], shadow_offset) ) {
+                the<debug>().error("LABEL: Incorrect formatting of 'shadow_offset' property");
+                return false;
+            }
+            component.shadow_offset(shadow_offset);
+        }
+
+        if ( ctx.root.HasMember("shadow_color") ) {
+            color32 shadow_color = component.shadow_color();
+            if ( !json_utils::try_parse_value(ctx.root["shadow_color"], shadow_color) ) {
+                the<debug>().error("LABEL: Incorrect formatting of 'shadow_color' property");
+                return false;
+            }
+            component.shadow_color(shadow_color);
         }
 
         return true;

@@ -54,6 +54,24 @@ namespace e2d
 
         label& filtering(bool value) noexcept;
         bool filtering() const noexcept;
+
+        label& smoothing(f32 value) noexcept;
+        f32 smoothing() const noexcept;
+
+        label& outline_distance(f32 value) noexcept;
+        f32 outline_distance() const noexcept;
+
+        label& outline_color(const color32& value) noexcept;
+        color32 outline_color() const noexcept;
+
+        label& shadow_smoothing(f32 value) noexcept;
+        f32 shadow_smoothing() const noexcept;
+
+        label& shadow_offset(const v2f& value) noexcept;
+        v2f shadow_offset() const noexcept;
+
+        label& shadow_color(const color32& value) noexcept;
+        color32 shadow_color() const noexcept;
     private:
         str32 text_;
         font_asset::ptr font_;
@@ -62,6 +80,12 @@ namespace e2d
         haligns haligh_ = haligns::left;
         valigns valign_ = valigns::baseline;
         bool filtering_ = true;
+        f32 smoothing_ = 0.f;
+        f32 outline_distance_ = 0.f;
+        color32 outline_color_ = color32::white();
+        f32 shadow_smoothing_ = 0.f;
+        v2f shadow_offset_;
+        color32 shadow_color_ = color32::white();
     };
 
     template <>
@@ -159,5 +183,59 @@ namespace e2d
 
     inline bool label::filtering() const noexcept {
         return filtering_;
+    }
+
+    inline label& label::smoothing(f32 value) noexcept {
+        smoothing_ = value;
+        return *this;
+    }
+
+    inline f32 label::smoothing() const noexcept {
+        return smoothing_;
+    }
+
+    inline label& label::outline_distance(f32 value) noexcept {
+        outline_distance_ = value;
+        return *this;
+    }
+
+    inline f32 label::outline_distance() const noexcept {
+        return outline_distance_;
+    }
+
+    inline label& label::outline_color(const color32& value) noexcept {
+        outline_color_ = value;
+        return *this;
+    }
+
+    inline color32 label::outline_color() const noexcept {
+        return outline_color_;
+    }
+
+    inline label& label::shadow_smoothing(f32 value) noexcept {
+        shadow_smoothing_ = value;
+        return *this;
+    }
+
+    inline f32 label::shadow_smoothing() const noexcept {
+        return shadow_smoothing_;
+    }
+
+    inline label& label::shadow_offset(const v2f& value) noexcept {
+        shadow_offset_ = value;
+        return *this;
+    }
+
+    inline v2f label::shadow_offset() const noexcept {
+        return shadow_offset_;
+    }
+
+    inline label& label::shadow_color(const color32& value) noexcept {
+        shadow_color_ = value;
+        return *this;
+    }
+
+    inline color32 label::shadow_color() const noexcept {
+        return shadow_color_;
     }
 }

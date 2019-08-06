@@ -284,11 +284,19 @@ namespace e2d
                         ? render::sampler_mag_filter::linear
                         : render::sampler_mag_filter::nearest;
 
+                    color sc(l.shadow_color());
+                    color oc(l.outline_color());
                     r.properties(render::property_block()
                         .sampler("u_texture", render::sampler_state()
                             .texture(texture_p->content())
                             .min_filter(min_filter)
-                            .mag_filter(mag_filter)));
+                            .mag_filter(mag_filter))
+                        .property("u_smoothing", l.smoothing())
+                        .property("u_outline_distance", l.outline_distance())
+                        .property("u_shadow_smoothing", l.shadow_smoothing())
+                        .property("u_shadow_offset", l.shadow_offset())
+                        .property("u_shadow_color", make_vec4(sc.r, sc.g, sc.b, sc.a))
+                        .property("u_outline_color", make_vec4(oc.r, oc.g, oc.b, oc.a)));
                 }
             });
 
