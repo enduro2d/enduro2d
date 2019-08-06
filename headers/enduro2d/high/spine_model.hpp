@@ -40,6 +40,7 @@ namespace e2d
         spine_model& set_atlas(atlas_ptr atlas, bool premultiplied_alpha);
 
         spine_model& mix_animations(const str& from, const str& to, secf duration);
+        spine_model& set_default_mix(secf duration);
 
         const atlas_ptr& atlas() const noexcept;
         const animation_data_ptr& animation() const noexcept;

@@ -32,6 +32,7 @@ namespace
             "scale" : { "type" : "number" },
             "atlas" : { "$ref" : "#/common_definitions/address" },
             "premultiplied_alpha" : { "type" : "boolean" },
+            "default_mix" : { "type" : "number" },
             "mix_animations" : { "$ref": "#/definitions/spine_animation_mix_array" }
         },
         "definitions" : {
@@ -192,6 +193,15 @@ namespace
         spine_model content;
         content.set_atlas(atlas, pma);
         content.set_skeleton(skeleton);
+
+        secf default_mix(0.0f);
+        if ( root.HasMember("default_mix") ) {
+            if ( json_utils::try_parse_value(root["default_mix"], default_mix.value) ) {
+                content.set_default_mix(default_mix);
+            } else {
+                the<debug>().error("SPINE: Incorrect formating of 'default_mix' property");
+            } 
+        }
 
         if ( root.HasMember("mix_animations") ) {
             const auto& mix_animations_json = root["mix_animations"];

@@ -86,6 +86,12 @@ namespace e2d
         spAnimationStateData_setMixByName(animation_.get(), from.c_str(), to.c_str(), duration.value);
         return *this;
     }
+    
+    spine_model& spine_model::set_default_mix(secf duration) {
+        E2D_ASSERT(animation_);
+        animation_->defaultMix = duration.value;
+        return *this;
+    }
 
     const spine_model::atlas_ptr& spine_model::atlas() const noexcept {
         return atlas_;

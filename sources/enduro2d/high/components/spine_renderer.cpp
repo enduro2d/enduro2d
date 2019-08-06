@@ -15,7 +15,7 @@ namespace e2d
         this->model(model);
     }
     
-    spine_renderer& spine_renderer::model(const spine_model_asset::ptr& value) {
+    spine_renderer& spine_renderer::model(const spine_model_asset::ptr& value) noexcept {
         E2D_ASSERT(value);
         E2D_ASSERT(value->content().skeleton());
         E2D_ASSERT(value->content().atlas());
@@ -26,15 +26,17 @@ namespace e2d
         return *this;
     }
 
-    spine_renderer& spine_renderer::skin(const str& value) {
+    spine_renderer& spine_renderer::skin(const str& value) noexcept {
         spSkeleton_setSkinByName(skeleton_.get(), value.empty() ? nullptr : value.c_str());
         return *this;
     }
 
-    spine_renderer& spine_renderer::attachment(const str& slot, const str& name) {
+    spine_renderer& spine_renderer::attachment(const str& slot, const str& name) noexcept {
         E2D_ASSERT(!slot.empty());
         E2D_ASSERT(!name.empty());
-        spSkeleton_setAttachment(skeleton_.get(), slot.c_str(), name.c_str()); // TODO: check result
+        if ( !spSkeleton_setAttachment(skeleton_.get(), slot.c_str(), name.c_str()) ) {
+            the<debug>().error("SPINE_RENDERER: can't set attachment '%0' to slot '%1'", name, slot);
+        }
         return *this;
     }
 

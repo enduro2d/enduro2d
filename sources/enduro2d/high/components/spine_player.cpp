@@ -26,7 +26,28 @@ namespace e2d
             spAnimationState_dispose);
     }
     
-    spine_player& spine_player::set_animation(u32 track, const str& name, bool loop) {
+    spine_player& spine_player::time_scale(float value) noexcept {
+        E2D_ASSERT(animation_);
+        animation_->timeScale = value;
+        return *this;
+    }
+
+    float spine_player::time_scale() const noexcept {
+        E2D_ASSERT(animation_);
+        return animation_->timeScale;
+    }
+    
+    bool spine_player::has_animation(const str& name) const noexcept {
+        if ( !model_ ) {
+            return false;
+        }
+        spAnimation* anim = spSkeletonData_findAnimation(
+            model_->content().skeleton().operator->(),
+            name.c_str());
+        return anim != nullptr;
+    }
+
+    spine_player& spine_player::set_animation(u32 track, const str& name, bool loop) noexcept {
         E2D_ASSERT(model_ && animation_);
         E2D_ASSERT(track < max_track_count);
         spAnimation* anim = spSkeletonData_findAnimation(
@@ -34,18 +55,18 @@ namespace e2d
             name.c_str());
 
         if ( !anim ) {
-            E2D_ASSERT(false);  // TODO: exception?
+            the<debug>().error("SPINE_PLAYER: animation '%0' is not found", name);
             return *this;
         }
         spAnimationState_setAnimation(animation_.get(), track, anim, loop);
         return *this;
     }
 
-    spine_player& spine_player::add_animation(u32 track, const str& name, secf delay) {
+    spine_player& spine_player::add_animation(u32 track, const str& name, secf delay) noexcept {
         return add_animation(track, name, false, delay);
     }
 
-    spine_player& spine_player::add_animation(u32 track, const str& name, bool loop, secf delay) {
+    spine_player& spine_player::add_animation(u32 track, const str& name, bool loop, secf delay) noexcept {
         E2D_ASSERT(model_ && animation_);
         E2D_ASSERT(track < max_track_count);
         spAnimation* anim = spSkeletonData_findAnimation(
@@ -53,28 +74,28 @@ namespace e2d
             name.c_str());
 
         if ( !anim ) {
-            E2D_ASSERT(false);  // TODO: exception?
+            the<debug>().error("SPINE_PLAYER: animation '%0' is not found", name);
             return *this;
         }
         spAnimationState_addAnimation(animation_.get(), track, anim, loop, delay.value);
         return *this;
     }
     
-    spine_player& spine_player::add_empty_animation(u32 track, secf duration, secf delay) {
+    spine_player& spine_player::add_empty_animation(u32 track, secf duration, secf delay) noexcept {
         E2D_ASSERT(animation_);
         E2D_ASSERT(track < max_track_count);
         spAnimationState_addEmptyAnimation(animation_.get(), track, duration.value, delay.value);
         return *this;
     }
     
-    spine_player& spine_player::clear(u32 track) {
+    spine_player& spine_player::clear(u32 track) noexcept {
         E2D_ASSERT(animation_);
         E2D_ASSERT(track < max_track_count);
         spAnimationState_clearTrack(animation_.get(), track);
         return *this;
     }
     
-    spine_player& spine_player::clear() {
+    spine_player& spine_player::clear() noexcept {
         E2D_ASSERT(animation_);
         spAnimationState_clearTracks(animation_.get());
         return *this;

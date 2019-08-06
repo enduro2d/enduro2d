@@ -27,9 +27,9 @@ namespace e2d
         spine_renderer() = default;
         spine_renderer(const spine_model_asset::ptr& model);
         
-        spine_renderer& model(const spine_model_asset::ptr& value);
-        spine_renderer& skin(const str& value);
-        spine_renderer& attachment(const str& slot, const str& name);
+        spine_renderer& model(const spine_model_asset::ptr& value) noexcept;
+        spine_renderer& skin(const str& value) noexcept;
+        spine_renderer& attachment(const str& slot, const str& name) noexcept;
 
         const skeleton_ptr& skeleton() const noexcept;
         const clipping_ptr& clipper() const noexcept;

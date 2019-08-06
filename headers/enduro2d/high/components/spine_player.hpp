@@ -21,16 +21,21 @@ namespace e2d
     public:
         spine_player() = default;
         spine_player(const spine_model_asset::ptr& model);
+
+        spine_player& time_scale(float value) noexcept;
+        [[nodiscard]] float time_scale() const noexcept;
+
+        [[nodiscard]] bool has_animation(const str& name) const noexcept;
         
-        spine_player& set_animation(u32 track, const str& name, bool loop = false);
+        spine_player& set_animation(u32 track, const str& name, bool loop = false) noexcept;
 
-        spine_player& add_animation(u32 track, const str& name, bool loop, secf delay = secf(0.0f));
-        spine_player& add_animation(u32 track, const str& name, secf delay = secf(0.0f));
+        spine_player& add_animation(u32 track, const str& name, bool loop, secf delay = secf(0.0f)) noexcept;
+        spine_player& add_animation(u32 track, const str& name, secf delay = secf(0.0f)) noexcept;
 
-        spine_player& add_empty_animation(u32 track, secf duration, secf delay = secf(0.0f));
+        spine_player& add_empty_animation(u32 track, secf duration, secf delay = secf(0.0f)) noexcept;
 
-        spine_player& clear(u32 track);
-        spine_player& clear();
+        spine_player& clear(u32 track) noexcept;
+        spine_player& clear() noexcept;
         
         const animation_ptr& animation() const noexcept;
         const spine_model_asset::ptr& model() const noexcept;
