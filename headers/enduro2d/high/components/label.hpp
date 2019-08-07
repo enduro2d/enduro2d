@@ -52,9 +52,6 @@ namespace e2d
         label& valigh(valigns value) noexcept;
         [[nodiscard]] valigns valign() const noexcept;
 
-        label& filtering(bool value) noexcept;
-        bool filtering() const noexcept;
-
         label& smoothing(f32 value) noexcept;
         f32 smoothing() const noexcept;
 
@@ -77,9 +74,8 @@ namespace e2d
         font_asset::ptr font_;
         color32 tint_ = color32::white();
         f32 width_ = 0.f;
-        haligns haligh_ = haligns::left;
+        haligns halign_ = haligns::left;
         valigns valign_ = valigns::baseline;
-        bool filtering_ = true;
         f32 smoothing_ = 0.f;
         f32 outline_distance_ = 0.f;
         color32 outline_color_ = color32::white();
@@ -159,12 +155,12 @@ namespace e2d
     }
 
     inline label& label::haligh(haligns value) noexcept {
-        haligh_ = value;
+        halign_ = value;
         return *this;
     }
 
     inline label::haligns label::halign() const noexcept {
-        return haligh_;
+        return halign_;
     }
 
     inline label& label::valigh(valigns value) noexcept {
@@ -174,15 +170,6 @@ namespace e2d
 
     inline label::valigns label::valign() const noexcept {
         return valign_;
-    }
-
-    inline label& label::filtering(bool value) noexcept {
-        filtering_ = value;
-        return *this;
-    }
-
-    inline bool label::filtering() const noexcept {
-        return filtering_;
     }
 
     inline label& label::smoothing(f32 value) noexcept {

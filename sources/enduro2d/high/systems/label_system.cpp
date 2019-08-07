@@ -276,21 +276,13 @@ namespace e2d
                         return;
                     }
 
-                    const render::sampler_min_filter min_filter = l.filtering()
-                        ? render::sampler_min_filter::linear
-                        : render::sampler_min_filter::nearest;
-                    
-                    const render::sampler_mag_filter mag_filter = l.filtering()
-                        ? render::sampler_mag_filter::linear
-                        : render::sampler_mag_filter::nearest;
-
                     color sc(l.shadow_color());
                     color oc(l.outline_color());
                     r.properties(render::property_block()
                         .sampler("u_texture", render::sampler_state()
                             .texture(texture_p->content())
-                            .min_filter(min_filter)
-                            .mag_filter(mag_filter))
+                            .min_filter(render::sampler_min_filter::linear)
+                            .mag_filter(render::sampler_mag_filter::linear))
                         .property("u_smoothing", l.smoothing())
                         .property("u_outline_distance", l.outline_distance())
                         .property("u_shadow_smoothing", l.shadow_smoothing())

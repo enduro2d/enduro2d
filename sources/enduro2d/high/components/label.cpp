@@ -43,7 +43,6 @@ namespace e2d
             "width" : { "type" : "number" },
             "halign" : { "$ref": "#/definitions/haligns" },
             "valign" : { "$ref": "#/definitions/valigns" },
-            "filtering" : { "type" : "boolean" },
             "smoothing" : { "type" : "number" },
             "outline_distance" : { "type" : "number" },
             "outline_color" : { "$ref": "#/common_definitions/color" },
@@ -135,17 +134,8 @@ namespace e2d
             component.valigh(valign);
         }
 
-        if ( ctx.root.HasMember("filtering") ) {
-            bool filtering = component.filtering();
-            if ( !json_utils::try_parse_value(ctx.root["filtering"], filtering) ) {
-                the<debug>().error("LABEL: Incorrect formatting of 'filtering' property");
-                return false;
-            }
-            component.filtering(filtering);
-        }
-
         if ( ctx.root.HasMember("smoothing") ) {
-            f32 smoothing = component.filtering();
+            f32 smoothing = component.smoothing();
             if ( !json_utils::try_parse_value(ctx.root["smoothing"], smoothing) ) {
                 the<debug>().error("LABEL: Incorrect formatting of 'smoothing' property");
                 return false;
