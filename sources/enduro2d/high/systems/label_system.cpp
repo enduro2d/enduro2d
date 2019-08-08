@@ -276,19 +276,26 @@ namespace e2d
                         return;
                     }
 
-                    color sc(l.shadow_color());
+                    vec2 shadow_offset = l.shadow_offset();
+                    shadow_offset.x /= texture_p->content()->size().x;
+                    shadow_offset.y /= texture_p->content()->size().y;
+                    shadow_offset.x = -shadow_offset.x;
                     color oc(l.outline_color());
+                    color sc(l.shadow_color());
                     r.properties(render::property_block()
                         .sampler("u_texture", render::sampler_state()
                             .texture(texture_p->content())
                             .min_filter(render::sampler_min_filter::linear)
                             .mag_filter(render::sampler_mag_filter::linear))
-                        .property("u_smoothing", l.smoothing())
-                        .property("u_outline_distance", l.outline_distance())
-                        .property("u_shadow_smoothing", l.shadow_smoothing())
-                        .property("u_shadow_offset", l.shadow_offset())
-                        .property("u_shadow_color", make_vec4(sc.r, sc.g, sc.b, sc.a))
-                        .property("u_outline_color", make_vec4(oc.r, oc.g, oc.b, oc.a)));
+                        .property("u_char_width", l.char_width())
+                        .property("u_char_edge", l.char_edge())
+                        .property("u_outline_width", l.outline_width())
+                        .property("u_outline_edge", l.outline_edge())
+                        .property("u_outline_color", make_vec4(oc.r, oc.g, oc.b, oc.a))
+                        .property("u_shadow_width", l.shadow_width())
+                        .property("u_shadow_edge", l.shadow_edge())
+                        .property("u_shadow_offset", shadow_offset)
+                        .property("u_shadow_color", make_vec4(sc.r, sc.g, sc.b, sc.a)));
                 }
             });
 

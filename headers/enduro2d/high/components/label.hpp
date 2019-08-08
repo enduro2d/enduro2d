@@ -52,17 +52,26 @@ namespace e2d
         label& valigh(valigns value) noexcept;
         [[nodiscard]] valigns valign() const noexcept;
 
-        label& smoothing(f32 value) noexcept;
-        f32 smoothing() const noexcept;
+        label& char_width(f32 value) noexcept;
+        f32 char_width() const noexcept;
 
-        label& outline_distance(f32 value) noexcept;
-        f32 outline_distance() const noexcept;
+        label& char_edge(f32 value) noexcept;
+        f32 char_edge() const noexcept;
+
+        label& outline_width(f32 value) noexcept;
+        f32 outline_width() const noexcept;
+
+        label& outline_edge(f32 value) noexcept;
+        f32 outline_edge() const noexcept;
 
         label& outline_color(const color32& value) noexcept;
         color32 outline_color() const noexcept;
 
-        label& shadow_smoothing(f32 value) noexcept;
-        f32 shadow_smoothing() const noexcept;
+        label& shadow_width(f32 value) noexcept;
+        f32 shadow_width() const noexcept;
+
+        label& shadow_edge(f32 value) noexcept;
+        f32 shadow_edge() const noexcept;
 
         label& shadow_offset(const v2f& value) noexcept;
         v2f shadow_offset() const noexcept;
@@ -76,11 +85,14 @@ namespace e2d
         f32 width_ = 0.f;
         haligns halign_ = haligns::left;
         valigns valign_ = valigns::baseline;
-        f32 smoothing_ = 0.f;
-        f32 outline_distance_ = 0.f;
+        f32 char_width_ = 0.f;
+        f32 char_edge_ = 0.f;
+        f32 outline_width_ = 0.5f;
+        f32 outline_edge_ = 0.1f;
         color32 outline_color_ = color32::white();
-        f32 shadow_smoothing_ = 0.f;
-        v2f shadow_offset_;
+        f32 shadow_width_ = 0.f;
+        f32 shadow_edge_ = 0.f;
+        v2f shadow_offset_ = v2f::zero();
         color32 shadow_color_ = color32::white();
     };
 
@@ -172,22 +184,40 @@ namespace e2d
         return valign_;
     }
 
-    inline label& label::smoothing(f32 value) noexcept {
-        smoothing_ = value;
+    inline label& label::char_width(f32 value) noexcept {
+        char_width_ = value;
         return *this;
     }
 
-    inline f32 label::smoothing() const noexcept {
-        return smoothing_;
+    inline f32 label::char_width() const noexcept {
+        return char_width_;
     }
 
-    inline label& label::outline_distance(f32 value) noexcept {
-        outline_distance_ = value;
+    inline label& label::char_edge(f32 value) noexcept {
+        char_edge_ = value;
         return *this;
     }
 
-    inline f32 label::outline_distance() const noexcept {
-        return outline_distance_;
+    inline f32 label::char_edge() const noexcept {
+        return char_edge_;
+    }
+
+    inline label& label::outline_width(f32 value) noexcept {
+        outline_width_ = value;
+        return *this;
+    }
+
+    inline f32 label::outline_width() const noexcept {
+        return outline_width_;
+    }
+
+    inline label& label::outline_edge(f32 value) noexcept {
+        outline_edge_ = value;
+        return *this;
+    }
+
+    inline f32 label::outline_edge() const noexcept {
+        return outline_edge_;
     }
 
     inline label& label::outline_color(const color32& value) noexcept {
@@ -199,13 +229,22 @@ namespace e2d
         return outline_color_;
     }
 
-    inline label& label::shadow_smoothing(f32 value) noexcept {
-        shadow_smoothing_ = value;
+    inline label& label::shadow_width(f32 value) noexcept {
+        shadow_width_ = value;
         return *this;
     }
 
-    inline f32 label::shadow_smoothing() const noexcept {
-        return shadow_smoothing_;
+    inline f32 label::shadow_width() const noexcept {
+        return shadow_width_;
+    }
+
+    inline label& label::shadow_edge(f32 value) noexcept {
+        shadow_edge_ = value;
+        return *this;
+    }
+
+    inline f32 label::shadow_edge() const noexcept {
+        return shadow_edge_;
     }
 
     inline label& label::shadow_offset(const v2f& value) noexcept {
