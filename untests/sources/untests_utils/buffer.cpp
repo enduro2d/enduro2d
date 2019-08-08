@@ -220,6 +220,11 @@ TEST_CASE("buffer_view") {
         buffer_view v5(b2);
         REQUIRE(v5.data() == b2.data());
         REQUIRE(v5.size() == 20);
+
+        str32 b3 = make_utf32("hello");
+        buffer_view v6(b3);
+        REQUIRE(v6.data() == b3.data());
+        REQUIRE(v6.size() == 20);
     }
     {
         const char* s0 = "hell";
