@@ -37,6 +37,11 @@ namespace
         {"rgba_dxt3",         8, true,  false, false, pixel_declaration::pixel_type::rgba_dxt3,        true,  v2u(4,4)},
         {"rgba_dxt5",         8, true,  false, false, pixel_declaration::pixel_type::rgba_dxt5,        true,  v2u(4,4)},
 
+        {"rgb_etc1",          4, true,  false, false, pixel_declaration::pixel_type::rgb_etc1,         true,  v2u(4,4)},
+        {"rgb_etc2",          4, true,  false, false, pixel_declaration::pixel_type::rgb_etc2,         true,  v2u(4,4)},
+        {"rgba_etc2",         8, true,  false, false, pixel_declaration::pixel_type::rgba_etc2,        true,  v2u(4,4)},
+        {"rgb_a1_etc2",       4, true,  false, false, pixel_declaration::pixel_type::rgb_a1_etc2,      true,  v2u(4,4)},
+
         {"rgb_pvrtc2",        2, true,  false, false, pixel_declaration::pixel_type::rgb_pvrtc2,       true,  v2u(8,4)},
         {"rgb_pvrtc4",        4, true,  false, false, pixel_declaration::pixel_type::rgb_pvrtc4,       true,  v2u(4,4)},
         {"rgba_pvrtc2",       2, true,  false, false, pixel_declaration::pixel_type::rgba_pvrtc2,      true,  v2u(8,4)},

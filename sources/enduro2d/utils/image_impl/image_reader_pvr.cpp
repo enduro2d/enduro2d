@@ -84,6 +84,12 @@ namespace
                 image_data_format::rgba_pvrtc4_v2,
                 8,
                 {4,4}};
+        case pvr_pixel_format::etc1:
+            return {
+                buffer(content),
+                image_data_format::rgb_etc1,
+                8,
+                {4,4}};
         case pvr_pixel_format::dxt1:
             return {
                 buffer(content),
@@ -103,6 +109,24 @@ namespace
                 buffer(content),
                 image_data_format::rgba_dxt5,
                 16,
+                {4,4}};
+        case pvr_pixel_format::etc2_rgb:
+            return {
+                buffer(content),
+                image_data_format::rgb_etc2,
+                8,
+                {4,4}};
+        case pvr_pixel_format::etc2_rgba:
+            return {
+                buffer(content),
+                image_data_format::rgba_etc2,
+                16,
+                {4,4}};
+        case pvr_pixel_format::etc2_rgb_a1:
+            return {
+                buffer(content),
+                image_data_format::rgb_a1_etc2,
+                8,
                 {4,4}};
         case pvr_pixel_format::a8:
             return {

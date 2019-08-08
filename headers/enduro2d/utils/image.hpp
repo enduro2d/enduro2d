@@ -34,6 +34,11 @@ namespace e2d
         rgba_dxt3,
         rgba_dxt5,
 
+        rgb_etc1,
+        rgb_etc2,
+        rgba_etc2,
+        rgb_a1_etc2,
+
         rgb_pvrtc2,
         rgb_pvrtc4,
         rgba_pvrtc2,

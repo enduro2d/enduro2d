@@ -1162,6 +1162,12 @@ namespace e2d
             case pixel_declaration::pixel_type::rgba_dxt3:
             case pixel_declaration::pixel_type::rgba_dxt5:
                 return caps.dxt_compression_supported;
+            case pixel_declaration::pixel_type::rgb_etc1:
+                return caps.etc1_compression_supported;
+            case pixel_declaration::pixel_type::rgb_etc2:
+            case pixel_declaration::pixel_type::rgba_etc2:
+            case pixel_declaration::pixel_type::rgb_a1_etc2:
+                return caps.etc2_compression_supported;
             case pixel_declaration::pixel_type::rgb_pvrtc2:
             case pixel_declaration::pixel_type::rgb_pvrtc4:
             case pixel_declaration::pixel_type::rgba_pvrtc2:

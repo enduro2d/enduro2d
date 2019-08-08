@@ -286,6 +286,11 @@ TEST_CASE("images") {
             {"bin/images/pvr/ship_dxt3.pvr", 64 * 128 * 8 / 8, true, image_data_format::rgba_dxt3},
             {"bin/images/pvr/ship_dxt5.pvr", 64 * 128 * 8 / 8, true, image_data_format::rgba_dxt5},
 
+            {"bin/images/pvr/ship_etc1.pvr", 64 * 128 * 4 / 8, true, image_data_format::rgb_etc1},
+            {"bin/images/pvr/ship_etc2_rgb.pvr", 64 * 128 * 4 / 8, true, image_data_format::rgb_etc2},
+            {"bin/images/pvr/ship_etc2_rgba.pvr", 64 * 128 * 8 / 8, true, image_data_format::rgba_etc2},
+            {"bin/images/pvr/ship_etc2_rgb_a1.pvr", 64 * 128 * 4 / 8, true, image_data_format::rgb_a1_etc2},
+
             {"bin/images/pvr/ship_pvrtc_2bpp_rgb.pvr", 64 * 128 * 2 / 8, true, image_data_format::rgb_pvrtc2},
             {"bin/images/pvr/ship_pvrtc_2bpp_rgba.pvr", 64 * 128 * 2 / 8, true, image_data_format::rgba_pvrtc2},
             {"bin/images/pvr/ship_pvrtc_4bpp_rgb.pvr", 64 * 128 * 4 / 8, true, image_data_format::rgb_pvrtc4},
@@ -293,11 +298,6 @@ TEST_CASE("images") {
 
             {"bin/images/pvr/ship_pvrtc2_2bpp.pvr", 64 * 128 * 2 / 8, true, image_data_format::rgba_pvrtc2_v2},
             {"bin/images/pvr/ship_pvrtc2_4bpp.pvr", 64 * 128 * 4 / 8, true, image_data_format::rgba_pvrtc4_v2},
-
-            {"bin/images/pvr/ship_etc1.pvr", 64 * 128 * 4 / 8, false, image_data_format(-1)},
-            {"bin/images/pvr/ship_etc2_rgb.pvr", 64 * 128 * 4 / 8, false, image_data_format(-1)},
-            {"bin/images/pvr/ship_etc2_rgba.pvr", 64 * 128 * 8 / 8, false, image_data_format(-1)},
-            {"bin/images/pvr/ship_etc2_rgba1.pvr", 64 * 128 * 4 / 8, false, image_data_format(-1)},
 
             {"bin/images/pvr/ship_eac_r11.pvr", 0, false, image_data_format(-1)},
             {"bin/images/pvr/ship_eac_rg11.pvr", 0, false, image_data_format(-1)},

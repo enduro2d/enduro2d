@@ -838,6 +838,11 @@ namespace e2d::opengl
             DEFINE_CASE(rgba_dxt3, GL_COMPRESSED_RGBA_S3TC_DXT3_EXT);
             DEFINE_CASE(rgba_dxt5, GL_COMPRESSED_RGBA_S3TC_DXT5_EXT);
 
+            DEFINE_CASE(rgb_etc1, GL_ETC1_RGB8_OES);
+            DEFINE_CASE(rgb_etc2, GL_COMPRESSED_RGB8_ETC2);
+            DEFINE_CASE(rgba_etc2, GL_COMPRESSED_RGBA8_ETC2_EAC);
+            DEFINE_CASE(rgb_a1_etc2, GL_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2);
+
             DEFINE_CASE(rgb_pvrtc2, GL_COMPRESSED_RGB_PVRTC_2BPPV1_IMG);
             DEFINE_CASE(rgb_pvrtc4, GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG);
             DEFINE_CASE(rgba_pvrtc2, GL_COMPRESSED_RGBA_PVRTC_2BPPV1_IMG);
@@ -868,6 +873,11 @@ namespace e2d::opengl
             DEFINE_CASE(rgba_dxt1, rgba_dxt1);
             DEFINE_CASE(rgba_dxt3, rgba_dxt3);
             DEFINE_CASE(rgba_dxt5, rgba_dxt5);
+
+            DEFINE_CASE(rgb_etc1, rgb_etc1);
+            DEFINE_CASE(rgb_etc2, rgb_etc2);
+            DEFINE_CASE(rgba_etc2, rgba_etc2);
+            DEFINE_CASE(rgb_a1_etc2, rgb_a1_etc2);
 
             DEFINE_CASE(rgb_pvrtc2, rgb_pvrtc2);
             DEFINE_CASE(rgb_pvrtc4, rgb_pvrtc4);
@@ -1423,6 +1433,14 @@ namespace e2d::opengl
         caps.dxt_compression_supported =
             gl_has_any_extension(debug,
                 "GL_EXT_texture_compression_s3tc");
+
+        caps.etc1_compression_supported =
+            gl_has_any_extension(debug,
+                "GL_OES_compressed_ETC1_RGB8_texture");
+
+        caps.etc2_compression_supported =
+            gl_has_any_extension(debug,
+                "GL_ARB_ES3_compatibility");
 
         caps.pvrtc_compression_supported =
             gl_has_any_extension(debug,

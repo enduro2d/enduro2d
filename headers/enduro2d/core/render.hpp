@@ -58,6 +58,11 @@ namespace e2d
             rgba_dxt3,
             rgba_dxt5,
 
+            rgb_etc1,
+            rgb_etc2,
+            rgba_etc2,
+            rgb_a1_etc2,
+
             rgb_pvrtc2,
             rgb_pvrtc4,
             rgba_pvrtc2,
@@ -901,6 +906,8 @@ namespace e2d
             bool depth24_stencil8_supported = false;
 
             bool dxt_compression_supported = false;
+            bool etc1_compression_supported = false;
+            bool etc2_compression_supported = false;
             bool pvrtc_compression_supported = false;
             bool pvrtc2_compression_supported = false;
         };

@@ -264,7 +264,7 @@ TEST_CASE("render"){
                     filesystem::predef_path::resources));
 
                 image src;
-                REQUIRE(images::try_load_image(src, make_read_file(path::combine(resources, "bin/images/ship_rgba.dds"))));
+                REQUIRE(images::try_load_image(src, make_read_file(path::combine(resources, "bin/images/dds/ship_dxt5.dds"))));
 
                 texture_ptr tex = r.create_texture(src.size(), pixel_declaration::pixel_type::rgba_dxt5);
                 REQUIRE(tex != nullptr);

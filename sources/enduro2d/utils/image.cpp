@@ -27,6 +27,11 @@ namespace
         { 8, image_data_format::rgba_dxt3,      true},
         { 8, image_data_format::rgba_dxt5,      true},
 
+        { 4, image_data_format::rgb_etc1,       true},
+        { 4, image_data_format::rgb_etc2,       true},
+        { 8, image_data_format::rgba_etc2,      true},
+        { 4, image_data_format::rgb_a1_etc2,    true},
+
         { 2, image_data_format::rgb_pvrtc2,     true},
         { 4, image_data_format::rgb_pvrtc4,     true},
         { 2, image_data_format::rgba_pvrtc2,    true},
