@@ -48,19 +48,18 @@ namespace e2d
             depth24,
             depth24_stencil8,
 
-            g8,
-            ga8,
+            a8,
+            l8,
+            la8,
             rgb8,
             rgba8,
 
-            rgb_dxt1,
             rgba_dxt1,
             rgba_dxt3,
             rgba_dxt5,
 
             rgb_pvrtc2,
             rgb_pvrtc4,
-
             rgba_pvrtc2,
             rgba_pvrtc4,
 

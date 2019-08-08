@@ -26,12 +26,13 @@ namespace
         {"depth24",          24, false, true,  false, pixel_declaration::pixel_type::depth24,          false, v2u(1)},
         {"depth24_stencil8", 32, false, true,  true,  pixel_declaration::pixel_type::depth24_stencil8, false, v2u(1)},
 
-        {"g8",                8, true,  false, false, pixel_declaration::pixel_type::g8,               false, v2u(1)},
-        {"ga8",              16, true,  false, false, pixel_declaration::pixel_type::ga8,              false, v2u(1)},
+        {"a8",                8, true,  false, false, pixel_declaration::pixel_type::a8,               false, v2u(1)},
+        {"l8",                8, true,  false, false, pixel_declaration::pixel_type::l8,               false, v2u(1)},
+        {"la8",              16, true,  false, false, pixel_declaration::pixel_type::la8,              false, v2u(1)},
+
         {"rgb8",             24, true,  false, false, pixel_declaration::pixel_type::rgb8,             false, v2u(1)},
         {"rgba8",            32, true,  false, false, pixel_declaration::pixel_type::rgba8,            false, v2u(1)},
 
-        {"rgb_dxt1",          4, true,  false, false, pixel_declaration::pixel_type::rgb_dxt1,         true,  v2u(4,4)},
         {"rgba_dxt1",         4, true,  false, false, pixel_declaration::pixel_type::rgba_dxt1,        true,  v2u(4,4)},
         {"rgba_dxt3",         8, true,  false, false, pixel_declaration::pixel_type::rgba_dxt3,        true,  v2u(4,4)},
         {"rgba_dxt5",         8, true,  false, false, pixel_declaration::pixel_type::rgba_dxt5,        true,  v2u(4,4)},

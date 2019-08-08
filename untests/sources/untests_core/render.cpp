@@ -198,7 +198,7 @@ TEST_CASE("render"){
                 REQUIRE_NOTHROW(r.update_texture(tex, src, b2u(0, 0, 128, 128)));
             }
             {
-                texture_ptr tex = r.create_texture(v2u(128,128), pixel_declaration::pixel_type::g8);
+                texture_ptr tex = r.create_texture(v2u(128,128), pixel_declaration::pixel_type::l8);
                 REQUIRE(tex != nullptr);
 
                 buffer src;
@@ -251,7 +251,7 @@ TEST_CASE("render"){
                     c = rand() % 255;
                 }
 
-                image img(v2u(31, 44), image_data_format::ga8, src);
+                image img(v2u(31, 44), image_data_format::la8, src);
                 REQUIRE_THROWS_AS(
                     r.update_texture(tex, img, v2u(11,27)),
                     bad_render_operation);

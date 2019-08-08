@@ -1152,12 +1152,12 @@ namespace e2d
             case pixel_declaration::pixel_type::depth24_stencil8:
                 return caps.depth_texture_supported
                     && caps.depth24_stencil8_supported;
-            case pixel_declaration::pixel_type::g8:
-            case pixel_declaration::pixel_type::ga8:
+            case pixel_declaration::pixel_type::a8:
+            case pixel_declaration::pixel_type::l8:
+            case pixel_declaration::pixel_type::la8:
             case pixel_declaration::pixel_type::rgb8:
             case pixel_declaration::pixel_type::rgba8:
                 return true;
-            case pixel_declaration::pixel_type::rgb_dxt1:
             case pixel_declaration::pixel_type::rgba_dxt1:
             case pixel_declaration::pixel_type::rgba_dxt3:
             case pixel_declaration::pixel_type::rgba_dxt5:

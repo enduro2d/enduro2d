@@ -5,141 +5,196 @@
  ******************************************************************************/
 
 #include "image_impl.hpp"
-#include "image_impl_structures.hpp"
+#include "image_impl_pvr.hpp"
 
 namespace
 {
-    // PVR format specification:
-    // https://cdn.imgtec.com/sdk-documentation/PVR+File+Format.Specification.pdf
-
     using namespace e2d;
+    using namespace e2d::images::impl;
     using namespace e2d::images::impl::pvr;
 
-    bool is_pvr(const void* data, std::size_t byte_size) noexcept {
-        if ( byte_size > sizeof(pvr_header) ) {
-            const pvr_header* hdr = reinterpret_cast<const pvr_header*>(data);
-            return hdr->version == 0x03525650;
-        }
-        return false;
-    }
+    struct image_info {
+        buffer data;
+        image_data_format format = image_data_format(-1);
+        u32 bytes_per_block = 0;
+        v2u block_size;
 
-    bool get_pvr_format(
+        image_info() = default;
+        image_info(buffer data, image_data_format format, u32 bytes_per_block, v2u block_size)
+        : data(std::move(data))
+        , format(format)
+        , bytes_per_block(bytes_per_block)
+        , block_size(block_size) {}
+
+        bool valid() const noexcept {
+            return !data.empty()
+                && format != image_data_format(-1)
+                && bytes_per_block > 0
+                && block_size.x > 0
+                && block_size.y > 0;
+        }
+    };
+
+    image_info extract_image_info(
         const pvr_header& hdr,
-        image_data_format& out_format,
-        u32& out_bytes_per_block,
-        v2u& out_block_size) noexcept
+        buffer_view content) noexcept
     {
-        if ( pvr_color_space(hdr.colorSpace) != pvr_color_space::linear ) {
-            return false;
+        if ( pvr_color_space(hdr.color_space) != pvr_color_space::linear ) {
+            return image_info();
         }
+
         const pvr_pixel_format fmt = pvr_pixel_format(
-            hdr.pixelFormat0 | (u64(hdr.pixelFormat1) << 32));
-        switch (fmt)
-        {
+            (static_cast<u64>(hdr.pixel_format0)) |
+            (static_cast<u64>(hdr.pixel_format1) << 32));
+
+        switch ( fmt ) {
         case pvr_pixel_format::pvrtc_2bpp_rgb:
-            out_format = image_data_format::rgb_pvrtc2;
-            out_bytes_per_block = 8;
-            out_block_size = v2u(8,4);
-            break;
+            return {
+                buffer(content),
+                image_data_format::rgb_pvrtc2,
+                8,
+                {8,4}};
         case pvr_pixel_format::pvrtc_2bpp_rgba:
-            out_format = image_data_format::rgba_pvrtc2;
-            out_bytes_per_block = 8;
-            out_block_size = v2u(8,4);
-            break;
+            return {
+                buffer(content),
+                image_data_format::rgba_pvrtc2,
+                8,
+                {8,4}};
         case pvr_pixel_format::pvrtc_4bpp_rgb:
-            out_format = image_data_format::rgb_pvrtc4;
-            out_bytes_per_block = 8;
-            out_block_size = v2u(4,4);
-            break;
+            return {
+                buffer(content),
+                image_data_format::rgb_pvrtc4,
+                8,
+                {4,4}};
         case pvr_pixel_format::pvrtc_4bpp_rgba:
-            out_format = image_data_format::rgba_pvrtc4;
-            out_bytes_per_block = 8;
-            out_block_size = v2u(4,4);
-            break;
-        case pvr_pixel_format::pvrtc_ii_2bpp:
-            out_format = image_data_format::rgba_pvrtc2_v2;
-            out_bytes_per_block = 8;
-            out_block_size = v2u(8,4);
-            break;
-        case pvr_pixel_format::pvrtc_ii_4bpp:
-            out_format = image_data_format::rgba_pvrtc4_v2;
-            out_bytes_per_block = 8;
-            out_block_size = v2u(4,4);
-            break;
+            return {
+                buffer(content),
+                image_data_format::rgba_pvrtc4,
+                8,
+                {4,4}};
+        case pvr_pixel_format::pvrtc2_2bpp:
+            return {
+                buffer(content),
+                image_data_format::rgba_pvrtc2_v2,
+                8,
+                {8,4}};
+        case pvr_pixel_format::pvrtc2_4bpp:
+            return {
+                buffer(content),
+                image_data_format::rgba_pvrtc4_v2,
+                8,
+                {4,4}};
         case pvr_pixel_format::dxt1:
-            out_format = image_data_format::rgb_dxt1;
-            out_bytes_per_block = 8;
-            out_block_size = v2u(4,4);
-            break;
+            return {
+                buffer(content),
+                image_data_format::rgba_dxt1,
+                8,
+                {4,4}};
+        case pvr_pixel_format::dxt2:
         case pvr_pixel_format::dxt3:
-            out_format = image_data_format::rgba_dxt3;
-            out_bytes_per_block = 16;
-            out_block_size = v2u(4,4);
-            break;
+            return {
+                buffer(content),
+                image_data_format::rgba_dxt3,
+                16,
+                {4,4}};
+        case pvr_pixel_format::dxt4:
         case pvr_pixel_format::dxt5:
-            out_format = image_data_format::rgba_dxt5;
-            out_bytes_per_block = 16;
-            out_block_size = v2u(4,4);
-            break;
-        case pvr_pixel_format::rgba8:
-            out_format = image_data_format::rgba8;
-            out_bytes_per_block = 4;
-            out_block_size = v2u(1,1);
-            break;
-        case pvr_pixel_format::r8:
-            out_format = image_data_format::g8;
-            out_bytes_per_block = 1;
-            out_block_size = v2u(1,1);
-            break;
-        case pvr_pixel_format::rg8:
-            out_format = image_data_format::ga8;
-            out_bytes_per_block = 2;
-            out_block_size = v2u(1,1);
-            break;
+            return {
+                buffer(content),
+                image_data_format::rgba_dxt5,
+                16,
+                {4,4}};
+        case pvr_pixel_format::a8:
+            return {
+                buffer(content),
+                image_data_format::a8,
+                1,
+                {1,1}};
+        case pvr_pixel_format::l8:
+            return {
+                buffer(content),
+                image_data_format::l8,
+                1,
+                {1,1}};
+        case pvr_pixel_format::la8:
+            return {
+                buffer(content),
+                image_data_format::la8,
+                2,
+                {1,1}};
         case pvr_pixel_format::rgb8:
-            out_format = image_data_format::rgb8;
-            out_bytes_per_block = 3;
-            out_block_size = v2u(1,1);
-            break;
+            return {
+                buffer(content),
+                image_data_format::rgb8,
+                3,
+                {1,1}};
+        case pvr_pixel_format::rgba8:
+            return {
+                buffer(content),
+                image_data_format::rgba8,
+                4,
+                {1,1}};
+        case pvr_pixel_format::bgr8:
+            return {
+                bgr8_to_rgb8(content),
+                image_data_format::rgb8,
+                3,
+                {1,1}};
+        case pvr_pixel_format::bgra8:
+            return {
+                bgra8_to_rgba8(content),
+                image_data_format::rgba8,
+                4,
+                {1,1}};
         default:
-            return false;
+            return image_info();
         }
-        return true;
     }
 }
 
 namespace e2d::images::impl
 {
-    bool load_image_pvr(image& dst, const buffer& src) {
-        if ( !is_pvr(src.data(), src.size()) ) {
+    bool load_image_pvr(image& dst, buffer_view src) {
+        if ( src.size() < sizeof(pvr_header) ) {
             return false;
         }
 
         const pvr_header& hdr = *reinterpret_cast<const pvr_header*>(src.data());
-        const u8* content = src.data() + sizeof(pvr_header) + hdr.metaDataSize;
-        const std::size_t content_size = static_cast<std::size_t>(src.data() + src.size() - content);
 
-        if ( hdr.numSurfaces != 1 || hdr.numFaces != 1 || hdr.depth > 1 ) {
-            return false; // cubemap and volume textures are not supported
+        if ( hdr.version != make_fourcc('P', 'V', 'R', 3) ) {
+            return false;
         }
 
-        image_data_format format = image_data_format(-1);
-        u32 bytes_per_block = 0;
-        v2u block_size = v2u(1,1);
-        if ( !get_pvr_format(hdr, format, bytes_per_block, block_size) ) {
+        if ( src.size() < sizeof(pvr_header) + hdr.meta_data_size ) {
+            return false;
+        }
+
+        if ( hdr.mipmap_count > 1 ||
+             hdr.num_surfaces > 1 ||
+             hdr.num_faces > 1 ||
+             hdr.depth > 1 )
+        {
+            return false;
+        }
+
+        image_info info = extract_image_info(hdr, {
+            static_cast<const u8*>(src.data()) + sizeof(pvr_header) + hdr.meta_data_size,
+            src.size() - sizeof(pvr_header) - hdr.meta_data_size});
+
+        if ( !info.valid() ) {
             return false;
         }
 
         const v2u dimension = v2u(hdr.width, hdr.height);
-        const std::size_t size = bytes_per_block *
-            ((dimension.x + block_size.x - 1) / block_size.x) *
-            ((dimension.y + block_size.y - 1) / block_size.y);
+        const std::size_t expected_image_data_size = info.bytes_per_block *
+            ((dimension.x + info.block_size.x - 1) / info.block_size.x) *
+            ((dimension.y + info.block_size.y - 1) / info.block_size.y);
 
-        if ( content_size != size ) {
+        if ( info.data.size() != expected_image_data_size ) {
             return false;
         }
 
-        dst = image(dimension, format, buffer(content, size));
+        dst = image(dimension, info.format, std::move(info.data));
         return true;
     }
 }
