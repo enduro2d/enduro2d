@@ -273,4 +273,13 @@ TEST_CASE("buffer_view") {
         REQUIRE(buffer_view("hello",5) != buffer_view("hello, world",12));
         REQUIRE_FALSE(buffer_view("hello",5) == buffer_view("hello, world",12));
     }
+    {
+        buffer_view v0("hello",5);
+        buffer b0 = buffer(v0);
+        REQUIRE(v0 == b0);
+
+        buffer_view v1;
+        buffer b1 = buffer(v1);
+        REQUIRE(v1 == b1);
+    }
 }

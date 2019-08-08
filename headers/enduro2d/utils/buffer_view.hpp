@@ -37,6 +37,8 @@ namespace e2d
         std::size_t size() const noexcept;
         bool empty() const noexcept;
         void swap(buffer_view& other) noexcept;
+
+        explicit operator buffer();
     private:
         const void* data_ = nullptr;
         std::size_t size_ = 0;
