@@ -114,14 +114,10 @@ namespace
 
 namespace e2d::meshes::impl
 {
-    bool try_load_mesh_e2d(mesh& dst, const buffer& src) noexcept {
-        try {
-            auto stream = make_memory_stream(src);
-            return stream
-                && check_signature(stream)
-                && load_mesh(dst, stream);
-        } catch (...) {
-            return false;
-        }
+    bool load_mesh_e2d(mesh& dst, buffer_view src) {
+        auto stream = make_memory_stream(buffer(src));
+        return stream
+            && check_signature(stream)
+            && load_mesh(dst, stream);
     }
 }
