@@ -42,20 +42,53 @@ namespace
         }
     }
 
+    bool stb_check_save_image_format(image_data_format format) noexcept {
+        switch ( format ) {
+            case image_data_format::l8:
+            case image_data_format::la8:
+            case image_data_format::rgb8:
+            case image_data_format::rgba8:
+                return true;
+            default:
+                return false;
+        }
+    }
+
     int stb_channels_from_image_format(image_data_format format) noexcept {
         switch ( format ) {
-            case image_data_format::g8:    return 1;
-            case image_data_format::ga8:   return 2;
-            case image_data_format::rgb8:  return 3;
+            case image_data_format::l8: return 1;
+            case image_data_format::la8: return 2;
+            case image_data_format::rgb8: return 3;
             case image_data_format::rgba8: return 4;
-            default:                       return 0;
+            default:
+                E2D_ASSERT_MSG(false, "unexpected image data format");
+                return 0;
         }
     }
 }
 
 namespace e2d::images::impl
 {
+    bool check_save_image_jpg(const image& src) noexcept {
+        return stb_check_save_image_format(src.format());
+    }
+
+    bool check_save_image_png(const image& src) noexcept {
+        return stb_check_save_image_format(src.format());
+    }
+
+    bool check_save_image_tga(const image& src) noexcept {
+        return stb_check_save_image_format(src.format());
+    }
+}
+
+namespace e2d::images::impl
+{
     bool save_image_jpg(const image& src, buffer& dst) {
+        if ( !check_save_image_jpg(src) ) {
+            return false;
+        }
+
         int img_w = math::numeric_cast<int>(src.size().x);
         int img_h = math::numeric_cast<int>(src.size().y);
         int img_c = stb_channels_from_image_format(src.format());
@@ -82,6 +115,10 @@ namespace e2d::images::impl
     }
 
     bool save_image_png(const image& src, buffer& dst) {
+        if ( !check_save_image_png(src) ) {
+            return false;
+        }
+
         int img_w = math::numeric_cast<int>(src.size().x);
         int img_h = math::numeric_cast<int>(src.size().y);
         int img_c = stb_channels_from_image_format(src.format());
@@ -108,6 +145,10 @@ namespace e2d::images::impl
     }
 
     bool save_image_tga(const image& src, buffer& dst) {
+        if ( !check_save_image_tga(src) ) {
+            return false;
+        }
+
         int img_w = math::numeric_cast<int>(src.size().x);
         int img_h = math::numeric_cast<int>(src.size().y);
         int img_c = stb_channels_from_image_format(src.format());

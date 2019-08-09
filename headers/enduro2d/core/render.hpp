@@ -48,19 +48,30 @@ namespace e2d
             depth24,
             depth24_stencil8,
 
-            g8,
-            ga8,
+            a8,
+            l8,
+            la8,
             rgb8,
             rgba8,
 
-            rgb_dxt1,
             rgba_dxt1,
             rgba_dxt3,
             rgba_dxt5,
 
+            rgb_etc1,
+            rgb_etc2,
+            rgba_etc2,
+            rgb_a1_etc2,
+
+            rgba_astc4x4,
+            rgba_astc5x5,
+            rgba_astc6x6,
+            rgba_astc8x8,
+            rgba_astc10x10,
+            rgba_astc12x12,
+
             rgb_pvrtc2,
             rgb_pvrtc4,
-
             rgba_pvrtc2,
             rgba_pvrtc4,
 
@@ -82,8 +93,9 @@ namespace e2d
         bool is_depth() const noexcept;
         bool is_stencil() const noexcept;
         bool is_compressed() const noexcept;
-        std::size_t bits_per_pixel() const noexcept;
-        v2u compressed_block_size() const noexcept;
+        v2u block_size() const noexcept;
+        std::size_t bytes_per_block() const noexcept;
+        std::size_t data_size_for_dimension(v2u dim) const noexcept;
     private:
         pixel_type type_ = pixel_type::rgba8;
     };
@@ -902,6 +914,9 @@ namespace e2d
             bool depth24_stencil8_supported = false;
 
             bool dxt_compression_supported = false;
+            bool etc1_compression_supported = false;
+            bool etc2_compression_supported = false;
+            bool astc_compression_supported = false;
             bool pvrtc_compression_supported = false;
             bool pvrtc2_compression_supported = false;
         };

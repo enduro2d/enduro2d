@@ -299,9 +299,13 @@ namespace e2d::meshes
 {
     bool try_load_mesh(
         mesh& dst,
-        const buffer& src) noexcept
+        buffer_view src) noexcept
     {
-        return impl::try_load_mesh_e2d(dst, src);
+        try {
+            return impl::load_mesh_e2d(dst, src);
+        } catch (...) {
+            return false;
+        }
     }
 
     bool try_load_mesh(

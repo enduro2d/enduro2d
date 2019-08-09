@@ -96,14 +96,10 @@ namespace
 
 namespace e2d::shapes::impl
 {
-    bool try_load_shape_e2d(shape& dst, const buffer& src) noexcept {
-        try {
-            auto stream = make_memory_stream(src);
-            return stream
-                && check_signature(stream)
-                && load_shape(dst, stream);
-        } catch (...) {
-            return false;
-        }
+    bool load_shape_e2d(shape& dst, buffer_view src) {
+        auto stream = make_memory_stream(buffer(src));
+        return stream
+            && check_signature(stream)
+            && load_shape(dst, stream);
     }
 }

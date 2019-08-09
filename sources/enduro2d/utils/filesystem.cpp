@@ -105,12 +105,7 @@ namespace e2d::filesystem
             dst, make_read_file(path));
     }
 
-    bool try_write_all(const str& src, str_view path, bool append) noexcept {
-        return streams::try_write_tail(
-            src, make_write_file(path, append));
-    }
-
-    bool try_write_all(const buffer& src, str_view path, bool append) noexcept {
+    bool try_write_all(buffer_view src, str_view path, bool append) noexcept {
         return streams::try_write_tail(
             src, make_write_file(path, append));
     }

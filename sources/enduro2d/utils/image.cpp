@@ -11,29 +11,41 @@ namespace
     using namespace e2d;
 
     struct data_format_description {
-        u32 bits_per_pixel;
+        u32 uncompressed_bytes_per_pixel;
         image_data_format format;
         bool compressed;
     };
 
     const data_format_description data_format_descriptions[] = {
-        { 8, image_data_format::g8,             false},
-        {16, image_data_format::ga8,            false},
-        {24, image_data_format::rgb8,           false},
-        {32, image_data_format::rgba8,          false},
+        {1, image_data_format::a8,             false},
+        {1, image_data_format::l8,             false},
+        {2, image_data_format::la8,            false},
+        {3, image_data_format::rgb8,           false},
+        {4, image_data_format::rgba8,          false},
 
-        { 4, image_data_format::rgb_dxt1,       true},
-        { 4, image_data_format::rgba_dxt1,      true},
-        { 8, image_data_format::rgba_dxt3,      true},
-        { 8, image_data_format::rgba_dxt5,      true},
+        {0, image_data_format::rgba_dxt1,      true},
+        {0, image_data_format::rgba_dxt3,      true},
+        {0, image_data_format::rgba_dxt5,      true},
 
-        { 2, image_data_format::rgb_pvrtc2,     true},
-        { 4, image_data_format::rgb_pvrtc4,     true},
-        { 2, image_data_format::rgba_pvrtc2,    true},
-        { 4, image_data_format::rgba_pvrtc4,    true},
+        {0, image_data_format::rgb_etc1,       true},
+        {0, image_data_format::rgb_etc2,       true},
+        {0, image_data_format::rgba_etc2,      true},
+        {0, image_data_format::rgb_a1_etc2,    true},
 
-        { 2, image_data_format::rgba_pvrtc2_v2, true},
-        { 4, image_data_format::rgba_pvrtc4_v2, true}
+        {0, image_data_format::rgba_astc4x4,   true},
+        {0, image_data_format::rgba_astc5x5,   true},
+        {0, image_data_format::rgba_astc6x6,   true},
+        {0, image_data_format::rgba_astc8x8,   true},
+        {0, image_data_format::rgba_astc10x10, true},
+        {0, image_data_format::rgba_astc12x12, true},
+
+        {0, image_data_format::rgb_pvrtc2,     true},
+        {0, image_data_format::rgb_pvrtc4,     true},
+        {0, image_data_format::rgba_pvrtc2,    true},
+        {0, image_data_format::rgba_pvrtc4,    true},
+
+        {0, image_data_format::rgba_pvrtc2_v2, true},
+        {0, image_data_format::rgba_pvrtc4_v2, true}
     };
 
     const data_format_description& get_data_format_description(image_data_format format) noexcept {
@@ -119,14 +131,6 @@ namespace e2d
         return data_.empty();
     }
 
-    color image::pixel(u32 u, u32 v) const {
-        return color(pixel32(u, v));
-    }
-
-    color image::pixel(const v2u& uv) const {
-        return color(pixel32(uv));
-    }
-
     color32 image::pixel32(u32 u, u32 v) const {
         const data_format_description& format_desc =
             get_data_format_description(format_);
@@ -135,25 +139,26 @@ namespace e2d
             throw bad_image_access();
         }
 
-        const std::size_t bits_per_pixel = format_desc.bits_per_pixel;
-        const std::size_t bytes_per_pixel = bits_per_pixel / 8;
+        const std::size_t bytes_per_pixel = format_desc.uncompressed_bytes_per_pixel;
         const std::size_t stride_in_bytes = size_.x * bytes_per_pixel;
-        E2D_ASSERT(bits_per_pixel % 8 == 0);
 
         const std::size_t pixel_index = v * stride_in_bytes + u * bytes_per_pixel;
         E2D_ASSERT(pixel_index + bytes_per_pixel <= data_.size());
         const u8* const pixel = data_.data() + pixel_index;
 
         switch ( format_ ) {
-            case image_data_format::g8:
+            case image_data_format::a8:
                 E2D_ASSERT(bytes_per_pixel == 1);
-                return color32(pixel[0], pixel[0], pixel[0]);
-            case image_data_format::ga8:
+                return color32(0, 0, 0, pixel[0]);
+            case image_data_format::l8:
+                E2D_ASSERT(bytes_per_pixel == 1);
+                return color32(pixel[0], pixel[0], pixel[0], 255);
+            case image_data_format::la8:
                 E2D_ASSERT(bytes_per_pixel == 2);
                 return color32(pixel[0], pixel[0], pixel[0], pixel[1]);
             case image_data_format::rgb8:
                 E2D_ASSERT(bytes_per_pixel == 3);
-                return color32(pixel[0], pixel[1], pixel[2]);
+                return color32(pixel[0], pixel[1], pixel[2], 255);
             case image_data_format::rgba8:
                 E2D_ASSERT(bytes_per_pixel == 4);
                 return color32(pixel[0], pixel[1], pixel[2], pixel[3]);
@@ -201,7 +206,7 @@ namespace e2d::images
 {
     bool try_load_image(
         image& dst,
-        const buffer& src) noexcept
+        buffer_view src) noexcept
     {
         try {
             return impl::load_image_dds(dst, src)
@@ -255,5 +260,26 @@ namespace e2d::images
         buffer file_data;
         return try_save_image(src, format, file_data)
             && streams::try_write_tail(file_data, dst);
+    }
+
+    bool check_save_image_support(
+        const image& src,
+        image_file_format format) noexcept
+    {
+        switch ( format ) {
+            case image_file_format::dds:
+                return impl::check_save_image_dds(src);
+            case image_file_format::jpg:
+                return impl::check_save_image_jpg(src);
+            case image_file_format::png:
+                return impl::check_save_image_png(src);
+            case image_file_format::pvr:
+                return impl::check_save_image_pvr(src);
+            case image_file_format::tga:
+                return impl::check_save_image_tga(src);
+            default:
+                E2D_ASSERT_MSG(false, "unexpected image file format");
+                return false;
+        }
     }
 }
