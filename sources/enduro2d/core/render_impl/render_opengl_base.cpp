@@ -1453,6 +1453,7 @@ namespace e2d::opengl
                 "GL_OES_compressed_ETC1_RGB8_texture");
 
         caps.etc2_compression_supported =
+            version >= gl_version::gles_300 ||
             gl_has_any_extension(debug,
                 "GL_ARB_ES3_compatibility");
 
