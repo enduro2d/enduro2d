@@ -128,6 +128,42 @@ namespace
                 image_data_format::rgb_a1_etc2,
                 8,
                 {4,4}};
+        case pvr_pixel_format::astc_4x4:
+            return {
+                buffer(content),
+                image_data_format::rgba_astc4x4,
+                16,
+                {4,4}};
+        case pvr_pixel_format::astc_5x5:
+            return {
+                buffer(content),
+                image_data_format::rgba_astc5x5,
+                16,
+                {5,5}};
+        case pvr_pixel_format::astc_6x6:
+            return {
+                buffer(content),
+                image_data_format::rgba_astc6x6,
+                16,
+                {6,6}};
+        case pvr_pixel_format::astc_8x8:
+            return {
+                buffer(content),
+                image_data_format::rgba_astc8x8,
+                16,
+                {8,8}};
+        case pvr_pixel_format::astc_10x10:
+            return {
+                buffer(content),
+                image_data_format::rgba_astc10x10,
+                16,
+                {10,10}};
+        case pvr_pixel_format::astc_12x12:
+            return {
+                buffer(content),
+                image_data_format::rgba_astc12x12,
+                16,
+                {12,12}};
         case pvr_pixel_format::a8:
             return {
                 buffer(content),

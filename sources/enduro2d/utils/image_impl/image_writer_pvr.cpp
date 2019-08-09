@@ -29,6 +29,13 @@ namespace
         case image_data_format::rgba_etc2: return pvr_pixel_format::etc2_rgba;
         case image_data_format::rgb_a1_etc2: return pvr_pixel_format::etc2_rgb_a1;
 
+        case image_data_format::rgba_astc4x4: return pvr_pixel_format::astc_4x4;
+        case image_data_format::rgba_astc5x5: return pvr_pixel_format::astc_5x5;
+        case image_data_format::rgba_astc6x6: return pvr_pixel_format::astc_6x6;
+        case image_data_format::rgba_astc8x8: return pvr_pixel_format::astc_8x8;
+        case image_data_format::rgba_astc10x10: return pvr_pixel_format::astc_10x10;
+        case image_data_format::rgba_astc12x12: return pvr_pixel_format::astc_12x12;
+
         case image_data_format::rgb_pvrtc2: return pvr_pixel_format::pvrtc_2bpp_rgb;
         case image_data_format::rgb_pvrtc4: return pvr_pixel_format::pvrtc_4bpp_rgb;
         case image_data_format::rgba_pvrtc2: return pvr_pixel_format::pvrtc_2bpp_rgba;
@@ -61,6 +68,13 @@ namespace e2d::images::impl
             case image_data_format::rgb_etc2:
             case image_data_format::rgba_etc2:
             case image_data_format::rgb_a1_etc2:
+
+            case image_data_format::rgba_astc4x4:
+            case image_data_format::rgba_astc5x5:
+            case image_data_format::rgba_astc6x6:
+            case image_data_format::rgba_astc8x8:
+            case image_data_format::rgba_astc10x10:
+            case image_data_format::rgba_astc12x12:
 
             case image_data_format::rgb_pvrtc2:
             case image_data_format::rgb_pvrtc4:

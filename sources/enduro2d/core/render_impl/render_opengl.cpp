@@ -669,7 +669,7 @@ namespace e2d
 
         with_gl_bind_texture(state_->dbg(), id, [this, &id, &size, &decl]() noexcept {
             if ( decl.is_compressed() ) {
-                buffer empty_data(decl.bits_per_pixel() * size.x * size.y / 8);
+                buffer empty_data(decl.data_size_for_dimension(size));
                 GL_CHECK_CODE(state_->dbg(), glCompressedTexImage2D(
                     id.target(),
                     0,
@@ -1096,10 +1096,10 @@ namespace e2d
         E2D_ASSERT(region.position.x < tex->size().x && region.position.y < tex->size().y);
         E2D_ASSERT(region.position.x + region.size.x <= tex->size().x);
         E2D_ASSERT(region.position.y + region.size.y <= tex->size().y);
-        E2D_ASSERT(pixels.size() == region.size.y * ((region.size.x * tex->decl().bits_per_pixel()) / 8u));
+        E2D_ASSERT(pixels.size() == tex->decl().data_size_for_dimension(region.size));
 
         if ( tex->decl().is_compressed() ) {
-            const v2u block_size = tex->decl().compressed_block_size();
+            const v2u block_size = tex->decl().block_size();
             E2D_ASSERT(region.position.x % block_size.x == 0 && region.position.y % block_size.y == 0);
             E2D_ASSERT(region.size.x % block_size.x == 0 && region.size.y % block_size.y == 0);
             opengl::with_gl_bind_texture(state_->dbg(), tex->state().id(),
@@ -1146,36 +1146,53 @@ namespace e2d
             case pixel_declaration::pixel_type::depth16:
                 return caps.depth_texture_supported
                     && caps.depth16_supported;
+
             case pixel_declaration::pixel_type::depth24:
                 return caps.depth_texture_supported
                     && caps.depth24_supported;
+
             case pixel_declaration::pixel_type::depth24_stencil8:
                 return caps.depth_texture_supported
                     && caps.depth24_stencil8_supported;
+
             case pixel_declaration::pixel_type::a8:
             case pixel_declaration::pixel_type::l8:
             case pixel_declaration::pixel_type::la8:
             case pixel_declaration::pixel_type::rgb8:
             case pixel_declaration::pixel_type::rgba8:
                 return true;
+
             case pixel_declaration::pixel_type::rgba_dxt1:
             case pixel_declaration::pixel_type::rgba_dxt3:
             case pixel_declaration::pixel_type::rgba_dxt5:
                 return caps.dxt_compression_supported;
+
             case pixel_declaration::pixel_type::rgb_etc1:
                 return caps.etc1_compression_supported;
+
             case pixel_declaration::pixel_type::rgb_etc2:
             case pixel_declaration::pixel_type::rgba_etc2:
             case pixel_declaration::pixel_type::rgb_a1_etc2:
                 return caps.etc2_compression_supported;
+
+            case pixel_declaration::pixel_type::rgba_astc4x4:
+            case pixel_declaration::pixel_type::rgba_astc5x5:
+            case pixel_declaration::pixel_type::rgba_astc6x6:
+            case pixel_declaration::pixel_type::rgba_astc8x8:
+            case pixel_declaration::pixel_type::rgba_astc10x10:
+            case pixel_declaration::pixel_type::rgba_astc12x12:
+                return caps.astc_compression_supported;
+
             case pixel_declaration::pixel_type::rgb_pvrtc2:
             case pixel_declaration::pixel_type::rgb_pvrtc4:
             case pixel_declaration::pixel_type::rgba_pvrtc2:
             case pixel_declaration::pixel_type::rgba_pvrtc4:
                 return caps.pvrtc_compression_supported;
+
             case pixel_declaration::pixel_type::rgba_pvrtc2_v2:
             case pixel_declaration::pixel_type::rgba_pvrtc4_v2:
                 return caps.pvrtc2_compression_supported;
+
             default:
                 E2D_ASSERT_MSG(false, "unexpected pixel type");
                 return false;

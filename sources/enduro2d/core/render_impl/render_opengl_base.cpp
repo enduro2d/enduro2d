@@ -843,6 +843,13 @@ namespace e2d::opengl
             DEFINE_CASE(rgba_etc2, GL_COMPRESSED_RGBA8_ETC2_EAC);
             DEFINE_CASE(rgb_a1_etc2, GL_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2);
 
+            DEFINE_CASE(rgba_astc4x4, GL_COMPRESSED_RGBA_ASTC_4x4_KHR);
+            DEFINE_CASE(rgba_astc5x5, GL_COMPRESSED_RGBA_ASTC_5x5_KHR);
+            DEFINE_CASE(rgba_astc6x6, GL_COMPRESSED_RGBA_ASTC_6x6_KHR);
+            DEFINE_CASE(rgba_astc8x8, GL_COMPRESSED_RGBA_ASTC_8x8_KHR);
+            DEFINE_CASE(rgba_astc10x10, GL_COMPRESSED_RGBA_ASTC_10x10_KHR);
+            DEFINE_CASE(rgba_astc12x12, GL_COMPRESSED_RGBA_ASTC_12x12_KHR);
+
             DEFINE_CASE(rgb_pvrtc2, GL_COMPRESSED_RGB_PVRTC_2BPPV1_IMG);
             DEFINE_CASE(rgb_pvrtc4, GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG);
             DEFINE_CASE(rgba_pvrtc2, GL_COMPRESSED_RGBA_PVRTC_2BPPV1_IMG);
@@ -878,6 +885,13 @@ namespace e2d::opengl
             DEFINE_CASE(rgb_etc2, rgb_etc2);
             DEFINE_CASE(rgba_etc2, rgba_etc2);
             DEFINE_CASE(rgb_a1_etc2, rgb_a1_etc2);
+
+            DEFINE_CASE(rgba_astc4x4, rgba_astc4x4);
+            DEFINE_CASE(rgba_astc5x5, rgba_astc5x5);
+            DEFINE_CASE(rgba_astc6x6, rgba_astc6x6);
+            DEFINE_CASE(rgba_astc8x8, rgba_astc8x8);
+            DEFINE_CASE(rgba_astc10x10, rgba_astc10x10);
+            DEFINE_CASE(rgba_astc12x12, rgba_astc12x12);
 
             DEFINE_CASE(rgb_pvrtc2, rgb_pvrtc2);
             DEFINE_CASE(rgb_pvrtc4, rgb_pvrtc4);
@@ -1441,6 +1455,12 @@ namespace e2d::opengl
         caps.etc2_compression_supported =
             gl_has_any_extension(debug,
                 "GL_ARB_ES3_compatibility");
+
+        caps.astc_compression_supported =
+            gl_has_any_extension(debug,
+                "GL_OES_texture_compression_astc",
+                "GL_KHR_texture_compression_astc_ldr",
+                "GL_KHR_texture_compression_astc_hdr");
 
         caps.pvrtc_compression_supported =
             gl_has_any_extension(debug,

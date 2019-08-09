@@ -190,8 +190,7 @@ TEST_CASE("render"){
                 texture_ptr tex = r.create_texture(v2u(128,128), pixel_declaration::pixel_type::rgba8);
                 REQUIRE(tex != nullptr);
 
-                buffer src;
-                src.resize(((tex->size().x * tex->decl().bits_per_pixel()) / 8u) * tex->size().y);
+                buffer src(tex->size().x * tex->size().y * 4u);
                 for ( auto& c : src ) {
                     c = rand() % 255;
                 }
@@ -201,8 +200,7 @@ TEST_CASE("render"){
                 texture_ptr tex = r.create_texture(v2u(128,128), pixel_declaration::pixel_type::l8);
                 REQUIRE(tex != nullptr);
 
-                buffer src;
-                src.resize(((tex->size().x * tex->decl().bits_per_pixel()) / 8u) * tex->size().y);
+                buffer src(tex->size().x * tex->size().y * 1u);
                 for ( auto& c : src ) {
                     c = rand() % 255;
                 }
@@ -212,8 +210,7 @@ TEST_CASE("render"){
                 texture_ptr tex = r.create_texture(v2u(128,128), pixel_declaration::pixel_type::rgb8);
                 REQUIRE(tex != nullptr);
 
-                buffer src;
-                src.resize(((tex->size().x * tex->decl().bits_per_pixel()) / 8u) * tex->size().y);
+                buffer src(tex->size().x * tex->size().y * 3u);
                 for ( auto& c : src ) {
                     c = rand() % 255;
                 }
@@ -223,8 +220,7 @@ TEST_CASE("render"){
                 texture_ptr tex = r.create_texture(v2u(57,31), pixel_declaration::pixel_type::rgba8);
                 REQUIRE(tex != nullptr);
 
-                buffer src;
-                src.resize(((tex->size().x * tex->decl().bits_per_pixel()) / 8u) * tex->size().y);
+                buffer src(tex->size().x * tex->size().y * 4u);
                 for ( auto& c : src ) {
                     c = rand() % 255;
                 }
@@ -234,8 +230,7 @@ TEST_CASE("render"){
                 texture_ptr tex = r.create_texture(v2u(128,128), pixel_declaration::pixel_type::rgba8);
                 REQUIRE(tex != nullptr);
 
-                buffer src;
-                src.resize(((31 * tex->decl().bits_per_pixel()) / 8u) * 44);
+                buffer src(31u * 44u * 4u);
                 for ( auto& c : src ) {
                     c = rand() % 255;
                 }
@@ -245,8 +240,7 @@ TEST_CASE("render"){
                 texture_ptr tex = r.create_texture(v2u(128,128), pixel_declaration::pixel_type::rgba8);
                 REQUIRE(tex != nullptr);
 
-                buffer src;
-                src.resize(((31 * tex->decl().bits_per_pixel()) / 8u) * 44);
+                buffer src(31u * 44u * 4u);
                 for ( auto& c : src ) {
                     c = rand() % 255;
                 }
