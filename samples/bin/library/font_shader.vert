@@ -9,7 +9,7 @@ varying vec2 v_st0;
 varying vec4 v_color;
 
 void main() {
-    v_st0 = a_st0;
+    v_st0 = vec2(a_st0.s, 1.0 - a_st0.t);
     v_color = a_color0;
     gl_Position = vec4(a_vertex, 1.0) * u_matrix_m * u_matrix_vp;
 }
