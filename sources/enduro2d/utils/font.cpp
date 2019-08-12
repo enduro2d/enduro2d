@@ -52,7 +52,10 @@ namespace
         i32 res{0};
         auto end = buf.find(' ', pos);
         if ( end == str_view::npos ) {
-            end = buf.find('\n', pos);
+            end = buf.find("\r\n", pos);
+            if ( end == str_view::npos ) {
+                end = buf.find('\n', pos);
+            }
         }
 
         if ( end == str_view::npos ) {
