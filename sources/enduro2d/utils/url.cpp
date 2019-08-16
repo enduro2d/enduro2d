@@ -46,7 +46,7 @@ namespace
         }
         return std::make_pair(
             str(schemepath.substr(0, sep_pos)),
-            str(schemepath.substr(sep_pos + scheme_separator.length())));
+            str(schemepath.substr(sep_pos + scheme_separator.size())));
     }
 }
 
