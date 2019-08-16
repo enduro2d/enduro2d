@@ -758,8 +758,9 @@ namespace e2d::opengl
     GLenum convert_image_data_format_to_external_format(image_data_format f) noexcept {
         #define DEFINE_CASE(x,y) case image_data_format::x: return y
         switch ( f ) {
-            DEFINE_CASE(g8, GL_LUMINANCE);
-            DEFINE_CASE(ga8, GL_LUMINANCE_ALPHA);
+            DEFINE_CASE(a8, GL_ALPHA);
+            DEFINE_CASE(l8, GL_LUMINANCE);
+            DEFINE_CASE(la8, GL_LUMINANCE_ALPHA);
             DEFINE_CASE(rgb8, GL_RGB);
             DEFINE_CASE(rgba8, GL_RGBA);
             default:
@@ -772,8 +773,9 @@ namespace e2d::opengl
     GLenum convert_image_data_format_to_external_data_type(image_data_format f) noexcept {
         #define DEFINE_CASE(x,y) case image_data_format::x: return y
         switch ( f ) {
-            DEFINE_CASE(g8, GL_UNSIGNED_BYTE);
-            DEFINE_CASE(ga8, GL_UNSIGNED_BYTE);
+            DEFINE_CASE(a8, GL_UNSIGNED_BYTE);
+            DEFINE_CASE(l8, GL_UNSIGNED_BYTE);
+            DEFINE_CASE(la8, GL_UNSIGNED_BYTE);
             DEFINE_CASE(rgb8, GL_UNSIGNED_BYTE);
             DEFINE_CASE(rgba8, GL_UNSIGNED_BYTE);
             default:
@@ -789,8 +791,9 @@ namespace e2d::opengl
             DEFINE_CASE(depth16, GL_DEPTH_COMPONENT);
             DEFINE_CASE(depth24, GL_DEPTH_COMPONENT);
             DEFINE_CASE(depth24_stencil8, GL_DEPTH_STENCIL);
-            DEFINE_CASE(g8, GL_ALPHA);
-            DEFINE_CASE(ga8, GL_LUMINANCE_ALPHA);
+            DEFINE_CASE(a8, GL_ALPHA);
+            DEFINE_CASE(l8, GL_LUMINANCE);
+            DEFINE_CASE(la8, GL_LUMINANCE_ALPHA);
             DEFINE_CASE(rgb8, GL_RGB);
             DEFINE_CASE(rgba8, GL_RGBA);
             default:
@@ -806,8 +809,9 @@ namespace e2d::opengl
             DEFINE_CASE(depth16, GL_UNSIGNED_SHORT);
             DEFINE_CASE(depth24, GL_UNSIGNED_INT);
             DEFINE_CASE(depth24_stencil8, GL_UNSIGNED_INT_24_8);
-            DEFINE_CASE(g8, GL_UNSIGNED_BYTE);
-            DEFINE_CASE(ga8, GL_UNSIGNED_BYTE);
+            DEFINE_CASE(a8, GL_UNSIGNED_BYTE);
+            DEFINE_CASE(l8, GL_UNSIGNED_BYTE);
+            DEFINE_CASE(la8, GL_UNSIGNED_BYTE);
             DEFINE_CASE(rgb8, GL_UNSIGNED_BYTE);
             DEFINE_CASE(rgba8, GL_UNSIGNED_BYTE);
             default:
@@ -824,19 +828,30 @@ namespace e2d::opengl
             DEFINE_CASE(depth24, GL_DEPTH_COMPONENT24);
             DEFINE_CASE(depth24_stencil8, GL_DEPTH24_STENCIL8);
 
-            DEFINE_CASE(g8, GL_ALPHA);
-            DEFINE_CASE(ga8, GL_LUMINANCE_ALPHA);
+            DEFINE_CASE(a8, GL_ALPHA);
+            DEFINE_CASE(l8, GL_LUMINANCE);
+            DEFINE_CASE(la8, GL_LUMINANCE_ALPHA);
             DEFINE_CASE(rgb8, GL_RGB);
             DEFINE_CASE(rgba8, GL_RGBA);
 
-            DEFINE_CASE(rgb_dxt1, GL_COMPRESSED_RGB_S3TC_DXT1_EXT);
             DEFINE_CASE(rgba_dxt1, GL_COMPRESSED_RGBA_S3TC_DXT1_EXT);
             DEFINE_CASE(rgba_dxt3, GL_COMPRESSED_RGBA_S3TC_DXT3_EXT);
             DEFINE_CASE(rgba_dxt5, GL_COMPRESSED_RGBA_S3TC_DXT5_EXT);
 
+            DEFINE_CASE(rgb_etc1, GL_ETC1_RGB8_OES);
+            DEFINE_CASE(rgb_etc2, GL_COMPRESSED_RGB8_ETC2);
+            DEFINE_CASE(rgba_etc2, GL_COMPRESSED_RGBA8_ETC2_EAC);
+            DEFINE_CASE(rgb_a1_etc2, GL_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2);
+
+            DEFINE_CASE(rgba_astc4x4, GL_COMPRESSED_RGBA_ASTC_4x4_KHR);
+            DEFINE_CASE(rgba_astc5x5, GL_COMPRESSED_RGBA_ASTC_5x5_KHR);
+            DEFINE_CASE(rgba_astc6x6, GL_COMPRESSED_RGBA_ASTC_6x6_KHR);
+            DEFINE_CASE(rgba_astc8x8, GL_COMPRESSED_RGBA_ASTC_8x8_KHR);
+            DEFINE_CASE(rgba_astc10x10, GL_COMPRESSED_RGBA_ASTC_10x10_KHR);
+            DEFINE_CASE(rgba_astc12x12, GL_COMPRESSED_RGBA_ASTC_12x12_KHR);
+
             DEFINE_CASE(rgb_pvrtc2, GL_COMPRESSED_RGB_PVRTC_2BPPV1_IMG);
             DEFINE_CASE(rgb_pvrtc4, GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG);
-
             DEFINE_CASE(rgba_pvrtc2, GL_COMPRESSED_RGBA_PVRTC_2BPPV1_IMG);
             DEFINE_CASE(rgba_pvrtc4, GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG);
 
@@ -856,19 +871,30 @@ namespace e2d::opengl
     pixel_declaration convert_image_data_format_to_pixel_declaration(image_data_format f) noexcept {
         #define DEFINE_CASE(x,y) case image_data_format::x: return pixel_declaration::pixel_type::y
         switch ( f ) {
-            DEFINE_CASE(g8, g8);
-            DEFINE_CASE(ga8, ga8);
+            DEFINE_CASE(a8, a8);
+            DEFINE_CASE(l8, l8);
+            DEFINE_CASE(la8, la8);
             DEFINE_CASE(rgb8, rgb8);
             DEFINE_CASE(rgba8, rgba8);
 
-            DEFINE_CASE(rgb_dxt1, rgb_dxt1);
             DEFINE_CASE(rgba_dxt1, rgba_dxt1);
             DEFINE_CASE(rgba_dxt3, rgba_dxt3);
             DEFINE_CASE(rgba_dxt5, rgba_dxt5);
 
+            DEFINE_CASE(rgb_etc1, rgb_etc1);
+            DEFINE_CASE(rgb_etc2, rgb_etc2);
+            DEFINE_CASE(rgba_etc2, rgba_etc2);
+            DEFINE_CASE(rgb_a1_etc2, rgb_a1_etc2);
+
+            DEFINE_CASE(rgba_astc4x4, rgba_astc4x4);
+            DEFINE_CASE(rgba_astc5x5, rgba_astc5x5);
+            DEFINE_CASE(rgba_astc6x6, rgba_astc6x6);
+            DEFINE_CASE(rgba_astc8x8, rgba_astc8x8);
+            DEFINE_CASE(rgba_astc10x10, rgba_astc10x10);
+            DEFINE_CASE(rgba_astc12x12, rgba_astc12x12);
+
             DEFINE_CASE(rgb_pvrtc2, rgb_pvrtc2);
             DEFINE_CASE(rgb_pvrtc4, rgb_pvrtc4);
-
             DEFINE_CASE(rgba_pvrtc2, rgba_pvrtc2);
             DEFINE_CASE(rgba_pvrtc4, rgba_pvrtc4);
 
@@ -1370,7 +1396,7 @@ namespace e2d::opengl
             render::api_profile::opengl_compat;
 
         caps.npot_texture_supported =
-            version >= gl_version::gl_210 ||
+            version >= gl_version::gl_210 || // gl_200
             version >= gl_version::gles_300 ||
             gl_has_any_extension(debug,
                 "GL_OES_texture_npot",
@@ -1381,38 +1407,38 @@ namespace e2d::opengl
             version >= gl_version::gles_300 ||
             gl_has_any_extension(debug,
                 "GL_OES_depth_texture",
-                "GL_ARB_depth_texture");
+                "GL_ARB_depth_texture"); // gl_140
 
         caps.render_target_supported =
-            version >= gl_version::gl_300 ||
+            version >= gl_version::gl_300 || // gl_300
             version >= gl_version::gles_200 ||
             gl_has_any_extension(debug,
                 "GL_OES_framebuffer_object",
-                "GL_ARB_framebuffer_object",
-                "GL_EXT_framebuffer_object");
+                "GL_EXT_framebuffer_object",
+                "GL_ARB_framebuffer_object");
 
         caps.element_index_uint =
-            version >= gl_version::gl_210 ||
+            version >= gl_version::gl_210 || // gl_100
             version >= gl_version::gles_300 ||
             gl_has_any_extension(debug,
                 "GL_OES_element_index_uint");
 
         caps.depth16_supported =
-            version >= gl_version::gl_210 ||
+            version >= gl_version::gl_210 || // gl_140
             version >= gl_version::gles_300 ||
             gl_has_any_extension(debug,
                 "GL_OES_depth_texture",
                 "GL_ARB_depth_texture");
 
         caps.depth24_supported =
-            version >= gl_version::gl_210 ||
+            version >= gl_version::gl_210 || // gl_140
             version >= gl_version::gles_300 ||
             gl_has_any_extension(debug,
                 "GL_OES_depth24",
                 "GL_ARB_depth_texture");
 
         caps.depth24_stencil8_supported =
-            version >= gl_version::gl_300 ||
+            version >= gl_version::gl_300 || // gl_300
             version >= gl_version::gles_300 ||
             gl_has_any_extension(debug,
                 "GL_OES_packed_depth_stencil",
@@ -1421,6 +1447,21 @@ namespace e2d::opengl
         caps.dxt_compression_supported =
             gl_has_any_extension(debug,
                 "GL_EXT_texture_compression_s3tc");
+
+        caps.etc1_compression_supported =
+            gl_has_any_extension(debug,
+                "GL_OES_compressed_ETC1_RGB8_texture");
+
+        caps.etc2_compression_supported =
+            version >= gl_version::gles_300 ||
+            gl_has_any_extension(debug,
+                "GL_ARB_ES3_compatibility");
+
+        caps.astc_compression_supported =
+            gl_has_any_extension(debug,
+                "GL_OES_texture_compression_astc",
+                "GL_KHR_texture_compression_astc_ldr",
+                "GL_KHR_texture_compression_astc_hdr");
 
         caps.pvrtc_compression_supported =
             gl_has_any_extension(debug,

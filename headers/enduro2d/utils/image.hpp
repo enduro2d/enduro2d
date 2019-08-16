@@ -9,7 +9,7 @@
 #include "_utils.hpp"
 
 #include "buffer.hpp"
-#include "color.hpp"
+#include "buffer_view.hpp"
 #include "color32.hpp"
 #include "streams.hpp"
 
@@ -24,19 +24,30 @@ namespace e2d
     };
 
     enum class image_data_format : u8 {
-        g8,
-        ga8,
+        a8,
+        l8,
+        la8,
         rgb8,
         rgba8,
 
-        rgb_dxt1,
         rgba_dxt1,
         rgba_dxt3,
         rgba_dxt5,
 
+        rgb_etc1,
+        rgb_etc2,
+        rgba_etc2,
+        rgb_a1_etc2,
+
+        rgba_astc4x4,
+        rgba_astc5x5,
+        rgba_astc6x6,
+        rgba_astc8x8,
+        rgba_astc10x10,
+        rgba_astc12x12,
+
         rgb_pvrtc2,
         rgb_pvrtc4,
-
         rgba_pvrtc2,
         rgba_pvrtc4,
 
@@ -74,8 +85,6 @@ namespace e2d
         void clear() noexcept;
         bool empty() const noexcept;
 
-        color pixel(u32 u, u32 v) const;
-        color pixel(const v2u& uv) const;
         color32 pixel32(u32 u, u32 v) const;
         color32 pixel32(const v2u& uv) const;
 
@@ -97,7 +106,7 @@ namespace e2d::images
 {
     bool try_load_image(
         image& dst,
-        const buffer& src) noexcept;
+        buffer_view src) noexcept;
 
     bool try_load_image(
         image& dst,
@@ -112,4 +121,8 @@ namespace e2d::images
         const image& src,
         image_file_format format,
         const output_stream_uptr& dst) noexcept;
+
+    bool check_save_image_support(
+        const image& src,
+        image_file_format format) noexcept;
 }
