@@ -9,49 +9,31 @@
 #include "_utils.hpp"
 
 #include "buffer.hpp"
+#include "buffer_view.hpp"
 #include "streams.hpp"
 
 namespace e2d
 {
     class font final {
     public:
-        struct info_data {
-            str face;
-            u32 size{0};
-        };
-
-        struct common_data {
-            u32 line{0};
-            u32 base{0};
-            u32 pages{0};
+        struct font_info {
+            str atlas_file;
             v2u atlas_size;
+            u32 font_size{0};
+            u32 line_height{0};
+            u32 glyph_ascent{0};
         };
 
-        struct page_data {
-            u32 id{0};
-            str file;
+        struct glyph_info {
+            v2i offset;
+            b2u tex_rect;
+            i32 advance{0};
         };
 
-        struct char_data {
-            u32 id{0};
-            b2hi rect;
-            v2hi offset;
-            i16 advance{0};
-            u16 page{0};
-            u16 chnl{0};
-        };
-
-        struct kerning_data {
-            std::pair<u32, u32> chars{0,0};
-            i32 amount{0};
-        };
-
-        struct data {
-            info_data info;
-            common_data common;
-            flat_set<page_data> pages;
-            flat_map<u32, char_data> chars;
+        struct content {
+            font_info info;
             flat_map<u64, i32> kernings;
+            flat_map<u32, glyph_info> glyphs;
         };
     public:
         font() = default;
@@ -62,60 +44,43 @@ namespace e2d
         font(const font& other);
         font& operator=(const font& other);
 
-        font(data&& data) noexcept;
-        font(const data& data);
+        font(content&& content) noexcept;
+        font(const content& content);
 
         font& assign(font&& other) noexcept;
         font& assign(const font& other);
 
-        font& assign(data&& data) noexcept;
-        font& assign(const data& data);
+        font& assign(content&& content) noexcept;
+        font& assign(const content& content);
 
         void swap(font& other) noexcept;
         void clear() noexcept;
         bool empty() const noexcept;
 
-        const info_data& info() const noexcept;
-        const common_data& common() const noexcept;
-        const flat_set<page_data>& pages() const noexcept;
-        const flat_map<u32, char_data>& chars() const noexcept;
+        const font_info& info() const noexcept;
         const flat_map<u64, i32>& kernings() const noexcept;
+        const flat_map<u32, glyph_info>& glyphs() const noexcept;
 
-        const page_data* find_page(u32 id) const noexcept;
-        const char_data* find_char(u32 id) const noexcept;
         i32 get_kerning(u32 first, u32 second) const noexcept;
+        const glyph_info* find_glyph(u32 code_point) const noexcept;
     private:
-        data data_;
+        content content_;
     };
 
     void swap(font& l, font& r) noexcept;
     bool operator==(const font& l, const font& r) noexcept;
     bool operator!=(const font& l, const font& r) noexcept;
 
-    bool operator<(u32 l, const font::page_data& r) noexcept;
-    bool operator<(const font::page_data& l, u32 r) noexcept;
-    bool operator<(const font::page_data& l, const font::page_data& r) noexcept;
-
-    bool operator<(u32 l, const font::char_data& r) noexcept;
-    bool operator<(const font::char_data& l, u32 r) noexcept;
-    bool operator<(const font::char_data& l, const font::char_data& r) noexcept;
-
-    bool operator<(const std::pair<u32,u32>& l, const font::kerning_data& r) noexcept;
-    bool operator<(const font::kerning_data& l, const std::pair<u32,u32>& r) noexcept;
-    bool operator<(const font::kerning_data& l, const font::kerning_data& r) noexcept;
-
-    bool operator==(const font::info_data& l, const font::info_data& r) noexcept;
-    bool operator==(const font::common_data& l, const font::common_data& r) noexcept;
-    bool operator==(const font::page_data& l, const font::page_data& r) noexcept;
-    bool operator==(const font::char_data& l, const font::char_data& r) noexcept;
-    bool operator==(const font::kerning_data& l, const font::kerning_data& r) noexcept;
+    bool operator==(const font::font_info& l, const font::font_info& r) noexcept;
+    bool operator==(const font::glyph_info& l, const font::glyph_info& r) noexcept;
+    bool operator==(const font::content& l, const font::content& r) noexcept;
 }
 
 namespace e2d::fonts
 {
     bool try_load_font(
         font& dst,
-        const buffer& src) noexcept;
+        buffer_view src) noexcept;
 
     bool try_load_font(
         font& dst,

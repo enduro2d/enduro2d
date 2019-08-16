@@ -38,20 +38,20 @@ namespace
 
     f32 get_top_pos(const label& l, u32 strings_count) {
         const auto& f = l.font()->content();
-        f32 label_height = f.common().line * strings_count;
+        f32 label_height = f.info().line_height * strings_count;
         f32 top{0};
         switch ( l.valign() ) {
-            case label::valigns::top :
+            case label::valigns::top:
                 top = label_height;
             break;
-            case label::valigns::center :
+            case label::valigns::center:
                 top = 0.5f * label_height;
             break;
-            case label::valigns::bottom :
+            case label::valigns::bottom:
                 top = 0;
             break;
-            case label::valigns::baseline :
-                top = label_height - (f.common().line - f.common().base);
+            case label::valigns::baseline:
+                top = label_height - (f.info().line_height - f.info().glyph_ascent);
             break;
             default:
                 E2D_ASSERT_MSG(false,"label_system: uncknow vertical align flag");
@@ -94,8 +94,7 @@ namespace e2d
                     return;
                 }
                 const auto& f = l.font()->content();
-                auto common = f.common();
-                v2f texture_size = common.atlas_size.cast_to<f32>();
+                v2f texture_size = f.info().atlas_size.cast_to<f32>();
 
                 if ( l.width() != 0 ) {
                     f32 word_width{0};
@@ -108,13 +107,13 @@ namespace e2d
                             string_width = 0;
                             last_space = -1;
                         } else {
-                            auto data = f.find_char(ch);
-                            if ( data ) {
+                            const font::glyph_info* glyph = f.find_glyph(ch);
+                            if ( glyph ) {
                                 prev_char != 0
-                                    ? kerning = f.get_kerning(prev_char, data->id)
+                                    ? kerning = f.get_kerning(prev_char, ch)
                                     : kerning = 0;
                                 prev_char = ch;
-                                f32 char_width = data->advance + kerning;
+                                f32 char_width = glyph->advance + kerning;
                                 if ( ch == ' ' ) {
                                     if ( string_width + word_width < l.width() ) {
                                         if ( string_width + word_width + char_width < l.width() ) {
@@ -166,13 +165,13 @@ namespace e2d
                 prev_char = 0;
                 for ( size_t i = 0, string_ind = 0; i < text.size(); i++ ) {
                     if ( text[i] != '\n' ) {
-                        auto data = f.find_char(text[i]);
-                        if ( data ) {
+                        const font::glyph_info* glyph = f.find_glyph(text[i]);
+                        if ( glyph ) {
                             letters_size++;
                             prev_char != 0
-                                ? kerning = f.get_kerning(prev_char, data->id)
+                                ? kerning = f.get_kerning(prev_char, text[i])
                                 : kerning = 0;
-                            strings_width[string_ind] += data->advance + kerning;
+                            strings_width[string_ind] += glyph->advance + kerning;
                         }
                     } else {
                         string_ind++;
@@ -190,49 +189,49 @@ namespace e2d
                 for ( size_t i = 0, str_ind = 0; i < text.size(); i++ ) {
                     if ( text[i] == '\n' ) {
                         str_ind++;
-                        y_pos -= common.line;
+                        y_pos -= f.info().line_height;
                         x_pos = get_x_pos(l, strings_width[str_ind]);
                         prev_char = 0;
                         continue;
                     }
-                    auto data = f.find_char(text[i]);
-                    if ( data ) {
-                        offset = data->offset.cast_to<f32>();
+                    const font::glyph_info* glyph = f.find_glyph(text[i]);
+                    if ( glyph ) {
+                        offset = glyph->offset.cast_to<f32>();
                         prev_char != 0
-                            ? kerning = f.get_kerning(prev_char, data->id)
+                            ? kerning = f.get_kerning(prev_char, text[i])
                             : kerning = 0;
                         offset.x += kerning;
-                        prev_char = data->id;
+                        prev_char = text[i];
                         size_t start_vertices = letters_counter * 4;
                         vertices[start_vertices] = v3f(
                             x_pos + offset.x,
-                            y_pos - offset.y - data->rect.size.y,
+                            y_pos - offset.y - glyph->tex_rect.size.y,
                             0);
                         vertices[start_vertices + 1] = v3f(
                             x_pos + offset.x,
                             y_pos - offset.y,
                             0);
                         vertices[start_vertices + 2] = v3f(
-                            x_pos + data->rect.size.x + offset.x,
+                            x_pos + glyph->tex_rect.size.x + offset.x,
                             y_pos - offset.y,
                             0);
                         vertices[start_vertices + 3] = v3f(
-                            x_pos + data->rect.size.x + offset.x,
-                            y_pos - offset.y - data->rect.size.y,
+                            x_pos + glyph->tex_rect.size.x + offset.x,
+                            y_pos - offset.y - glyph->tex_rect.size.y,
                             0);
 
                         uvs[start_vertices] = v2f(
-                            data->rect.position.x / texture_size.x,
-                            data->rect.position.y / texture_size.y);
+                            glyph->tex_rect.position.x / texture_size.x,
+                            glyph->tex_rect.position.y / texture_size.y);
                         uvs[start_vertices + 1] = v2f(
-                            data->rect.position.x / texture_size.x,
-                            (data->rect.position.y + data->rect.size.y) / texture_size.y);
+                            glyph->tex_rect.position.x / texture_size.x,
+                            (glyph->tex_rect.position.y + glyph->tex_rect.size.y) / texture_size.y);
                         uvs[start_vertices + 2] = v2f(
-                            (data->rect.position.x + data->rect.size.x) / texture_size.x,
-                            (data->rect.position.y + data->rect.size.y) / texture_size.y);
+                            (glyph->tex_rect.position.x + glyph->tex_rect.size.x) / texture_size.x,
+                            (glyph->tex_rect.position.y + glyph->tex_rect.size.y) / texture_size.y);
                         uvs[start_vertices + 3] = v2f(
-                            (data->rect.position.x + data->rect.size.x) / texture_size.x,
-                            data->rect.position.y / texture_size.y);
+                            (glyph->tex_rect.position.x + glyph->tex_rect.size.x) / texture_size.x,
+                            glyph->tex_rect.position.y / texture_size.y);
 
                         colors[start_vertices]     = l.tint();
                         colors[start_vertices + 1] = l.tint();
@@ -247,7 +246,7 @@ namespace e2d
                         indices[start_indices + 4] = start_vertices + 3;
                         indices[start_indices + 5] = start_vertices;
 
-                        x_pos += data->advance + kerning;
+                        x_pos += glyph->advance + kerning;
                         letters_counter++;
                     }
                 }
@@ -270,8 +269,7 @@ namespace e2d
 
                 if ( r.materials().size() > 0 &&
                      r.materials().front()->content().properties().sampler_count() == 0 ) {
-                    str page_file = f.find_page(0)->file;
-                    auto texture_p = the<library>().load_asset<texture_asset>(page_file);
+                    auto texture_p = the<library>().load_asset<texture_asset>(f.info().atlas_file);
                     if ( !texture_p ) {
                         return;
                     }
