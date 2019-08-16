@@ -329,12 +329,12 @@ namespace e2d::strings
     }
 
     bool starts_with(str_view input, str_view test) noexcept {
-        return input.length() >= test.length()
-            && 0 == input.compare(0, test.length(), test);
+        return input.size() >= test.size()
+            && 0 == input.compare(0, test.size(), test);
     }
 
     bool ends_with(str_view input, str_view test) noexcept {
-        return input.length() >= test.length()
-            && 0 == input.compare(input.length() - test.length(), test.length(), test);
+        return input.size() >= test.size()
+            && 0 == input.compare(input.size() - test.size(), test.size(), test);
     }
 }

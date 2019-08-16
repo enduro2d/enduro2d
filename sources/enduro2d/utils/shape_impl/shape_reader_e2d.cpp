@@ -23,9 +23,9 @@ namespace
 
         u32 file_version = 0;
         char* file_signature = static_cast<char*>(E2D_CLEAR_ALLOCA(
-            shape_file_signature.length() + 1));
+            shape_file_signature.size() + 1));
 
-        iseq.read(file_signature, shape_file_signature.length())
+        iseq.read(file_signature, shape_file_signature.size())
             .read(file_version);
 
         return iseq.success()

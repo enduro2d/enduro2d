@@ -146,7 +146,7 @@ namespace
         if ( ver ) {
             const str_view ver_str = str_view(reinterpret_cast<const char*>(ver));
             const std::size_t dot = ver_str.find('.');
-            if ( dot > 0 && dot + 1 < ver_str.length() ) {
+            if ( dot > 0 && dot + 1 < ver_str.size() ) {
                 major = ver[dot - 1] - '0';
                 minor = ver[dot + 1] - '0';
             }
