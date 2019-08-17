@@ -139,6 +139,14 @@ namespace e2d
 
 namespace e2d
 {
+    vec3<f32> make_vec3(const color& c) noexcept {
+        return make_vec3(c.r, c.g, c.b);
+    }
+
+    vec4<f32> make_vec4(const color& c) noexcept {
+        return make_vec4(c.r, c.g, c.b, c.a);
+    }
+
     //
     // color (<,==,!=) color
     //

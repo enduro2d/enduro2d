@@ -49,6 +49,10 @@ TEST_CASE("color") {
         REQUIRE(c == color(0.5f,0.6f,0.7f,0.8f));
     }
     {
+        REQUIRE(make_vec3(color(0.1f,0.2f,0.3f,0.4f)) == v3f(0.1f,0.2f,0.3f));
+        REQUIRE(make_vec4(color(0.1f,0.2f,0.3f,0.4f)) == v4f(0.1f,0.2f,0.3f, 0.4f));
+    }
+    {
         REQUIRE(color(0.1f,0.2f,0.3f,0.4f) + 0.1f == color(0.2f,0.3f,0.4f,0.5f));
         REQUIRE(color(0.1f,0.2f,0.3f,0.4f) - 0.1f == color(0.0f,0.1f,0.2f,0.3f));
         REQUIRE(color(0.1f,0.2f,0.3f,0.4f) * 2.f == color(0.2f,0.4f,0.6f,0.8f));

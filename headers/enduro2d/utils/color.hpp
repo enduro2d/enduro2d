@@ -55,6 +55,9 @@ namespace e2d
 
 namespace e2d
 {
+    vec3<f32> make_vec3(const color& c) noexcept;
+    vec4<f32> make_vec4(const color& c) noexcept;
+
     bool operator<(const color& l, const color& r) noexcept;
     bool operator==(const color& l, const color& r) noexcept;
     bool operator!=(const color& l, const color& r) noexcept;
