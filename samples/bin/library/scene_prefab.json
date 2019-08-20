@@ -8,7 +8,7 @@
         "prototype" : "gnome_prefab.json",
         "components" : {
             "actor" : {
-                "translation" : [0,50,0],
+                "translation" : [0,0,0],
                 "scale" : 20
             }
         }
@@ -24,6 +24,32 @@
         "components" : {
             "actor" : {
                 "translation" : [50,-50,0]
+            }
+        }
+    }, {
+        "prototype" : "label_bm_prefab.json",
+        "components" : {
+            "label" : {
+                "text" : "bm font",
+                "valign" : "center"
+            },
+            "actor" : {
+                "translation" : [0,180,0],
+                "scale" : 3
+            }
+        }
+    }, {
+        "prototype" : "label_sdf_prefab.json",
+        "components" : {
+            "label" : {
+                "text" : "sdf font",
+                "valign" : "center",
+                "outline_width" : 0.2,
+                "outline_color" : [0,0,0,255]
+            },
+            "actor" : {
+                "translation" : [0,-180,0],
+                "scale" : 3
             }
         }
     }]

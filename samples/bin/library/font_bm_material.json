@@ -1,16 +1,14 @@
 {
     "passes" : [{
-        "shader" : "font_shader.json",
+        "shader" : "font_bm_shader.json",
         "state_block" : {
-            "capabilities_state" : {
-                "depth_test" : false,
-                "blending" : true
-            },
             "blending_state" : {
                 "src_factor" : "src_alpha",
                 "dst_factor" : "one_minus_src_alpha"
+            },
+            "capabilities_state" : {
+                "blending" : true
             }
         }
-    }],
-    "property_block" : {}
+    }]
 }
