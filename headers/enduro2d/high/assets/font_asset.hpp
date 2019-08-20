@@ -14,7 +14,7 @@ namespace e2d
 {
     class font_asset final : public content_asset<font_asset, font> {
     public:
-        static const char* type_name() noexcept { return "bmfont_asset"; }
+        static const char* type_name() noexcept { return "font_asset"; }
         static load_async_result load_async(const library& library, str_view address);
     };
 }

@@ -274,26 +274,18 @@ namespace e2d
                         return;
                     }
 
-                    vec2 shadow_offset = l.shadow_offset();
-                    shadow_offset.x /= texture_p->content()->size().x;
-                    shadow_offset.y /= texture_p->content()->size().y;
-                    shadow_offset.x = -shadow_offset.x;
-                    color oc(l.outline_color());
-                    color sc(l.shadow_color());
+                    const f32 glyph_dilate = math::clamp(l.glyph_dilate(), -1.f, 1.0f);
+                    const f32 outline_width = math::clamp(l.outline_width(), 0.f, 1.f - glyph_dilate);
+                    const v4f outline_color = make_vec4(color(l.outline_color()));
+
                     r.properties(render::property_block()
                         .sampler("u_texture", render::sampler_state()
                             .texture(texture_p->content())
                             .min_filter(render::sampler_min_filter::linear)
                             .mag_filter(render::sampler_mag_filter::linear))
-                        .property("u_char_width", l.char_width())
-                        .property("u_char_edge", l.char_edge())
-                        .property("u_outline_width", l.outline_width())
-                        .property("u_outline_edge", l.outline_edge())
-                        .property("u_outline_color", make_vec4(oc.r, oc.g, oc.b, oc.a))
-                        .property("u_shadow_width", l.shadow_width())
-                        .property("u_shadow_edge", l.shadow_edge())
-                        .property("u_shadow_offset", shadow_offset)
-                        .property("u_shadow_color", make_vec4(sc.r, sc.g, sc.b, sc.a)));
+                        .property("u_glyph_dilate", glyph_dilate)
+                        .property("u_outline_width", outline_width)
+                        .property("u_outline_color", outline_color));
                 }
             });
 

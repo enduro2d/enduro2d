@@ -43,15 +43,9 @@ namespace e2d
             "width" : { "type" : "number" },
             "halign" : { "$ref": "#/definitions/haligns" },
             "valign" : { "$ref": "#/definitions/valigns" },
-            "char_width" : { "type" : "number" },
-            "char_edge" : { "type" : "number" },
+            "glyph_dilate" : { "type" : "number" },
             "outline_width" : { "type" : "number" },
-            "outline_edge" : { "type" : "number" },
-            "outline_color" : { "$ref": "#/common_definitions/color" },
-            "shadow_width" : { "type" : "number" },
-            "shadow_edge" : { "type" : "number" },
-            "shadow_offset" : { "$ref": "#/common_definitions/v2" },
-            "shadow_color" : { "$ref": "#/common_definitions/color" }
+            "outline_color" : { "$ref": "#/common_definitions/color" }
         },
         "definitions" : {
             "haligns" : {
@@ -137,22 +131,13 @@ namespace e2d
             component.valigh(valign);
         }
 
-        if ( ctx.root.HasMember("char_width") ) {
-            f32 char_width = component.char_width();
-            if ( !json_utils::try_parse_value(ctx.root["char_width"], char_width) ) {
-                the<debug>().error("LABEL: Incorrect formatting of 'char_width' property");
+        if ( ctx.root.HasMember("glyph_dilate") ) {
+            f32 glyph_dilate = component.glyph_dilate();
+            if ( !json_utils::try_parse_value(ctx.root["glyph_dilate"], glyph_dilate) ) {
+                the<debug>().error("LABEL: Incorrect formatting of 'glyph_dilate' property");
                 return false;
             }
-            component.char_width(char_width);
-        }
-
-        if ( ctx.root.HasMember("char_edge") ) {
-            f32 char_edge = component.char_edge();
-            if ( !json_utils::try_parse_value(ctx.root["char_edge"], char_edge) ) {
-                the<debug>().error("LABEL: Incorrect formatting of 'char_edge' property");
-                return false;
-            }
-            component.char_edge(char_edge);
+            component.glyph_dilate(glyph_dilate);
         }
 
         if ( ctx.root.HasMember("outline_width") ) {
@@ -164,15 +149,6 @@ namespace e2d
             component.outline_width(outline_width);
         }
 
-        if ( ctx.root.HasMember("outline_edge") ) {
-            f32 outline_edge = component.outline_edge();
-            if ( !json_utils::try_parse_value(ctx.root["outline_edge"], outline_edge) ) {
-                the<debug>().error("LABEL: Incorrect formatting of 'outline_edge' property");
-                return false;
-            }
-            component.outline_edge(outline_edge);
-        }
-
         if ( ctx.root.HasMember("outline_color") ) {
             color32 outline_color = component.outline_color();
             if ( !json_utils::try_parse_value(ctx.root["outline_color"], outline_color) ) {
@@ -180,42 +156,6 @@ namespace e2d
                 return false;
             }
             component.outline_color(outline_color);
-        }
-
-        if ( ctx.root.HasMember("shadow_width") ) {
-            f32 shadow_width = component.shadow_width();
-            if ( !json_utils::try_parse_value(ctx.root["shadow_width"], shadow_width) ) {
-                the<debug>().error("LABEL: Incorrect formatting of 'shadow_width' property");
-                return false;
-            }
-            component.shadow_width(shadow_width);
-        }
-
-        if ( ctx.root.HasMember("shadow_edge") ) {
-            f32 shadow_edge = component.shadow_edge();
-            if ( !json_utils::try_parse_value(ctx.root["shadow_edge"], shadow_edge) ) {
-                the<debug>().error("LABEL: Incorrect formatting of 'shadow_edge' property");
-                return false;
-            }
-            component.shadow_edge(shadow_edge);
-        }
-
-        if ( ctx.root.HasMember("shadow_offset") ) {
-            v2f shadow_offset = component.shadow_offset();
-            if ( !json_utils::try_parse_value(ctx.root["shadow_offset"], shadow_offset) ) {
-                the<debug>().error("LABEL: Incorrect formatting of 'shadow_offset' property");
-                return false;
-            }
-            component.shadow_offset(shadow_offset);
-        }
-
-        if ( ctx.root.HasMember("shadow_color") ) {
-            color32 shadow_color = component.shadow_color();
-            if ( !json_utils::try_parse_value(ctx.root["shadow_color"], shadow_color) ) {
-                the<debug>().error("LABEL: Incorrect formatting of 'shadow_color' property");
-                return false;
-            }
-            component.shadow_color(shadow_color);
         }
 
         return true;

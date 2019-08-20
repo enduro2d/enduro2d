@@ -52,48 +52,24 @@ namespace e2d
         label& valigh(valigns value) noexcept;
         [[nodiscard]] valigns valign() const noexcept;
 
-        label& char_width(f32 value) noexcept;
-        f32 char_width() const noexcept;
-
-        label& char_edge(f32 value) noexcept;
-        f32 char_edge() const noexcept;
+        label& glyph_dilate(f32 value) noexcept;
+        [[nodiscard]] f32 glyph_dilate() const noexcept;
 
         label& outline_width(f32 value) noexcept;
-        f32 outline_width() const noexcept;
-
-        label& outline_edge(f32 value) noexcept;
-        f32 outline_edge() const noexcept;
+        [[nodiscard]] f32 outline_width() const noexcept;
 
         label& outline_color(const color32& value) noexcept;
-        color32 outline_color() const noexcept;
-
-        label& shadow_width(f32 value) noexcept;
-        f32 shadow_width() const noexcept;
-
-        label& shadow_edge(f32 value) noexcept;
-        f32 shadow_edge() const noexcept;
-
-        label& shadow_offset(const v2f& value) noexcept;
-        v2f shadow_offset() const noexcept;
-
-        label& shadow_color(const color32& value) noexcept;
-        color32 shadow_color() const noexcept;
+        [[nodiscard]] const color32& outline_color() const noexcept;
     private:
         str32 text_;
         font_asset::ptr font_;
         color32 tint_ = color32::white();
         f32 width_ = 0.f;
-        haligns halign_ = haligns::left;
+        haligns halign_ = haligns::center;
         valigns valign_ = valigns::baseline;
-        f32 char_width_ = 0.f;
-        f32 char_edge_ = 0.f;
-        f32 outline_width_ = 0.5f;
-        f32 outline_edge_ = 0.1f;
+        f32 glyph_dilate_ = 0.f;
+        f32 outline_width_ = 0.f;
         color32 outline_color_ = color32::white();
-        f32 shadow_width_ = 0.f;
-        f32 shadow_edge_ = 0.f;
-        v2f shadow_offset_ = v2f::zero();
-        color32 shadow_color_ = color32::white();
     };
 
     template <>
@@ -184,22 +160,13 @@ namespace e2d
         return valign_;
     }
 
-    inline label& label::char_width(f32 value) noexcept {
-        char_width_ = value;
+    inline label& label::glyph_dilate(f32 value) noexcept {
+        glyph_dilate_ = value;
         return *this;
     }
 
-    inline f32 label::char_width() const noexcept {
-        return char_width_;
-    }
-
-    inline label& label::char_edge(f32 value) noexcept {
-        char_edge_ = value;
-        return *this;
-    }
-
-    inline f32 label::char_edge() const noexcept {
-        return char_edge_;
+    inline f32 label::glyph_dilate() const noexcept {
+        return glyph_dilate_;
     }
 
     inline label& label::outline_width(f32 value) noexcept {
@@ -211,57 +178,12 @@ namespace e2d
         return outline_width_;
     }
 
-    inline label& label::outline_edge(f32 value) noexcept {
-        outline_edge_ = value;
-        return *this;
-    }
-
-    inline f32 label::outline_edge() const noexcept {
-        return outline_edge_;
-    }
-
     inline label& label::outline_color(const color32& value) noexcept {
         outline_color_ = value;
         return *this;
     }
 
-    inline color32 label::outline_color() const noexcept {
+    inline const color32& label::outline_color() const noexcept {
         return outline_color_;
-    }
-
-    inline label& label::shadow_width(f32 value) noexcept {
-        shadow_width_ = value;
-        return *this;
-    }
-
-    inline f32 label::shadow_width() const noexcept {
-        return shadow_width_;
-    }
-
-    inline label& label::shadow_edge(f32 value) noexcept {
-        shadow_edge_ = value;
-        return *this;
-    }
-
-    inline f32 label::shadow_edge() const noexcept {
-        return shadow_edge_;
-    }
-
-    inline label& label::shadow_offset(const v2f& value) noexcept {
-        shadow_offset_ = value;
-        return *this;
-    }
-
-    inline v2f label::shadow_offset() const noexcept {
-        return shadow_offset_;
-    }
-
-    inline label& label::shadow_color(const color32& value) noexcept {
-        shadow_color_ = value;
-        return *this;
-    }
-
-    inline color32 label::shadow_color() const noexcept {
-        return shadow_color_;
     }
 }
