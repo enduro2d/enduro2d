@@ -44,7 +44,7 @@ namespace
 
     bool stb_check_save_image_format(image_data_format format) noexcept {
         switch ( format ) {
-            case image_data_format::l8:
+            case image_data_format::a8:
             case image_data_format::la8:
             case image_data_format::rgb8:
             case image_data_format::rgba8:
@@ -56,7 +56,7 @@ namespace
 
     int stb_channels_from_image_format(image_data_format format) noexcept {
         switch ( format ) {
-            case image_data_format::l8: return 1;
+            case image_data_format::a8: return 1;
             case image_data_format::la8: return 2;
             case image_data_format::rgb8: return 3;
             case image_data_format::rgba8: return 4;

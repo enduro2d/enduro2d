@@ -48,7 +48,7 @@ namespace
 
     image_data_format image_format_from_stb_channels(u32 channels) noexcept {
         switch ( channels ) {
-            case 1: return image_data_format::l8;
+            case 1: return image_data_format::a8;
             case 2: return image_data_format::la8;
             case 3: return image_data_format::rgb8;
             case 4: return image_data_format::rgba8;
