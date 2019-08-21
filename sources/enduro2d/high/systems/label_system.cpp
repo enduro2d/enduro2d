@@ -195,8 +195,8 @@ namespace
             return;
         }
 
-        const str32& text = l.text();
         const font& f = l.font()->content();
+        const str32& text = make_utf32(l.text());
 
         //
         // update glyphs

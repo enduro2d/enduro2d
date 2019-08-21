@@ -75,7 +75,7 @@ namespace e2d
         const fill_context& ctx) const
     {
         if ( ctx.root.HasMember("text") ) {
-            str32 text = component.text();
+            str text = component.text();
             if ( !json_utils::try_parse_value(ctx.root["text"], text) ) {
                 the<debug>().error("LABEL: Incorrect formatting of 'text' property");
                 return false;

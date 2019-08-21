@@ -34,8 +34,8 @@ namespace e2d
         label() = default;
         label(const font_asset::ptr& font);
 
-        label& text(str32 value) noexcept;
-        [[nodiscard]] const str32& text() const noexcept;
+        label& text(str value) noexcept;
+        [[nodiscard]] const str& text() const noexcept;
 
         label& font(const font_asset::ptr& value) noexcept;
         [[nodiscard]] const font_asset::ptr& font() const noexcept;
@@ -67,7 +67,7 @@ namespace e2d
         label& outline_color(const color32& value) noexcept;
         [[nodiscard]] const color32& outline_color() const noexcept;
     private:
-        str32 text_;
+        str text_;
         font_asset::ptr font_;
         color32 tint_ = color32::white();
         haligns halign_ = haligns::center;
@@ -114,12 +114,12 @@ namespace e2d
     inline label::label(const font_asset::ptr& value)
     : font_(value) {}
 
-    inline label& label::text(str32 value) noexcept {
+    inline label& label::text(str value) noexcept {
         text_ = std::move(value);
         return *this;
     }
 
-    inline const str32& label::text() const noexcept {
+    inline const str& label::text() const noexcept {
         return text_;
     }
 
