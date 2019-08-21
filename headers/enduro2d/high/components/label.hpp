@@ -34,6 +34,12 @@ namespace e2d
         label() = default;
         label(const font_asset::ptr& font);
 
+        label(label&& other) noexcept;
+        label& operator=(label&& other) noexcept;
+
+        label(const label& other);
+        label& operator=(const label& other);
+
         label& text(str value) noexcept;
         [[nodiscard]] const str& text() const noexcept;
 
@@ -113,6 +119,66 @@ namespace e2d
 {
     inline label::label(const font_asset::ptr& value)
     : font_(value) {}
+
+    inline label::label(label&& other) noexcept
+    : text_(std::move(other.text_))
+    , font_(std::move(other.font_))
+    , tint_(other.tint_)
+    , halign_(other.halign_)
+    , valign_(other.valign_)
+    , leading_(other.leading_)
+    , tracking_(other.tracking_)
+    , text_width_(other.text_width_)
+    , glyph_dilate_(other.glyph_dilate_)
+    , outline_width_(other.outline_width_)
+    , outline_color_(other.outline_color_) {}
+
+    inline label& label::operator=(label&& other) noexcept {
+        if ( this != &other ) {
+            text_ = std::move(other.text_);
+            font_ = std::move(other.font_);
+            tint_ = other.tint_;
+            halign_ = other.halign_;
+            valign_ = other.valign_;
+            leading_ = other.leading_;
+            tracking_ = other.tracking_;
+            text_width_ = other.text_width_;
+            glyph_dilate_ = other.glyph_dilate_;
+            outline_width_ = other.outline_width_;
+            outline_color_ = other.outline_color_;
+        }
+        return *this;
+    }
+
+    inline label::label(const label& other)
+    : text_(other.text_)
+    , font_(other.font_)
+    , tint_(other.tint_)
+    , halign_(other.halign_)
+    , valign_(other.valign_)
+    , leading_(other.leading_)
+    , tracking_(other.tracking_)
+    , text_width_(other.text_width_)
+    , glyph_dilate_(other.glyph_dilate_)
+    , outline_width_(other.outline_width_)
+    , outline_color_(other.outline_color_) {}
+
+    inline label& label::operator=(const label& other) {
+        if ( this != &other ) {
+            text_ = other.text_;
+            font_ = other.font_;
+            tint_ = other.tint_;
+            halign_ = other.halign_;
+            valign_ = other.valign_;
+            leading_ = other.leading_;
+            tracking_ = other.tracking_;
+            text_width_ = other.text_width_;
+            glyph_dilate_ = other.glyph_dilate_;
+            outline_width_ = other.outline_width_;
+            outline_color_ = other.outline_color_;
+        }
+        return *this;
+    }
 
     inline label& label::text(str value) noexcept {
         text_ = std::move(value);
