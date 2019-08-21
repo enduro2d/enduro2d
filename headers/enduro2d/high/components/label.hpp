@@ -43,14 +43,20 @@ namespace e2d
         label& tint(const color32& value) noexcept;
         [[nodiscard]] const color32& tint() const noexcept;
 
-        label& width(f32 value) noexcept;
-        [[nodiscard]] f32 width() const noexcept;
-
         label& haligh(haligns value) noexcept;
         [[nodiscard]] haligns halign() const noexcept;
 
         label& valigh(valigns value) noexcept;
         [[nodiscard]] valigns valign() const noexcept;
+
+        label& leading(f32 value) noexcept;
+        [[nodiscard]] f32 leading() const noexcept;
+
+        label& tracking(f32 value) noexcept;
+        [[nodiscard]] f32 tracking() const noexcept;
+
+        label& text_width(f32 value) noexcept;
+        [[nodiscard]] f32 text_width() const noexcept;
 
         label& glyph_dilate(f32 value) noexcept;
         [[nodiscard]] f32 glyph_dilate() const noexcept;
@@ -64,9 +70,11 @@ namespace e2d
         str32 text_;
         font_asset::ptr font_;
         color32 tint_ = color32::white();
-        f32 width_ = 0.f;
         haligns halign_ = haligns::center;
         valigns valign_ = valigns::baseline;
+        f32 leading_ = 1.f;
+        f32 tracking_ = 0.f;
+        f32 text_width_ = 0.f;
         f32 glyph_dilate_ = 0.f;
         f32 outline_width_ = 0.f;
         color32 outline_color_ = color32::white();
@@ -133,15 +141,6 @@ namespace e2d
         return tint_;
     }
 
-    inline label& label::width(f32 value) noexcept {
-        width_ = value;
-        return *this;
-    }
-
-    inline f32 label::width() const noexcept {
-        return width_;
-    }
-
     inline label& label::haligh(haligns value) noexcept {
         halign_ = value;
         return *this;
@@ -158,6 +157,33 @@ namespace e2d
 
     inline label::valigns label::valign() const noexcept {
         return valign_;
+    }
+
+    inline label& label::leading(f32 value) noexcept {
+        leading_ = value;
+        return *this;
+    }
+
+    inline f32 label::leading() const noexcept {
+        return leading_;
+    }
+
+    inline label& label::tracking(f32 value) noexcept {
+        tracking_ = value;
+        return *this;
+    }
+
+    inline f32 label::tracking() const noexcept {
+        return tracking_;
+    }
+
+    inline label& label::text_width(f32 value) noexcept {
+        text_width_ = value;
+        return *this;
+    }
+
+    inline f32 label::text_width() const noexcept {
+        return text_width_;
     }
 
     inline label& label::glyph_dilate(f32 value) noexcept {

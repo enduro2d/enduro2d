@@ -53,7 +53,7 @@ TEST_CASE("font") {
         {
             // char id=33 x=448 y=386 width=10 height=40 xoffset=5 yoffset=10 xadvance=14 page=0 chnl=0
             font::glyph_info c;
-            c.offset = v2i(5, 10);
+            c.offset = v2i(5, -50);
             c.tex_rect = b2u(448, 86, 10, 40);
             c.advance = 14;
             REQUIRE(*f.find_glyph(33) == c);

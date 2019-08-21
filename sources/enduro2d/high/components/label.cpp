@@ -40,9 +40,11 @@ namespace e2d
             "text" : { "type" : "string" },
             "font" : { "$ref": "#/common_definitions/address" },
             "tint" : { "$ref": "#/common_definitions/color" },
-            "width" : { "type" : "number" },
             "halign" : { "$ref": "#/definitions/haligns" },
             "valign" : { "$ref": "#/definitions/valigns" },
+            "leading" : { "type" : "number" },
+            "tracking" : { "type" : "number" },
+            "text_width" : { "type" : "number" },
             "glyph_dilate" : { "type" : "number" },
             "outline_width" : { "type" : "number" },
             "outline_color" : { "$ref": "#/common_definitions/color" }
@@ -104,15 +106,6 @@ namespace e2d
             component.tint(tint);
         }
 
-        if ( ctx.root.HasMember("width") ) {
-            f32 width = component.width();
-            if ( !json_utils::try_parse_value(ctx.root["width"], width) ) {
-                the<debug>().error("LABEL: Incorrect formatting of 'width' property");
-                return false;
-            }
-            component.width(width);
-        }
-
         if ( ctx.root.HasMember("halign") ) {
             label::haligns halign = component.halign();
             if ( !parse_halign(ctx.root["halign"].GetString(), halign) ) {
@@ -129,6 +122,33 @@ namespace e2d
                 return false;
             }
             component.valigh(valign);
+        }
+
+        if ( ctx.root.HasMember("leading") ) {
+            f32 leading = component.leading();
+            if ( !json_utils::try_parse_value(ctx.root["leading"], leading) ) {
+                the<debug>().error("LABEL: Incorrect formatting of 'leading' property");
+                return false;
+            }
+            component.leading(leading);
+        }
+
+        if ( ctx.root.HasMember("tracking") ) {
+            f32 tracking = component.tracking();
+            if ( !json_utils::try_parse_value(ctx.root["tracking"], tracking) ) {
+                the<debug>().error("LABEL: Incorrect formatting of 'tracking' property");
+                return false;
+            }
+            component.tracking(tracking);
+        }
+
+        if ( ctx.root.HasMember("text_width") ) {
+            f32 text_width = component.text_width();
+            if ( !json_utils::try_parse_value(ctx.root["text_width"], text_width) ) {
+                the<debug>().error("LABEL: Incorrect formatting of 'text_width' property");
+                return false;
+            }
+            component.text_width(text_width);
         }
 
         if ( ctx.root.HasMember("glyph_dilate") ) {

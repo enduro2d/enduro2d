@@ -329,6 +329,10 @@ namespace e2d::fonts::impl
         }
 
         for ( auto& glyph : font_content.glyphs ) {
+            glyph.second.offset.y =
+                0 -
+                glyph.second.offset.y -
+                glyph.second.tex_rect.size.y;
             glyph.second.tex_rect.position.y =
                 font_content.info.atlas_size.y -
                 glyph.second.tex_rect.position.y -
