@@ -5,7 +5,9 @@
  ******************************************************************************/
 
 #include <enduro2d/high/assets/font_asset.hpp>
+
 #include <enduro2d/high/assets/binary_asset.hpp>
+#include <enduro2d/high/assets/texture_asset.hpp>
 
 namespace
 {
@@ -30,8 +32,32 @@ namespace e2d
                 if ( !fonts::try_load_font(content, font_data->content()) ) {
                     throw font_asset_loading_exception();
                 }
-                return font_asset::create(std::move(content));
+                return content;
             });
+        })
+        .then([
+            &library,
+            parent_address = path::parent_path(address)
+        ](const font& content){
+            return stdex::make_tuple_promise(std::make_tuple(
+                stdex::make_resolved_promise(content),
+                library.load_asset_async<texture_asset>(
+                    path::combine(parent_address, content.info().atlas_file))
+            ));
+        })
+        .then([](const std::tuple<
+            font,
+            texture_asset::load_result
+        >& results){
+            font content = std::get<0>(results);
+            texture_asset::load_result texture_res = std::get<1>(results);
+            if ( content.info().atlas_size != texture_res->content()->size() ) {
+                throw font_asset_loading_exception();
+            }
+            nested_content ncontent{{
+                make_hash(content.info().atlas_file),
+                std::move(texture_res)}};
+            return font_asset::create(std::move(content), std::move(ncontent));
         });
     }
 }

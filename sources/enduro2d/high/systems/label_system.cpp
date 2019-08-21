@@ -167,12 +167,13 @@ namespace
     using namespace e2d;
 
     void update_label_material(const label& l, renderer& r) {
-        if ( r.materials().empty() ) {
-            return;
-        }
+        auto texture_res = l.font() && !l.font()->content().empty()
+            ? l.font()->find_nested_asset<texture_asset>(l.font()->content().info().atlas_file)
+            : nullptr;
 
-        auto texture_p = the<library>().load_asset<texture_asset>(
-            l.font()->content().info().atlas_file);
+        auto texture = texture_res
+            ? texture_res->content()
+            : nullptr;
 
         const f32 glyph_dilate = math::clamp(l.glyph_dilate(), -1.f, 1.0f);
         const f32 outline_width = math::clamp(l.outline_width(), 0.f, 1.f - glyph_dilate);
@@ -180,7 +181,7 @@ namespace
 
         r.properties(render::property_block()
             .sampler("u_texture", render::sampler_state()
-                .texture(texture_p->content())
+                .texture(texture)
                 .min_filter(render::sampler_min_filter::linear)
                 .mag_filter(render::sampler_mag_filter::linear))
             .property("u_glyph_dilate", glyph_dilate)
