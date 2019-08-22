@@ -881,11 +881,13 @@ STBIDEF const char *stbi_failure_reason(void)
    return stbi__g_failure_reason;
 }
 
+#ifndef STBI_NO_FAILURE_STRINGS
 static int stbi__err(const char *str)
 {
    stbi__g_failure_reason = str;
    return 0;
 }
+#endif
 
 static void *stbi__malloc(size_t size)
 {
@@ -1023,6 +1025,8 @@ static void *stbi__load_main(stbi__context *s, int *x, int *y, int *comp, int re
    #endif
    #ifndef STBI_NO_PSD
    if (stbi__psd_test(s))  return stbi__psd_load(s,x,y,comp,req_comp, ri, bpc);
+   #else
+   (void)bpc;
    #endif
    #ifndef STBI_NO_PIC
    if (stbi__pic_test(s))  return stbi__pic_load(s,x,y,comp,req_comp, ri);
