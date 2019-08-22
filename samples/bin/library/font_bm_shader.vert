@@ -1,4 +1,5 @@
 uniform vec2 u_screen_s;
+uniform mat4 u_matrix_m;
 uniform mat4 u_matrix_vp;
 
 attribute vec3 a_vertex;
@@ -7,6 +8,8 @@ attribute vec4 a_color0;
 
 varying vec2 v_st0;
 varying vec4 v_color0;
+
+#define VERTEX_SNAPPING_ON
 
 vec2 round(vec2 v) {
     return vec2(
@@ -22,7 +25,7 @@ vec4 pixel_snap(vec4 pos) {
 }
 
 vec4 vertex_to_homo(vec3 pos) {
-    return vec4(pos, 1.0) * u_matrix_vp;
+    return vec4(pos, 1.0) * u_matrix_m * u_matrix_vp;
 }
 
 void main() {

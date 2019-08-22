@@ -36,6 +36,7 @@ namespace e2d::render_system_impl
                 const const_node_iptr& cam_n,
                 engine& engine,
                 render& render,
+                window& window,
                 batcher_type& batcher);
             ~context() noexcept;
 
@@ -59,13 +60,14 @@ namespace e2d::render_system_impl
             render::property_block property_cache_;
         };
     public:
-        drawer(engine& e, debug& d, render& r);
+        drawer(engine& e, debug& d, render& r, window& w);
 
         template < typename F >
         void with(const camera& cam, const const_node_iptr& cam_n, F&& f);
     private:
         engine& engine_;
         render& render_;
+        window& window_;
         batcher_type batcher_;
     };
 }
@@ -74,7 +76,7 @@ namespace e2d::render_system_impl
 {
     template < typename F >
     void drawer::with(const camera& cam, const const_node_iptr& cam_n, F&& f) {
-        context ctx{cam, cam_n, engine_, render_, batcher_};
+        context ctx{cam, cam_n, engine_, render_, window_, batcher_};
         std::forward<F>(f)(ctx);
         ctx.flush();
     }

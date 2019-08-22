@@ -40,8 +40,8 @@ namespace e2d::render_system_impl
         static vertex_declaration decl() noexcept {
             return vertex_declaration()
                 .add_attribute<v3f>("a_vertex")
-                .add_attribute<v2f>("a_st")
-                .add_attribute<color32>("a_tint").normalized();
+                .add_attribute<v2f>("a_st0")
+                .add_attribute<color32>("a_color0").normalized();
         }
     };
 }

@@ -14,12 +14,14 @@
 #include <enduro2d/high/components/camera.hpp>
 #include <enduro2d/high/components/flipbook_player.hpp>
 #include <enduro2d/high/components/flipbook_source.hpp>
+#include <enduro2d/high/components/label.hpp>
 #include <enduro2d/high/components/model_renderer.hpp>
 #include <enduro2d/high/components/renderer.hpp>
 #include <enduro2d/high/components/scene.hpp>
 #include <enduro2d/high/components/sprite_renderer.hpp>
 
 #include <enduro2d/high/systems/flipbook_system.hpp>
+#include <enduro2d/high/systems/label_system.hpp>
 #include <enduro2d/high/systems/render_system.hpp>
 
 namespace
@@ -41,6 +43,7 @@ namespace
         bool initialize() final {
             ecs::registry_filler(the<world>().registry())
                 .system<flipbook_system>(world::priority_update)
+                .system<label_system>(world::priority_update)
                 .system<render_system>(world::priority_render);
             return !application_ || application_->initialize();
         }
@@ -130,6 +133,8 @@ namespace e2d
             .register_component<camera>("camera")
             .register_component<flipbook_player>("flipbook_player")
             .register_component<flipbook_source>("flipbook_source")
+            .register_component<label>("label")
+            .register_component<label::dirty>("label.dirty")
             .register_component<model_renderer>("model_renderer")
             .register_component<renderer>("renderer")
             .register_component<scene>("scene")

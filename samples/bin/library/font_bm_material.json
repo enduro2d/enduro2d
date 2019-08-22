@@ -1,6 +1,6 @@
 {
     "passes" : [{
-        "shader" : "sprite_shader.json",
+        "shader" : "font_bm_shader.json",
         "state_block" : {
             "blending_state" : {
                 "src_factor" : "one",
