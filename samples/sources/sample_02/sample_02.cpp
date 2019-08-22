@@ -10,8 +10,6 @@ using namespace e2d;
 namespace
 {
     const char* vs_source_cstr = R"glsl(
-        #version 120
-
         attribute vec3 a_position;
         attribute vec2 a_uv;
 
@@ -27,8 +25,6 @@ namespace
     )glsl";
 
     const char* fs_source_cstr = R"glsl(
-        #version 120
-
         uniform sampler2D u_texture;
         varying vec2 v_uv;
 
@@ -218,7 +214,7 @@ namespace
                 math::make_rotation_matrix4(make_rad(the<engine>().time()), 0.f, 1.f, 0.f) *
                 math::make_rotation_matrix4(make_rad(the<engine>().time()), 0.f, 0.f, 1.f) *
                 math::make_translation_matrix4(0.f, 0.f, 0.f) *
-                math::make_loot_at_lh_matrix4({0.f, 0.f, -2.f}, v3f::zero(), v3f::unit_y()) *
+                math::make_look_at_lh_matrix4({0.f, 0.f, -2.f}, v3f::zero(), v3f::unit_y()) *
                 projection;
 
             material_.properties()

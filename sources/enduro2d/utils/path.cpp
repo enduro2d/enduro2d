@@ -55,14 +55,14 @@ namespace e2d::path
         const str name = filename(path);
         return name.empty()
             ? str(path)
-            : str(path.substr(0, path.length() - name.length()));
+            : str(path.substr(0, path.size() - name.size()));
     }
 
     str remove_extension(str_view path) {
         const str ext = extension(path);
         return ext.empty()
             ? str(path)
-            : str(path.substr(0, path.length() - ext.length()));
+            : str(path.substr(0, path.size() - ext.size()));
     }
 
     str replace_filename(str_view path, str_view filename) {

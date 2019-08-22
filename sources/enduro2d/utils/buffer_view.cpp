@@ -34,6 +34,10 @@ namespace e2d
         std::swap(data_, other.data_);
         std::swap(size_, other.size_);
     }
+
+    buffer_view::operator buffer() {
+        return buffer(data_, size_);
+    }
 }
 
 namespace e2d

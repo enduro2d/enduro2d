@@ -9,6 +9,7 @@
 #include "_utils.hpp"
 
 #include "buffer.hpp"
+#include "buffer_view.hpp"
 #include "color32.hpp"
 #include "streams.hpp"
 
@@ -81,7 +82,7 @@ namespace e2d::shapes
 {
     bool try_load_shape(
         shape& dst,
-        const buffer& src) noexcept;
+        buffer_view src) noexcept;
 
     bool try_load_shape(
         shape& dst,

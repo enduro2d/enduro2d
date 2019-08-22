@@ -512,12 +512,12 @@ namespace e2d::math
     }
 
     //
-    // make_loot_at_lh_matrix4
+    // make_look_at_lh_matrix4
     //
 
     template < typename T >
     std::enable_if_t<std::is_floating_point_v<T>, mat4<T>>
-    make_loot_at_lh_matrix4(const vec3<T>& eye, const vec3<T>& at, const vec3<T>& up) noexcept {
+    make_look_at_lh_matrix4(const vec3<T>& eye, const vec3<T>& at, const vec3<T>& up) noexcept {
         const vec3<T> az = normalized(at - eye);
         const vec3<T> ax = normalized(math::cross(up, az));
         const vec3<T> ay = math::cross(az, ax);
@@ -532,12 +532,12 @@ namespace e2d::math
     }
 
     //
-    // make_loot_at_rh_matrix4
+    // make_look_at_rh_matrix4
     //
 
     template < typename T >
     std::enable_if_t<std::is_floating_point_v<T>, mat4<T>>
-    make_loot_at_rh_matrix4(const vec3<T>& eye, const vec3<T>& at, const vec3<T>& up) noexcept {
+    make_look_at_rh_matrix4(const vec3<T>& eye, const vec3<T>& at, const vec3<T>& up) noexcept {
         const vec3<T> az = normalized(eye - at);
         const vec3<T> ax = normalized(math::cross(up, az));
         const vec3<T> ay = math::cross(az, ax);

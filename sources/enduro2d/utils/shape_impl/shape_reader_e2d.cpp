@@ -23,9 +23,9 @@ namespace
 
         u32 file_version = 0;
         char* file_signature = static_cast<char*>(E2D_CLEAR_ALLOCA(
-            shape_file_signature.length() + 1));
+            shape_file_signature.size() + 1));
 
-        iseq.read(file_signature, shape_file_signature.length())
+        iseq.read(file_signature, shape_file_signature.size())
             .read(file_version);
 
         return iseq.success()
@@ -96,14 +96,10 @@ namespace
 
 namespace e2d::shapes::impl
 {
-    bool try_load_shape_e2d(shape& dst, const buffer& src) noexcept {
-        try {
-            auto stream = make_memory_stream(src);
-            return stream
-                && check_signature(stream)
-                && load_shape(dst, stream);
-        } catch (...) {
-            return false;
-        }
+    bool load_shape_e2d(shape& dst, buffer_view src) {
+        auto stream = make_memory_stream(buffer(src));
+        return stream
+            && check_signature(stream)
+            && load_shape(dst, stream);
     }
 }

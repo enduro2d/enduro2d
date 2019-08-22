@@ -224,9 +224,13 @@ namespace e2d::shapes
 {
     bool try_load_shape(
         shape& dst,
-        const buffer& src) noexcept
+        buffer_view src) noexcept
     {
-        return impl::try_load_shape_e2d(dst, src);
+        try {
+            return impl::load_shape_e2d(dst, src);
+        } catch (...) {
+            return false;
+        }
     }
 
     bool try_load_shape(

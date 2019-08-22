@@ -23,6 +23,7 @@ namespace
 {
     using namespace e2d;
 
+    const str_hash screen_s_property_hash = "u_screen_s";
     const str_hash matrix_v_property_hash = "u_matrix_v";
     const str_hash matrix_p_property_hash = "u_matrix_p";
     const str_hash matrix_vp_property_hash = "u_matrix_vp";
@@ -60,6 +61,7 @@ namespace e2d::render_system_impl
         const const_node_iptr& cam_n,
         engine& engine,
         render& render,
+        window& window,
         batcher_type& batcher)
     : render_(render)
     , batcher_(batcher)
@@ -75,6 +77,9 @@ namespace e2d::render_system_impl
         const m4f& m_p = cam.projection();
 
         batcher_.flush()
+            .property(screen_s_property_hash, cam.target()
+                ? cam.target()->size().cast_to<f32>()
+                : window.framebuffer_size().cast_to<f32>())
             .property(matrix_v_property_hash, m_v)
             .property(matrix_p_property_hash, m_p)
             .property(matrix_vp_property_hash, m_v * m_p)
@@ -436,8 +441,9 @@ namespace e2d::render_system_impl
     // drawer
     //
 
-    drawer::drawer(engine& e, debug& d, render& r)
+    drawer::drawer(engine& e, debug& d, render& r, window& w)
     : engine_(e)
     , render_(r)
+    , window_(w)
     , batcher_(d, r) {}
 }

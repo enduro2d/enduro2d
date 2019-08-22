@@ -95,7 +95,7 @@ namespace e2d
             const str log_text = log_text_format(lvl, text);
             const std::ptrdiff_t rprintf = std::printf("%s", log_text.c_str());
             return rprintf >= 0
-                && math::numeric_cast<std::size_t>(rprintf) == log_text.length();
+                && math::numeric_cast<std::size_t>(rprintf) == log_text.size();
         } catch (...) {
             return false;
         }
