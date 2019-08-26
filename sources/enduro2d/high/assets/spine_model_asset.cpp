@@ -5,18 +5,18 @@
  ******************************************************************************/
 
 #include <enduro2d/high/assets/spine_model_asset.hpp>
+
 #include <enduro2d/high/assets/json_asset.hpp>
 #include <enduro2d/high/assets/binary_asset.hpp>
 #include <enduro2d/high/assets/texture_asset.hpp>
 
-#include <spine/SkeletonJson.h>
-#include <spine/SkeletonBinary.h>
+#include <spine/spine.h>
 #include <spine/extension.h>
-
-using namespace e2d;
 
 namespace
 {
+    using namespace e2d;
+
     class spine_model_asset_loading_exception final : public asset_loading_exception {
         const char* what() const noexcept final {
             return "spine model asset loading exception";
@@ -25,28 +25,27 @@ namespace
 
     const char* spine_model_asset_schema_source = R"json({
         "type" : "object",
-        "required" : [ "skeleton", "atlas" ],
+        "required" : [ "atlas", "skeleton" ],
         "additionalProperties" : false,
         "properties" : {
-            "skeleton" : { "$ref" : "#/common_definitions/address" },
-            "scale" : { "type" : "number" },
             "atlas" : { "$ref" : "#/common_definitions/address" },
-            "premultiplied_alpha" : { "type" : "boolean" },
-            "default_mix" : { "type" : "number" },
-            "mix_animations" : { "$ref": "#/definitions/spine_animation_mix_array" }
+            "skeleton" : { "$ref" : "#/common_definitions/address" },
+            "skeleton_scale" : { "type" : "number" },
+            "default_animation_mix" : { "type" : "number" },
+            "animation_mixes" : { "$ref": "#/definitions/animation_mixes" }
         },
         "definitions" : {
-            "spine_animation_mix_array" : {
+            "animation_mixes" : {
                 "type" : "array",
-                "items" : { "$ref": "#/definitions/spine_animation_mix" }
+                "items" : { "$ref": "#/definitions/animation_mix" }
             },
-            "spine_animation_mix" : {
+            "animation_mix" : {
                 "type" : "object",
-                "required" : [ "from_anim", "to_anim", "duration" ],
+                "required" : [ "from", "to", "duration" ],
                 "additionalProperties" : false,
                 "properties" : {
-                    "from_anim" : { "$ref": "#/common_definitions/name" },
-                    "to_anim" : { "$ref": "#/common_definitions/name" },
+                    "from" : { "$ref": "#/common_definitions/name" },
+                    "to" : { "$ref": "#/common_definitions/name" },
                     "duration" : { "type" : "number" }
                 }
             }
@@ -71,40 +70,182 @@ namespace
         return *schema;
     }
 
-    bool parse_mix_animations(
-        const rapidjson::Value& root,
-        spine_model& model)
-    {
-        E2D_ASSERT(root.IsArray());
-        str from_anim;
-        str to_anim;
+    struct animation_mix {
+        str from;
+        str to;
         secf duration;
+    };
 
-        for ( rapidjson::SizeType i = 0; i < root.Size(); ++i ) {
-            E2D_ASSERT(root[i].IsObject());
-            const auto& item_json = root[i];
+    animation_mix parse_animation_mix(const rapidjson::Value& root) {
+        animation_mix mix;
 
-            E2D_ASSERT(item_json.HasMember("from_anim"));
-            if ( !json_utils::try_parse_value(item_json["from_anim"], from_anim) ) {
-                the<debug>().error("SPINE: Incorrect formatting of 'from_anim' property");
-                return false;
-            }
-
-            E2D_ASSERT(item_json.HasMember("to_anim"));
-            if ( !json_utils::try_parse_value(item_json["to_anim"], to_anim) ) {
-                the<debug>().error("SPINE: Incorrect formatting of 'to_anim' property");
-                return false;
-            }
-
-            E2D_ASSERT(item_json.HasMember("duration"));
-            if ( !json_utils::try_parse_value(item_json["duration"], duration.value) ) {
-                the<debug>().error("SPINE: Incorrect formatting of 'duration' property");
-                return false;
-            }
-
-            model.mix_animations(from_anim, to_anim, duration);
+        E2D_ASSERT(root.HasMember("from") && root["from"].IsString());
+        if ( !json_utils::try_parse_value(root["from"], mix.from) ) {
+            the<debug>().error("SPINE: Incorrect formating of 'from' property");
+            throw spine_model_asset_loading_exception();
         }
-        return true;
+
+        E2D_ASSERT(root.HasMember("to") && root["to"].IsString());
+        if ( !json_utils::try_parse_value(root["to"], mix.to) ) {
+            the<debug>().error("SPINE: Incorrect formating of 'to' property");
+            throw spine_model_asset_loading_exception();
+        }
+
+        E2D_ASSERT(root.HasMember("duration") && root["duration"].IsNumber());
+        if ( !json_utils::try_parse_value(root["duration"], mix.duration) ) {
+            the<debug>().error("SPINE: Incorrect formating of 'duration' property");
+            throw spine_model_asset_loading_exception();
+        }
+
+        return mix;
+    }
+
+    struct atlas_internal_state {
+        asset_group loaded;
+        asset_dependencies loading;
+    };
+
+    stdex::promise<spine_model::atlas_ptr> load_atlas(
+        const library& library,
+        const str& parent_address,
+        const str& atlas_address)
+    {
+        return library.load_asset_async<binary_asset>(
+            path::combine(parent_address, atlas_address))
+        .then([
+            &library,
+            parent_address
+        ](const binary_asset::load_result& atlas_data){
+            auto atlas_internal = std::make_unique<atlas_internal_state>();
+
+            spine_model::atlas_ptr atlas(
+                spAtlas_create(
+                    reinterpret_cast<const char*>(atlas_data->content().data()),
+                    math::numeric_cast<int>(atlas_data->content().size()),
+                    parent_address.c_str(),
+                    atlas_internal.get()),
+                spAtlas_dispose);
+
+            if ( !atlas ) {
+                the<debug>().error("SPINE: Failed to create preload atlas");
+                throw spine_model_asset_loading_exception();
+            }
+
+            return stdex::make_tuple_promise(std::make_tuple(
+                atlas_internal->loading.load_async(library),
+                stdex::make_resolved_promise(atlas_data)));
+        })
+        .then([
+            parent_address
+        ](const std::tuple<
+            asset_group,
+            binary_asset::load_result
+        >& results){
+            auto atlas_internal = std::make_unique<atlas_internal_state>();
+            atlas_internal->loaded = std::get<0>(results);
+
+            spine_model::atlas_ptr atlas(
+                spAtlas_create(
+                    reinterpret_cast<const char*>(std::get<1>(results)->content().data()),
+                    math::numeric_cast<int>(std::get<1>(results)->content().size()),
+                    parent_address.c_str(),
+                    atlas_internal.get()),
+                spAtlas_dispose);
+
+            if ( !atlas ) {
+                the<debug>().error("SPINE: Failed to create preloaded atlas");
+                throw spine_model_asset_loading_exception();
+            }
+
+            for ( const spAtlasPage* page = atlas->pages; page; page = page->next ) {
+                if ( !page->rendererObject ) {
+                    the<debug>().error("SPINE: Failed to create preloaded atlas");
+                    throw spine_model_asset_loading_exception();
+                }
+            }
+
+            atlas->rendererObject = nullptr;
+            return atlas;
+        });
+    }
+
+    stdex::promise<spine_model::skeleton_data_ptr> load_skeleton_data(
+        const library& library,
+        const str& parent_address,
+        const str& skeleton_address,
+        f32 skeleton_scale,
+        const spine_model::atlas_ptr& atlas)
+    {
+        return library.load_asset_async<binary_asset>(
+            path::combine(parent_address, skeleton_address))
+        .then([
+            atlas,
+            skeleton_scale,
+            skeleton_address
+        ](const binary_asset::load_result& skeleton_data){
+            if ( strings::ends_with(skeleton_address, ".skel") ) {
+                using skeleton_bin_ptr = std::unique_ptr<
+                    spSkeletonBinary,
+                    decltype(&::spSkeletonBinary_dispose)>;
+
+                skeleton_bin_ptr binary_skeleton(
+                    spSkeletonBinary_create(atlas.get()),
+                    spSkeletonBinary_dispose);
+
+                if ( !binary_skeleton ) {
+                    the<debug>().error("SPINE: Failed to create binary skeleton");
+                    throw spine_model_asset_loading_exception();
+                }
+
+                binary_skeleton->scale = skeleton_scale;
+
+                spine_model::skeleton_data_ptr data_skeleton(
+                    spSkeletonBinary_readSkeletonData(
+                        binary_skeleton.get(),
+                        reinterpret_cast<const unsigned char*>(skeleton_data->content().data()),
+                        math::numeric_cast<int>(skeleton_data->content().size())),
+                    spSkeletonData_dispose);
+
+                if ( !data_skeleton ) {
+                    the<debug>().error("SPINE: Failed to read binary skeleton data:\n"
+                        "--> Error: %0",
+                        binary_skeleton->error);
+                    throw spine_model_asset_loading_exception();
+                }
+
+                return data_skeleton;
+            } else {
+                using skeleton_json_ptr = std::unique_ptr<
+                    spSkeletonJson,
+                    decltype(&::spSkeletonJson_dispose)>;
+
+                skeleton_json_ptr json_skeleton(
+                    spSkeletonJson_create(atlas.get()),
+                    spSkeletonJson_dispose);
+
+                if ( !json_skeleton ) {
+                    the<debug>().error("SPINE: Failed to create json skeleton");
+                    throw spine_model_asset_loading_exception();
+                }
+
+                json_skeleton->scale = skeleton_scale;
+
+                spine_model::skeleton_data_ptr data_skeleton(
+                    spSkeletonJson_readSkeletonData(
+                        json_skeleton.get(),
+                        reinterpret_cast<const char*>(skeleton_data->content().data())),
+                    spSkeletonData_dispose);
+
+                if ( !data_skeleton ) {
+                    the<debug>().error("SPINE: Failed to read json skeleton data:\n"
+                        "--> Error: %0",
+                        json_skeleton->error);
+                    throw spine_model_asset_loading_exception();
+                }
+
+                return data_skeleton;
+            }
+        });
     }
 
     stdex::promise<spine_model> parse_spine_model(
@@ -112,148 +253,75 @@ namespace
         const str& parent_address,
         const rapidjson::Value& root)
     {
-        using skeleton_json_ptr = std::unique_ptr<spSkeletonJson, void(*)(spSkeletonJson*)>;
-        using skeleton_bin_ptr = std::unique_ptr<spSkeletonBinary, void(*)(spSkeletonBinary*)>;
+        f32 skeleton_scale{1.0f};
+        if ( root.HasMember("skeleton_scale") ) {
+            if ( !json_utils::try_parse_value(root["skeleton_scale"], skeleton_scale) ) {
+                the<debug>().error("SPINE: Incorrect formating of 'skeleton_scale' property");
+            }
+        }
+
+        secf default_animation_mix{0.5f};
+        if ( root.HasMember("default_animation_mix") ) {
+            if ( !json_utils::try_parse_value(root["default_animation_mix"], default_animation_mix) ) {
+                the<debug>().error("SPINE: Incorrect formating of 'default_animation_mix' property");
+            }
+        }
+
+        vector<animation_mix> animation_mixes;
+        if ( root.HasMember("animation_mixes") ) {
+            E2D_ASSERT(root["animation_mixes"].IsArray());
+            const auto& mixes_json = root["animation_mixes"];
+            animation_mixes.reserve(mixes_json.Size());
+            for ( rapidjson::SizeType i = 0; i < mixes_json.Size(); ++i ) {
+                E2D_ASSERT(mixes_json[i].IsObject());
+                animation_mixes.push_back(
+                    parse_animation_mix(mixes_json[i]));
+            }
+        }
 
         E2D_ASSERT(root.HasMember("atlas") && root["atlas"].IsString());
-        binary_asset::load_result atlas_data = library.load_asset<binary_asset>(
-            path::combine(parent_address, root["atlas"].GetString()));
-        spine_model::atlas_ptr atlas(
-            spAtlas_create(
-                reinterpret_cast<const char*>(atlas_data->content().data()),
-                math::numeric_cast<int>(atlas_data->content().size()),
-                parent_address.data(),
-                nullptr),
-            spAtlas_dispose);
-
-        float skeleton_scale = 1.0f;
-        if ( root.HasMember("scale") ) {
-            if ( !json_utils::try_parse_value(root["scale"], skeleton_scale) ) {
-                the<debug>().error("SPINE: Incorrect formating of 'scale' property");
-            }
-        }
+        const str atlas_address = root["atlas"].GetString();
 
         E2D_ASSERT(root.HasMember("skeleton") && root["skeleton"].IsString());
-        const str ext = path::extension(root["skeleton"].GetString());
-        spine_model::skeleton_data_ptr skeleton;
+        const str skeleton_address = root["skeleton"].GetString();
 
-        if ( ext == ".skel" ) {
-	        skeleton_bin_ptr skeleton_binary(
-                spSkeletonBinary_create(atlas.get()),
-                spSkeletonBinary_dispose);
-            skeleton_binary->scale = skeleton_scale;
-
-            binary_asset::load_result skeleton_data = library.load_asset<binary_asset>(
-                path::combine(parent_address, root["skeleton"].GetString()));
-            skeleton = spine_model::skeleton_data_ptr(
-                spSkeletonBinary_readSkeletonData(
-                    skeleton_binary.get(),
-                    reinterpret_cast<const unsigned char*>(skeleton_data->content().data()),
-                    math::numeric_cast<int>(skeleton_data->content().size())),
-                spSkeletonData_dispose);
-
-            if ( !skeleton ) {
-                the<debug>().error("SPINE: Failed to read skeleton binary data:\n"
-                    "--> Error: $s",
-                    skeleton_binary->error);
-                return stdex::make_rejected_promise<spine_model>(
-                    spine_model_asset_loading_exception());
+        return load_atlas(
+            library,
+            parent_address,
+            atlas_address)
+        .then([
+            &library,
+            parent_address,
+            atlas_address,
+            skeleton_scale,
+            skeleton_address
+        ](const spine_model::atlas_ptr& atlas){
+            return stdex::make_tuple_promise(std::make_tuple(
+                stdex::make_resolved_promise(atlas),
+                load_skeleton_data(
+                    library,
+                    parent_address,
+                    skeleton_address,
+                    skeleton_scale,
+                    atlas)));
+        })
+        .then([
+            default_animation_mix,
+            animation_mixes = std::move(animation_mixes)
+        ](const std::tuple<
+            spine_model::atlas_ptr,
+            spine_model::skeleton_data_ptr
+        >& results){
+            spine_model content;
+            content.set_atlas(std::get<0>(results));
+            content.set_skeleton(std::get<1>(results));
+            content.set_default_mix(default_animation_mix);
+            for ( const animation_mix& mix : animation_mixes ) {
+                content.set_animation_mix(mix.from, mix.to, mix.duration);
             }
-        } else {
-            skeleton_json_ptr skeleton_json(
-                spSkeletonJson_create(atlas.get()),
-                spSkeletonJson_dispose);
-            skeleton_json->scale = skeleton_scale;
-
-            binary_asset::load_result skeleton_data = library.load_asset<binary_asset>(
-                path::combine(parent_address, root["skeleton"].GetString()));
-            skeleton = spine_model::skeleton_data_ptr(
-                spSkeletonJson_readSkeletonData(
-                    skeleton_json.get(),
-                    reinterpret_cast<const char*>(skeleton_data->content().data())),
-                spSkeletonData_dispose);
-
-            if ( !skeleton ) {
-                the<debug>().error("SPINE: Failed to read skeleton json data:\n"
-                    "--> Error: $s",
-                    skeleton_json->error);
-                return stdex::make_rejected_promise<spine_model>(
-                    spine_model_asset_loading_exception());
-            }
-        }
-
-
-        bool pma = false;
-        if ( root.HasMember("premultiplied_alpha") ) {
-            if ( !json_utils::try_parse_value(root["premultiplied_alpha"], pma) ) {
-                the<debug>().error("SPINE: Incorrect formating of 'premultiplied_alpha' property");
-            }
-        }
-        
-        spine_model content;
-        content.set_atlas(atlas, pma);
-        content.set_skeleton(skeleton);
-
-        secf default_mix(0.0f);
-        if ( root.HasMember("default_mix") ) {
-            if ( json_utils::try_parse_value(root["default_mix"], default_mix.value) ) {
-                content.set_default_mix(default_mix);
-            } else {
-                the<debug>().error("SPINE: Incorrect formating of 'default_mix' property");
-            } 
-        }
-
-        if ( root.HasMember("mix_animations") ) {
-            const auto& mix_animations_json = root["mix_animations"];
-            if ( !parse_mix_animations(mix_animations_json, content) ) {
-                return stdex::make_rejected_promise<spine_model>(
-                    spine_model_asset_loading_exception());
-            }
-        }
-
-        return stdex::make_resolved_promise(std::move(content));
+            return content;
+        });
     }
-}
-
-extern "C" void _spAtlasPage_createTexture (spAtlasPage* self, const char* path) {
-    try {
-        texture_asset::load_result texture = the<library>().load_asset<texture_asset>(path);
-        if ( !texture ) {
-            throw;
-        }
-        self->width = texture->content()->size().x;
-        self->height = texture->content()->size().y;
-        self->rendererObject = texture.release();
-    } catch(...) {
-        the<debug>().error("SPINE: Failed to load atlas texture");
-    }
-}
-
-extern "C" void _spAtlasPage_disposeTexture (spAtlasPage* self) {
-    // decrease ref counter
-    E2D_UNUSED(texture_asset::ptr(static_cast<texture_asset*>(self->rendererObject), false));
-}
-
-extern "C" char* _spUtil_readFile (const char* path, int* length) {
-    try {
-        binary_asset::load_result file = the<library>().load_asset<binary_asset>(path);
-        if ( !file ) {
-            throw;
-        }
-        if ( file->content().size() > std::numeric_limits<int>::max() ) {
-            throw;
-        }
-        *length = math::numeric_cast<int>(file->content().size());
-	    char*  data = MALLOC(char, *length);
-        if ( !data ) {
-            throw;
-        }
-        memcpy(data, file->content().data(), *length);
-        return data;
-    } catch(...) {
-        the<debug>().error("SPINE: Failed to read file");
-    }
-    return nullptr;
 }
 
 namespace e2d
@@ -300,4 +368,33 @@ namespace e2d
             });
         });
     }
+}
+
+extern "C" void _spAtlasPage_createTexture(spAtlasPage* self, const char* path) {
+    try {
+        E2D_ASSERT(self->atlas->rendererObject);
+        atlas_internal_state& atlas_internal =
+            *static_cast<atlas_internal_state*>(self->atlas->rendererObject);
+        auto texture_res = atlas_internal.loaded.find_asset<texture_asset>(path);
+        if ( texture_res ) {
+            self->width = math::numeric_cast<int>(texture_res->content()->size().x);
+            self->height = math::numeric_cast<int>(texture_res->content()->size().y);
+            self->rendererObject = texture_res.release();
+        } else {
+            atlas_internal.loading.add_dependency<texture_asset>(path);
+        }
+    } catch(...) {
+        // nothing
+    }
+}
+
+extern "C" void _spAtlasPage_disposeTexture(spAtlasPage* self) {
+    E2D_UNUSED(texture_asset::load_result(
+        static_cast<texture_asset*>(self->rendererObject), false));
+}
+
+extern "C" char* _spUtil_readFile(const char* path, int* length) {
+    E2D_ASSERT_MSG(false, "unimplemented by design");
+    E2D_UNUSED(path, length);
+    return nullptr;
 }
