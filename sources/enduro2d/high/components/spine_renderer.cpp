@@ -97,8 +97,8 @@ namespace e2d
                 path::combine(ctx.parent_address, ctx.root["model"].GetString()));
             if ( !model ) {
                 the<debug>().error("SPINE RENDERER: Dependency 'model' is not found:\n"
-                    "--> Parent address: %s\n"
-                    "--> Dependency address: $s",
+                    "--> Parent address: %0\n"
+                    "--> Dependency address: %1",
                     ctx.parent_address,
                     ctx.root["model"].GetString());
                 return false;
@@ -115,7 +115,7 @@ namespace e2d
             component.skin(skin);
         }
 
-        return false;
+        return true;
     }
 
     bool factory_loader<spine_renderer>::operator()(
@@ -126,12 +126,7 @@ namespace e2d
             dependencies.add_dependency<spine_model_asset>(
                 path::combine(ctx.parent_address, ctx.root["model"].GetString()));
         }
-        
-        if ( ctx.root.HasMember("skin") ) {
-            dependencies.add_dependency<spine_model_asset>(
-                path::combine(ctx.parent_address, ctx.root["skin"].GetString()));
-        }
 
-        return false;
+        return true;
     }
 }

@@ -120,14 +120,10 @@ namespace e2d
             "model" : { "$ref": "#/common_definitions/address" },
             "animations" : {
                 "type" : "array",
-                "items" : { "$ref": "#/definitions/spine_animation_array" }
+                "items" : { "$ref": "#/definitions/spine_animation" }
             }
         },
         "definitions" : {
-            "spine_animation_array" : {
-                "type" : "array",
-                "items" : { "$ref": "#/definitions/spine_animation" }
-            },
             "spine_animation" : {
                 "type" : "object",
                 "required" : [ "track", "name" ],
@@ -151,8 +147,8 @@ namespace e2d
                 path::combine(ctx.parent_address, ctx.root["model"].GetString()));
             if ( !model ) {
                 the<debug>().error("SPINE_PLAYER: Dependency 'model' is not found:\n"
-                    "--> Parent address: %s\n"
-                    "--> Dependency address: $s",
+                    "--> Parent address: %0\n"
+                    "--> Dependency address: %1",
                     ctx.parent_address,
                     ctx.root["model"].GetString());
                 return false;
