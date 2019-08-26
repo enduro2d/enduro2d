@@ -99,7 +99,7 @@ namespace e2d
     class render_system::internal_state final : private noncopyable {
     public:
         internal_state()
-        : drawer_(the<engine>(), the<debug>(), the<render>()) {}
+        : drawer_(the<engine>(), the<debug>(), the<render>(), the<window>()) {}
         ~internal_state() noexcept = default;
 
         void process(ecs::registry& owner) {

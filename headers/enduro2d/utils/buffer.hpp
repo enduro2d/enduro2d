@@ -12,6 +12,18 @@ namespace e2d
 {
     class buffer final {
     public:
+        using value_type = u8;
+
+        using pointer = u8*;
+        using const_pointer = const u8*;
+        using reference = u8&;
+        using const_reference = const u8&;
+
+        using iterator = pointer;
+        using const_iterator = const_pointer;
+        using reverse_iterator = std::reverse_iterator<iterator>;
+        using const_reverse_iterator = std::reverse_iterator<const_iterator>;
+    public:
         buffer() = default;
 
         buffer(buffer&& other) noexcept;
@@ -22,6 +34,22 @@ namespace e2d
 
         explicit buffer(std::size_t size);
         buffer(const void* src, std::size_t size);
+
+        iterator begin() noexcept;
+        const_iterator begin() const noexcept;
+        const_iterator cbegin() const noexcept;
+
+        iterator end() noexcept;
+        const_iterator end() const noexcept;
+        const_iterator cend() const noexcept;
+
+        reverse_iterator rbegin() noexcept;
+        const_reverse_iterator rbegin() const noexcept;
+        const_reverse_iterator crbegin() const noexcept;
+
+        reverse_iterator rend() noexcept;
+        const_reverse_iterator rend() const noexcept;
+        const_reverse_iterator crend() const noexcept;
 
         buffer& fill(u8 ch) noexcept;
         buffer& resize(std::size_t nsize);

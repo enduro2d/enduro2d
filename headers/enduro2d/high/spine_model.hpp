@@ -8,20 +8,26 @@
 
 #include "_high.hpp"
 
-struct spAnimationStateData;
-struct spSkeletonData;
 struct spAtlas;
+struct spSkeletonData;
+struct spAnimationStateData;
 
 namespace e2d
 {
+    class bad_spine_model_access final : public exception {
+    public:
+        const char* what() const noexcept final {
+            return "bad spine model access";
+        }
+    };
 
     class spine_model final {
     public:
-        using animation_data_ptr = std::shared_ptr<spAnimationStateData>;
-        using skeleton_data_ptr = std::shared_ptr<spSkeletonData>;
         using atlas_ptr = std::shared_ptr<spAtlas>;
+        using skeleton_data_ptr = std::shared_ptr<spSkeletonData>;
+        using animation_data_ptr = std::shared_ptr<spAnimationStateData>;
     public:
-        spine_model() noexcept = default;
+        spine_model() = default;
         ~spine_model() noexcept = default;
 
         spine_model(spine_model&& other) noexcept;
@@ -36,21 +42,22 @@ namespace e2d
         spine_model& assign(spine_model&& other) noexcept;
         spine_model& assign(const spine_model& other);
 
-        spine_model& set_skeleton(skeleton_data_ptr data);
-        spine_model& set_atlas(atlas_ptr atlas, bool premultiplied_alpha);
+        spine_model& set_atlas(atlas_ptr atlas);
+        spine_model& set_skeleton(skeleton_data_ptr skeleton);
 
-        spine_model& mix_animations(const str& from, const str& to, secf duration);
         spine_model& set_default_mix(secf duration);
+        spine_model& set_animation_mix(
+            const str& from,
+            const str& to,
+            secf duration);
 
         const atlas_ptr& atlas() const noexcept;
-        const animation_data_ptr& animation() const noexcept;
         const skeleton_data_ptr& skeleton() const noexcept;
-        bool premultiplied_alpha() const noexcept;
+        const animation_data_ptr& animation() const noexcept;
     private:
-        animation_data_ptr animation_;
-        skeleton_data_ptr skeleton_;
         atlas_ptr atlas_;
-        bool premultiplied_alpha_ = false;
+        skeleton_data_ptr skeleton_;
+        animation_data_ptr animation_;
     };
 
     void swap(spine_model& l, spine_model& r) noexcept;

@@ -406,7 +406,11 @@ namespace e2d
 
         // setup audio
 
-        if ( !params.without_audio() ) {
+        const bool without_audio =
+            params.without_audio() ||
+            !!std::getenv("E2D_WITHOUT_AUDIO");
+
+        if ( !without_audio ) {
             safe_module_initialize<audio>(
                 the<debug>());
         }
@@ -419,7 +423,11 @@ namespace e2d
 
         // setup graphics
 
-        if ( !params.without_graphics() )
+        const bool without_graphics =
+            params.without_graphics() ||
+            !!std::getenv("E2D_WITHOUT_GRAPHICS");
+
+        if ( !without_graphics )
         {
             // setup window
 

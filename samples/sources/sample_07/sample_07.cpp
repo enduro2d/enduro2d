@@ -112,8 +112,8 @@ namespace
                     .set_animation(0, "animation", true));
             
             node_iptr coin_n = coin_i->get_component<actor>().get().node();
-            coin_n->scale(v3f(0.125f));
-            coin_n->translation(v3f{200.0f, 200.0f, 0.0f});
+            coin_n->scale(v3f(0.25f));
+            coin_n->translation(v3f{200.0f, 180.0f, 0.0f});
 
             raptor_gobj_ = the<world>().instantiate();
             raptor_gobj_->entity_filler()
@@ -143,8 +143,7 @@ namespace
         bool create_systems() {
             ecs::registry_filler(the<world>().registry())
                 .system<game_system>(world::priority_update, raptor_gobj_)
-                .system<camera_system>(world::priority_pre_render)
-                .system<spine_system>(world::priority_update);
+                .system<camera_system>(world::priority_pre_render);
             return true;
         }
 

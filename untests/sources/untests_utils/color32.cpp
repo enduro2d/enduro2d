@@ -51,6 +51,10 @@ TEST_CASE("color32") {
         REQUIRE(c == color32(40,50,40,20));
     }
     {
+        REQUIRE(make_vec3(color32(10,20,30,40)) == vec3<u8>(10,20,30));
+        REQUIRE(make_vec4(color32(10,20,30,40)) == vec4<u8>(10,20,30,40));
+    }
+    {
         REQUIRE(color32(10,20,30,40) + 10 == color32(20,30,40,50));
         REQUIRE(color32(10,20,30,40) - 10 == color32(0,10,20,30));
         REQUIRE(color32(10,20,30,40) * 2  == color32(20,40,60,80));

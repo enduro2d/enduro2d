@@ -7,6 +7,9 @@
 #pragma once
 
 #include "_utils.hpp"
+
+#include "buffer.hpp"
+#include "buffer_view.hpp"
 #include "streams.hpp"
 
 namespace e2d
@@ -73,9 +76,7 @@ namespace e2d::filesystem
 
     bool try_read_all(str& dst, str_view path) noexcept;
     bool try_read_all(buffer& dst, str_view path) noexcept;
-
-    bool try_write_all(const str& src, str_view path, bool append) noexcept;
-    bool try_write_all(const buffer& src, str_view path, bool append) noexcept;
+    bool try_write_all(buffer_view src, str_view path, bool append) noexcept;
 
     enum class predef_path {
         home,

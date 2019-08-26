@@ -12,38 +12,49 @@ namespace
 
     struct pixel_type_description {
         const char* cstr;
-        u32 bits_per_pixel;
+        u32 bytes_per_block;
         bool color;
         bool depth;
         bool stencil;
         pixel_declaration::pixel_type type;
         bool compressed;
+        v2u block_size;
     };
 
     const pixel_type_description pixel_type_descriptions[] = {
-        {"depth16",          16, false, true,  false, pixel_declaration::pixel_type::depth16,          false},
-        {"depth24",          24, false, true,  false, pixel_declaration::pixel_type::depth24,          false},
-        {"depth32",          32, false, true,  false, pixel_declaration::pixel_type::depth32,          false},
-        {"depth24_stencil8", 32, false, true,  true,  pixel_declaration::pixel_type::depth24_stencil8, false},
+        {"depth16",           2, false, true,  false, pixel_declaration::pixel_type::depth16,          false, v2u(1,1)},
+        {"depth24",           3, false, true,  false, pixel_declaration::pixel_type::depth24,          false, v2u(1,1)},
+        {"depth24_stencil8",  4, false, true,  true,  pixel_declaration::pixel_type::depth24_stencil8, false, v2u(1,1)},
 
-        {"rgb8",             24, true,  false, false, pixel_declaration::pixel_type::rgb8,             false},
-        {"rgba8",            32, true,  false, false, pixel_declaration::pixel_type::rgba8,            false},
+        {"a8",                1, true,  false, false, pixel_declaration::pixel_type::a8,               false, v2u(1,1)},
+        {"l8",                1, true,  false, false, pixel_declaration::pixel_type::l8,               false, v2u(1,1)},
+        {"la8",               2, true,  false, false, pixel_declaration::pixel_type::la8,              false, v2u(1,1)},
+        {"rgb8",              3, true,  false, false, pixel_declaration::pixel_type::rgb8,             false, v2u(1,1)},
+        {"rgba8",             4, true,  false, false, pixel_declaration::pixel_type::rgba8,            false, v2u(1,1)},
 
-        {"rgb_dxt1",          4, true,  false, false, pixel_declaration::pixel_type::rgb_dxt1,         true},
-        {"rgba_dxt1",         4, true,  false, false, pixel_declaration::pixel_type::rgba_dxt1,        true},
-        {"rgba_dxt3",         8, true,  false, false, pixel_declaration::pixel_type::rgba_dxt3,        true},
-        {"rgba_dxt5",         8, true,  false, false, pixel_declaration::pixel_type::rgba_dxt5,        true},
+        {"rgba_dxt1",         8, true,  false, false, pixel_declaration::pixel_type::rgba_dxt1,        true,  v2u(4,4)},
+        {"rgba_dxt3",        16, true,  false, false, pixel_declaration::pixel_type::rgba_dxt3,        true,  v2u(4,4)},
+        {"rgba_dxt5",        16, true,  false, false, pixel_declaration::pixel_type::rgba_dxt5,        true,  v2u(4,4)},
 
-        {"rgb_pvrtc2",        2, true,  false, false, pixel_declaration::pixel_type::rgb_pvrtc2,       true},
-        {"rgb_pvrtc4",        4, true,  false, false, pixel_declaration::pixel_type::rgb_pvrtc4,       true},
-        {"rgba_pvrtc2",       2, true,  false, false, pixel_declaration::pixel_type::rgba_pvrtc2,      true},
-        {"rgba_pvrtc4",       4, true,  false, false, pixel_declaration::pixel_type::rgba_pvrtc4,      true},
+        {"rgb_etc1",          8, true,  false, false, pixel_declaration::pixel_type::rgb_etc1,         true,  v2u(4,4)},
+        {"rgb_etc2",          8, true,  false, false, pixel_declaration::pixel_type::rgb_etc2,         true,  v2u(4,4)},
+        {"rgba_etc2",        16, true,  false, false, pixel_declaration::pixel_type::rgba_etc2,        true,  v2u(4,4)},
+        {"rgb_a1_etc2",       8, true,  false, false, pixel_declaration::pixel_type::rgb_a1_etc2,      true,  v2u(4,4)},
 
-        {"rgba_pvrtc2",       2, true,  false, false, pixel_declaration::pixel_type::rgba_pvrtc2,      true},
-        {"rgba_pvrtc4",       4, true,  false, false, pixel_declaration::pixel_type::rgba_pvrtc4,      true},
+        {"rgba_astc4x4",     16, true,  false, false, pixel_declaration::pixel_type::rgba_astc4x4,     true,  v2u(4,4)},
+        {"rgba_astc5x5",     16, true,  false, false, pixel_declaration::pixel_type::rgba_astc5x5,     true,  v2u(5,5)},
+        {"rgba_astc6x6",     16, true,  false, false, pixel_declaration::pixel_type::rgba_astc6x6,     true,  v2u(6,6)},
+        {"rgba_astc8x8",     16, true,  false, false, pixel_declaration::pixel_type::rgba_astc8x8,     true,  v2u(8,8)},
+        {"rgba_astc10x10",   16, true,  false, false, pixel_declaration::pixel_type::rgba_astc10x10,   true,  v2u(10,10)},
+        {"rgba_astc12x12",   16, true,  false, false, pixel_declaration::pixel_type::rgba_astc12x12,   true,  v2u(12,12)},
 
-        {"rgba_pvrtc2_v2",    2, true,  false, false, pixel_declaration::pixel_type::rgba_pvrtc2_v2,   true},
-        {"rgba_pvrtc4_v2",    4, true,  false, false, pixel_declaration::pixel_type::rgba_pvrtc4_v2,   true}
+        {"rgb_pvrtc2",        8, true,  false, false, pixel_declaration::pixel_type::rgb_pvrtc2,       true,  v2u(8,4)},
+        {"rgb_pvrtc4",        8, true,  false, false, pixel_declaration::pixel_type::rgb_pvrtc4,       true,  v2u(4,4)},
+        {"rgba_pvrtc2",       8, true,  false, false, pixel_declaration::pixel_type::rgba_pvrtc2,      true,  v2u(8,4)},
+        {"rgba_pvrtc4",       8, true,  false, false, pixel_declaration::pixel_type::rgba_pvrtc4,      true,  v2u(4,4)},
+
+        {"rgba_pvrtc2_v2",    8, true,  false, false, pixel_declaration::pixel_type::rgba_pvrtc2_v2,   true,  v2u(8,4)},
+        {"rgba_pvrtc4_v2",    8, true,  false, false, pixel_declaration::pixel_type::rgba_pvrtc4_v2,   true,  v2u(4,4)}
     };
 
     const pixel_type_description& get_pixel_type_description(pixel_declaration::pixel_type type) noexcept {
@@ -157,8 +168,20 @@ namespace e2d
         return get_pixel_type_description(type_).compressed;
     }
 
-    std::size_t pixel_declaration::bits_per_pixel() const noexcept {
-        return get_pixel_type_description(type_).bits_per_pixel;
+    v2u pixel_declaration::block_size() const noexcept {
+        return get_pixel_type_description(type_).block_size;
+    }
+
+    std::size_t pixel_declaration::bytes_per_block() const noexcept {
+        return get_pixel_type_description(type_).bytes_per_block;
+    }
+
+    std::size_t pixel_declaration::data_size_for_dimension(v2u dim) const noexcept {
+        const v2u bs = block_size();
+        const std::size_t bpb = bytes_per_block();
+        return bs.x > 0 && bs.y > 0 && bpb > 0
+            ? bpb * ((dim.x + bs.x - 1u) / bs.x) * ((dim.y + bs.y - 1u) / bs.y)
+            : 0u;
     }
 
     bool operator==(const pixel_declaration& l, const pixel_declaration& r) noexcept {
@@ -647,7 +670,6 @@ namespace e2d
     render::sampler_state& render::sampler_state::wrap(sampler_wrap st) noexcept {
         s_wrap(st);
         t_wrap(st);
-        r_wrap(st);
         return *this;
     }
 
@@ -658,11 +680,6 @@ namespace e2d
 
     render::sampler_state& render::sampler_state::t_wrap(sampler_wrap t) noexcept {
         t_wrap_ = t;
-        return *this;
-    }
-
-    render::sampler_state& render::sampler_state::r_wrap(sampler_wrap r) noexcept {
-        r_wrap_ = r;
         return *this;
     }
 
@@ -692,10 +709,6 @@ namespace e2d
 
     render::sampler_wrap render::sampler_state::t_wrap() const noexcept {
         return t_wrap_;
-    }
-
-    render::sampler_wrap render::sampler_state::r_wrap() const noexcept {
-        return r_wrap_;
     }
 
     render::sampler_min_filter render::sampler_state::min_filter() const noexcept {
@@ -1232,7 +1245,6 @@ namespace e2d
         return l.texture() == r.texture()
             && l.s_wrap() == r.s_wrap()
             && l.t_wrap() == r.t_wrap()
-            && l.r_wrap() == r.r_wrap()
             && l.min_filter() == r.min_filter()
             && l.mag_filter() == r.mag_filter();
     }

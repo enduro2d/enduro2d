@@ -1,4 +1,8 @@
 version: "{build}"
+environment:
+  global:
+    E2D_WITHOUT_AUDIO: true
+    E2D_WITHOUT_GRAPHICS: true
 image:
   - Visual Studio 2017
   - Visual Studio 2019 Preview

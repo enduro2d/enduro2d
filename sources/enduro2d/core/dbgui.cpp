@@ -303,7 +303,7 @@ namespace e2d
 
         void update_index_buffer(buffer_view indices) {
             if ( index_buffer_ && index_buffer_->buffer_size() >= indices.size() ) {
-                index_buffer_->update(indices, 0);
+                render_.update_buffer(index_buffer_, indices, 0u);
                 return;
             }
 
@@ -329,7 +329,7 @@ namespace e2d
 
         void update_vertex_buffer(buffer_view vertices) {
             if ( vertex_buffer_ && vertex_buffer_->buffer_size() >= vertices.size() ) {
-                vertex_buffer_->update(vertices, 0);
+                render_.update_buffer(vertex_buffer_, vertices, 0u);
                 return;
             }
 
