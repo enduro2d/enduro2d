@@ -22,12 +22,11 @@ namespace e2d
 
     void spine_system::process(ecs::registry& owner) {
         float dt = the<engine>().delta_time();
-        owner.for_joined_components<spine_player, spine_renderer>([dt](
+        owner.for_each_component<spine_player>([dt](
             const ecs::const_entity&,
-            spine_player& player,
-            const spine_renderer& renderer)
+            spine_player& player)
         {
-            spSkeleton* skeleton = renderer.skeleton().operator->();
+            spSkeleton* skeleton = player.skeleton().operator->();
             spAnimationState* anim_state = player.animation().operator->();
             
             if ( !skeleton || !anim_state ) {

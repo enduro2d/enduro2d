@@ -56,7 +56,7 @@ namespace e2d::render_system_impl
             void draw(
                 const const_node_iptr& node,
                 const renderer& node_r,
-                const spine_renderer& spine_r);
+                const spine_player& spine_r);
 
             void flush();
         private:

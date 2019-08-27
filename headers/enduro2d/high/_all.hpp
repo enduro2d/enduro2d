@@ -36,7 +36,6 @@
 #include "components/renderer.hpp"
 #include "components/scene.hpp"
 #include "components/spine_player.hpp"
-#include "components/spine_renderer.hpp"
 #include "components/sprite_renderer.hpp"
 
 #include "systems/flipbook_system.hpp"

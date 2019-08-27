@@ -9,7 +9,6 @@
 #include <enduro2d/high/components/renderer.hpp>
 #include <enduro2d/high/components/model_renderer.hpp>
 #include <enduro2d/high/components/sprite_renderer.hpp>
-#include <enduro2d/high/components/spine_renderer.hpp>
 #include <enduro2d/high/components/spine_player.hpp>
 
 #include <spine/AnimationState.h>
@@ -116,7 +115,7 @@ namespace e2d::render_system_impl
             if ( spr_r ) {
                 draw(node, *node_r, *spr_r);
             }
-            const spine_renderer* spine_r = node_e.find_component<spine_renderer>();
+            const spine_player* spine_r = node_e.find_component<spine_player>();
             if ( spine_r ) {
                 draw(node, *node_r, *spine_r);
             }
@@ -251,7 +250,7 @@ namespace e2d::render_system_impl
     void drawer::context::draw(
         const const_node_iptr& node,
         const renderer& node_r,
-        const spine_renderer& spine_r)
+        const spine_player& spine_r)
     {
         constexpr int stride = 2;
         std::vector<batcher_type::vertex_type> batch_vertices; // TODO: optimize

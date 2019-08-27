@@ -5,8 +5,7 @@
  ******************************************************************************/
 
 #include <enduro2d/high/components/spine_player.hpp>
-
-#include <spine/AnimationState.h>
+#include <spine/spine.h>
 
 namespace
 {
@@ -16,16 +15,55 @@ namespace
 
 namespace e2d
 {
-    spine_player::spine_player(const spine_model_asset::ptr& model)
-    : model_(model) {
-        E2D_ASSERT(model_);
-        E2D_ASSERT(model_->content().animation());
-
-        animation_ = animation_ptr(
-            spAnimationState_create(model_->content().animation().get()),
-            spAnimationState_dispose);
+    spine_player::spine_player(const spine_model_asset::ptr& model) {
+        this->model(model);
     }
     
+    spine_player& spine_player::model(const spine_model_asset::ptr& value) noexcept {
+        E2D_ASSERT(value);
+        E2D_ASSERT(value->content().skeleton());
+        E2D_ASSERT(value->content().atlas());
+        model_ = value;
+
+        skeleton_ = skeleton_ptr(spSkeleton_create(model_->content().skeleton().get()), spSkeleton_dispose);
+        clipping_ = clipping_ptr(spSkeletonClipping_create(), spSkeletonClipping_dispose);
+
+        if ( model_->content().animation() ) {
+            animation_ = animation_ptr(
+                spAnimationState_create(model_->content().animation().get()),
+                spAnimationState_dispose);
+        } else {
+            animation_.reset();
+        }
+        return *this;
+    }
+
+    spine_player& spine_player::skin(const str& value) noexcept {
+        spSkeleton_setSkinByName(skeleton_.get(), value.empty() ? nullptr : value.c_str());
+        return *this;
+    }
+
+    spine_player& spine_player::attachment(const str& slot, const str& name) noexcept {
+        E2D_ASSERT(!slot.empty());
+        E2D_ASSERT(!name.empty());
+        if ( !spSkeleton_setAttachment(skeleton_.get(), slot.c_str(), name.c_str()) ) {
+            the<debug>().error("SPINE_RENDERER: can't set attachment '%0' to slot '%1'", name, slot);
+        }
+        return *this;
+    }
+
+    const spine_player::skeleton_ptr& spine_player::skeleton() const noexcept {
+        return skeleton_;
+    }
+    
+    const spine_player::clipping_ptr& spine_player::clipper() const noexcept {
+        return clipping_;
+    }
+
+    const spine_player::effect_ptr& spine_player::effect() const noexcept {
+        return effect_;
+    }
+
     spine_player& spine_player::time_scale(float value) noexcept {
         E2D_ASSERT(animation_);
         animation_->timeScale = value;
@@ -118,6 +156,11 @@ namespace e2d
         "additionalProperties" : false,
         "properties" : {
             "model" : { "$ref": "#/common_definitions/address" },
+            "skin" : { "$ref": "#/common_definitions/name" },
+            "attachments" : {
+                "type" : "array",
+                "items" : { "$ref": "#/definitions/spine_attachment" }
+            },
             "animations" : {
                 "type" : "array",
                 "items" : { "$ref": "#/definitions/spine_animation" }
@@ -133,6 +176,15 @@ namespace e2d
                     "name" : { "$ref": "#/common_definitions/name" },
                     "loop" : { "type" : "boolean" },
                     "delay" : { "type" : "number" }
+                }
+            },
+            "spine_attachment" : {
+                "type" : "object",
+                "required" : [ "slot", "name" ],
+                "additionalProperties" : false,
+                "properties" : {
+                    "slot" : { "$ref": "#/common_definitions/name" },
+                    "name" : { "$ref": "#/common_definitions/name" }
                 }
             }
         }
@@ -158,6 +210,36 @@ namespace e2d
             the<debug>().error("SPINE_PLAYER: Property 'model' is not found");
             return false;
         }
+        
+        if ( ctx.root.HasMember("skin") ) {
+            str skin;
+            if ( !json_utils::try_parse_value(ctx.root["skin"], skin) ) {
+                the<debug>().error("SPINE RENDERER: Incorrect formatting of 'skin' property");
+                return false;
+            }
+            component.skin(skin);
+        }
+
+        if ( ctx.root.HasMember("attachments") ) {
+            const auto& attachments_json = ctx.root["attachments"];
+            E2D_ASSERT(attachments_json.IsArray());
+            
+            for ( rapidjson::SizeType i = 0; i < attachments_json.Size(); ++i ) {
+                E2D_ASSERT(attachments_json[i].IsObject());
+                const auto& item_json = attachments_json[i];
+
+                if ( !item_json.HasMember("slot") ) {
+                    the<debug>().error("SPINE_PLAYER: Incorrect formatting of 'attachments.slot' property");
+                    return false;
+                }
+                if ( !item_json.HasMember("name") ) {
+                    the<debug>().error("SPINE_PLAYER: Incorrect formatting of 'attachments.name' property");
+                    return false;
+                }
+
+                component.attachment(item_json["slot"].GetString(), item_json["name"].GetString());
+            }
+        }
 
         if ( ctx.root.HasMember("animations") ) {
             const auto& animations_json = ctx.root["animations"];
@@ -179,21 +261,21 @@ namespace e2d
 
                 if ( item_json.HasMember("track") ) {
                     if ( !json_utils::try_parse_value(item_json["track"], track) ) {
-                        the<debug>().error("SPINE_PLAYER: Incorrect formatting of 'track' property");
+                        the<debug>().error("SPINE_PLAYER: Incorrect formatting of 'animations.track' property");
                         return false;
                     }
                 }
 
                 if ( item_json.HasMember("delay") ) {
                     if ( !json_utils::try_parse_value(item_json["delay"], delay.value) ) {
-                        the<debug>().error("SPINE_PLAYER: Incorrect formatting of 'delay' property");
+                        the<debug>().error("SPINE_PLAYER: Incorrect formatting of 'animations.delay' property");
                         return false;
                     }
                 }
 
                 if ( item_json.HasMember("loop") ) {
                     if ( !json_utils::try_parse_value(item_json["loop"], loop) ) {
-                        the<debug>().error("SPINE_PLAYER: Incorrect formatting of 'loop' property");
+                        the<debug>().error("SPINE_PLAYER: Incorrect formatting of 'animations.loop' property");
                         return false;
                     }
                 }
@@ -201,6 +283,7 @@ namespace e2d
                 component.add_animation(track, name, loop, delay);
             }
         }
+
         return true;
     }
     
@@ -208,7 +291,10 @@ namespace e2d
         asset_dependencies& dependencies,
         const collect_context& ctx) const
     {
-        E2D_UNUSED(dependencies, ctx);
+        if ( ctx.root.HasMember("model") ) {
+            dependencies.add_dependency<spine_model_asset>(
+                path::combine(ctx.parent_address, ctx.root["model"].GetString()));
+        }
         return true;
     }
 }
