@@ -1,5 +1,6 @@
 {
     "atlas" : "coin/coin-pma.atlas",
+    "premultiplied_alpha" : true,
     "skeleton" : "coin/coin-pro.skel",
     "skeleton_scale" : 1.0
 }

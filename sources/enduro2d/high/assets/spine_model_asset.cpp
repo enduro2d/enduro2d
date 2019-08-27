@@ -29,6 +29,7 @@ namespace
         "additionalProperties" : false,
         "properties" : {
             "atlas" : { "$ref" : "#/common_definitions/address" },
+            "premultiplied_alpha" : { "type" : "boolean" },
             "skeleton" : { "$ref" : "#/common_definitions/address" },
             "skeleton_scale" : { "type" : "number" },
             "default_animation_mix" : { "type" : "number" },
@@ -279,6 +280,13 @@ namespace
                     parse_animation_mix(mixes_json[i]));
             }
         }
+        
+        bool pma = false;
+        if ( root.HasMember("premultiplied_alpha") ) {
+            if ( !json_utils::try_parse_value(root["premultiplied_alpha"], pma) ) {
+                the<debug>().error("SPINE: Incorrect formating of 'premultiplied_alpha' property");
+            }
+        }
 
         E2D_ASSERT(root.HasMember("atlas") && root["atlas"].IsString());
         const str atlas_address = root["atlas"].GetString();
@@ -308,13 +316,14 @@ namespace
         })
         .then([
             default_animation_mix,
-            animation_mixes = std::move(animation_mixes)
+            animation_mixes = std::move(animation_mixes),
+            pma
         ](const std::tuple<
             spine_model::atlas_ptr,
             spine_model::skeleton_data_ptr
         >& results){
             spine_model content;
-            content.set_atlas(std::get<0>(results));
+            content.set_atlas(std::get<0>(results), pma);
             content.set_skeleton(std::get<1>(results));
             content.set_default_mix(default_animation_mix);
             for ( const animation_mix& mix : animation_mixes ) {

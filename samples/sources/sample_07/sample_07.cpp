@@ -107,7 +107,6 @@ namespace
                 .component<actor>(node::create(coin_i, scene_r))
                 .component<renderer>(renderer()
                     .materials({spine_mat}))
-                .component<spine_renderer>(spine_renderer(spine_coin))
                 .component<spine_player>(spine_player(spine_coin)
                     .set_animation(0, "animation", true));
             
@@ -120,7 +119,6 @@ namespace
                 .component<actor>(node::create(raptor_gobj_, scene_r))
                 .component<renderer>(renderer()
                     .materials({spine_mat}))
-                .component<spine_renderer>(spine_renderer(spine_raptor))
                 .component<spine_player>(spine_player(spine_raptor)
                     .set_animation(0, "walk", true));
             

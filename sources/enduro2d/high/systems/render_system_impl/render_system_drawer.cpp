@@ -268,8 +268,7 @@ namespace e2d::render_system_impl
         spSkeletonClipping* clipper = spine_r.clipper().operator->();
         spVertexEffect* effect = spine_r.effect().operator->();
         const material_asset::ptr& src_mat = node_r.materials().front();
-        //const bool use_premultiplied_alpha = spine_r.model()->content().premultiplied_alpha();
-        const bool use_premultiplied_alpha = false; // TODO: pma is not supported
+        const bool use_premultiplied_alpha = spine_r.model()->content().premultiplied_alpha();
 
         if ( !skeleton || !clipper || !src_mat ) {
             return;
@@ -351,10 +350,17 @@ namespace e2d::render_system_impl
                 continue;
             }
 
-            const color32 vert_color(
+            color vert_colorf = 
                 color(skeleton->color.r, skeleton->color.g, skeleton->color.b, skeleton->color.a) *
                 color(slot->color.r, slot->color.g, slot->color.b, slot->color.a) *
-                color(attachment_color->r, attachment_color->g, attachment_color->b, attachment_color->a));
+                color(attachment_color->r, attachment_color->g, attachment_color->b, attachment_color->a);
+
+            if ( use_premultiplied_alpha ) {
+                vert_colorf.r *= vert_colorf.a;
+                vert_colorf.g *= vert_colorf.a;
+                vert_colorf.b *= vert_colorf.a;
+            }
+            const color32 vert_color(vert_colorf);
 
             render::blending_state blend_mode;
             switch ( slot->data->blendMode ) {

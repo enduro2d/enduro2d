@@ -7,7 +7,6 @@
 #include <enduro2d/high/systems/spine_system.hpp>
 
 #include <enduro2d/high/components/spine_player.hpp>
-#include <enduro2d/high/components/spine_renderer.hpp>
 
 #include <spine/AnimationState.h>
 #include <spine/Skeleton.h>

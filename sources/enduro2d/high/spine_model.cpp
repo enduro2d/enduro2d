@@ -35,6 +35,7 @@ namespace e2d
     void spine_model::swap(spine_model& other) noexcept {
         using std::swap;
         swap(atlas_, other.atlas_);
+        swap(premultiplied_alpha_, other.premultiplied_alpha_);
         swap(skeleton_, other.skeleton_);
         swap(animation_, other.animation_);
     }
@@ -51,6 +52,7 @@ namespace e2d
         if ( this != &other ) {
             spine_model m;
             m.atlas_ = other.atlas_;
+            m.premultiplied_alpha_ = other.premultiplied_alpha_;
             m.skeleton_ = other.skeleton_;
             m.animation_ = other.animation_;
             swap(m);
@@ -58,8 +60,9 @@ namespace e2d
         return *this;
     }
 
-    spine_model& spine_model::set_atlas(atlas_ptr atlas) {
+    spine_model& spine_model::set_atlas(atlas_ptr atlas, bool premultiplied_alpha) {
         atlas_ = std::move(atlas);
+        premultiplied_alpha_ = premultiplied_alpha;
         return *this;
     }
 
@@ -117,6 +120,10 @@ namespace e2d
 
     const spine_model::animation_data_ptr& spine_model::animation() const noexcept {
         return animation_;
+    }
+
+    bool spine_model::premultiplied_alpha() const noexcept {
+        return premultiplied_alpha_;
     }
 }
 
