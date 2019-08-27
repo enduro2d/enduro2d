@@ -110,11 +110,12 @@ namespace
         const str& parent_address,
         const str& atlas_address)
     {
-        return library.load_asset_async<binary_asset>(
-            path::combine(parent_address, atlas_address))
+        const str atlas_path = path::combine(parent_address, atlas_address);
+        const str atlas_folder = path::parent_path(atlas_path);
+        return library.load_asset_async<binary_asset>(atlas_path)
         .then([
             &library,
-            parent_address
+            parent_address = atlas_folder
         ](const binary_asset::load_result& atlas_data){
             auto atlas_internal = std::make_unique<atlas_internal_state>();
 
@@ -136,7 +137,7 @@ namespace
                 stdex::make_resolved_promise(atlas_data)));
         })
         .then([
-            parent_address
+            parent_address = atlas_folder
         ](const std::tuple<
             asset_group,
             binary_asset::load_result
