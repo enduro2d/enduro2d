@@ -11,11 +11,6 @@ namespace
 {
     class game_system final : public ecs::system {
     public:
-        game_system(gobject_iptr raptor)
-        : raptor_gobj_(raptor) {}
-
-        ~game_system() noexcept override {}
-
         void process(ecs::registry& owner) override {
             E2D_UNUSED(owner);
             const keyboard& k = the<input>().keyboard();
@@ -33,33 +28,39 @@ namespace
             }
             
             // use keys R, J, G to start animations
-            if ( raptor_gobj_ ) {
-                if ( k.is_key_just_pressed(keyboard_key::r) ) {
-                    auto player = raptor_gobj_->get_component<spine_player>();
-                    if ( player ) {
-                        (*player).set_animation(0, "roar")
-                            .add_animation(0, "walk", true);
-                    }
-                }
-                if ( k.is_key_just_pressed(keyboard_key::j) ) {
-                    auto player = raptor_gobj_->get_component<spine_player>();
-                    if ( player ) {
-                        (*player).set_animation(0, "jump")
-                            .add_animation(0, "walk", true);
-                    }
-                }
-                if ( k.is_key_just_pressed(keyboard_key::g) ) {
-                    auto player = raptor_gobj_->get_component<spine_player>();
-                    if ( player ) {
-                        (*player).set_animation(1, "gun-grab")
-                            .add_animation(1, "gun-holster", secf(3.0f));
-                    }
-                }
-            }
-        }
+            const bool roar = k.is_key_just_pressed(keyboard_key::r);
+            const bool jump = k.is_key_just_pressed(keyboard_key::j);
+            const bool gun_grab = k.is_key_just_pressed(keyboard_key::g);
 
-    private:
-        gobject_iptr raptor_gobj_;
+            if ( roar || jump || gun_grab ) {
+                owner.for_each_component<spine_player>(
+                [&owner, roar, jump, gun_grab] (ecs::entity_id e, const spine_player& player) {
+                    if ( !player.has_animation("walk") ) {
+                        return;
+                    }
+                    auto& events = ecs::entity(owner, e).assign_component<spine_animation_event>();
+                    if ( roar ) {
+                        events.commands().push_back(spine_animation_event::set_anim{0, "roar", false, "1"});
+                    } else if ( jump ) {
+                        events.commands().push_back(spine_animation_event::set_anim{0, "jump", false, "1"});
+                    } else if ( gun_grab ) {
+                        events.commands().push_back(spine_animation_event::set_anim{1, "gun-grab", false, ""});
+                        events.commands().push_back(spine_animation_event::add_anim{1, "gun-holster", false, secf(3.0f), ""});
+                    }
+                });
+            }
+            
+            owner.for_joined_components<spine_player::on_complete_event, spine_player>(
+            [&owner](ecs::entity_id e, const spine_player::on_complete_event& events, spine_player& player) {
+                auto& new_events = ecs::entity(owner, e).assign_component<spine_animation_event>();
+
+                for ( auto& ev : events.completed() ) {
+                    if ( ev == "1" ) {
+                        new_events.commands().push_back(spine_animation_event::add_anim{0, "walk", true, secf(), ""});
+                    }
+                }
+            });
+        }
     };
     
     class camera_system final : public ecs::system {
@@ -86,47 +87,11 @@ namespace
         }
     private:
         bool create_scene() {
-            auto spine_raptor = the<library>().load_asset<spine_model_asset>("spine_raptor.json");
-            auto spine_coin = the<library>().load_asset<spine_model_asset>("spine_coin.json");
-            auto spine_mat = the<library>().load_asset<material_asset>("spine_material.json");
-
-            if ( !spine_raptor || !spine_coin || !spine_mat ) {
-                return false;
-            }
-            
-            auto scene_i = the<world>().instantiate();
-
-            scene_i->entity_filler()
-                .component<scene>()
-                .component<actor>(node::create(scene_i));
-
-            node_iptr scene_r = scene_i->get_component<actor>().get().node();
-            
-            auto coin_i = the<world>().instantiate();
-            coin_i->entity_filler()
-                .component<actor>(node::create(coin_i, scene_r))
-                .component<renderer>(renderer()
-                    .materials({spine_mat}))
-                .component<spine_player>(spine_player(spine_coin)
-                    .set_animation(0, "animation", true));
-            
-            node_iptr coin_n = coin_i->get_component<actor>().get().node();
-            coin_n->scale(v3f(0.25f));
-            coin_n->translation(v3f{200.0f, 180.0f, 0.0f});
-
-            raptor_gobj_ = the<world>().instantiate();
-            raptor_gobj_->entity_filler()
-                .component<actor>(node::create(raptor_gobj_, scene_r))
-                .component<renderer>(renderer()
-                    .materials({spine_mat}))
-                .component<spine_player>(spine_player(spine_raptor)
-                    .set_animation(0, "walk", true));
-            
-            node_iptr raptor_n = raptor_gobj_->get_component<actor>().get().node();
-            raptor_n->scale(v3f(0.25f));
-            raptor_n->translation(v3f{-80.f, -100.f, 0.0f});
-
-            return true;
+            auto scene_prefab_res = the<library>().load_asset<prefab_asset>("scene_spine_prefab.json");
+            auto scene_go = scene_prefab_res
+                ? the<world>().instantiate(scene_prefab_res->content())
+                : nullptr;
+            return !!scene_go;
         }
 
         bool create_camera() {
@@ -140,13 +105,10 @@ namespace
 
         bool create_systems() {
             ecs::registry_filler(the<world>().registry())
-                .system<game_system>(world::priority_update, raptor_gobj_)
+                .system<game_system>(world::priority_update)
                 .system<camera_system>(world::priority_pre_render);
             return true;
         }
-
-    private:
-        gobject_iptr raptor_gobj_;
     };
 }
 

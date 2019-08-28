@@ -15,11 +15,23 @@ struct spAnimationState;
 struct spSkeleton;
 struct spSkeletonClipping;
 struct spVertexEffect;
+struct spTrackEntry;
+struct spEvent;
 
 namespace e2d
 {
     class spine_player final {
     public:
+        class on_complete_event final {
+        public:
+            on_complete_event() = default;
+
+            std::vector<str>& completed() noexcept { return completed_; }
+            const std::vector<str>& completed() const noexcept { return completed_; }
+        private:
+            std::vector<str> completed_;
+        };
+
         using animation_ptr = std::shared_ptr<spAnimationState>;
         using skeleton_ptr = std::shared_ptr<spSkeleton>;
         using clipping_ptr = std::shared_ptr<spSkeletonClipping>;
@@ -37,27 +49,15 @@ namespace e2d
 
         [[nodiscard]] bool has_animation(const str& name) const noexcept;
         
-        spine_player& set_animation(u32 track, const str& name, bool loop = false) noexcept;
-
-        spine_player& add_animation(u32 track, const str& name, bool loop, secf delay = secf(0.0f)) noexcept;
-        spine_player& add_animation(u32 track, const str& name, secf delay = secf(0.0f)) noexcept;
-
-        spine_player& add_empty_animation(u32 track, secf duration, secf delay = secf(0.0f)) noexcept;
-
-        spine_player& clear(u32 track) noexcept;
-        spine_player& clear() noexcept;
-        
         const animation_ptr& animation() const noexcept;
         const skeleton_ptr& skeleton() const noexcept;
         const clipping_ptr& clipper() const noexcept;
-        const effect_ptr& effect() const noexcept;
         const spine_model_asset::ptr& model() const noexcept;
     private:
         animation_ptr animation_;
         spine_model_asset::ptr model_;
         skeleton_ptr skeleton_;
         clipping_ptr clipping_;
-        effect_ptr effect_;
     };
 
     template <>

@@ -1,0 +1,17 @@
+{
+    "components" : {
+        "renderer" : {
+            "materials" : ["spine_material.json"]
+        },
+        "spine_player" : {
+            "model" : "spine_raptor.json"
+        },
+        "spine_animation" : {
+            "animations" : [{
+                "track" : 0,
+                "name" : "walk",
+                "loop" : true
+            }]
+        }
+    }
+}

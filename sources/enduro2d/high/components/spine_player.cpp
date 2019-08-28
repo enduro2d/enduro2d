@@ -7,12 +7,6 @@
 #include <enduro2d/high/components/spine_player.hpp>
 #include <spine/spine.h>
 
-namespace
-{
-    // spine will allocate storage for each track, so keep number of track as small as possible
-    constexpr e2d::u32 max_track_count = 8;
-}
-
 namespace e2d
 {
     spine_player::spine_player(const spine_model_asset::ptr& model) {
@@ -32,6 +26,7 @@ namespace e2d
             animation_ = animation_ptr(
                 spAnimationState_create(model_->content().animation().get()),
                 spAnimationState_dispose);
+            E2D_ASSERT(animation_); // TODO exception?
         } else {
             animation_.reset();
         }
@@ -42,7 +37,7 @@ namespace e2d
         spSkeleton_setSkinByName(skeleton_.get(), value.empty() ? nullptr : value.c_str());
         return *this;
     }
-
+    
     spine_player& spine_player::attachment(const str& slot, const str& name) noexcept {
         E2D_ASSERT(!slot.empty());
         E2D_ASSERT(!name.empty());
@@ -51,17 +46,13 @@ namespace e2d
         }
         return *this;
     }
-
+    
     const spine_player::skeleton_ptr& spine_player::skeleton() const noexcept {
         return skeleton_;
     }
     
     const spine_player::clipping_ptr& spine_player::clipper() const noexcept {
         return clipping_;
-    }
-
-    const spine_player::effect_ptr& spine_player::effect() const noexcept {
-        return effect_;
     }
 
     spine_player& spine_player::time_scale(float value) noexcept {
@@ -80,63 +71,9 @@ namespace e2d
             return false;
         }
         spAnimation* anim = spSkeletonData_findAnimation(
-            model_->content().skeleton().operator->(),
+            model_->content().skeleton().get(),
             name.c_str());
         return anim != nullptr;
-    }
-
-    spine_player& spine_player::set_animation(u32 track, const str& name, bool loop) noexcept {
-        E2D_ASSERT(model_ && animation_);
-        E2D_ASSERT(track < max_track_count);
-        spAnimation* anim = spSkeletonData_findAnimation(
-            model_->content().skeleton().operator->(),
-            name.c_str());
-
-        if ( !anim ) {
-            the<debug>().error("SPINE_PLAYER: animation '%0' is not found", name);
-            return *this;
-        }
-        spAnimationState_setAnimation(animation_.get(), track, anim, loop);
-        return *this;
-    }
-
-    spine_player& spine_player::add_animation(u32 track, const str& name, secf delay) noexcept {
-        return add_animation(track, name, false, delay);
-    }
-
-    spine_player& spine_player::add_animation(u32 track, const str& name, bool loop, secf delay) noexcept {
-        E2D_ASSERT(model_ && animation_);
-        E2D_ASSERT(track < max_track_count);
-        spAnimation* anim = spSkeletonData_findAnimation(
-            model_->content().skeleton().operator->(),
-            name.c_str());
-
-        if ( !anim ) {
-            the<debug>().error("SPINE_PLAYER: animation '%0' is not found", name);
-            return *this;
-        }
-        spAnimationState_addAnimation(animation_.get(), track, anim, loop, delay.value);
-        return *this;
-    }
-    
-    spine_player& spine_player::add_empty_animation(u32 track, secf duration, secf delay) noexcept {
-        E2D_ASSERT(animation_);
-        E2D_ASSERT(track < max_track_count);
-        spAnimationState_addEmptyAnimation(animation_.get(), track, duration.value, delay.value);
-        return *this;
-    }
-    
-    spine_player& spine_player::clear(u32 track) noexcept {
-        E2D_ASSERT(animation_);
-        E2D_ASSERT(track < max_track_count);
-        spAnimationState_clearTrack(animation_.get(), track);
-        return *this;
-    }
-    
-    spine_player& spine_player::clear() noexcept {
-        E2D_ASSERT(animation_);
-        spAnimationState_clearTracks(animation_.get());
-        return *this;
     }
 
     const spine_player::animation_ptr& spine_player::animation() const noexcept {
@@ -160,24 +97,9 @@ namespace e2d
             "attachments" : {
                 "type" : "array",
                 "items" : { "$ref": "#/definitions/spine_attachment" }
-            },
-            "animations" : {
-                "type" : "array",
-                "items" : { "$ref": "#/definitions/spine_animation" }
             }
         },
         "definitions" : {
-            "spine_animation" : {
-                "type" : "object",
-                "required" : [ "track", "name" ],
-                "additionalProperties" : false,
-                "properties" : {
-                    "track" : { "type" : "integer", "minimum" : 0, "maximum": 8 },
-                    "name" : { "$ref": "#/common_definitions/name" },
-                    "loop" : { "type" : "boolean" },
-                    "delay" : { "type" : "number" }
-                }
-            },
             "spine_attachment" : {
                 "type" : "object",
                 "required" : [ "slot", "name" ],
@@ -238,49 +160,6 @@ namespace e2d
                 }
 
                 component.attachment(item_json["slot"].GetString(), item_json["name"].GetString());
-            }
-        }
-
-        if ( ctx.root.HasMember("animations") ) {
-            const auto& animations_json = ctx.root["animations"];
-            E2D_ASSERT(animations_json.IsArray());
-            
-            for ( rapidjson::SizeType i = 0; i < animations_json.Size(); ++i ) {
-                E2D_ASSERT(animations_json[i].IsObject());
-                const auto& item_json = animations_json[i];
-
-                E2D_ASSERT(item_json.HasMember("track") && item_json.HasMember("name"));
-                u32 track = 0;
-                secf delay;
-                bool loop = false;
-                const char* name = "";
-
-                if ( item_json.HasMember("name") ) {
-                    name = item_json["name"].GetString();
-                }
-
-                if ( item_json.HasMember("track") ) {
-                    if ( !json_utils::try_parse_value(item_json["track"], track) ) {
-                        the<debug>().error("SPINE_PLAYER: Incorrect formatting of 'animations.track' property");
-                        return false;
-                    }
-                }
-
-                if ( item_json.HasMember("delay") ) {
-                    if ( !json_utils::try_parse_value(item_json["delay"], delay.value) ) {
-                        the<debug>().error("SPINE_PLAYER: Incorrect formatting of 'animations.delay' property");
-                        return false;
-                    }
-                }
-
-                if ( item_json.HasMember("loop") ) {
-                    if ( !json_utils::try_parse_value(item_json["loop"], loop) ) {
-                        the<debug>().error("SPINE_PLAYER: Incorrect formatting of 'animations.loop' property");
-                        return false;
-                    }
-                }
-
-                component.add_animation(track, name, loop, delay);
             }
         }
 

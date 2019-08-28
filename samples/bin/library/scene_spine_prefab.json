@@ -1,0 +1,24 @@
+{
+    "components" : {
+        "scene" : {}
+    },
+    "children" : [{
+        "prototype" : "camera_prefab.json"
+    },{
+        "prototype" : "spine_coin_prefab.json",
+        "components" : {
+            "actor" : {
+                "translation" : [200,180,0],
+                "scale" : 0.25
+            }
+        }
+    }, {
+        "prototype" : "spine_raptor_prefab.json",
+        "components" : {
+            "actor" : {
+                "translation" : [-80,-100,0],
+                "scale" : 0.25
+            }
+        }
+    }]
+}

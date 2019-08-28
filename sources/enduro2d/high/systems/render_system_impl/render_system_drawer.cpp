@@ -264,9 +264,8 @@ namespace e2d::render_system_impl
             return;
         }
 
-        spSkeleton* skeleton = spine_r.skeleton().operator->();
-        spSkeletonClipping* clipper = spine_r.clipper().operator->();
-        spVertexEffect* effect = spine_r.effect().operator->();
+        spSkeleton* skeleton = spine_r.skeleton().get();
+        spSkeletonClipping* clipper = spine_r.clipper().get();
         const material_asset::ptr& src_mat = node_r.materials().front();
         const bool use_premultiplied_alpha = spine_r.model()->content().premultiplied_alpha();
 
@@ -278,10 +277,6 @@ namespace e2d::render_system_impl
 
         if ( skeleton->color.a == 0 ) {
             return;
-        }
-
-        if ( effect ) {
-            effect->begin(effect, skeleton);
         }
         
         const m4f& sm = node->world_matrix();
@@ -431,10 +426,6 @@ namespace e2d::render_system_impl
         }
 
         spSkeletonClipping_clipEnd2(clipper);
-
-        if ( effect ) {
-            effect->end(effect);
-        }
         
         property_cache_.clear();
     }
