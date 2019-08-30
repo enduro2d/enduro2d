@@ -29,7 +29,6 @@ namespace
         "additionalProperties" : false,
         "properties" : {
             "atlas" : { "$ref" : "#/common_definitions/address" },
-            "premultiplied_alpha" : { "type" : "boolean" },
             "skeleton" : { "$ref" : "#/common_definitions/address" },
             "skeleton_scale" : { "type" : "number" },
             "default_animation_mix" : { "type" : "number" },
@@ -113,10 +112,11 @@ namespace
     {
         const str atlas_path = path::combine(parent_address, atlas_address);
         const str atlas_folder = path::parent_path(atlas_path);
+
         return library.load_asset_async<binary_asset>(atlas_path)
         .then([
             &library,
-            parent_address = atlas_folder
+            atlas_folder
         ](const binary_asset::load_result& atlas_data){
             auto atlas_internal = std::make_unique<atlas_internal_state>();
 
@@ -124,7 +124,7 @@ namespace
                 spAtlas_create(
                     reinterpret_cast<const char*>(atlas_data->content().data()),
                     math::numeric_cast<int>(atlas_data->content().size()),
-                    parent_address.c_str(),
+                    atlas_folder.c_str(),
                     atlas_internal.get()),
                 spAtlas_dispose);
 
@@ -138,7 +138,7 @@ namespace
                 stdex::make_resolved_promise(atlas_data)));
         })
         .then([
-            parent_address = atlas_folder
+            atlas_folder
         ](const std::tuple<
             asset_group,
             binary_asset::load_result
@@ -150,7 +150,7 @@ namespace
                 spAtlas_create(
                     reinterpret_cast<const char*>(std::get<1>(results)->content().data()),
                     math::numeric_cast<int>(std::get<1>(results)->content().size()),
-                    parent_address.c_str(),
+                    atlas_folder.c_str(),
                     atlas_internal.get()),
                 spAtlas_dispose);
 
@@ -280,13 +280,6 @@ namespace
                     parse_animation_mix(mixes_json[i]));
             }
         }
-        
-        bool pma = false;
-        if ( root.HasMember("premultiplied_alpha") ) {
-            if ( !json_utils::try_parse_value(root["premultiplied_alpha"], pma) ) {
-                the<debug>().error("SPINE: Incorrect formating of 'premultiplied_alpha' property");
-            }
-        }
 
         E2D_ASSERT(root.HasMember("atlas") && root["atlas"].IsString());
         const str atlas_address = root["atlas"].GetString();
@@ -316,14 +309,13 @@ namespace
         })
         .then([
             default_animation_mix,
-            animation_mixes = std::move(animation_mixes),
-            pma
+            animation_mixes = std::move(animation_mixes)
         ](const std::tuple<
             spine_model::atlas_ptr,
             spine_model::skeleton_data_ptr
         >& results){
             spine_model content;
-            content.set_atlas(std::get<0>(results), pma);
+            content.set_atlas(std::get<0>(results));
             content.set_skeleton(std::get<1>(results));
             content.set_default_mix(default_animation_mix);
             for ( const animation_mix& mix : animation_mixes ) {

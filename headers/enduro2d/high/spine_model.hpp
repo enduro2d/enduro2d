@@ -42,7 +42,7 @@ namespace e2d
         spine_model& assign(spine_model&& other) noexcept;
         spine_model& assign(const spine_model& other);
 
-        spine_model& set_atlas(atlas_ptr atlas, bool premultiplied_alpha);
+        spine_model& set_atlas(atlas_ptr atlas);
         spine_model& set_skeleton(skeleton_data_ptr skeleton);
 
         spine_model& set_default_mix(secf duration);
@@ -54,12 +54,10 @@ namespace e2d
         const atlas_ptr& atlas() const noexcept;
         const skeleton_data_ptr& skeleton() const noexcept;
         const animation_data_ptr& animation() const noexcept;
-        bool premultiplied_alpha() const noexcept;
     private:
         atlas_ptr atlas_;
         skeleton_data_ptr skeleton_;
         animation_data_ptr animation_;
-        bool premultiplied_alpha_ = false;
     };
 
     void swap(spine_model& l, spine_model& r) noexcept;
