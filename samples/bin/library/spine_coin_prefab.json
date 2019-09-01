@@ -6,11 +6,14 @@
         "spine_player" : {
             "model" : "spine_coin.json"
         },
-        "spine_animation" : {
-            "animations" : [{
-                "track" : 0,
-                "name" : "animation",
-                "loop" : true
+        "spine_player_cmd" : {
+            "commands" : [{
+                "type" : "set_anim_cmd",
+                "desc" : {
+                    "track" : 0,
+                    "name" : "animation",
+                    "loop" : true
+                }
             }]
         }
     }

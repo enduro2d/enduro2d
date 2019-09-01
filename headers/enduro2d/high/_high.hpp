@@ -48,6 +48,8 @@ namespace e2d
     class renderer;
     class scene;
     class spine_player;
+    class spine_player_cmd;
+    class spine_player_evt;
     class sprite_renderer;
 
     class flipbook_system;

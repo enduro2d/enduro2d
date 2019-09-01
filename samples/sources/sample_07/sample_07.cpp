@@ -26,43 +26,48 @@ namespace
             if ( k.is_key_pressed(keyboard_key::lsuper) && k.is_key_just_released(keyboard_key::enter) ) {
                 the<window>().toggle_fullscreen(!the<window>().fullscreen());
             }
-            
+
             // use keys R, J, G to start animations
             const bool roar = k.is_key_just_pressed(keyboard_key::r);
             const bool jump = k.is_key_just_pressed(keyboard_key::j);
             const bool gun_grab = k.is_key_just_pressed(keyboard_key::g);
 
             if ( roar || jump || gun_grab ) {
-                owner.for_each_component<spine_player>(
-                [&owner, roar, jump, gun_grab] (ecs::entity_id e, const spine_player& player) {
-                    if ( !player.has_animation("walk") ) {
-                        return;
-                    }
-                    auto& events = ecs::entity(owner, e).assign_component<spine_animation_event>();
-                    if ( roar ) {
-                        events.commands().push_back(spine_animation_event::set_anim{0, "roar", false, "1"});
-                    } else if ( jump ) {
-                        events.commands().push_back(spine_animation_event::set_anim{0, "jump", false, "1"});
-                    } else if ( gun_grab ) {
-                        events.commands().push_back(spine_animation_event::set_anim{1, "gun-grab", false, ""});
-                        events.commands().push_back(spine_animation_event::add_anim{1, "gun-holster", false, secf(3.0f), ""});
+                owner.for_each_component<spine_player>([
+                    roar, jump, gun_grab
+                ](ecs::entity e, const spine_player& p) {
+                    if ( roar && p.has_animation("roar") ) {
+                        e.ensure_component<spine_player_cmd>().add_command(
+                            spine_player_cmd::set_anim_cmd(0, "roar")
+                                .complete_message("to_walk"));
+                    } else if ( jump && p.has_animation("jump") ) {
+                        e.ensure_component<spine_player_cmd>().add_command(
+                            spine_player_cmd::set_anim_cmd(0, "jump")
+                                .complete_message("to_walk"));
+                    } else if ( gun_grab && p.has_animation("gun-grab") ) {
+                        e.ensure_component<spine_player_cmd>()
+                            .add_command(spine_player_cmd::set_anim_cmd(1, "gun-grab"))
+                            .add_command(spine_player_cmd::add_anim_cmd(1, "gun-holster")
+                                .delay(secf(3.f)));
                     }
                 });
             }
-            
-            owner.for_joined_components<spine_player::on_complete_event, spine_player>(
-            [&owner](ecs::entity_id e, const spine_player::on_complete_event& events, spine_player& player) {
-                auto& new_events = ecs::entity(owner, e).assign_component<spine_animation_event>();
 
-                for ( auto& ev : events.completed() ) {
-                    if ( ev == "1" ) {
-                        new_events.commands().push_back(spine_animation_event::add_anim{0, "walk", true, secf(), ""});
+            owner.for_joined_components<spine_player_evt, spine_player>([
+            ](ecs::entity e, const spine_player_evt& pe, spine_player& p) {
+                for ( const auto& evt : pe.events() ) {
+                    if ( auto complete_evt = stdex::get_if<spine_player_evt::complete_evt>(&evt);
+                        complete_evt && complete_evt->message() == "to_walk" )
+                    {
+                        e.ensure_component<spine_player_cmd>().add_command(
+                            spine_player_cmd::add_anim_cmd(0, "walk")
+                                .loop(true));
                     }
                 }
             });
         }
     };
-    
+
     class camera_system final : public ecs::system {
     public:
         void process(ecs::registry& owner) override {
@@ -82,7 +87,6 @@ namespace
     public:
         bool initialize() final {
             return create_scene()
-                && create_camera()
                 && create_systems();
         }
     private:
@@ -92,15 +96,6 @@ namespace
                 ? the<world>().instantiate(scene_prefab_res->content())
                 : nullptr;
             return !!scene_go;
-        }
-
-        bool create_camera() {
-            auto camera_i = the<world>().instantiate();
-            camera_i->entity_filler()
-                .component<camera>(camera()
-                    .background({1.f, 0.4f, 0.f, 1.f}))
-                .component<actor>(node::create(camera_i));
-            return true;
         }
 
         bool create_systems() {

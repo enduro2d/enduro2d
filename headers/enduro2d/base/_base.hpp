@@ -35,6 +35,7 @@
 #include <limits>
 #include <numeric>
 #include <utility>
+#include <optional>
 #include <iterator>
 #include <exception>
 #include <stdexcept>

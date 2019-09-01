@@ -19,7 +19,8 @@
 #include <enduro2d/high/components/renderer.hpp>
 #include <enduro2d/high/components/scene.hpp>
 #include <enduro2d/high/components/spine_player.hpp>
-#include <enduro2d/high/components/spine_animation_event.hpp>
+#include <enduro2d/high/components/spine_player_cmd.hpp>
+#include <enduro2d/high/components/spine_player_evt.hpp>
 #include <enduro2d/high/components/sprite_renderer.hpp>
 
 #include <enduro2d/high/systems/flipbook_system.hpp>
@@ -143,7 +144,8 @@ namespace e2d
             .register_component<renderer>("renderer")
             .register_component<scene>("scene")
             .register_component<spine_player>("spine_player")
-            .register_component<spine_animation_event>("spine_animation")
+            .register_component<spine_player_cmd>("spine_player_cmd")
+            .register_component<spine_player_evt>("spine_player_evt")
             .register_component<sprite_renderer>("sprite_renderer");
         safe_module_initialize<library>(params.library_root(), the<deferrer>());
         safe_module_initialize<world>();
