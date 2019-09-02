@@ -65,7 +65,7 @@ namespace e2d
             str message_;
         };
 
-        using event = stdex::variant<
+        using event = std::variant<
             custom_evt,
             end_evt,
             complete_evt>;

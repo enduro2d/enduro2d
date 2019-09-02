@@ -200,7 +200,7 @@ namespace e2d
 
                 command_visitor v(e, *skeleton->data, *animation_state);
                 for ( const auto& cmd : pc.commands() ) {
-                    stdex::visit(v, cmd);
+                    std::visit(v, cmd);
                 }
             });
         }

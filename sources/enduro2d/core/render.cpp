@@ -1154,7 +1154,7 @@ namespace e2d
     render& render::execute(const command_value& command) {
         E2D_ASSERT(is_in_main_thread());
         E2D_ASSERT(!command.valueless_by_exception());
-        stdex::visit(command_value_visitor(*this), command);
+        std::visit(command_value_visitor(*this), command);
         return *this;
     }
 }

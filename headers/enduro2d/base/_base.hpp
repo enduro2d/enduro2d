@@ -25,6 +25,8 @@
 #include <bitset>
 #include <string>
 #include <vector>
+#include <variant>
+#include <optional>
 #include <unordered_set>
 #include <unordered_map>
 
@@ -35,7 +37,6 @@
 #include <limits>
 #include <numeric>
 #include <utility>
-#include <optional>
 #include <iterator>
 #include <exception>
 #include <stdexcept>

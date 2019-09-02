@@ -168,7 +168,7 @@ namespace e2d
             str complete_message_;
         };
 
-        using command = stdex::variant<
+        using command = std::variant<
             clear_track_cmd,
             set_anim_cmd,
             add_anim_cmd,

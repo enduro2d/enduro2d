@@ -612,7 +612,7 @@ namespace e2d
             sampler_mag_filter mag_filter_ = sampler_mag_filter::linear;
         };
 
-        using property_value = stdex::variant<
+        using property_value = std::variant<
             i32, f32,
             v2i, v3i, v4i,
             v2f, v3f, v4f,
@@ -857,7 +857,7 @@ namespace e2d
             bool scissoring_ = false;
         };
 
-        using command_value = stdex::variant<
+        using command_value = std::variant<
             zero_command,
             draw_command,
             clear_command,
