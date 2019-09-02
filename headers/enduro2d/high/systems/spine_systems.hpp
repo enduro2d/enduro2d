@@ -10,10 +10,20 @@
 
 namespace e2d
 {
-    class spine_system final : public ecs::system {
+    class spine_pre_system final : public ecs::system {
     public:
-        spine_system();
-        ~spine_system() noexcept final;
+        spine_pre_system();
+        ~spine_pre_system() noexcept final;
+        void process(ecs::registry& owner) override;
+    private:
+        class internal_state;
+        std::unique_ptr<internal_state> state_;
+    };
+
+    class spine_post_system final : public ecs::system {
+    public:
+        spine_post_system();
+        ~spine_post_system() noexcept final;
         void process(ecs::registry& owner) override;
     private:
         class internal_state;

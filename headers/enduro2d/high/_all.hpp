@@ -43,7 +43,7 @@
 #include "systems/flipbook_system.hpp"
 #include "systems/label_system.hpp"
 #include "systems/render_system.hpp"
-#include "systems/spine_system.hpp"
+#include "systems/spine_systems.hpp"
 
 #include "address.hpp"
 #include "asset.hpp"

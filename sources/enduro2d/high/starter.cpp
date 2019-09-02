@@ -26,7 +26,7 @@
 #include <enduro2d/high/systems/flipbook_system.hpp>
 #include <enduro2d/high/systems/label_system.hpp>
 #include <enduro2d/high/systems/render_system.hpp>
-#include <enduro2d/high/systems/spine_system.hpp>
+#include <enduro2d/high/systems/spine_systems.hpp>
 
 namespace
 {
@@ -46,10 +46,11 @@ namespace
 
         bool initialize() final {
             ecs::registry_filler(the<world>().registry())
-                .system<flipbook_system>(world::priority_update)
-                .system<label_system>(world::priority_update)
-                .system<render_system>(world::priority_render)
-                .system<spine_system>(world::priority_update);
+                .system<flipbook_system>(world::priority_pre_update)
+                .system<label_system>(world::priority_pre_update)
+                .system<spine_pre_system>(world::priority_pre_update)
+                .system<spine_post_system>(world::priority_post_update)
+                .system<render_system>(world::priority_render);
             return !application_ || application_->initialize();
         }
 
