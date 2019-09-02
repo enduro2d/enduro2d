@@ -301,7 +301,7 @@ namespace
     {
         bind_property_block(debug, ps, pb);
         try {
-            stdex::invoke(
+            std::invoke(
                 std::forward<F>(f),
                 std::forward<Args>(args)...);
         } catch (...) {
@@ -326,7 +326,7 @@ namespace
             }
         }
         try {
-            stdex::invoke(std::forward<F>(f), std::forward<Args>(args)...);
+            std::invoke(std::forward<F>(f), std::forward<Args>(args)...);
         } catch (...) {
             for ( std::size_t i = 0, e = geo.vertices_count(); i < e; ++i ) {
                 const vertex_buffer_ptr& vb = geo.vertices(i);
