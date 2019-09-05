@@ -4,7 +4,7 @@
  * Copyright (C) 2018-2019, by Matvey Cherevko (blackmatov@gmail.com)
  ******************************************************************************/
 
-#include <enduro2d/high/assets/spine_model_asset.hpp>
+#include <enduro2d/high/assets/spine_asset.hpp>
 
 #include <enduro2d/high/assets/json_asset.hpp>
 #include <enduro2d/high/assets/binary_asset.hpp>
@@ -17,13 +17,13 @@ namespace
 {
     using namespace e2d;
 
-    class spine_model_asset_loading_exception final : public asset_loading_exception {
+    class spine_asset_loading_exception final : public asset_loading_exception {
         const char* what() const noexcept final {
-            return "spine model asset loading exception";
+            return "spine asset loading exception";
         }
     };
 
-    const char* spine_model_asset_schema_source = R"json({
+    const char* spine_asset_schema_source = R"json({
         "type" : "object",
         "required" : [ "atlas", "skeleton" ],
         "additionalProperties" : false,
@@ -52,16 +52,16 @@ namespace
         }
     })json";
 
-    const rapidjson::SchemaDocument& spine_model_asset_schema() {
+    const rapidjson::SchemaDocument& spine_asset_schema() {
         static std::mutex mutex;
         static std::unique_ptr<rapidjson::SchemaDocument> schema;
 
         std::lock_guard<std::mutex> guard(mutex);
         if ( !schema ) {
             rapidjson::Document doc;
-            if ( doc.Parse(spine_model_asset_schema_source).HasParseError() ) {
-                the<debug>().error("SPINE: Failed to parse spine model asset schema");
-                throw spine_model_asset_loading_exception();
+            if ( doc.Parse(spine_asset_schema_source).HasParseError() ) {
+                the<debug>().error("ASSETS: Failed to parse spine asset schema");
+                throw spine_asset_loading_exception();
             }
             json_utils::add_common_schema_definitions(doc);
             schema = std::make_unique<rapidjson::SchemaDocument>(doc);
@@ -82,19 +82,19 @@ namespace
         E2D_ASSERT(root.HasMember("from") && root["from"].IsString());
         if ( !json_utils::try_parse_value(root["from"], mix.from) ) {
             the<debug>().error("SPINE: Incorrect formating of 'from' property");
-            throw spine_model_asset_loading_exception();
+            throw spine_asset_loading_exception();
         }
 
         E2D_ASSERT(root.HasMember("to") && root["to"].IsString());
         if ( !json_utils::try_parse_value(root["to"], mix.to) ) {
             the<debug>().error("SPINE: Incorrect formating of 'to' property");
-            throw spine_model_asset_loading_exception();
+            throw spine_asset_loading_exception();
         }
 
         E2D_ASSERT(root.HasMember("duration") && root["duration"].IsNumber());
         if ( !json_utils::try_parse_value(root["duration"], mix.duration) ) {
             the<debug>().error("SPINE: Incorrect formating of 'duration' property");
-            throw spine_model_asset_loading_exception();
+            throw spine_asset_loading_exception();
         }
 
         return mix;
@@ -105,7 +105,7 @@ namespace
         asset_dependencies loading;
     };
 
-    stdex::promise<spine_model::atlas_ptr> load_atlas(
+    stdex::promise<spine::atlas_ptr> load_atlas(
         const library& library,
         const str& parent_address,
         const str& atlas_address)
@@ -120,7 +120,7 @@ namespace
         ](const binary_asset::load_result& atlas_data){
             auto atlas_internal = std::make_unique<atlas_internal_state>();
 
-            spine_model::atlas_ptr atlas(
+            spine::atlas_ptr atlas(
                 spAtlas_create(
                     reinterpret_cast<const char*>(atlas_data->content().data()),
                     math::numeric_cast<int>(atlas_data->content().size()),
@@ -130,7 +130,7 @@ namespace
 
             if ( !atlas ) {
                 the<debug>().error("SPINE: Failed to create preload atlas");
-                throw spine_model_asset_loading_exception();
+                throw spine_asset_loading_exception();
             }
 
             return stdex::make_tuple_promise(std::make_tuple(
@@ -146,7 +146,7 @@ namespace
             auto atlas_internal = std::make_unique<atlas_internal_state>();
             atlas_internal->loaded = std::get<0>(results);
 
-            spine_model::atlas_ptr atlas(
+            spine::atlas_ptr atlas(
                 spAtlas_create(
                     reinterpret_cast<const char*>(std::get<1>(results)->content().data()),
                     math::numeric_cast<int>(std::get<1>(results)->content().size()),
@@ -156,13 +156,13 @@ namespace
 
             if ( !atlas ) {
                 the<debug>().error("SPINE: Failed to create preloaded atlas");
-                throw spine_model_asset_loading_exception();
+                throw spine_asset_loading_exception();
             }
 
             for ( const spAtlasPage* page = atlas->pages; page; page = page->next ) {
                 if ( !page->rendererObject ) {
                     the<debug>().error("SPINE: Failed to create preloaded atlas");
-                    throw spine_model_asset_loading_exception();
+                    throw spine_asset_loading_exception();
                 }
             }
 
@@ -171,12 +171,12 @@ namespace
         });
     }
 
-    stdex::promise<spine_model::skeleton_data_ptr> load_skeleton_data(
+    stdex::promise<spine::skeleton_data_ptr> load_skeleton_data(
         const library& library,
         const str& parent_address,
         const str& skeleton_address,
         f32 skeleton_scale,
-        const spine_model::atlas_ptr& atlas)
+        const spine::atlas_ptr& atlas)
     {
         return library.load_asset_async<binary_asset>(
             path::combine(parent_address, skeleton_address))
@@ -196,12 +196,12 @@ namespace
 
                 if ( !binary_skeleton ) {
                     the<debug>().error("SPINE: Failed to create binary skeleton");
-                    throw spine_model_asset_loading_exception();
+                    throw spine_asset_loading_exception();
                 }
 
                 binary_skeleton->scale = skeleton_scale;
 
-                spine_model::skeleton_data_ptr data_skeleton(
+                spine::skeleton_data_ptr data_skeleton(
                     spSkeletonBinary_readSkeletonData(
                         binary_skeleton.get(),
                         reinterpret_cast<const unsigned char*>(skeleton_data->content().data()),
@@ -212,7 +212,7 @@ namespace
                     the<debug>().error("SPINE: Failed to read binary skeleton data:\n"
                         "--> Error: %0",
                         binary_skeleton->error);
-                    throw spine_model_asset_loading_exception();
+                    throw spine_asset_loading_exception();
                 }
 
                 return data_skeleton;
@@ -227,12 +227,12 @@ namespace
 
                 if ( !json_skeleton ) {
                     the<debug>().error("SPINE: Failed to create json skeleton");
-                    throw spine_model_asset_loading_exception();
+                    throw spine_asset_loading_exception();
                 }
 
                 json_skeleton->scale = skeleton_scale;
 
-                spine_model::skeleton_data_ptr data_skeleton(
+                spine::skeleton_data_ptr data_skeleton(
                     spSkeletonJson_readSkeletonData(
                         json_skeleton.get(),
                         reinterpret_cast<const char*>(skeleton_data->content().data())),
@@ -242,7 +242,7 @@ namespace
                     the<debug>().error("SPINE: Failed to read json skeleton data:\n"
                         "--> Error: %0",
                         json_skeleton->error);
-                    throw spine_model_asset_loading_exception();
+                    throw spine_asset_loading_exception();
                 }
 
                 return data_skeleton;
@@ -250,7 +250,7 @@ namespace
         });
     }
 
-    stdex::promise<spine_model> parse_spine_model(
+    stdex::promise<spine> parse_spine(
         const library& library,
         const str& parent_address,
         const rapidjson::Value& root)
@@ -297,7 +297,7 @@ namespace
             atlas_address,
             skeleton_scale,
             skeleton_address
-        ](const spine_model::atlas_ptr& atlas){
+        ](const spine::atlas_ptr& atlas){
             return stdex::make_tuple_promise(std::make_tuple(
                 stdex::make_resolved_promise(atlas),
                 load_skeleton_data(
@@ -311,10 +311,10 @@ namespace
             default_animation_mix,
             animation_mixes = std::move(animation_mixes)
         ](const std::tuple<
-            spine_model::atlas_ptr,
-            spine_model::skeleton_data_ptr
+            spine::atlas_ptr,
+            spine::skeleton_data_ptr
         >& results){
-            spine_model content;
+            spine content;
             content.set_atlas(std::get<0>(results));
             content.set_skeleton(std::get<1>(results));
             content.set_default_mix(default_animation_mix);
@@ -328,7 +328,7 @@ namespace
 
 namespace e2d
 {
-    spine_model_asset::load_async_result spine_model_asset::load_async(
+    spine_asset::load_async_result spine_asset::load_async(
         const library& library, str_view address)
     {
         return library.load_asset_async<json_asset>(address)
@@ -339,7 +339,7 @@ namespace e2d
         ](const json_asset::load_result& spine_data){
             return the<deferrer>().do_in_worker_thread([address, spine_data](){
                 const rapidjson::Document& doc = *spine_data->content();
-                rapidjson::SchemaValidator validator(spine_model_asset_schema());
+                rapidjson::SchemaValidator validator(spine_asset_schema());
 
                 if ( doc.Accept(validator) ) {
                     return;
@@ -358,14 +358,14 @@ namespace e2d
                     the<debug>().error("ASSET: Failed to validate asset json");
                 }
 
-                throw spine_model_asset_loading_exception();
+                throw spine_asset_loading_exception();
             })
             .then([&library, parent_address, spine_data](){
-                return parse_spine_model(
+                return parse_spine(
                     library, parent_address, *spine_data->content());
             })
             .then([](auto&& content){
-                return spine_model_asset::create(
+                return spine_asset::create(
                     std::forward<decltype(content)>(content));
             });
         });

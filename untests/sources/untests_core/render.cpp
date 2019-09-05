@@ -35,10 +35,10 @@ TEST_CASE("render"){
         }
         {
             const auto ss = render::sampler_state()
-                .wrap(render::sampler_wrap::clamp)
+                .wrap(render::sampler_wrap::clamp, render::sampler_wrap::mirror)
                 .filter(render::sampler_min_filter::linear, render::sampler_mag_filter::nearest);
             REQUIRE(ss.s_wrap() == render::sampler_wrap::clamp);
-            REQUIRE(ss.t_wrap() == render::sampler_wrap::clamp);
+            REQUIRE(ss.t_wrap() == render::sampler_wrap::mirror);
             REQUIRE(ss.min_filter() == render::sampler_min_filter::linear);
             REQUIRE(ss.mag_filter() == render::sampler_mag_filter::nearest);
         }

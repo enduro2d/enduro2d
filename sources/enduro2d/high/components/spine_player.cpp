@@ -10,11 +10,11 @@
 
 namespace e2d
 {
-    spine_player::spine_player(const spine_model_asset::ptr& model) {
-        this->model(model);
+    spine_player::spine_player(const spine_asset::ptr& spine) {
+        this->spine(spine);
     }
-    
-    spine_player& spine_player::model(const spine_model_asset::ptr& value) {
+
+    spine_player& spine_player::spine(const spine_asset::ptr& value) {
         clipping_ptr new_clipping = clipping_ptr(
             spSkeletonClipping_create(),
             spSkeletonClipping_dispose);
@@ -42,7 +42,7 @@ namespace e2d
             }
         }
 
-        model_ = value;
+        spine_ = value;
         clipping_ = std::move(new_clipping);
         skeleton_ = std::move(new_skeleton);
         animation_ = std::move(new_animation);
@@ -69,7 +69,7 @@ namespace e2d
         }
         return *this;
     }
-    
+
     spine_player& spine_player::attachment(const str& slot, const str& name) noexcept {
         if ( !spSkeleton_setAttachment(skeleton_.get(), slot.c_str(), name.c_str()) ) {
             the<debug>().error("SPINE_PLAYER: can't set attachment '%0' to slot '%1'", name, slot);
@@ -78,17 +78,21 @@ namespace e2d
     }
 
     bool spine_player::has_skin(const str& name) const noexcept {
-        return model_
-            && model()->content().skeleton()
-            && spSkeletonData_findSkin(model()->content().skeleton().get(), name.c_str());
-    }
-    
-    bool spine_player::has_animation(const str& name) const noexcept {
-        return model_
-            && model()->content().skeleton()
-            && spSkeletonData_findAnimation(model()->content().skeleton().get(), name.c_str());
+        return spine_
+            && spine()->content().skeleton()
+            && spSkeletonData_findSkin(spine()->content().skeleton().get(), name.c_str());
     }
 
+    bool spine_player::has_animation(const str& name) const noexcept {
+        return spine_
+            && spine()->content().skeleton()
+            && spSkeletonData_findAnimation(spine()->content().skeleton().get(), name.c_str());
+    }
+
+    const spine_asset::ptr& spine_player::spine() const noexcept {
+        return spine_;
+    }
+    
     const spine_player::clipping_ptr& spine_player::clipper() const noexcept {
         return clipping_;
     }
@@ -99,10 +103,6 @@ namespace e2d
 
     const spine_player::animation_ptr& spine_player::animation() const noexcept {
         return animation_;
-    }
-    
-    const spine_model_asset::ptr& spine_player::model() const noexcept {
-        return model_;
     }
 
     material_asset::ptr spine_player::find_material(str_hash name) const noexcept {
@@ -124,7 +124,7 @@ namespace e2d
         "required" : [],
         "additionalProperties" : false,
         "properties" : {
-            "model" : { "$ref": "#/common_definitions/address" },
+            "spine" : { "$ref": "#/common_definitions/address" },
             "materials" : { "$ref": "#/definitions/materials" },
             "skin" : { "$ref": "#/common_definitions/name" },
             "attachments" : { "$ref": "#/definitions/attachments" }
@@ -156,23 +156,23 @@ namespace e2d
             }
         }
     })json";
-    
+
     bool factory_loader<spine_player>::operator()(
         spine_player& component,
         const fill_context& ctx) const
     {
-        if ( ctx.root.HasMember("model") ) {
-            auto model = ctx.dependencies.find_asset<spine_model_asset>(
-                path::combine(ctx.parent_address, ctx.root["model"].GetString()));
-            if ( !model ) {
-                the<debug>().error("SPINE_PLAYER: Dependency 'model' is not found:\n"
+        if ( ctx.root.HasMember("spine") ) {
+            auto spine = ctx.dependencies.find_asset<spine_asset>(
+                path::combine(ctx.parent_address, ctx.root["spine"].GetString()));
+            if ( !spine ) {
+                the<debug>().error("SPINE_PLAYER: Dependency 'spine' is not found:\n"
                     "--> Parent address: %0\n"
                     "--> Dependency address: %1",
                     ctx.parent_address,
-                    ctx.root["model"].GetString());
+                    ctx.root["spine"].GetString());
                 return false;
             }
-            component.model(model);
+            component.spine(spine);
         }
 
         if ( ctx.root.HasMember("materials") ) {
@@ -209,7 +209,7 @@ namespace e2d
             }
             component.materials(std::move(materials));
         }
-        
+
         if ( ctx.root.HasMember("skin") ) {
             str skin;
             if ( !json_utils::try_parse_value(ctx.root["skin"], skin) ) {
@@ -222,7 +222,7 @@ namespace e2d
         if ( ctx.root.HasMember("attachments") ) {
             const auto& attachments_json = ctx.root["attachments"];
             E2D_ASSERT(attachments_json.IsArray());
-            
+
             for ( rapidjson::SizeType i = 0; i < attachments_json.Size(); ++i ) {
                 E2D_ASSERT(attachments_json[i].IsObject());
                 const auto& attachment_json = attachments_json[i];
@@ -247,14 +247,14 @@ namespace e2d
 
         return true;
     }
-    
+
     bool factory_loader<spine_player>::operator()(
         asset_dependencies& dependencies,
         const collect_context& ctx) const
     {
-        if ( ctx.root.HasMember("model") ) {
-            dependencies.add_dependency<spine_model_asset>(
-                path::combine(ctx.parent_address, ctx.root["model"].GetString()));
+        if ( ctx.root.HasMember("spine") ) {
+            dependencies.add_dependency<spine_asset>(
+                path::combine(ctx.parent_address, ctx.root["spine"].GetString()));
         }
 
         if ( ctx.root.HasMember("materials") ) {

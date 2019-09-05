@@ -2,7 +2,7 @@
     "prototype" : "spine_prefab.json",
     "components" : {
         "spine_player" : {
-            "model" : "../spines/dragon_spine.json"
+            "spine" : "../spines/dragon_spine.json"
         },
         "spine_player_cmd" : {
             "commands" : [{

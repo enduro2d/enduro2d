@@ -33,7 +33,7 @@ namespace e2d
     class shader_asset;
     class shape_asset;
     class sound_asset;
-    class spine_model_asset;
+    class spine_asset;
     class sprite_asset;
     class text_asset;
     class texture_asset;
@@ -74,6 +74,7 @@ namespace e2d
     class model;
     class node;
     class prefab;
+    class spine;
     class sprite;
     class starter;
     class world;

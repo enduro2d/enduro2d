@@ -4,52 +4,52 @@
  * Copyright (C) 2018-2019, by Matvey Cherevko (blackmatov@gmail.com)
  ******************************************************************************/
 
-#include <enduro2d/high/spine_model.hpp>
+#include <enduro2d/high/spine.hpp>
 
 #include <spine/spine.h>
 
 namespace e2d
 {
-    spine_model::spine_model(spine_model&& other) noexcept {
+    spine::spine(spine&& other) noexcept {
         assign(std::move(other));
     }
 
-    spine_model& spine_model::operator=(spine_model&& other) noexcept {
+    spine& spine::operator=(spine&& other) noexcept {
         return assign(std::move(other));
     }
-    
-    spine_model::spine_model(const spine_model& other) {
+
+    spine::spine(const spine& other) {
         assign(other);
     }
 
-    spine_model& spine_model::operator=(const spine_model& other) {
+    spine& spine::operator=(const spine& other) {
         return assign(other);
     }
 
-    void spine_model::clear() noexcept {
+    void spine::clear() noexcept {
         atlas_.reset();
         skeleton_.reset();
         animation_.reset();
     }
 
-    void spine_model::swap(spine_model& other) noexcept {
+    void spine::swap(spine& other) noexcept {
         using std::swap;
         swap(atlas_, other.atlas_);
         swap(skeleton_, other.skeleton_);
         swap(animation_, other.animation_);
     }
 
-    spine_model& spine_model::assign(spine_model&& other) noexcept {
+    spine& spine::assign(spine&& other) noexcept {
         if ( this != &other ) {
             swap(other);
             other.clear();
         }
         return *this;
     }
-    
-    spine_model& spine_model::assign(const spine_model& other) {
+
+    spine& spine::assign(const spine& other) {
         if ( this != &other ) {
-            spine_model m;
+            spine m;
             m.atlas_ = other.atlas_;
             m.skeleton_ = other.skeleton_;
             m.animation_ = other.animation_;
@@ -58,12 +58,12 @@ namespace e2d
         return *this;
     }
 
-    spine_model& spine_model::set_atlas(atlas_ptr atlas) {
+    spine& spine::set_atlas(atlas_ptr atlas) {
         atlas_ = std::move(atlas);
         return *this;
     }
 
-    spine_model& spine_model::set_skeleton(skeleton_data_ptr skeleton) {
+    spine& spine::set_skeleton(skeleton_data_ptr skeleton) {
         animation_data_ptr animation;
         if ( skeleton ) {
             animation.reset(
@@ -78,15 +78,15 @@ namespace e2d
         return *this;
     }
 
-    spine_model& spine_model::set_default_mix(secf duration) {
+    spine& spine::set_default_mix(secf duration) {
         if ( !animation_ ) {
-            throw bad_spine_model_access();
+            throw bad_spine_access();
         }
         animation_->defaultMix = duration.value;
         return *this;
     }
 
-    spine_model& spine_model::set_animation_mix(
+    spine& spine::set_animation_mix(
         const str& from,
         const str& to,
         secf duration)
@@ -100,39 +100,39 @@ namespace e2d
             : nullptr;
 
         if ( !from_anim || !to_anim ) {
-            throw bad_spine_model_access();
+            throw bad_spine_access();
         }
 
         spAnimationStateData_setMix(animation_.get(), from_anim, to_anim, duration.value);
         return *this;
     }
 
-    const spine_model::atlas_ptr& spine_model::atlas() const noexcept {
+    const spine::atlas_ptr& spine::atlas() const noexcept {
         return atlas_;
     }
 
-    const spine_model::skeleton_data_ptr& spine_model::skeleton() const noexcept {
+    const spine::skeleton_data_ptr& spine::skeleton() const noexcept {
         return skeleton_;
     }
 
-    const spine_model::animation_data_ptr& spine_model::animation() const noexcept {
+    const spine::animation_data_ptr& spine::animation() const noexcept {
         return animation_;
     }
 }
 
 namespace e2d
 {
-    void swap(spine_model& l, spine_model& r) noexcept {
+    void swap(spine& l, spine& r) noexcept {
         l.swap(r);
     }
-    
-    bool operator==(const spine_model& l, const spine_model& r) noexcept {
+
+    bool operator==(const spine& l, const spine& r) noexcept {
         return l.atlas() == r.atlas()
             && l.skeleton() == r.skeleton()
             && l.animation() == r.animation();
     }
 
-    bool operator!=(const spine_model& l, const spine_model& r) noexcept {
+    bool operator!=(const spine& l, const spine& r) noexcept {
         return !(l == r);
     }
 }

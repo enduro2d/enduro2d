@@ -2,7 +2,7 @@
     "prototype" : "spine_prefab.json",
     "components" : {
         "spine_player" : {
-            "model" : "../spines/coin_spine.json"
+            "spine" : "../spines/coin_spine.json"
         },
         "spine_player_cmd" : {
             "commands" : [{
