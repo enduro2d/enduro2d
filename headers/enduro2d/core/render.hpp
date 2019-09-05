@@ -589,7 +589,7 @@ namespace e2d
         public:
             sampler_state& texture(const texture_ptr& texture) noexcept;
 
-            sampler_state& wrap(sampler_wrap st) noexcept;
+            sampler_state& wrap(sampler_wrap s, sampler_wrap t) noexcept;
             sampler_state& s_wrap(sampler_wrap s) noexcept;
             sampler_state& t_wrap(sampler_wrap t) noexcept;
 

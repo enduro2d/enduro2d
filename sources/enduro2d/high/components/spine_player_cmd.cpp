@@ -378,6 +378,9 @@ namespace e2d
                 return false;
             }
             for ( auto& cmd : cmds.value() ) {
+                if ( cmd.valueless_by_exception() ) {
+                    return false;
+                }
                 component.add_command(std::move(cmd));
             }
         }

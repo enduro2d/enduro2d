@@ -1,8 +1,6 @@
 {
+    "prototype" : "spine_prefab.json",
     "components" : {
-        "renderer" : {
-            "materials" : ["spine_material.json"]
-        },
         "spine_player" : {
             "model" : "spine_coin.json"
         },

@@ -9,6 +9,7 @@
 #include "../_high.hpp"
 
 #include "../factory.hpp"
+#include "../assets/material_asset.hpp"
 #include "../assets/spine_model_asset.hpp"
 
 struct spSkeleton;
@@ -33,7 +34,13 @@ namespace e2d
         spine_player() = default;
         spine_player(const spine_model_asset::ptr& model);
         
-        spine_player& model(const spine_model_asset::ptr& value);
+        spine_player& model(
+            const spine_model_asset::ptr& value);
+
+        spine_player& materials(
+            flat_map<str_hash, material_asset::ptr>&& value) noexcept;
+        spine_player& materials(
+            const flat_map<str_hash, material_asset::ptr>& value);
 
         spine_player& skin(const str& value) noexcept;
         spine_player& attachment(const str& slot, const str& name) noexcept;
@@ -45,11 +52,15 @@ namespace e2d
         const skeleton_ptr& skeleton() const noexcept;
         const animation_ptr& animation() const noexcept;
         const spine_model_asset::ptr& model() const noexcept;
+
+        material_asset::ptr find_material(str_hash name) const noexcept;
+        const flat_map<str_hash, material_asset::ptr>& materials() const noexcept;
     private:
         clipping_ptr clipping_;
         skeleton_ptr skeleton_;
         animation_ptr animation_;
         spine_model_asset::ptr model_;
+        flat_map<str_hash, material_asset::ptr> materials_;
     };
 
     template <>

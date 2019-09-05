@@ -195,6 +195,9 @@ namespace e2d
                 return false;
             }
             for ( auto& evt : evts.value() ) {
+                if ( evt.valueless_by_exception() ) {
+                    return false;
+                }
                 component.add_event(std::move(evt));
             }
         }

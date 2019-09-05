@@ -667,9 +667,9 @@ namespace e2d
         return *this;
     }
 
-    render::sampler_state& render::sampler_state::wrap(sampler_wrap st) noexcept {
-        s_wrap(st);
-        t_wrap(st);
+    render::sampler_state& render::sampler_state::wrap(sampler_wrap s, sampler_wrap t) noexcept {
+        s_wrap(s);
+        t_wrap(t);
         return *this;
     }
 
