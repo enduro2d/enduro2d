@@ -26,6 +26,11 @@ namespace
 
     const str_hash time_property_hash = "u_time";
     const str_hash texture_sampler_hash = "u_texture";
+
+    const str_hash normal_material_hash = "normal";
+    const str_hash additive_material_hash = "additive";
+    const str_hash multiply_material_hash = "multiply";
+    const str_hash screen_material_hash = "screen";
 }
 
 namespace e2d::render_system_impl
@@ -334,32 +339,24 @@ namespace e2d::render_system_impl
             material_asset::ptr mat_a;
             switch ( slot->data->blendMode ) {
                 case SP_BLEND_MODE_NORMAL:
-                    if ( !normal_mat_a ) {
-                        static str_hash normal_hash = make_hash("normal");
-                        normal_mat_a = spine_r.find_material(normal_hash);
-                    }
-                    mat_a = normal_mat_a;
+                    mat_a = normal_mat_a
+                        ? normal_mat_a
+                        : (normal_mat_a = spine_r.find_material(normal_material_hash));
                     break;
                 case SP_BLEND_MODE_ADDITIVE:
-                    if ( !additive_mat_a ) {
-                        static str_hash additive_hash = make_hash("additive");
-                        additive_mat_a = spine_r.find_material(additive_hash);
-                    }
-                    mat_a = additive_mat_a;
+                    mat_a = additive_mat_a
+                        ? additive_mat_a
+                        : (additive_mat_a = spine_r.find_material(additive_material_hash));
                     break;
                 case SP_BLEND_MODE_MULTIPLY:
-                    if ( !multiply_mat_a ) {
-                        static str_hash multiply_hash = make_hash("multiply");
-                        multiply_mat_a = spine_r.find_material(multiply_hash);
-                    }
-                    mat_a = multiply_mat_a;
+                    mat_a = multiply_mat_a
+                        ? multiply_mat_a
+                        : (multiply_mat_a = spine_r.find_material(multiply_material_hash));
                     break;
                 case SP_BLEND_MODE_SCREEN:
-                    if ( !screen_mat_a ) {
-                        static str_hash screen_hash = make_hash("screen");
-                        screen_mat_a = spine_r.find_material(screen_hash);
-                    }
-                    mat_a = screen_mat_a;
+                    mat_a = screen_mat_a
+                        ? screen_mat_a
+                        : (screen_mat_a = spine_r.find_material(screen_material_hash));
                     break;
                 default:
                     E2D_ASSERT_MSG(false, "unexpected blend mode for slot");
@@ -490,20 +487,16 @@ namespace e2d::render_system_impl
         material_asset::ptr mat_a;
         switch ( spr_r.blending() ) {
         case sprite_renderer::blendings::normal:
-            static str_hash normal_hash = make_hash("normal");
-            mat_a = spr_r.find_material(normal_hash);
+            mat_a = spr_r.find_material(normal_material_hash);
             break;
         case sprite_renderer::blendings::additive:
-            static str_hash additive_hash = make_hash("additive");
-            mat_a = spr_r.find_material(additive_hash);
+            mat_a = spr_r.find_material(additive_material_hash);
             break;
         case sprite_renderer::blendings::multiply:
-            static str_hash multiply_hash = make_hash("multiply");
-            mat_a = spr_r.find_material(multiply_hash);
+            mat_a = spr_r.find_material(multiply_material_hash);
             break;
         case sprite_renderer::blendings::screen:
-            static str_hash screen_hash = make_hash("screen");
-            mat_a = spr_r.find_material(screen_hash);
+            mat_a = spr_r.find_material(screen_material_hash);
             break;
         default:
             E2D_ASSERT_MSG(false, "unexpected blend mode for sprite");
@@ -530,7 +523,7 @@ namespace e2d::render_system_impl
             property_cache_.clear();
             throw;
         }
-        
+
         property_cache_.clear();
     }
 

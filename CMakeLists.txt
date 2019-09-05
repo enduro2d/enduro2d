@@ -2,7 +2,8 @@ cmake_minimum_required(VERSION 3.11 FATAL_ERROR)
 
 if(NOT DEFINED PROJECT_NAME)
     set(E2D_BUILD_AS_STANDALONE ON)
-    set(CMAKE_OSX_DEPLOYMENT_TARGET "10.14")
+    set(CMAKE_OSX_DEPLOYMENT_TARGET "10.14"
+        CACHE STRING "Minimum OS X version to target for deployment" FORCE)
 endif()
 
 project(enduro2d)
