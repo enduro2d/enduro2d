@@ -87,12 +87,7 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
         /we4554   # check operator precedence for possible error; use parentheses to clarify precedence
         /w14100   # unreferenced formal parameter
         /w14189   # local variable is initialized but not referenced
-        /we4456   # declaration of 'var' hides previous local declaration
-        )
-    if(CMAKE_CXX_FLAGS_RELWITHDEBINFO)
-        set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO} /Ob2")
-        set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} /Ob2")
-    endif()
+        /we4456)  # declaration of 'var' hides previous local declaration
 endif()
 string(REPLACE ";" " " E2D_SHARED_CXX_FLAGS "${E2D_SHARED_CXX_FLAGS}")
 

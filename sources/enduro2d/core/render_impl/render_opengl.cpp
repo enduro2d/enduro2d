@@ -1100,6 +1100,7 @@ namespace e2d
 
         if ( tex->decl().is_compressed() ) {
             const v2u block_size = tex->decl().block_size();
+            E2D_UNUSED(block_size);
             E2D_ASSERT(region.position.x % block_size.x == 0 && region.position.y % block_size.y == 0);
             E2D_ASSERT(region.size.x % block_size.x == 0 && region.size.y % block_size.y == 0);
             opengl::with_gl_bind_texture(state_->dbg(), tex->state().id(),
