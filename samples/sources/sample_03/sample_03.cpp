@@ -130,8 +130,7 @@ namespace
                         .component<sprite_renderer>(sprite_renderer()
                             .filtering(false)
                             .materials({{"normal", sprite_mat}}))
-                        .component<flipbook_source>(flipbook_res)
-                        .component<flipbook_player>(flipbook_player()
+                        .component<flipbook_player>(flipbook_player(flipbook_res)
                             .play("idle")
                             .looped(true));
 

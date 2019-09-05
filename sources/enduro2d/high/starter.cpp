@@ -13,7 +13,6 @@
 #include <enduro2d/high/components/actor.hpp>
 #include <enduro2d/high/components/camera.hpp>
 #include <enduro2d/high/components/flipbook_player.hpp>
-#include <enduro2d/high/components/flipbook_source.hpp>
 #include <enduro2d/high/components/label.hpp>
 #include <enduro2d/high/components/model_renderer.hpp>
 #include <enduro2d/high/components/renderer.hpp>
@@ -138,7 +137,6 @@ namespace e2d
             .register_component<actor>("actor")
             .register_component<camera>("camera")
             .register_component<flipbook_player>("flipbook_player")
-            .register_component<flipbook_source>("flipbook_source")
             .register_component<label>("label")
             .register_component<label::dirty>("label.dirty")
             .register_component<model_renderer>("model_renderer")

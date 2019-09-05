@@ -30,7 +30,6 @@
 #include "components/actor.hpp"
 #include "components/camera.hpp"
 #include "components/flipbook_player.hpp"
-#include "components/flipbook_source.hpp"
 #include "components/label.hpp"
 #include "components/model_renderer.hpp"
 #include "components/renderer.hpp"
