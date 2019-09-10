@@ -10,8 +10,6 @@ using namespace e2d;
 TEST_CASE("starter"){
     modules::initialize<starter>(0, nullptr,
         starter::parameters(
-            engine::parameters("starter_untests", "enduro2d")
-                .without_audio(true)
-                .without_graphics(true)));
+            engine::parameters("starter_untests", "enduro2d")));
     modules::shutdown<starter>();
 }

@@ -31,7 +31,7 @@ namespace
 
     using stbi_img_uptr = std::unique_ptr<stbi_uc, decltype(&stbi_image_free)>;
 
-    stbi_img_uptr load_stb_image(const buffer& data, v2u& out_size, u32& out_channels) noexcept {
+    stbi_img_uptr load_stb_image(buffer_view data, v2u& out_size, u32& out_channels) noexcept {
         int img_w = 0, img_h = 0, img_c = 0;
         stbi_uc* img = stbi_load_from_memory(
             static_cast<const stbi_uc*>(data.data()),
@@ -48,8 +48,8 @@ namespace
 
     image_data_format image_format_from_stb_channels(u32 channels) noexcept {
         switch ( channels ) {
-            case 1: return image_data_format::g8;
-            case 2: return image_data_format::ga8;
+            case 1: return image_data_format::a8;
+            case 2: return image_data_format::la8;
             case 3: return image_data_format::rgb8;
             case 4: return image_data_format::rgba8;
             default:
@@ -57,33 +57,22 @@ namespace
                 return image_data_format::rgba8;
         }
     }
-
-    bool image_from_stb_description(
-        image& dst, const stbi_img_uptr& img, const v2u& img_size, u32 img_channels) noexcept
-    {
-        try {
-            const image_data_format img_format = image_format_from_stb_channels(img_channels);
-            if ( img && img_size.x > 0 && img_size.y > 0 ) {
-                buffer img_buffer(
-                    img.get(),
-                    math::numeric_cast<std::size_t>(img_size.x * img_size.y * img_channels));
-                dst.assign(img_size, img_format, std::move(img_buffer));
-                return true;
-            }
-        } catch (...) {
-            // nothing
-        }
-        return false;
-    }
 }
 
 namespace e2d::images::impl
 {
-    bool try_load_image_stb(image& dst, const buffer& src) noexcept {
+    bool load_image_stb(image& dst, buffer_view src) {
         v2u img_size;
         u32 img_channels = 0;
         const stbi_img_uptr img_ptr = load_stb_image(src, img_size, img_channels);
-        return img_ptr
-            && image_from_stb_description(dst, img_ptr, img_size, img_channels);
+        if ( !img_ptr || !img_size.x || !img_size.y ) {
+            return false;
+        }
+
+        const image_data_format img_format = image_format_from_stb_channels(img_channels);
+        const std::size_t img_buffer_size = img_size.x * img_size.y * img_channels;
+
+        dst = image(img_size, img_format, buffer(img_ptr.get(), img_buffer_size));
+        return true;
     }
 }

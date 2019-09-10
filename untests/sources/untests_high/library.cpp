@@ -14,9 +14,7 @@ namespace
         safe_starter_initializer() {
             modules::initialize<starter>(0, nullptr,
                 starter::parameters(
-                    engine::parameters("library_untests", "enduro2d")
-                        .without_audio(true)
-                        .without_graphics(true)));
+                    engine::parameters("library_untests", "enduro2d")));
         }
 
         ~safe_starter_initializer() noexcept {
@@ -264,8 +262,7 @@ TEST_CASE("library"){
                 REQUIRE(sampler);
                 REQUIRE(sampler->s_wrap() == render::sampler_wrap::clamp);
                 REQUIRE(sampler->t_wrap() == render::sampler_wrap::repeat);
-                REQUIRE(sampler->r_wrap() == render::sampler_wrap::mirror);
-                REQUIRE(sampler->min_filter() == render::sampler_min_filter::linear_mipmap_linear);
+                REQUIRE(sampler->min_filter() == render::sampler_min_filter::linear);
                 REQUIRE(sampler->mag_filter() == render::sampler_mag_filter::linear);
                 REQUIRE(texture_res->content() == sampler->texture());
             }
@@ -273,7 +270,7 @@ TEST_CASE("library"){
                 const auto* property = material_res->content().properties().property("i");
                 REQUIRE(property);
                 REQUIRE(property->index() == 0);
-                REQUIRE(stdex::get<i32>(*property) == 42);
+                REQUIRE(std::get<i32>(*property) == 42);
             }
             REQUIRE(material_res->content().pass_count() == 1);
             const auto& pass = material_res->content().pass(0);
@@ -281,31 +278,31 @@ TEST_CASE("library"){
                 const auto* property = pass.properties().property("f");
                 REQUIRE(property);
                 REQUIRE(property->index() == 1);
-                REQUIRE(math::approximately(stdex::get<f32>(*property), 4.2f));
+                REQUIRE(math::approximately(std::get<f32>(*property), 4.2f));
             }
             {
                 const auto* property = pass.properties().property("v1");
                 REQUIRE(property);
                 REQUIRE(property->index() == 2);
-                REQUIRE(stdex::get<v2i>(*property) == v2i(1,2));
+                REQUIRE(std::get<v2i>(*property) == v2i(1,2));
             }
             {
                 const auto* property = pass.properties().property("v2");
                 REQUIRE(property);
                 REQUIRE(property->index() == 6);
-                REQUIRE(stdex::get<v3f>(*property) == v3f(3.f));
+                REQUIRE(std::get<v3f>(*property) == v3f(3.f));
             }
             {
                 const auto* property = pass.properties().property("v3");
                 REQUIRE(property);
                 REQUIRE(property->index() == 4);
-                REQUIRE(stdex::get<v4i>(*property) == v4i(1,2,3,4));
+                REQUIRE(std::get<v4i>(*property) == v4i(1,2,3,4));
             }
             {
                 const auto* property = pass.properties().property("m1");
                 REQUIRE(property);
                 REQUIRE(property->index() == 8);
-                REQUIRE(stdex::get<m2f>(*property) == m2f(1,2,3,4));
+                REQUIRE(std::get<m2f>(*property) == m2f(1,2,3,4));
 
                 const auto* property2 = pass.properties().property("m4");
                 REQUIRE(property2);
@@ -315,7 +312,7 @@ TEST_CASE("library"){
                 const auto* property = pass.properties().property("m2");
                 REQUIRE(property);
                 REQUIRE(property->index() == 9);
-                REQUIRE(stdex::get<m3f>(*property) == m3f(1,2,3,4,5,6,7,8,9));
+                REQUIRE(std::get<m3f>(*property) == m3f(1,2,3,4,5,6,7,8,9));
 
                 const auto* property2 = pass.properties().property("m5");
                 REQUIRE(property2);
@@ -325,7 +322,7 @@ TEST_CASE("library"){
                 const auto* property = pass.properties().property("m3");
                 REQUIRE(property);
                 REQUIRE(property->index() == 10);
-                REQUIRE(stdex::get<m4f>(*property) == m4f(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16));
+                REQUIRE(std::get<m4f>(*property) == m4f(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16));
 
                 const auto* property2 = pass.properties().property("m6");
                 REQUIRE(property2);

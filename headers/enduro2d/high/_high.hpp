@@ -24,6 +24,7 @@ namespace e2d
     class atlas_asset;
     class binary_asset;
     class flipbook_asset;
+    class font_asset;
     class image_asset;
     class json_asset;
     class material_asset;
@@ -34,6 +35,7 @@ namespace e2d
     class shader_asset;
     class shape_asset;
     class sound_asset;
+    class spine_asset;
     class sprite_asset;
     class text_asset;
     class texture_asset;
@@ -43,14 +45,20 @@ namespace e2d
     class behaviour;
     class camera;
     class flipbook_player;
-    class flipbook_source;
+    class label;
     class model_renderer;
     class renderer;
     class scene;
+    class spine_player;
+    class spine_player_cmd;
+    class spine_player_evt;
     class sprite_renderer;
 
     class flipbook_system;
+    class label_system;
     class render_system;
+    class spine_pre_system;
+    class spine_post_system;
 
     template < typename Asset, typename Content >
     class content_asset;
@@ -69,6 +77,7 @@ namespace e2d
     class node;
     class prefab;
     class script;
+    class spine;
     class sprite;
 
     class luasol;

@@ -46,20 +46,32 @@ namespace e2d
         enum class pixel_type : u8 {
             depth16,
             depth24,
-            depth32,
             depth24_stencil8,
 
+            a8,
+            l8,
+            la8,
             rgb8,
             rgba8,
 
-            rgb_dxt1,
             rgba_dxt1,
             rgba_dxt3,
             rgba_dxt5,
 
+            rgb_etc1,
+            rgb_etc2,
+            rgba_etc2,
+            rgb_a1_etc2,
+
+            rgba_astc4x4,
+            rgba_astc5x5,
+            rgba_astc6x6,
+            rgba_astc8x8,
+            rgba_astc10x10,
+            rgba_astc12x12,
+
             rgb_pvrtc2,
             rgb_pvrtc4,
-
             rgba_pvrtc2,
             rgba_pvrtc4,
 
@@ -81,7 +93,9 @@ namespace e2d
         bool is_depth() const noexcept;
         bool is_stencil() const noexcept;
         bool is_compressed() const noexcept;
-        std::size_t bits_per_pixel() const noexcept;
+        v2u block_size() const noexcept;
+        std::size_t bytes_per_block() const noexcept;
+        std::size_t data_size_for_dimension(v2u dim) const noexcept;
     private:
         pixel_type type_ = pixel_type::rgba8;
     };
@@ -264,7 +278,6 @@ namespace e2d
         explicit index_buffer(internal_state_uptr);
         ~index_buffer() noexcept;
     public:
-        void update(buffer_view indices, std::size_t offset) noexcept;
         std::size_t buffer_size() const noexcept;
         std::size_t index_count() const noexcept;
         const index_declaration& decl() const noexcept;
@@ -291,7 +304,6 @@ namespace e2d
         explicit vertex_buffer(internal_state_uptr);
         ~vertex_buffer() noexcept;
     public:
-        void update(buffer_view vertices, std::size_t offset) noexcept;
         std::size_t buffer_size() const noexcept;
         std::size_t vertex_count() const noexcept;
         const vertex_declaration& decl() const noexcept;
@@ -425,11 +437,7 @@ namespace e2d
 
         enum class sampler_min_filter : u8 {
             nearest,
-            linear,
-            nearest_mipmap_nearest,
-            linear_mipmap_nearest,
-            nearest_mipmap_linear,
-            linear_mipmap_linear
+            linear
         };
 
         enum class sampler_mag_filter : u8 {
@@ -581,10 +589,9 @@ namespace e2d
         public:
             sampler_state& texture(const texture_ptr& texture) noexcept;
 
-            sampler_state& wrap(sampler_wrap st) noexcept;
+            sampler_state& wrap(sampler_wrap s, sampler_wrap t) noexcept;
             sampler_state& s_wrap(sampler_wrap s) noexcept;
             sampler_state& t_wrap(sampler_wrap t) noexcept;
-            sampler_state& r_wrap(sampler_wrap t) noexcept;
 
             sampler_state& filter(sampler_min_filter min, sampler_mag_filter mag) noexcept;
             sampler_state& min_filter(sampler_min_filter min) noexcept;
@@ -594,7 +601,6 @@ namespace e2d
 
             sampler_wrap s_wrap() const noexcept;
             sampler_wrap t_wrap() const noexcept;
-            sampler_wrap r_wrap() const noexcept;
 
             sampler_min_filter min_filter() const noexcept;
             sampler_mag_filter mag_filter() const noexcept;
@@ -602,12 +608,11 @@ namespace e2d
             texture_ptr texture_;
             sampler_wrap s_wrap_ = sampler_wrap::repeat;
             sampler_wrap t_wrap_ = sampler_wrap::repeat;
-            sampler_wrap r_wrap_ = sampler_wrap::repeat;
-            sampler_min_filter min_filter_ = sampler_min_filter::nearest_mipmap_linear;
+            sampler_min_filter min_filter_ = sampler_min_filter::linear;
             sampler_mag_filter mag_filter_ = sampler_mag_filter::linear;
         };
 
-        using property_value = stdex::variant<
+        using property_value = std::variant<
             i32, f32,
             v2i, v3i, v4i,
             v2f, v3f, v4f,
@@ -852,7 +857,7 @@ namespace e2d
             bool scissoring_ = false;
         };
 
-        using command_value = stdex::variant<
+        using command_value = std::variant<
             zero_command,
             draw_command,
             clear_command,
@@ -874,7 +879,16 @@ namespace e2d
             std::size_t command_count_ = 0;
         };
 
+        enum class api_profile {
+            unknown,
+            opengles2,
+            opengles3,
+            opengl_compat
+        };
+
         struct device_caps {
+            api_profile profile = api_profile::unknown;
+
             u32 max_texture_size = 0;
             u32 max_renderbuffer_size = 0;
             u32 max_cube_map_texture_size = 0;
@@ -892,14 +906,27 @@ namespace e2d
             bool npot_texture_supported = false;
             bool depth_texture_supported = false;
             bool render_target_supported = false;
+
+            bool element_index_uint = false;
+
+            bool depth16_supported = false;
+            bool depth24_supported = false;
+            bool depth24_stencil8_supported = false;
+
+            bool dxt_compression_supported = false;
+            bool etc1_compression_supported = false;
+            bool etc2_compression_supported = false;
+            bool astc_compression_supported = false;
+            bool pvrtc_compression_supported = false;
+            bool pvrtc2_compression_supported = false;
         };
     public:
         render(debug& d, window& w);
         ~render() noexcept final;
 
         shader_ptr create_shader(
-            const str& vertex_source,
-            const str& fragment_source);
+            str_view vertex_source,
+            str_view fragment_source);
 
         shader_ptr create_shader(
             const input_stream_uptr& vertex_stream,
@@ -939,6 +966,26 @@ namespace e2d
         render& execute(const clear_command& command);
         render& execute(const target_command& command);
         render& execute(const viewport_command& command);
+
+        render& update_buffer(
+            const index_buffer_ptr& ibuffer,
+            buffer_view indices,
+            std::size_t offset);
+
+        render& update_buffer(
+            const vertex_buffer_ptr& vbuffer,
+            buffer_view vertices,
+            std::size_t offset);
+
+        render& update_texture(
+            const texture_ptr& tex,
+            const image& img,
+            v2u offset);
+
+        render& update_texture(
+            const texture_ptr& tex,
+            buffer_view pixels,
+            const b2u& region);
 
         const device_caps& device_capabilities() const noexcept;
         bool is_pixel_supported(const pixel_declaration& decl) const noexcept;

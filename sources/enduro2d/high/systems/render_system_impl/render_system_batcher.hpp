@@ -203,7 +203,7 @@ namespace e2d::render_system_impl
     void batcher<Index, Vertex>::update_index_buffer_() {
         const std::size_t min_ib_size = indices_.size() * sizeof(indices_[0]);
         if ( index_buffer_ && index_buffer_->buffer_size() >= min_ib_size ) {
-            index_buffer_->update(indices_, 0u);
+            render_.update_buffer(index_buffer_, indices_, 0u);
         } else {
             const std::size_t new_ib_size = calculate_new_buffer_size(
                 sizeof(Index),
@@ -230,7 +230,7 @@ namespace e2d::render_system_impl
     void batcher<Index, Vertex>::update_vertex_buffer_() {
         const std::size_t min_vb_size = vertices_.size() * sizeof(vertices_[0]);
         if ( vertex_buffer_ && vertex_buffer_->buffer_size() >= min_vb_size ) {
-            vertex_buffer_->update(vertices_, 0u);
+            render_.update_buffer(vertex_buffer_, vertices_, 0u);
         } else {
             const std::size_t new_vb_size = calculate_new_buffer_size(
                 sizeof(Vertex),

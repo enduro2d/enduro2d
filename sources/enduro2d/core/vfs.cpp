@@ -98,7 +98,7 @@ namespace e2d
             const auto resolved_url = resolve_url(url);
             const auto scheme_iter = schemes.find(resolved_url.scheme());
             return (scheme_iter != schemes.cend() && scheme_iter->second)
-                ? stdex::invoke(
+                ? std::invoke(
                     std::forward<F>(f),
                     scheme_iter->second,
                     resolved_url.path())
@@ -330,7 +330,7 @@ namespace e2d
             mz_zip_archive_file_stat file_stat;
             if ( mz_zip_reader_file_stat(state_->archive.get(), i, &file_stat) ) {
                 const str_view filename{file_stat.m_filename};
-                if ( filename.length() > parent.length() && strings::starts_with(filename, parent) ) {
+                if ( filename.size() > parent.size() && strings::starts_with(filename, parent) ) {
                     func(file_stat.m_filename, !!file_stat.m_is_directory);
                 }
             }

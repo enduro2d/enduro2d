@@ -8,8 +8,9 @@
 
 #include <enduro2d/utils/shape.hpp>
 #include <enduro2d/utils/buffer.hpp>
+#include <enduro2d/utils/buffer_view.hpp>
 
 namespace e2d::shapes::impl
 {
-    bool try_load_shape_e2d(shape& dst, const buffer& src) noexcept;
+    bool load_shape_e2d(shape& dst, buffer_view src);
 }
