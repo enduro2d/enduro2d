@@ -1334,6 +1334,10 @@ namespace e2d::opengl
             max_combined_texture_image_units);
     }
 
+    bool gl_has_extension(debug& debug, str_view name) noexcept {
+        return gl_has_any_extension(debug, name);
+    }
+
     void gl_fill_device_caps(debug& debug, render::device_caps& caps) noexcept {
         GLint max_texture_size = 0;
         GLint max_renderbuffer_size = 0;
@@ -1471,10 +1475,6 @@ namespace e2d::opengl
         caps.pvrtc2_compression_supported =
             gl_has_any_extension(debug,
                 "GL_IMG_texture_compression_pvrtc2");
-    }
-    
-    bool gl_has_extension(debug& debug, str_view name) noexcept {
-        return gl_has_any_extension(debug, name);
     }
 
     gl_shader_id gl_compile_shader(
