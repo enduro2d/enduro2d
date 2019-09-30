@@ -51,7 +51,7 @@ namespace
         }
     }
 
-    void debug_output_callback(
+    void GLAPIENTRY debug_output_callback(
         GLenum source,
         GLenum type,
         GLuint id,

@@ -78,24 +78,6 @@ namespace
         return success == GL_TRUE;
     }
 
-    bool process_program_validation_result(debug& debug, GLuint program) noexcept {
-        E2D_ASSERT(glIsProgram(program));
-        GL_CHECK_CODE(debug, glValidateProgram(program));
-        GLint success = GL_FALSE;
-        GL_CHECK_CODE(debug, glGetProgramiv(program, GL_VALIDATE_STATUS, &success));
-        GLint log_len = 0;
-        GL_CHECK_CODE(debug, glGetProgramiv(program, GL_INFO_LOG_LENGTH, &log_len));
-        if ( log_len > 0 ) {
-            GLchar* log_buffer = static_cast<GLchar*>(E2D_ALLOCA(
-                sizeof(GLchar) * math::numeric_cast<std::size_t>(log_len)));
-            GL_CHECK_CODE(debug, glGetProgramInfoLog(
-                program, log_len, nullptr, log_buffer));
-            debug.log(success ? debug::level::warning : debug::level::error,
-                "RENDER: program validation info:\n--> %0", log_buffer);
-        }
-        return success == GL_TRUE;
-    }
-
     template < typename... Ext >
     bool gl_has_any_extension(debug& debug, Ext... required) noexcept {
         const GLubyte* all_extensions = nullptr;
