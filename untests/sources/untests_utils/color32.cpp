@@ -51,6 +51,10 @@ TEST_CASE("color32") {
         REQUIRE(c == color32(40,50,40,20));
     }
     {
+        REQUIRE(make_vec3(color32(10,20,30,40)) == vec3<u8>(10,20,30));
+        REQUIRE(make_vec4(color32(10,20,30,40)) == vec4<u8>(10,20,30,40));
+    }
+    {
         REQUIRE(color32(10,20,30,40) + 10 == color32(20,30,40,50));
         REQUIRE(color32(10,20,30,40) - 10 == color32(0,10,20,30));
         REQUIRE(color32(10,20,30,40) * 2  == color32(20,40,60,80));
@@ -123,5 +127,8 @@ TEST_CASE("color32") {
         REQUIRE(colors::pack_color32(color32(0x12,0x34,0x56,0x78)) == 0x78123456);
         REQUIRE(colors::unpack_color32(0x04010203) == color32(1,2,3,4));
         REQUIRE(colors::unpack_color32(0x78123456) == color32(0x12,0x34,0x56,0x78));
+
+        REQUIRE(colors::pack_color32(color32(0x01,0x01,0x01,0x01)) == 0x01010101);
+        REQUIRE(colors::pack_color32(color32(0xFE,0xFE,0xFE,0xFE)) == 0xFEFEFEFE);
     }
 }

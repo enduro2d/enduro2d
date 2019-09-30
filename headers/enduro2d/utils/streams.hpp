@@ -8,6 +8,9 @@
 
 #include "_utils.hpp"
 
+#include "buffer.hpp"
+#include "buffer_view.hpp"
+
 namespace e2d
 {
     class bad_stream_operation final : public exception {
@@ -78,8 +81,7 @@ namespace e2d
 
         output_sequence& seek(std::ptrdiff_t offset, bool relative) noexcept;
         output_sequence& write(const void* src, std::size_t size) noexcept;
-        output_sequence& write_all(const str& src) noexcept;
-        output_sequence& write_all(const buffer& src) noexcept;
+        output_sequence& write_all(buffer_view src) noexcept;
 
         output_sequence& flush() noexcept;
         output_sequence& flush_if(bool yesno) noexcept;
@@ -112,11 +114,7 @@ namespace e2d::streams
         const input_stream_uptr& stream) noexcept;
 
     bool try_write_tail(
-        const str& src,
-        const output_stream_uptr& stream) noexcept;
-
-    bool try_write_tail(
-        const buffer& src,
+        buffer_view src,
         const output_stream_uptr& stream) noexcept;
 }
 

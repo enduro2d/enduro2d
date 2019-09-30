@@ -5,7 +5,6 @@
  ******************************************************************************/
 
 #include <enduro2d/utils/streams.hpp>
-#include <enduro2d/utils/buffer.hpp>
 
 namespace
 {
@@ -171,15 +170,9 @@ namespace e2d
         return *this;
     }
 
-    output_sequence& output_sequence::write_all(const buffer& src) noexcept {
+    output_sequence& output_sequence::write_all(buffer_view src) noexcept {
         return success_
             ? write(src.data(), src.size())
-            : *this;
-    }
-
-    output_sequence& output_sequence::write_all(const str& src) noexcept {
-        return success_
-            ? write(src.c_str(), src.size())
             : *this;
     }
 
@@ -229,15 +222,7 @@ namespace e2d::streams
             : false;
     }
 
-    bool try_write_tail(const str& src, const output_stream_uptr& stream) noexcept {
-        return stream
-            ? output_sequence(*stream)
-                .write_all(src)
-                .success()
-            : false;
-    }
-
-    bool try_write_tail(const buffer& src, const output_stream_uptr& stream) noexcept {
+    bool try_write_tail(buffer_view src, const output_stream_uptr& stream) noexcept {
         return stream
             ? output_sequence(*stream)
                 .write_all(src)

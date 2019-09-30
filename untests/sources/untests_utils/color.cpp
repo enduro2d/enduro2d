@@ -49,6 +49,10 @@ TEST_CASE("color") {
         REQUIRE(c == color(0.5f,0.6f,0.7f,0.8f));
     }
     {
+        REQUIRE(make_vec3(color(0.1f,0.2f,0.3f,0.4f)) == v3f(0.1f,0.2f,0.3f));
+        REQUIRE(make_vec4(color(0.1f,0.2f,0.3f,0.4f)) == v4f(0.1f,0.2f,0.3f, 0.4f));
+    }
+    {
         REQUIRE(color(0.1f,0.2f,0.3f,0.4f) + 0.1f == color(0.2f,0.3f,0.4f,0.5f));
         REQUIRE(color(0.1f,0.2f,0.3f,0.4f) - 0.1f == color(0.0f,0.1f,0.2f,0.3f));
         REQUIRE(color(0.1f,0.2f,0.3f,0.4f) * 2.f == color(0.2f,0.4f,0.6f,0.8f));
@@ -131,5 +135,8 @@ TEST_CASE("color") {
         REQUIRE(colors::pack_color(color(color32(0x12,0x34,0x56,0x78))) == 0x78123456);
         REQUIRE(colors::unpack_color(0x04010203) == color(color32(1,2,3,4)));
         REQUIRE(colors::unpack_color(0x78123456) == color(color32(0x12,0x34,0x56,0x78)));
+
+        REQUIRE(colors::pack_color(color(0.001f,0.001f,0.001f,0.001f)) == 0x00000000);
+        REQUIRE(colors::pack_color(color(0.999f,0.999f,0.999f,0.999f)) == 0xFFFFFFFF);
     }
 }

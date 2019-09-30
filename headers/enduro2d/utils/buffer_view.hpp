@@ -27,6 +27,9 @@ namespace e2d
         template < typename T >
         buffer_view(const vector<T>& buffer) noexcept;
 
+        template < typename Char >
+        buffer_view(const basic_string<Char>& buffer) noexcept;
+
         template < typename T, std::size_t N >
         buffer_view(const std::array<T,N>& buffer) noexcept;
 
@@ -37,6 +40,8 @@ namespace e2d
         std::size_t size() const noexcept;
         bool empty() const noexcept;
         void swap(buffer_view& other) noexcept;
+
+        explicit operator buffer();
     private:
         const void* data_ = nullptr;
         std::size_t size_ = 0;
@@ -54,6 +59,11 @@ namespace e2d
     buffer_view::buffer_view(const vector<T>& buffer) noexcept
     : data_(buffer.data())
     , size_(buffer.size() * sizeof(T)) {}
+
+    template < typename Char >
+    buffer_view::buffer_view(const basic_string<Char>& buffer) noexcept
+    : data_(buffer.data())
+    , size_(buffer.size() * sizeof(Char)) {}
 
     template < typename T, std::size_t N >
     buffer_view::buffer_view(const std::array<T,N>& buffer) noexcept

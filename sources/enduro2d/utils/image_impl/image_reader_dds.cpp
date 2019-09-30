@@ -5,157 +5,234 @@
  ******************************************************************************/
 
 #include "image_impl.hpp"
+#include "image_impl_dds.hpp"
 
 namespace
 {
-    // DDS format specification:
-    // https://docs.microsoft.com/en-us/windows/desktop/direct3ddds/dx-graphics-dds-pguide
-
     using namespace e2d;
+    using namespace e2d::images::impl;
+    using namespace e2d::images::impl::dds;
 
-    // pixel format flags
-    const u32 ddsf_alphapixels = 0x00000001;
-    const u32 ddsf_fourcc = 0x00000004;
-    const u32 ddsf_rgb = 0x00000040;
-    const u32 ddsf_rgba = 0x00000041;
+    struct image_info {
+        buffer data;
+        image_data_format format = image_data_format(-1);
+        u32 bytes_per_block = 0;
+        v2u block_size;
 
-    // dwCaps2 flags
-    const u32 ddsf_cubemap = 0x00000200;
-    const u32 ddsf_volume = 0x00200000;
+        image_info() = default;
+        image_info(buffer data, image_data_format format, u32 bytes_per_block, v2u block_size)
+        : data(std::move(data))
+        , format(format)
+        , bytes_per_block(bytes_per_block)
+        , block_size(block_size) {}
 
-    // compressed texture types
-    const u32 fourcc_dxt1 = 0x31545844; // 'DXT1'
-    const u32 fourcc_dxt3 = 0x33545844; // 'DXT3'
-    const u32 fourcc_dxt5 = 0x35545844; // 'DXT5'
-
-    struct dds_pixel_format {
-        u32 dwSize;
-        u32 dwFlags;
-        u32 dwFourCC;
-        u32 dwRGBBitCount;
-        u32 dwRBitMask;
-        u32 dwGBitMask;
-        u32 dwBBitMask;
-        u32 dwABitMask;
-    };
-
-    struct dds_header {
-        u32 dwMagic;
-        u32 dwSize;
-        u32 dwFlags;
-        u32 dwHeight;
-        u32 dwWidth;
-        u32 dwPitchOrLinearSize;
-        u32 dwDepth;
-        u32 dwMipMapCount;
-        u32 dwReserved1[11];
-        dds_pixel_format ddspf;
-        u32 dwCaps1;
-        u32 dwCaps2;
-        u32 dwReserved2[3];
-    };
-
-    static_assert(sizeof(dds_pixel_format) == 32, "invalid dds_pixel_format structure size");
-    static_assert(sizeof(dds_header) == 128, "invalid dds_header structure size");
-
-    bool is_dds(const void* data, std::size_t byte_size) noexcept {
-        if ( byte_size > sizeof(dds_header) ) {
-            const auto* hdr = reinterpret_cast<const dds_header*>(data);
-            return hdr->dwMagic == 0x20534444; // 'DDS '
+        bool valid() const noexcept {
+            return !data.empty()
+                && format != image_data_format(-1)
+                && bytes_per_block > 0
+                && block_size.x > 0
+                && block_size.y > 0;
         }
-        return false;
-    }
+    };
 
-    bool get_dds_format(
+    image_info extract_image_info(
         const dds_header& hdr,
-        image_data_format& out_format,
-        u32& out_bytes_per_block,
-        v2u& out_block_size) noexcept
+        buffer_view content)
     {
-        if ( math::check_all_flags(hdr.ddspf.dwFlags, ddsf_fourcc) ) {
-            switch ( hdr.ddspf.dwFourCC ) {
-            case fourcc_dxt1:
-                out_format = math::check_all_flags(hdr.ddspf.dwFlags, ddsf_alphapixels)
-                    ? image_data_format::rgba_dxt1
-                    : image_data_format::rgb_dxt1;
-                out_bytes_per_block = 8;
-                out_block_size = v2u(4,4);
-                break;
-            case fourcc_dxt3:
-                out_format = image_data_format::rgba_dxt3;
-                out_bytes_per_block = 16;
-                out_block_size = v2u(4,4);
-                break;
-            case fourcc_dxt5:
-                out_format = image_data_format::rgba_dxt5;
-                out_bytes_per_block = 16;
-                out_block_size = v2u(4,4);
-                break;
-            default:
-                return false;
+        if ( math::check_all_flags(hdr.pf.flags, dds_pff_fourcc) ) {
+            switch ( hdr.pf.fourcc ) {
+            case make_fourcc('D', 'X', 'T', '1'):
+                return {
+                    buffer(content),
+                    image_data_format::rgba_dxt1,
+                    8,
+                    {4,4}};
+            case make_fourcc('D', 'X', 'T', '2'):
+            case make_fourcc('D', 'X', 'T', '3'):
+                return {
+                    buffer(content),
+                    image_data_format::rgba_dxt3,
+                    16,
+                    {4,4}};
+            case make_fourcc('D', 'X', 'T', '4'):
+            case make_fourcc('D', 'X', 'T', '5'):
+                return {
+                    buffer(content),
+                    image_data_format::rgba_dxt5,
+                    16,
+                    {4,4}};
             }
-        } else if ( math::check_all_flags(hdr.ddspf.dwFlags, ddsf_rgba) && (hdr.ddspf.dwRGBBitCount == 32) ) {
-            out_format = image_data_format::rgba8;
-            out_bytes_per_block = 4;
-            out_block_size = v2u(1,1);
-            if ( hdr.ddspf.dwRBitMask == 0x00FF0000 ) {
-                return false; // BGRA format is not supported
-            }
-        } else if ( math::check_all_flags(hdr.ddspf.dwFlags, ddsf_rgb) && (hdr.ddspf.dwRGBBitCount == 24) ) {
-            out_format = image_data_format::rgb8;
-            out_bytes_per_block = 3;
-            out_block_size = v2u(1,1);
-            if (hdr.ddspf.dwRBitMask == 0x00FF0000) {
-                return false; // BGRA format is not supported
-            }
-        } else if ( hdr.ddspf.dwRGBBitCount == 16 ) {
-            return false; // 16-bit format is not supported by engine
-        } else if ( hdr.ddspf.dwRGBBitCount == 8 ) {
-            out_format = image_data_format::g8;
-            out_bytes_per_block = 1;
-            out_block_size = v2u(1,1);
-        } else {
-            return false;
         }
-        return true;
+
+        if ( math::check_all_flags(hdr.pf.flags, dds_pff_alpha) ) {
+            if ( hdr.pf.rgbbit_count == 8 &&
+                 hdr.pf.abit_mask == 0x000000FF )
+            {
+                return {
+                    buffer(content),
+                    image_data_format::a8,
+                    1,
+                    {1,1}};
+            }
+        }
+
+        if ( math::check_all_flags(hdr.pf.flags, dds_pff_luminance | dds_pff_alphapixels) ) {
+            if ( hdr.pf.rgbbit_count == 16 &&
+                 hdr.pf.rbit_mask == 0x000000FF &&
+                 hdr.pf.abit_mask == 0x0000FF00 )
+            {
+                return {
+                    buffer(content),
+                    image_data_format::la8,
+                    2,
+                    {1,1}};
+            }
+        }
+
+        if ( math::check_all_flags(hdr.pf.flags, dds_pff_luminance) ) {
+            if ( hdr.pf.rgbbit_count == 8 &&
+                 hdr.pf.rbit_mask == 0x000000FF )
+            {
+                return {
+                    buffer(content),
+                    image_data_format::l8,
+                    1,
+                    {1,1}};
+            }
+        }
+
+        if ( math::check_all_flags(hdr.pf.flags, dds_pff_rgb | dds_pff_alphapixels) ) {
+            if ( hdr.pf.rgbbit_count == 8 ) {
+                if ( hdr.pf.rbit_mask == 0x00000000 &&
+                     hdr.pf.gbit_mask == 0x00000000 &&
+                     hdr.pf.bbit_mask == 0x00000000 &&
+                     hdr.pf.abit_mask == 0x000000FF )
+                {
+                    return {
+                        buffer(content),
+                        image_data_format::a8,
+                        1,
+                        {1,1}};
+                }
+            }
+
+            if ( hdr.pf.rgbbit_count == 32 ) {
+                if ( hdr.pf.rbit_mask == 0x000000FF &&
+                     hdr.pf.gbit_mask == 0x0000FF00 &&
+                     hdr.pf.bbit_mask == 0x00FF0000 &&
+                     hdr.pf.abit_mask == 0xFF000000 )
+                {
+                    return {
+                        buffer(content),
+                        image_data_format::rgba8,
+                        4,
+                        {1,1}};
+                }
+
+                if ( hdr.pf.rbit_mask == 0x00FF0000 &&
+                     hdr.pf.gbit_mask == 0x0000FF00 &&
+                     hdr.pf.bbit_mask == 0x000000FF &&
+                     hdr.pf.abit_mask == 0xFF000000 )
+                {
+                    return {
+                        bgra8_to_rgba8(content),
+                        image_data_format::rgba8,
+                        4,
+                        {1,1}};
+                }
+            }
+        }
+
+        if ( math::check_all_flags(hdr.pf.flags, dds_pff_rgb) ) {
+            if ( hdr.pf.rgbbit_count == 24 ) {
+                if ( hdr.pf.rbit_mask == 0x000000FF &&
+                     hdr.pf.gbit_mask == 0x0000FF00 &&
+                     hdr.pf.bbit_mask == 0x00FF0000 )
+                {
+                    return {
+                        buffer(content),
+                        image_data_format::rgb8,
+                        3,
+                        {1,1}};
+                }
+
+                if ( hdr.pf.rbit_mask == 0x00FF0000 &&
+                     hdr.pf.gbit_mask == 0x0000FF00 &&
+                     hdr.pf.bbit_mask == 0x000000FF )
+                {
+                    return {
+                        bgr8_to_rgb8(content),
+                        image_data_format::rgb8,
+                        3,
+                        {1,1}};
+                }
+            }
+
+            if ( hdr.pf.rgbbit_count == 32 ) {
+                if ( hdr.pf.rbit_mask == 0x00FF0000 &&
+                     hdr.pf.gbit_mask == 0x0000FF00 &&
+                     hdr.pf.bbit_mask == 0x000000FF )
+                {
+                    return {
+                        bgrx8_to_rgb8(content),
+                        image_data_format::rgb8,
+                        3,
+                        {1,1}};
+                }
+            }
+        }
+
+        return image_info();
     }
 }
 
 namespace e2d::images::impl
 {
-    bool load_image_dds(image& dst, const buffer& src) {
-        if ( !is_dds(src.data(), src.size()) ) {
+    bool load_image_dds(image& dst, buffer_view src) {
+        if ( src.size() < sizeof(dds_header) ) {
             return false;
         }
 
         const dds_header& hdr = *reinterpret_cast<const dds_header*>(src.data());
-        const u8* content = src.data() + sizeof(dds_header);
-        const std::size_t content_size = static_cast<std::size_t>(src.data() + src.size() - content);
 
-        if ( math::check_all_flags(hdr.dwCaps2, ddsf_cubemap) ||
-             math::check_all_flags(hdr.dwCaps2, ddsf_volume) ||
-             (hdr.dwDepth > 0) )
+        if ( hdr.magic != make_fourcc('D', 'D', 'S', ' ') ) {
+            return false;
+        }
+
+        if ( hdr.size != sizeof(dds_header) - sizeof(hdr.magic) ) {
+            return false;
+        }
+
+        if ( hdr.pf.size != sizeof(dds_pixel_format) ) {
+            return false;
+        }
+
+        if ( math::check_any_flags(hdr.caps, dds_caps_complex | dds_caps_mipmap) ||
+             math::check_any_flags(hdr.caps2, dds_caps2_cubemap | dds_caps2_volume) ||
+             hdr.depth > 1 ||
+             hdr.mipmap_count > 1 )
         {
             return false;
         }
 
-        image_data_format format = image_data_format(-1);
-        u32 bytes_per_block = 0;
-        v2u block_size = v2u(1,1);
-        if ( !get_dds_format(hdr, format, bytes_per_block, block_size) ) {
+        image_info info = extract_image_info(hdr, {
+            static_cast<const u8*>(src.data()) + sizeof(dds_header),
+            src.size() - sizeof(dds_header)});
+
+        if ( !info.valid() ) {
             return false;
         }
 
-        const v2u dimension = v2u(hdr.dwWidth, hdr.dwHeight);
-        const std::size_t size = bytes_per_block *
-            ((dimension.x + block_size.x - 1) / block_size.x) *
-            ((dimension.y + block_size.y - 1) / block_size.y);
+        const v2u dimension = v2u(hdr.width, hdr.height);
+        const std::size_t expected_image_data_size = info.bytes_per_block *
+            ((dimension.x + info.block_size.x - 1) / info.block_size.x) *
+            ((dimension.y + info.block_size.y - 1) / info.block_size.y);
 
-        if ( content_size != size ) {
+        if ( info.data.size() != expected_image_data_size ) {
             return false;
         }
 
-        dst = image(dimension, format, buffer(content, size));
+        dst = image(dimension, info.format, std::move(info.data));
         return true;
     }
 }

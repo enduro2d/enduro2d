@@ -31,7 +31,7 @@ namespace
 
     using stbi_img_uptr = std::unique_ptr<stbi_uc, decltype(&stbi_image_free)>;
 
-    stbi_img_uptr load_stb_image(const buffer& data, v2u& out_size, u32& out_channels) noexcept {
+    stbi_img_uptr load_stb_image(buffer_view data, v2u& out_size, u32& out_channels) noexcept {
         int img_w = 0, img_h = 0, img_c = 0;
         stbi_uc* img = stbi_load_from_memory(
             static_cast<const stbi_uc*>(data.data()),
@@ -48,8 +48,8 @@ namespace
 
     image_data_format image_format_from_stb_channels(u32 channels) noexcept {
         switch ( channels ) {
-            case 1: return image_data_format::g8;
-            case 2: return image_data_format::ga8;
+            case 1: return image_data_format::a8;
+            case 2: return image_data_format::la8;
             case 3: return image_data_format::rgb8;
             case 4: return image_data_format::rgba8;
             default:
@@ -61,7 +61,7 @@ namespace
 
 namespace e2d::images::impl
 {
-    bool load_image_stb(image& dst, const buffer& src) {
+    bool load_image_stb(image& dst, buffer_view src) {
         v2u img_size;
         u32 img_channels = 0;
         const stbi_img_uptr img_ptr = load_stb_image(src, img_size, img_channels);

@@ -8,8 +8,9 @@
 
 #include <enduro2d/utils/mesh.hpp>
 #include <enduro2d/utils/buffer.hpp>
+#include <enduro2d/utils/buffer_view.hpp>
 
 namespace e2d::meshes::impl
 {
-    bool try_load_mesh_e2d(mesh& dst, const buffer& src) noexcept;
+    bool load_mesh_e2d(mesh& dst, buffer_view src);
 }

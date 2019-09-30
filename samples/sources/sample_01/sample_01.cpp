@@ -244,7 +244,7 @@ namespace
                 math::make_rotation_matrix4(make_rad(the<engine>().time()), 0.f, 1.f, 0.f) *
                 math::make_rotation_matrix4(make_rad(the<engine>().time()), 0.f, 0.f, 1.f) *
                 math::make_translation_matrix4(0.f, 0.f, 0.f) *
-                math::make_loot_at_lh_matrix4({0.f, 0.f, -3.f}, v3f::zero(), v3f::unit_y()) *
+                math::make_look_at_lh_matrix4({0.f, 0.f, -3.f}, v3f::zero(), v3f::unit_y()) *
                 projection;
 
             material_.properties()

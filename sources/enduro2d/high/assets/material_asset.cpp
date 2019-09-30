@@ -164,7 +164,7 @@ namespace
                 },
                 "sampler" : {
                     "type" : "object",
-                    "required" : [ "name" ],
+                    "required" : [ "name", "texture" ],
                     "additionalProperties" : false,
                     "properties" : {
                         "name" : {
@@ -201,7 +201,7 @@ namespace
                 },
                 "property" : {
                     "type" : "object",
-                    "required" : [ "name", "type" ],
+                    "required" : [ "name", "type", "value" ],
                     "additionalProperties" : false,
                     "properties" : {
                         "name" : { "$ref" : "#/common_definitions/name" },
@@ -514,11 +514,10 @@ namespace
         render::sampler_state content;
 
         E2D_ASSERT(root.HasMember("name") && root["name"].IsString());
-        auto name_hash = make_hash(root["name"].GetString());
+        E2D_ASSERT(root.HasMember("texture") && root["texture"].IsString());
 
-        auto texture_p = root.HasMember("texture")
-            ? parse_texture_block(library, parent_address, root["texture"])
-            : stdex::make_resolved_promise<texture_ptr>(nullptr);
+        auto name_hash = make_hash(root["name"].GetString());
+        auto texture_p = parse_texture_block(library, parent_address, root["texture"]);
 
         if ( root.HasMember("wrap") ) {
             const auto& wrap_json = root["wrap"];
@@ -545,7 +544,7 @@ namespace
             } else if ( wrap_json.IsString() ) {
                 auto wrap = content.s_wrap();
                 if ( parse_sampler_wrap(wrap_json.GetString(), wrap) ) {
-                    content.wrap(wrap);
+                    content.wrap(wrap, wrap);
                 } else {
                     E2D_ASSERT_MSG(false, "unexpected sampler wrap");
                 }
@@ -609,15 +608,14 @@ namespace
 
             E2D_ASSERT(property_json.HasMember("name") && property_json["name"].IsString());
             E2D_ASSERT(property_json.HasMember("type") && property_json["type"].IsString());
+            E2D_ASSERT(property_json.HasMember("value"));
 
         #define DEFINE_CASE(x)\
             if ( 0 == std::strcmp(property_json["type"].GetString(), #x) ) {\
                 x value;\
-                if ( property_json.HasMember("value") ) {\
-                    if ( !json_utils::try_parse_value(property_json["value"], value) ) {\
-                        E2D_ASSERT_MSG(false, "unexpected property value");\
-                        return false;\
-                    }\
+                if ( !json_utils::try_parse_value(property_json["value"], value) ) {\
+                    E2D_ASSERT_MSG(false, "unexpected property value");\
+                    return false;\
                 }\
                 props.property(property_json["name"].GetString(), value);\
                 continue;\
