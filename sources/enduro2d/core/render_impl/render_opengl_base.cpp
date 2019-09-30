@@ -125,11 +125,34 @@ namespace
         gl_bit_ = 1 << 28,
         gles_bit_ = 2 << 28,
 
-        gl_210 = 210 | gl_bit_,
-        gl_300 = 300 | gl_bit_,
-        gl_410 = 410 | gl_bit_,
-        gles_200 = 200 | gles_bit_,
-        gles_300 = 300 | gles_bit_
+        gl_1_0 = 100 | gl_bit_,
+        gl_1_1 = 110 | gl_bit_,
+        gl_1_2 = 120 | gl_bit_,
+        gl_1_3 = 130 | gl_bit_,
+        gl_1_4 = 140 | gl_bit_,
+        gl_1_5 = 150 | gl_bit_,
+
+        gl_2_0 = 200 | gl_bit_,
+        gl_2_1 = 210 | gl_bit_,
+        
+        gl_3_0 = 300 | gl_bit_,
+        gl_3_1 = 310 | gl_bit_,
+        gl_3_2 = 320 | gl_bit_,
+        gl_3_3 = 330 | gl_bit_,
+
+        gl_4_0 = 400 | gl_bit_,
+        gl_4_1 = 410 | gl_bit_,
+        gl_4_2 = 420 | gl_bit_,
+        gl_4_3 = 430 | gl_bit_,
+        gl_4_4 = 440 | gl_bit_,
+        gl_4_5 = 450 | gl_bit_,
+        gl_4_6 = 460 | gl_bit_,
+
+        gles_2_0 = 200 | gles_bit_,
+        
+        gles_3_0 = 300 | gles_bit_,
+        gles_3_1 = 310 | gles_bit_,
+        gles_3_2 = 320 | gles_bit_
     };
 
     bool operator>=(gl_version lhs, gl_version rhs) noexcept {
@@ -1395,56 +1418,56 @@ namespace e2d::opengl
         const gl_version version = gl_get_version(debug);
 
         caps.profile =
-            version >= gl_version::gles_300 ? render::api_profile::opengles3 :
-            version >= gl_version::gles_200 ? render::api_profile::opengles2 :
-            version >= gl_version::gl_410 ? render::api_profile::opengl4_compat :
-            render::api_profile::opengl2_compat;
+            version >= gl_version::gles_3_0 ? render::api_profile::gles_3_0 :
+            version >= gl_version::gles_2_0 ? render::api_profile::gles_2_0 :
+            version >= gl_version::gl_3_2 ? render::api_profile::gl_3_2_compat :
+            render::api_profile::gl_2_1_compat;
 
         caps.npot_texture_supported =
-            version >= gl_version::gl_210 || // gl_200
-            version >= gl_version::gles_300 ||
+            version >= gl_version::gl_2_0 ||
+            version >= gl_version::gles_3_0 ||
             gl_has_any_extension(debug,
                 "GL_OES_texture_npot",
                 "GL_ARB_texture_non_power_of_two");
 
         caps.depth_texture_supported =
-            version >= gl_version::gl_210 ||
-            version >= gl_version::gles_300 ||
+            version >= gl_version::gl_1_4 ||
+            version >= gl_version::gles_3_0 ||
             gl_has_any_extension(debug,
                 "GL_OES_depth_texture",
-                "GL_ARB_depth_texture"); // gl_140
+                "GL_ARB_depth_texture");
 
         caps.render_target_supported =
-            version >= gl_version::gl_300 || // gl_300
-            version >= gl_version::gles_200 ||
+            version >= gl_version::gl_3_0 ||
+            version >= gl_version::gles_2_0 ||
             gl_has_any_extension(debug,
                 "GL_OES_framebuffer_object",
                 "GL_EXT_framebuffer_object",
                 "GL_ARB_framebuffer_object");
 
         caps.element_index_uint =
-            version >= gl_version::gl_210 || // gl_100
-            version >= gl_version::gles_300 ||
+            version >= gl_version::gl_1_1 ||
+            version >= gl_version::gles_3_0 ||
             gl_has_any_extension(debug,
                 "GL_OES_element_index_uint");
 
         caps.depth16_supported =
-            version >= gl_version::gl_210 || // gl_140
-            version >= gl_version::gles_300 ||
+            version >= gl_version::gl_1_4 ||
+            version >= gl_version::gles_3_0 ||
             gl_has_any_extension(debug,
                 "GL_OES_depth_texture",
                 "GL_ARB_depth_texture");
 
         caps.depth24_supported =
-            version >= gl_version::gl_210 || // gl_140
-            version >= gl_version::gles_300 ||
+            version >= gl_version::gl_1_4 ||
+            version >= gl_version::gles_3_0 ||
             gl_has_any_extension(debug,
                 "GL_OES_depth24",
                 "GL_ARB_depth_texture");
 
         caps.depth24_stencil8_supported =
-            version >= gl_version::gl_300 || // gl_300
-            version >= gl_version::gles_300 ||
+            version >= gl_version::gl_3_0 ||
+            version >= gl_version::gles_3_0 ||
             gl_has_any_extension(debug,
                 "GL_OES_packed_depth_stencil",
                 "GL_EXT_packed_depth_stencil");
@@ -1458,7 +1481,8 @@ namespace e2d::opengl
                 "GL_OES_compressed_ETC1_RGB8_texture");
 
         caps.etc2_compression_supported =
-            version >= gl_version::gles_300 ||
+            version >= gl_version::gl_4_3 ||
+            version >= gl_version::gles_3_0 ||
             gl_has_any_extension(debug,
                 "GL_ARB_ES3_compatibility");
 

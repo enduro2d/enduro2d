@@ -70,7 +70,7 @@ namespace
             "--> Severity: %1\n"
             "--> Source: %2\n"
             "--> Type: %3\n"
-            "--> Message: %4\n",
+            "--> Message: %4",
             id,
             debug_output_severity_to_cstr(severity),
             debug_output_source_to_cstr(source),
