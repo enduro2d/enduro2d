@@ -114,7 +114,6 @@ namespace e2d
     class index_declaration final {
     public:
         enum class index_type : u8 {
-            unsigned_byte,
             unsigned_short,
             unsigned_int
         };
@@ -881,9 +880,10 @@ namespace e2d
 
         enum class api_profile {
             unknown,
-            opengles2,
-            opengles3,
-            opengl_compat
+            gles_2_0,
+            gles_3_0,
+            gl_2_1_compat,
+            gl_3_2_compat
         };
 
         struct device_caps {

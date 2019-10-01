@@ -19,18 +19,25 @@ namespace
         switch ( profile ) {
         case e2d::render::api_profile::unknown:
             return "";
-        case e2d::render::api_profile::opengles2:
-        case e2d::render::api_profile::opengles3:
+        case e2d::render::api_profile::gles_2_0:
+        case e2d::render::api_profile::gles_3_0:
             return R"glsl(
                 precision highp int;
                 precision highp float;
             )glsl";
-        case e2d::render::api_profile::opengl_compat:
+        case e2d::render::api_profile::gl_2_1_compat:
             return R"glsl(
                 #version 120
                 #define highp
                 #define mediump
                 #define lowp
+            )glsl";
+        case e2d::render::api_profile::gl_3_2_compat:
+            return R"glsl(
+                #version 150
+                #define texture2D texture
+                #define varying out
+                #define attribute in
             )glsl";
         default:
             E2D_ASSERT_MSG(false, "unexpected render API profile");
@@ -42,18 +49,24 @@ namespace
         switch ( profile ) {
         case e2d::render::api_profile::unknown:
             return "";
-        case e2d::render::api_profile::opengles2:
-        case e2d::render::api_profile::opengles3:
+        case e2d::render::api_profile::gles_2_0:
+        case e2d::render::api_profile::gles_3_0:
             return R"glsl(
                 precision mediump int;
                 precision mediump float;
             )glsl";
-        case e2d::render::api_profile::opengl_compat:
+        case e2d::render::api_profile::gl_2_1_compat:
             return R"glsl(
                 #version 120
                 #define highp
                 #define mediump
                 #define lowp
+            )glsl";
+        case e2d::render::api_profile::gl_3_2_compat:
+            return R"glsl(
+                #version 150
+                #define texture2D texture
+                #define varying in
             )glsl";
         default:
             E2D_ASSERT_MSG(false, "unexpected render API profile");
@@ -1204,7 +1217,6 @@ namespace e2d
         E2D_ASSERT(is_in_main_thread());
         const device_caps& caps = device_capabilities();
         switch ( decl.type() ) {
-            case index_declaration::index_type::unsigned_byte:
             case index_declaration::index_type::unsigned_short:
                 return true;
             case index_declaration::index_type::unsigned_int:
