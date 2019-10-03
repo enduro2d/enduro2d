@@ -26,17 +26,18 @@ namespace e2d
         rad<T> rotation = rad<T>(0);
         vec2<T> scale = vec2<T>::unit();
     public:
-        static const trs2& zero() noexcept;
-        static const trs2& identity() noexcept;
+        static constexpr trs2 zero() noexcept;
+        static constexpr trs2 identity() noexcept;
     public:
-        trs2() noexcept = default;
-        trs2(const trs2& other) noexcept = default;
-        trs2& operator=(const trs2& other) noexcept = default;
+        constexpr trs2() noexcept = default;
+        constexpr trs2(const trs2& other) noexcept = default;
+        constexpr trs2& operator=(const trs2& other) noexcept = default;
 
         template < typename AngleTag >
-        trs2(const vec2<T>& t,
-             const unit<T, AngleTag>& r,
-             const vec2<T>& s) noexcept;
+        constexpr trs2(
+            const vec2<T>& t,
+            const unit<T, AngleTag>& r,
+            const vec2<T>& s) noexcept;
 
         template < typename To >
         trs2<To> cast_to() const noexcept;
@@ -46,26 +47,24 @@ namespace e2d
 namespace e2d
 {
     template < typename T >
-    const trs2<T>& trs2<T>::zero() noexcept {
-        static const trs2<T> zero{
+    constexpr trs2<T> trs2<T>::zero() noexcept {
+        return {
             vec2<T>::zero(),
             rad<T>(0),
             vec2<T>::zero()};
-        return zero;
     }
 
     template < typename T >
-    const trs2<T>& trs2<T>::identity() noexcept {
-        static const trs2<T> identity{
+    constexpr trs2<T> trs2<T>::identity() noexcept {
+        return {
             vec2<T>::zero(),
             rad<T>(0),
             vec2<T>::unit()};
-        return identity;
     }
 
     template < typename T >
     template < typename AngleTag >
-    trs2<T>::trs2(
+    constexpr trs2<T>::trs2(
         const vec2<T>& t,
         const unit<T, AngleTag>& r,
         const vec2<T>& s) noexcept
@@ -90,7 +89,7 @@ namespace e2d
     //
 
     template < typename T, typename AngleTag >
-    trs2<T> make_trs2(
+    constexpr trs2<T> make_trs2(
         const vec2<T>& t,
         const unit<T, AngleTag>& r,
         const vec2<T>& s) noexcept

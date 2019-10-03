@@ -603,6 +603,59 @@ namespace
 
             "contains_nan", sol::resolve<bool(const aabb<T>&)>(&math::contains_nan));
     }
+
+    template < typename T >
+    void bind_trs2(const str& name, sol::state& l) {
+        l.new_usertype<trs2<T>>(name,
+            sol::constructors<
+                trs2<T>(),
+                trs2<T>(trs2<T>),
+                trs2<T>(vec2<T>,deg<T>,vec2<T>),
+                trs2<T>(vec2<T>,rad<T>,vec2<T>)>(),
+
+            "zero", &trs2<T>::zero,
+            "unit", &trs2<T>::identity,
+
+            "translation", &trs2<T>::translation,
+            "rotation", &trs2<T>::rotation,
+            "scale", &trs2<T>::scale,
+
+            sol::meta_function::equal_to, sol::resolve<bool(const trs2<T>&, const trs2<T>&)>(::operator==),
+
+            "make_translation_trs2", sol::resolve<trs2<T>(const vec2<T>&)>(&math::make_translation_trs2),
+            "make_rotation_trs2", sol::overload(
+                sol::resolve<trs2<T>(const deg<T>&)>(&math::make_rotation_trs2),
+                sol::resolve<trs2<T>(const rad<T>&)>(&math::make_rotation_trs2)),
+            "make_scale_trs2", sol::resolve<trs2<T>(const vec2<T>&)>(&math::make_scale_trs2),
+
+            "approximately", [](const trs2<T>& l, const trs2<T>& r){ return math::approximately(l,r); },
+            "contains_nan", sol::resolve<bool(const trs2<T>&)>(&math::contains_nan));
+    }
+
+    template < typename T >
+    void bind_trs3(const str& name, sol::state& l) {
+        l.new_usertype<trs3<T>>(name,
+            sol::constructors<
+                trs3<T>(),
+                trs3<T>(trs3<T>),
+                trs3<T>(vec3<T>,quat<T>,vec3<T>)>(),
+
+            "zero", &trs3<T>::zero,
+            "unit", &trs3<T>::identity,
+
+            "translation", &trs3<T>::translation,
+            "rotation", &trs3<T>::rotation,
+            "scale", &trs3<T>::scale,
+
+            sol::meta_function::equal_to, sol::resolve<bool(const trs3<T>&, const trs3<T>&)>(::operator==),
+
+            "make_translation_trs3", sol::resolve<trs3<T>(const vec3<T>&)>(&math::make_translation_trs3),
+            "make_rotation_trs3", sol::resolve<trs3<T>(const quat<T>&)>(&math::make_rotation_trs3),
+            "make_scale_trs3", sol::resolve<trs3<T>(const vec3<T>&)>(&math::make_scale_trs3),
+
+            "approximately", [](const trs3<T>& l, const trs3<T>& r){ return math::approximately(l,r); },
+            "contains_nan", sol::resolve<bool(const trs3<T>&)>(&math::contains_nan));
+    }
 }
 
 namespace e2d::bindings
@@ -619,5 +672,7 @@ namespace e2d::bindings
         bind_mat4<f32>("m4f", l);
         bind_rect<f32>("b2f", l);
         bind_aabb<f32>("b3f", l);
+        bind_trs2<f32>("t2f", l);
+        bind_trs3<f32>("t3f", l);
     }
 }

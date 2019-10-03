@@ -89,4 +89,17 @@ TEST_CASE("luasol") {
         )lua");
         REQUIRE(r1);
     }
+
+    SECTION("trs2/trs3") {
+        radf r0 = l.lua().script(R"lua(
+            local t = t2f.make_rotation_trs2(degf.new(45))
+            return t.rotation
+        )lua");
+        REQUIRE(r0 == math::to_rad(degf(45.f)));
+        v3f r1 = l.lua().script(R"lua(
+            local t = t3f.make_translation_trs3(v3f.new(1,2,3))
+            return t.translation
+        )lua");
+        REQUIRE(r1 == v3f(1,2,3));
+    }
 }
