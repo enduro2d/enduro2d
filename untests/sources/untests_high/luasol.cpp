@@ -102,4 +102,15 @@ TEST_CASE("luasol") {
         )lua");
         REQUIRE(r1 == v3f(1,2,3));
     }
+
+    SECTION("color/color32") {
+        color r0 = l.lua().script(R"lua(
+            return color.white() * 0.5
+        )lua");
+        REQUIRE(r0 == color(0.5f,0.5f,0.5f,0.5f));
+        color32 r1 = l.lua().script(R"lua(
+            return color32.white() - 1
+        )lua");
+        REQUIRE(r1 == color32(254,254,254,254));
+    }
 }

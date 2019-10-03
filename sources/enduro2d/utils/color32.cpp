@@ -9,62 +9,23 @@
 
 namespace e2d
 {
-    const color32& color32::clear() noexcept {
-        static const color32 c(0, 0, 0, 0);
-        return c;
-    }
-
-    const color32& color32::black() noexcept {
-        static const color32 c(0, 0, 0, 255);
-        return c;
-    }
-
-    const color32& color32::white() noexcept {
-        static const color32 c(255, 255, 255, 255);
-        return c;
-    }
-
-    const color32& color32::red() noexcept {
-        static const color32 c(255, 0, 0, 255);
-        return c;
-    }
-
-    const color32& color32::green() noexcept {
-        static const color32 c(0, 255, 0, 255);
-        return c;
-    }
-
-    const color32& color32::blue() noexcept {
-        static const color32 c(0, 0, 255, 255);
-        return c;
-    }
-
-    const color32& color32::yellow() noexcept {
-        static const color32 c(255, 255, 0, 255);
-        return c;
-    }
-
-    const color32& color32::magenta() noexcept {
-        static const color32 c(255, 0, 255, 255);
-        return c;
-    }
-
-    const color32& color32::cyan() noexcept {
-        static const color32 c(0, 255, 255, 255);
-        return c;
-    }
-
     color32::color32(const color& other) noexcept
     : r(static_cast<u8>(math::saturate(other.r) * 255.f + 0.5f))
     , g(static_cast<u8>(math::saturate(other.g) * 255.f + 0.5f))
     , b(static_cast<u8>(math::saturate(other.b) * 255.f + 0.5f))
     , a(static_cast<u8>(math::saturate(other.a) * 255.f + 0.5f)) {}
 
-    color32::color32(u8 nr, u8 ng, u8 nb, u8 na) noexcept
-    : r(nr)
-    , g(ng)
-    , b(nb)
-    , a(na) {}
+    color32::color32(const vec4<u8>& rgba) noexcept
+    : r(rgba.x)
+    , g(rgba.y)
+    , b(rgba.z)
+    , a(rgba.w) {}
+
+    color32::color32(const vec3<u8>& rgb, u8 a) noexcept
+    : r(rgb.x)
+    , g(rgb.y)
+    , b(rgb.z)
+    , a(a) {}
 
     u8* color32::data() noexcept {
         return &r;

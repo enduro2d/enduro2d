@@ -17,23 +17,25 @@ namespace e2d
         f32 b = 1.f;
         f32 a = 1.f;
     public:
-        static const color& clear() noexcept;
-        static const color& black() noexcept;
-        static const color& white() noexcept;
-        static const color& red() noexcept;
-        static const color& green() noexcept;
-        static const color& blue() noexcept;
-        static const color& yellow() noexcept;
-        static const color& magenta() noexcept;
-        static const color& cyan() noexcept;
+        static constexpr color clear() noexcept;
+        static constexpr color black() noexcept;
+        static constexpr color white() noexcept;
+        static constexpr color red() noexcept;
+        static constexpr color green() noexcept;
+        static constexpr color blue() noexcept;
+        static constexpr color yellow() noexcept;
+        static constexpr color magenta() noexcept;
+        static constexpr color cyan() noexcept;
     public:
-        color() noexcept = default;
+        constexpr color() noexcept = default;
+        constexpr color(const color& other) noexcept = default;
+        constexpr color& operator=(const color& other) noexcept = default;
 
-        color(const color& other) noexcept = default;
-        color& operator=(const color& other) noexcept = default;
+        constexpr color(f32 r, f32 g, f32 b, f32 a = 1.f) noexcept;
 
-        color(f32 r, f32 g, f32 b, f32 a = 1.f) noexcept;
         explicit color(const color32& other) noexcept;
+        explicit color(const vec4<f32>& rgba) noexcept;
+        explicit color(const vec3<f32>& rgb, f32 a = 1.f) noexcept;
 
         f32* data() noexcept;
         const f32* data() const noexcept;
@@ -51,6 +53,51 @@ namespace e2d
         color& operator*=(const color& other) noexcept;
         color& operator/=(const color& other) noexcept;
     };
+}
+
+namespace e2d
+{
+    constexpr color color::clear() noexcept {
+        return {0, 0, 0, 0};
+    }
+
+    constexpr color color::black() noexcept {
+        return {0, 0, 0, 1};
+    }
+
+    constexpr color color::white() noexcept {
+        return {1, 1, 1, 1};
+    }
+
+    constexpr color color::red() noexcept {
+        return {1, 0, 0, 1};
+    }
+
+    constexpr color color::green() noexcept {
+        return {0, 1, 0, 1};
+    }
+
+    constexpr color color::blue() noexcept {
+        return {0, 0, 1, 1};
+    }
+
+    constexpr color color::yellow() noexcept {
+        return {1, 1, 0, 1};
+    }
+
+    constexpr color color::magenta() noexcept {
+        return {1, 0, 1, 1};
+    }
+
+    constexpr color color::cyan() noexcept {
+        return {0, 1, 1, 1};
+    }
+
+    constexpr color::color(f32 r, f32 g, f32 b, f32 a) noexcept
+    : r(r)
+    , g(g)
+    , b(b)
+    , a(a) {}
 }
 
 namespace e2d
