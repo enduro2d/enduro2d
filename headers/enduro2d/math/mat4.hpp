@@ -33,22 +33,24 @@ namespace e2d
             {0, 0, 1, 0},
             {0, 0, 0, 1}};
     public:
-        static const mat4& zero() noexcept;
-        static const mat4& identity() noexcept;
+        static constexpr mat4 zero() noexcept;
+        static constexpr mat4 identity() noexcept;
     public:
-        mat4() noexcept = default;
-        mat4(const mat4& other) noexcept = default;
-        mat4& operator=(const mat4& other) noexcept = default;
+        constexpr mat4() noexcept = default;
+        constexpr mat4(const mat4& other) noexcept = default;
+        constexpr mat4& operator=(const mat4& other) noexcept = default;
 
-        mat4(const vec4<T>& row0,
-             const vec4<T>& row1,
-             const vec4<T>& row2,
-             const vec4<T>& row3) noexcept;
+        constexpr mat4(
+            const vec4<T>& row0,
+            const vec4<T>& row1,
+            const vec4<T>& row2,
+            const vec4<T>& row3) noexcept;
 
-        mat4(T m11, T m12, T m13, T m14,
-             T m21, T m22, T m23, T m24,
-             T m31, T m32, T m33, T m34,
-             T m41, T m42, T m43, T m44) noexcept;
+        constexpr mat4(
+            T m11, T m12, T m13, T m14,
+            T m21, T m22, T m23, T m24,
+            T m31, T m32, T m33, T m34,
+            T m41, T m42, T m43, T m44) noexcept;
 
         template < typename To >
         mat4<To> cast_to() const noexcept;
@@ -70,27 +72,25 @@ namespace e2d
 namespace e2d
 {
     template < typename T >
-    const mat4<T>& mat4<T>::zero() noexcept {
-        static const mat4<T> zero{
+    constexpr mat4<T> mat4<T>::zero() noexcept {
+        return {
             0, 0, 0, 0,
             0, 0, 0, 0,
             0, 0, 0, 0,
             0, 0, 0, 0};
-        return zero;
     }
 
     template < typename T >
-    const mat4<T>& mat4<T>::identity() noexcept {
-        static const mat4<T> identity{
+    constexpr mat4<T> mat4<T>::identity() noexcept {
+        return {
             1, 0, 0, 0,
             0, 1, 0, 0,
             0, 0, 1, 0,
             0, 0, 0, 1};
-        return identity;
     }
 
     template < typename T >
-    mat4<T>::mat4(
+    constexpr mat4<T>::mat4(
         const vec4<T>& row0,
         const vec4<T>& row1,
         const vec4<T>& row2,
@@ -98,7 +98,7 @@ namespace e2d
     : rows{row0, row1, row2, row3} {}
 
     template < typename T >
-    mat4<T>::mat4(
+    constexpr mat4<T>::mat4(
         T m11, T m12, T m13, T m14,
         T m21, T m22, T m23, T m24,
         T m31, T m32, T m33, T m34,
@@ -168,7 +168,7 @@ namespace e2d
     //
 
     template < typename T >
-    mat4<T> make_mat4(
+    constexpr mat4<T> make_mat4(
         const vec4<T>& row0,
         const vec4<T>& row1,
         const vec4<T>& row2,
@@ -178,7 +178,7 @@ namespace e2d
     }
 
     template < typename T >
-    mat4<T> make_mat4(
+    constexpr mat4<T> make_mat4(
         T m11, T m12, T m13, T m14,
         T m21, T m22, T m23, T m24,
         T m31, T m32, T m33, T m34,
@@ -648,6 +648,23 @@ namespace e2d::math
     }
 
     //
+    // approximately
+    //
+
+    template < typename T >
+    bool approximately(
+        const mat4<T>& l,
+        const mat4<T>& r,
+        T precision = math::default_precision<T>()) noexcept
+    {
+        return
+            math::approximately(l.rows[0], r.rows[0], precision) &&
+            math::approximately(l.rows[1], r.rows[1], precision) &&
+            math::approximately(l.rows[2], r.rows[2], precision) &&
+            math::approximately(l.rows[3], r.rows[3], precision);
+    }
+
+    //
     // inversed
     //
 
@@ -732,5 +749,18 @@ namespace e2d::math
             mm[1], mm[5], mm[ 9], mm[13],
             mm[2], mm[6], mm[10], mm[14],
             mm[3], mm[7], mm[11], mm[15]};
+    }
+
+    //
+    // contains_nan
+    //
+
+    template < typename T >
+    bool contains_nan(const mat4<T>& v) noexcept {
+        return
+            math::contains_nan(v.rows[0]) ||
+            math::contains_nan(v.rows[1]) ||
+            math::contains_nan(v.rows[2]) ||
+            math::contains_nan(v.rows[3]);
     }
 }
