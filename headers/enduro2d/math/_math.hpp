@@ -136,6 +136,9 @@ namespace e2d
     using deg = unit<T, deg_tag>;
     template < typename T >
     using rad = unit<T, rad_tag>;
+
+    using degf = deg<f32>;
+    using radf = rad<f32>;
 }
 
 namespace e2d::math

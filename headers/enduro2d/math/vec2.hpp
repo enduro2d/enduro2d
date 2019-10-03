@@ -24,19 +24,19 @@ namespace e2d
         T x = 0;
         T y = 0;
     public:
-        static const vec2& zero() noexcept;
-        static const vec2& unit() noexcept;
-        static const vec2& unit_x() noexcept;
-        static const vec2& unit_y() noexcept;
+        static constexpr vec2 zero() noexcept;
+        static constexpr vec2 unit() noexcept;
+        static constexpr vec2 unit_x() noexcept;
+        static constexpr vec2 unit_y() noexcept;
     public:
-        vec2() noexcept = default;
-        vec2(const vec2& other) noexcept = default;
-        vec2& operator=(const vec2& other) noexcept = default;
+        constexpr vec2() noexcept = default;
+        constexpr vec2(const vec2& other) noexcept = default;
+        constexpr vec2& operator=(const vec2& other) noexcept = default;
 
-        explicit vec2(T v) noexcept;
-        vec2(T x, T y) noexcept;
-        explicit vec2(const vec3<T>& other) noexcept;
-        explicit vec2(const vec4<T>& other) noexcept;
+        constexpr explicit vec2(T v) noexcept;
+        constexpr vec2(T x, T y) noexcept;
+        constexpr explicit vec2(const vec3<T>& other) noexcept;
+        constexpr explicit vec2(const vec4<T>& other) noexcept;
 
         template < typename To >
         vec2<To> cast_to() const noexcept;
@@ -62,46 +62,42 @@ namespace e2d
 namespace e2d
 {
     template < typename T >
-    const vec2<T>& vec2<T>::zero() noexcept {
-        static const vec2<T> zero{0, 0};
-        return zero;
+    constexpr vec2<T> vec2<T>::zero() noexcept {
+        return {0, 0};
     }
 
     template < typename T >
-    const vec2<T>& vec2<T>::unit() noexcept {
-        static const vec2<T> unit{1, 1};
-        return unit;
+    constexpr vec2<T> vec2<T>::unit() noexcept {
+        return {1, 1};
     }
 
     template < typename T >
-    const vec2<T>& vec2<T>::unit_x() noexcept {
-        static const vec2<T> unit_x{1, 0};
-        return unit_x;
+    constexpr vec2<T> vec2<T>::unit_x() noexcept {
+        return {1, 0};
     }
 
     template < typename T >
-    const vec2<T>& vec2<T>::unit_y() noexcept {
-        static const vec2<T> unit_y{0, 1};
-        return unit_y;
+    constexpr vec2<T> vec2<T>::unit_y() noexcept {
+        return {0, 1};
     }
 
     template < typename T >
-    vec2<T>::vec2(T v) noexcept
+    constexpr vec2<T>::vec2(T v) noexcept
     : x(v)
     , y(v) {}
 
     template < typename T >
-    vec2<T>::vec2(T nx, T ny) noexcept
+    constexpr vec2<T>::vec2(T nx, T ny) noexcept
     : x(nx)
     , y(ny) {}
 
     template < typename T >
-    vec2<T>::vec2(const vec3<T>& other) noexcept
+    constexpr vec2<T>::vec2(const vec3<T>& other) noexcept
     : x(other.x)
     , y(other.y) {}
 
     template < typename T >
-    vec2<T>::vec2(const vec4<T>& other) noexcept
+    constexpr vec2<T>::vec2(const vec4<T>& other) noexcept
     : x(other.x)
     , y(other.y) {}
 
@@ -202,22 +198,22 @@ namespace e2d
     //
 
     template < typename T >
-    vec2<T> make_vec2(T v) noexcept {
+    constexpr vec2<T> make_vec2(T v) noexcept {
         return vec2<T>(v);
     }
 
     template < typename T >
-    vec2<T> make_vec2(T x, T y) noexcept {
+    constexpr vec2<T> make_vec2(T x, T y) noexcept {
         return vec2<T>(x, y);
     }
 
     template < typename T >
-    vec2<T> make_vec2(const vec3<T>& other) noexcept {
+    constexpr vec2<T> make_vec2(const vec3<T>& other) noexcept {
         return vec2<T>(other);
     }
 
     template < typename T >
-    vec2<T> make_vec2(const vec4<T>& other) noexcept {
+    constexpr vec2<T> make_vec2(const vec4<T>& other) noexcept {
         return vec2<T>(other);
     }
 

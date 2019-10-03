@@ -28,15 +28,15 @@ namespace e2d
         T z = 0;
         T w = 1;
     public:
-        static const quat& zero() noexcept;
-        static const quat& identity() noexcept;
+        static constexpr quat zero() noexcept;
+        static constexpr quat identity() noexcept;
     public:
-        quat() noexcept = default;
-        quat(const quat& other) noexcept = default;
-        quat& operator=(const quat& other) noexcept = default;
+        constexpr quat() noexcept = default;
+        constexpr quat(const quat& other) noexcept = default;
+        constexpr quat& operator=(const quat& other) noexcept = default;
 
-        quat(T x, T y, T z, T w) noexcept;
-        explicit quat(const vec4<T>& other) noexcept;
+        constexpr quat(T x, T y, T z, T w) noexcept;
+        constexpr explicit quat(const vec4<T>& other) noexcept;
 
         template < typename To >
         quat<To> cast_to() const noexcept;
@@ -58,26 +58,24 @@ namespace e2d
 namespace e2d
 {
     template < typename T >
-    const quat<T>& quat<T>::zero() noexcept {
-        static const quat<T> zero{0, 0, 0, 0};
-        return zero;
+    constexpr quat<T> quat<T>::zero() noexcept {
+        return {0, 0, 0, 0};
     }
 
     template < typename T >
-    const quat<T>& quat<T>::identity() noexcept {
-        static const quat<T> identity{0, 0, 0, 1};
-        return identity;
+    constexpr quat<T> quat<T>::identity() noexcept {
+        return {0, 0, 0, 1};
     }
 
     template < typename T >
-    quat<T>::quat(T nx, T ny, T nz, T nw) noexcept
+    constexpr quat<T>::quat(T nx, T ny, T nz, T nw) noexcept
     : x(nx)
     , y(ny)
     , z(nz)
     , w(nw) {}
 
     template < typename T >
-    quat<T>::quat(const vec4<T>& other) noexcept
+    constexpr quat<T>::quat(const vec4<T>& other) noexcept
     : x(other.x)
     , y(other.y)
     , z(other.z)
@@ -143,12 +141,12 @@ namespace e2d
     //
 
     template < typename T >
-    quat<T> make_quat(T x, T y, T z, T w) noexcept {
+    constexpr quat<T> make_quat(T x, T y, T z, T w) noexcept {
         return quat<T>(x, y, z, w);
     }
 
     template < typename T >
-    quat<T> make_quat(const vec4<T>& other) noexcept {
+    constexpr quat<T> make_quat(const vec4<T>& other) noexcept {
         return quat<T>(other);
     }
 

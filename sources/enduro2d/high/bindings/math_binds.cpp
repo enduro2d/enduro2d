@@ -29,10 +29,26 @@ namespace
             sol::meta_function::less_than_or_equal_to, sol::resolve<bool(const vec2<T>&, const vec2<T>&)>(::operator<=),
 
             sol::meta_function::unary_minus, sol::resolve<vec2<T>(const vec2<T>&)>(::operator-),
-            sol::meta_function::addition, sol::resolve<vec2<T>(const vec2<T>&, const vec2<T>&)>(::operator+),
-            sol::meta_function::subtraction, sol::resolve<vec2<T>(const vec2<T>&, const vec2<T>&)>(::operator-),
-            sol::meta_function::multiplication, sol::resolve<vec2<T>(const vec2<T>&, const vec2<T>&)>(::operator*),
-            sol::meta_function::division, sol::resolve<vec2<T>(const vec2<T>&, const vec2<T>&)>(::operator/),
+
+            sol::meta_function::addition, sol::overload(
+                sol::resolve<vec2<T>(T, const vec2<T>&)>(::operator+),
+                sol::resolve<vec2<T>(const vec2<T>&, T)>(::operator+),
+                sol::resolve<vec2<T>(const vec2<T>&, const vec2<T>&)>(::operator+)),
+
+            sol::meta_function::subtraction, sol::overload(
+                sol::resolve<vec2<T>(T, const vec2<T>&)>(::operator-),
+                sol::resolve<vec2<T>(const vec2<T>&, T)>(::operator-),
+                sol::resolve<vec2<T>(const vec2<T>&, const vec2<T>&)>(::operator-)),
+
+            sol::meta_function::multiplication, sol::overload(
+                sol::resolve<vec2<T>(T, const vec2<T>&)>(::operator*),
+                sol::resolve<vec2<T>(const vec2<T>&, T)>(::operator*),
+                sol::resolve<vec2<T>(const vec2<T>&, const vec2<T>&)>(::operator*)),
+
+            sol::meta_function::division, sol::overload(
+                sol::resolve<vec2<T>(T, const vec2<T>&)>(::operator/),
+                sol::resolve<vec2<T>(const vec2<T>&, T)>(::operator/),
+                sol::resolve<vec2<T>(const vec2<T>&, const vec2<T>&)>(::operator/)),
 
             "approximately", [](const vec2<T>& l, const vec2<T>& r){ return math::approximately(l,r); },
 
@@ -82,15 +98,34 @@ namespace
             sol::meta_function::less_than_or_equal_to, sol::resolve<bool(const vec3<T>&, const vec3<T>&)>(::operator<=),
 
             sol::meta_function::unary_minus, sol::resolve<vec3<T>(const vec3<T>&)>(::operator-),
-            sol::meta_function::addition, sol::resolve<vec3<T>(const vec3<T>&, const vec3<T>&)>(::operator+),
-            sol::meta_function::subtraction, sol::resolve<vec3<T>(const vec3<T>&, const vec3<T>&)>(::operator-),
-            sol::meta_function::multiplication, sol::resolve<vec3<T>(const vec3<T>&, const vec3<T>&)>(::operator*),
-            sol::meta_function::division, sol::resolve<vec3<T>(const vec3<T>&, const vec3<T>&)>(::operator/),
+
+            sol::meta_function::addition, sol::overload(
+                sol::resolve<vec3<T>(T, const vec3<T>&)>(::operator+),
+                sol::resolve<vec3<T>(const vec3<T>&, T)>(::operator+),
+                sol::resolve<vec3<T>(const vec3<T>&, const vec3<T>&)>(::operator+)),
+
+            sol::meta_function::subtraction, sol::overload(
+                sol::resolve<vec3<T>(T, const vec3<T>&)>(::operator-),
+                sol::resolve<vec3<T>(const vec3<T>&, T)>(::operator-),
+                sol::resolve<vec3<T>(const vec3<T>&, const vec3<T>&)>(::operator-)),
+
+            sol::meta_function::multiplication, sol::overload(
+                sol::resolve<vec3<T>(T, const vec3<T>&)>(::operator*),
+                sol::resolve<vec3<T>(const vec3<T>&, T)>(::operator*),
+                sol::resolve<vec3<T>(const vec3<T>&, const vec3<T>&)>(::operator*),
+                sol::resolve<vec3<T>(const vec3<T>&, const quat<T>&)>(::operator*)),
+
+            sol::meta_function::division, sol::overload(
+                sol::resolve<vec3<T>(T, const vec3<T>&)>(::operator/),
+                sol::resolve<vec3<T>(const vec3<T>&, T)>(::operator/),
+                sol::resolve<vec3<T>(const vec3<T>&, const vec3<T>&)>(::operator/)),
 
             "approximately", [](const vec3<T>& l, const vec3<T>& r){ return math::approximately(l,r); },
 
             "dot", sol::resolve<T(const vec3<T>&, const vec3<T>&)>(&math::dot),
             "abs_dot", sol::resolve<T(const vec3<T>&, const vec3<T>&)>(&math::abs_dot),
+
+            "cross", sol::resolve<vec3<T>(const vec3<T>&, const vec3<T>&)>(&math::cross),
 
             "length_squared", sol::resolve<T(const vec3<T>&)>(&math::length_squared),
             "length", sol::resolve<T(const vec3<T>&)>(&math::length),
@@ -136,10 +171,26 @@ namespace
             sol::meta_function::less_than_or_equal_to, sol::resolve<bool(const vec4<T>&, const vec4<T>&)>(::operator<=),
 
             sol::meta_function::unary_minus, sol::resolve<vec4<T>(const vec4<T>&)>(::operator-),
-            sol::meta_function::addition, sol::resolve<vec4<T>(const vec4<T>&, const vec4<T>&)>(::operator+),
-            sol::meta_function::subtraction, sol::resolve<vec4<T>(const vec4<T>&, const vec4<T>&)>(::operator-),
-            sol::meta_function::multiplication, sol::resolve<vec4<T>(const vec4<T>&, const vec4<T>&)>(::operator*),
-            sol::meta_function::division, sol::resolve<vec4<T>(const vec4<T>&, const vec4<T>&)>(::operator/),
+
+            sol::meta_function::addition, sol::overload(
+                sol::resolve<vec4<T>(T, const vec4<T>&)>(::operator+),
+                sol::resolve<vec4<T>(const vec4<T>&, T)>(::operator+),
+                sol::resolve<vec4<T>(const vec4<T>&, const vec4<T>&)>(::operator+)),
+
+            sol::meta_function::subtraction, sol::overload(
+                sol::resolve<vec4<T>(T, const vec4<T>&)>(::operator-),
+                sol::resolve<vec4<T>(const vec4<T>&, T)>(::operator-),
+                sol::resolve<vec4<T>(const vec4<T>&, const vec4<T>&)>(::operator-)),
+
+            sol::meta_function::multiplication, sol::overload(
+                sol::resolve<vec4<T>(T, const vec4<T>&)>(::operator*),
+                sol::resolve<vec4<T>(const vec4<T>&, T)>(::operator*),
+                sol::resolve<vec4<T>(const vec4<T>&, const vec4<T>&)>(::operator*)),
+
+            sol::meta_function::division, sol::overload(
+                sol::resolve<vec4<T>(T, const vec4<T>&)>(::operator/),
+                sol::resolve<vec4<T>(const vec4<T>&, T)>(::operator/),
+                sol::resolve<vec4<T>(const vec4<T>&, const vec4<T>&)>(::operator/)),
 
             "approximately", [](const vec4<T>& l, const vec4<T>& r){ return math::approximately(l,r); },
 
@@ -168,6 +219,97 @@ namespace
 
             "contains_nan", sol::resolve<bool(const vec4<T>&)>(&math::contains_nan));
     }
+
+    template < typename T >
+    void bind_quat(const str& name, sol::state& l) {
+        l.new_usertype<quat<T>>(name,
+            sol::constructors<
+                quat<T>(),
+                quat<T>(quat<T>),
+                quat<T>(T,T,T,T),
+                quat<T>(vec4<T>)>(),
+
+            "x", &quat<T>::x,
+            "y", &quat<T>::y,
+            "z", &quat<T>::z,
+            "w", &quat<T>::w,
+
+            sol::meta_function::equal_to, sol::resolve<bool(const quat<T>&, const quat<T>&)>(::operator==),
+            sol::meta_function::less_than, sol::resolve<bool(const quat<T>&, const quat<T>&)>(::operator<),
+            sol::meta_function::less_than_or_equal_to, sol::resolve<bool(const quat<T>&, const quat<T>&)>(::operator<=),
+
+            sol::meta_function::addition, sol::overload(
+                sol::resolve<quat<T>(T, const quat<T>&)>(::operator+),
+                sol::resolve<quat<T>(const quat<T>&, T)>(::operator+),
+                sol::resolve<quat<T>(const quat<T>&, const quat<T>&)>(::operator+)),
+
+            sol::meta_function::multiplication, sol::overload(
+                sol::resolve<quat<T>(T, const quat<T>&)>(::operator*),
+                sol::resolve<quat<T>(const quat<T>&, T)>(::operator*),
+                sol::resolve<quat<T>(const quat<T>&, const quat<T>&)>(::operator*)),
+
+            "make_quat_from_axis_angle", sol::overload(
+                sol::resolve<quat<T>(const deg<T>&, const vec3<T>&)>(&math::make_quat_from_axis_angle),
+                sol::resolve<quat<T>(const rad<T>&, const vec3<T>&)>(&math::make_quat_from_axis_angle)),
+
+            "make_quat_from_euler_angles", sol::overload(
+                sol::resolve<quat<T>(const deg<T>&, const deg<T>&, const deg<T>&)>(&math::make_quat_from_euler_angles),
+                sol::resolve<quat<T>(const rad<T>&, const rad<T>&, const rad<T>&)>(&math::make_quat_from_euler_angles)),
+
+            "approximately", [](const quat<T>& l, const quat<T>& r){ return math::approximately(l,r); },
+
+            "dot", sol::resolve<T(const quat<T>&, const quat<T>&)>(&math::dot),
+            "abs_dot", sol::resolve<T(const quat<T>&, const quat<T>&)>(&math::abs_dot),
+
+            "length_squared", sol::resolve<T(const quat<T>&)>(&math::length_squared),
+            "length", sol::resolve<T(const quat<T>&)>(&math::length),
+
+            "normalized", [](const quat<T>& v){ return math::normalized(v); },
+
+            "lerp", sol::resolve<quat<T>(const quat<T>&, const quat<T>&, T)>(&math::lerp),
+
+            "inversed", [](const quat<T>& v){ return math::inversed(v); },
+            "conjugated", [](const quat<T>& v){ return math::conjugated(v); },
+
+            "contains_nan", sol::resolve<bool(const quat<T>&)>(&math::contains_nan));
+    }
+
+    template < typename T, typename Tag >
+    void bind_unit(const str& name, sol::state& l) {
+        l.new_usertype<unit<T,Tag>>(name,
+            sol::constructors<
+                unit<T,Tag>(),
+                unit<T,Tag>(T),
+                unit<T,Tag>(unit<T,Tag>)>(),
+
+            "value", &unit<T,Tag>::value,
+
+            sol::meta_function::equal_to, sol::resolve<bool(const unit<T,Tag>&, const unit<T,Tag>&)>(::operator==),
+            sol::meta_function::less_than, sol::resolve<bool(const unit<T,Tag>&, const unit<T,Tag>&)>(::operator<),
+            sol::meta_function::less_than_or_equal_to, sol::resolve<bool(const unit<T,Tag>&, const unit<T,Tag>&)>(::operator<=),
+
+            sol::meta_function::unary_minus, sol::resolve<unit<T,Tag>(const unit<T,Tag>&)>(::operator-),
+
+            sol::meta_function::multiplication, sol::overload(
+                sol::resolve<unit<T,Tag>(T, const unit<T,Tag>&)>(::operator*),
+                sol::resolve<unit<T,Tag>(const unit<T,Tag>&, T)>(::operator*)),
+
+            sol::meta_function::division, sol::overload(
+                sol::resolve<unit<T,Tag>(T, const unit<T,Tag>&)>(::operator/),
+                sol::resolve<unit<T,Tag>(const unit<T,Tag>&, T)>(::operator/)),
+
+            sol::meta_function::addition, sol::resolve<unit<T,Tag>(const unit<T,Tag>&, const unit<T,Tag>&)>(::operator+),
+            sol::meta_function::subtraction, sol::resolve<unit<T,Tag>(const unit<T,Tag>&, const unit<T,Tag>&)>(::operator-),
+
+            "approximately", [](const unit<T,Tag>& l, const unit<T,Tag>& r){ return math::approximately(l,r); },
+
+            "minimized", sol::resolve<unit<T,Tag>(const unit<T,Tag>&, const unit<T,Tag>&)>(&math::minimized),
+            "maximized", sol::resolve<unit<T,Tag>(const unit<T,Tag>&, const unit<T,Tag>&)>(&math::maximized),
+            "clamped", sol::resolve<unit<T,Tag>(const unit<T,Tag>&, const unit<T,Tag>&, const unit<T,Tag>&)>(&math::clamped),
+            "saturated", sol::resolve<unit<T,Tag>(const unit<T,Tag>&)>(&math::saturated),
+
+            "contains_nan", sol::resolve<bool(const unit<T,Tag>&)>(&math::contains_nan));
+    }
 }
 
 namespace e2d::bindings
@@ -176,5 +318,8 @@ namespace e2d::bindings
         bind_vec2<f32>("v2f", l);
         bind_vec3<f32>("v3f", l);
         bind_vec4<f32>("v4f", l);
+        bind_quat<f32>("q4f", l);
+        bind_unit<f32, deg_tag>("degf", l);
+        bind_unit<f32, rad_tag>("radf", l);
     }
 }

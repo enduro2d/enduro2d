@@ -25,20 +25,20 @@ namespace e2d
         T y = 0;
         T z = 0;
     public:
-        static const vec3& zero() noexcept;
-        static const vec3& unit() noexcept;
-        static const vec3& unit_x() noexcept;
-        static const vec3& unit_y() noexcept;
-        static const vec3& unit_z() noexcept;
+        static constexpr vec3 zero() noexcept;
+        static constexpr vec3 unit() noexcept;
+        static constexpr vec3 unit_x() noexcept;
+        static constexpr vec3 unit_y() noexcept;
+        static constexpr vec3 unit_z() noexcept;
     public:
-        vec3() noexcept = default;
-        vec3(const vec3& other) noexcept = default;
-        vec3& operator=(const vec3& other) noexcept = default;
+        constexpr vec3() noexcept = default;
+        constexpr vec3(const vec3& other) noexcept = default;
+        constexpr vec3& operator=(const vec3& other) noexcept = default;
 
-        explicit vec3(T v) noexcept;
-        vec3(T x, T y, T z) noexcept;
-        explicit vec3(const vec2<T>& other, T z) noexcept;
-        explicit vec3(const vec4<T>& other) noexcept;
+        constexpr explicit vec3(T v) noexcept;
+        constexpr vec3(T x, T y, T z) noexcept;
+        constexpr explicit vec3(const vec2<T>& other, T z) noexcept;
+        constexpr explicit vec3(const vec4<T>& other) noexcept;
 
         template < typename To >
         vec3<To> cast_to() const noexcept;
@@ -64,55 +64,50 @@ namespace e2d
 namespace e2d
 {
     template < typename T >
-    const vec3<T>& vec3<T>::zero() noexcept {
-        static const vec3<T> zero{0, 0, 0};
-        return zero;
+    constexpr vec3<T> vec3<T>::zero() noexcept {
+        return {0, 0, 0};
     }
 
     template < typename T >
-    const vec3<T>& vec3<T>::unit() noexcept {
-        static const vec3<T> unit{1, 1, 1};
-        return unit;
+    constexpr vec3<T> vec3<T>::unit() noexcept {
+        return {1, 1, 1};
     }
 
     template < typename T >
-    const vec3<T>& vec3<T>::unit_x() noexcept {
-        static const vec3<T> unit_x{1, 0, 0};
-        return unit_x;
+    constexpr vec3<T> vec3<T>::unit_x() noexcept {
+        return {1, 0, 0};
     }
 
     template < typename T >
-    const vec3<T>& vec3<T>::unit_y() noexcept {
-        static const vec3<T> unit_y{0, 1, 0};
-        return unit_y;
+    constexpr vec3<T> vec3<T>::unit_y() noexcept {
+        return {0, 1, 0};
     }
 
     template < typename T >
-    const vec3<T>& vec3<T>::unit_z() noexcept {
-        static const vec3<T> unit_z{0, 0, 1};
-        return unit_z;
+    constexpr vec3<T> vec3<T>::unit_z() noexcept {
+        return {0, 0, 1};
     }
 
     template < typename T >
-    vec3<T>::vec3(T v) noexcept
+    constexpr vec3<T>::vec3(T v) noexcept
     : x(v)
     , y(v)
     , z(v) {}
 
     template < typename T >
-    vec3<T>::vec3(T nx, T ny, T nz) noexcept
+    constexpr vec3<T>::vec3(T nx, T ny, T nz) noexcept
     : x(nx)
     , y(ny)
     , z(nz) {}
 
     template < typename T >
-    vec3<T>::vec3(const vec2<T>& other, T nz) noexcept
+    constexpr vec3<T>::vec3(const vec2<T>& other, T nz) noexcept
     : x(other.x)
     , y(other.y)
     , z(nz) {}
 
     template < typename T >
-    vec3<T>::vec3(const vec4<T>& other) noexcept
+    constexpr vec3<T>::vec3(const vec4<T>& other) noexcept
     : x(other.x)
     , y(other.y)
     , z(other.z) {}
@@ -224,22 +219,22 @@ namespace e2d
     //
 
     template < typename T >
-    vec3<T> make_vec3(T v) noexcept {
+    constexpr vec3<T> make_vec3(T v) noexcept {
         return vec3<T>(v);
     }
 
     template < typename T >
-    vec3<T> make_vec3(T x, T y, T z) noexcept {
+    constexpr vec3<T> make_vec3(T x, T y, T z) noexcept {
         return vec3<T>(x, y, z);
     }
 
     template < typename T >
-    vec3<T> make_vec3(const vec2<T>& other, T z) noexcept {
+    constexpr vec3<T> make_vec3(const vec2<T>& other, T z) noexcept {
         return vec3<T>(other, z);
     }
 
     template < typename T >
-    vec3<T> make_vec3(const vec4<T>& other) noexcept {
+    constexpr vec3<T> make_vec3(const vec4<T>& other) noexcept {
         return vec3<T>(other);
     }
 
