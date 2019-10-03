@@ -21,6 +21,11 @@ namespace
                 vec2<T>(vec3<T>),
                 vec2<T>(vec4<T>)>(),
 
+            "zero", &vec2<T>::zero,
+            "unit", &vec2<T>::unit,
+            "unit_x", &vec2<T>::unit_x,
+            "unit_y", &vec2<T>::unit_y,
+
             "x", &vec2<T>::x,
             "y", &vec2<T>::y,
 
@@ -43,7 +48,8 @@ namespace
             sol::meta_function::multiplication, sol::overload(
                 sol::resolve<vec2<T>(T, const vec2<T>&)>(::operator*),
                 sol::resolve<vec2<T>(const vec2<T>&, T)>(::operator*),
-                sol::resolve<vec2<T>(const vec2<T>&, const vec2<T>&)>(::operator*)),
+                sol::resolve<vec2<T>(const vec2<T>&, const vec2<T>&)>(::operator*),
+                sol::resolve<vec2<T>(const vec2<T>&, const mat2<T>&)>(::operator*)),
 
             sol::meta_function::division, sol::overload(
                 sol::resolve<vec2<T>(T, const vec2<T>&)>(::operator/),
@@ -89,6 +95,12 @@ namespace
                 vec3<T>(vec3<T>),
                 vec3<T>(vec4<T>)>(),
 
+            "zero", &vec3<T>::zero,
+            "unit", &vec3<T>::unit,
+            "unit_x", &vec3<T>::unit_x,
+            "unit_y", &vec3<T>::unit_y,
+            "unit_z", &vec3<T>::unit_z,
+
             "x", &vec3<T>::x,
             "y", &vec3<T>::y,
             "z", &vec3<T>::z,
@@ -113,6 +125,7 @@ namespace
                 sol::resolve<vec3<T>(T, const vec3<T>&)>(::operator*),
                 sol::resolve<vec3<T>(const vec3<T>&, T)>(::operator*),
                 sol::resolve<vec3<T>(const vec3<T>&, const vec3<T>&)>(::operator*),
+                sol::resolve<vec3<T>(const vec3<T>&, const mat3<T>&)>(::operator*),
                 sol::resolve<vec3<T>(const vec3<T>&, const quat<T>&)>(::operator*)),
 
             sol::meta_function::division, sol::overload(
@@ -161,6 +174,13 @@ namespace
                 vec4<T>(vec3<T>,T),
                 vec4<T>(vec4<T>)>(),
 
+            "zero", &vec4<T>::zero,
+            "unit", &vec4<T>::unit,
+            "unit_x", &vec4<T>::unit_x,
+            "unit_y", &vec4<T>::unit_y,
+            "unit_z", &vec4<T>::unit_z,
+            "unit_w", &vec4<T>::unit_w,
+
             "x", &vec4<T>::x,
             "y", &vec4<T>::y,
             "z", &vec4<T>::z,
@@ -185,7 +205,8 @@ namespace
             sol::meta_function::multiplication, sol::overload(
                 sol::resolve<vec4<T>(T, const vec4<T>&)>(::operator*),
                 sol::resolve<vec4<T>(const vec4<T>&, T)>(::operator*),
-                sol::resolve<vec4<T>(const vec4<T>&, const vec4<T>&)>(::operator*)),
+                sol::resolve<vec4<T>(const vec4<T>&, const vec4<T>&)>(::operator*),
+                sol::resolve<vec4<T>(const vec4<T>&, const mat4<T>&)>(::operator*)),
 
             sol::meta_function::division, sol::overload(
                 sol::resolve<vec4<T>(T, const vec4<T>&)>(::operator/),
@@ -310,6 +331,158 @@ namespace
 
             "contains_nan", sol::resolve<bool(const unit<T,Tag>&)>(&math::contains_nan));
     }
+
+    template < typename T >
+    void bind_mat2(const str& name, sol::state& l) {
+        l.new_usertype<mat2<T>>(name,
+            sol::constructors<
+                mat2<T>(),
+                mat2<T>(const vec2<T>&, const vec2<T>&)
+            >(),
+
+            "zero", &mat2<T>::zero,
+            "identity", &mat2<T>::identity,
+
+            "rows", &mat2<T>::rows,
+
+            sol::meta_function::equal_to, sol::resolve<bool(const mat2<T>&, const mat2<T>&)>(::operator==),
+            sol::meta_function::unary_minus, sol::resolve<mat2<T>(const mat2<T>&)>(::operator-),
+
+            sol::meta_function::addition, sol::overload(
+                sol::resolve<mat2<T>(T, const mat2<T>&)>(::operator+),
+                sol::resolve<mat2<T>(const mat2<T>&, T)>(::operator+),
+                sol::resolve<mat2<T>(const mat2<T>&, const mat2<T>&)>(::operator+)),
+
+            sol::meta_function::multiplication, sol::overload(
+                sol::resolve<mat2<T>(T, const mat2<T>&)>(::operator*),
+                sol::resolve<mat2<T>(const mat2<T>&, T)>(::operator*),
+                sol::resolve<mat2<T>(const mat2<T>&, const mat2<T>&)>(::operator*)),
+
+            "make_scale_matrix2", sol::overload(
+                sol::resolve<mat2<T>(T,T)>(&math::make_scale_matrix2),
+                sol::resolve<mat2<T>(const vec4<T>&)>(&math::make_scale_matrix2),
+                sol::resolve<mat2<T>(const vec3<T>&)>(&math::make_scale_matrix2),
+                sol::resolve<mat2<T>(const vec2<T>&)>(&math::make_scale_matrix2)),
+
+            "make_rotation_matrix2", sol::overload(
+                sol::resolve<mat2<T>(const deg<T>&)>(&math::make_rotation_matrix2),
+                sol::resolve<mat2<T>(const rad<T>&)>(&math::make_rotation_matrix2)),
+
+            "approximately", [](const mat2<T>& l, const mat2<T>& r){ return math::approximately(l,r); },
+
+            "inversed", [](const mat2<T>& m){ return math::inversed(m); },
+            "transposed", [](const mat2<T>& m){ return math::transposed(m); },
+
+            "contains_nan", sol::resolve<bool(const mat2<T>&)>(&math::contains_nan));
+    }
+
+    template < typename T >
+    void bind_mat3(const str& name, sol::state& l) {
+        l.new_usertype<mat3<T>>(name,
+            sol::constructors<
+                mat3<T>(),
+                mat3<T>(const vec3<T>&, const vec3<T>&, const vec3<T>&)
+            >(),
+
+            "zero", &mat3<T>::zero,
+            "identity", &mat3<T>::identity,
+
+            "rows", &mat3<T>::rows,
+
+            sol::meta_function::equal_to, sol::resolve<bool(const mat3<T>&, const mat3<T>&)>(::operator==),
+            sol::meta_function::unary_minus, sol::resolve<mat3<T>(const mat3<T>&)>(::operator-),
+
+            sol::meta_function::addition, sol::overload(
+                sol::resolve<mat3<T>(T, const mat3<T>&)>(::operator+),
+                sol::resolve<mat3<T>(const mat3<T>&, T)>(::operator+),
+                sol::resolve<mat3<T>(const mat3<T>&, const mat3<T>&)>(::operator+)),
+
+            sol::meta_function::multiplication, sol::overload(
+                sol::resolve<mat3<T>(T, const mat3<T>&)>(::operator*),
+                sol::resolve<mat3<T>(const mat3<T>&, T)>(::operator*),
+                sol::resolve<mat3<T>(const mat3<T>&, const mat3<T>&)>(::operator*)),
+
+            "make_scale_matrix3", sol::overload(
+                sol::resolve<mat3<T>(T,T,T)>(&math::make_scale_matrix3),
+                sol::resolve<mat3<T>(const vec4<T>&)>(&math::make_scale_matrix3),
+                sol::resolve<mat3<T>(const vec3<T>&)>(&math::make_scale_matrix3),
+                sol::resolve<mat3<T>(const vec2<T>&, T)>(&math::make_scale_matrix3)),
+
+            "make_rotation_matrix3", sol::overload(
+                sol::resolve<mat3<T>(const deg<T>&,T,T,T)>(&math::make_rotation_matrix3),
+                sol::resolve<mat3<T>(const deg<T>&,const vec4<T>&)>(&math::make_rotation_matrix3),
+                sol::resolve<mat3<T>(const deg<T>&,const vec3<T>&)>(&math::make_rotation_matrix3),
+                sol::resolve<mat3<T>(const deg<T>&,const vec2<T>&,T)>(&math::make_rotation_matrix3),
+                sol::resolve<mat3<T>(const rad<T>&,T,T,T)>(&math::make_rotation_matrix3),
+                sol::resolve<mat3<T>(const rad<T>&,const vec4<T>&)>(&math::make_rotation_matrix3),
+                sol::resolve<mat3<T>(const rad<T>&,const vec3<T>&)>(&math::make_rotation_matrix3),
+                sol::resolve<mat3<T>(const rad<T>&,const vec2<T>&,T)>(&math::make_rotation_matrix3),
+                sol::resolve<mat3<T>(const quat<T>&)>(&math::make_rotation_matrix3)),
+
+            "approximately", [](const mat3<T>& l, const mat3<T>& r){ return math::approximately(l,r); },
+
+            "inversed", [](const mat3<T>& m){ return math::inversed(m); },
+            "transposed", [](const mat3<T>& m){ return math::transposed(m); },
+
+            "contains_nan", sol::resolve<bool(const mat3<T>&)>(&math::contains_nan));
+    }
+
+    template < typename T >
+    void bind_mat4(const str& name, sol::state& l) {
+        l.new_usertype<mat4<T>>(name,
+            sol::constructors<
+                mat4<T>(),
+                mat4<T>(const vec4<T>&, const vec4<T>&, const vec4<T>&, const vec4<T>&)
+            >(),
+
+            "zero", &mat4<T>::zero,
+            "identity", &mat4<T>::identity,
+
+            "rows", &mat4<T>::rows,
+
+            sol::meta_function::equal_to, sol::resolve<bool(const mat4<T>&, const mat4<T>&)>(::operator==),
+            sol::meta_function::unary_minus, sol::resolve<mat4<T>(const mat4<T>&)>(::operator-),
+
+            sol::meta_function::addition, sol::overload(
+                sol::resolve<mat4<T>(T, const mat4<T>&)>(::operator+),
+                sol::resolve<mat4<T>(const mat4<T>&, T)>(::operator+),
+                sol::resolve<mat4<T>(const mat4<T>&, const mat4<T>&)>(::operator+)),
+
+            sol::meta_function::multiplication, sol::overload(
+                sol::resolve<mat4<T>(T, const mat4<T>&)>(::operator*),
+                sol::resolve<mat4<T>(const mat4<T>&, T)>(::operator*),
+                sol::resolve<mat4<T>(const mat4<T>&, const mat4<T>&)>(::operator*)),
+
+            "make_scale_matrix4", sol::overload(
+                sol::resolve<mat4<T>(T,T,T)>(&math::make_scale_matrix4),
+                sol::resolve<mat4<T>(const vec4<T>&)>(&math::make_scale_matrix4),
+                sol::resolve<mat4<T>(const vec3<T>&)>(&math::make_scale_matrix4),
+                sol::resolve<mat4<T>(const vec2<T>&, T)>(&math::make_scale_matrix4)),
+
+            "make_translation_matrix4", sol::overload(
+                sol::resolve<mat4<T>(T,T,T)>(&math::make_translation_matrix4),
+                sol::resolve<mat4<T>(const vec4<T>&)>(&math::make_translation_matrix4),
+                sol::resolve<mat4<T>(const vec3<T>&)>(&math::make_translation_matrix4),
+                sol::resolve<mat4<T>(const vec2<T>&, T)>(&math::make_translation_matrix4)),
+
+            "make_rotation_matrix4", sol::overload(
+                sol::resolve<mat4<T>(const deg<T>&,T,T,T)>(&math::make_rotation_matrix4),
+                sol::resolve<mat4<T>(const deg<T>&,const vec4<T>&)>(&math::make_rotation_matrix4),
+                sol::resolve<mat4<T>(const deg<T>&,const vec3<T>&)>(&math::make_rotation_matrix4),
+                sol::resolve<mat4<T>(const deg<T>&,const vec2<T>&,T)>(&math::make_rotation_matrix4),
+                sol::resolve<mat4<T>(const rad<T>&,T,T,T)>(&math::make_rotation_matrix4),
+                sol::resolve<mat4<T>(const rad<T>&,const vec4<T>&)>(&math::make_rotation_matrix4),
+                sol::resolve<mat4<T>(const rad<T>&,const vec3<T>&)>(&math::make_rotation_matrix4),
+                sol::resolve<mat4<T>(const rad<T>&,const vec2<T>&,T)>(&math::make_rotation_matrix4),
+                sol::resolve<mat4<T>(const quat<T>&)>(&math::make_rotation_matrix4)),
+
+            "approximately", [](const mat4<T>& l, const mat4<T>& r){ return math::approximately(l,r); },
+
+            "inversed", [](const mat4<T>& m){ return math::inversed(m); },
+            "transposed", [](const mat4<T>& m){ return math::transposed(m); },
+
+            "contains_nan", sol::resolve<bool(const mat4<T>&)>(&math::contains_nan));
+    }
 }
 
 namespace e2d::bindings
@@ -321,5 +494,8 @@ namespace e2d::bindings
         bind_quat<f32>("q4f", l);
         bind_unit<f32, deg_tag>("degf", l);
         bind_unit<f32, rad_tag>("radf", l);
+        bind_mat2<f32>("m2f", l);
+        bind_mat3<f32>("m3f", l);
+        bind_mat4<f32>("m4f", l);
     }
 }

@@ -52,4 +52,28 @@ TEST_CASE("luasol") {
         )lua");
         REQUIRE(r0 == v3f(1,2,3) * math::make_quat_from_axis_angle(radf(10.f), v3f(1,2,3)));
     }
+
+    SECTION("mat2/mat2/mat3") {
+        std::pair<m2f, bool> r0 = l.lua().script(R"lua(
+            local m = m2f.make_scale_matrix2(2,3)
+            local rm, s = m2f.inversed(m)
+            return rm * m2f.identity(), s
+        )lua");
+        std::pair<m3f, bool> r1 = l.lua().script(R"lua(
+            local m = m3f.make_rotation_matrix3(degf.new(45),2,3,4)
+            local rm, s = m3f.inversed(m)
+            return rm * m3f.identity(), s
+        )lua");
+        std::pair<m4f, bool> r2 = l.lua().script(R"lua(
+            local m = m4f.make_translation_matrix4(2,3,4)
+            local rm, s = m4f.inversed(m)
+            return rm * m4f.identity(), s
+        )lua");
+        REQUIRE(r0.second);
+        REQUIRE(r0.first == math::inversed(math::make_scale_matrix2(2.f,3.f)).first);
+        REQUIRE(r1.second);
+        REQUIRE(r1.first == math::inversed(math::make_rotation_matrix3(degf(45.f),2.f,3.f,4.f)).first);
+        REQUIRE(r2.second);
+        REQUIRE(r2.first == math::inversed(math::make_translation_matrix4(2.f,3.f,4.f)).first);
+    }
 }
