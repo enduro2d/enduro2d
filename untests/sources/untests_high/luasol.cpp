@@ -76,4 +76,17 @@ TEST_CASE("luasol") {
         REQUIRE(r2.second);
         REQUIRE(r2.first == math::inversed(math::make_translation_matrix4(2.f,3.f,4.f)).first);
     }
+
+    SECTION("rect/aabb") {
+        bool r0 = l.lua().script(R"lua(
+            local b = b2f.unit() * 2
+            return b:inside(v2f.new(1.5,1.5))
+        )lua");
+        REQUIRE(r0);
+        bool r1 = l.lua().script(R"lua(
+            local b = b3f.unit() * 2
+            return b:overlaps(b3f.new(1.5,1.5,1.5,2,2,2))
+        )lua");
+        REQUIRE(r1);
+    }
 }

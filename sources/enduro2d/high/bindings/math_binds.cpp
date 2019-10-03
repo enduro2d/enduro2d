@@ -483,6 +483,126 @@ namespace
 
             "contains_nan", sol::resolve<bool(const mat4<T>&)>(&math::contains_nan));
     }
+
+    template < typename T >
+    void bind_rect(const str& name, sol::state& l) {
+        l.new_usertype<rect<T>>(name,
+            sol::constructors<
+                rect<T>(),
+                rect<T>(rect<T>),
+                rect<T>(T,T),
+                rect<T>(T,T,T,T),
+                rect<T>(vec2<T>),
+                rect<T>(vec2<T>,vec2<T>)>(),
+
+            "zero", &rect<T>::zero,
+            "unit", &rect<T>::unit,
+
+            "position", &rect<T>::position,
+            "size", &rect<T>::size,
+
+            sol::meta_function::equal_to, sol::resolve<bool(const rect<T>&, const rect<T>&)>(::operator==),
+            sol::meta_function::less_than, sol::resolve<bool(const rect<T>&, const rect<T>&)>(::operator<),
+            sol::meta_function::less_than_or_equal_to, sol::resolve<bool(const rect<T>&, const rect<T>&)>(::operator<=),
+
+            sol::meta_function::addition, sol::overload(
+                sol::resolve<rect<T>(const rect<T>&, T)>(::operator+),
+                sol::resolve<rect<T>(const rect<T>&, const vec2<T>&)>(::operator+)),
+
+            sol::meta_function::subtraction, sol::overload(
+                sol::resolve<rect<T>(const rect<T>&, T)>(::operator-),
+                sol::resolve<rect<T>(const rect<T>&, const vec2<T>&)>(::operator-)),
+
+            sol::meta_function::multiplication, sol::overload(
+                sol::resolve<rect<T>(const rect<T>&, T)>(::operator*),
+                sol::resolve<rect<T>(const rect<T>&, const vec2<T>&)>(::operator*)),
+
+            sol::meta_function::division, sol::overload(
+                sol::resolve<rect<T>(const rect<T>&, T)>(::operator/),
+                sol::resolve<rect<T>(const rect<T>&, const vec2<T>&)>(::operator/)),
+
+            "make_minmax_rect", sol::overload(
+                sol::resolve<rect<T>(T,T,T,T)>(&math::make_minmax_rect),
+                sol::resolve<rect<T>(const vec2<T>&,const vec2<T>&)>(&math::make_minmax_rect),
+                sol::resolve<rect<T>(const rect<T>&)>(&math::make_minmax_rect)),
+
+            "approximately", [](const rect<T>& l, const rect<T>& r){ return math::approximately(l,r); },
+
+            "minimum", sol::resolve<vec2<T>(const rect<T>&)>(&math::minimum),
+            "maximum", sol::resolve<vec2<T>(const rect<T>&)>(&math::maximum),
+
+            "area", sol::resolve<T(const rect<T>&)>(&math::area),
+            "abs_area", sol::resolve<T(const rect<T>&)>(&math::abs_area),
+
+            "merged", sol::resolve<rect<T>(const rect<T>&,const rect<T>&)>(&math::merged),
+            "inside", sol::resolve<bool(const rect<T>&,const vec2<T>&)>(&math::inside),
+            "overlaps", sol::resolve<bool(const rect<T>&,const rect<T>&)>(&math::overlaps),
+
+            "normalized_to_point", sol::resolve<vec2<T>(const rect<T>&,const vec2<T>&)>(&math::normalized_to_point),
+            "point_to_normalized", sol::resolve<vec2<T>(const rect<T>&,const vec2<T>&)>(&math::point_to_normalized),
+
+            "contains_nan", sol::resolve<bool(const rect<T>&)>(&math::contains_nan));
+    }
+
+    template < typename T >
+    void bind_aabb(const str& name, sol::state& l) {
+        l.new_usertype<aabb<T>>(name,
+            sol::constructors<
+                aabb<T>(),
+                aabb<T>(aabb<T>),
+                aabb<T>(T,T,T),
+                aabb<T>(T,T,T,T,T,T),
+                aabb<T>(vec3<T>),
+                aabb<T>(vec3<T>,vec3<T>)>(),
+
+            "zero", &aabb<T>::zero,
+            "unit", &aabb<T>::unit,
+
+            "position", &aabb<T>::position,
+            "size", &aabb<T>::size,
+
+            sol::meta_function::equal_to, sol::resolve<bool(const aabb<T>&, const aabb<T>&)>(::operator==),
+            sol::meta_function::less_than, sol::resolve<bool(const aabb<T>&, const aabb<T>&)>(::operator<),
+            sol::meta_function::less_than_or_equal_to, sol::resolve<bool(const aabb<T>&, const aabb<T>&)>(::operator<=),
+
+            sol::meta_function::addition, sol::overload(
+                sol::resolve<aabb<T>(const aabb<T>&, T)>(::operator+),
+                sol::resolve<aabb<T>(const aabb<T>&, const vec3<T>&)>(::operator+)),
+
+            sol::meta_function::subtraction, sol::overload(
+                sol::resolve<aabb<T>(const aabb<T>&, T)>(::operator-),
+                sol::resolve<aabb<T>(const aabb<T>&, const vec3<T>&)>(::operator-)),
+
+            sol::meta_function::multiplication, sol::overload(
+                sol::resolve<aabb<T>(const aabb<T>&, T)>(::operator*),
+                sol::resolve<aabb<T>(const aabb<T>&, const vec3<T>&)>(::operator*)),
+
+            sol::meta_function::division, sol::overload(
+                sol::resolve<aabb<T>(const aabb<T>&, T)>(::operator/),
+                sol::resolve<aabb<T>(const aabb<T>&, const vec3<T>&)>(::operator/)),
+
+            "make_minmax_rect", sol::overload(
+                sol::resolve<aabb<T>(T,T,T,T,T,T)>(&math::make_minmax_aabb),
+                sol::resolve<aabb<T>(const vec3<T>&,const vec3<T>&)>(&math::make_minmax_aabb),
+                sol::resolve<aabb<T>(const aabb<T>&)>(&math::make_minmax_aabb)),
+
+            "approximately", [](const aabb<T>& l, const aabb<T>& r){ return math::approximately(l,r); },
+
+            "minimum", sol::resolve<vec3<T>(const aabb<T>&)>(&math::minimum),
+            "maximum", sol::resolve<vec3<T>(const aabb<T>&)>(&math::maximum),
+
+            "volume", sol::resolve<T(const aabb<T>&)>(&math::volume),
+            "abs_volume", sol::resolve<T(const aabb<T>&)>(&math::abs_volume),
+
+            "merged", sol::resolve<aabb<T>(const aabb<T>&,const aabb<T>&)>(&math::merged),
+            "inside", sol::resolve<bool(const aabb<T>&,const vec3<T>&)>(&math::inside),
+            "overlaps", sol::resolve<bool(const aabb<T>&,const aabb<T>&)>(&math::overlaps),
+
+            "normalized_to_point", sol::resolve<vec3<T>(const aabb<T>&,const vec3<T>&)>(&math::normalized_to_point),
+            "point_to_normalized", sol::resolve<vec3<T>(const aabb<T>&,const vec3<T>&)>(&math::point_to_normalized),
+
+            "contains_nan", sol::resolve<bool(const aabb<T>&)>(&math::contains_nan));
+    }
 }
 
 namespace e2d::bindings
@@ -497,5 +617,7 @@ namespace e2d::bindings
         bind_mat2<f32>("m2f", l);
         bind_mat3<f32>("m3f", l);
         bind_mat4<f32>("m4f", l);
+        bind_rect<f32>("b2f", l);
+        bind_aabb<f32>("b3f", l);
     }
 }

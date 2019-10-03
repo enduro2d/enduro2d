@@ -23,18 +23,18 @@ namespace e2d
         vec2<T> position;
         vec2<T> size;
     public:
-        static const rect& zero() noexcept;
-        static const rect& unit() noexcept;
+        static constexpr rect zero() noexcept;
+        static constexpr rect unit() noexcept;
     public:
-        rect() noexcept = default;
-        rect(const rect& other) noexcept = default;
-        rect& operator=(const rect& other) noexcept = default;
+        constexpr rect() noexcept = default;
+        constexpr rect(const rect& other) noexcept = default;
+        constexpr rect& operator=(const rect& other) noexcept = default;
 
-        rect(T w, T h) noexcept;
-        rect(T x, T y, T w, T h) noexcept;
+        constexpr rect(T w, T h) noexcept;
+        constexpr rect(T x, T y, T w, T h) noexcept;
 
-        rect(const vec2<T>& nsize) noexcept;
-        rect(const vec2<T>& nposition, const vec2<T>& nsize) noexcept;
+        constexpr rect(const vec2<T>& nsize) noexcept;
+        constexpr rect(const vec2<T>& nposition, const vec2<T>& nsize) noexcept;
 
         template < typename To >
         rect<To> cast_to() const noexcept;
@@ -60,32 +60,30 @@ namespace e2d
 namespace e2d
 {
     template < typename T >
-    const rect<T>& rect<T>::zero() noexcept {
-        static const rect<T> zero{0, 0, 0, 0};
-        return zero;
+    constexpr rect<T> rect<T>::zero() noexcept {
+        return {0, 0, 0, 0};
     }
 
     template < typename T >
-    const rect<T>& rect<T>::unit() noexcept {
-        static const rect<T> unit{0, 0, 1, 1};
-        return unit;
+    constexpr rect<T> rect<T>::unit() noexcept {
+        return {0, 0, 1, 1};
     }
 
     template < typename T >
-    rect<T>::rect(T w, T h) noexcept
+    constexpr rect<T>::rect(T w, T h) noexcept
     : size(w, h) {}
 
     template < typename T >
-    rect<T>::rect(T x, T y, T w, T h) noexcept
+    constexpr rect<T>::rect(T x, T y, T w, T h) noexcept
     : position(x, y)
     , size(w, h) {}
 
     template < typename T >
-    rect<T>::rect(const vec2<T>& nsize) noexcept
+    constexpr rect<T>::rect(const vec2<T>& nsize) noexcept
     : size(nsize) {}
 
     template < typename T >
-    rect<T>::rect(const vec2<T>& nposition, const vec2<T>& nsize) noexcept
+    constexpr rect<T>::rect(const vec2<T>& nposition, const vec2<T>& nsize) noexcept
     : position(nposition)
     , size(nsize) {}
 
@@ -175,22 +173,22 @@ namespace e2d
     //
 
     template < typename T >
-    rect<T> make_rect(T w, T h) noexcept {
+    constexpr rect<T> make_rect(T w, T h) noexcept {
         return {w, h};
     }
 
     template < typename T >
-    rect<T> make_rect(T x, T y, T w, T h) noexcept {
+    constexpr rect<T> make_rect(T x, T y, T w, T h) noexcept {
         return {x, y, w, h};
     }
 
     template < typename T >
-    rect<T> make_rect(const vec2<T>& size) noexcept {
+    constexpr rect<T> make_rect(const vec2<T>& size) noexcept {
         return {size};
     }
 
     template < typename T >
-    rect<T> make_rect(const vec2<T>& position, const vec2<T>& size) noexcept {
+    constexpr rect<T> make_rect(const vec2<T>& position, const vec2<T>& size) noexcept {
         return {position, size};
     }
 

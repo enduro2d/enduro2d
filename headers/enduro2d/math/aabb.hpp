@@ -23,18 +23,18 @@ namespace e2d
         vec3<T> position;
         vec3<T> size;
     public:
-        static const aabb& zero() noexcept;
-        static const aabb& unit() noexcept;
+        static constexpr aabb zero() noexcept;
+        static constexpr aabb unit() noexcept;
     public:
-        aabb() noexcept = default;
-        aabb(const aabb& other) noexcept = default;
-        aabb& operator=(const aabb& other) noexcept = default;
+        constexpr aabb() noexcept = default;
+        constexpr aabb(const aabb& other) noexcept = default;
+        constexpr aabb& operator=(const aabb& other) noexcept = default;
 
-        aabb(T w, T h, T l) noexcept;
-        aabb(T x, T y, T z, T w, T h, T l) noexcept;
+        constexpr aabb(T w, T h, T l) noexcept;
+        constexpr aabb(T x, T y, T z, T w, T h, T l) noexcept;
 
-        aabb(const vec3<T>& nsize) noexcept;
-        aabb(const vec3<T>& nposition, const vec3<T>& nsize) noexcept;
+        constexpr aabb(const vec3<T>& nsize) noexcept;
+        constexpr aabb(const vec3<T>& nposition, const vec3<T>& nsize) noexcept;
 
         template < typename To >
         aabb<To> cast_to() const noexcept;
@@ -60,32 +60,30 @@ namespace e2d
 namespace e2d
 {
     template < typename T >
-    const aabb<T>& aabb<T>::zero() noexcept {
-        static const aabb<T> zero{0, 0, 0, 0, 0, 0};
-        return zero;
+    constexpr aabb<T> aabb<T>::zero() noexcept {
+        return {0, 0, 0, 0, 0, 0};
     }
 
     template < typename T >
-    const aabb<T>& aabb<T>::unit() noexcept {
-        static const aabb<T> unit{0, 0, 0, 1, 1, 1};
-        return unit;
+    constexpr aabb<T> aabb<T>::unit() noexcept {
+        return {0, 0, 0, 1, 1, 1};
     }
 
     template < typename T >
-    aabb<T>::aabb(T w, T h, T l) noexcept
+    constexpr aabb<T>::aabb(T w, T h, T l) noexcept
     : size(w, h, l) {}
 
     template < typename T >
-    aabb<T>::aabb(T x, T y, T z, T w, T h, T l) noexcept
+    constexpr aabb<T>::aabb(T x, T y, T z, T w, T h, T l) noexcept
     : position(x, y, z)
     , size(w, h, l) {}
 
     template < typename T >
-    aabb<T>::aabb(const vec3<T>& nsize) noexcept
+    constexpr aabb<T>::aabb(const vec3<T>& nsize) noexcept
     : size(nsize) {}
 
     template < typename T >
-    aabb<T>::aabb(const vec3<T>& nposition, const vec3<T>& nsize) noexcept
+    constexpr aabb<T>::aabb(const vec3<T>& nposition, const vec3<T>& nsize) noexcept
     : position(nposition)
     , size(nsize) {}
 
@@ -175,22 +173,22 @@ namespace e2d
     //
 
     template < typename T >
-    aabb<T> make_aabb(T w, T h, T l) noexcept {
+    constexpr aabb<T> make_aabb(T w, T h, T l) noexcept {
         return {w, h, l};
     }
 
     template < typename T >
-    aabb<T> make_aabb(T x, T y, T z, T w, T h, T l) noexcept {
+    constexpr aabb<T> make_aabb(T x, T y, T z, T w, T h, T l) noexcept {
         return {x, y, z, w, h, l};
     }
 
     template < typename T >
-    aabb<T> make_aabb(const vec3<T>& size) noexcept {
+    constexpr aabb<T> make_aabb(const vec3<T>& size) noexcept {
         return {size};
     }
 
     template < typename T >
-    aabb<T> make_aabb(const vec3<T>& position, const vec3<T>& size) noexcept {
+    constexpr aabb<T> make_aabb(const vec3<T>& position, const vec3<T>& size) noexcept {
         return {position, size};
     }
 
