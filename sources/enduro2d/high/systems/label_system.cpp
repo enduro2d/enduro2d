@@ -26,7 +26,7 @@ namespace
             const b2f& texrect,
             const color32& color)
         {
-            const std::size_t start_vertex = vertices_.size();
+            const u32 start_vertex = math::numeric_cast<u32>(vertices_.size());
 
             // Y
             // ^
