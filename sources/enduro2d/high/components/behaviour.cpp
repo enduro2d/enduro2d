@@ -12,14 +12,29 @@ namespace e2d
         "type" : "object",
         "required" : [],
         "additionalProperties" : false,
-        "properties" : {}
+        "properties" : {
+            "script" : { "$ref": "#/common_definitions/address" }
+        }
     })json";
 
     bool factory_loader<behaviour>::operator()(
         behaviour& component,
         const fill_context& ctx) const
     {
-        E2D_UNUSED(component, ctx);
+        if ( ctx.root.HasMember("script") ) {
+            auto script = ctx.dependencies.find_asset<script_asset>(
+                path::combine(ctx.parent_address, ctx.root["script"].GetString()));
+            if ( !script ) {
+                the<debug>().error("BEHAVIOUR: Dependency 'script' is not found:\n"
+                    "--> Parent address: %0\n"
+                    "--> Dependency address: %1",
+                    ctx.parent_address,
+                    ctx.root["script"].GetString());
+                return false;
+            }
+            component.script(script);
+        }
+
         return true;
     }
 
@@ -27,7 +42,11 @@ namespace e2d
         asset_dependencies& dependencies,
         const collect_context& ctx) const
     {
-        E2D_UNUSED(dependencies, ctx);
+        if ( ctx.root.HasMember("script") ) {
+            dependencies.add_dependency<script_asset>(
+                path::combine(ctx.parent_address, ctx.root["script"].GetString()));
+        }
+
         return true;
     }
 }

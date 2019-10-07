@@ -5,6 +5,8 @@
  ******************************************************************************/
 
 #include <enduro2d/high/assets/script_asset.hpp>
+
+#include <enduro2d/high/luasol.hpp>
 #include <enduro2d/high/assets/binary_asset.hpp>
 
 namespace
@@ -25,8 +27,14 @@ namespace e2d
     {
         return library.load_asset_async<binary_asset>(address)
         .then([](const binary_asset::load_result& script_data){
-            script content;
-            return script_asset::create(std::move(content));
+            return the<deferrer>().do_in_main_thread([script_data](){
+                std::optional<script> script_opt = the<luasol>().load_script(
+                    script_data->content());
+                if ( !script_opt ) {
+                    throw script_asset_loading_exception();
+                }
+                return script_asset::create(std::move(*script_opt));
+            });
         });
     }
 }

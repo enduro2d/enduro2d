@@ -24,11 +24,12 @@ namespace e2d
         return assign(other);
     }
 
-    void script::clear() noexcept {
+    script::script(sol::protected_function&& func) noexcept {
+        assign(std::move(func));
     }
 
-    void script::swap(script& other) noexcept {
-        using std::swap;
+    script::script(const sol::protected_function& func) {
+        assign(func);
     }
 
     script& script::assign(script&& other) noexcept {
@@ -41,10 +42,32 @@ namespace e2d
 
     script& script::assign(const script& other) {
         if ( this != &other ) {
-            script s;
-            swap(s);
+            func_ = other.func_;
         }
         return *this;
+    }
+
+    script& script::assign(sol::protected_function&& func) noexcept {
+        func_ = std::move(func);
+        return *this;
+    }
+
+    script& script::assign(const sol::protected_function& func) {
+        func_ = func;
+        return *this;
+    }
+
+    void script::clear() noexcept {
+        func_.reset();
+    }
+
+    void script::swap(script& other) noexcept {
+        using std::swap;
+        swap(func_, other.func_);
+    }
+
+    bool script::empty() const noexcept {
+        return !func_;
     }
 }
 
@@ -52,13 +75,5 @@ namespace e2d
 {
     void swap(script& l, script& r) noexcept {
         l.swap(r);
-    }
-
-    bool operator==(const script& l, const script& r) noexcept {
-        return true;
-    }
-
-    bool operator!=(const script& l, const script& r) noexcept {
-        return !(l == r);
     }
 }

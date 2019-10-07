@@ -9,12 +9,19 @@
 #include "../_high.hpp"
 
 #include "../factory.hpp"
+#include "../assets/script_asset.hpp"
 
 namespace e2d
 {
     class behaviour final {
     public:
         behaviour() = default;
+        behaviour(const script_asset::ptr& script);
+
+        behaviour& script(const script_asset::ptr& value) noexcept;
+        [[nodiscard]] const script_asset::ptr& script() const noexcept;
+    private:
+        script_asset::ptr script_;
     };
 
     template <>
@@ -30,4 +37,19 @@ namespace e2d
             asset_dependencies& dependencies,
             const collect_context& ctx) const;
     };
+}
+
+namespace e2d
+{
+    inline behaviour::behaviour(const script_asset::ptr& value)
+    : script_(value) {}
+
+    inline behaviour& behaviour::script(const script_asset::ptr& value) noexcept {
+        script_ = value;
+        return *this;
+    }
+
+    inline const script_asset::ptr& behaviour::script() const noexcept {
+        return script_;
+    }
 }

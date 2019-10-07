@@ -135,6 +135,7 @@ namespace e2d
 
     starter::starter(int argc, char *argv[], const parameters& params) {
         safe_module_initialize<engine>(argc, argv, params.engine_params());
+        safe_module_initialize<luasol>();
         safe_module_initialize<factory>()
             .register_component<actor>("actor")
             .register_component<behaviour>("behaviour")
@@ -150,15 +151,14 @@ namespace e2d
             .register_component<spine_player_evt>("spine_player_evt")
             .register_component<sprite_renderer>("sprite_renderer");
         safe_module_initialize<library>(params.library_root(), the<deferrer>());
-        safe_module_initialize<luasol>();
         safe_module_initialize<world>();
     }
 
     starter::~starter() noexcept {
         modules::shutdown<world>();
-        modules::shutdown<luasol>();
         modules::shutdown<library>();
         modules::shutdown<factory>();
+        modules::shutdown<luasol>();
         modules::shutdown<engine>();
     }
 

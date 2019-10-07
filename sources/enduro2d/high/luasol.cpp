@@ -11,7 +11,7 @@
 namespace e2d
 {
     luasol::luasol() {
-        lua_.open_libraries(
+        state_.open_libraries(
             sol::lib::base,
             sol::lib::package,
             sol::lib::coroutine,
@@ -19,20 +19,38 @@ namespace e2d
             sol::lib::math,
             sol::lib::table,
             sol::lib::utf8);
-        bindings::bind_math(lua_);
-        bindings::bind_utils(lua_);
-        bindings::bind_core(lua_);
-        bindings::bind_high(lua_);
+        bindings::bind_math(state_);
+        bindings::bind_utils(state_);
+        bindings::bind_core(state_);
+        bindings::bind_high(state_);
     }
 
-    luasol::~luasol() noexcept {
+    std::optional<script> luasol::load_script(buffer_view src) {
+        E2D_ASSERT(is_in_main_thread());
+
+        sol::load_result result = state_.load_buffer(
+            reinterpret_cast<const char*>(src.data()),
+            src.size());
+
+        if ( !result.valid() ) {
+            the<debug>().error("LUASOL: Failed to load script buffer:\n"
+                "--> Info: %0",
+                sol::error(result).what());
+            return std::nullopt;
+        }
+
+        return script(sol::protected_function(result));
     }
 
-    sol::state& luasol::lua() noexcept {
-        return lua_;
-    }
+    std::optional<script> luasol::load_script(const input_stream_uptr& src) {
+        E2D_ASSERT(is_in_main_thread());
 
-    const sol::state& luasol::lua() const noexcept {
-        return lua_;
+        buffer file_data;
+        if ( !streams::try_read_tail(file_data, src) ) {
+            the<debug>().error("LUASOL: Failed to read script stream");
+            return std::nullopt;
+        }
+
+        return load_script(file_data);
     }
 }

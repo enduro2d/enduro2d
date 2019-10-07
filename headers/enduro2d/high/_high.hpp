@@ -9,6 +9,8 @@
 #include "../core/_all.hpp"
 
 #include <ecs.hpp/ecs.hpp>
+
+#define SOL_ALL_SAFETIES_ON 1
 #include <3rdparty/sol/sol.hpp>
 
 namespace e2d

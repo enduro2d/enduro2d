@@ -10,6 +10,13 @@
 
 namespace e2d
 {
+    class bad_script_access final : public exception {
+    public:
+        const char* what() const noexcept final {
+            return "bad script access";
+        }
+    };
+
     class script final {
     public:
         script() = default;
@@ -21,14 +28,35 @@ namespace e2d
         script(const script& other);
         script& operator=(const script& other);
 
-        void clear() noexcept;
-        void swap(script& other) noexcept;
+        script(sol::protected_function&& func) noexcept;
+        script(const sol::protected_function& func);
 
         script& assign(script&& other) noexcept;
         script& assign(const script& other);
+
+        script& assign(sol::protected_function&& func) noexcept;
+        script& assign(const sol::protected_function& func);
+        
+        void clear() noexcept;
+        void swap(script& other) noexcept;
+        bool empty() const noexcept;
+
+        template < typename... Ret, typename... Args >
+        decltype(auto) call(Args&&... args) const;
+    private:
+        std::optional<sol::protected_function> func_;
     };
 
     void swap(script& l, script& r) noexcept;
-    bool operator==(const script& l, const script& r) noexcept;
-    bool operator!=(const script& l, const script& r) noexcept;
+}
+
+namespace e2d
+{
+    template < typename... Ret, typename... Args >
+    decltype(auto) script::call(Args&&... args) const {
+        if ( !func_ ) {
+            throw bad_script_access();
+        }
+        return func_->call<Ret...>(std::forward<Args>(args)...);
+    }
 }
