@@ -225,6 +225,41 @@ namespace
         });
     #undef KEYBOARD_KEY_PAIR
     }
+
+    void bind_window(sol::state& l) {
+        l.new_usertype<window>("window",
+            "hide", &window::hide,
+            "show", &window::show,
+            "restore", &window::restore,
+            "minimize", &window::minimize,
+
+            "enabled", sol::property(&window::enabled),
+            "visible", sol::property(&window::visible),
+            "focused", sol::property(&window::focused),
+            "minimize", sol::property(&window::minimize),
+
+            "fullscreen", sol::property(
+                &window::fullscreen,
+                &window::toggle_fullscreen),
+
+            "cursor_hidden", sol::property(
+                &window::is_cursor_hidden,
+                [](window& w, bool yesno){
+                    if ( yesno ) {
+                        w.hide_cursor();
+                    } else {
+                        w.show_cursor();
+                    }
+                }),
+
+            "real_size", sol::property([](const window& w){ return w.real_size().cast_to<f32>(); }),
+            "virtual_size", sol::property([](const window& w){ return w.virtual_size().cast_to<f32>(); }),
+            "framebuffer_size", sol::property([](const window& w){ return w.framebuffer_size().cast_to<f32>(); }),
+
+            "title", sol::property(&window::title, &window::set_title),
+            "should_close", sol::property(&window::should_close, &window::set_should_close)
+        );
+    }
 }
 
 namespace e2d::bindings
@@ -233,5 +268,6 @@ namespace e2d::bindings
         bind_debug(l);
         bind_engine(l);
         bind_input(l);
+        bind_window(l);
     }
 }
