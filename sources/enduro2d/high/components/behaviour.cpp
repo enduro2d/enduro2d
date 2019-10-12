@@ -79,32 +79,6 @@ namespace e2d
 
 namespace e2d
 {
-    const char* factory_loader<behaviour::destroy>::schema_source = R"json({
-        "type" : "object",
-        "required" : [],
-        "additionalProperties" : false,
-        "properties" : {}
-    })json";
-
-    bool factory_loader<behaviour::destroy>::operator()(
-        behaviour::destroy& component,
-        const fill_context& ctx) const
-    {
-        E2D_UNUSED(component, ctx);
-        return true;
-    }
-
-    bool factory_loader<behaviour::destroy>::operator()(
-        asset_dependencies& dependencies,
-        const collect_context& ctx) const
-    {
-        E2D_UNUSED(dependencies, ctx);
-        return true;
-    }
-}
-
-namespace e2d
-{
     const char* factory_loader<behaviour::disabled>::schema_source = R"json({
         "type" : "object",
         "required" : [],

@@ -141,7 +141,6 @@ namespace e2d
             .register_component<actor>("actor")
             .register_component<behaviour>("behaviour")
             .register_component<behaviour::started>("behaviour.started")
-            .register_component<behaviour::destroy>("behaviour.destroy")
             .register_component<behaviour::disabled>("behaviour.disabled")
             .register_component<camera>("camera")
             .register_component<flipbook_player>("flipbook_player")

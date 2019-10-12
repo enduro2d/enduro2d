@@ -16,7 +16,6 @@ namespace e2d
     class behaviour final {
     public:
         class started final {};
-        class destroy final {};
         class disabled final {};
     public:
         behaviour() = default;
@@ -56,20 +55,6 @@ namespace e2d
 
         bool operator()(
             behaviour::started& component,
-            const fill_context& ctx) const;
-
-        bool operator()(
-            asset_dependencies& dependencies,
-            const collect_context& ctx) const;
-    };
-
-    template <>
-    class factory_loader<behaviour::destroy> final : factory_loader<> {
-    public:
-        static const char* schema_source;
-
-        bool operator()(
-            behaviour::destroy& component,
             const fill_context& ctx) const;
 
         bool operator()(
