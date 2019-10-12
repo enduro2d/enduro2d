@@ -25,6 +25,10 @@ namespace e2d
         bindings::bind_high(state_);
     }
 
+    void luasol::collect_garbage() {
+        state_.collect_garbage();
+    }
+
     std::optional<script> luasol::load_script(buffer_view src) {
         E2D_ASSERT(is_in_main_thread());
 

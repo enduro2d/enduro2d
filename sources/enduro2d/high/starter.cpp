@@ -48,9 +48,9 @@ namespace
         bool initialize() final {
             ecs::registry_filler(the<world>().registry())
                 .system<flipbook_system>(world::priority_pre_update)
-                .system<label_system>(world::priority_pre_update)
                 .system<spine_pre_system>(world::priority_pre_update)
                 .system<spine_post_system>(world::priority_post_update)
+                .system<label_system>(world::priority_pre_render)
                 .system<render_system>(world::priority_render);
             return !application_ || application_->initialize();
         }
@@ -158,6 +158,8 @@ namespace e2d
     }
 
     starter::~starter() noexcept {
+        the<luasol>().collect_garbage();
+
         modules::shutdown<world>();
         modules::shutdown<library>();
         modules::shutdown<factory>();

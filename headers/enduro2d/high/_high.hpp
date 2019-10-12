@@ -75,6 +75,10 @@ namespace e2d
     class atlas;
     class flipbook;
     class gobject;
+    template < typename T >
+    class gcomponent;
+    template < typename T >
+    class const_gcomponent;
     class model;
     class node;
     class prefab;
@@ -85,4 +89,52 @@ namespace e2d
     class luasol;
     class starter;
     class world;
+}
+
+namespace sol
+{
+    template < typename T >
+    struct unique_usertype_traits<e2d::intrusive_ptr<T>> {
+        using type = T;
+        using actual_type = e2d::intrusive_ptr<T>;
+        static const bool value = true;
+
+        static bool is_null(const actual_type& ptr) {
+            return !ptr;
+        }
+
+        static type* get(actual_type& ptr) {
+            return ptr.get();
+        }
+    };
+
+    template < typename T >
+    struct unique_usertype_traits<e2d::gcomponent<T>> {
+        using type = T;
+        using actual_type = e2d::gcomponent<T>;
+        static const bool value = true;
+
+        static bool is_null(const actual_type& ptr) {
+            return !ptr;
+        }
+
+        static type* get(actual_type& ptr) {
+            return ptr.find();
+        }
+    };
+
+    template < typename T >
+    struct unique_usertype_traits<e2d::const_gcomponent<T>> {
+        using type = T;
+        using actual_type = e2d::const_gcomponent<T>;
+        static const bool value = true;
+
+        static bool is_null(const actual_type& ptr) {
+            return !ptr;
+        }
+
+        static type* get(actual_type& ptr) {
+            return ptr.find();
+        }
+    };
 }

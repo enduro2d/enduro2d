@@ -17,6 +17,8 @@ namespace e2d
         luasol();
         ~luasol() noexcept final = default;
 
+        void collect_garbage();
+
         template < typename F  >
         decltype(auto) with_state(F&& f);
         template < typename F >
