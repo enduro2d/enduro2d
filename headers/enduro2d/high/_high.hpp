@@ -74,11 +74,6 @@ namespace e2d
 
     class atlas;
     class flipbook;
-    class gobject;
-    template < typename T >
-    class gcomponent;
-    template < typename T >
-    class const_gcomponent;
     class model;
     class node;
     class prefab;
@@ -89,6 +84,12 @@ namespace e2d
     class luasol;
     class starter;
     class world;
+
+    class gobject;
+    template < typename T >
+    class gcomponent;
+    template < typename T >
+    class const_gcomponent;
 }
 
 namespace sol

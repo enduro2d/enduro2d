@@ -10,17 +10,6 @@
 
 namespace e2d
 {
-    class gobject;
-
-    template < typename T >
-    class gcomponent;
-
-    template < typename T >
-    class const_gcomponent;
-}
-
-namespace e2d
-{
     class gobject final {
     public:
         class state;
@@ -32,6 +21,8 @@ namespace e2d
 
         bool valid() const noexcept;
         explicit operator bool() const noexcept;
+
+        void destroy() noexcept;
 
         template < typename T >
         gcomponent<T> component() noexcept;
@@ -110,30 +101,22 @@ namespace e2d
 
 namespace e2d
 {
+    class gobject_destroying_state_ilist_tag;
+    using gobject_destroying_states = intrusive_list<
+        gobject::state,
+        gobject_destroying_state_ilist_tag>;
+
     class gobject::state
         : private noncopyable
-        , public ref_counter<state> {
+        , public ref_counter<state>
+        , public intrusive_list_hook<gobject_destroying_state_ilist_tag> {
     public:
         virtual ~state() noexcept {}
-        virtual bool valid() const noexcept = 0;
+        virtual void destroy() noexcept = 0;
+        virtual bool invalided() const noexcept = 0;
         virtual ecs::entity raw_entity() noexcept = 0;
         virtual ecs::const_entity raw_entity() const noexcept = 0;
     };
-
-    inline const gobject::state_iptr& gobject::internal_state() const noexcept {
-        return state_;
-    }
-
-    inline gobject::gobject(state_iptr state)
-    : state_(std::move(state)) {}
-
-    inline bool gobject::valid() const noexcept {
-        return state_ && state_->valid();
-    }
-
-    inline gobject::operator bool() const noexcept {
-        return valid();
-    }
 
     template < typename T >
     gcomponent<T> gobject::component() noexcept {
@@ -143,16 +126,6 @@ namespace e2d
     template < typename T >
     const_gcomponent<T> gobject::component() const noexcept {
         return const_gcomponent<T>(*this);
-    }
-
-    inline ecs::entity gobject::raw_entity() noexcept {
-        E2D_ASSERT(valid());
-        return state_->raw_entity();
-    }
-
-    inline ecs::const_entity gobject::raw_entity() const noexcept {
-        E2D_ASSERT(valid());
-        return state_->raw_entity();
     }
 
     template < typename T >

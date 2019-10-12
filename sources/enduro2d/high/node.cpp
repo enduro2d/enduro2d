@@ -69,6 +69,10 @@ namespace e2d
         owner_ = std::move(owner);
     }
 
+    gobject& node::owner() noexcept {
+        return owner_;
+    }
+
     const gobject& node::owner() const noexcept {
         return owner_;
     }

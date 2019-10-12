@@ -65,6 +65,7 @@ namespace
             the<world>().registry().process_systems_in_range(
                 world::priority_update_section_begin,
                 world::priority_update_section_end);
+            the<world>().finalize_instances();
             return !the<window>().should_close()
                 || (application_ && !application_->on_should_close());
         }

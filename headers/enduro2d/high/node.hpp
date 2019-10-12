@@ -42,6 +42,8 @@ namespace e2d
         static node_iptr create(gobject owner, const node_iptr& parent, const t3f& transform);
 
         void owner(gobject owner) noexcept;
+
+        gobject& owner() noexcept;
         const gobject& owner() const noexcept;
 
         void transform(const t3f& transform) noexcept;

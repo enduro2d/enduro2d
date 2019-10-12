@@ -13,49 +13,58 @@ namespace
     using namespace e2d;
 
     class gobject_state final : public gobject::state {
+    private:
+        enum flag_masks : u32 {
+            fm_invalided = 1u << 0,
+            fm_destroying = 1u << 1,
+        };
     public:
-        gobject_state(ecs::registry& registry)
-        : entity_(registry.create_entity()) {}
+        gobject_state(world& w, ecs::entity e)
+        : world_(w)
+        , entity_(std::move(e)) {}
 
-        gobject_state(ecs::registry& registry, const ecs::prototype& proto)
-        : entity_(registry.create_entity(proto)) {}
-
-        ~gobject_state() final {
-            destroy();
+        void mark_invalided() noexcept {
+            math::set_flags_inplace(flags_, fm_invalided);
         }
 
-        void destroy() noexcept {
-            if ( valid() ) {
-                entity_.destroy();
-                valid_ = false;
-            }
+        void mark_destroying() noexcept {
+            math::set_flags_inplace(flags_, fm_destroying);
         }
 
-        bool valid() const noexcept final {
-            return valid_;
+        bool destroying() const noexcept {
+            return math::check_any_flags(flags_, fm_destroying);
+        }
+    public:
+        void destroy() noexcept final {
+            gobject go{this};
+            world_.destroy_instance(go);
+        }
+
+        bool invalided() const noexcept final {
+            return math::check_any_flags(flags_, fm_invalided);
         }
 
         ecs::entity raw_entity() noexcept final {
-            E2D_ASSERT(valid());
+            E2D_ASSERT(!invalided());
             return entity_;
         }
 
         ecs::const_entity raw_entity() const noexcept final {
-            E2D_ASSERT(valid());
+            E2D_ASSERT(!invalided());
             return entity_;
         }
     private:
-        bool valid_{true};
+        world& world_;
         ecs::entity entity_;
+        u32 flags_{0u};
     };
 }
 
 namespace e2d
 {
     world::~world() noexcept {
-        while ( !gobjects_.empty() ) {
-            destroy_instance(gobjects_.begin()->second);
-        }
+        destroy_instances_();
+        finalize_instances();
     }
 
     ecs::registry& world::registry() noexcept {
@@ -67,7 +76,9 @@ namespace e2d
     }
 
     gobject world::instantiate() {
-        gobject inst{make_intrusive<gobject_state>(registry_)};
+        gobject inst{make_intrusive<gobject_state>(
+            *this,
+            registry_.create_entity())};
         gobjects_.emplace(inst.raw_entity().id(), inst);
 
         try {
@@ -78,7 +89,7 @@ namespace e2d
             }
             inst_a.assign(n);
         } catch (...) {
-            destroy_instance(inst);
+            finalize_instance_(inst);
             throw;
         }
 
@@ -86,7 +97,9 @@ namespace e2d
     }
 
     gobject world::instantiate(const prefab& prefab) {
-        gobject inst{make_intrusive<gobject_state>(registry_, prefab.prototype())};
+        gobject inst{make_intrusive<gobject_state>(
+            *this,
+            registry_.create_entity(prefab.prototype()))};
         gobjects_.emplace(inst.raw_entity().id(), inst);
 
         try {
@@ -97,7 +110,7 @@ namespace e2d
             }
             inst_a.assign(n);
         } catch (...) {
-            destroy_instance(inst);
+            finalize_instance_(inst);
             throw;
         }
 
@@ -109,12 +122,12 @@ namespace e2d
                     gcomponent<actor> child_a{child};
                     inst_a->node()->add_child(child_a->node());
                 } catch (...) {
-                    destroy_instance(child);
+                    finalize_instance_(child);
                     throw;
                 }
             }
         } catch (...) {
-            destroy_instance(inst);
+            finalize_instance_(inst);
             throw;
         }
 
@@ -124,14 +137,19 @@ namespace e2d
     gobject world::instantiate(const gobject& parent) {
         gobject go = instantiate();
         if ( go && parent ) {
-            gcomponent<actor> parent_a{parent};
-            if ( !parent_a ) {
-                parent_a.assign(node::create(parent));
+            try {
+                gcomponent<actor> parent_a{parent};
+                if ( !parent_a ) {
+                    parent_a.assign(node::create(parent));
+                }
+                if ( !parent_a->node() ) {
+                    parent_a->node(node::create(parent));
+                }
+                parent_a->node()->add_child(gcomponent<actor>{go}->node());
+            } catch (...) {
+                finalize_instance_(go);
+                throw;
             }
-            if ( !parent_a->node() ) {
-                parent_a->node(node::create(parent));
-            }
-            parent_a->node()->add_child(gcomponent<actor>{go}->node());
         }
         return go;
     }
@@ -147,14 +165,19 @@ namespace e2d
     gobject world::instantiate(const prefab& prefab, const gobject& parent) {
         gobject go = instantiate(prefab);
         if ( go && parent ) {
-            gcomponent<actor> parent_a{parent};
-            if ( !parent_a ) {
-                parent_a.assign(node::create(parent));
+            try {
+                gcomponent<actor> parent_a{parent};
+                if ( !parent_a ) {
+                    parent_a.assign(node::create(parent));
+                }
+                if ( !parent_a->node() ) {
+                    parent_a->node(node::create(parent));
+                }
+                parent_a->node()->add_child(gcomponent<actor>{go}->node());
+            } catch (...) {
+                finalize_instance_(go);
+                throw;
             }
-            if ( !parent_a->node() ) {
-                parent_a->node(node::create(parent));
-            }
-            parent_a->node()->add_child(gcomponent<actor>{go}->node());
         }
         return go;
     }
@@ -199,19 +222,21 @@ namespace e2d
         return go;
     }
 
-    void world::destroy_instance(const gobject& inst) noexcept {
-        gcomponent<actor> inst_a{inst};
-        auto inst_n = inst_a ? inst_a->node() : nullptr;
-
-        if ( inst_n ) {
-            inst_n->for_each_child([this](const const_node_iptr& child_n){
-                destroy_instance(child_n->owner());
-            });
+    void world::destroy_instance(gobject& inst) noexcept {
+        auto gstate = inst
+            ? dynamic_pointer_cast<gobject_state>(inst.internal_state())
+            : nullptr;
+        if ( gstate && !gstate->destroying() ) {
+            gstate->mark_destroying();
+            destroying_states_.push_back(*gstate);
         }
+    }
 
-        if ( inst ) {
-            gobjects_.erase(inst.raw_entity().id());
-            dynamic_pointer_cast<gobject_state>(inst.internal_state())->destroy();
+    void world::finalize_instances() noexcept {
+        while ( !destroying_states_.empty() ) {
+            gobject inst{&destroying_states_.front()};
+            destroying_states_.pop_front();
+            finalize_instance_(inst);
         }
     }
 
@@ -229,5 +254,28 @@ namespace e2d
         return iter != gobjects_.end()
             ? iter->second
             : gobject();
+    }
+
+    void world::destroy_instances_() noexcept {
+        for ( auto& [_, go] : gobjects_ ) {
+            destroy_instance(go);
+        }
+    }
+
+    void world::finalize_instance_(gobject& inst) noexcept {
+        gcomponent<actor> inst_a{inst};
+        auto inst_n = inst_a ? inst_a->node() : nullptr;
+
+        if ( inst_n ) {
+            inst_n->for_each_child([this](const node_iptr& child_n){
+                destroy_instance(child_n->owner());
+            });
+        }
+
+        if ( inst ) {
+            inst.raw_entity().destroy();
+            gobjects_.erase(inst.raw_entity().id());
+            dynamic_pointer_cast<gobject_state>(inst.internal_state())->mark_invalided();
+        }
     }
 }
