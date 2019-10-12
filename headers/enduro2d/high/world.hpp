@@ -8,6 +8,7 @@
 
 #include "_high.hpp"
 
+#include "node.hpp"
 #include "prefab.hpp"
 #include "gobject.hpp"
 
@@ -35,14 +36,27 @@ namespace e2d
         ecs::registry& registry() noexcept;
         const ecs::registry& registry() const noexcept;
 
-        gobject_iptr instantiate();
-        gobject_iptr instantiate(const prefab& prefab);
-        void destroy_instance(const gobject_iptr& inst) noexcept;
+        gobject instantiate();
+        gobject instantiate(const prefab& prefab);
 
-        gobject_iptr resolve(ecs::entity_id ent) const noexcept;
-        gobject_iptr resolve(const ecs::const_entity& ent) const noexcept;
+        gobject instantiate(const gobject& parent);
+        gobject instantiate(const node_iptr& parent);
+
+        gobject instantiate(const prefab& prefab, const gobject& parent);
+        gobject instantiate(const prefab& prefab, const node_iptr& parent);
+
+        gobject instantiate(const gobject& parent, const t3f& transform);
+        gobject instantiate(const node_iptr& parent, const t3f& transform);
+
+        gobject instantiate(const prefab& prefab, const gobject& parent, const t3f& transform);
+        gobject instantiate(const prefab& prefab, const node_iptr& parent, const t3f& transform);
+
+        void destroy_instance(const gobject& inst) noexcept;
+
+        gobject resolve(ecs::entity_id ent) const noexcept;
+        gobject resolve(const ecs::const_entity& ent) const noexcept;
     private:
         ecs::registry registry_;
-        hash_map<ecs::entity_id, gobject_iptr> gobjects_;
+        hash_map<ecs::entity_id, gobject> gobjects_;
     };
 }

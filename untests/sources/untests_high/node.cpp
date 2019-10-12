@@ -28,7 +28,7 @@ namespace
             ++s_ctor_count;
         }
 
-        fake_node(const gobject_iptr& owner) : node(owner) {
+        fake_node(gobject owner) : node(std::move(owner)) {
             ++s_ctor_count;
         }
 

@@ -6,8 +6,49 @@
 
 #include <enduro2d/high/world.hpp>
 
-#include <enduro2d/high/node.hpp>
 #include <enduro2d/high/components/actor.hpp>
+
+namespace
+{
+    using namespace e2d;
+
+    class gobject_state final : public gobject::state {
+    public:
+        gobject_state(ecs::registry& registry)
+        : entity_(registry.create_entity()) {}
+
+        gobject_state(ecs::registry& registry, const ecs::prototype& proto)
+        : entity_(registry.create_entity(proto)) {}
+
+        ~gobject_state() final {
+            destroy();
+        }
+
+        void destroy() noexcept {
+            if ( valid() ) {
+                entity_.destroy();
+                valid_ = false;
+            }
+        }
+
+        bool valid() const noexcept final {
+            return valid_;
+        }
+
+        ecs::entity raw_entity() noexcept final {
+            E2D_ASSERT(valid());
+            return entity_;
+        }
+
+        ecs::const_entity raw_entity() const noexcept final {
+            E2D_ASSERT(valid());
+            return entity_;
+        }
+    private:
+        bool valid_{true};
+        ecs::entity entity_;
+    };
+}
 
 namespace e2d
 {
@@ -25,17 +66,17 @@ namespace e2d
         return registry_;
     }
 
-    gobject_iptr world::instantiate() {
-        auto inst = make_intrusive<gobject>(registry_);
-        gobjects_.emplace(inst->entity().id(), inst);
+    gobject world::instantiate() {
+        gobject inst{make_intrusive<gobject_state>(registry_)};
+        gobjects_.emplace(inst.raw_entity().id(), inst);
 
         try {
-            auto inst_n = node::create(inst);
-            auto inst_a = inst->get_component<actor>();
+            auto n = node::create(inst);
+            gcomponent<actor> inst_a{inst};
             if ( inst_a && inst_a->node() ) {
-                inst_n->transform(inst_a->node()->transform());
+                n->transform(inst_a->node()->transform());
             }
-            inst_a.assign(inst_n);
+            inst_a.assign(n);
         } catch (...) {
             destroy_instance(inst);
             throw;
@@ -44,17 +85,17 @@ namespace e2d
         return inst;
     }
 
-    gobject_iptr world::instantiate(const prefab& prefab) {
-        auto inst = make_intrusive<gobject>(registry_, prefab.prototype());
-        gobjects_.emplace(inst->entity().id(), inst);
+    gobject world::instantiate(const prefab& prefab) {
+        gobject inst{make_intrusive<gobject_state>(registry_, prefab.prototype())};
+        gobjects_.emplace(inst.raw_entity().id(), inst);
 
         try {
-            auto inst_n = node::create(inst);
-            auto inst_a = inst->get_component<actor>();
+            auto n = node::create(inst);
+            gcomponent<actor> inst_a{inst};
             if ( inst_a && inst_a->node() ) {
-                inst_n->transform(inst_a->node()->transform());
+                n->transform(inst_a->node()->transform());
             }
-            inst_a.assign(inst_n);
+            inst_a.assign(n);
         } catch (...) {
             destroy_instance(inst);
             throw;
@@ -64,8 +105,8 @@ namespace e2d
             for ( const auto& child_prefab : prefab.children() ) {
                 auto child = instantiate(child_prefab);
                 try {
-                    auto inst_a = inst->get_component<actor>();
-                    auto child_a = child->get_component<actor>();
+                    gcomponent<actor> inst_a{inst};
+                    gcomponent<actor> child_a{child};
                     inst_a->node()->add_child(child_a->node());
                 } catch (...) {
                     destroy_instance(child);
@@ -80,34 +121,113 @@ namespace e2d
         return inst;
     }
 
-    void world::destroy_instance(const gobject_iptr& inst) noexcept {
-        node_iptr inst_n = inst && inst->get_component<actor>()
-            ? inst->get_component<actor>()->node()
-            : nullptr;
+    gobject world::instantiate(const gobject& parent) {
+        gobject go = instantiate();
+        if ( go && parent ) {
+            gcomponent<actor> parent_a{parent};
+            if ( !parent_a ) {
+                parent_a.assign(node::create(parent));
+            }
+            if ( !parent_a->node() ) {
+                parent_a->node(node::create(parent));
+            }
+            parent_a->node()->add_child(gcomponent<actor>{go}->node());
+        }
+        return go;
+    }
+
+    gobject world::instantiate(const node_iptr& parent) {
+        gobject go = instantiate();
+        if ( go && parent ) {
+            parent->add_child(gcomponent<actor>{go}->node());
+        }
+        return go;
+    }
+
+    gobject world::instantiate(const prefab& prefab, const gobject& parent) {
+        gobject go = instantiate(prefab);
+        if ( go && parent ) {
+            gcomponent<actor> parent_a{parent};
+            if ( !parent_a ) {
+                parent_a.assign(node::create(parent));
+            }
+            if ( !parent_a->node() ) {
+                parent_a->node(node::create(parent));
+            }
+            parent_a->node()->add_child(gcomponent<actor>{go}->node());
+        }
+        return go;
+    }
+
+    gobject world::instantiate(const prefab& prefab, const node_iptr& parent) {
+        gobject go = instantiate(prefab);
+        if ( go && parent ) {
+            parent->add_child(gcomponent<actor>{go}->node());
+        }
+        return go;
+    }
+
+    gobject world::instantiate(const gobject& parent, const t3f& transform) {
+        gobject go = instantiate(parent);
+        if ( go ) {
+            gcomponent<actor>{go}->node()->transform(transform);
+        }
+        return go;
+    }
+
+    gobject world::instantiate(const node_iptr& parent, const t3f& transform) {
+        gobject go = instantiate(parent);
+        if ( go ) {
+            gcomponent<actor>{go}->node()->transform(transform);
+        }
+        return go;
+    }
+
+    gobject world::instantiate(const prefab& prefab, const gobject& parent, const t3f& transform) {
+        gobject go = instantiate(prefab, parent);
+        if ( go ) {
+            gcomponent<actor>{go}->node()->transform(transform);
+        }
+        return go;
+    }
+
+    gobject world::instantiate(const prefab& prefab, const node_iptr& parent, const t3f& transform) {
+        gobject go = instantiate(prefab, parent);
+        if ( go ) {
+            gcomponent<actor>{go}->node()->transform(transform);
+        }
+        return go;
+    }
+
+    void world::destroy_instance(const gobject& inst) noexcept {
+        gcomponent<actor> inst_a{inst};
+        auto inst_n = inst_a ? inst_a->node() : nullptr;
+
         if ( inst_n ) {
-            inst_n->for_each_child([this](const node_iptr& child_n){
+            inst_n->for_each_child([this](const const_node_iptr& child_n){
                 destroy_instance(child_n->owner());
             });
         }
+
         if ( inst ) {
-            inst->entity().remove_all_components();
-            gobjects_.erase(inst->entity().id());
+            gobjects_.erase(inst.raw_entity().id());
+            dynamic_pointer_cast<gobject_state>(inst.internal_state())->destroy();
         }
     }
 
-    gobject_iptr world::resolve(ecs::entity_id ent) const noexcept {
+    gobject world::resolve(ecs::entity_id ent) const noexcept {
         E2D_ASSERT(registry_.valid_entity(ent));
         const auto iter = gobjects_.find(ent);
         return iter != gobjects_.end()
             ? iter->second
-            : nullptr;
+            : gobject();
     }
 
-    gobject_iptr world::resolve(const ecs::const_entity& ent) const noexcept {
+    gobject world::resolve(const ecs::const_entity& ent) const noexcept {
         E2D_ASSERT(registry_.valid_entity(ent));
         const auto iter = gobjects_.find(ent.id());
         return iter != gobjects_.end()
             ? iter->second
-            : nullptr;
+            : gobject();
     }
 }
