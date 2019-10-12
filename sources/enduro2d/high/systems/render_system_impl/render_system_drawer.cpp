@@ -86,20 +86,23 @@ namespace e2d::render_system_impl
             return;
         }
 
-        E2D_ASSERT(node->owner()->entity().valid());
-        ecs::const_entity node_e = node->owner()->entity();
-        const renderer* node_r = node_e.find_component<renderer>();
+        const gobject& owner = node->owner();
+        gcomponent<renderer> node_r{owner};
 
-        if ( node_r && node_r->enabled() ) {
-            if ( auto mdl_r = node_e.find_component<model_renderer>() ) {
-                draw(node, *node_r, *mdl_r);
-            }
-            if ( auto spn_p = node_e.find_component<spine_player>() ) {
-                draw(node, *node_r, *spn_p);
-            }
-            if ( auto spr_r = node_e.find_component<sprite_renderer>() ) {
-                draw(node, *node_r, *spr_r);
-            }
+        if ( !node_r || !node_r->enabled() ) {
+            return;
+        }
+
+        if ( auto mdl_r = gcomponent<model_renderer>{owner} ) {
+            draw(node, *node_r, *mdl_r);
+        }
+
+        if ( auto spn_p = gcomponent<spine_player>{owner} ) {
+            draw(node, *node_r, *spn_p);
+        }
+
+        if ( auto spr_r = gcomponent<sprite_renderer>{owner} ) {
+            draw(node, *node_r, *spr_r);
         }
     }
 
