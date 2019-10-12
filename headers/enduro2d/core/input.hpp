@@ -28,6 +28,10 @@ namespace e2d
         bool is_button_just_pressed(mouse_button btn) const noexcept;
         bool is_button_just_released(mouse_button btn) const noexcept;
 
+        vector<mouse_button> pressed_buttons() const;
+        vector<mouse_button> just_pressed_buttons() const;
+        vector<mouse_button> just_released_buttons() const;
+
         void extract_pressed_buttons(vector<mouse_button>& dst) const;
         void extract_just_pressed_buttons(vector<mouse_button>& dst) const;
         void extract_just_released_buttons(vector<mouse_button>& dst) const;
@@ -52,6 +56,10 @@ namespace e2d
         bool is_key_pressed(keyboard_key key) const noexcept;
         bool is_key_just_pressed(keyboard_key key) const noexcept;
         bool is_key_just_released(keyboard_key key) const noexcept;
+
+        vector<keyboard_key> pressed_keys() const;
+        vector<keyboard_key> just_pressed_keys() const;
+        vector<keyboard_key> just_released_keys() const;
 
         void extract_pressed_keys(vector<keyboard_key>& dst) const;
         void extract_just_pressed_keys(vector<keyboard_key>& dst) const;
