@@ -382,7 +382,11 @@ namespace e2d
     : state_(new internal_state()) {}
     label_system::~label_system() noexcept = default;
 
-    void label_system::process(ecs::registry& owner) {
+    void label_system::process(
+        ecs::registry& owner,
+        const ecs::after<systems::update_event>& trigger)
+    {
+        E2D_UNUSED(trigger);
         state_->process(owner);
     }
 }
