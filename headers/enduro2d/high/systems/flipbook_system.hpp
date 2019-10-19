@@ -6,15 +6,19 @@
 
 #pragma once
 
-#include "../_high.hpp"
+#include "_systems.hpp"
 
 namespace e2d
 {
-    class flipbook_system final : public ecs::system {
+    class flipbook_system final
+        : public ecs::system<ecs::after<systems::update_event>> {
     public:
         flipbook_system();
-        ~flipbook_system() noexcept final;
-        void process(ecs::registry& owner) override;
+        ~flipbook_system() noexcept;
+
+        void process(
+            ecs::registry& owner,
+            const ecs::after<systems::update_event>& trigger) override;
     private:
         class internal_state;
         std::unique_ptr<internal_state> state_;

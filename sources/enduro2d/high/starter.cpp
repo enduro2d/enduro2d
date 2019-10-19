@@ -27,7 +27,7 @@
 #include <enduro2d/high/systems/flipbook_system.hpp>
 #include <enduro2d/high/systems/label_system.hpp>
 #include <enduro2d/high/systems/render_system.hpp>
-#include <enduro2d/high/systems/spine_systems.hpp>
+#include <enduro2d/high/systems/spine_system.hpp>
 
 namespace
 {
@@ -47,11 +47,14 @@ namespace
 
         bool initialize() final {
             ecs::registry_filler(the<world>().registry())
-                .system<flipbook_system>(world::priority_pre_update)
-                .system<spine_pre_system>(world::priority_pre_update)
-                .system<spine_post_system>(world::priority_post_update)
-                .system<label_system>(world::priority_pre_render)
-                .system<render_system>(world::priority_render);
+                .feature<struct flipbook_feature>(ecs::feature()
+                    .add_system<flipbook_system>())
+                .feature<struct label_feature>(ecs::feature()
+                    .add_system<label_system>())
+                .feature<struct spine_feature>(ecs::feature()
+                    .add_system<spine_system>())
+                .feature<struct render_feature>(ecs::feature()
+                    .add_system<render_system>());
             return !application_ || application_->initialize();
         }
 
@@ -62,18 +65,24 @@ namespace
         }
 
         bool frame_tick() final {
-            the<world>().registry().process_systems_in_range(
-                world::priority_update_section_begin,
-                world::priority_update_section_end);
-            the<world>().finalize_instances();
+            engine& e = the<engine>();
+            const f32 dt = e.delta_time();
+            const f32 time = e.time();
+
+            ecs::registry& registry = the<world>().registry();
+            registry.process_event(systems::pre_update_event{dt,time});
+            registry.process_event(systems::update_event{dt,time});
+            registry.process_event(systems::post_update_event{dt,time});
+
             return !the<window>().should_close()
                 || (application_ && !application_->on_should_close());
         }
 
         void frame_render() final {
-            the<world>().registry().process_systems_in_range(
-                world::priority_render_section_begin,
-                world::priority_render_section_end);
+            ecs::registry& registry = the<world>().registry();
+            registry.process_event(systems::pre_render_event{});
+            registry.process_event(systems::render_event{});
+            registry.process_event(systems::post_render_event{});
         }
     private:
         starter::application_uptr application_;

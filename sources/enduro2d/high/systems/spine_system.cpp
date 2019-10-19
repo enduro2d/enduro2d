@@ -4,7 +4,7 @@
  * Copyright (C) 2018-2019, by Matvey Cherevko (blackmatov@gmail.com)
  ******************************************************************************/
 
-#include <enduro2d/high/systems/spine_systems.hpp>
+#include <enduro2d/high/systems/spine_system.hpp>
 
 #include <enduro2d/high/components/spine_player.hpp>
 #include <enduro2d/high/components/spine_player_cmd.hpp>
@@ -166,6 +166,59 @@ namespace
         spSkeletonData& skeleton_data_;
         spAnimationState& animation_state_;
     };
+
+    void clear_events(ecs::registry& owner) {
+        owner.for_each_component<spine_player_evt>([
+        ](const ecs::const_entity&, spine_player_evt& pe) {
+            pe.clear_events();
+        });
+    }
+
+    void update_animations(f32 dt, ecs::registry& owner) {
+        owner.for_each_component<spine_player>([dt](
+            const ecs::const_entity&,
+            spine_player& p)
+        {
+            spSkeleton* skeleton = p.skeleton().get();
+            spAnimationState* anim_state = p.animation().get();
+
+            if ( !skeleton || !anim_state ) {
+                return;
+            }
+
+            spSkeleton_update(skeleton, dt);
+            spAnimationState_update(anim_state, dt);
+            spAnimationState_apply(anim_state, skeleton);
+            spSkeleton_updateWorldTransform(skeleton);
+        });
+    }
+
+    void process_commands(ecs::registry& owner) {
+        owner.for_joined_components<spine_player_cmd, spine_player>([](
+            ecs::entity e,
+            const spine_player_cmd& pc,
+            spine_player& p)
+        {
+            spSkeleton* skeleton = p.skeleton().get();
+            spAnimationState* animation_state = p.animation().get();
+
+            if ( !skeleton || !skeleton->data || !animation_state ) {
+                return;
+            }
+
+            command_visitor v(e, *skeleton->data, *animation_state);
+            for ( const auto& cmd : pc.commands() ) {
+                std::visit(v, cmd);
+            }
+        });
+    }
+
+    void clear_commands(ecs::registry& owner) {
+        owner.for_each_component<spine_player_cmd>([
+        ](const ecs::const_entity&, spine_player_cmd& pc) {
+            pc.clear_commands();
+        });
+    }
 }
 
 namespace e2d
@@ -174,64 +227,34 @@ namespace e2d
     // internal_state
     //
 
-    class spine_post_system::internal_state final {
+    class spine_system::internal_state final {
     public:
         internal_state() = default;
         ~internal_state() noexcept = default;
 
-        void process(ecs::registry& owner) {
+        void process(f32 dt, ecs::registry& owner) {
             process_commands(owner);
             clear_commands(owner);
             clear_events(owner);
-        }
-    private:
-        void process_commands(ecs::registry& owner) {
-            owner.for_joined_components<spine_player_cmd, spine_player>([](
-                ecs::entity e,
-                const spine_player_cmd& pc,
-                spine_player& p)
-            {
-                spSkeleton* skeleton = p.skeleton().get();
-                spAnimationState* animation_state = p.animation().get();
-
-                if ( !skeleton || !skeleton->data || !animation_state ) {
-                    return;
-                }
-
-                command_visitor v(e, *skeleton->data, *animation_state);
-                for ( const auto& cmd : pc.commands() ) {
-                    std::visit(v, cmd);
-                }
-            });
-        }
-
-        void clear_commands(ecs::registry& owner) {
-            owner.for_each_component<spine_player_cmd>([
-            ](const ecs::const_entity&, spine_player_cmd& pc) {
-                pc.clear_commands();
-            });
-        }
-
-        void clear_events(ecs::registry& owner) {
-            owner.for_each_component<spine_player_evt>([
-            ](const ecs::const_entity&, spine_player_evt& pe) {
-                pe.clear_events();
-            });
+            update_animations(dt, owner);
         }
     };
 
     //
-    // spine_post_system
+    // spine_system
     //
 
-    spine_post_system::spine_post_system()
+    spine_system::spine_system()
     : state_(new internal_state()) {}
 
-    spine_post_system::~spine_post_system() noexcept {
+    spine_system::~spine_system() noexcept {
         spAnimationState_disposeStatics();
     }
 
-    void spine_post_system::process(ecs::registry& owner) {
-        state_->process(owner);
+    void spine_system::process(
+        ecs::registry& owner,
+        const ecs::after<systems::update_event>& trigger)
+    {
+        state_->process(trigger.event.dt, owner);
     }
 }

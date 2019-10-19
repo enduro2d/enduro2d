@@ -59,8 +59,7 @@ namespace e2d
     class flipbook_system;
     class label_system;
     class render_system;
-    class spine_pre_system;
-    class spine_post_system;
+    class spine_system;
 
     template < typename Asset, typename Content >
     class content_asset;
