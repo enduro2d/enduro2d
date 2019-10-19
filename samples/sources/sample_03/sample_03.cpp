@@ -13,10 +13,13 @@ namespace
         v3f axis;
     };
 
-    class game_system final : public ecs::system {
+    class game_system final : public systems::update_system {
     public:
-        void process(ecs::registry& owner) override {
-            E2D_UNUSED(owner);
+        void process(
+            ecs::registry& owner,
+            const systems::update_event& event) override
+        {
+            E2D_UNUSED(owner, event);
             const keyboard& k = the<input>().keyboard();
 
             if ( k.is_key_just_released(keyboard_key::f12) ) {
@@ -33,9 +36,13 @@ namespace
         }
     };
 
-    class camera_system final : public ecs::system {
+    class camera_system final : public systems::render_system {
     public:
-        void process(ecs::registry& owner) override {
+        void process(
+            ecs::registry& owner,
+            const systems::render_event& event) override
+        {
+            E2D_UNUSED(event);
             owner.for_joined_components<camera>(
             [](const ecs::const_entity&, camera& cam){
                 if ( !cam.target() ) {
@@ -48,18 +55,20 @@ namespace
         }
     };
 
-    class rotator_system final : public ecs::system {
+    class rotator_system final : public systems::update_system {
     public:
-        void process(ecs::registry& owner) override {
-            const f32 time = the<engine>().time();
+        void process(
+            ecs::registry& owner,
+            const systems::update_event& event) override
+        {
             owner.for_joined_components<rotator, actor>(
-                [&time](const ecs::const_entity&, const rotator& rot, actor& act){
-                    const node_iptr node = act.node();
-                    if ( node ) {
-                        const q4f q = math::make_quat_from_axis_angle(make_rad(time), rot.axis);
-                        node->rotation(q);
-                    }
-                });
+            [&event](const ecs::const_entity&, const rotator& rot, actor& act){
+                const node_iptr node = act.node();
+                if ( node ) {
+                    const q4f q = math::make_quat_from_axis_angle(make_rad(event.time), rot.axis);
+                    node->rotation(q);
+                }
+            });
         }
     };
 
@@ -154,9 +163,10 @@ namespace
 
         bool create_systems() {
             ecs::registry_filler(the<world>().registry())
-                .system<game_system>(world::priority_update)
-                .system<rotator_system>(world::priority_update)
-                .system<camera_system>(world::priority_pre_render);
+            .feature<struct game_feature>(ecs::feature()
+                .add_system<game_system>()
+                .add_system<rotator_system>()
+                .add_system<camera_system>());
             return true;
         }
     };

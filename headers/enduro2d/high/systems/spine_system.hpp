@@ -10,11 +10,11 @@
 
 namespace e2d
 {
-    class label_system final
+    class spine_system final
         : public ecs::system<ecs::after<systems::update_event>> {
     public:
-        label_system();
-        ~label_system() noexcept final;
+        spine_system();
+        ~spine_system() noexcept;
 
         void process(
             ecs::registry& owner,

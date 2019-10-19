@@ -82,8 +82,8 @@ namespace e2d
         internal_state() = default;
         ~internal_state() noexcept = default;
 
-        void process(ecs::registry& owner) {
-            update_flipbook_timers(the<engine>().delta_time(), owner);
+        void process(f32 dt, ecs::registry& owner) {
+            update_flipbook_timers(dt, owner);
             update_flipbook_sprites(owner);
         }
     };
@@ -96,7 +96,10 @@ namespace e2d
     : state_(new internal_state()) {}
     flipbook_system::~flipbook_system() noexcept = default;
 
-    void flipbook_system::process(ecs::registry& owner) {
-        state_->process(owner);
+    void flipbook_system::process(
+        ecs::registry& owner,
+        const ecs::after<systems::update_event>& trigger)
+    {
+        state_->process(trigger.event.dt, owner);
     }
 }
