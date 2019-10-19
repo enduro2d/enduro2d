@@ -254,7 +254,7 @@ namespace sol {
 					lua_pushboolean(L, std::forward<Args>(args)...);
 					return 1;
 				}
-				else if constexpr (std::is_integral_v<Tu>) {
+				else if constexpr (std::is_integral_v<Tu> || std::is_same_v<Tu, lua_Integer>) {
 					const Tu& value(std::forward<Args>(args)...);
 #if defined(SOL_SAFE_STACK_CHECK) && SOL_SAFE_STACK_CHECK
 					luaL_checkstack(L, 1, detail::not_enough_stack_space_integral);
@@ -280,7 +280,7 @@ namespace sol {
 					lua_pushnumber(L, static_cast<lua_Number>(value));
 					return 1;
 				}
-				else if constexpr (std::is_floating_point_v<Tu>) {
+				else if constexpr (std::is_floating_point_v<Tu> || std::is_same_v<Tu, lua_Number>) {
 #if defined(SOL_SAFE_STACK_CHECK) && SOL_SAFE_STACK_CHECK
 					luaL_checkstack(L, 1, detail::not_enough_stack_space_floating);
 #endif // make sure stack doesn't overflow
@@ -407,12 +407,13 @@ namespace sol {
 		template <typename T>
 		struct unqualified_pusher<nested<T>> {
 			static int push(lua_State* L, const T& tablecont) {
-				using inner_t = std::remove_pointer_t<meta::unwrap_unqualified_t<T>>;
+				using Tu = meta::unwrap_unqualified_t<T>;
+				using inner_t = std::remove_pointer_t<Tu>;
 				if constexpr (is_container_v<inner_t>) {
 					return stack::push<detail::as_table_tag<T>>(L, tablecont, nested_tag);
 				}
 				else {
-					return stack::push<inner_t>(L, tablecont);
+					return stack::push<Tu>(L, tablecont);
 				}
 			}
 		};
@@ -731,7 +732,7 @@ namespace sol {
 		struct unqualified_pusher<std::basic_string<Ch, Traits, Al>> {
 			static int push(lua_State* L, const std::basic_string<Ch, Traits, Al>& str) {
 				if constexpr (!std::is_same_v<Ch, char>) {
-					return stack::push(str.data(), str.size());
+					return stack::push(L, str.data(), str.size());
 				}
 				else {
 #if defined(SOL_SAFE_STACK_CHECK) && SOL_SAFE_STACK_CHECK
@@ -744,7 +745,7 @@ namespace sol {
 
 			static int push(lua_State* L, const std::basic_string<Ch, Traits, Al>& str, std::size_t sz) {
 				if constexpr (!std::is_same_v<Ch, char>) {
-					return stack::push(str.data(), sz);
+					return stack::push(L, str.data(), sz);
 				}
 				else {
 #if defined(SOL_SAFE_STACK_CHECK) && SOL_SAFE_STACK_CHECK

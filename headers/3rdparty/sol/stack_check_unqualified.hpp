@@ -102,7 +102,7 @@ namespace sol { namespace stack {
 			else if constexpr (meta::any_same_v<T, char /* , char8_t*/, char16_t, char32_t>) {
 				return stack::check<std::basic_string<T>>(L, index, std::forward<Handler>(handler), tracking);
 			}
-			else if constexpr (std::is_integral_v<T>) {
+			else if constexpr (std::is_integral_v<T> || std::is_same_v<T, lua_Integer>) {
 				tracking.use(1);
 #if SOL_LUA_VERSION >= 503
 #if defined(SOL_STRINGS_ARE_NUMBERS) && SOL_STRINGS_ARE_NUMBERS
@@ -121,7 +121,7 @@ namespace sol { namespace stack {
 				const bool success = false;
 				if (!success) {
 					// expected type, actual type
-					handler(L, index, type::number, type_of(L, index), "not a numeric (integral) type");
+					handler(L, index, type::number, type_of(L, index), "not a numeric type that fits  exactly an integer (has significant decimals)");
 				}
 #else
 				type t = type_of(L, index);
@@ -153,6 +153,8 @@ namespace sol { namespace stack {
 					// expected type, actual type
 #if defined(SOL_STRINGS_ARE_NUMBERS) && SOL_STRINGS_ARE_NUMBERS
 					handler(L, index, type::number, type_of(L, index), "not a numeric type or numeric string");
+#elif (defined(SOL_SAFE_NUMERICS) && SOL_SAFE_NUMERICS)
+					handler(L, index, type::number, t, "not a numeric type that fits  exactly an integer (has significant decimals)");
 #else
 					handler(L, index, type::number, t, "not a numeric type");
 #endif
@@ -160,7 +162,7 @@ namespace sol { namespace stack {
 				return success;
 #endif // Lua Version 5.3 versus others
 			}
-			else if constexpr (std::is_floating_point_v<T>) {
+			else if constexpr (std::is_floating_point_v<T> || std::is_same_v<T, lua_Number>) {
 				tracking.use(1);
 #if defined(SOL_STRINGS_ARE_NUMBERS) && SOL_STRINGS_ARE_NUMBERS
 				bool success = lua_isnumber(L, index) == 1;

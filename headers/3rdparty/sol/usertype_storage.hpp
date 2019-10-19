@@ -1027,7 +1027,20 @@ namespace sol { namespace u_detail {
 				// not destructible: serialize a
 				// "hey you messed up"
 				// destructor
-				stack::set_field<false, true>(L, meta_function::garbage_collect, &detail::cannot_destruct<T>, t.stack_index());
+				switch (smt) {
+				case submetatable_type::const_reference:
+				case submetatable_type::reference:
+				case submetatable_type::named:
+					break;
+				case submetatable_type::unique:
+					stack::set_field<false, true>(L, meta_function::garbage_collect, &detail::cannot_destruct<T>, t.stack_index());
+					break;
+				case submetatable_type::value:
+				case submetatable_type::const_value:
+				default:
+					stack::set_field<false, true>(L, meta_function::garbage_collect, &detail::cannot_destruct<T>, t.stack_index());
+					break;
+				}
 			}
 
 			static_assert(sizeof(void*) <= sizeof(detail::inheritance_check_function),
@@ -1040,7 +1053,7 @@ namespace sol { namespace u_detail {
 			stack::set_field<false, true>(L, detail::base_class_cast_key(), reinterpret_cast<void*>(&detail::inheritance<T>::type_cast), t.stack_index());
 
 			auto prop_fx = detail::properties_enrollment_allowed(for_each_backing_metatable_calls, storage.properties, enrollments);
-			auto insert_fx = [&L, &t, &storage, &smt](meta_function mf, lua_CFunction reg) {
+			auto insert_fx = [&L, &t, &storage](meta_function mf, lua_CFunction reg) {
 				stack::set_field<false, true>(L, mf, reg, t.stack_index());
 				storage.properties[static_cast<int>(mf)] = true;
 			};
