@@ -283,7 +283,9 @@ namespace e2d
                 throw bad_window_operation();
             }
 
-            update_window_sizes();
+            update_window_size();
+            update_framebuffer_size();
+
             glfwSetWindowUserPointer(window.get(), this);
 
             glfwSetCharCallback(window.get(), input_char_callback_);
@@ -291,7 +293,10 @@ namespace e2d
             glfwSetScrollCallback(window.get(), mouse_scroll_callback_);
             glfwSetMouseButtonCallback(window.get(), mouse_button_callback_);
             glfwSetKeyCallback(window.get(), keyboard_key_callback_);
+
             glfwSetWindowSizeCallback(window.get(), window_size_callback_);
+            glfwSetFramebufferSizeCallback(window.get(), window_framebuffer_callback_);
+
             glfwSetWindowCloseCallback(window.get(), window_close_callback_);
             glfwSetWindowFocusCallback(window.get(), window_focus_callback_);
             glfwSetWindowIconifyCallback(window.get(), window_minimize_callback_);
@@ -302,19 +307,20 @@ namespace e2d
             window.reset();
         }
 
-        void update_window_sizes() noexcept {
+        void update_window_size() noexcept {
             std::lock_guard<std::recursive_mutex> guard(rmutex);
             E2D_ASSERT(window);
-            {
-                int w = 0, h = 0;
-                glfwGetWindowSize(window.get(), &w, &h);
-                real_size = make_vec2(w, h).cast_to<u32>();
-            }
-            {
-                int w = 0, h = 0;
-                glfwGetFramebufferSize(window.get(), &w, &h);
-                framebuffer_size = make_vec2(w, h).cast_to<u32>();
-            }
+            int w = 0, h = 0;
+            glfwGetWindowSize(window.get(), &w, &h);
+            real_size = make_vec2(w, h).cast_to<u32>();
+        }
+
+        void update_framebuffer_size() noexcept {
+            std::lock_guard<std::recursive_mutex> guard(rmutex);
+            E2D_ASSERT(window);
+            int w = 0, h = 0;
+            glfwGetFramebufferSize(window.get(), &w, &h);
+            framebuffer_size = make_vec2(w, h).cast_to<u32>();
         }
 
         template < typename F, typename... Args >
@@ -352,9 +358,6 @@ namespace e2d
             glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
             glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
             glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
-            glfwWindowHint(GLFW_SCALE_TO_MONITOR, GLFW_FALSE);
-            glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, GLFW_FALSE);
-            glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_FALSE);
         #if defined(E2D_BUILD_MODE) && E2D_BUILD_MODE == E2D_BUILD_MODE_DEBUG
             glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
         #endif
@@ -428,7 +431,15 @@ namespace e2d
             E2D_UNUSED(w, h);
             state* self = static_cast<state*>(glfwGetWindowUserPointer(window));
             if ( self ) {
-                self->update_window_sizes();
+                self->update_window_size();
+            }
+        }
+
+        static void window_framebuffer_callback_(GLFWwindow* window, int w, int h) noexcept {
+            E2D_UNUSED(w, h);
+            state* self = static_cast<state*>(glfwGetWindowUserPointer(window));
+            if ( self ) {
+                self->update_framebuffer_size();
             }
         }
 
