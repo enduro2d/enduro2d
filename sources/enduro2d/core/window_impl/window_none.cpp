@@ -19,6 +19,7 @@ namespace e2d
         v2u virtual_size;
         str title;
         bool vsync = false;
+        bool resizable = false;
         bool fullscreen = false;
         bool cursor_hidden = false;
         bool should_close = false;
@@ -27,10 +28,11 @@ namespace e2d
         bool focused = true;
         bool minimized = false;
     public:
-        state(const v2u& size, str_view title, bool vsync, bool fullscreen)
+        state(const v2u& size, str_view title, bool vsync, bool resizable, bool fullscreen)
         : virtual_size(size)
         , title(make_utf8(title))
         , vsync(vsync)
+        , resizable(resizable)
         , fullscreen(fullscreen) {}
         ~state() noexcept = default;
 
@@ -45,8 +47,8 @@ namespace e2d
         }
     };
 
-    window::window(const v2u& size, str_view title, bool vsync, bool fullscreen)
-    : state_(new state(size, title, vsync, fullscreen)) {}
+    window::window(const v2u& size, str_view title, bool vsync, bool resizable, bool fullscreen)
+    : state_(new state(size, title, vsync, resizable, fullscreen)) {}
     window::~window() noexcept = default;
 
     void window::hide() noexcept {

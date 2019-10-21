@@ -27,13 +27,15 @@ namespace e2d
             virtual void on_mouse_scroll(const v2f& delta) noexcept;
             virtual void on_mouse_button(mouse_button btn, mouse_button_action act) noexcept;
             virtual void on_keyboard_key(keyboard_key key, u32 scancode, keyboard_key_action act) noexcept;
+            virtual void on_window_size(const v2u& size) noexcept;
+            virtual void on_framebuffer_size(const v2u& size) noexcept;
             virtual void on_window_close() noexcept;
             virtual void on_window_focus(bool focused) noexcept;
             virtual void on_window_minimize(bool minimized) noexcept;
         };
         using event_listener_uptr = std::unique_ptr<event_listener>;
     public:
-        window(const v2u& size, str_view title, bool vsync, bool fullscreen);
+        window(const v2u& size, str_view title, bool vsync, bool resizable, bool fullscreen);
         ~window() noexcept final;
 
         void hide() noexcept;
@@ -84,6 +86,8 @@ namespace e2d
         void on_mouse_scroll(const v2f& delta) noexcept final;
         void on_mouse_button(mouse_button btn, mouse_button_action act) noexcept final;
         void on_keyboard_key(keyboard_key key, u32 scancode, keyboard_key_action act) noexcept final;
+        void on_window_size(const v2u& size) noexcept final;
+        void on_framebuffer_size(const v2u& size) noexcept final;
         void on_window_close() noexcept final;
         void on_window_focus(bool focused) noexcept final;
         void on_window_minimize(bool minimized) noexcept final;
