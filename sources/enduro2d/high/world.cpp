@@ -15,29 +15,29 @@ namespace
     class gobject_state final : public gobject::state {
     private:
         enum flag_masks : u32 {
-            fm_invalided = 1u << 0,
-            fm_destroying = 1u << 1,
+            fm_destroyed = 1u << 0,
+            fm_invalided = 1u << 1,
         };
     public:
         gobject_state(world& w, ecs::entity e)
         : world_(w)
         , entity_(std::move(e)) {}
 
+        void mark_destroyed() noexcept {
+            math::set_flags_inplace(flags_, fm_destroyed);
+        }
+
         void mark_invalided() noexcept {
             math::set_flags_inplace(flags_, fm_invalided);
-        }
-
-        void mark_destroying() noexcept {
-            math::set_flags_inplace(flags_, fm_destroying);
-        }
-
-        bool destroying() const noexcept {
-            return math::check_any_flags(flags_, fm_destroying);
         }
     public:
         void destroy() noexcept final {
             gobject go{this};
             world_.destroy_instance(go);
+        }
+
+        bool destroyed() const noexcept final {
+            return math::check_any_flags(flags_, fm_destroyed);
         }
 
         bool invalided() const noexcept final {
@@ -226,8 +226,8 @@ namespace e2d
         auto gstate = inst
             ? dynamic_pointer_cast<gobject_state>(inst.internal_state())
             : nullptr;
-        if ( gstate && !gstate->destroying() ) {
-            gstate->mark_destroying();
+        if ( gstate && !gstate->destroyed() ) {
+            gstate->mark_destroyed();
             destroying_states_.push_back(*gstate);
         }
     }
