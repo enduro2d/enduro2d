@@ -19,6 +19,7 @@ namespace e2d
         gobject() = default;
         explicit gobject(state_iptr state);
 
+        bool alive() const noexcept;
         bool valid() const noexcept;
         explicit operator bool() const noexcept;
 
@@ -113,6 +114,7 @@ namespace e2d
     public:
         virtual ~state() noexcept {}
         virtual void destroy() noexcept = 0;
+        virtual bool destroyed() const noexcept = 0;
         virtual bool invalided() const noexcept = 0;
         virtual ecs::entity raw_entity() noexcept = 0;
         virtual ecs::const_entity raw_entity() const noexcept = 0;

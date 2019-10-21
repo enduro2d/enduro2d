@@ -15,6 +15,10 @@ namespace e2d
     gobject::gobject(state_iptr state)
     : state_(std::move(state)) {}
 
+    bool gobject::alive() const noexcept {
+        return state_ && !state_->destroyed();
+    }
+
     bool gobject::valid() const noexcept {
         return state_ && !state_->invalided();
     }
@@ -24,7 +28,7 @@ namespace e2d
     }
 
     void gobject::destroy() noexcept {
-        if ( valid() ) {
+        if ( alive() && valid() ) {
             state_->destroy();
         }
     }
