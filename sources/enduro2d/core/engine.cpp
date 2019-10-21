@@ -60,6 +60,9 @@ namespace e2d
     void engine::application::frame_render() {
     }
 
+    void engine::application::frame_finalize() {
+    }
+
     //
     // engine::debug_parameters
     //
@@ -501,6 +504,7 @@ namespace e2d
                     the<window>().swap_buffers();
                 }
 
+                app->frame_finalize();
                 state_->calculate_end_frame_timers();
             } catch ( ... ) {
                 app->shutdown();

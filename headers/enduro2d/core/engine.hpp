@@ -53,6 +53,7 @@ namespace e2d
         virtual void shutdown() noexcept;
         virtual bool frame_tick();
         virtual void frame_render();
+        virtual void frame_finalize();
     };
 
     //

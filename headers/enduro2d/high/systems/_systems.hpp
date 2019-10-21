@@ -29,6 +29,8 @@ namespace e2d::systems
     struct pre_render_event {};
     struct post_render_event {};
 
+    struct frame_finalize_event {};
+
     using update_system = ecs::system<update_event>;
     using post_update_system = ecs::system<post_update_event>;
 

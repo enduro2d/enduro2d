@@ -51,10 +51,10 @@ namespace
                     .add_system<flipbook_system>())
                 .feature<struct label_feature>(ecs::feature()
                     .add_system<label_system>())
-                .feature<struct spine_feature>(ecs::feature()
-                    .add_system<spine_system>())
                 .feature<struct render_feature>(ecs::feature()
-                    .add_system<render_system>());
+                    .add_system<render_system>())
+                .feature<struct spine_feature>(ecs::feature()
+                    .add_system<spine_system>());
             return !application_ || application_->initialize();
         }
 
@@ -83,6 +83,13 @@ namespace
             registry.process_event(systems::pre_render_event{});
             registry.process_event(systems::render_event{});
             registry.process_event(systems::post_render_event{});
+        }
+
+        void frame_finalize() final {
+            world& w = the<world>();
+            ecs::registry& registry = w.registry();
+            registry.process_event(systems::frame_finalize_event{});
+            w.finalize_instances();
         }
     private:
         starter::application_uptr application_;
