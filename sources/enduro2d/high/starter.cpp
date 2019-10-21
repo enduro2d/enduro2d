@@ -27,6 +27,7 @@
 #include <enduro2d/high/systems/flipbook_system.hpp>
 #include <enduro2d/high/systems/label_system.hpp>
 #include <enduro2d/high/systems/render_system.hpp>
+#include <enduro2d/high/systems/script_system.hpp>
 #include <enduro2d/high/systems/spine_system.hpp>
 
 namespace
@@ -53,6 +54,8 @@ namespace
                     .add_system<label_system>())
                 .feature<struct render_feature>(ecs::feature()
                     .add_system<render_system>())
+                .feature<struct sript_feature>(ecs::feature()
+                    .add_system<script_system>())
                 .feature<struct spine_feature>(ecs::feature()
                     .add_system<spine_system>());
             return !application_ || application_->initialize();
