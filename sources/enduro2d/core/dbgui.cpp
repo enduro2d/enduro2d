@@ -130,8 +130,12 @@ namespace e2d
                 k.is_key_pressed(keyboard_key::lsuper) ||
                 k.is_key_pressed(keyboard_key::rsuper);
 
-            io.DisplaySize = window_.real_size().cast_to<f32>();
-            io.DisplayFramebufferScale = v2f::unit();
+            io.DisplaySize =
+                window_.real_size().cast_to<f32>();
+
+            io.DisplayFramebufferScale =
+                window_.framebuffer_size().cast_to<f32>() /
+                window_.real_size().cast_to<f32>();
 
             if ( ImGui::GetFrameCount() > 0 ) {
                 ImGui::EndFrame();
@@ -149,7 +153,7 @@ namespace e2d
             }
 
             const v2f display_size = draw_data->DisplaySize;
-            const b2f display_size_r = make_rect(display_size);
+            const v2f framebuffer_size = display_size * v2f(draw_data->FramebufferScale);
 
             const m4f projection =
                 math::make_translation_matrix4(display_size * v2f(-0.5f, 0.5f)) *
@@ -175,13 +179,14 @@ namespace e2d
                     const ImDrawCmd& pcmd = cmd_list->CmdBuffer[cmd_i];
 
                     const b2f clip_r(
-                        pcmd.ClipRect.x,
-                        display_size.y - pcmd.ClipRect.w,
-                        pcmd.ClipRect.z - pcmd.ClipRect.x,
-                        pcmd.ClipRect.w - pcmd.ClipRect.y);
+                        (pcmd.ClipRect.x) * draw_data->FramebufferScale.x,
+                        (display_size.y - pcmd.ClipRect.w) * draw_data->FramebufferScale.y,
+                        (pcmd.ClipRect.z - pcmd.ClipRect.x) * draw_data->FramebufferScale.x,
+                        (pcmd.ClipRect.w - pcmd.ClipRect.y) * draw_data->FramebufferScale.y);
 
                     if ( math::minimum(clip_r.position) >= 0.f
-                        && math::overlaps(clip_r, display_size_r) )
+                        && clip_r.position.x + clip_r.size.x <= framebuffer_size.x
+                        && clip_r.position.y + clip_r.size.y <= framebuffer_size.y )
                     {
                         texture_ptr texture = pcmd.TextureId
                             ? *static_cast<texture_ptr*>(pcmd.TextureId)
@@ -196,7 +201,7 @@ namespace e2d
 
                         render_.execute(render::command_block<8>()
                             .add_command(render::viewport_command(
-                                display_size_r.cast_to<u32>(),
+                                framebuffer_size.cast_to<u32>(),
                                 clip_r.cast_to<u32>()))
                             .add_command(render::draw_command(material_, geometry, mprops_)
                                 .index_range(first_index, pcmd.ElemCount)));

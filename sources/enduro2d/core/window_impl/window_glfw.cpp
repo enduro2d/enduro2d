@@ -260,10 +260,11 @@ namespace e2d
         v2u framebuffer_size;
         str title;
         bool vsync = false;
+        bool resizable = false;
         bool fullscreen = false;
         bool cursor_hidden = false;
     public:
-        state(const v2u& size, str_view ntitle, bool nvsync, bool nfullscreen)
+        state(const v2u& size, str_view ntitle, bool nvsync, bool nresizable, bool nfullscreen)
         : shared_state(glfw_state::get_shared_state())
         , window(nullptr, glfwDestroyWindow)
         , real_size(size)
@@ -271,19 +272,23 @@ namespace e2d
         , framebuffer_size(size)
         , title(ntitle)
         , vsync(nvsync)
+        , resizable(nresizable)
         , fullscreen(nfullscreen)
         {
             window = open_window_(
                 size,
                 make_utf8(ntitle),
                 vsync,
+                resizable,
                 fullscreen);
 
             if ( !window ) {
                 throw bad_window_operation();
             }
 
-            update_window_sizes();
+            update_window_size();
+            update_framebuffer_size();
+
             glfwSetWindowUserPointer(window.get(), this);
 
             glfwSetCharCallback(window.get(), input_char_callback_);
@@ -291,7 +296,10 @@ namespace e2d
             glfwSetScrollCallback(window.get(), mouse_scroll_callback_);
             glfwSetMouseButtonCallback(window.get(), mouse_button_callback_);
             glfwSetKeyCallback(window.get(), keyboard_key_callback_);
+
             glfwSetWindowSizeCallback(window.get(), window_size_callback_);
+            glfwSetFramebufferSizeCallback(window.get(), framebuffer_size_callback_);
+
             glfwSetWindowCloseCallback(window.get(), window_close_callback_);
             glfwSetWindowFocusCallback(window.get(), window_focus_callback_);
             glfwSetWindowIconifyCallback(window.get(), window_minimize_callback_);
@@ -302,19 +310,20 @@ namespace e2d
             window.reset();
         }
 
-        void update_window_sizes() noexcept {
+        void update_window_size() noexcept {
             std::lock_guard<std::recursive_mutex> guard(rmutex);
             E2D_ASSERT(window);
-            {
-                int w = 0, h = 0;
-                glfwGetWindowSize(window.get(), &w, &h);
-                real_size = make_vec2(w, h).cast_to<u32>();
-            }
-            {
-                int w = 0, h = 0;
-                glfwGetFramebufferSize(window.get(), &w, &h);
-                framebuffer_size = make_vec2(w, h).cast_to<u32>();
-            }
+            int w = 0, h = 0;
+            glfwGetWindowSize(window.get(), &w, &h);
+            real_size = make_vec2(w, h).cast_to<u32>();
+        }
+
+        void update_framebuffer_size() noexcept {
+            std::lock_guard<std::recursive_mutex> guard(rmutex);
+            E2D_ASSERT(window);
+            int w = 0, h = 0;
+            glfwGetFramebufferSize(window.get(), &w, &h);
+            framebuffer_size = make_vec2(w, h).cast_to<u32>();
         }
 
         template < typename F, typename... Args >
@@ -339,6 +348,7 @@ namespace e2d
             const v2u& virtual_size,
             const str& title,
             bool vsync,
+            bool resizable,
             bool fullscreen) noexcept
         {
             GLFWmonitor* monitor = glfwGetPrimaryMonitor();
@@ -349,14 +359,11 @@ namespace e2d
             if ( !video_mode ) {
                 return {nullptr, glfwDestroyWindow};
             }
-            glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
             glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
             glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
-            glfwWindowHint(GLFW_SCALE_TO_MONITOR, GLFW_FALSE);
-            glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, GLFW_FALSE);
-            glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_FALSE);
+            glfwWindowHint(GLFW_RESIZABLE, resizable ? GLFW_TRUE : GLFW_FALSE);
         #if defined(E2D_BUILD_MODE) && E2D_BUILD_MODE == E2D_BUILD_MODE_DEBUG
-            glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
+            glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
         #endif
             v2i real_size = fullscreen
                 ? make_vec2(video_mode->width, video_mode->height)
@@ -428,7 +435,21 @@ namespace e2d
             E2D_UNUSED(w, h);
             state* self = static_cast<state*>(glfwGetWindowUserPointer(window));
             if ( self ) {
-                self->update_window_sizes();
+                self->update_window_size();
+                self->for_all_listeners(
+                    &event_listener::on_window_size,
+                    make_vec2(w,h).cast_to<u32>());
+            }
+        }
+
+        static void framebuffer_size_callback_(GLFWwindow* window, int w, int h) noexcept {
+            E2D_UNUSED(w, h);
+            state* self = static_cast<state*>(glfwGetWindowUserPointer(window));
+            if ( self ) {
+                self->update_framebuffer_size();
+                self->for_all_listeners(
+                    &event_listener::on_framebuffer_size,
+                    make_vec2(w,h).cast_to<u32>());
             }
         }
 
@@ -463,8 +484,8 @@ namespace e2d
     // class window
     //
 
-    window::window(const v2u& size, str_view title, bool vsync, bool fullscreen)
-    : state_(new state(size, title, vsync, fullscreen)) {}
+    window::window(const v2u& size, str_view title, bool vsync, bool resizable, bool fullscreen)
+    : state_(new state(size, title, vsync, resizable, fullscreen)) {}
     window::~window() noexcept = default;
 
     void window::hide() noexcept {

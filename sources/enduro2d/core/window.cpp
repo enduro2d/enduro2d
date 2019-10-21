@@ -34,6 +34,14 @@ namespace e2d
         E2D_UNUSED(key, scancode, act);
     }
 
+    void window::event_listener::on_window_size(const v2u& size) noexcept {
+        E2D_UNUSED(size);
+    }
+
+    void window::event_listener::on_framebuffer_size(const v2u& size) noexcept {
+        E2D_UNUSED(size);
+    }
+
     void window::event_listener::on_window_close() noexcept {
     }
 
@@ -75,6 +83,14 @@ namespace e2d
             keyboard_key_to_cstr(key),
             scancode,
             keyboard_key_action_to_cstr(act));
+    }
+
+    void window_trace_event_listener::on_window_size(const v2u& size) noexcept {
+        debug_.trace("WINDOW: on_window_size(size: %0)", size);
+    }
+
+    void window_trace_event_listener::on_framebuffer_size(const v2u& size) noexcept {
+        debug_.trace("WINDOW: on_framebuffer_size(size: %0)", size);
     }
 
     void window_trace_event_listener::on_window_close() noexcept {

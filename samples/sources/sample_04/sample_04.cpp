@@ -43,7 +43,7 @@ namespace
             [](const ecs::const_entity&, camera& cam){
                 if ( !cam.target() ) {
                     cam.viewport(
-                        the<window>().real_size());
+                        the<window>().framebuffer_size());
                     cam.projection(math::make_orthogonal_lh_matrix4(
                         the<window>().real_size().cast_to<f32>(), 0.f, 1000.f));
                 }
