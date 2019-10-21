@@ -132,6 +132,11 @@ namespace e2d
         return *this;
     }
 
+    engine::window_parameters& engine::window_parameters::resizable(bool value) noexcept {
+        resizable_ = value;
+        return *this;
+    }
+
     engine::window_parameters& engine::window_parameters::fullscreen(bool value) noexcept {
         fullscreen_ = value;
         return *this;
@@ -147,6 +152,10 @@ namespace e2d
 
     bool engine::window_parameters::vsync() const noexcept {
         return vsync_;
+    }
+
+    bool engine::window_parameters::resizable() const noexcept {
+        return resizable_;
     }
 
     bool engine::window_parameters::fullscreen() const noexcept {
@@ -435,6 +444,7 @@ namespace e2d
                 params.window_params().size(),
                 params.window_params().caption(),
                 params.window_params().vsync(),
+                params.window_params().resizable(),
                 params.window_params().fullscreen());
 
             the<window>().register_event_listener<window_input_source>(the<input>());

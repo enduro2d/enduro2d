@@ -83,16 +83,19 @@ namespace e2d
         window_parameters& caption(str_view value);
         window_parameters& size(const v2u& value) noexcept;
         window_parameters& vsync(bool value) noexcept;
+        window_parameters& resizable(bool value) noexcept;
         window_parameters& fullscreen(bool value) noexcept;
 
         const str& caption() const noexcept;
         const v2u& size() const noexcept;
         bool vsync() const noexcept;
+        bool resizable() const noexcept;
         bool fullscreen() const noexcept;
     private:
         str caption_{"Enduro2D"};
         v2u size_{640, 480};
         bool vsync_{false};
+        bool resizable_{false};
         bool fullscreen_{false};
     };
 
