@@ -19,9 +19,9 @@ namespace
             "error", [](debug& d, const char* s){ d.error(s); },
             "fatal", [](debug& d, const char* s){ d.fatal(s); }
         );
-
     #define DEBUG_LEVEL_PAIR(x) {#x, debug::level::x},
-        l.new_enum<debug::level>("debug_level", {
+        l["debug"].get_or_create<sol::table>()
+        .new_enum<debug::level>("level", {
             DEBUG_LEVEL_PAIR(trace)
             DEBUG_LEVEL_PAIR(warning)
             DEBUG_LEVEL_PAIR(error)
@@ -236,7 +236,7 @@ namespace
             "enabled", sol::property(&window::enabled),
             "visible", sol::property(&window::visible),
             "focused", sol::property(&window::focused),
-            "minimize", sol::property(&window::minimize),
+            "minimized", sol::property(&window::minimized),
 
             "fullscreen", sol::property(
                 &window::fullscreen,
