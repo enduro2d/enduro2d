@@ -192,10 +192,10 @@ namespace e2d
             .register_component<spine_player_evt>("spine_player_evt")
             .register_component<sprite_renderer>("sprite_renderer");
 
+        safe_module_initialize<luasol>();
+
         safe_module_initialize<library>(
             params.library_params().root());
-
-        safe_module_initialize<luasol>();
 
         safe_module_initialize<world>();
     }
@@ -204,8 +204,8 @@ namespace e2d
         the<luasol>().collect_garbage();
 
         modules::shutdown<world>();
-        modules::shutdown<luasol>();
         modules::shutdown<library>();
+        modules::shutdown<luasol>();
         modules::shutdown<factory>();
         modules::shutdown<engine>();
     }

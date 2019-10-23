@@ -6,6 +6,32 @@
 
 #include <enduro2d/high/systems/script_system.hpp>
 
+#include <enduro2d/high/library.hpp>
+#include <enduro2d/high/luasol.hpp>
+#include <enduro2d/high/world.hpp>
+
+namespace
+{
+    using namespace e2d;
+
+    void init_core_table(sol::state& s) {
+        auto e2d_table = s["e2d"].get_or_create<sol::table>();
+        e2d_table["core"] = s.create_table_with(
+            "debug", &the<debug>(),
+            "engine", &the<engine>(),
+            "input", &the<input>(),
+            "window", &the<window>());
+    }
+
+    void init_high_table(sol::state& s) {
+        auto e2d_table = s["e2d"].get_or_create<sol::table>();
+        e2d_table["high"] = s.create_table_with(
+            "library", &the<library>(),
+            "luasol", &the<luasol>(),
+            "world", &the<world>());
+    }
+}
+
 namespace e2d
 {
     //
@@ -14,7 +40,12 @@ namespace e2d
 
     class script_system::internal_state final : private noncopyable {
     public:
-        internal_state() = default;
+        internal_state() {
+            the<luasol>().with_state([](sol::state& s){
+                init_core_table(s);
+                init_high_table(s);
+            });
+        }
         ~internal_state() noexcept = default;
 
         void update_process(ecs::registry& owner) {
