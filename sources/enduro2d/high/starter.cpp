@@ -117,36 +117,53 @@ namespace e2d
     }
 
     //
+    // starter::library_parameters
+    //
+
+    starter::library_parameters& starter::library_parameters::root(url value) noexcept {
+        root_ = std::move(value);
+        return *this;
+    }
+
+    url& starter::library_parameters::root() noexcept {
+        return root_;
+    }
+
+    const url& starter::library_parameters::root() const noexcept {
+        return root_;
+    }
+
+    //
     // starter::parameters
     //
 
-    starter::parameters::parameters(const engine::parameters& engine_params)
-    : engine_params_(engine_params) {}
+    starter::parameters::parameters(engine::parameters engine_params) noexcept
+    : engine_params_(std::move(engine_params)) {}
 
-    starter::parameters& starter::parameters::library_root(const url& value) {
-        library_root_ = value;
+    starter::parameters& starter::parameters::engine_params(engine::parameters value) noexcept {
+        engine_params_ = std::move(value);
         return *this;
     }
 
-    starter::parameters& starter::parameters::engine_params(const engine::parameters& value) {
-        engine_params_ = value;
+    starter::parameters& starter::parameters::library_params(library_parameters value) noexcept {
+        library_params_ = std::move(value);
         return *this;
-    }
-
-    url& starter::parameters::library_root() noexcept {
-        return library_root_;
     }
 
     engine::parameters& starter::parameters::engine_params() noexcept {
         return engine_params_;
     }
 
-    const url& starter::parameters::library_root() const noexcept {
-        return library_root_;
+    starter::library_parameters& starter::parameters::library_params() noexcept {
+        return library_params_;
     }
 
     const engine::parameters& starter::parameters::engine_params() const noexcept {
         return engine_params_;
+    }
+
+    const starter::library_parameters& starter::parameters::library_params() const noexcept {
+        return library_params_;
     }
 
     //
@@ -154,8 +171,10 @@ namespace e2d
     //
 
     starter::starter(int argc, char *argv[], const parameters& params) {
-        safe_module_initialize<engine>(argc, argv, params.engine_params());
-        safe_module_initialize<luasol>();
+        safe_module_initialize<engine>(
+            argc, argv,
+            params.engine_params());
+
         safe_module_initialize<factory>()
             .register_component<actor>("actor")
             .register_component<behaviour>("behaviour")
@@ -172,7 +191,12 @@ namespace e2d
             .register_component<spine_player_cmd>("spine_player_cmd")
             .register_component<spine_player_evt>("spine_player_evt")
             .register_component<sprite_renderer>("sprite_renderer");
-        safe_module_initialize<library>(params.library_root(), the<deferrer>());
+
+        safe_module_initialize<library>(
+            params.library_params().root());
+
+        safe_module_initialize<luasol>();
+
         safe_module_initialize<world>();
     }
 
@@ -180,9 +204,9 @@ namespace e2d
         the<luasol>().collect_garbage();
 
         modules::shutdown<world>();
+        modules::shutdown<luasol>();
         modules::shutdown<library>();
         modules::shutdown<factory>();
-        modules::shutdown<luasol>();
         modules::shutdown<engine>();
     }
 
