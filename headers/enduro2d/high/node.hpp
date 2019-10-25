@@ -127,15 +127,13 @@ namespace e2d
 
         template < typename F >
         void for_each_child(F&& f);
-
         template < typename F >
         void for_each_child(F&& f) const;
 
-        template < typename Iter >
-        std::size_t extract_all_nodes(Iter iter);
-
-        template < typename Iter >
-        std::size_t extract_all_nodes(Iter iter) const;
+        template < typename F >
+        void for_each_child_reversed(F&& f);
+        template < typename F >
+        void for_each_child_reversed(F&& f) const;
     protected:
         node() = default;
         node(gobject owner);
@@ -158,6 +156,41 @@ namespace e2d
         mutable m4f local_matrix_;
         mutable m4f world_matrix_;
     };
+}
+
+namespace e2d::nodes
+{
+    template < typename Iter >
+    std::size_t extract_nodes(const node_iptr& root, Iter iter);
+    template < typename Iter >
+    std::size_t extract_nodes(const const_node_iptr& root, Iter iter);
+
+    template < typename Iter >
+    std::size_t extract_nodes_reversed(const node_iptr& root, Iter iter);
+    template < typename Iter >
+    std::size_t extract_nodes_reversed(const const_node_iptr& root, Iter iter);
+}
+
+namespace e2d::nodes
+{
+    vector<node_iptr> extract_nodes(const node_iptr& root);
+    vector<const_node_iptr> extract_nodes(const const_node_iptr& root);
+
+    vector<node_iptr> extract_nodes_reversed(const node_iptr& root);
+    vector<const_node_iptr> extract_nodes_reversed(const const_node_iptr& root);
+}
+
+namespace e2d::nodes
+{
+    template < typename F >
+    void for_extracted_nodes(const node_iptr& root, F&& f);
+    template < typename F >
+    void for_extracted_nodes(const const_node_iptr& root, F&& f);
+
+    template < typename F >
+    void for_extracted_nodes_reversed(const node_iptr& root, F&& f);
+    template < typename F >
+    void for_extracted_nodes_reversed(const const_node_iptr& root, F&& f);
 }
 
 #include "node.inl"

@@ -19,23 +19,6 @@ namespace
     using namespace e2d;
     using namespace e2d::render_system_impl;
 
-    template < typename F >
-    void for_each_by_nodes(const const_node_iptr& root, F&& f) {
-        static vector<const_node_iptr> temp_nodes;
-        try {
-            if ( root ) {
-                root->extract_all_nodes(std::back_inserter(temp_nodes));
-                for ( const const_node_iptr& node : temp_nodes ) {
-                    f(node);
-                }
-            }
-        } catch (...) {
-            temp_nodes.clear();
-            throw;
-        }
-        temp_nodes.clear();
-    }
-
     template < typename T, typename Comp, typename F >
     void for_each_by_sorted_components(ecs::registry& owner, Comp&& comp, F&& f) {
         static vector<std::pair<ecs::const_entity,T>> temp_components;
@@ -67,7 +50,7 @@ namespace
         const auto func = [&ctx](const ecs::const_entity& scn_e, const scene&) {
             const actor* scn_a = scn_e.find_component<actor>();
             if ( scn_a && scn_a->node() ) {
-                for_each_by_nodes(scn_a->node(), [&ctx](const const_node_iptr& node){
+                nodes::for_extracted_nodes(scn_a->node(), [&ctx](const const_node_iptr& node){
                     ctx.draw(node);
                 });
             }

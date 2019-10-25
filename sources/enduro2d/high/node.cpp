@@ -439,3 +439,30 @@ namespace e2d
             : local_matrix();
     }
 }
+
+namespace e2d::nodes
+{
+    vector<node_iptr> extract_nodes(const node_iptr& root) {
+        vector<node_iptr> nodes;
+        extract_nodes(root, std::back_inserter(nodes));
+        return nodes;
+    }
+
+    vector<const_node_iptr> extract_nodes(const const_node_iptr& root) {
+        vector<const_node_iptr> nodes;
+        extract_nodes(root, std::back_inserter(nodes));
+        return nodes;
+    }
+
+    vector<node_iptr> extract_nodes_reversed(const node_iptr& root) {
+        vector<node_iptr> nodes;
+        extract_nodes_reversed(root, std::back_inserter(nodes));
+        return nodes;
+    }
+
+    vector<const_node_iptr> extract_nodes_reversed(const const_node_iptr& root) {
+        vector<const_node_iptr> nodes;
+        extract_nodes_reversed(root, std::back_inserter(nodes));
+        return nodes;
+    }
+}
