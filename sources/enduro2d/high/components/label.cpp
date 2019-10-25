@@ -112,7 +112,7 @@ namespace e2d
                 the<debug>().error("LABEL: Incorrect formatting of 'halign' property");
                 return false;
             }
-            component.haligh(halign);
+            component.halign(halign);
         }
 
         if ( ctx.root.HasMember("valign") ) {
@@ -121,7 +121,7 @@ namespace e2d
                 the<debug>().error("LABEL: Incorrect formatting of 'valign' property");
                 return false;
             }
-            component.valigh(valign);
+            component.valign(valign);
         }
 
         if ( ctx.root.HasMember("leading") ) {

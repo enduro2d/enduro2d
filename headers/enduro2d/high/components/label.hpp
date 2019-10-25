@@ -49,10 +49,10 @@ namespace e2d
         label& tint(const color32& value) noexcept;
         [[nodiscard]] const color32& tint() const noexcept;
 
-        label& haligh(haligns value) noexcept;
+        label& halign(haligns value) noexcept;
         [[nodiscard]] haligns halign() const noexcept;
 
-        label& valigh(valigns value) noexcept;
+        label& valign(valigns value) noexcept;
         [[nodiscard]] valigns valign() const noexcept;
 
         label& leading(f32 value) noexcept;
@@ -207,7 +207,7 @@ namespace e2d
         return tint_;
     }
 
-    inline label& label::haligh(haligns value) noexcept {
+    inline label& label::halign(haligns value) noexcept {
         halign_ = value;
         return *this;
     }
@@ -216,7 +216,7 @@ namespace e2d
         return halign_;
     }
 
-    inline label& label::valigh(valigns value) noexcept {
+    inline label& label::valign(valigns value) noexcept {
         valign_ = value;
         return *this;
     }
