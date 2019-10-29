@@ -8,6 +8,7 @@
 
 #include <enduro2d/high/components/actor.hpp>
 #include <enduro2d/high/components/camera.hpp>
+#include <enduro2d/high/components/disabled.hpp>
 #include <enduro2d/high/components/scene.hpp>
 
 #include "render_system_impl/render_system_base.hpp"
@@ -21,7 +22,7 @@ namespace
 
     void for_all_scenes(drawer::context& ctx, const ecs::registry& owner) {
         const auto comp = [](const auto& l, const auto& r) noexcept {
-            return std::get<1>(l).get().depth() < std::get<1>(r).get().depth();
+            return std::get<scene>(l).depth() < std::get<scene>(r).depth();
         };
         const auto func = [&ctx](
             const ecs::const_entity&,
@@ -32,12 +33,16 @@ namespace
                 ctx.draw(node);
             });
         };
-        systems::for_extracted_components<scene, actor>(owner, comp, func);
+        systems::for_extracted_sorted_components<scene, actor>(
+            owner,
+            comp,
+            func,
+            !ecs::exists<disabled<scene>>());
     }
 
     void for_all_cameras(drawer& drawer, const ecs::registry& owner) {
         const auto comp = [](const auto& l, const auto& r) noexcept {
-            return std::get<1>(l).get().depth() < std::get<1>(r).get().depth();
+            return std::get<camera>(l).depth() < std::get<camera>(r).depth();
         };
         const auto func = [&drawer, &owner](
             const ecs::const_entity&,
@@ -48,7 +53,11 @@ namespace
                 for_all_scenes(ctx, owner);
             });
         };
-        systems::for_extracted_components<camera, actor>(owner, comp, func);
+        systems::for_extracted_sorted_components<camera, actor>(
+            owner,
+            comp,
+            func,
+            !ecs::exists<disabled<camera>>());
     }
 }
 

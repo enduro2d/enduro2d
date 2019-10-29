@@ -15,9 +15,6 @@ namespace e2d
 {
     class behaviour final {
     public:
-        class started final {};
-        class disabled final {};
-    public:
         behaviour() = default;
         behaviour(const script_asset::ptr& script);
 
@@ -41,34 +38,6 @@ namespace e2d
 
         bool operator()(
             behaviour& component,
-            const fill_context& ctx) const;
-
-        bool operator()(
-            asset_dependencies& dependencies,
-            const collect_context& ctx) const;
-    };
-
-    template <>
-    class factory_loader<behaviour::started> final : factory_loader<> {
-    public:
-        static const char* schema_source;
-
-        bool operator()(
-            behaviour::started& component,
-            const fill_context& ctx) const;
-
-        bool operator()(
-            asset_dependencies& dependencies,
-            const collect_context& ctx) const;
-    };
-    
-    template <>
-    class factory_loader<behaviour::disabled> final : factory_loader<> {
-    public:
-        static const char* schema_source;
-
-        bool operator()(
-            behaviour::disabled& component,
             const fill_context& ctx) const;
 
         bool operator()(

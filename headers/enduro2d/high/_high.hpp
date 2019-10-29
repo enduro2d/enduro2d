@@ -46,6 +46,8 @@ namespace e2d
     class actor;
     class behaviour;
     class camera;
+    template < typename T >
+    class disabled;
     class flipbook_player;
     class label;
     class model_renderer;

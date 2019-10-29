@@ -207,7 +207,8 @@ namespace
             f32 kerning{0.f};
         };
 
-        static vector<glyph_desc> glyphs;
+        //TODO(BlackMat): replace it to frame allocator
+        static thread_local vector<glyph_desc> glyphs;
         glyphs.clear();
         glyphs.reserve(text.size());
 
@@ -244,7 +245,8 @@ namespace
             : start(start) {}
         };
 
-        static vector<string_desc> strings;
+        //TODO(BlackMat): replace it to frame allocator
+        static thread_local vector<string_desc> strings;
         strings.clear();
         strings.reserve(calculate_string_count(text));
 

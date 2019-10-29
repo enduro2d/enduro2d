@@ -71,7 +71,7 @@ namespace e2d
         T* operator->() noexcept;
         const T* operator->() const noexcept;
 
-        const gobject& owner() const noexcept;
+        gobject owner() const noexcept;
         explicit operator bool() const noexcept;
     private:
         gobject owner_;
@@ -93,7 +93,7 @@ namespace e2d
         const T& operator*() const noexcept;
         const T* operator->() const noexcept;
 
-        const gobject& owner() const noexcept;
+        gobject owner() const noexcept;
         explicit operator bool() const noexcept;
     private:
         gobject owner_;
@@ -228,7 +228,7 @@ namespace e2d
     }
 
     template < typename T >
-    const gobject& gcomponent<T>::owner() const noexcept {
+    gobject gcomponent<T>::owner() const noexcept {
         return owner_;
     }
 
@@ -283,7 +283,7 @@ namespace e2d
     }
 
     template < typename T >
-    const gobject& const_gcomponent<T>::owner() const noexcept {
+    gobject const_gcomponent<T>::owner() const noexcept {
         return owner_;
     }
 

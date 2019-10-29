@@ -178,8 +178,6 @@ namespace e2d
         safe_module_initialize<factory>()
             .register_component<actor>("actor")
             .register_component<behaviour>("behaviour")
-            .register_component<behaviour::started>("behaviour.started")
-            .register_component<behaviour::disabled>("behaviour.disabled")
             .register_component<camera>("camera")
             .register_component<flipbook_player>("flipbook_player")
             .register_component<label>("label")

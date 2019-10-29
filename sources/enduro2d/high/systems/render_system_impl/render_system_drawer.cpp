@@ -6,6 +6,7 @@
 
 #include "render_system_drawer.hpp"
 
+#include <enduro2d/high/components/disabled.hpp>
 #include <enduro2d/high/components/model_renderer.hpp>
 #include <enduro2d/high/components/renderer.hpp>
 #include <enduro2d/high/components/spine_player.hpp>
@@ -79,9 +80,7 @@ namespace e2d::render_system_impl
         batcher_.clear(true);
     }
 
-    void drawer::context::draw(
-        const const_node_iptr& node)
-    {
+    void drawer::context::draw(const const_node_iptr& node) {
         if ( !node || !node->owner() ) {
             return;
         }
@@ -89,7 +88,7 @@ namespace e2d::render_system_impl
         const gobject& owner = node->owner();
         gcomponent<renderer> node_r{owner};
 
-        if ( !node_r || !node_r->enabled() ) {
+        if ( !node_r || owner.component<disabled<renderer>>() ) {
             return;
         }
 
@@ -106,15 +105,15 @@ namespace e2d::render_system_impl
         }
     }
 
+    void drawer::context::flush() {
+        batcher_.flush();
+    }
+
     void drawer::context::draw(
         const const_node_iptr& node,
         const renderer& node_r,
         const model_renderer& mdl_r)
     {
-        if ( !node || !node_r.enabled() ) {
-            return;
-        }
-
         if ( !mdl_r.model() || !mdl_r.model()->content().mesh() ) {
             return;
         }
@@ -156,12 +155,9 @@ namespace e2d::render_system_impl
         const renderer& node_r,
         const spine_player& spine_r)
     {
-        static std::vector<float> temp_vertices(1000u, 0.f);
-        static std::vector<batcher_type::vertex_type> batch_vertices(1000u);
-
-        if ( !node || !node_r.enabled() ) {
-            return;
-        }
+        //TODO(BlackMat): replace it to frame allocator
+        static thread_local std::vector<float> temp_vertices(1000u, 0.f);
+        static thread_local std::vector<batcher_type::vertex_type> batch_vertices(1000u);
 
         spSkeleton* skeleton = spine_r.skeleton().get();
         spSkeletonClipping* clipper = spine_r.clipper().get();
@@ -431,10 +427,6 @@ namespace e2d::render_system_impl
         const renderer& node_r,
         const sprite_renderer& spr_r)
     {
-        if ( !node || !node_r.enabled() ) {
-            return;
-        }
-
         if ( !spr_r.sprite() ) {
             return;
         }
@@ -528,10 +520,6 @@ namespace e2d::render_system_impl
         }
 
         property_cache_.clear();
-    }
-
-    void drawer::context::flush() {
-        batcher_.flush();
     }
 
     //

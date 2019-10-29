@@ -40,39 +40,41 @@ namespace e2d::systems
 
 namespace e2d::systems
 {
-    template < typename... Ts, typename Iter >
-    std::size_t extract_components(ecs::registry& owner, Iter iter) {
+    template < typename... Ts, typename Iter, typename... Opts >
+    std::size_t extract_components(ecs::registry& owner, Iter iter, Opts&&... opts) {
         std::size_t count{0u};
         owner.for_joined_components<Ts...>(
         [&iter, &count](const ecs::entity& e, Ts&... cs){
-            iter++ = std::make_tuple(e, std::ref(cs)...);
+            iter++ = std::make_tuple(e, cs...);
             ++count;
-        });
+        }, std::forward<Opts>(opts)...);
         return count;
     }
 
-    template < typename... Ts, typename Iter >
-    std::size_t extract_components(const ecs::registry& owner, Iter iter) {
+    template < typename... Ts, typename Iter, typename... Opts >
+    std::size_t extract_components(const ecs::registry& owner, Iter iter, Opts&&... opts) {
         std::size_t count{0u};
         owner.for_joined_components<Ts...>(
         [&iter, &count](const ecs::const_entity& e, const Ts&... cs){
-            iter++ = std::make_tuple(e, std::cref(cs)...);
+            iter++ = std::make_tuple(e, cs...);
             ++count;
-        });
+        }, std::forward<Opts>(opts)...);
         return count;
     }
 }
 
 namespace e2d::systems
 {
-    template < typename... Ts, typename F >
-    void for_extracted_components(ecs::registry& owner, F&& f) {
+    template < typename... Ts, typename F, typename... Opts >
+    void for_extracted_components(ecs::registry& owner, F&& f, Opts&&... opts) {
         //TODO(BlackMat): replace it to frame allocator
-        static thread_local vector<std::tuple<
-            ecs::entity,
-            std::reference_wrapper<Ts>...>> components;
+        static thread_local vector<
+            std::tuple<ecs::entity, Ts...>> components;
         try {
-            extract_components<Ts...>(owner, std::back_inserter(components));
+            extract_components<Ts...>(
+                owner,
+                std::back_inserter(components),
+                std::forward<Opts>(opts)...);
             for ( auto& t : components ) {
                 std::apply(f, t);
             }
@@ -83,14 +85,16 @@ namespace e2d::systems
         components.clear();
     }
 
-    template < typename... Ts, typename F >
-    void for_extracted_components(const ecs::registry& owner, F&& f) {
+    template < typename... Ts, typename F, typename... Opts >
+    void for_extracted_components(const ecs::registry& owner, F&& f, Opts&&... opts) {
         //TODO(BlackMat): replace it to frame allocator
-        static thread_local vector<std::tuple<
-            ecs::const_entity,
-            std::reference_wrapper<const Ts>...>> components;
+        static thread_local vector<
+            std::tuple<ecs::const_entity, Ts...>> components;
         try {
-            extract_components<Ts...>(owner, std::back_inserter(components));
+            extract_components<Ts...>(
+                owner,
+                std::back_inserter(components),
+                std::forward<Opts>(opts)...);
             for ( const auto& t : components ) {
                 std::apply(f, t);
             }
@@ -104,14 +108,16 @@ namespace e2d::systems
 
 namespace e2d::systems
 {
-    template < typename... Ts, typename Comp, typename F >
-    void for_extracted_components(ecs::registry& owner, Comp&& comp, F&& f) {
+    template < typename... Ts, typename Comp, typename F, typename... Opts >
+    void for_extracted_sorted_components(ecs::registry& owner, Comp&& comp, F&& f, Opts&&... opts) {
         //TODO(BlackMat): replace it to frame allocator
-        static thread_local vector<std::tuple<
-            ecs::entity,
-            std::reference_wrapper<Ts>...>> components;
+        static thread_local vector<
+            std::tuple<ecs::entity, Ts...>> components;
         try {
-            extract_components<Ts...>(owner, std::back_inserter(components));
+            extract_components<Ts...>(
+                owner,
+                std::back_inserter(components),
+                std::forward<Opts>(opts)...);
             std::sort(components.begin(), components.end(), comp);
             for ( auto& t : components ) {
                 std::apply(f, t);
@@ -123,14 +129,16 @@ namespace e2d::systems
         components.clear();
     }
 
-    template < typename... Ts, typename Comp, typename F >
-    void for_extracted_components(const ecs::registry& owner, Comp&& comp, F&& f) {
+    template < typename... Ts, typename Comp, typename F, typename... Opts >
+    void for_extracted_sorted_components(const ecs::registry& owner, Comp&& comp, F&& f, Opts&&... opts) {
         //TODO(BlackMat): replace it to frame allocator
-        static thread_local vector<std::tuple<
-            ecs::const_entity,
-            std::reference_wrapper<const Ts>...>> components;
+        static thread_local vector<
+            std::tuple<ecs::const_entity, Ts...>> components;
         try {
-            extract_components<Ts...>(owner, std::back_inserter(components));
+            extract_components<Ts...>(
+                owner,
+                std::back_inserter(components),
+                std::forward<Opts>(opts)...);
             std::sort(components.begin(), components.end(), comp);
             for ( const auto& t : components ) {
                 std::apply(f, t);

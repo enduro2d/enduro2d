@@ -31,6 +31,7 @@
 #include "components/actor.hpp"
 #include "components/behaviour.hpp"
 #include "components/camera.hpp"
+#include "components/disabled.hpp"
 #include "components/flipbook_player.hpp"
 #include "components/label.hpp"
 #include "components/model_renderer.hpp"

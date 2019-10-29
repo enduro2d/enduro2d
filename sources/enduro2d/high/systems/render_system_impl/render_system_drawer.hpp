@@ -40,9 +40,9 @@ namespace e2d::render_system_impl
                 batcher_type& batcher);
             ~context() noexcept;
 
-            void draw(
-                const const_node_iptr& node);
-
+            void draw(const const_node_iptr& node);
+            void flush();
+        private:
             void draw(
                 const const_node_iptr& node,
                 const renderer& node_r,
@@ -52,13 +52,11 @@ namespace e2d::render_system_impl
                 const const_node_iptr& node,
                 const renderer& node_r,
                 const sprite_renderer& spr_r);
-            
+
             void draw(
                 const const_node_iptr& node,
                 const renderer& node_r,
                 const spine_player& spine_r);
-
-            void flush();
         private:
             render& render_;
             batcher_type& batcher_;

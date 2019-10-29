@@ -17,9 +17,6 @@ namespace e2d
     public:
         renderer() = default;
 
-        renderer& enabled(bool value) noexcept;
-        bool enabled() const noexcept;
-
         renderer& properties(render::property_block&& value) noexcept;
         renderer& properties(const render::property_block& value);
 
@@ -32,7 +29,6 @@ namespace e2d
         vector<material_asset::ptr>& materials() noexcept;
         const vector<material_asset::ptr>& materials() const noexcept;
     private:
-        bool enabled_ = true;
         render::property_block properties_;
         vector<material_asset::ptr> materials_;
     };
@@ -54,15 +50,6 @@ namespace e2d
 
 namespace e2d
 {
-    inline renderer& renderer::enabled(bool value) noexcept {
-        enabled_ = value;
-        return *this;
-    }
-
-    inline bool renderer::enabled() const noexcept {
-        return enabled_;
-    }
-
     inline renderer& renderer::properties(render::property_block&& value) noexcept {
         properties_ = std::move(value);
         return *this;
