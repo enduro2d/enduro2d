@@ -51,6 +51,7 @@ namespace e2d
     class flipbook_player;
     class label;
     class model_renderer;
+    class named;
     class renderer;
     class scene;
     class spine_player;

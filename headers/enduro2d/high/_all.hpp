@@ -35,6 +35,7 @@
 #include "components/flipbook_player.hpp"
 #include "components/label.hpp"
 #include "components/model_renderer.hpp"
+#include "components/named.hpp"
 #include "components/renderer.hpp"
 #include "components/scene.hpp"
 #include "components/spine_player.hpp"

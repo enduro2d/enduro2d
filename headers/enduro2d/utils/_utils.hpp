@@ -200,4 +200,16 @@ namespace e2d::utils
             return self_id;
         }
     };
+
+    //
+    // overloaded
+    //
+
+    template < typename... Ts >
+    struct overloaded : Ts... {
+        using Ts::operator()...;
+    };
+
+    template < typename... Ts >
+    overloaded(Ts...) -> overloaded<Ts...>;
 }
