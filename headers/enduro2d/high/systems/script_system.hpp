@@ -13,7 +13,7 @@ namespace e2d
     class script_system final
         : public ecs::system<
             systems::update_event,
-            ecs::after<systems::frame_finalize_event>> {
+            ecs::before<systems::update_event>> {
     public:
         script_system();
         ~script_system() noexcept;
@@ -24,7 +24,7 @@ namespace e2d
 
         void process(
             ecs::registry& owner,
-            const ecs::after<systems::frame_finalize_event>& event) override;
+            const ecs::before<systems::update_event>& trigger) override;
     private:
         class internal_state;
         std::unique_ptr<internal_state> state_;

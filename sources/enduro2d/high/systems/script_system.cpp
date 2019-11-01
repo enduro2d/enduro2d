@@ -10,6 +10,11 @@
 #include <enduro2d/high/luasol.hpp>
 #include <enduro2d/high/world.hpp>
 
+#include <enduro2d/high/components/actor.hpp>
+#include <enduro2d/high/components/behaviour.hpp>
+#include <enduro2d/high/components/disabled.hpp>
+#include <enduro2d/high/components/spine_player_evt.hpp>
+
 namespace
 {
     using namespace e2d;
@@ -27,6 +32,35 @@ namespace
         e2d_table["library"] = &the<library>();
         e2d_table["luasol"] = &the<luasol>();
         e2d_table["world"] = &the<world>();
+    }
+
+    void process_spine_player_events(ecs::registry& owner) {
+        systems::for_extracted_components<spine_player_evt, behaviour, actor>(owner,
+        [](ecs::entity e, const spine_player_evt& spe, behaviour& b, actor& a){
+            if ( !a.node() || !a.node()->owner() ) {
+                return;
+            }
+            for ( const spine_player_evt::event& evt : spe.events() ) {
+                behaviours::call_result r = behaviours::call_result::success;
+                std::visit(utils::overloaded {
+                    [&b,&a,&r](const spine_player_evt::custom_evt& e){
+                        r = behaviours::call_meta_method(
+                            b, "on_event", a.node()->owner(), "spine_player.custom_evt", e);
+                    },
+                    [&b,&a,&r](const spine_player_evt::end_evt& e){
+                        r = behaviours::call_meta_method(
+                            b, "on_event", a.node()->owner(), "spine_player.end_evt", e);
+                    },
+                    [&b,&a,&r](const spine_player_evt::complete_evt& e){
+                        r = behaviours::call_meta_method(
+                            b, "on_event", a.node()->owner(), "spine_player.complete_evt", e);
+                    }
+                }, evt);
+                if ( r == behaviours::call_result::failed ) {
+                    e.assign_component<disabled<behaviour>>();
+                }
+            }
+        }, !ecs::exists<disabled<behaviour>>());
     }
 }
 
@@ -47,11 +81,20 @@ namespace e2d
         ~internal_state() noexcept = default;
 
         void update_process(ecs::registry& owner) {
-            E2D_UNUSED(owner);
+            systems::for_extracted_components<behaviour, actor>(owner,
+            [](ecs::entity e, behaviour& b, actor& a){
+                if ( !a.node() || !a.node()->owner() ) {
+                    return;
+                }
+                const auto result = behaviours::call_meta_method(b, "on_update", a.node()->owner());
+                if ( result == behaviours::call_result::failed ) {
+                    e.assign_component<disabled<behaviour>>();
+                }
+            }, !ecs::exists<disabled<behaviour>>());
         }
 
-        void finalize_process(ecs::registry& owner) {
-            E2D_UNUSED(owner);
+        void process_events(ecs::registry& owner) {
+            process_spine_player_events(owner);
         }
     };
 
@@ -73,9 +116,9 @@ namespace e2d
 
     void script_system::process(
         ecs::registry& owner,
-        const ecs::after<systems::frame_finalize_event>& event)
+        const ecs::before<systems::update_event>& trigger)
     {
-        E2D_UNUSED(event);
-        state_->finalize_process(owner);
+        E2D_UNUSED(trigger);
+        state_->process_events(owner);
     }
 }
