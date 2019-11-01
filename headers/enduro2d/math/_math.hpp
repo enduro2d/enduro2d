@@ -742,7 +742,6 @@ namespace e2d::math
 
     template < typename T >
     T inverse_lerp(T l, T r, T v) noexcept {
-        E2D_ASSERT(!approximately(l, r, T(0)));
         return (v - l) / (r - l);
     }
 }

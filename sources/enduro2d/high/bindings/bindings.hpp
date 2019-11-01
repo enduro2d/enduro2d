@@ -6,12 +6,30 @@
 
 #pragma once
 
-#include <enduro2d/high/luasol.hpp>
+#include <enduro2d/high/_high.hpp>
 
 namespace e2d::bindings
 {
-    void bind_math(sol::state& l);
-    void bind_utils(sol::state& l);
-    void bind_core(sol::state& l);
-    void bind_high(sol::state& l);
+    template < typename T >
+    struct component_wrapper {
+        gcomponent<T> component;
+    };
+}
+
+namespace sol
+{
+    template < typename T >
+    struct unique_usertype_traits<e2d::bindings::component_wrapper<T>> {
+        using type = e2d::gcomponent<T>;
+        using actual_type = e2d::bindings::component_wrapper<T>;
+        static const bool value = true;
+
+        static bool is_null(const actual_type& ptr) {
+            return !ptr.component.exists();
+        }
+
+        static type* get(actual_type& ptr) {
+            return &ptr.component;
+        }
+    };
 }

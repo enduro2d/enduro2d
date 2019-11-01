@@ -111,34 +111,4 @@ namespace sol
             return ptr.get();
         }
     };
-
-    template < typename T >
-    struct unique_usertype_traits<e2d::gcomponent<T>> {
-        using type = T;
-        using actual_type = e2d::gcomponent<T>;
-        static const bool value = true;
-
-        static bool is_null(const actual_type& ptr) {
-            return !ptr;
-        }
-
-        static type* get(actual_type& ptr) {
-            return ptr.find();
-        }
-    };
-
-    template < typename T >
-    struct unique_usertype_traits<e2d::const_gcomponent<T>> {
-        using type = T;
-        using actual_type = e2d::const_gcomponent<T>;
-        static const bool value = true;
-
-        static bool is_null(const actual_type& ptr) {
-            return !ptr;
-        }
-
-        static type* get(actual_type& ptr) {
-            return ptr.find();
-        }
-    };
 }

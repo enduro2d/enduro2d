@@ -1,52 +1,28 @@
 /*******************************************************************************
- * This file is part of the "Enduro2D"
- * For conditions of distribution and use, see copyright notice in LICENSE.md
- * Copyright (C) 2018-2019, by Matvey Cherevko (blackmatov@gmail.com)
- ******************************************************************************/
+* This file is part of the "Enduro2D"
+* For conditions of distribution and use, see copyright notice in LICENSE.md
+* Copyright (C) 2018-2019, by Matvey Cherevko (blackmatov@gmail.com)
+******************************************************************************/
 
-#include "bindings.hpp"
+#include "_core_binds.hpp"
 
-namespace
+namespace e2d::bindings::core
 {
-    using namespace e2d;
-
-    void bind_debug(sol::state& l) {
-        l.new_usertype<debug>("debug",
-            "min_level", sol::property(&debug::min_level, &debug::set_min_level),
-            "log", [](debug& d, debug::level l, const char* s){ d.log(l, s); },
-            "trace", [](debug& d, const char* s){ d.trace(s); },
-            "warning", [](debug& d, const char* s){ d.warning(s); },
-            "error", [](debug& d, const char* s){ d.error(s); },
-            "fatal", [](debug& d, const char* s){ d.fatal(s); }
-        );
-    #define DEBUG_LEVEL_PAIR(x) {#x, debug::level::x},
-        l["debug"].get_or_create<sol::table>()
-        .new_enum<debug::level>("level", {
-            DEBUG_LEVEL_PAIR(trace)
-            DEBUG_LEVEL_PAIR(warning)
-            DEBUG_LEVEL_PAIR(error)
-            DEBUG_LEVEL_PAIR(fatal)
-        });
-    #undef DEBUG_LEVEL_PAIR
-    }
-
-    void bind_engine(sol::state& l) {
-        l.new_usertype<engine>("engine",
-            "time", sol::property(&engine::time),
-            "delta_time", sol::property(&engine::delta_time),
-            "frame_rate", sol::property(&engine::frame_rate),
-            "frame_count", sol::property(&engine::frame_count),
-            "realtime_time", sol::property(&engine::realtime_time)
-        );
-    }
-
     void bind_input(sol::state& l) {
-        l.new_usertype<input>("input",
+        l["e2d"].get_or_create<sol::table>()
+        ["core"].get_or_create<sol::table>()
+        .new_usertype<input>("input",
+            sol::no_constructor,
+
             "mouse", sol::property(&input::mouse),
             "keyboard", sol::property(&input::keyboard)
         );
 
-        l.new_usertype<mouse>("mouse",
+        l["e2d"].get_or_create<sol::table>()
+        ["core"].get_or_create<sol::table>()
+        .new_usertype<mouse>("mouse",
+            sol::no_constructor,
+
             "cursor_pos", sol::property(&mouse::cursor_pos),
             "scroll_delta", sol::property(&mouse::scroll_delta),
 
@@ -63,8 +39,14 @@ namespace
             "just_released_buttons", sol::property(&mouse::just_released_buttons)
         );
 
-        l.new_usertype<keyboard>("keyboard",
-            "input_text", sol::property([](const keyboard& k){ return make_utf8(k.input_text()); }),
+        l["e2d"].get_or_create<sol::table>()
+        ["core"].get_or_create<sol::table>()
+        .new_usertype<keyboard>("keyboard",
+            sol::no_constructor,
+
+            "input_text", sol::property([](const keyboard& k){
+                return make_utf8(k.input_text());
+            }),
 
             "is_any_key_pressed", sol::property(&keyboard::is_any_key_pressed),
             "is_any_key_just_pressed", sol::property(&keyboard::is_any_key_just_pressed),
@@ -80,7 +62,8 @@ namespace
         );
 
     #define MOUSE_BUTTON_PAIR(x) {#x, mouse_button::x},
-        l.new_enum<mouse_button>("mouse_button", {
+        l["e2d"].get_or_create<sol::table>()
+        .new_enum<mouse_button>("mouse_button", {
             MOUSE_BUTTON_PAIR(left)
             MOUSE_BUTTON_PAIR(right)
             MOUSE_BUTTON_PAIR(middle)
@@ -90,7 +73,8 @@ namespace
     #undef MOUSE_BUTTON_PAIR
 
     #define KEYBOARD_KEY_PAIR(x) {#x, keyboard_key::x},
-        l.new_enum<keyboard_key>("keyboard_key", {
+        l["e2d"].get_or_create<sol::table>()
+        .new_enum<keyboard_key>("keyboard_key", {
             KEYBOARD_KEY_PAIR(_0)
             KEYBOARD_KEY_PAIR(_1)
             KEYBOARD_KEY_PAIR(_2)
@@ -224,50 +208,5 @@ namespace
             KEYBOARD_KEY_PAIR(kp_decimal)
         });
     #undef KEYBOARD_KEY_PAIR
-    }
-
-    void bind_window(sol::state& l) {
-        l.new_usertype<window>("window",
-            "hide", &window::hide,
-            "show", &window::show,
-            "restore", &window::restore,
-            "minimize", &window::minimize,
-
-            "enabled", sol::property(&window::enabled),
-            "visible", sol::property(&window::visible),
-            "focused", sol::property(&window::focused),
-            "minimized", sol::property(&window::minimized),
-
-            "fullscreen", sol::property(
-                &window::fullscreen,
-                &window::toggle_fullscreen),
-
-            "cursor_hidden", sol::property(
-                &window::is_cursor_hidden,
-                [](window& w, bool yesno){
-                    if ( yesno ) {
-                        w.hide_cursor();
-                    } else {
-                        w.show_cursor();
-                    }
-                }),
-
-            "real_size", sol::property([](const window& w){ return w.real_size().cast_to<f32>(); }),
-            "virtual_size", sol::property([](const window& w){ return w.virtual_size().cast_to<f32>(); }),
-            "framebuffer_size", sol::property([](const window& w){ return w.framebuffer_size().cast_to<f32>(); }),
-
-            "title", sol::property(&window::title, &window::set_title),
-            "should_close", sol::property(&window::should_close, &window::set_should_close)
-        );
-    }
-}
-
-namespace e2d::bindings
-{
-    void bind_core(sol::state& l) {
-        bind_debug(l);
-        bind_engine(l);
-        bind_input(l);
-        bind_window(l);
     }
 }

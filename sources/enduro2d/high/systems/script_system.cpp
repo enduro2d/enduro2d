@@ -16,19 +16,17 @@ namespace
 
     void init_core_table(sol::state& s) {
         auto e2d_table = s["e2d"].get_or_create<sol::table>();
-        e2d_table["core"] = s.create_table_with(
-            "debug", &the<debug>(),
-            "engine", &the<engine>(),
-            "input", &the<input>(),
-            "window", &the<window>());
+        e2d_table["debug"] = &the<debug>();
+        e2d_table["engine"] = &the<engine>();
+        e2d_table["input"] = &the<input>();
+        e2d_table["window"] = &the<window>();
     }
 
     void init_high_table(sol::state& s) {
         auto e2d_table = s["e2d"].get_or_create<sol::table>();
-        e2d_table["high"] = s.create_table_with(
-            "library", &the<library>(),
-            "luasol", &the<luasol>(),
-            "world", &the<world>());
+        e2d_table["library"] = &the<library>();
+        e2d_table["luasol"] = &the<luasol>();
+        e2d_table["world"] = &the<world>();
     }
 }
 

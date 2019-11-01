@@ -6,7 +6,10 @@
 
 #include <enduro2d/high/luasol.hpp>
 
-#include "bindings/bindings.hpp"
+#include "bindings/math_binds/_math_binds.hpp"
+#include "bindings/utils_binds/_utils_binds.hpp"
+#include "bindings/core_binds/_core_binds.hpp"
+#include "bindings/high_binds/_high_binds.hpp"
 
 namespace e2d
 {
