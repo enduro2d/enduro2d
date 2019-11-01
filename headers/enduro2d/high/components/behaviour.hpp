@@ -9,26 +9,20 @@
 #include "../_high.hpp"
 
 #include "../factory.hpp"
-#include "../assets/script_asset.hpp"
 
 namespace e2d
 {
     class behaviour final {
     public:
         behaviour() = default;
-        behaviour(const script_asset::ptr& script);
 
-        behaviour& meta(sol::table&& value) noexcept;
-        behaviour& meta(const sol::table& value);
+        behaviour& meta(sol::table value) noexcept;
 
         [[nodiscard]] sol::table& meta() noexcept;
         [[nodiscard]] const sol::table& meta() const noexcept;
-
-        behaviour& script(const script_asset::ptr& value) noexcept;
-        [[nodiscard]] const script_asset::ptr& script() const noexcept;
     private:
+        str name_;
         sol::table meta_;
-        script_asset::ptr script_;
     };
 
     template <>
@@ -48,16 +42,8 @@ namespace e2d
 
 namespace e2d
 {
-    inline behaviour::behaviour(const script_asset::ptr& value)
-    : script_(value) {}
-
-    inline behaviour& behaviour::meta(sol::table&& value) noexcept {
+    inline behaviour& behaviour::meta(sol::table value) noexcept {
         meta_ = std::move(value);
-        return *this;
-    }
-
-    inline behaviour& behaviour::meta(const sol::table& value) {
-        meta_ = value;
         return *this;
     }
 
@@ -68,13 +54,39 @@ namespace e2d
     inline const sol::table& behaviour::meta() const noexcept {
         return meta_;
     }
+}
 
-    inline behaviour& behaviour::script(const script_asset::ptr& value) noexcept {
-        script_ = value;
-        return *this;
-    }
+namespace e2d::behaviours
+{
+    enum class call_result {
+        failed,
+        success,
+        method_not_found,
+    };
 
-    inline const script_asset::ptr& behaviour::script() const noexcept {
-        return script_;
+    template < typename... Args >
+    call_result call_meta_method(behaviour& behaviour, str_view method, Args&&... args) {
+        if ( method.empty() || !behaviour.meta() || !behaviour.meta().valid() ) {
+            return call_result::method_not_found;
+        }
+
+        sol::optional<sol::protected_function> f = behaviour.meta()[method];
+        if ( !f ) {
+            return call_result::method_not_found;
+        }
+
+        sol::protected_function_result r = f->call(
+            behaviour.meta(),
+            std::forward<Args>(args)...);
+        if ( !r.valid() ) {
+            the<debug>().error("BEHAVIOUR: Behaviour method error:\n"
+                "--> Method: %0\n"
+                "--> Error: %1",
+                method,
+                sol::error(r).what());
+            return call_result::failed;
+        }
+
+        return call_result::success;
     }
 }

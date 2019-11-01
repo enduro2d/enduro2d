@@ -103,7 +103,7 @@ namespace
 
                 the<world>().instantiate(
                     prefab,
-                    scene_i,
+                    scene_i.component<actor>()->node(),
                     make_trs3(v3f{0,50.f,0}, q4f::identity(), v3f{20.f}));
             }
 
@@ -117,7 +117,7 @@ namespace
 
                 the<world>().instantiate(
                     prefab,
-                    scene_i,
+                    scene_i.component<actor>()->node(),
                     math::make_translation_trs3(v3f{0,-50.f,0}));
             }
 
@@ -139,7 +139,10 @@ namespace
                         {-80.f + j * 40.f, -200.f + i * 40.f, 0},
                         q4f::identity(),
                         {2.f,2.f,1.f}};
-                    gobject inst = the<world>().instantiate(prefab_a, scene_i, trans);
+                    gobject inst = the<world>().instantiate(
+                        prefab_a,
+                        scene_i.component<actor>()->node(),
+                        trans);
 
                     prefab prefab_b = prefab_a;
                     prefab_b.prototype()
@@ -149,7 +152,9 @@ namespace
                             q4f::identity(),
                             v3f{0.3f,0.3f,3.f})));
 
-                    the<world>().instantiate(prefab_b, inst);
+                    the<world>().instantiate(
+                        prefab_b,
+                        inst.component<actor>()->node());
                 }
             }
 

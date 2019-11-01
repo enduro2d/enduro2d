@@ -6,6 +6,8 @@
 
 #include <enduro2d/high/components/behaviour.hpp>
 
+#include <enduro2d/high/assets/script_asset.hpp>
+
 namespace e2d
 {
     const char* factory_loader<behaviour>::schema_source = R"json({
@@ -24,6 +26,7 @@ namespace e2d
         if ( ctx.root.HasMember("script") ) {
             auto script = ctx.dependencies.find_asset<script_asset>(
                 path::combine(ctx.parent_address, ctx.root["script"].GetString()));
+
             if ( !script ) {
                 the<debug>().error("BEHAVIOUR: Dependency 'script' is not found:\n"
                     "--> Parent address: %0\n"
@@ -32,7 +35,23 @@ namespace e2d
                     ctx.root["script"].GetString());
                 return false;
             }
-            component.script(script);
+
+            //TODO(BlackMat): thread safe?
+            sol::protected_function_result meta = script->content().call();
+
+            if ( !meta.valid() ) {
+                the<debug>().error("BEHAVIOUR: Behaviour script error:\n"
+                    "--> Error: %0",
+                    sol::error(meta).what());
+                return false;
+            }
+
+            if ( meta.get_type() != sol::type::table ) {
+                the<debug>().error("BEHAVIOUR: Behaviour script must return the meta table");
+                return false;
+            }
+
+            component.meta(std::move(meta));
         }
 
         return true;
