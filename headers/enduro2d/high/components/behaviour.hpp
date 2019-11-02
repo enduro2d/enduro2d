@@ -79,11 +79,12 @@ namespace e2d::behaviours
             behaviour.meta(),
             std::forward<Args>(args)...);
         if ( !r.valid() ) {
+            sol::error err = r;
             the<debug>().error("BEHAVIOUR: Behaviour method error:\n"
                 "--> Method: %0\n"
                 "--> Error: %1",
                 method,
-                sol::error(r).what());
+                err.what());
             return call_result::failed;
         }
 

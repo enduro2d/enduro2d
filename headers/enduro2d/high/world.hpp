@@ -35,6 +35,6 @@ namespace e2d
         void finalize_instances() noexcept;
     private:
         ecs::registry registry_;
-        gobject_destroying_states destroying_states_;
+        gobject::destroying_states destroying_states_;
     };
 }

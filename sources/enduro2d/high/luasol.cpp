@@ -40,9 +40,10 @@ namespace e2d
             src.size());
 
         if ( !result.valid() ) {
+            sol::error err = result;
             the<debug>().error("LUASOL: Failed to load script buffer:\n"
                 "--> Info: %0",
-                sol::error(result).what());
+                err.what());
             return std::nullopt;
         }
 

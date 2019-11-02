@@ -158,7 +158,7 @@ namespace e2d
             TRUE,
             sound_data.data(),
             0,
-            sound_data.size(),
+            math::numeric_cast<DWORD>(sound_data.size()),
             max_sound_channels,
             BASS_SAMPLE_OVER_POS);
 

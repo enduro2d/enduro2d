@@ -40,9 +40,10 @@ namespace e2d
             sol::protected_function_result meta = script->content().call();
 
             if ( !meta.valid() ) {
+                sol::error err = meta;
                 the<debug>().error("BEHAVIOUR: Behaviour script error:\n"
                     "--> Error: %0",
-                    sol::error(meta).what());
+                    err.what());
                 return false;
             }
 

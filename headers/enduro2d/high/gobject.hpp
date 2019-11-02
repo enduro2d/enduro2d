@@ -13,6 +13,23 @@ namespace e2d
     class gobject final {
     public:
         class state;
+        class destroying_state_ilist_tag;
+        using destroying_states = intrusive_list<
+            state,
+            destroying_state_ilist_tag>;
+    public:
+        class state
+            : private noncopyable
+            , public ref_counter<state>
+            , public intrusive_list_hook<destroying_state_ilist_tag> {
+        public:
+            virtual ~state() noexcept {}
+            virtual void destroy() noexcept = 0;
+            virtual bool destroyed() const noexcept = 0;
+            virtual bool invalided() const noexcept = 0;
+            virtual ecs::entity raw_entity() noexcept = 0;
+            virtual ecs::const_entity raw_entity() const noexcept = 0;
+        };
         using state_iptr = intrusive_ptr<state>;
         const state_iptr& internal_state() const noexcept;
     public:
@@ -102,24 +119,6 @@ namespace e2d
 
 namespace e2d
 {
-    class gobject_destroying_state_ilist_tag;
-    using gobject_destroying_states = intrusive_list<
-        gobject::state,
-        gobject_destroying_state_ilist_tag>;
-
-    class gobject::state
-        : private noncopyable
-        , public ref_counter<state>
-        , public intrusive_list_hook<gobject_destroying_state_ilist_tag> {
-    public:
-        virtual ~state() noexcept {}
-        virtual void destroy() noexcept = 0;
-        virtual bool destroyed() const noexcept = 0;
-        virtual bool invalided() const noexcept = 0;
-        virtual ecs::entity raw_entity() noexcept = 0;
-        virtual ecs::const_entity raw_entity() const noexcept = 0;
-    };
-
     template < typename T >
     gcomponent<T> gobject::component() noexcept {
         return gcomponent<T>(*this);
