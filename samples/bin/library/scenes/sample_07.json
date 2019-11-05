@@ -1,0 +1,30 @@
+{
+    "components" : {
+        "scene" : {}
+    },
+    "children" : [{
+        "prototype" : "../prefabs/camera_prefab.json"
+    },{
+        "prototype" : "../prefabs/gnome_prefab.json",
+        "components" : {
+            "actor" : {
+                "translation" : [0,0,0],
+                "scale" : 20
+            }
+        }
+    }, {
+        "prototype" : "../prefabs/label_sdf_prefab.json",
+        "components" : {
+            "label" : {
+                "text" : "Hello World!",
+                "valign" : "center",
+                "outline_width" : 0.5,
+                "outline_color" : [0,0,0,255]
+            },
+            "actor" : {
+                "translation" : [0.5,-180.5,0],
+                "scale" : 2
+            }
+        }
+    }]
+}
