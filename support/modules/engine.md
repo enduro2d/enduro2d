@@ -1,18 +1,15 @@
-# Engine
+# ENGINE
 
-## Properties
+## PROPERTIES
 
-- `time: number, RO`
-- `delta_time: number, RO`
-- `frame_rate: number, RO`
-- `frame_count: number, RO`
-- `realtime_time: number, RO`
+- `time: number` (read_only)
+- `delta_time: number` (read_only)
+- `frame_rate: number` (read_only)
+- `frame_count: number` (read_only)
+- `realtime_time: number` (read_only)
 
-## Examples
+## EXAMPLE
 
 ```lua
-local d = e2d.debug
-local e = e2d.engine
-d:trace("FPS: " .. e.frame_rate)
+the_debug:trace("FPS: " .. the_engine.frame_rate)
 ```
-

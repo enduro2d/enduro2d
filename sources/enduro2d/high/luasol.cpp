@@ -16,12 +16,17 @@ namespace e2d
     luasol::luasol() {
         state_.open_libraries(
             sol::lib::base,
-            sol::lib::package,
+            //sol::lib::package,
             sol::lib::coroutine,
             sol::lib::string,
+            //sol::lib::os,
             sol::lib::math,
             sol::lib::table,
+            //sol::lib::debug,
+            //sol::lib::bit32
+            //sol::lib::io
             sol::lib::utf8);
+
         bindings::bind_math(state_);
         bindings::bind_utils(state_);
         bindings::bind_core(state_);
@@ -29,6 +34,7 @@ namespace e2d
     }
 
     void luasol::collect_garbage() {
+        E2D_ASSERT(is_in_main_thread());
         state_.collect_garbage();
     }
 

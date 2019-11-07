@@ -12,8 +12,7 @@ namespace
     
     template < typename T >
     void bind_vec3_t(const str& name, sol::state& l) {
-        l["e2d"].get_or_create<sol::table>()
-        .new_usertype<vec3<T>>(name,
+        l.new_usertype<vec3<T>>(name,
             sol::constructors<
                 vec3<T>(),
                 vec3<T>(T),
@@ -31,6 +30,10 @@ namespace
             "x", &vec3<T>::x,
             "y", &vec3<T>::y,
             "z", &vec3<T>::z,
+
+            sol::meta_function::to_string, [](const vec3<T>& v){
+                return strings::rformat("%0", v);
+            },
 
             sol::meta_function::equal_to, sol::resolve<bool(const vec3<T>&, const vec3<T>&)>(::operator==),
             sol::meta_function::less_than, sol::resolve<bool(const vec3<T>&, const vec3<T>&)>(::operator<),

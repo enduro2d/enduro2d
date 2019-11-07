@@ -12,8 +12,7 @@ namespace
 
     template < typename T >
     void bind_mat4_t(const str& name, sol::state& l) {
-        l["e2d"].get_or_create<sol::table>()
-        .new_usertype<mat4<T>>(name,
+        l.new_usertype<mat4<T>>(name,
             sol::constructors<
                 mat4<T>(),
                 mat4<T>(const vec4<T>&, const vec4<T>&, const vec4<T>&, const vec4<T>&)
@@ -23,6 +22,10 @@ namespace
             "identity", &mat4<T>::identity,
 
             "rows", &mat4<T>::rows,
+
+            sol::meta_function::to_string, [](const mat4<T>& v){
+                return strings::rformat("%0", v);
+            },
 
             sol::meta_function::equal_to, sol::resolve<bool(const mat4<T>&, const mat4<T>&)>(::operator==),
             sol::meta_function::unary_minus, sol::resolve<mat4<T>(const mat4<T>&)>(::operator-),

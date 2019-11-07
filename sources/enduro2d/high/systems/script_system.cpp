@@ -20,18 +20,28 @@ namespace
     using namespace e2d;
 
     void init_core_table(sol::state& s) {
-        auto e2d_table = s["e2d"].get_or_create<sol::table>();
-        e2d_table["debug"] = &the<debug>();
-        e2d_table["engine"] = &the<engine>();
-        e2d_table["input"] = &the<input>();
-        e2d_table["window"] = &the<window>();
+        s["the_dbgui"] = &the<dbgui>();
+        s["the_debug"] = &the<debug>();
+        s["the_engine"] = &the<engine>();
+        s["the_input"] = &the<input>();
+        s["the_keyboard"] = &the<input>().keyboard();
+        s["the_mouse"] = &the<input>().mouse();
+        s["the_window"] = &the<window>();
     }
 
     void init_high_table(sol::state& s) {
-        auto e2d_table = s["e2d"].get_or_create<sol::table>();
-        e2d_table["library"] = &the<library>();
-        e2d_table["luasol"] = &the<luasol>();
-        e2d_table["world"] = &the<world>();
+        s["the_library"] = &the<library>();
+        s["the_luasol"] = &the<luasol>();
+        s["the_world"] = &the<world>();
+    }
+
+    void init_base_functions(sol::state& s) {
+        s["require"] = [](const char* package){
+            the<debug>().error(
+                "LUASOL: Require function is not allowed:\n"
+                "--> Package: %0",
+                package);
+        };
     }
 
     void process_spine_player_events(ecs::registry& owner) {
@@ -76,6 +86,7 @@ namespace e2d
             the<luasol>().with_state([](sol::state& s){
                 init_core_table(s);
                 init_high_table(s);
+                init_base_functions(s);
             });
         }
         ~internal_state() noexcept = default;

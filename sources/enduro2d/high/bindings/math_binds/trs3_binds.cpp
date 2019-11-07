@@ -12,8 +12,7 @@ namespace
 
     template < typename T >
     void bind_trs3_t(const str& name, sol::state& l) {
-        l["e2d"].get_or_create<sol::table>()
-        .new_usertype<trs3<T>>(name,
+        l.new_usertype<trs3<T>>(name,
             sol::constructors<
                 trs3<T>(),
                 trs3<T>(trs3<T>),
@@ -25,6 +24,10 @@ namespace
             "translation", &trs3<T>::translation,
             "rotation", &trs3<T>::rotation,
             "scale", &trs3<T>::scale,
+
+            sol::meta_function::to_string, [](const trs3<T>& v){
+                return strings::rformat("%0", v);
+            },
 
             sol::meta_function::equal_to, sol::resolve<bool(const trs3<T>&, const trs3<T>&)>(::operator==),
 

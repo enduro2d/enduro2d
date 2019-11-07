@@ -12,8 +12,7 @@ namespace
 
     template < typename T >
     void bind_quat_t(const str& name, sol::state& l) {
-        l["e2d"].get_or_create<sol::table>()
-        .new_usertype<quat<T>>(name,
+        l.new_usertype<quat<T>>(name,
             sol::constructors<
                 quat<T>(),
                 quat<T>(quat<T>),
@@ -24,6 +23,10 @@ namespace
             "y", &quat<T>::y,
             "z", &quat<T>::z,
             "w", &quat<T>::w,
+
+            sol::meta_function::to_string, [](const quat<T>& v){
+                return strings::rformat("%0", v);
+            },
 
             sol::meta_function::equal_to, sol::resolve<bool(const quat<T>&, const quat<T>&)>(::operator==),
             sol::meta_function::less_than, sol::resolve<bool(const quat<T>&, const quat<T>&)>(::operator<),

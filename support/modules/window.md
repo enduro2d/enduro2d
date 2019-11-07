@@ -1,46 +1,42 @@
-# Window
+# WINDOW
 
-## Properties
+## FUNCTIONS
 
-- `enabled: boolean, RO`
-- `visible: boolean, RO`
-- `focused: boolean, RO`
-- `minimized: boolean, RO`
+- `hide(): void`
+- `show(): void`
+- `restore(): void`
+- `minimize(): void`
 
-- `fullscreen: boolean, RW`
-- `cursor_hidden: boolean, RW`
+## PROPERTIES
 
-- `real_size: v2f, RO`
-- `virtual_size: v2f, RO`
-- `framebuffer_size: v2f, RO`
+- `enabled: boolean` (read_only)
+- `visible: boolean` (read_only)
+- `focused: boolean` (read_only)
+- `minimized: boolean` (read_only)
 
-- `title: string, RW`
-- `should_close: boolean, RW`
+- `fullscreen: boolean` (read/write)
+- `cursor_hidden: boolean` (read/write)
 
-## Functions
+- `real_size: v2f` (read_only)
+- `virtual_size: v2f` (read_only)
+- `framebuffer_size: v2f` (read_only)
 
-- `hide() -> void`
-- `show() -> void`
-- `restore() -> void`
-- `minimize() -> void`
+- `title: string` (read/write)
+- `should_close: boolean` (read/write)
 
-## Example
+## EXAMPLE
 
 ```lua
-local w = e2d.window
-local k = e2d.input.keyboard
-
 local close_window =
-    k:is_key_just_pressed(e2d.keyboard_key.f32)
+    the_keyboard:is_key_just_pressed("f12")
 
 local toggle_fullscreen =
-    k:is_key_pressed(e2d.keyboard_key.lsuper) and
-    k:is_key_just_released(e2d.keyboard_key.enter)
+    the_keyboard:is_key_pressed("lsuper") and
+    the_keyboard:is_key_just_released("enter")
 
 if close_window then
-    w.should_close = true
+    the_window.should_close = true
 elseif toggle_fullscreen then
-    w.fullscreen = not w.fullscreen
+    the_window.fullscreen = not the_window.fullscreen
 end
 ```
-

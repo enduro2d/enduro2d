@@ -12,8 +12,7 @@ namespace
 
     template < typename T >
     void bind_vec2_t(const str& name, sol::state& l) {
-        l["e2d"].get_or_create<sol::table>()
-        .new_usertype<vec2<T>>(name,
+        l.new_usertype<vec2<T>>(name,
             sol::constructors<
                 vec2<T>(),
                 vec2<T>(T),
@@ -29,6 +28,10 @@ namespace
 
             "x", &vec2<T>::x,
             "y", &vec2<T>::y,
+
+            sol::meta_function::to_string, [](const vec2<T>& v){
+                return strings::rformat("%0", v);
+            },
 
             sol::meta_function::equal_to, sol::resolve<bool(const vec2<T>&, const vec2<T>&)>(::operator==),
             sol::meta_function::less_than, sol::resolve<bool(const vec2<T>&, const vec2<T>&)>(::operator<),

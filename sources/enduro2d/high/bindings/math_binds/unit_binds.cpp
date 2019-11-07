@@ -12,14 +12,17 @@ namespace
 
     template < typename T, typename Tag >
     void bind_unit_t(const str& name, sol::state& l) {
-        l["e2d"].get_or_create<sol::table>()
-        .new_usertype<unit<T,Tag>>(name,
+        l.new_usertype<unit<T,Tag>>(name,
             sol::constructors<
                 unit<T,Tag>(),
                 unit<T,Tag>(T),
                 unit<T,Tag>(unit<T,Tag>)>(),
 
             "value", &unit<T,Tag>::value,
+
+            sol::meta_function::to_string, [](const unit<T,Tag>& v){
+                return strings::rformat("%0", v);
+            },
 
             sol::meta_function::equal_to, sol::resolve<bool(const unit<T,Tag>&, const unit<T,Tag>&)>(::operator==),
             sol::meta_function::less_than, sol::resolve<bool(const unit<T,Tag>&, const unit<T,Tag>&)>(::operator<),

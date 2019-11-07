@@ -1,16 +1,14 @@
-# Debug
+# DEBUG
 
-## Functions
+## FUNCTIONS
 
-- `trace(message: string) -> void`
-- `warning(message: string) -> void`
-- `error(message: string) -> void`
-- `fatal(message: string) -> void`
+- `trace(message: string): void`
+- `warning(message: string): void`
+- `error(message: string): void`
+- `fatal(message: string): void`
 
-## Examples
+## EXAMPLE
 
 ```lua
-local d = e2d.debug
-d:warning("Hello World")
+the_debug:trace("Hello World")
 ```
-

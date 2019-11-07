@@ -12,8 +12,7 @@ namespace
 
     template < typename T >
     void bind_rect_t(const str& name, sol::state& l) {
-        l["e2d"].get_or_create<sol::table>()
-        .new_usertype<rect<T>>(name,
+        l.new_usertype<rect<T>>(name,
             sol::constructors<
                 rect<T>(),
                 rect<T>(rect<T>),
@@ -27,6 +26,10 @@ namespace
 
             "position", &rect<T>::position,
             "size", &rect<T>::size,
+
+            sol::meta_function::to_string, [](const rect<T>& v){
+                return strings::rformat("%0", v);
+            },
 
             sol::meta_function::equal_to, sol::resolve<bool(const rect<T>&, const rect<T>&)>(::operator==),
             sol::meta_function::less_than, sol::resolve<bool(const rect<T>&, const rect<T>&)>(::operator<),

@@ -129,6 +129,11 @@ namespace e2d
 
     const char* mouse_button_to_cstr(mouse_button btn) noexcept;
     const char* keyboard_key_to_cstr(keyboard_key key) noexcept;
-    const char* mouse_button_action_to_cstr(mouse_button_action action) noexcept;
-    const char* keyboard_key_action_to_cstr(keyboard_key_action action) noexcept;
+    const char* mouse_button_action_to_cstr(mouse_button_action act) noexcept;
+    const char* keyboard_key_action_to_cstr(keyboard_key_action act) noexcept;
+
+    bool parse_mouse_button(str_view str, mouse_button& btn) noexcept;
+    bool parse_keyboard_key(str_view str, keyboard_key& key) noexcept;
+    bool parse_mouse_button_action(str_view str, mouse_button_action& act) noexcept;
+    bool parse_keyboard_key_action(str_view str, keyboard_key_action& act) noexcept;
 }

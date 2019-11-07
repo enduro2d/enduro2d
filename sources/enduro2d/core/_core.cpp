@@ -194,3 +194,176 @@ namespace e2d
         #undef DEFINE_CASE
     }
 }
+
+namespace e2d
+{
+    bool parse_mouse_button(str_view str, mouse_button& btn) noexcept {
+    #define DEFINE_IF(x) if ( str == #x ) { btn = mouse_button::x; return true; }
+        DEFINE_IF(left);
+        DEFINE_IF(right);
+        DEFINE_IF(middle);
+        DEFINE_IF(x1);
+        DEFINE_IF(x2);
+        DEFINE_IF(unknown);
+    #undef DEFINE_IF
+        return false;
+    }
+
+    bool parse_keyboard_key(str_view str, keyboard_key& key) noexcept {
+    #define DEFINE_IF(x) if ( str == #x ) { key = keyboard_key::x; return true; }
+        DEFINE_IF(_0);
+        DEFINE_IF(_1);
+        DEFINE_IF(_2);
+        DEFINE_IF(_3);
+        DEFINE_IF(_4);
+        DEFINE_IF(_5);
+        DEFINE_IF(_6);
+        DEFINE_IF(_7);
+        DEFINE_IF(_8);
+        DEFINE_IF(_9);
+
+        DEFINE_IF(a);
+        DEFINE_IF(b);
+        DEFINE_IF(c);
+        DEFINE_IF(d);
+        DEFINE_IF(e);
+        DEFINE_IF(f);
+        DEFINE_IF(g);
+        DEFINE_IF(h);
+        DEFINE_IF(i);
+        DEFINE_IF(j);
+        DEFINE_IF(k);
+        DEFINE_IF(l);
+        DEFINE_IF(m);
+        DEFINE_IF(n);
+        DEFINE_IF(o);
+        DEFINE_IF(p);
+        DEFINE_IF(q);
+        DEFINE_IF(r);
+        DEFINE_IF(s);
+        DEFINE_IF(t);
+        DEFINE_IF(u);
+        DEFINE_IF(v);
+        DEFINE_IF(w);
+        DEFINE_IF(x);
+        DEFINE_IF(y);
+        DEFINE_IF(z);
+
+        DEFINE_IF(f1);
+        DEFINE_IF(f2);
+        DEFINE_IF(f3);
+        DEFINE_IF(f4);
+        DEFINE_IF(f5);
+        DEFINE_IF(f6);
+        DEFINE_IF(f7);
+        DEFINE_IF(f8);
+        DEFINE_IF(f9);
+        DEFINE_IF(f10);
+        DEFINE_IF(f11);
+        DEFINE_IF(f12);
+        DEFINE_IF(f13);
+        DEFINE_IF(f14);
+        DEFINE_IF(f15);
+        DEFINE_IF(f16);
+        DEFINE_IF(f17);
+        DEFINE_IF(f18);
+        DEFINE_IF(f19);
+        DEFINE_IF(f20);
+        DEFINE_IF(f21);
+        DEFINE_IF(f22);
+        DEFINE_IF(f23);
+        DEFINE_IF(f24);
+        DEFINE_IF(f25);
+
+        DEFINE_IF(minus);
+        DEFINE_IF(equal);
+        DEFINE_IF(backspace);
+        DEFINE_IF(section_sign);
+        DEFINE_IF(grave_accent);
+
+        DEFINE_IF(lbracket);
+        DEFINE_IF(rbracket);
+        DEFINE_IF(semicolon);
+        DEFINE_IF(apostrophe);
+        DEFINE_IF(backslash);
+
+        DEFINE_IF(comma);
+        DEFINE_IF(period);
+        DEFINE_IF(slash);
+
+        DEFINE_IF(escape);
+        DEFINE_IF(tab);
+        DEFINE_IF(caps_lock);
+        DEFINE_IF(space);
+        DEFINE_IF(enter);
+
+        DEFINE_IF(lshift);
+        DEFINE_IF(rshift);
+        DEFINE_IF(lcontrol);
+        DEFINE_IF(rcontrol);
+        DEFINE_IF(lalt);
+        DEFINE_IF(ralt);
+        DEFINE_IF(lsuper);
+        DEFINE_IF(rsuper);
+        DEFINE_IF(menu);
+
+        DEFINE_IF(print_screen);
+        DEFINE_IF(scroll_lock);
+        DEFINE_IF(pause);
+
+        DEFINE_IF(insert);
+        DEFINE_IF(del);
+        DEFINE_IF(home);
+        DEFINE_IF(end);
+        DEFINE_IF(page_up);
+        DEFINE_IF(page_down);
+
+        DEFINE_IF(left);
+        DEFINE_IF(up);
+        DEFINE_IF(right);
+        DEFINE_IF(down);
+
+        DEFINE_IF(kp_0);
+        DEFINE_IF(kp_1);
+        DEFINE_IF(kp_2);
+        DEFINE_IF(kp_3);
+        DEFINE_IF(kp_4);
+        DEFINE_IF(kp_5);
+        DEFINE_IF(kp_6);
+        DEFINE_IF(kp_7);
+        DEFINE_IF(kp_8);
+        DEFINE_IF(kp_9);
+
+        DEFINE_IF(kp_num_lock);
+        DEFINE_IF(kp_divide);
+        DEFINE_IF(kp_multiply);
+        DEFINE_IF(kp_subtract);
+        DEFINE_IF(kp_add);
+        DEFINE_IF(kp_enter);
+        DEFINE_IF(kp_equal);
+        DEFINE_IF(kp_decimal);
+
+        DEFINE_IF(unknown);
+    #undef DEFINE_IF
+        return false;
+    }
+
+    bool parse_mouse_button_action(str_view str, mouse_button_action& act) noexcept {
+    #define DEFINE_IF(x) if ( str == #x ) { act = mouse_button_action::x; return true; }
+        DEFINE_IF(press);
+        DEFINE_IF(release);
+        DEFINE_IF(unknown);
+    #undef DEFINE_IF
+        return false;
+    }
+
+    bool parse_keyboard_key_action(str_view str, keyboard_key_action& act) noexcept {
+    #define DEFINE_IF(x) if ( str == #x ) { act = keyboard_key_action::x; return true; }
+        DEFINE_IF(press);
+        DEFINE_IF(repeat);
+        DEFINE_IF(release);
+        DEFINE_IF(unknown);
+    #undef DEFINE_IF
+        return false;
+    }
+}

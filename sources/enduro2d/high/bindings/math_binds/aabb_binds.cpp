@@ -12,8 +12,7 @@ namespace
 
     template < typename T >
     void bind_aabb_t(const str& name, sol::state& l) {
-        l["e2d"].get_or_create<sol::table>()
-        .new_usertype<aabb<T>>(name,
+        l.new_usertype<aabb<T>>(name,
             sol::constructors<
                 aabb<T>(),
                 aabb<T>(aabb<T>),
@@ -27,6 +26,10 @@ namespace
 
             "position", &aabb<T>::position,
             "size", &aabb<T>::size,
+
+            sol::meta_function::to_string, [](const aabb<T>& v){
+                return strings::rformat("%0", v);
+            },
 
             sol::meta_function::equal_to, sol::resolve<bool(const aabb<T>&, const aabb<T>&)>(::operator==),
             sol::meta_function::less_than, sol::resolve<bool(const aabb<T>&, const aabb<T>&)>(::operator<),

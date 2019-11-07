@@ -12,8 +12,7 @@ namespace
 
     template < typename T >
     void bind_trs2_t(const str& name, sol::state& l) {
-        l["e2d"].get_or_create<sol::table>()
-        .new_usertype<trs2<T>>(name,
+        l.new_usertype<trs2<T>>(name,
             sol::constructors<
                 trs2<T>(),
                 trs2<T>(trs2<T>),
@@ -26,6 +25,10 @@ namespace
             "translation", &trs2<T>::translation,
             "rotation", &trs2<T>::rotation,
             "scale", &trs2<T>::scale,
+
+            sol::meta_function::to_string, [](const trs2<T>& v){
+                return strings::rformat("%0", v);
+            },
 
             sol::meta_function::equal_to, sol::resolve<bool(const trs2<T>&, const trs2<T>&)>(::operator==),
 
