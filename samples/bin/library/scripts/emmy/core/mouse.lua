@@ -1,14 +1,5 @@
 ---@class mouse
 local mouse = {
-    ---@type fun(self: mouse, button : string): boolean
-    is_button_pressed = function(self, button) return false end,
-
-    ---@type fun(self: mouse, button : string): boolean
-    is_button_just_pressed = function(self, button) return false end,
-
-    ---@type fun(self: mouse, button : string): boolean
-    is_button_just_released = function(self, button) return false end,
-
     ---@type v2f
     cursor_pos = v2f.zero(),
 
@@ -33,6 +24,18 @@ local mouse = {
     ---@type string[]
     just_released_buttons = {}
 }
+
+---@param button string
+---@return boolean
+function mouse:is_button_pressed(button) end
+
+---@param button string
+---@return boolean
+function mouse:is_button_just_pressed(button) end
+
+---@param button string
+---@return boolean
+function mouse:is_button_just_released(button) end
 
 ---@type mouse
 _G.the_mouse = _G.the_mouse or mouse

@@ -23,7 +23,7 @@ namespace e2d
         using value_type = T;
     public:
         vec2<T> translation = vec2<T>::zero();
-        rad<T> rotation = rad<T>(0);
+        rad<T> rotation = rad<T>::zero();
         vec2<T> scale = vec2<T>::unit();
     public:
         static constexpr trs2 zero() noexcept;
@@ -50,7 +50,7 @@ namespace e2d
     constexpr trs2<T> trs2<T>::zero() noexcept {
         return {
             vec2<T>::zero(),
-            rad<T>(0),
+            rad<T>::zero(),
             vec2<T>::zero()};
     }
 
@@ -58,7 +58,7 @@ namespace e2d
     constexpr trs2<T> trs2<T>::identity() noexcept {
         return {
             vec2<T>::zero(),
-            rad<T>(0),
+            rad<T>::zero(),
             vec2<T>::unit()};
     }
 
@@ -118,7 +118,7 @@ namespace e2d::math
 {
     template < typename T >
     trs2<T> make_translation_trs2(const vec2<T>& t) noexcept {
-        return trs2<T>(t, rad<T>(0), vec2<T>::unit());
+        return trs2<T>(t, rad<T>::zero(), vec2<T>::unit());
     }
 
     template < typename T, typename AngleTag >
@@ -128,7 +128,7 @@ namespace e2d::math
 
     template < typename T >
     trs2<T> make_scale_trs2(const vec2<T>& s) noexcept {
-        return trs2<T>(vec2<T>::zero(), rad<T>(0), s);
+        return trs2<T>(vec2<T>::zero(), rad<T>::zero(), s);
     }
 
     template < typename T >

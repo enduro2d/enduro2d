@@ -1,14 +1,5 @@
 ---@class keyboard
 local keyboard = {
-    ---@type fun(self: keyboard, key : string): boolean
-    is_key_pressed = function(self, key) return false end,
-
-    ---@type fun(self: keyboard, key : string): boolean
-    is_key_just_pressed = function(self, key) return false end,
-
-    ---@type fun(self: keyboard, key : string): boolean
-    is_key_just_released = function(self, key) return false end,
-
     ---@type string
     input_text = "",
 
@@ -30,6 +21,18 @@ local keyboard = {
     ---@type string[]
     just_released_keys = {}
 }
+
+---@param key string
+---@return boolean
+function keyboard:is_key_pressed(key) end
+
+---@param key string
+---@return boolean
+function keyboard:is_key_just_pressed(key) end
+
+---@param key string
+---@return boolean
+function keyboard:is_key_just_released(key) end
 
 ---@type keyboard
 _G.the_keyboard = _G.the_keyboard or keyboard

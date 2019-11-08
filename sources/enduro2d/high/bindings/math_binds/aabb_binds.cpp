@@ -51,7 +51,7 @@ namespace
                 sol::resolve<aabb<T>(const aabb<T>&, T)>(::operator/),
                 sol::resolve<aabb<T>(const aabb<T>&, const vec3<T>&)>(::operator/)),
 
-            "make_minmax_rect", sol::overload(
+            "make_minmax", sol::overload(
                 sol::resolve<aabb<T>(T,T,T,T,T,T)>(&math::make_minmax_aabb),
                 sol::resolve<aabb<T>(const vec3<T>&,const vec3<T>&)>(&math::make_minmax_aabb),
                 sol::resolve<aabb<T>(const aabb<T>&)>(&math::make_minmax_aabb)),

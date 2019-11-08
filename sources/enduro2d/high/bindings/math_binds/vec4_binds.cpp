@@ -9,7 +9,7 @@
 namespace
 {
     using namespace e2d;
-    
+
     template < typename T >
     void bind_vec4_t(const str& name, sol::state& l) {
         l.new_usertype<vec4<T>>(name,
@@ -85,8 +85,9 @@ namespace
             "clamped", sol::resolve<vec4<T>(const vec4<T>&, const vec4<T>&, const vec4<T>&)>(&math::clamped),
             "saturated", sol::resolve<vec4<T>(const vec4<T>&)>(&math::saturated),
 
-            "lerp", sol::resolve<vec4<T>(const vec4<T>&, const vec4<T>&, T)>(&math::lerp),
-            "lerp", sol::resolve<vec4<T>(const vec4<T>&, const vec4<T>&, const vec4<T>&)>(&math::lerp),
+            "lerp", sol::overload(
+                sol::resolve<vec4<T>(const vec4<T>&, const vec4<T>&, T)>(&math::lerp),
+                sol::resolve<vec4<T>(const vec4<T>&, const vec4<T>&, const vec4<T>&)>(&math::lerp)),
             "inverse_lerp", sol::resolve<vec4<T>(const vec4<T>&, const vec4<T>&, const vec4<T>&)>(&math::inverse_lerp),
 
             "contains_nan", sol::resolve<bool(const vec4<T>&)>(&math::contains_nan));

@@ -22,6 +22,8 @@ namespace e2d
     public:
         T value = 0;
     public:
+        static constexpr unit zero() noexcept;
+    public:
         constexpr unit() noexcept = default;
         constexpr unit(const unit& other) noexcept = default;
         constexpr unit& operator=(const unit& other) noexcept = default;
@@ -59,6 +61,11 @@ namespace e2d
 
 namespace e2d
 {
+    template < typename T, typename Tag >
+    constexpr unit<T, Tag> unit<T, Tag>::zero() noexcept {
+        return unit<T, Tag>(0);
+    }
+
     template < typename T, typename Tag >
     constexpr unit<T, Tag>::unit(T v) noexcept
     : value(v) {}

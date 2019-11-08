@@ -1,17 +1,5 @@
 ---@class window
 local window = {
-    ---@type fun(self: window)
-    hide = function(self) end,
-
-    ---@type fun(self: window)
-    show = function(self) end,
-
-    ---@type fun(self: window)
-    restore = function(self) end,
-
-    ---@type fun(self: window)
-    minimize = function(self) end,
-
     ---@type boolean
     enable = true,
 
@@ -45,6 +33,14 @@ local window = {
     ---@type boolean
     should_close = false
 }
+
+function window:hide() end
+
+function window:show() end
+
+function window:restore() end
+
+function window:minimize() end
 
 ---@type window
 _G.the_window = _G.the_window or window

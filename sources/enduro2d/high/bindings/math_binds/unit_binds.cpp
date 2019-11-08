@@ -18,6 +18,8 @@ namespace
                 unit<T,Tag>(T),
                 unit<T,Tag>(unit<T,Tag>)>(),
 
+            "zero", &unit<T,Tag>::zero,
+
             "value", &unit<T,Tag>::value,
 
             sol::meta_function::to_string, [](const unit<T,Tag>& v){

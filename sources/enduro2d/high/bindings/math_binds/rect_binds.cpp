@@ -51,7 +51,7 @@ namespace
                 sol::resolve<rect<T>(const rect<T>&, T)>(::operator/),
                 sol::resolve<rect<T>(const rect<T>&, const vec2<T>&)>(::operator/)),
 
-            "make_minmax_rect", sol::overload(
+            "make_minmax", sol::overload(
                 sol::resolve<rect<T>(T,T,T,T)>(&math::make_minmax_rect),
                 sol::resolve<rect<T>(const vec2<T>&,const vec2<T>&)>(&math::make_minmax_rect),
                 sol::resolve<rect<T>(const rect<T>&)>(&math::make_minmax_rect)),

@@ -19,7 +19,7 @@ namespace
                 trs3<T>(vec3<T>,quat<T>,vec3<T>)>(),
 
             "zero", &trs3<T>::zero,
-            "unit", &trs3<T>::identity,
+            "identity", &trs3<T>::identity,
 
             "translation", &trs3<T>::translation,
             "rotation", &trs3<T>::rotation,
@@ -31,9 +31,9 @@ namespace
 
             sol::meta_function::equal_to, sol::resolve<bool(const trs3<T>&, const trs3<T>&)>(::operator==),
 
-            "make_translation_trs3", sol::resolve<trs3<T>(const vec3<T>&)>(&math::make_translation_trs3),
-            "make_rotation_trs3", sol::resolve<trs3<T>(const quat<T>&)>(&math::make_rotation_trs3),
-            "make_scale_trs3", sol::resolve<trs3<T>(const vec3<T>&)>(&math::make_scale_trs3),
+            "make_translation", sol::resolve<trs3<T>(const vec3<T>&)>(&math::make_translation_trs3),
+            "make_rotation", sol::resolve<trs3<T>(const quat<T>&)>(&math::make_rotation_trs3),
+            "make_scale", sol::resolve<trs3<T>(const vec3<T>&)>(&math::make_scale_trs3),
 
             "approximately", [](const trs3<T>& l, const trs3<T>& r){ return math::approximately(l,r); },
             "contains_nan", sol::resolve<bool(const trs3<T>&)>(&math::contains_nan));

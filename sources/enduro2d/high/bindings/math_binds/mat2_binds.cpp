@@ -40,13 +40,13 @@ namespace
                 sol::resolve<mat2<T>(const mat2<T>&, T)>(::operator*),
                 sol::resolve<mat2<T>(const mat2<T>&, const mat2<T>&)>(::operator*)),
 
-            "make_scale_matrix2", sol::overload(
+            "make_scale", sol::overload(
                 sol::resolve<mat2<T>(T,T)>(&math::make_scale_matrix2),
                 sol::resolve<mat2<T>(const vec4<T>&)>(&math::make_scale_matrix2),
                 sol::resolve<mat2<T>(const vec3<T>&)>(&math::make_scale_matrix2),
                 sol::resolve<mat2<T>(const vec2<T>&)>(&math::make_scale_matrix2)),
 
-            "make_rotation_matrix2", sol::overload(
+            "make_rotation", sol::overload(
                 sol::resolve<mat2<T>(const deg<T>&)>(&math::make_rotation_matrix2),
                 sol::resolve<mat2<T>(const rad<T>&)>(&math::make_rotation_matrix2)),
 

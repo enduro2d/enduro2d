@@ -40,19 +40,19 @@ namespace
                 sol::resolve<mat4<T>(const mat4<T>&, T)>(::operator*),
                 sol::resolve<mat4<T>(const mat4<T>&, const mat4<T>&)>(::operator*)),
 
-            "make_scale_matrix4", sol::overload(
+            "make_scale", sol::overload(
                 sol::resolve<mat4<T>(T,T,T)>(&math::make_scale_matrix4),
                 sol::resolve<mat4<T>(const vec4<T>&)>(&math::make_scale_matrix4),
                 sol::resolve<mat4<T>(const vec3<T>&)>(&math::make_scale_matrix4),
                 sol::resolve<mat4<T>(const vec2<T>&, T)>(&math::make_scale_matrix4)),
 
-            "make_translation_matrix4", sol::overload(
+            "make_translation", sol::overload(
                 sol::resolve<mat4<T>(T,T,T)>(&math::make_translation_matrix4),
                 sol::resolve<mat4<T>(const vec4<T>&)>(&math::make_translation_matrix4),
                 sol::resolve<mat4<T>(const vec3<T>&)>(&math::make_translation_matrix4),
                 sol::resolve<mat4<T>(const vec2<T>&, T)>(&math::make_translation_matrix4)),
 
-            "make_rotation_matrix4", sol::overload(
+            "make_rotation", sol::overload(
                 sol::resolve<mat4<T>(const deg<T>&,T,T,T)>(&math::make_rotation_matrix4),
                 sol::resolve<mat4<T>(const deg<T>&,const vec4<T>&)>(&math::make_rotation_matrix4),
                 sol::resolve<mat4<T>(const deg<T>&,const vec3<T>&)>(&math::make_rotation_matrix4),
@@ -62,6 +62,32 @@ namespace
                 sol::resolve<mat4<T>(const rad<T>&,const vec3<T>&)>(&math::make_rotation_matrix4),
                 sol::resolve<mat4<T>(const rad<T>&,const vec2<T>&,T)>(&math::make_rotation_matrix4),
                 sol::resolve<mat4<T>(const quat<T>&)>(&math::make_rotation_matrix4)),
+
+            "make_trs", sol::overload(
+                sol::resolve<mat4<T>(const trs2<T>&)>(&math::make_trs_matrix4),
+                sol::resolve<mat4<T>(const trs3<T>&)>(&math::make_trs_matrix4)),
+
+            "make_look_at_lh", sol::resolve<
+                mat4<T>(const vec3<T>&,const vec3<T>&,const vec3<T>&)>(&math::make_look_at_lh_matrix4),
+
+            "make_look_at_rh", sol::resolve<
+                mat4<T>(const vec3<T>&,const vec3<T>&,const vec3<T>&)>(&math::make_look_at_rh_matrix4),
+
+            "make_orthogonal_lh", sol::overload(
+                sol::resolve<mat4<T>(T,T,T,T)>(&math::make_orthogonal_lh_matrix4),
+                sol::resolve<mat4<T>(const vec2<T>&,T,T)>(&math::make_orthogonal_lh_matrix4)),
+
+            "make_orthogonal_rh", sol::overload(
+                sol::resolve<mat4<T>(T,T,T,T)>(&math::make_orthogonal_rh_matrix4),
+                sol::resolve<mat4<T>(const vec2<T>&,T,T)>(&math::make_orthogonal_rh_matrix4)),
+
+            "make_perspective_lh", sol::overload(
+                sol::resolve<mat4<T>(const degf&,T,T,T)>(&math::make_perspective_lh_matrix4),
+                sol::resolve<mat4<T>(const radf&,T,T,T)>(&math::make_perspective_lh_matrix4)),
+
+            "make_perspective_rh", sol::overload(
+                sol::resolve<mat4<T>(const degf&,T,T,T)>(&math::make_perspective_rh_matrix4),
+                sol::resolve<mat4<T>(const radf&,T,T,T)>(&math::make_perspective_rh_matrix4)),
 
             "approximately", [](const mat4<T>& l, const mat4<T>& r){ return math::approximately(l,r); },
 

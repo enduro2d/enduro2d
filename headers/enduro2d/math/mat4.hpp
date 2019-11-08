@@ -614,7 +614,7 @@ namespace e2d::math
     make_perspective_lh_matrix4(const unit<T, AngleTag>& fov, T aspect, T znear, T zfar) noexcept {
         E2D_ASSERT(!math::is_near_zero(aspect, T(0)));
         E2D_ASSERT(!math::approximately(znear, zfar, T(0)));
-        E2D_ASSERT(!math::approximately(to_rad(fov), make_rad<T>(0), T(0)));
+        E2D_ASSERT(!math::approximately(fov, unit<T, AngleTag>::zero(), T(0)));
         const T sy = T(1) / math::tan(fov * T(0.5));
         const T sx = sy / aspect;
         const T sz = zfar / (zfar - znear);
@@ -635,7 +635,7 @@ namespace e2d::math
     make_perspective_rh_matrix4(const unit<T, AngleTag>& fov, T aspect, T znear, T zfar) noexcept {
         E2D_ASSERT(!math::is_near_zero(aspect, T(0)));
         E2D_ASSERT(!math::approximately(znear, zfar, T(0)));
-        E2D_ASSERT(!math::approximately(to_rad(fov), make_rad<T>(0), T(0)));
+        E2D_ASSERT(!math::approximately(fov, unit<T, AngleTag>::zero(), T(0)));
         const T sy = T(1) / math::tan(fov * T(0.5));
         const T sx = sy / aspect;
         const T sz = zfar / (znear - zfar);

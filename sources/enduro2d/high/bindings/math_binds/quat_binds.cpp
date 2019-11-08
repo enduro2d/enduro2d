@@ -19,6 +19,9 @@ namespace
                 quat<T>(T,T,T,T),
                 quat<T>(vec4<T>)>(),
 
+            "zero", &quat<T>::zero,
+            "identity", &quat<T>::identity,
+
             "x", &quat<T>::x,
             "y", &quat<T>::y,
             "z", &quat<T>::z,
@@ -42,11 +45,11 @@ namespace
                 sol::resolve<quat<T>(const quat<T>&, T)>(::operator*),
                 sol::resolve<quat<T>(const quat<T>&, const quat<T>&)>(::operator*)),
 
-            "make_quat_from_axis_angle", sol::overload(
+            "make_from_axis_angle", sol::overload(
                 sol::resolve<quat<T>(const deg<T>&, const vec3<T>&)>(&math::make_quat_from_axis_angle),
                 sol::resolve<quat<T>(const rad<T>&, const vec3<T>&)>(&math::make_quat_from_axis_angle)),
 
-            "make_quat_from_euler_angles", sol::overload(
+            "make_from_euler_angles", sol::overload(
                 sol::resolve<quat<T>(const deg<T>&, const deg<T>&, const deg<T>&)>(&math::make_quat_from_euler_angles),
                 sol::resolve<quat<T>(const rad<T>&, const rad<T>&, const rad<T>&)>(&math::make_quat_from_euler_angles)),
 

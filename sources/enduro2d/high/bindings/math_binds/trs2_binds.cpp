@@ -20,7 +20,7 @@ namespace
                 trs2<T>(vec2<T>,rad<T>,vec2<T>)>(),
 
             "zero", &trs2<T>::zero,
-            "unit", &trs2<T>::identity,
+            "identity", &trs2<T>::identity,
 
             "translation", &trs2<T>::translation,
             "rotation", &trs2<T>::rotation,
@@ -32,11 +32,11 @@ namespace
 
             sol::meta_function::equal_to, sol::resolve<bool(const trs2<T>&, const trs2<T>&)>(::operator==),
 
-            "make_translation_trs2", sol::resolve<trs2<T>(const vec2<T>&)>(&math::make_translation_trs2),
-            "make_rotation_trs2", sol::overload(
+            "make_translation", sol::resolve<trs2<T>(const vec2<T>&)>(&math::make_translation_trs2),
+            "make_rotation", sol::overload(
                 sol::resolve<trs2<T>(const deg<T>&)>(&math::make_rotation_trs2),
                 sol::resolve<trs2<T>(const rad<T>&)>(&math::make_rotation_trs2)),
-            "make_scale_trs2", sol::resolve<trs2<T>(const vec2<T>&)>(&math::make_scale_trs2),
+            "make_scale", sol::resolve<trs2<T>(const vec2<T>&)>(&math::make_scale_trs2),
 
             "approximately", [](const trs2<T>& l, const trs2<T>& r){ return math::approximately(l,r); },
             "contains_nan", sol::resolve<bool(const trs2<T>&)>(&math::contains_nan));
