@@ -11,8 +11,7 @@ using namespace e2d;
 namespace e2d::bindings::utils
 {
     void bind_color(sol::state& l) {
-        l["e2d"].get_or_create<sol::table>()
-        .new_usertype<color>("color",
+        l.new_usertype<color>("color",
             sol::constructors<
                 color(),
                 color(color),
@@ -68,9 +67,6 @@ namespace e2d::bindings::utils
             "maximized", sol::resolve<color(const color&, const color&)>(&math::maximized),
             "clamped", sol::resolve<color(const color&, const color&, const color&)>(&math::clamped),
 
-            "contains_nan", sol::resolve<bool(const color&)>(&math::contains_nan),
-
-            "pack_color", sol::resolve<u32(const color&)>(&colors::pack_color),
-            "unpack_color", sol::resolve<color(u32)>(&colors::unpack_color));
+            "contains_nan", sol::resolve<bool(const color&)>(&math::contains_nan));
     }
 }

@@ -11,12 +11,11 @@ using namespace e2d;
 namespace e2d::bindings::utils
 {
     void bind_str_hash(sol::state& l) {
-        l["e2d"].get_or_create<sol::table>()
-        .new_usertype<str_hash>("str_hash",
+        l.new_usertype<str_hash>("str_hash",
             sol::constructors<
                 str_hash(),
-                str_hash(const char*),
-                str_hash(str_view)>(),
+                str_hash(const char*)
+            >(),
 
             sol::meta_function::equal_to, sol::resolve<bool(str_hash, str_hash)>(::operator==),
             sol::meta_function::less_than, sol::resolve<bool(str_hash, str_hash)>(::operator<),

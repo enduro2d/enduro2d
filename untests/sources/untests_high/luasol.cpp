@@ -31,20 +31,20 @@ TEST_CASE("luasol") {
     SECTION("vec2/vec3/vec4") {
         v2f r0 = l.with_state([](sol::state& lua){
             return lua.script(R"lua(
-                local v = e2d.v2f.new(1,2)
-                return e2d.v2f.new((v + v + 2).y)
+                local v = v2f.new(1,2)
+                return v2f.new((v + v + 2).y)
             )lua");
         });
         v3f r1 = l.with_state([](sol::state& lua){
             return lua.script(R"lua(
-                local v = e2d.v3f.new(1,2,3)
-                return e2d.v3f.new((v + v + 2).y)
+                local v = v3f.new(1,2,3)
+                return v3f.new((v + v + 2).y)
             )lua");
         });
         v4f r2 = l.with_state([](sol::state& lua){
             return lua.script(R"lua(
-                local v = e2d.v4f.new(1,2,3,4)
-                return e2d.v4f.new((v + v + 2).y)
+                local v = v4f.new(1,2,3,4)
+                return v4f.new((v + v + 2).y)
             )lua");
         });
         REQUIRE(r0 == v2f(6));
@@ -55,7 +55,7 @@ TEST_CASE("luasol") {
     SECTION("quat") {
         v3f r0 = l.with_state([](sol::state& lua){
             return lua.script(R"lua(
-                return e2d.v3f.new(1,2,3) * e2d.q4f.make_quat_from_axis_angle(e2d.radf.new(10), e2d.v3f.new(1,2,3))
+                return v3f.new(1,2,3) * q4f.make_from_axis_angle(radf.new(10), v3f.new(1,2,3))
             )lua");
         });
         REQUIRE(r0 == v3f(1,2,3) * math::make_quat_from_axis_angle(radf(10.f), v3f(1,2,3)));
@@ -64,23 +64,23 @@ TEST_CASE("luasol") {
     SECTION("mat2/mat2/mat3") {
         std::pair<m2f, bool> r0 = l.with_state([](sol::state& lua){
             return lua.script(R"lua(
-                local m = e2d.m2f.make_scale_matrix2(2,3)
-                local rm, s = e2d.m2f.inversed(m)
-                return rm * e2d.m2f.identity(), s
+                local m = m2f.make_scale(2,3)
+                local rm, s = m2f.inversed(m)
+                return rm * m2f.identity(), s
             )lua");
         });
         std::pair<m3f, bool> r1 = l.with_state([](sol::state& lua){
             return lua.script(R"lua(
-                local m = e2d.m3f.make_rotation_matrix3(e2d.degf.new(45),2,3,4)
-                local rm, s = e2d.m3f.inversed(m)
-                return rm * e2d.m3f.identity(), s
+                local m = m3f.make_rotation(degf.new(45),2,3,4)
+                local rm, s = m3f.inversed(m)
+                return rm * m3f.identity(), s
             )lua");
         });
         std::pair<m4f, bool> r2 = l.with_state([](sol::state& lua){
             return lua.script(R"lua(
-                local m = e2d.m4f.make_translation_matrix4(2,3,4)
-                local rm, s = e2d.m4f.inversed(m)
-                return rm * e2d.m4f.identity(), s
+                local m = m4f.make_translation(2,3,4)
+                local rm, s = m4f.inversed(m)
+                return rm * m4f.identity(), s
             )lua");
         });
         REQUIRE(r0.second);
@@ -94,15 +94,15 @@ TEST_CASE("luasol") {
     SECTION("rect/aabb") {
         bool r0 = l.with_state([](sol::state& lua){
             return lua.script(R"lua(
-                local b = e2d.b2f.unit() * 2
-                return b:inside(e2d.v2f.new(1.5,1.5))
+                local b = b2f.unit() * 2
+                return b:inside(v2f.new(1.5,1.5))
             )lua");
         });
         REQUIRE(r0);
         bool r1 = l.with_state([](sol::state& lua){
             return lua.script(R"lua(
-                local b = e2d.b3f.unit() * 2
-                return b:overlaps(e2d.b3f.new(1.5,1.5,1.5,2,2,2))
+                local b = b3f.unit() * 2
+                return b:overlaps(b3f.new(1.5,1.5,1.5,2,2,2))
             )lua");
         });
         REQUIRE(r1);
@@ -111,14 +111,14 @@ TEST_CASE("luasol") {
     SECTION("trs2/trs3") {
         radf r0 = l.with_state([](sol::state& lua){
             return lua.script(R"lua(
-                local t = e2d.t2f.make_rotation_trs2(e2d.degf.new(45))
+                local t = t2f.make_rotation(degf.new(45))
                 return t.rotation
             )lua");
         });
         REQUIRE(r0 == math::to_rad(degf(45.f)));
         v3f r1 = l.with_state([](sol::state& lua){
             return lua.script(R"lua(
-                local t = e2d.t3f.make_translation_trs3(e2d.v3f.new(1,2,3))
+                local t = t3f.make_translation(v3f.new(1,2,3))
                 return t.translation
             )lua");
         });
@@ -128,15 +128,33 @@ TEST_CASE("luasol") {
     SECTION("color/color32") {
         color r0 = l.with_state([](sol::state& lua){
             return lua.script(R"lua(
-                return e2d.color.white() * 0.5
+                return color.white() * 0.5
             )lua");
         });
         REQUIRE(r0 == color(0.5f,0.5f,0.5f,0.5f));
         color32 r1 = l.with_state([](sol::state& lua){
             return lua.script(R"lua(
-                return e2d.color32.white() - 1
+                return color32.white() - 1
             )lua");
         });
         REQUIRE(r1 == color32(254,254,254,254));
+    }
+
+    SECTION("str_hash") {
+        str_hash r0 = l.with_state([](sol::state& lua){
+            return lua.script(R"lua(
+                local s = str_hash.new("hello")
+                s:clear()
+                return s
+            )lua");
+        });
+        REQUIRE(r0.empty());
+        u32 r1 = l.with_state([](sol::state& lua){
+            return lua.script(R"lua(
+                local s = str_hash.new("hello")
+                return s.hash
+            )lua");
+        });
+        REQUIRE(r1 == str_hash("hello").hash());
     }
 }
