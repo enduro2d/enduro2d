@@ -28,24 +28,20 @@ namespace e2d
         sprite_renderer(const sprite_asset::ptr& sprite);
 
         sprite_renderer& tint(const color32& value) noexcept;
-        const color32& tint() const noexcept;
+        [[nodiscard]] const color32& tint() const noexcept;
 
         sprite_renderer& blending(blendings value) noexcept;
-        blendings blending() const noexcept;
+        [[nodiscard]] blendings blending() const noexcept;
 
         sprite_renderer& filtering(bool value) noexcept;
-        bool filtering() const noexcept;
+        [[nodiscard]] bool filtering() const noexcept;
 
         sprite_renderer& sprite(const sprite_asset::ptr& value) noexcept;
-        const sprite_asset::ptr& sprite() const noexcept;
+        [[nodiscard]] const sprite_asset::ptr& sprite() const noexcept;
 
-        sprite_renderer& materials(
-            flat_map<str_hash, material_asset::ptr>&& value) noexcept;
-        sprite_renderer& materials(
-            const flat_map<str_hash, material_asset::ptr>& value);
-
-        material_asset::ptr find_material(str_hash name) const noexcept;
-        const flat_map<str_hash, material_asset::ptr>& materials() const noexcept;
+        sprite_renderer& materials(flat_map<str_hash, material_asset::ptr> value) noexcept;
+        [[nodiscard]] const flat_map<str_hash, material_asset::ptr>& materials() const noexcept;
+        [[nodiscard]] material_asset::ptr find_material(str_hash name) const noexcept;
     private:
         color32 tint_ = color32::white();
         blendings blending_ = blendings::normal;
@@ -62,7 +58,7 @@ namespace e2d
         bool operator()(
             sprite_renderer& component,
             const fill_context& ctx) const;
-            
+
         bool operator()(
             asset_dependencies& dependencies,
             const collect_context& ctx) const;
@@ -110,18 +106,13 @@ namespace e2d
         return sprite_;
     }
 
-    inline sprite_renderer& sprite_renderer::materials(
-        flat_map<str_hash, material_asset::ptr>&& value) noexcept
-    {
+    inline sprite_renderer& sprite_renderer::materials(flat_map<str_hash, material_asset::ptr> value) noexcept {
         materials_ = std::move(value);
         return *this;
     }
 
-    inline sprite_renderer& sprite_renderer::materials(
-        const flat_map<str_hash, material_asset::ptr>& value)
-    {
-        materials_ = value;
-        return *this;
+    inline const flat_map<str_hash, material_asset::ptr>& sprite_renderer::materials() const noexcept {
+        return materials_;
     }
 
     inline material_asset::ptr sprite_renderer::find_material(str_hash name) const noexcept {
@@ -129,9 +120,5 @@ namespace e2d
         return iter != materials_.end()
             ? iter->second
             : nullptr;
-    }
-
-    inline const flat_map<str_hash, material_asset::ptr>& sprite_renderer::materials() const noexcept {
-        return materials_;
     }
 }

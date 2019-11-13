@@ -22,11 +22,11 @@ namespace e2d
         camera& target(const render_target_ptr& value) noexcept;
         camera& background(const color& value) noexcept;
 
-        i32 depth() const noexcept;
-        const b2u& viewport() const noexcept;
-        const m4f& projection() const noexcept;
-        const render_target_ptr& target() const noexcept;
-        const color& background() const noexcept;
+        [[nodiscard]] i32 depth() const noexcept;
+        [[nodiscard]] const b2u& viewport() const noexcept;
+        [[nodiscard]] const m4f& projection() const noexcept;
+        [[nodiscard]] const render_target_ptr& target() const noexcept;
+        [[nodiscard]] const color& background() const noexcept;
     private:
         i32 depth_ = 0;
         b2u viewport_ = b2u::zero();

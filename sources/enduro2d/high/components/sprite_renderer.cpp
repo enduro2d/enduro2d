@@ -75,7 +75,7 @@ namespace e2d
         if ( ctx.root.HasMember("blending") ) {
             sprite_renderer::blendings blending = component.blending();
             if ( !parse_blending(ctx.root["blending"].GetString(), blending) ) {
-                the<debug>().error("LABEL: Incorrect formatting of 'blending' property");
+                the<debug>().error("SPRITE_RENDERER: Incorrect formatting of 'blending' property");
                 return false;
             }
             component.blending(blending);

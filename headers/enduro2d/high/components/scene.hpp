@@ -17,7 +17,7 @@ namespace e2d
         scene() = default;
 
         scene& depth(i32 value) noexcept;
-        i32 depth() const noexcept;
+        [[nodiscard]] i32 depth() const noexcept;
     private:
         i32 depth_ = 0;
     };

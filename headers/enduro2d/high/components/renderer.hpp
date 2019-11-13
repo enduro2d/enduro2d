@@ -20,14 +20,14 @@ namespace e2d
         renderer& properties(render::property_block&& value) noexcept;
         renderer& properties(const render::property_block& value);
 
-        render::property_block& properties() noexcept;
-        const render::property_block& properties() const noexcept;
+        [[nodiscard]] render::property_block& properties() noexcept;
+        [[nodiscard]] const render::property_block& properties() const noexcept;
 
         renderer& materials(vector<material_asset::ptr>&& value) noexcept;
         renderer& materials(const vector<material_asset::ptr>& value);
 
-        vector<material_asset::ptr>& materials() noexcept;
-        const vector<material_asset::ptr>& materials() const noexcept;
+        [[nodiscard]] vector<material_asset::ptr>& materials() noexcept;
+        [[nodiscard]] const vector<material_asset::ptr>& materials() const noexcept;
     private:
         render::property_block properties_;
         vector<material_asset::ptr> materials_;
@@ -41,7 +41,7 @@ namespace e2d
         bool operator()(
             renderer& component,
             const fill_context& ctx) const;
-            
+
         bool operator()(
             asset_dependencies& dependencies,
             const collect_context& ctx) const;
