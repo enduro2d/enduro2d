@@ -39,26 +39,39 @@ namespace e2d::bindings::core
         l.new_usertype<input>("input",
             sol::no_constructor,
 
-            "mouse", sol::property(&input::mouse),
-            "keyboard", sol::property(&input::keyboard)
+            "mouse", sol::property([](const input& i) -> const mouse& {
+                return i.mouse();
+            }),
+
+            "keyboard", sol::property([](const input& i) -> const keyboard& {
+                return i.keyboard();
+            })
         );
 
         l.new_usertype<mouse>("mouse",
             sol::no_constructor,
 
-            "cursor_pos", sol::property([](const mouse& m){
+            "cursor_pos", sol::property([](const mouse& m) -> v2f {
                 return m.cursor_pos();
             }),
 
-            "scroll_delta", sol::property([](const mouse& m){
+            "scroll_delta", sol::property([](const mouse& m) -> v2f {
                 return m.scroll_delta();
             }),
 
-            "is_any_button_pressed", sol::property(&mouse::is_any_button_pressed),
-            "is_any_button_just_pressed", sol::property(&mouse::is_any_button_just_pressed),
-            "is_any_button_just_released", sol::property(&mouse::is_any_button_just_released),
+            "is_any_button_pressed", sol::property([](const mouse& m) -> bool {
+                return m.is_any_button_pressed();
+            }),
 
-            "is_button_pressed", [](const mouse& m, const char* n){
+            "is_any_button_just_pressed", sol::property([](const mouse& m) -> bool {
+                return m.is_any_button_just_pressed();
+            }),
+
+            "is_any_button_just_released", sol::property([](const mouse& m) -> bool {
+                return m.is_any_button_just_released();
+            }),
+
+            "is_button_pressed", [](const mouse& m, str_view n) -> bool {
                 mouse_button btn = mouse_button::unknown;
                 if ( parse_mouse_button(n, btn) ) {
                     return m.is_button_pressed(btn);
@@ -70,7 +83,7 @@ namespace e2d::bindings::core
                 return false;
             },
 
-            "is_button_just_pressed", [](const mouse& m, const char* n){
+            "is_button_just_pressed", [](const mouse& m, str_view n) -> bool {
                 mouse_button btn = mouse_button::unknown;
                 if ( parse_mouse_button(n, btn) ) {
                     return m.is_button_just_pressed(btn);
@@ -82,7 +95,7 @@ namespace e2d::bindings::core
                 return false;
             },
 
-            "is_button_just_released", [](const mouse& m, const char* n){
+            "is_button_just_released", [](const mouse& m, str_view n) -> bool {
                 mouse_button btn = mouse_button::unknown;
                 if ( parse_mouse_button(n, btn) ) {
                     return m.is_button_just_released(btn);
@@ -94,15 +107,15 @@ namespace e2d::bindings::core
                 return false;
             },
 
-            "pressed_buttons", sol::property([](const mouse& m){
+            "pressed_buttons", sol::property([](const mouse& m) -> vector<str> {
                 return convert_buttons_to_strings(m.pressed_buttons());
             }),
 
-            "just_pressed_buttons", sol::property([](const mouse& m){
+            "just_pressed_buttons", sol::property([](const mouse& m) -> vector<str> {
                 return convert_buttons_to_strings(m.just_pressed_buttons());
             }),
 
-            "just_released_buttons", sol::property([](const mouse& m){
+            "just_released_buttons", sol::property([](const mouse& m) -> vector<str> {
                 return convert_buttons_to_strings(m.just_released_buttons());
             })
         );
@@ -110,15 +123,23 @@ namespace e2d::bindings::core
         l.new_usertype<keyboard>("keyboard",
             sol::no_constructor,
 
-            "input_text", sol::property([](const keyboard& k){
+            "input_text", sol::property([](const keyboard& k) -> str {
                 return make_utf8(k.input_text());
             }),
 
-            "is_any_key_pressed", sol::property(&keyboard::is_any_key_pressed),
-            "is_any_key_just_pressed", sol::property(&keyboard::is_any_key_just_pressed),
-            "is_any_key_just_released", sol::property(&keyboard::is_any_key_just_released),
+            "is_any_key_pressed", sol::property([](const keyboard& k) -> bool {
+                return k.is_any_key_pressed();
+            }),
 
-            "is_key_pressed", [](const keyboard& k, const char* n){
+            "is_any_key_just_pressed", sol::property([](const keyboard& k) -> bool {
+                return k.is_any_key_just_pressed();
+            }),
+
+            "is_any_key_just_released", sol::property([](const keyboard& k) -> bool {
+                return k.is_any_key_just_released();
+            }),
+
+            "is_key_pressed", [](const keyboard& k, str_view n) -> bool {
                 keyboard_key key = keyboard_key::unknown;
                 if ( parse_keyboard_key(n, key) ) {
                     return k.is_key_pressed(key);
@@ -130,7 +151,7 @@ namespace e2d::bindings::core
                 return false;
             },
 
-            "is_key_just_pressed", [](const keyboard& k, const char* n){
+            "is_key_just_pressed", [](const keyboard& k, str_view n) -> bool {
                 keyboard_key key = keyboard_key::unknown;
                 if ( parse_keyboard_key(n, key) ) {
                     return k.is_key_just_pressed(key);
@@ -142,7 +163,7 @@ namespace e2d::bindings::core
                 return false;
             },
 
-            "is_key_just_released", [](const keyboard& k, const char* n){
+            "is_key_just_released", [](const keyboard& k, str_view n) -> bool {
                 keyboard_key key = keyboard_key::unknown;
                 if ( parse_keyboard_key(n, key) ) {
                     return k.is_key_just_released(key);
@@ -154,15 +175,15 @@ namespace e2d::bindings::core
                 return false;
             },
 
-            "pressed_keys", sol::property([](const keyboard& k){
+            "pressed_keys", sol::property([](const keyboard& k) -> vector<str> {
                 return convert_keys_to_strings(k.pressed_keys());
             }),
 
-            "just_pressed_keys", sol::property([](const keyboard& k){
+            "just_pressed_keys", sol::property([](const keyboard& k) -> vector<str> {
                 return convert_keys_to_strings(k.just_pressed_keys());
             }),
 
-            "just_released_keys", sol::property([](const keyboard& k){
+            "just_released_keys", sol::property([](const keyboard& k) -> vector<str> {
                 return convert_keys_to_strings(k.just_released_keys());
             })
         );

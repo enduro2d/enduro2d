@@ -1,8 +1,8 @@
 /*******************************************************************************
-* This file is part of the "Enduro2D"
-* For conditions of distribution and use, see copyright notice in LICENSE.md
-* Copyright (C) 2018-2019, by Matvey Cherevko (blackmatov@gmail.com)
-******************************************************************************/
+ * This file is part of the "Enduro2D"
+ * For conditions of distribution and use, see copyright notice in LICENSE.md
+ * Copyright (C) 2018-2019, by Matvey Cherevko (blackmatov@gmail.com)
+ ******************************************************************************/
 
 #include "../_high_binds.hpp"
 
@@ -12,10 +12,12 @@
 namespace e2d::bindings::high
 {
     void bind_actor(sol::state& l) {
-        l["e2d"].get_or_create<sol::table>()
-        ["components"].get_or_create<sol::table>()
-        .new_usertype<gcomponent<actor>>("actor",
-            "node", sol::property([](const gcomponent<actor>& a){ return a->node(); })
+        l.new_usertype<gcomponent<actor>>("actor",
+            sol::no_constructor,
+
+            "node", sol::property([](gcomponent<actor>& c) -> node_iptr {
+                return c->node();
+            })
         );
     }
 }

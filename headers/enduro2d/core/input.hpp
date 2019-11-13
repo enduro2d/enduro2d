@@ -106,8 +106,8 @@ namespace e2d
         input();
         ~input() noexcept final;
 
-        const class mouse& mouse() const noexcept;
-        const class keyboard& keyboard() const noexcept;
+        const mouse& mouse() const noexcept;
+        const keyboard& keyboard() const noexcept;
 
         void post_event(input_char_event evt) noexcept;
         void post_event(move_cursor_event evt) noexcept;

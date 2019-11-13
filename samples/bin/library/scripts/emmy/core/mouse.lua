@@ -25,17 +25,20 @@ local mouse = {
     just_released_buttons = {}
 }
 
+---@param self mouse
 ---@param button string
 ---@return boolean
-function mouse:is_button_pressed(button) end
+function mouse.is_button_pressed(self, button) end
 
+---@param self mouse
 ---@param button string
 ---@return boolean
-function mouse:is_button_just_pressed(button) end
+function mouse.is_button_just_pressed(self, button) end
 
+---@param self mouse
 ---@param button string
 ---@return boolean
-function mouse:is_button_just_released(button) end
+function mouse.is_button_just_released(self, button) end
 
 ---@type mouse
 _G.the_mouse = _G.the_mouse or mouse

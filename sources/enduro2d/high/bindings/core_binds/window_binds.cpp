@@ -12,19 +12,45 @@ namespace e2d::bindings::core
         l.new_usertype<window>("window",
             sol::no_constructor,
 
-            "hide", &window::hide,
-            "show", &window::show,
-            "restore", &window::restore,
-            "minimize", &window::minimize,
+            "hide", [](window& w) {
+                w.hide();
+            },
 
-            "enabled", sol::property(&window::enabled),
-            "visible", sol::property(&window::visible),
-            "focused", sol::property(&window::focused),
-            "minimized", sol::property(&window::minimized),
+            "show", [](window& w) {
+                w.show();
+            },
+
+            "restore", [](window& w) {
+                w.restore();
+            },
+
+            "minimize", [](window& w) {
+                w.minimize();
+            },
+
+            "enabled", sol::property([](const window& w) -> bool {
+                return w.enabled();
+            }),
+
+            "visible", sol::property([](const window& w) -> bool {
+                return w.visible();
+            }),
+
+            "focused", sol::property([](const window& w) -> bool {
+                return w.focused();
+            }),
+
+            "minimized", sol::property([](const window& w) -> bool {
+                return w.minimized();
+            }),
 
             "fullscreen", sol::property(
-                &window::fullscreen,
-                &window::toggle_fullscreen),
+                [](const window& w) -> bool {
+                    return w.fullscreen();
+                },
+                [](window& w, bool yesno){
+                    w.toggle_fullscreen(yesno);
+                }),
 
             "cursor_hidden", sol::property(
                 &window::is_cursor_hidden,
@@ -36,25 +62,33 @@ namespace e2d::bindings::core
                     }
                 }),
 
-            "real_size", sol::property([](const window& w){
+            "real_size", sol::property([](const window& w) -> v2f {
                 return w.real_size().cast_to<f32>();
             }),
 
-            "virtual_size", sol::property([](const window& w){
+            "virtual_size", sol::property([](const window& w) -> v2f {
                 return w.virtual_size().cast_to<f32>();
             }),
 
-            "framebuffer_size", sol::property([](const window& w){
+            "framebuffer_size", sol::property([](const window& w) -> v2f {
                 return w.framebuffer_size().cast_to<f32>();
             }),
 
             "title", sol::property(
-                &window::title,
-                &window::set_title),
+                [](const window& w) -> str {
+                    return w.title();
+                },
+                [](window& w, str_view t){
+                    w.set_title(t);
+                }),
 
             "should_close", sol::property(
-                &window::should_close,
-                &window::set_should_close)
+                [](const window& w) -> bool {
+                    return w.should_close();
+                },
+                [](window& w, bool yesno){
+                    w.set_should_close(yesno);
+                })
         );
     }
 }

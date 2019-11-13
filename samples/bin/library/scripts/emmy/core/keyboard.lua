@@ -22,17 +22,20 @@ local keyboard = {
     just_released_keys = {}
 }
 
+---@param self keyboard
 ---@param key string
 ---@return boolean
-function keyboard:is_key_pressed(key) end
+function keyboard.is_key_pressed(self, key) end
 
+---@param self keyboard
 ---@param key string
 ---@return boolean
-function keyboard:is_key_just_pressed(key) end
+function keyboard.is_key_just_pressed(self, key) end
 
+---@param self keyboard
 ---@param key string
 ---@return boolean
-function keyboard:is_key_just_released(key) end
+function keyboard.is_key_just_released(self, key) end
 
 ---@type keyboard
 _G.the_keyboard = _G.the_keyboard or keyboard

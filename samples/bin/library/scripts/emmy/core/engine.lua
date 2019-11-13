@@ -6,10 +6,10 @@ local engine = {
     ---@type number
     delta_time = 0,
 
-    ---@type number
+    ---@type integer
     frame_rate = 0,
 
-    ---@type number
+    ---@type integer
     frame_count = 0,
 
     ---@type number

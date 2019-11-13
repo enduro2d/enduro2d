@@ -12,11 +12,25 @@ namespace e2d::bindings::core
         l.new_usertype<engine>("engine",
             sol::no_constructor,
 
-            "time", sol::property(&engine::time),
-            "delta_time", sol::property(&engine::delta_time),
-            "frame_rate", sol::property(&engine::frame_rate),
-            "frame_count", sol::property(&engine::frame_count),
-            "realtime_time", sol::property(&engine::realtime_time)
+            "time", sol::property([](const engine& e) -> f32 {
+                return e.time();
+            }),
+
+            "delta_time", sol::property([](const engine& e) -> f32 {
+                return e.delta_time();
+            }),
+
+            "frame_rate", sol::property([](const engine& e) -> u32 {
+                return e.frame_rate();
+            }),
+
+            "frame_count", sol::property([](const engine& e) -> u32 {
+                return e.frame_count();
+            }),
+
+            "realtime_time", sol::property([](const engine& e) -> f32 {
+                return e.realtime_time();
+            })
         );
     }
 }

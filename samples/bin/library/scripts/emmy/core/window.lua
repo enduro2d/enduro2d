@@ -34,13 +34,17 @@ local window = {
     should_close = false
 }
 
-function window:hide() end
+---@param self window
+function window.hide(self) end
 
-function window:show() end
+---@param self window
+function window.show(self) end
 
-function window:restore() end
+---@param self window
+function window.restore(self) end
 
-function window:minimize() end
+---@param self window
+function window.minimize(self) end
 
 ---@type window
 _G.the_window = _G.the_window or window

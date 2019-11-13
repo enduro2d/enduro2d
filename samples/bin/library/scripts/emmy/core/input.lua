@@ -1,10 +1,10 @@
 ---@class input
 local input = {
     ---@type mouse
-    mouse = {},
+    mouse = nil,
 
     ---@type keyboard
-    keyboard = {}
+    keyboard = nil
 }
 
 ---@type input

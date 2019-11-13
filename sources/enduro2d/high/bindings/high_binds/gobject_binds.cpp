@@ -1,8 +1,8 @@
 /*******************************************************************************
-* This file is part of the "Enduro2D"
-* For conditions of distribution and use, see copyright notice in LICENSE.md
-* Copyright (C) 2018-2019, by Matvey Cherevko (blackmatov@gmail.com)
-******************************************************************************/
+ * This file is part of the "Enduro2D"
+ * For conditions of distribution and use, see copyright notice in LICENSE.md
+ * Copyright (C) 2018-2019, by Matvey Cherevko (blackmatov@gmail.com)
+ ******************************************************************************/
 
 #include "_high_binds.hpp"
 
@@ -23,13 +23,20 @@
 namespace e2d::bindings::high
 {
     void bind_gobject(sol::state& l) {
-        l["e2d"].get_or_create<sol::table>()
-        ["high"].get_or_create<sol::table>()
-        .new_usertype<gobject>("gobject",
-            "alive", sol::property(&gobject::alive),
-            "valid", sol::property(&gobject::valid),
+        l.new_usertype<gobject>("gobject",
+            sol::no_constructor,
 
-            "destroy", &gobject::destroy,
+            "alive", sol::property([](const gobject& go) -> bool {
+                return go.alive();
+            }),
+
+            "valid", sol::property([](const gobject& go) -> bool {
+                return go.valid();
+            }),
+
+            "destroy", [](gobject& go){
+                go.destroy();
+            },
 
             "actor", sol::property([](gobject& go){ return component_wrapper<actor>{go}; }),
             "behaviour", sol::property([](gobject& go){ return component_wrapper<behaviour>{go}; }),

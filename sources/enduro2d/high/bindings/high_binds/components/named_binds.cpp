@@ -1,8 +1,8 @@
 /*******************************************************************************
-* This file is part of the "Enduro2D"
-* For conditions of distribution and use, see copyright notice in LICENSE.md
-* Copyright (C) 2018-2019, by Matvey Cherevko (blackmatov@gmail.com)
-******************************************************************************/
+ * This file is part of the "Enduro2D"
+ * For conditions of distribution and use, see copyright notice in LICENSE.md
+ * Copyright (C) 2018-2019, by Matvey Cherevko (blackmatov@gmail.com)
+ ******************************************************************************/
 
 #include "../_high_binds.hpp"
 
@@ -12,12 +12,16 @@
 namespace e2d::bindings::high
 {
     void bind_named(sol::state& l) {
-        l["e2d"].get_or_create<sol::table>()
-        ["components"].get_or_create<sol::table>()
-        .new_usertype<gcomponent<named>>("named",
+        l.new_usertype<gcomponent<named>>("named",
+            sol::no_constructor,
+
             "name", sol::property(
-                [](const gcomponent<named>& c){ return c->name(); },
-                [](gcomponent<named>& c, str v){ c->name(std::move(v)); })
+                [](const gcomponent<named>& c) -> str {
+                    return c->name();
+                },
+                [](gcomponent<named>& c, str_view v){
+                    c->name(str(v));
+                })
         );
     }
 }

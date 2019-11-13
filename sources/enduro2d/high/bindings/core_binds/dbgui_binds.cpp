@@ -13,8 +13,12 @@ namespace e2d::bindings::core
             sol::no_constructor,
 
             "visible", sol::property(
-                &dbgui::visible,
-                &dbgui::toggle_visible)
+                [](const dbgui& d) -> bool {
+                    return d.visible();
+                },
+                [](dbgui& d, bool yesno){
+                    d.toggle_visible(yesno);
+                })
         );
     }
 }
