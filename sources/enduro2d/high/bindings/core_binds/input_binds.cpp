@@ -1,8 +1,8 @@
 /*******************************************************************************
-* This file is part of the "Enduro2D"
-* For conditions of distribution and use, see copyright notice in LICENSE.md
-* Copyright (C) 2018-2019, by Matvey Cherevko (blackmatov@gmail.com)
-******************************************************************************/
+ * This file is part of the "Enduro2D"
+ * For conditions of distribution and use, see copyright notice in LICENSE.md
+ * Copyright (C) 2018-2019, by Matvey Cherevko (blackmatov@gmail.com)
+ ******************************************************************************/
 
 #include "_core_binds.hpp"
 
@@ -36,18 +36,14 @@ namespace
 namespace e2d::bindings::core
 {
     void bind_input(sol::state& l) {
-        l["e2d"].get_or_create<sol::table>()
-        ["core"].get_or_create<sol::table>()
-        .new_usertype<input>("input",
+        l.new_usertype<input>("input",
             sol::no_constructor,
 
             "mouse", sol::property(&input::mouse),
             "keyboard", sol::property(&input::keyboard)
         );
 
-        l["e2d"].get_or_create<sol::table>()
-        ["core"].get_or_create<sol::table>()
-        .new_usertype<mouse>("mouse",
+        l.new_usertype<mouse>("mouse",
             sol::no_constructor,
 
             "cursor_pos", sol::property([](const mouse& m){
@@ -111,9 +107,7 @@ namespace e2d::bindings::core
             })
         );
 
-        l["e2d"].get_or_create<sol::table>()
-        ["core"].get_or_create<sol::table>()
-        .new_usertype<keyboard>("keyboard",
+        l.new_usertype<keyboard>("keyboard",
             sol::no_constructor,
 
             "input_text", sol::property([](const keyboard& k){

@@ -1,17 +1,15 @@
 /*******************************************************************************
-* This file is part of the "Enduro2D"
-* For conditions of distribution and use, see copyright notice in LICENSE.md
-* Copyright (C) 2018-2019, by Matvey Cherevko (blackmatov@gmail.com)
-******************************************************************************/
+ * This file is part of the "Enduro2D"
+ * For conditions of distribution and use, see copyright notice in LICENSE.md
+ * Copyright (C) 2018-2019, by Matvey Cherevko (blackmatov@gmail.com)
+ ******************************************************************************/
 
 #include "_core_binds.hpp"
 
 namespace e2d::bindings::core
 {
     void bind_window(sol::state& l) {
-        l["e2d"].get_or_create<sol::table>()
-        ["core"].get_or_create<sol::table>()
-        .new_usertype<window>("window",
+        l.new_usertype<window>("window",
             sol::no_constructor,
 
             "hide", &window::hide,
