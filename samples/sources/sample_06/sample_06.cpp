@@ -51,7 +51,7 @@ namespace
                         e.ensure_component<spine_player_cmd>()
                             .add_command(spine_player_cmd::set_anim_cmd(1, "gun-grab"))
                             .add_command(spine_player_cmd::add_anim_cmd(1, "gun-holster")
-                                .delay(secf(3.f)));
+                                .delay(3.f));
                     }
                 });
             }

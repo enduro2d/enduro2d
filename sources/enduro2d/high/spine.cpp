@@ -78,18 +78,18 @@ namespace e2d
         return *this;
     }
 
-    spine& spine::set_default_mix(secf duration) {
+    spine& spine::set_default_mix(f32 duration) {
         if ( !animation_ ) {
             throw bad_spine_access();
         }
-        animation_->defaultMix = duration.value;
+        animation_->defaultMix = duration;
         return *this;
     }
 
     spine& spine::set_animation_mix(
         const str& from,
         const str& to,
-        secf duration)
+        f32 duration)
     {
         spAnimation* from_anim = animation_
             ? spSkeletonData_findAnimation(animation_->skeletonData, from.c_str())
@@ -103,7 +103,7 @@ namespace e2d
             throw bad_spine_access();
         }
 
-        spAnimationStateData_setMix(animation_.get(), from_anim, to_anim, duration.value);
+        spAnimationStateData_setMix(animation_.get(), from_anim, to_anim, duration);
         return *this;
     }
 

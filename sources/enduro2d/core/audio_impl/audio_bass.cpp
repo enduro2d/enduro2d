@@ -116,19 +116,21 @@ namespace e2d
         return volume;
     }
 
-    void sound_source::position(secf pos) noexcept {
-        QWORD byte_pos = BASS_ChannelSeconds2Bytes(state().channel(), pos.value);
+    void sound_source::position(f32 pos) noexcept {
+        QWORD byte_pos = BASS_ChannelSeconds2Bytes(state().channel(), pos);
         BASS_ChannelSetPosition(state().channel(), byte_pos, BASS_POS_BYTE);
     }
 
-    secf sound_source::position() const noexcept {
+    f32 sound_source::position() const noexcept {
         QWORD byte_pos = BASS_ChannelGetPosition(state().channel(), BASS_POS_BYTE);
-        return secf{f32(BASS_ChannelBytes2Seconds(state().channel(), byte_pos))};
+        return math::numeric_cast<f32>(
+            BASS_ChannelBytes2Seconds(state().channel(), byte_pos));
     }
 
-    secf sound_source::duration() const noexcept {
+    f32 sound_source::duration() const noexcept {
         QWORD byte_len = BASS_ChannelGetLength(state().channel(), BASS_POS_BYTE);
-        return secf{f32(BASS_ChannelBytes2Seconds(state().channel(), byte_len))};
+        return math::numeric_cast<f32>(
+            BASS_ChannelBytes2Seconds(state().channel(), byte_len));
     }
 
     //
