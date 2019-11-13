@@ -7,7 +7,7 @@ local m2f = {
 ---@overload fun(): m2f
 ---@overload fun(r0: v2f, r1: v2f): m2f
 ---@return m2f
-function m2f.new() end
+function m2f.new(...) end
 
 ---@return m2f
 function m2f.zero() end
@@ -19,10 +19,8 @@ function m2f.identity() end
 ---@overload fun(xy: v4f): m2f
 ---@overload fun(xy: v3f): m2f
 ---@overload fun(xy: v2f): m2f
----@param x number
----@param y number
 ---@return m2f
-function m2f.make_scale(x,y) end
+function m2f.make_scale(...) end
 
 ---@param a degf | radf
 ---@return m2f

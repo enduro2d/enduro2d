@@ -9,12 +9,12 @@ local aabb = {
 
 ---@overload fun(): aabb
 ---@overload fun(r: aabb): aabb
----@overload fun(w: number, h: number): aabb
----@overload fun(x: number, y: number, w: number, h: number): aabb
+---@overload fun(w: number, h: number, l: number): aabb
+---@overload fun(x: number, y: number, z: number, w: number, h: number, l: number): aabb
 ---@overload fun(s: v3f): aabb
 ---@overload fun(p: v3f, s: v3f): aabb
 ---@return aabb
-function aabb.new() end
+function aabb.new(...) end
 
 ---@return aabb
 function aabb.zero() end
@@ -23,7 +23,7 @@ function aabb.zero() end
 function aabb.unit() end
 
 ---@overload fun(r: aabb): aabb
----@overload fun(x1: number, y1: number, x2: number, y2: number): aabb
+---@overload fun(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number): aabb
 ---@overload fun(p1: v3f, p2: v3f): aabb
 ---@param r aabb
 ---@return aabb

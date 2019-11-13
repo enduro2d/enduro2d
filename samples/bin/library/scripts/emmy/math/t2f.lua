@@ -14,7 +14,7 @@ local t2f = {
 ---@overload fun(t: t2f): t2f
 ---@overload fun(t: v2f, r: degf | radf, s: v2f): t2f
 ---@return t2f
-function t2f.new() end
+function t2f.new(...) end
 
 ---@return t2f
 function t2f.zero() end

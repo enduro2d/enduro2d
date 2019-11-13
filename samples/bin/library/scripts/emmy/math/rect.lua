@@ -14,7 +14,7 @@ local rect = {
 ---@overload fun(s: v2f): rect
 ---@overload fun(p: v2f, s: v2f): rect
 ---@return rect
-function rect.new() end
+function rect.new(...) end
 
 ---@return rect
 function rect.zero() end

@@ -20,7 +20,7 @@ local color = {
 ---@overload fun(v: v3f, a: number): color
 ---@overload fun(r: number, g: number, b: number, a: number): color
 ---@return color
-function color.new() end
+function color.new(...) end
 
 ---@return color
 function color.clear() end

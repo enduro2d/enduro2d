@@ -8,7 +8,7 @@ local degf = {
 ---@overload fun(v: number): degf
 ---@overload fun(u: degf): degf
 ---@return degf
-function degf.new() end
+function degf.new(...) end
 
 ---@return degf
 function degf.zero() end

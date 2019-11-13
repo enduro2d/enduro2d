@@ -14,7 +14,7 @@ local t3f = {
 ---@overload fun(t: t3f): t3f
 ---@overload fun(t: v3f, r: q4f, s: v3f): t3f
 ---@return t3f
-function t3f.new() end
+function t3f.new(...) end
 
 ---@return t3f
 function t3f.zero() end

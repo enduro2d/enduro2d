@@ -7,7 +7,7 @@ local m3f = {
 ---@overload fun(): m3f
 ---@overload fun(r0: v3f, r1: v3f, r2: v3f): m3f
 ---@return m3f
-function m3f.new() end
+function m3f.new(...) end
 
 ---@return m3f
 function m3f.zero() end
@@ -19,23 +19,16 @@ function m3f.identity() end
 ---@overload fun(xyz: v4f): m3f
 ---@overload fun(xyz: v3f): m3f
 ---@overload fun(xy: v2f, z: number): m3f
----@param x number
----@param y number
----@param z number
 ---@return m3f
-function m3f.make_scale(x,y,z) end
+function m3f.make_scale(...) end
 
 ---@overload fun(a: degf | radf, x: number, y: number, z: number): m3f
 ---@overload fun(a: degf | radf, xyz: v4f): m3f
 ---@overload fun(a: degf | radf, xyz: v3f): m3f
 ---@overload fun(a: degf | radf, xy: v2f, z: number): m3f
 ---@overload fun(q: q4f): m3f
----@param a degf | radf
----@param x number
----@param y number
----@param z number
 ---@return m3f
-function m3f.make_rotation(a,x,y,z) end
+function m3f.make_rotation(...) end
 
 ---@param l m3f
 ---@param r m3f

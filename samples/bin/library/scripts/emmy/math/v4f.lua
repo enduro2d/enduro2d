@@ -20,7 +20,7 @@ local v4f = {
 ---@overload fun(v: v3f, w: number): v4f
 ---@overload fun(v: v4f): v4f
 ---@return v4f
-function v4f.new() end
+function v4f.new(...) end
 
 ---@return v4f
 function v4f.zero() end

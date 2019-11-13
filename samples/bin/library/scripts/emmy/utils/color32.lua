@@ -20,7 +20,7 @@ local color32 = {
 ---@overload fun(v: v3f, a: number): color32
 ---@overload fun(r: number, g: number, b: number, a: number): color32
 ---@return color32
-function color32.new() end
+function color32.new(...) end
 
 ---@return color32
 function color32.clear() end

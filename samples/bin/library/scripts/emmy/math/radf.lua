@@ -8,7 +8,7 @@ local radf = {
 ---@overload fun(v: number): radf
 ---@overload fun(u: radf): radf
 ---@return radf
-function radf.new() end
+function radf.new(...) end
 
 ---@return radf
 function radf.zero() end

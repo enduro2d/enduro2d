@@ -10,7 +10,7 @@ local str_hash = {
 ---@overload fun(): str_hash
 ---@overload fun(s: string): str_hash
 ---@return str_hash
-function str_hash.new() end
+function str_hash.new(...) end
 
 ---@overload fun(s: str_hash)
 ---@param s str_hash

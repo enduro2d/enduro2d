@@ -18,7 +18,7 @@ local q4f = {
 ---@overload fun(x: number, y: number, z: number, w: number): q4f
 ---@overload fun(v: v4f): q4f
 ---@return q4f
-function q4f.new() end
+function q4f.new(...) end
 
 ---@return q4f
 function q4f.zero() end

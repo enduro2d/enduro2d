@@ -17,7 +17,7 @@ local v3f = {
 ---@overload fun(v: v3f): v3f
 ---@overload fun(v: v4f): v3f
 ---@return v3f
-function v3f.new() end
+function v3f.new(...) end
 
 ---@return v3f
 function v3f.zero() end

@@ -14,7 +14,7 @@ local v2f = {
 ---@overload fun(v: v3f): v2f
 ---@overload fun(v: v4f): v2f
 ---@return v2f
-function v2f.new() end
+function v2f.new(...) end
 
 ---@return v2f
 function v2f.zero() end
