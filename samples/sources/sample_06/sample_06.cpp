@@ -40,30 +40,29 @@ namespace
                     roar, jump, gun_grab
                 ](ecs::entity e, const spine_player& p) {
                     if ( roar && p.has_animation("roar") ) {
-                        e.ensure_component<spine_player_cmd>().add_command(
-                            spine_player_cmd::set_anim_cmd(0, "roar")
+                        e.ensure_component<commands<spine_player_commands::command>>()
+                            .add(spine_player_commands::set_anim_cmd(0, "roar")
                                 .complete_message("to_walk"));
                     } else if ( jump && p.has_animation("jump") ) {
-                        e.ensure_component<spine_player_cmd>().add_command(
-                            spine_player_cmd::set_anim_cmd(0, "jump")
+                        e.ensure_component<commands<spine_player_commands::command>>()
+                            .add(spine_player_commands::set_anim_cmd(0, "jump")
                                 .complete_message("to_walk"));
                     } else if ( gun_grab && p.has_animation("gun-grab") ) {
-                        e.ensure_component<spine_player_cmd>()
-                            .add_command(spine_player_cmd::set_anim_cmd(1, "gun-grab"))
-                            .add_command(spine_player_cmd::add_anim_cmd(1, "gun-holster")
-                                .delay(3.f));
+                        e.ensure_component<commands<spine_player_commands::command>>()
+                            .add(spine_player_commands::set_anim_cmd(1, "gun-grab"))
+                            .add(spine_player_commands::add_anim_cmd(1, "gun-holster").delay(3.f));
                     }
                 });
             }
 
-            owner.for_joined_components<spine_player_evt>([
-            ](ecs::entity e, const spine_player_evt& pe) {
-                for ( const auto& evt : pe.events() ) {
-                    if ( auto complete_evt = std::get_if<spine_player_evt::complete_evt>(&evt);
+            owner.for_joined_components<events<spine_player_events::event>>([
+            ](ecs::entity e, const events<spine_player_events::event>& pe) {
+                for ( const auto& evt : pe ) {
+                    if ( auto complete_evt = std::get_if<spine_player_events::complete_evt>(&evt);
                         complete_evt && complete_evt->message() == "to_walk" )
                     {
-                        e.ensure_component<spine_player_cmd>().add_command(
-                            spine_player_cmd::add_anim_cmd(0, "walk")
+                        e.ensure_component<commands<spine_player_commands::command>>()
+                            .add(spine_player_commands::add_anim_cmd(0, "walk")
                                 .loop(true));
                     }
                 }

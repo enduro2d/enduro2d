@@ -8,8 +8,6 @@
                 "normal" : "../materials/spine_material_normal.json",
                 "screen" : "../materials/spine_material_screen.json"
             }
-        },
-        "spine_player_cmd" : {},
-        "spine_player_evt" : {}
+        }
     }
 }
