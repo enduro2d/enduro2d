@@ -31,7 +31,9 @@
 #include "components/actor.hpp"
 #include "components/behaviour.hpp"
 #include "components/camera.hpp"
+#include "components/commands.hpp"
 #include "components/disabled.hpp"
+#include "components/events.hpp"
 #include "components/flipbook_player.hpp"
 #include "components/label.hpp"
 #include "components/model_renderer.hpp"
@@ -39,8 +41,6 @@
 #include "components/renderer.hpp"
 #include "components/scene.hpp"
 #include "components/spine_player.hpp"
-#include "components/spine_player_cmd.hpp"
-#include "components/spine_player_evt.hpp"
 #include "components/sprite_renderer.hpp"
 
 #include "systems/flipbook_system.hpp"

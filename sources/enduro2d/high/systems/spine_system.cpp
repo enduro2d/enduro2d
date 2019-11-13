@@ -6,9 +6,9 @@
 
 #include <enduro2d/high/systems/spine_system.hpp>
 
+#include <enduro2d/high/components/events.hpp>
+#include <enduro2d/high/components/commands.hpp>
 #include <enduro2d/high/components/spine_player.hpp>
-#include <enduro2d/high/components/spine_player_cmd.hpp>
-#include <enduro2d/high/components/spine_player_evt.hpp>
 
 #include <spine/spine.h>
 
@@ -50,23 +50,26 @@ namespace
             if ( !event || !event->data ) {
                 return;
             }
-            entry_state.target.ensure_component<spine_player_evt>()
-                .add_event(spine_player_evt::custom_evt(event->data->name ? event->data->name : "")
-                    .int_value(event->intValue)
-                    .float_value(event->floatValue)
-                    .string_value(event->stringValue ? event->stringValue : ""));
+            entry_state.target
+            .ensure_component<events<spine_player_events::event>>()
+            .add(spine_player_events::custom_evt(event->data->name ? event->data->name : "")
+                .int_value(event->intValue)
+                .float_value(event->floatValue)
+                .string_value(event->stringValue ? event->stringValue : ""));
         } else if ( type == SP_ANIMATION_END ) {
             if ( entry_state.end_message.empty() ) {
                 return;
             }
-            entry_state.target.ensure_component<spine_player_evt>()
-                .add_event(spine_player_evt::end_evt(entry_state.end_message));
+            entry_state.target
+            .ensure_component<events<spine_player_events::event>>()
+            .add(spine_player_events::end_evt(entry_state.end_message));
         } else if ( type == SP_ANIMATION_COMPLETE ) {
             if ( entry_state.complete_message.empty() ) {
                 return;
             }
-            entry_state.target.ensure_component<spine_player_evt>()
-                .add_event(spine_player_evt::complete_evt(entry_state.complete_message));
+            entry_state.target
+            .ensure_component<events<spine_player_events::event>>()
+            .add(spine_player_events::complete_evt(entry_state.complete_message));
         }
     }
 
@@ -80,13 +83,13 @@ namespace
         , skeleton_data_(skeleton_data)
         , animation_state_(animation_state) {}
 
-        void operator()(const spine_player_cmd::clear_track_cmd& cmd) const noexcept {
+        void operator()(const spine_player_commands::clear_track_cmd& cmd) const noexcept {
             spAnimationState_clearTrack(
                 &animation_state_,
                 math::numeric_cast<int>(cmd.track()));
         }
 
-        void operator()(const spine_player_cmd::set_anim_cmd& cmd) const noexcept {
+        void operator()(const spine_player_commands::set_anim_cmd& cmd) const noexcept {
             spAnimation* animation = spSkeletonData_findAnimation(&skeleton_data_, cmd.name().c_str());
             if ( !animation ) {
                 the<debug>().error("SPINE_POST_SYSTEM: animation '%0' is not found", cmd.name());
@@ -108,7 +111,7 @@ namespace
             entry->userData = entry_state.release();
         }
 
-        void operator()(const spine_player_cmd::add_anim_cmd& cmd) const noexcept {
+        void operator()(const spine_player_commands::add_anim_cmd& cmd) const noexcept {
             spAnimation* animation = spSkeletonData_findAnimation(&skeleton_data_, cmd.name().c_str());
             if ( !animation ) {
                 the<debug>().error("SPINE_POST_SYSTEM: animation '%0' is not found", cmd.name());
@@ -125,13 +128,13 @@ namespace
                 math::numeric_cast<int>(cmd.track()),
                 animation,
                 cmd.loop() ? 1 : 0,
-                cmd.delay().value);
+                cmd.delay());
 
             entry->listener = &entry_listener;
             entry->userData = entry_state.release();
         }
 
-        void operator()(const spine_player_cmd::set_empty_anim_cmd& cmd) const noexcept {
+        void operator()(const spine_player_commands::set_empty_anim_cmd& cmd) const noexcept {
             auto entry_state = std::make_unique<entry_internal_state>(
                 target_,
                 cmd.end_message(),
@@ -140,13 +143,13 @@ namespace
             spTrackEntry* entry = spAnimationState_setEmptyAnimation(
                 &animation_state_,
                 math::numeric_cast<int>(cmd.track()),
-                cmd.mix_duration().value);
+                cmd.mix_duration());
 
             entry->listener = &entry_listener;
             entry->userData = entry_state.release();
         }
 
-        void operator()(const spine_player_cmd::add_empty_anim_cmd& cmd) const noexcept {
+        void operator()(const spine_player_commands::add_empty_anim_cmd& cmd) const noexcept {
             auto entry_state = std::make_unique<entry_internal_state>(
                 target_,
                 cmd.end_message(),
@@ -155,8 +158,8 @@ namespace
             spTrackEntry* entry = spAnimationState_addEmptyAnimation(
                 &animation_state_,
                 math::numeric_cast<int>(cmd.track()),
-                cmd.mix_duration().value,
-                cmd.delay().value);
+                cmd.mix_duration(),
+                cmd.delay());
 
             entry->listener = &entry_listener;
             entry->userData = entry_state.release();
@@ -168,9 +171,9 @@ namespace
     };
 
     void clear_events(ecs::registry& owner) {
-        owner.for_each_component<spine_player_evt>([
-        ](const ecs::const_entity&, spine_player_evt& pe) {
-            pe.clear_events();
+        owner.for_each_component<events<spine_player_events::event>>([
+        ](const ecs::const_entity&, events<spine_player_events::event>& es) {
+            es.clear();
         });
     }
 
@@ -194,9 +197,9 @@ namespace
     }
 
     void process_commands(ecs::registry& owner) {
-        owner.for_joined_components<spine_player_cmd, spine_player>([](
+        owner.for_joined_components<commands<spine_player_commands::command>, spine_player>([](
             ecs::entity e,
-            const spine_player_cmd& pc,
+            const commands<spine_player_commands::command>& cs,
             spine_player& p)
         {
             spSkeleton* skeleton = p.skeleton().get();
@@ -207,16 +210,16 @@ namespace
             }
 
             command_visitor v(e, *skeleton->data, *animation_state);
-            for ( const auto& cmd : pc.commands() ) {
+            for ( const auto& cmd : cs ) {
                 std::visit(v, cmd);
             }
         });
     }
 
     void clear_commands(ecs::registry& owner) {
-        owner.for_each_component<spine_player_cmd>([
-        ](const ecs::const_entity&, spine_player_cmd& pc) {
-            pc.clear_commands();
+        owner.for_each_component<commands<spine_player_commands::command>>([
+        ](const ecs::const_entity&, commands<spine_player_commands::command>& cs) {
+            cs.clear();
         });
     }
 }

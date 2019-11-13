@@ -13,7 +13,8 @@
 #include <enduro2d/high/components/actor.hpp>
 #include <enduro2d/high/components/behaviour.hpp>
 #include <enduro2d/high/components/disabled.hpp>
-#include <enduro2d/high/components/spine_player_evt.hpp>
+#include <enduro2d/high/components/events.hpp>
+#include <enduro2d/high/components/spine_player.hpp>
 
 namespace
 {
@@ -45,23 +46,23 @@ namespace
     }
 
     void process_spine_player_events(ecs::registry& owner) {
-        systems::for_extracted_components<spine_player_evt, behaviour, actor>(owner,
-        [](ecs::entity e, const spine_player_evt& spe, behaviour& b, actor& a){
+        systems::for_extracted_components<events<spine_player_events::event>, behaviour, actor>(owner,
+        [](ecs::entity e, const events<spine_player_events::event>& es, behaviour& b, actor& a){
             if ( !a.node() || !a.node()->owner() ) {
                 return;
             }
-            for ( const spine_player_evt::event& evt : spe.events() ) {
+            for ( const spine_player_events::event& evt : es ) {
                 behaviours::call_result r = behaviours::call_result::success;
                 std::visit(utils::overloaded {
-                    [&b,&a,&r](const spine_player_evt::custom_evt& e){
+                    [&b,&a,&r](const spine_player_events::custom_evt& e){
                         r = behaviours::call_meta_method(
                             b, "on_event", a.node()->owner(), "spine_player.custom_evt", e);
                     },
-                    [&b,&a,&r](const spine_player_evt::end_evt& e){
+                    [&b,&a,&r](const spine_player_events::end_evt& e){
                         r = behaviours::call_meta_method(
                             b, "on_event", a.node()->owner(), "spine_player.end_evt", e);
                     },
-                    [&b,&a,&r](const spine_player_evt::complete_evt& e){
+                    [&b,&a,&r](const spine_player_events::complete_evt& e){
                         r = behaviours::call_meta_method(
                             b, "on_event", a.node()->owner(), "spine_player.complete_evt", e);
                     }

@@ -46,8 +46,12 @@ namespace e2d
     class actor;
     class behaviour;
     class camera;
+    template < typename C >
+    class commands;
     template < typename T >
     class disabled;
+    template < typename E >
+    class events;
     class flipbook_player;
     class label;
     class model_renderer;
@@ -55,8 +59,6 @@ namespace e2d
     class renderer;
     class scene;
     class spine_player;
-    class spine_player_cmd;
-    class spine_player_evt;
     class sprite_renderer;
 
     class flipbook_system;
