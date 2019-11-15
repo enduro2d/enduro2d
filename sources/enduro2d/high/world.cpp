@@ -108,6 +108,19 @@ namespace
         }
 
         try {
+            gcomponent<behaviour> inst_b{inst};
+            if ( inst_b && inst_b->script() ) {
+                const behaviours::fill_result r = behaviours::fill_meta_table(*inst_b);
+                if ( r == behaviours::fill_result::failed ) {
+                    inst.component<disabled<behaviour>>().ensure();
+                }
+            }
+        } catch (...) {
+            delete_instance(inst);
+            throw;
+        }
+
+        try {
             for ( const auto& child_prefab : prefab.children() ) {
                 auto child = new_instance(world, child_prefab);
                 try {

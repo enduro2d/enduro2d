@@ -9,6 +9,7 @@
 #include "../_high.hpp"
 
 #include "../factory.hpp"
+#include "../assets/script_asset.hpp"
 
 namespace e2d
 {
@@ -17,12 +18,14 @@ namespace e2d
         behaviour() = default;
 
         behaviour& meta(sol::table value) noexcept;
+        behaviour& script(const script_asset::ptr& value) noexcept;
 
         [[nodiscard]] sol::table& meta() noexcept;
         [[nodiscard]] const sol::table& meta() const noexcept;
+        [[nodiscard]] const script_asset::ptr& script() const noexcept;
     private:
-        str name_;
         sol::table meta_;
+        script_asset::ptr script_;
     };
 
     template <>
@@ -47,6 +50,11 @@ namespace e2d
         return *this;
     }
 
+    inline behaviour& behaviour::script(const script_asset::ptr& value) noexcept {
+        script_ = value;
+        return *this;
+    }
+
     inline sol::table& behaviour::meta() noexcept {
         return meta_;
     }
@@ -54,10 +62,43 @@ namespace e2d
     inline const sol::table& behaviour::meta() const noexcept {
         return meta_;
     }
+
+    inline const script_asset::ptr& behaviour::script() const noexcept {
+        return script_;
+    }
 }
 
 namespace e2d::behaviours
 {
+    enum class fill_result {
+        failed,
+        success,
+    };
+
+    inline fill_result fill_meta_table(behaviour& behaviour) {
+        if ( !behaviour.script() ) {
+            return fill_result::failed;
+        }
+
+        sol::protected_function_result meta = behaviour.script()->content().call();
+
+        if ( !meta.valid() ) {
+            sol::error err = meta;
+            the<debug>().error("BEHAVIOUR: Behaviour script error:\n"
+                "--> Error: %0",
+                err.what());
+            return fill_result::failed;
+        }
+
+        if ( meta.get_type() != sol::type::table ) {
+            the<debug>().error("BEHAVIOUR: Behaviour script must return a meta table");
+            return fill_result::failed;
+        }
+
+        behaviour.meta(std::move(meta));
+        return fill_result::success;
+    }
+
     enum class call_result {
         failed,
         success,
@@ -78,6 +119,7 @@ namespace e2d::behaviours
         sol::protected_function_result r = f->call(
             behaviour.meta(),
             std::forward<Args>(args)...);
+
         if ( !r.valid() ) {
             sol::error err = r;
             the<debug>().error("BEHAVIOUR: Behaviour method error:\n"

@@ -6,8 +6,6 @@
 
 #include <enduro2d/high/components/behaviour.hpp>
 
-#include <enduro2d/high/assets/script_asset.hpp>
-
 namespace e2d
 {
     const char* factory_loader<behaviour>::schema_source = R"json({
@@ -36,23 +34,7 @@ namespace e2d
                 return false;
             }
 
-            //TODO(BlackMat): thread safe?
-            sol::protected_function_result meta = script->content().call();
-
-            if ( !meta.valid() ) {
-                sol::error err = meta;
-                the<debug>().error("BEHAVIOUR: Behaviour script error:\n"
-                    "--> Error: %0",
-                    err.what());
-                return false;
-            }
-
-            if ( meta.get_type() != sol::type::table ) {
-                the<debug>().error("BEHAVIOUR: Behaviour script must return the meta table");
-                return false;
-            }
-
-            component.meta(std::move(meta));
+            component.script(script);
         }
 
         return true;

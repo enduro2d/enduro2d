@@ -27,7 +27,7 @@ namespace e2d
                 the<debug>().error("NAMED: Incorrect formatting of 'name' property");
                 return false;
             }
-            component.name(name);
+            component.name(std::move(name));
         }
 
         return true;
