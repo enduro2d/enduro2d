@@ -13,10 +13,7 @@ namespace
     template < typename T >
     void bind_trs3_t(const str& name, sol::state& l) {
         l.new_usertype<trs3<T>>(name,
-            sol::constructors<
-                trs3<T>(),
-                trs3<T>(trs3<T>),
-                trs3<T>(vec3<T>,quat<T>,vec3<T>)>(),
+            sol::no_constructor,
 
             "zero", &trs3<T>::zero,
             "identity", &trs3<T>::identity,
@@ -31,12 +28,26 @@ namespace
 
             sol::meta_function::equal_to, sol::resolve<bool(const trs3<T>&, const trs3<T>&)>(::operator==),
 
-            "make_translation", sol::resolve<trs3<T>(const vec3<T>&)>(&math::make_translation_trs3),
-            "make_rotation", sol::resolve<trs3<T>(const quat<T>&)>(&math::make_rotation_trs3),
-            "make_scale", sol::resolve<trs3<T>(const vec3<T>&)>(&math::make_scale_trs3),
+            "make_translation", [](const vec3<T>& t) -> trs3<T> {
+                return math::make_translation_trs3(t);
+            },
 
-            "approximately", [](const trs3<T>& l, const trs3<T>& r){ return math::approximately(l,r); },
-            "contains_nan", sol::resolve<bool(const trs3<T>&)>(&math::contains_nan));
+            "make_rotation", [](const quat<T>& q) -> trs3<T> {
+                return math::make_rotation_trs3(q);
+            },
+
+            "make_scale", [](const vec3<T>& s) -> trs3<T> {
+                return math::make_scale_trs3(s);
+            },
+
+            "approximately", [](const trs3<T>& l, const trs3<T>& r) -> bool {
+                return math::approximately(l,r);
+            },
+
+            "contains_nan", [](const trs3<T>& t) -> bool {
+                return math::contains_nan(t);
+            }
+        );
     }
 }
 

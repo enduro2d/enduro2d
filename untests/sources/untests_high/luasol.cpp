@@ -55,7 +55,7 @@ TEST_CASE("luasol") {
     SECTION("quat") {
         v3f r0 = l.with_state([](sol::state& lua){
             return lua.script(R"lua(
-                return v3f.new(1,2,3) * q4f.make_from_axis_angle(radf.new(10), v3f.new(1,2,3))
+                return v3f.new(1,2,3) * q4f.make_from_axis_angle(10, v3f.new(1,2,3))
             )lua");
         });
         REQUIRE(r0 == v3f(1,2,3) * math::make_quat_from_axis_angle(radf(10.f), v3f(1,2,3)));
@@ -71,7 +71,7 @@ TEST_CASE("luasol") {
         });
         std::pair<m3f, bool> r1 = l.with_state([](sol::state& lua){
             return lua.script(R"lua(
-                local m = m3f.make_rotation(degf.new(45),2,3,4)
+                local m = m3f.make_rotation(45,2,3,4)
                 local rm, s = m3f.inversed(m)
                 return rm * m3f.identity(), s
             )lua");
@@ -86,7 +86,7 @@ TEST_CASE("luasol") {
         REQUIRE(r0.second);
         REQUIRE(r0.first == math::inversed(math::make_scale_matrix2(2.f,3.f)).first);
         REQUIRE(r1.second);
-        REQUIRE(r1.first == math::inversed(math::make_rotation_matrix3(degf(45.f),2.f,3.f,4.f)).first);
+        REQUIRE(r1.first == math::inversed(math::make_rotation_matrix3(radf(45.f),2.f,3.f,4.f)).first);
         REQUIRE(r2.second);
         REQUIRE(r2.first == math::inversed(math::make_translation_matrix4(2.f,3.f,4.f)).first);
     }
@@ -109,13 +109,13 @@ TEST_CASE("luasol") {
     }
 
     SECTION("trs2/trs3") {
-        radf r0 = l.with_state([](sol::state& lua){
+        f32 r0 = l.with_state([](sol::state& lua){
             return lua.script(R"lua(
-                local t = t2f.make_rotation(degf.new(45))
+                local t = t2f.make_rotation(0.5)
                 return t.rotation
             )lua");
         });
-        REQUIRE(r0 == math::to_rad(degf(45.f)));
+        REQUIRE(math::approximately(r0, 0.5f));
         v3f r1 = l.with_state([](sol::state& lua){
             return lua.script(R"lua(
                 local t = t3f.make_translation(v3f.new(1,2,3))

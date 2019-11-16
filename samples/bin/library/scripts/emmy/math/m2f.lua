@@ -22,7 +22,7 @@ function m2f.identity() end
 ---@return m2f
 function m2f.make_scale(...) end
 
----@param a degf | radf
+---@param a number
 ---@return m2f
 function m2f.make_rotation(a) end
 

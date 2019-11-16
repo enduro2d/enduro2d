@@ -10,7 +10,8 @@
 ---@param meta gnome_meta
 ---@param go gobject
 local function update_life_time(meta, go)
-    meta.life_time = meta.life_time - the_engine.delta_time
+    local dt = the_engine.delta_time
+    meta.life_time = meta.life_time - dt
     if meta.life_time <= 0 then
         go:destroy()
     end
@@ -19,10 +20,8 @@ end
 ---@param meta gnome_meta
 ---@param go gobject
 local function update_gnome_rotation(meta, go)
-    go.actor.node.rotation = q4f.make_from_euler_angles(
-        radf.new(),
-        radf.new(the_engine.time),
-        radf.new())
+    local time = the_engine.time
+    go.actor.node.rotation = q4f.make_from_euler_angles(0, time, 0)
 end
 
 -- -----------------------------------------------------------------------------

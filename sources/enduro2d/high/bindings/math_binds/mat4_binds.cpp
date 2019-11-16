@@ -53,15 +53,11 @@ namespace
                 sol::resolve<mat4<T>(const vec2<T>&, T)>(&math::make_translation_matrix4)),
 
             "make_rotation", sol::overload(
-                sol::resolve<mat4<T>(const deg<T>&,T,T,T)>(&math::make_rotation_matrix4),
-                sol::resolve<mat4<T>(const deg<T>&,const vec4<T>&)>(&math::make_rotation_matrix4),
-                sol::resolve<mat4<T>(const deg<T>&,const vec3<T>&)>(&math::make_rotation_matrix4),
-                sol::resolve<mat4<T>(const deg<T>&,const vec2<T>&,T)>(&math::make_rotation_matrix4),
-                sol::resolve<mat4<T>(const rad<T>&,T,T,T)>(&math::make_rotation_matrix4),
-                sol::resolve<mat4<T>(const rad<T>&,const vec4<T>&)>(&math::make_rotation_matrix4),
-                sol::resolve<mat4<T>(const rad<T>&,const vec3<T>&)>(&math::make_rotation_matrix4),
-                sol::resolve<mat4<T>(const rad<T>&,const vec2<T>&,T)>(&math::make_rotation_matrix4),
-                sol::resolve<mat4<T>(const quat<T>&)>(&math::make_rotation_matrix4)),
+                [](T angle, T x, T y, T z) -> mat4<T> { return math::make_rotation_matrix4(make_rad(angle), x, y, z); },
+                [](T angle, const vec4<T>& xyz) -> mat4<T> { return math::make_rotation_matrix4(make_rad(angle), xyz); },
+                [](T angle, const vec3<T>& xyz) -> mat4<T> { return math::make_rotation_matrix4(make_rad(angle), xyz); },
+                [](T angle, const vec2<T>& xy, T z) -> mat4<T> { return math::make_rotation_matrix4(make_rad(angle), xy, z); },
+                [](const quat<T>& q) -> mat4<T> { return math::make_rotation_matrix4(q); }),
 
             "make_trs", sol::overload(
                 sol::resolve<mat4<T>(const trs2<T>&)>(&math::make_trs_matrix4),
@@ -81,20 +77,30 @@ namespace
                 sol::resolve<mat4<T>(T,T,T,T)>(&math::make_orthogonal_rh_matrix4),
                 sol::resolve<mat4<T>(const vec2<T>&,T,T)>(&math::make_orthogonal_rh_matrix4)),
 
-            "make_perspective_lh", sol::overload(
-                sol::resolve<mat4<T>(const degf&,T,T,T)>(&math::make_perspective_lh_matrix4),
-                sol::resolve<mat4<T>(const radf&,T,T,T)>(&math::make_perspective_lh_matrix4)),
+            "make_perspective_lh", [](T angle, T aspect, T znear, T zfar) -> mat4<T> {
+                return math::make_perspective_lh_matrix4(make_rad(angle), aspect, znear, zfar);
+            },
 
-            "make_perspective_rh", sol::overload(
-                sol::resolve<mat4<T>(const degf&,T,T,T)>(&math::make_perspective_rh_matrix4),
-                sol::resolve<mat4<T>(const radf&,T,T,T)>(&math::make_perspective_rh_matrix4)),
+            "make_perspective_rh", [](T angle, T aspect, T znear, T zfar) -> mat4<T> {
+                return math::make_perspective_rh_matrix4(make_rad(angle), aspect, znear, zfar);
+            },
 
-            "approximately", [](const mat4<T>& l, const mat4<T>& r){ return math::approximately(l,r); },
+            "approximately", [](const mat4<T>& l, const mat4<T>& r) -> bool {
+                return math::approximately(l,r);
+            },
 
-            "inversed", [](const mat4<T>& m){ return math::inversed(m); },
-            "transposed", [](const mat4<T>& m){ return math::transposed(m); },
+            "inversed", [](const mat4<T>& m) -> std::pair<mat4<T>, bool> {
+                return math::inversed(m);
+            },
 
-            "contains_nan", sol::resolve<bool(const mat4<T>&)>(&math::contains_nan));
+            "transposed", [](const mat4<T>& m) -> mat4<T> {
+                return math::transposed(m);
+            },
+
+            "contains_nan", [](const mat4<T>& m) -> bool {
+                return math::contains_nan(m);
+            }
+        );
     }
 }
 

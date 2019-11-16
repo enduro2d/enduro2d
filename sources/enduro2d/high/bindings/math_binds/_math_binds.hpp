@@ -25,8 +25,6 @@ namespace e2d::bindings::math
 
     void bind_trs2(sol::state& l);
     void bind_trs3(sol::state& l);
-
-    void bind_unit(sol::state& l);
 }
 
 namespace e2d::bindings
@@ -47,7 +45,5 @@ namespace e2d::bindings
 
         math::bind_trs2(l);
         math::bind_trs3(l);
-
-        math::bind_unit(l);
     }
 }

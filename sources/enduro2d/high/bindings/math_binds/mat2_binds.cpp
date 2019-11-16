@@ -46,16 +46,26 @@ namespace
                 sol::resolve<mat2<T>(const vec3<T>&)>(&math::make_scale_matrix2),
                 sol::resolve<mat2<T>(const vec2<T>&)>(&math::make_scale_matrix2)),
 
-            "make_rotation", sol::overload(
-                sol::resolve<mat2<T>(const deg<T>&)>(&math::make_rotation_matrix2),
-                sol::resolve<mat2<T>(const rad<T>&)>(&math::make_rotation_matrix2)),
+            "make_rotation", [](T angle) -> mat2<T> {
+                return math::make_rotation_matrix2(make_rad(angle));
+            },
 
-            "approximately", [](const mat2<T>& l, const mat2<T>& r){ return math::approximately(l,r); },
+            "approximately", [](const mat2<T>& l, const mat2<T>& r) -> bool {
+                return math::approximately(l,r);
+            },
 
-            "inversed", [](const mat2<T>& m){ return math::inversed(m); },
-            "transposed", [](const mat2<T>& m){ return math::transposed(m); },
+            "inversed", [](const mat2<T>& m) -> std::pair<mat2<T>, bool> {
+                return math::inversed(m);
+            },
 
-            "contains_nan", sol::resolve<bool(const mat2<T>&)>(&math::contains_nan));
+            "transposed", [](const mat2<T>& m) -> mat2<T> {
+                return math::transposed(m);
+            },
+
+            "contains_nan", [](const mat2<T>& m) -> bool {
+                return math::contains_nan(m);
+            }
+        );
     }
 }
 

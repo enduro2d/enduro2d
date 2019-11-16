@@ -26,14 +26,14 @@ function q4f.zero() end
 ---@return q4f
 function q4f.identity() end
 
----@param angle degf | radf
+---@param angle number
 ---@param axis v3f
 ---@return q4f
 function q4f.make_from_axis_angle(angle, axis) end
 
----@param roll degf | radf
----@param pitch degf | radf
----@param yaw degf | radf
+---@param roll number
+---@param pitch number
+---@param yaw number
 ---@return q4f
 function q4f.make_from_euler_angles(roll, pitch, yaw) end
 

@@ -45,13 +45,13 @@ namespace
                 sol::resolve<quat<T>(const quat<T>&, T)>(::operator*),
                 sol::resolve<quat<T>(const quat<T>&, const quat<T>&)>(::operator*)),
 
-            "make_from_axis_angle", sol::overload(
-                sol::resolve<quat<T>(const deg<T>&, const vec3<T>&)>(&math::make_quat_from_axis_angle),
-                sol::resolve<quat<T>(const rad<T>&, const vec3<T>&)>(&math::make_quat_from_axis_angle)),
+            "make_from_axis_angle", [](T angle, const vec3<T>& xyz) -> quat<T> {
+                return math::make_quat_from_axis_angle(make_rad(angle), xyz);
+            },
 
-            "make_from_euler_angles", sol::overload(
-                sol::resolve<quat<T>(const deg<T>&, const deg<T>&, const deg<T>&)>(&math::make_quat_from_euler_angles),
-                sol::resolve<quat<T>(const rad<T>&, const rad<T>&, const rad<T>&)>(&math::make_quat_from_euler_angles)),
+            "make_from_euler_angles", [](T roll, T pitch, T yaw) -> quat<T> {
+                return math::make_quat_from_euler_angles(make_rad(roll), make_rad(pitch), make_rad(yaw));
+            },
 
             "approximately", [](const quat<T>& l, const quat<T>& r){ return math::approximately(l,r); },
 

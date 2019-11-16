@@ -29,10 +29,10 @@ function m4f.make_scale(...) end
 ---@return m4f
 function m4f.make_translation(...) end
 
----@overload fun(a: degf | radf, x: number, y: number, z: number): m4f
----@overload fun(a: degf | radf, xyz: v4f): m4f
----@overload fun(a: degf | radf, xyz: v3f): m4f
----@overload fun(a: degf | radf, xy: v2f, z: number): m4f
+---@overload fun(a: number, x: number, y: number, z: number): m4f
+---@overload fun(a: number, xyz: v4f): m4f
+---@overload fun(a: number, xyz: v3f): m4f
+---@overload fun(a: number, xy: v2f, z: number): m4f
 ---@overload fun(q: q4f): m4f
 ---@return m4f
 function m4f.make_rotation(...) end
@@ -63,14 +63,14 @@ function m4f.make_orthogonal_lh(...) end
 ---@return m4f
 function m4f.make_orthogonal_rh(...) end
 
----@param angle degf | radf
+---@param angle number
 ---@param aspect number
 ---@param znear number
 ---@param zfar number
 ---@return m4f
 function m4f.make_perspective_lh(angle, aspect, znear, zfar) end
 
----@param angle degf | radf
+---@param angle number
 ---@param aspect number
 ---@param znear number
 ---@param zfar number

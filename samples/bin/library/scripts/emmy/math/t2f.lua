@@ -3,18 +3,16 @@ local t2f = {
     ---@type v2f
     translation = v2f.zero(),
 
-    ---@type radf
-    rotation = radf.zero(),
+    ---@type number
+    rotation = 0,
 
     ---@type v2f
     scale = v2f.unit()
 }
 
 ---@overload fun(): t2f
----@overload fun(t: t2f): t2f
----@overload fun(t: v2f, r: degf | radf, s: v2f): t2f
 ---@return t2f
-function t2f.new(...) end
+function t2f.new() end
 
 ---@return t2f
 function t2f.zero() end
@@ -26,7 +24,7 @@ function t2f.identity() end
 ---@return t2f
 function t2f.make_translation(t) end
 
----@param r degf | radf
+---@param r number
 ---@return t2f
 function t2f.make_rotation(r) end
 
