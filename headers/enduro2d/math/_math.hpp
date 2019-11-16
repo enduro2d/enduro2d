@@ -303,7 +303,7 @@ namespace e2d::math
         std::is_convertible_v<U,T>,
         T>
     set_flags(T flags, U flag_mask) noexcept {
-        return flags | flag_mask;
+        return flags | static_cast<T>(flag_mask);
     }
 
     template < typename T, typename U >
@@ -321,7 +321,7 @@ namespace e2d::math
         std::is_convertible_v<U,T>,
         T>
     flip_flags(T flags, U flag_mask) noexcept {
-        return flags ^ flag_mask;
+        return flags ^ static_cast<T>(flag_mask);
     }
 
     template < typename T, typename U >
@@ -339,7 +339,7 @@ namespace e2d::math
         std::is_convertible_v<U,T>,
         T>
     clear_flags(T flags, U flag_mask) noexcept {
-        return flags & ~flag_mask;
+        return flags & ~static_cast<T>(flag_mask);
     }
 
     template < typename T, typename U >
@@ -357,7 +357,7 @@ namespace e2d::math
         std::is_convertible_v<U,T>,
         bool>
     check_any_flags(T flags, U flag_mask) noexcept {
-        return !!(flags & flag_mask);
+        return !!(flags & static_cast<T>(flag_mask));
     }
 
     template < typename T, typename U >
@@ -366,7 +366,7 @@ namespace e2d::math
         std::is_convertible_v<U,T>,
         bool>
     check_all_flags(T flags, U flag_mask) noexcept {
-        return flag_mask == (flags & flag_mask);
+        return static_cast<T>(flag_mask) == (flags & static_cast<T>(flag_mask));
     }
 
     template < typename T, typename U >
@@ -375,10 +375,10 @@ namespace e2d::math
         std::is_convertible_v<U,T>,
         bool>
     check_and_set_any_flags(T& flags, U flag_mask) noexcept {
-        if ( flag_mask == (flags & flag_mask) ) {
+        if ( static_cast<T>(flag_mask) == (flags & static_cast<T>(flag_mask)) ) {
             return false;
         }
-        flags |= flag_mask;
+        flags |= static_cast<T>(flag_mask);
         return true;
     }
 
@@ -388,10 +388,10 @@ namespace e2d::math
         std::is_convertible_v<U,T>,
         bool>
     check_and_set_all_flags(T& flags, U flag_mask) noexcept {
-        if ( !!(flags & flag_mask) ) {
+        if ( !!(flags & static_cast<T>(flag_mask)) ) {
             return false;
         }
-        flags |= flag_mask;
+        flags |= static_cast<T>(flag_mask);
         return true;
     }
 
@@ -401,10 +401,10 @@ namespace e2d::math
         std::is_convertible_v<U,T>,
         bool>
     check_and_clear_any_flags(T& flags, U flag_mask) noexcept {
-        if ( !(flags & flag_mask) ) {
+        if ( !(flags & static_cast<T>(flag_mask)) ) {
             return false;
         }
-        flags &= ~flag_mask;
+        flags &= ~static_cast<T>(flag_mask);
         return true;
     }
 
@@ -414,10 +414,10 @@ namespace e2d::math
         std::is_convertible_v<U,T>,
         bool>
     check_and_clear_all_flags(T& flags, U flag_mask) noexcept {
-        if ( flag_mask != (flags & flag_mask) ) {
+        if ( static_cast<T>(flag_mask) != (flags & static_cast<T>(flag_mask)) ) {
             return false;
         }
-        flags &= ~flag_mask;
+        flags &= ~static_cast<T>(flag_mask);
         return true;
     }
 
