@@ -1,6 +1,9 @@
 {
     "components" : {
-        "scene" : {}
+        "scene" : {},
+        "behaviour" : {
+            "script" : "../scripts/sample_07/sample_07.lua"
+        }
     },
     "children" : [{
         "prototype" : "../prefabs/camera_prefab.json"
@@ -10,20 +13,26 @@
             "actor" : {
                 "translation" : [0,0,0],
                 "scale" : 20
+            },
+            "behaviour" : {
+                "script" : "../scripts/sample_07/gnome.lua"
             }
         }
-    }, {
+    },{
         "prototype" : "../prefabs/label_sdf_prefab.json",
         "components" : {
             "label" : {
-                "text" : "Hello World!",
-                "valign" : "center",
+                "text" : "FPS: ",
+                "halign" : "left",
                 "outline_width" : 0.5,
                 "outline_color" : [0,0,0,255]
             },
             "actor" : {
-                "translation" : [0.5,-180.5,0],
-                "scale" : 2
+                "translation" : [-315,-235,0],
+                "scale" : 1
+            },
+            "behaviour" : {
+                "script" : "../scripts/sample_07/fps_label.lua"
             }
         }
     }]
