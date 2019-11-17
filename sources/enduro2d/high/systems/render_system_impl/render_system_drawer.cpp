@@ -187,10 +187,10 @@ namespace e2d::render_system_impl
                 continue;
             }
 
-            int vertex_count = 0;
             float* uvs = nullptr;
             unsigned short* indices = nullptr;
-            int index_count = 0;
+            std::size_t index_count = 0;
+            std::size_t vertex_count = 0;
             const spAtlasPage* atlas_page = nullptr;
             const spColor* attachment_color = nullptr;
 
@@ -205,8 +205,8 @@ namespace e2d::render_system_impl
 
                 try {
                     vertex_count = 8;
-                    if ( vertex_count > math::numeric_cast<int>(temp_vertices.size()) ) {
-                        temp_vertices.resize(vertex_count);
+                    if ( temp_vertices.size() < vertex_count ) {
+                        temp_vertices.resize(math::max(temp_vertices.size() * 2u, vertex_count));
                     }
                 } catch (...) {
                     property_cache_.clear();
@@ -236,8 +236,8 @@ namespace e2d::render_system_impl
 
                 try {
                     vertex_count = mesh->super.worldVerticesLength;
-                    if ( vertex_count > math::numeric_cast<int>(temp_vertices.size()) ) {
-                        temp_vertices.resize(vertex_count);
+                    if ( temp_vertices.size() < vertex_count ) {
+                        temp_vertices.resize(math::max(temp_vertices.size() * 2u, vertex_count));
                     }
                 } catch (...) {
                     property_cache_.clear();
@@ -383,10 +383,10 @@ namespace e2d::render_system_impl
             }
 
             try {
-                const std::size_t batch_vertex_count =
-                    math::numeric_cast<std::size_t>(vertex_count >> 1);
-                if ( batch_vertex_count > batch_vertices.size() ) {
-                    batch_vertices.resize(batch_vertex_count);
+                const std::size_t batch_vertex_count = vertex_count >> 1;
+
+                if ( batch_vertices.size() < batch_vertex_count ) {
+                    batch_vertices.resize(math::max(batch_vertices.size() * 2u, batch_vertex_count));
                 }
 
                 for ( std::size_t j = 0; j < batch_vertex_count; ++j ) {

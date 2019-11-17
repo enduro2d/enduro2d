@@ -70,19 +70,28 @@ namespace e2d::systems
         //TODO(BlackMat): replace it to frame allocator
         static thread_local vector<
             std::tuple<ecs::entity, Ts...>> components;
+        const std::size_t begin_index = components.size();
+
         try {
             extract_components<Ts...>(
                 owner,
                 std::back_inserter(components),
                 std::forward<Opts>(opts)...);
-            for ( auto& t : components ) {
-                std::apply(f, t);
+
+            const std::size_t end_index = components.size();
+            for ( std::size_t i = begin_index; i < end_index; ++i ) {
+                std::apply(f, components[i]);
             }
         } catch (...) {
-            components.clear();
+            components.erase(
+                components.begin() + begin_index,
+                components.end());
             throw;
         }
-        components.clear();
+
+        components.erase(
+            components.begin() + begin_index,
+            components.end());
     }
 
     template < typename... Ts, typename F, typename... Opts >
@@ -90,19 +99,28 @@ namespace e2d::systems
         //TODO(BlackMat): replace it to frame allocator
         static thread_local vector<
             std::tuple<ecs::const_entity, Ts...>> components;
+        const std::size_t begin_index = components.size();
+
         try {
             extract_components<Ts...>(
                 owner,
                 std::back_inserter(components),
                 std::forward<Opts>(opts)...);
-            for ( const auto& t : components ) {
-                std::apply(f, t);
+
+            const std::size_t end_index = components.size();
+            for ( std::size_t i = begin_index; i < end_index; ++i ) {
+                std::apply(f, components[i]);
             }
         } catch (...) {
-            components.clear();
+            components.erase(
+                components.begin() + begin_index,
+                components.end());
             throw;
         }
-        components.clear();
+
+        components.erase(
+            components.begin() + begin_index,
+            components.end());
     }
 }
 
@@ -113,20 +131,33 @@ namespace e2d::systems
         //TODO(BlackMat): replace it to frame allocator
         static thread_local vector<
             std::tuple<ecs::entity, Ts...>> components;
+        const std::size_t begin_index = components.size();
+
         try {
             extract_components<Ts...>(
                 owner,
                 std::back_inserter(components),
                 std::forward<Opts>(opts)...);
-            std::sort(components.begin(), components.end(), comp);
-            for ( auto& t : components ) {
-                std::apply(f, t);
+
+            std::sort(
+                components.begin() + begin_index,
+                components.end(),
+                comp);
+
+            const std::size_t end_index = components.size();
+            for ( std::size_t i = begin_index; i < end_index; ++i ) {
+                std::apply(f, components[i]);
             }
         } catch (...) {
-            components.clear();
+            components.erase(
+                components.begin() + begin_index,
+                components.end());
             throw;
         }
-        components.clear();
+
+        components.erase(
+            components.begin() + begin_index,
+            components.end());
     }
 
     template < typename... Ts, typename Comp, typename F, typename... Opts >
@@ -134,19 +165,32 @@ namespace e2d::systems
         //TODO(BlackMat): replace it to frame allocator
         static thread_local vector<
             std::tuple<ecs::const_entity, Ts...>> components;
+        const std::size_t begin_index = components.size();
+
         try {
             extract_components<Ts...>(
                 owner,
                 std::back_inserter(components),
                 std::forward<Opts>(opts)...);
-            std::sort(components.begin(), components.end(), comp);
-            for ( const auto& t : components ) {
-                std::apply(f, t);
+
+            std::sort(
+                components.begin() + begin_index,
+                components.end(),
+                comp);
+
+            const std::size_t end_index = components.size();
+            for ( std::size_t i = begin_index; i < end_index; ++i ) {
+                std::apply(f, components[i]);
             }
         } catch (...) {
-            components.clear();
+            components.erase(
+                components.begin() + begin_index,
+                components.end());
             throw;
         }
-        components.clear();
+
+        components.erase(
+            components.begin() + begin_index,
+            components.end());
     }
 }

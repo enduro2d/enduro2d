@@ -100,63 +100,107 @@ namespace e2d::nodes
     void for_extracted_nodes(const node_iptr& root, F&& f) {
         //TODO(BlackMat): replace it to frame allocator
         static thread_local vector<node_iptr> nodes;
+        const std::size_t begin_index = nodes.size();
+
         try {
-            extract_nodes(root, std::back_inserter(nodes));
-            for ( const node_iptr& n : nodes ) {
-                f(n);
+            extract_nodes(
+                root,
+                std::back_inserter(nodes));
+
+            const std::size_t end_index = nodes.size();
+            for ( std::size_t i = begin_index; i < end_index; ++i ) {
+                f(nodes[i]);
             }
         } catch (...) {
-            nodes.clear();
+            nodes.erase(
+                nodes.begin() + begin_index,
+                nodes.end());
             throw;
         }
-        nodes.clear();
+
+        nodes.erase(
+            nodes.begin() + begin_index,
+            nodes.end());
     }
 
     template < typename F >
     void for_extracted_nodes(const const_node_iptr& root, F&& f) {
         //TODO(BlackMat): replace it to frame allocator
         static thread_local vector<const_node_iptr> nodes;
+        const std::size_t begin_index = nodes.size();
+
         try {
-            extract_nodes(root, std::back_inserter(nodes));
-            for ( const const_node_iptr& n : nodes ) {
-                f(n);
+            extract_nodes(
+                root,
+                std::back_inserter(nodes));
+
+            const std::size_t end_index = nodes.size();
+            for ( std::size_t i = begin_index; i < end_index; ++i ) {
+                f(nodes[i]);
             }
         } catch (...) {
-            nodes.clear();
+            nodes.erase(
+                nodes.begin() + begin_index,
+                nodes.end());
             throw;
         }
-        nodes.clear();
+
+        nodes.erase(
+            nodes.begin() + begin_index,
+            nodes.end());
     }
 
     template < typename F >
     void for_extracted_nodes_reversed(const node_iptr& root, F&& f) {
         //TODO(BlackMat): replace it to frame allocator
         static thread_local vector<node_iptr> nodes;
+        const std::size_t begin_index = nodes.size();
+
         try {
-            extract_nodes_reversed(root, std::back_inserter(nodes));
-            for ( const node_iptr& n : nodes ) {
-                f(n);
+            extract_nodes_reversed(
+                root,
+                std::back_inserter(nodes));
+
+            const std::size_t end_index = nodes.size();
+            for ( std::size_t i = begin_index; i < end_index; ++i ) {
+                f(nodes[i]);
             }
         } catch (...) {
-            nodes.clear();
+            nodes.erase(
+                nodes.begin() + begin_index,
+                nodes.end());
             throw;
         }
-        nodes.clear();
+
+        nodes.erase(
+            nodes.begin() + begin_index,
+            nodes.end());
     }
 
     template < typename F >
     void for_extracted_nodes_reversed(const const_node_iptr& root, F&& f) {
         //TODO(BlackMat): replace it to frame allocator
         static thread_local vector<const_node_iptr> nodes;
+        const std::size_t begin_index = nodes.size();
+
         try {
-            extract_nodes_reversed(root, std::back_inserter(nodes));
-            for ( const const_node_iptr& n : nodes ) {
-                f(n);
+            extract_nodes_reversed(
+                root,
+                std::back_inserter(nodes));
+
+            const std::size_t end_index = nodes.size();
+            for ( std::size_t i = begin_index; i < end_index; ++i ) {
+                f(nodes[i]);
             }
         } catch (...) {
-            nodes.clear();
+            nodes.erase(
+                nodes.begin() + begin_index,
+                nodes.end());
             throw;
         }
-        nodes.clear();
+
+        nodes.erase(
+            nodes.begin() + begin_index,
+            nodes.end());
     }
 }
