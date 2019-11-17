@@ -58,12 +58,15 @@ namespace e2d::bindings::high
         l["spine_player"].get_or_create<sol::table>()
         .new_usertype<spine_player_events::custom_evt>("custom_evt",
             sol::constructors<
+                spine_player_events::custom_evt(),
                 spine_player_events::custom_evt(str)>(),
 
             "name", sol::property(
                 [](const spine_player_events::custom_evt& c) -> str {
                     return c.name();
-                }),
+                },
+                sol::resolve<spine_player_events::custom_evt&(str)>(
+                    &spine_player_events::custom_evt::name)),
 
             "int_value", sol::property(
                 [](const spine_player_events::custom_evt& c) -> i32 {
@@ -90,23 +93,29 @@ namespace e2d::bindings::high
         l["spine_player"].get_or_create<sol::table>()
         .new_usertype<spine_player_events::end_evt>("end_evt",
             sol::constructors<
+                spine_player_events::end_evt(),
                 spine_player_events::end_evt(str)>(),
 
             "message", sol::property(
                 [](const spine_player_events::end_evt& c) -> str {
                     return c.message();
-                })
+                },
+                sol::resolve<spine_player_events::end_evt&(str)>(
+                    &spine_player_events::end_evt::message))
         );
 
         l["spine_player"].get_or_create<sol::table>()
         .new_usertype<spine_player_events::complete_evt>("complete_evt",
             sol::constructors<
+                spine_player_events::complete_evt(),
                 spine_player_events::complete_evt(str)>(),
 
             "message", sol::property(
                 [](const spine_player_events::complete_evt& c) -> str {
                     return c.message();
-                })
+                },
+                sol::resolve<spine_player_events::complete_evt&(str)>(
+                    &spine_player_events::complete_evt::message))
         );
 
         //
@@ -115,8 +124,7 @@ namespace e2d::bindings::high
 
         l["spine_player"].get_or_create<sol::table>()
         .new_usertype<spine_player_commands::clear_track_cmd>("clear_track_cmd",
-            sol::constructors<
-                spine_player_commands::clear_track_cmd(u32)>(),
+            sol::constructors<spine_player_commands::clear_track_cmd(u32)>(),
 
             "track", sol::property(
                 [](const spine_player_commands::clear_track_cmd& c) -> u32 {
@@ -126,8 +134,7 @@ namespace e2d::bindings::high
 
         l["spine_player"].get_or_create<sol::table>()
         .new_usertype<spine_player_commands::set_anim_cmd>("set_anim_cmd",
-            sol::constructors<
-                spine_player_commands::set_anim_cmd(u32,str)>(),
+            sol::constructors<spine_player_commands::set_anim_cmd(u32,str)>(),
 
             "track", sol::property(
                 [](const spine_player_commands::set_anim_cmd& c) -> u32 {
@@ -163,8 +170,7 @@ namespace e2d::bindings::high
 
         l["spine_player"].get_or_create<sol::table>()
         .new_usertype<spine_player_commands::add_anim_cmd>("add_anim_cmd",
-            sol::constructors<
-                spine_player_commands::add_anim_cmd(u32,str)>(),
+            sol::constructors<spine_player_commands::add_anim_cmd(u32,str)>(),
 
             "track", sol::property(
                 [](const spine_player_commands::add_anim_cmd& c) -> u32 {
@@ -207,8 +213,7 @@ namespace e2d::bindings::high
 
         l["spine_player"].get_or_create<sol::table>()
         .new_usertype<spine_player_commands::set_empty_anim_cmd>("set_empty_anim_cmd",
-            sol::constructors<
-                spine_player_commands::set_empty_anim_cmd(u32)>(),
+            sol::constructors<spine_player_commands::set_empty_anim_cmd(u32)>(),
 
             "track", sol::property(
                 [](const spine_player_commands::set_empty_anim_cmd& c) -> u32 {

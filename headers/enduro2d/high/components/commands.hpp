@@ -15,23 +15,14 @@ namespace e2d
     public:
         commands() = default;
 
-        [[nodiscard]]
-        typename vector<C>::const_iterator
-        begin() const noexcept;
-
-        [[nodiscard]]
-        typename vector<C>::const_iterator
-        cbegin() const noexcept;
-
-        [[nodiscard]]
-        typename vector<C>::const_iterator
-        end() const noexcept;
-
-        [[nodiscard]]
-        typename vector<C>::const_iterator
-        cend() const noexcept;
-
         commands& add(C command);
+
+        commands& set(vector<C>&& commands) noexcept;
+        commands& set(const vector<C>& commands);
+
+        [[nodiscard]] vector<C>& get() noexcept;
+        [[nodiscard]] const vector<C>& get() const noexcept;
+
         commands& clear() noexcept;
         [[nodiscard]] bool empty() const noexcept;
         [[nodiscard]] std::size_t size() const noexcept;
@@ -43,29 +34,31 @@ namespace e2d
 namespace e2d
 {
     template < typename C >
-    typename vector<C>::const_iterator commands<C>::begin() const noexcept {
-        return commands_.begin();
-    }
-
-    template < typename C >
-    typename vector<C>::const_iterator commands<C>::cbegin() const noexcept {
-        return commands_.cbegin();
-    }
-
-    template < typename C >
-    typename vector<C>::const_iterator commands<C>::end() const noexcept {
-        return commands_.end();
-    }
-
-    template < typename C >
-    typename vector<C>::const_iterator commands<C>::cend() const noexcept {
-        return commands_.cend();
-    }
-
-    template < typename C >
     commands<C>& commands<C>::add(C command) {
         commands_.push_back(std::move(command));
         return *this;
+    }
+
+    template < typename C >
+    commands<C>& commands<C>::set(vector<C>&& commands) noexcept {
+        commands_ = std::move(commands);
+        return *this;
+    }
+
+    template < typename C >
+    commands<C>& commands<C>::set(const vector<C>& commands) {
+        commands_ = commands;
+        return *this;
+    }
+
+    template < typename C >
+    vector<C>& commands<C>::get() noexcept {
+        return commands_;
+    }
+
+    template < typename C >
+    const vector<C>& commands<C>::get() const noexcept {
+        return commands_;
     }
 
     template < typename C >

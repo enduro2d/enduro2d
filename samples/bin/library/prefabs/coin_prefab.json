@@ -3,6 +3,16 @@
     "components" : {
         "spine_player" : {
             "spine" : "../spines/coin_spine.json"
+        },
+        "spine_player_commands" : {
+            "commands" : [{
+                "type" : "set_anim_cmd",
+                "desc" : {
+                    "track" : 0,
+                    "name" : "animation",
+                    "loop" : true
+                }
+            }]
         }
     }
 }

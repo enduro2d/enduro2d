@@ -210,7 +210,7 @@ namespace
             }
 
             command_visitor v(e, *skeleton->data, *animation_state);
-            for ( const auto& cmd : cs ) {
+            for ( const auto& cmd : cs.get() ) {
                 std::visit(v, cmd);
             }
         });

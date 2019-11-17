@@ -14,6 +14,9 @@
 #include <enduro2d/high/components/actor.hpp>
 #include <enduro2d/high/components/behaviour.hpp>
 #include <enduro2d/high/components/camera.hpp>
+#include <enduro2d/high/components/commands.hpp>
+#include <enduro2d/high/components/disabled.hpp>
+#include <enduro2d/high/components/events.hpp>
 #include <enduro2d/high/components/flipbook_player.hpp>
 #include <enduro2d/high/components/label.hpp>
 #include <enduro2d/high/components/model_renderer.hpp>
@@ -186,6 +189,8 @@ namespace e2d
             .register_component<renderer>("renderer")
             .register_component<scene>("scene")
             .register_component<spine_player>("spine_player")
+            .register_component<events<spine_player_events::event>>("spine_player_events")
+            .register_component<commands<spine_player_commands::command>>("spine_player_commands")
             .register_component<sprite_renderer>("sprite_renderer");
 
         safe_module_initialize<luasol>();

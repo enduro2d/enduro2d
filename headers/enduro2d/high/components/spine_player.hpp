@@ -16,6 +16,34 @@ struct spSkeleton;
 struct spSkeletonClipping;
 struct spAnimationState;
 
+namespace e2d::spine_player_events
+{
+    class custom_evt;
+    class end_evt;
+    class complete_evt;
+
+    using event = std::variant<
+        custom_evt,
+        end_evt,
+        complete_evt>;
+}
+
+namespace e2d::spine_player_commands
+{
+    class clear_track_cmd;
+    class set_anim_cmd;
+    class add_anim_cmd;
+    class set_empty_anim_cmd;
+    class add_empty_anim_cmd;
+
+    using command = std::variant<
+        clear_track_cmd,
+        set_anim_cmd,
+        add_anim_cmd,
+        set_empty_anim_cmd,
+        add_empty_anim_cmd>;
+}
+
 namespace e2d
 {
     class bad_spine_player_access final : public exception {
@@ -72,23 +100,49 @@ namespace e2d
             asset_dependencies& dependencies,
             const collect_context& ctx) const;
     };
+
+    template <>
+    class factory_loader<events<spine_player_events::event>> final : factory_loader<> {
+    public:
+        static const char* schema_source;
+
+        bool operator()(
+            events<spine_player_events::event>& component,
+            const fill_context& ctx) const;
+
+        bool operator()(
+            asset_dependencies& dependencies,
+            const collect_context& ctx) const;
+    };
+
+    template <>
+    class factory_loader<commands<spine_player_commands::command>> final : factory_loader<> {
+    public:
+        static const char* schema_source;
+
+        bool operator()(
+            commands<spine_player_commands::command>& component,
+            const fill_context& ctx) const;
+
+        bool operator()(
+            asset_dependencies& dependencies,
+            const collect_context& ctx) const;
+    };
 }
 
 namespace e2d::spine_player_events
 {
-    class custom_evt;
-    class end_evt;
-    class complete_evt;
-
-    using event = std::variant<
-        custom_evt,
-        end_evt,
-        complete_evt>;
-
     class custom_evt final {
     public:
+        custom_evt() = default;
+
         custom_evt(str name)
         : name_(std::move(name)) {}
+
+        custom_evt& name(str value) noexcept {
+            name_ = std::move(value);
+            return *this;
+        }
 
         custom_evt& int_value(i32 value) noexcept {
             int_value_ = value;
@@ -118,8 +172,15 @@ namespace e2d::spine_player_events
 
     class end_evt final {
     public:
+        end_evt() = default;
+
         end_evt(str message)
         : message_(std::move(message)) {}
+
+        end_evt& message(str value) noexcept {
+            message_ = std::move(value);
+            return *this;
+        }
 
         [[nodiscard]] const str& message() const noexcept { return message_; }
     private:
@@ -128,8 +189,15 @@ namespace e2d::spine_player_events
 
     class complete_evt final {
     public:
+        complete_evt() = default;
+
         complete_evt(str message)
         : message_(std::move(message)) {}
+
+        complete_evt& message(str value) noexcept {
+            message_ = std::move(value);
+            return *this;
+        }
 
         [[nodiscard]] const str& message() const noexcept { return message_; }
     private:
@@ -139,19 +207,6 @@ namespace e2d::spine_player_events
 
 namespace e2d::spine_player_commands
 {
-    class clear_track_cmd;
-    class set_anim_cmd;
-    class add_anim_cmd;
-    class set_empty_anim_cmd;
-    class add_empty_anim_cmd;
-
-    using command = std::variant<
-        clear_track_cmd,
-        set_anim_cmd,
-        add_anim_cmd,
-        set_empty_anim_cmd,
-        add_empty_anim_cmd>;
-
     class clear_track_cmd final {
     public:
         clear_track_cmd(u32 track)

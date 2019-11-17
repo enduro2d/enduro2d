@@ -15,23 +15,14 @@ namespace e2d
     public:
         events() = default;
 
-        [[nodiscard]]
-        typename vector<E>::const_iterator
-        begin() const noexcept;
-
-        [[nodiscard]]
-        typename vector<E>::const_iterator
-        cbegin() const noexcept;
-
-        [[nodiscard]]
-        typename vector<E>::const_iterator
-        end() const noexcept;
-
-        [[nodiscard]]
-        typename vector<E>::const_iterator
-        cend() const noexcept;
-
         events& add(E event);
+
+        events& set(vector<E>&& events) noexcept;
+        events& set(const vector<E>& events);
+
+        [[nodiscard]] vector<E>& get() noexcept;
+        [[nodiscard]] const vector<E>& get() const noexcept;
+
         events& clear() noexcept;
         [[nodiscard]] bool empty() const noexcept;
         [[nodiscard]] std::size_t size() const noexcept;
@@ -43,29 +34,31 @@ namespace e2d
 namespace e2d
 {
     template < typename E >
-    typename vector<E>::const_iterator events<E>::begin() const noexcept {
-        return events_.begin();
-    }
-
-    template < typename E >
-    typename vector<E>::const_iterator events<E>::cbegin() const noexcept {
-        return events_.cbegin();
-    }
-
-    template < typename E >
-    typename vector<E>::const_iterator events<E>::end() const noexcept {
-        return events_.end();
-    }
-
-    template < typename E >
-    typename vector<E>::const_iterator events<E>::cend() const noexcept {
-        return events_.cend();
-    }
-
-    template < typename E >
     events<E>& events<E>::add(E event) {
         events_.push_back(std::move(event));
         return *this;
+    }
+
+    template < typename E >
+    events<E>& events<E>::set(vector<E>&& events) noexcept {
+        events_ = std::move(events);
+        return *this;
+    }
+
+    template < typename E >
+    events<E>& events<E>::set(const vector<E>& events) {
+        events_ = events;
+        return *this;
+    }
+
+    template < typename E >
+    vector<E>& events<E>::get() noexcept {
+        return events_;
+    }
+
+    template < typename E >
+    const vector<E>& events<E>::get() const noexcept {
+        return events_;
     }
 
     template < typename E >

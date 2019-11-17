@@ -57,9 +57,9 @@ namespace
 
             owner.for_joined_components<events<spine_player_events::event>>([
             ](ecs::entity e, const events<spine_player_events::event>& pe) {
-                for ( const auto& evt : pe ) {
-                    if ( auto complete_evt = std::get_if<spine_player_events::complete_evt>(&evt);
-                        complete_evt && complete_evt->message() == "to_walk" )
+                for ( const auto& evt : pe.get() ) {
+                    if ( auto complete = std::get_if<spine_player_events::complete_evt>(&evt);
+                        complete && complete->message() == "to_walk" )
                     {
                         e.ensure_component<commands<spine_player_commands::command>>()
                             .add(spine_player_commands::add_anim_cmd(0, "walk")

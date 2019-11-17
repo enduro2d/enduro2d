@@ -51,7 +51,7 @@ namespace
             if ( !a.node() || !a.node()->owner() ) {
                 return;
             }
-            for ( const spine_player_events::event& evt : es ) {
+            for ( const spine_player_events::event& evt : es.get() ) {
                 behaviours::call_result r = behaviours::call_result::success;
                 std::visit(utils::overloaded {
                     [&b,&a,&r](const spine_player_events::custom_evt& e){

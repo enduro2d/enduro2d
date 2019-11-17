@@ -56,9 +56,10 @@ spine_player.custom_evt = {
     string_value = ""
 }
 
----@param name string
+---@overload fun(): spine_player_custom_evt
+---@overload fun(name: string): spine_player_custom_evt
 ---@return spine_player_custom_evt
-function spine_player.custom_evt.new(name) end
+function spine_player.custom_evt.new(...) end
 
 --
 -- end_evt
@@ -70,12 +71,13 @@ spine_player.end_evt = {
     message = ""
 }
 
----@param message string
+---@overload fun(): spine_player_end_evt
+---@overload fun(message: string): spine_player_end_evt
 ---@return spine_player_end_evt
-function spine_player.end_evt.new(message) end
+function spine_player.end_evt.new(...) end
 
 --
--- complete_evt
+-- complete
 --
 
 ---@class spine_player_complete_evt
@@ -84,9 +86,10 @@ spine_player.complete_evt = {
     message = ""
 }
 
----@param message string
+---@overload fun(): spine_player_complete_evt
+---@overload fun(message: string): spine_player_complete_evt
 ---@return spine_player_complete_evt
-function spine_player.complete_evt.new(message) end
+function spine_player.complete_evt.new(...) end
 
 -- -----------------------------------------------------------------------------
 --
