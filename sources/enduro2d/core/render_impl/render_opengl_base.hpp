@@ -208,44 +208,39 @@ namespace e2d::opengl
 
 namespace e2d::opengl
 {
-    enum class uniform_type : u8 {
-        signed_integer,
-        floating_point,
+    ENUM_HPP_CLASS_DECL(uniform_type, u8,
+        (signed_integer)
+        (floating_point)
 
-        v2i,
-        v3i,
-        v4i,
+        (v2i)
+        (v3i)
+        (v4i)
 
-        v2f,
-        v3f,
-        v4f,
+        (v2f)
+        (v3f)
+        (v4f)
 
-        m2f,
-        m3f,
-        m4f,
+        (m2f)
+        (m3f)
+        (m4f)
 
-        sampler_2d,
-        sampler_cube,
+        (sampler_2d)
+        (sampler_cube)
 
-        unknown
-    };
+        (unknown))
 
-    enum class attribute_type : u8 {
-        floating_point,
+    ENUM_HPP_CLASS_DECL(attribute_type, u8,
+        (floating_point)
 
-        v2f,
-        v3f,
-        v4f,
+        (v2f)
+        (v3f)
+        (v4f)
 
-        m2f,
-        m3f,
-        m4f,
+        (m2f)
+        (m3f)
+        (m4f)
 
-        unknown
-    };
-
-    const char* uniform_type_to_cstr(uniform_type ut) noexcept;
-    const char* attribute_type_to_cstr(attribute_type at) noexcept;
+        (unknown))
 }
 
 namespace e2d::opengl

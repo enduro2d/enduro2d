@@ -12,12 +12,12 @@ namespace e2d
 {
     class debug final : public module<debug> {
     public:
-        enum class level : u8 {
-            trace,
-            warning,
-            error,
-            fatal
-        };
+        ENUM_HPP_CLASS_DECL(level, u8,
+            (trace)
+            (warning)
+            (error)
+            (fatal))
+
         class sink : private e2d::noncopyable {
         public:
             virtual ~sink() noexcept = default;

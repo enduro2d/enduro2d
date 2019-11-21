@@ -13,22 +13,18 @@ namespace
     vector<str> convert_keys_to_strings(const vector<keyboard_key>& keys) {
         vector<str> strings;
         strings.reserve(keys.size());
-        std::transform(
-            keys.begin(),
-            keys.end(),
-            std::back_inserter(strings),
-            &keyboard_key_to_cstr);
+        for ( keyboard_key key : keys ) {
+            strings.push_back(str(keyboard_key_traits::to_string(key)));
+        }
         return strings;
     }
 
     vector<str> convert_buttons_to_strings(const vector<mouse_button>& buttons) {
         vector<str> strings;
         strings.reserve(buttons.size());
-        std::transform(
-            buttons.begin(),
-            buttons.end(),
-            std::back_inserter(strings),
-            &mouse_button_to_cstr);
+        for ( mouse_button btn : buttons ) {
+            strings.push_back(str(mouse_button_traits::to_string(btn)));
+        }
         return strings;
     }
 }
@@ -73,7 +69,7 @@ namespace e2d::bindings::core
 
             "is_button_pressed", [](const mouse& m, str_view n) -> bool {
                 mouse_button btn = mouse_button::unknown;
-                if ( parse_mouse_button(n, btn) ) {
+                if ( mouse_button_traits::from_string_nothrow(n, btn) ) {
                     return m.is_button_pressed(btn);
                 }
                 the<debug>().error("MOUSE: unknown button name:\n"
@@ -85,7 +81,7 @@ namespace e2d::bindings::core
 
             "is_button_just_pressed", [](const mouse& m, str_view n) -> bool {
                 mouse_button btn = mouse_button::unknown;
-                if ( parse_mouse_button(n, btn) ) {
+                if ( mouse_button_traits::from_string_nothrow(n, btn) ) {
                     return m.is_button_just_pressed(btn);
                 }
                 the<debug>().error("MOUSE: unknown button name:\n"
@@ -97,7 +93,7 @@ namespace e2d::bindings::core
 
             "is_button_just_released", [](const mouse& m, str_view n) -> bool {
                 mouse_button btn = mouse_button::unknown;
-                if ( parse_mouse_button(n, btn) ) {
+                if ( mouse_button_traits::from_string_nothrow(n, btn) ) {
                     return m.is_button_just_released(btn);
                 }
                 the<debug>().error("MOUSE: unknown button name:\n"
@@ -141,7 +137,7 @@ namespace e2d::bindings::core
 
             "is_key_pressed", [](const keyboard& k, str_view n) -> bool {
                 keyboard_key key = keyboard_key::unknown;
-                if ( parse_keyboard_key(n, key) ) {
+                if ( keyboard_key_traits::from_string_nothrow(n, key) ) {
                     return k.is_key_pressed(key);
                 }
                 the<debug>().error("KEYBOARD: unknown key name:\n"
@@ -153,7 +149,7 @@ namespace e2d::bindings::core
 
             "is_key_just_pressed", [](const keyboard& k, str_view n) -> bool {
                 keyboard_key key = keyboard_key::unknown;
-                if ( parse_keyboard_key(n, key) ) {
+                if ( keyboard_key_traits::from_string_nothrow(n, key) ) {
                     return k.is_key_just_pressed(key);
                 }
                 the<debug>().error("KEYBOARD: unknown key name:\n"
@@ -165,7 +161,7 @@ namespace e2d::bindings::core
 
             "is_key_just_released", [](const keyboard& k, str_view n) -> bool {
                 keyboard_key key = keyboard_key::unknown;
-                if ( parse_keyboard_key(n, key) ) {
+                if ( keyboard_key_traits::from_string_nothrow(n, key) ) {
                     return k.is_key_just_released(key);
                 }
                 the<debug>().error("KEYBOARD: unknown key name:\n"

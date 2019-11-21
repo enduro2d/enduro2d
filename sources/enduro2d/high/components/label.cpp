@@ -6,30 +6,6 @@
 
 #include <enduro2d/high/components/label.hpp>
 
-namespace
-{
-    using namespace e2d;
-
-    bool parse_halign(str_view str, label::haligns& align) noexcept {
-    #define DEFINE_IF(x) if ( str == #x ) { align = label::haligns::x; return true; }
-        DEFINE_IF(left);
-        DEFINE_IF(center);
-        DEFINE_IF(right);
-    #undef DEFINE_IF
-        return false;
-    }
-
-    bool parse_valign(str_view str, label::valigns& align) noexcept {
-    #define DEFINE_IF(x) if ( str == #x ) { align = label::valigns::x; return true; }
-        DEFINE_IF(top);
-        DEFINE_IF(center);
-        DEFINE_IF(bottom);
-        DEFINE_IF(baseline);
-    #undef DEFINE_IF
-        return false;
-    }
-}
-
 namespace e2d
 {
     const char* factory_loader<label>::schema_source = R"json({
@@ -108,7 +84,10 @@ namespace e2d
 
         if ( ctx.root.HasMember("halign") ) {
             label::haligns halign = component.halign();
-            if ( !parse_halign(ctx.root["halign"].GetString(), halign) ) {
+            if ( !label::haligns_traits::from_string_nothrow(
+                ctx.root["halign"].GetString(),
+                halign) )
+            {
                 the<debug>().error("LABEL: Incorrect formatting of 'halign' property");
                 return false;
             }
@@ -117,7 +96,10 @@ namespace e2d
 
         if ( ctx.root.HasMember("valign") ) {
             label::valigns valign = component.valign();
-            if ( !parse_valign(ctx.root["valign"].GetString(), valign) ) {
+            if ( !label::valigns_traits::from_string_nothrow(
+                ctx.root["valign"].GetString(),
+                valign) )
+            {
                 the<debug>().error("LABEL: Incorrect formatting of 'valign' property");
                 return false;
             }

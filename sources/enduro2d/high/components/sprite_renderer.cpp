@@ -6,21 +6,6 @@
 
 #include <enduro2d/high/components/sprite_renderer.hpp>
 
-namespace
-{
-    using namespace e2d;
-
-    bool parse_blending(str_view str, sprite_renderer::blendings& blending) noexcept {
-    #define DEFINE_IF(x) if ( str == #x ) { blending = sprite_renderer::blendings::x; return true; }
-        DEFINE_IF(normal);
-        DEFINE_IF(additive);
-        DEFINE_IF(multiply);
-        DEFINE_IF(screen);
-    #undef DEFINE_IF
-        return false;
-    }
-}
-
 namespace e2d
 {
     const char* factory_loader<sprite_renderer>::schema_source = R"json({
@@ -74,7 +59,10 @@ namespace e2d
 
         if ( ctx.root.HasMember("blending") ) {
             sprite_renderer::blendings blending = component.blending();
-            if ( !parse_blending(ctx.root["blending"].GetString(), blending) ) {
+            if ( !sprite_renderer::blendings_traits::from_string_nothrow(
+                ctx.root["blending"].GetString(),
+                blending) )
+            {
                 the<debug>().error("SPRITE_RENDERER: Incorrect formatting of 'blending' property");
                 return false;
             }

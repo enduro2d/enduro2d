@@ -18,18 +18,16 @@ namespace e2d
         class dirty final {
         };
     public:
-        enum class haligns {
-            left,
-            center,
-            right
-        };
+        ENUM_HPP_CLASS_DECL(haligns, u8,
+            (left)
+            (center)
+            (right))
 
-        enum class valigns {
-            top,
-            center,
-            bottom,
-            baseline
-        };
+        ENUM_HPP_CLASS_DECL(valigns, u8,
+            (top)
+            (center)
+            (bottom)
+            (baseline))
     public:
         label() = default;
         label(const font_asset::ptr& font);

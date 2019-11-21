@@ -17,12 +17,11 @@ namespace e2d
 {
     class sprite_renderer final {
     public:
-        enum class blendings {
-            normal,
-            additive,
-            multiply,
-            screen
-        };
+        ENUM_HPP_CLASS_DECL(blendings, u8,
+            (normal)
+            (additive)
+            (multiply)
+            (screen))
     public:
         sprite_renderer() = default;
         sprite_renderer(const sprite_asset::ptr& sprite);

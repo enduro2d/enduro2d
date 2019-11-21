@@ -17,12 +17,9 @@ namespace e2d
         mutable std::mutex mutex;
         v2f cursor_pos;
         v2f scroll_delta;
-        std::bitset<
-            utils::enum_to_underlying(mouse_button::unknown) + 1> pressed;
-        std::bitset<
-            utils::enum_to_underlying(mouse_button::unknown) + 1> just_pressed;
-        std::bitset<
-            utils::enum_to_underlying(mouse_button::unknown) + 1> just_released;
+        std::bitset<mouse_button_traits::size> pressed;
+        std::bitset<mouse_button_traits::size> just_pressed;
+        std::bitset<mouse_button_traits::size> just_released;
     public:
         std::size_t button_index(mouse_button btn) const noexcept {
             const auto index = utils::enum_to_underlying(btn);
@@ -80,12 +77,9 @@ namespace e2d
     public:
         mutable std::mutex mutex;
         str32 input_text;
-        std::bitset<
-            utils::enum_to_underlying(keyboard_key::unknown) + 1> pressed;
-        std::bitset<
-            utils::enum_to_underlying(keyboard_key::unknown) + 1> just_pressed;
-        std::bitset<
-            utils::enum_to_underlying(keyboard_key::unknown) + 1> just_released;
+        std::bitset<keyboard_key_traits::size> pressed;
+        std::bitset<keyboard_key_traits::size> just_pressed;
+        std::bitset<keyboard_key_traits::size> just_released;
     public:
         std::size_t key_index(keyboard_key key) const noexcept {
             const auto index = utils::enum_to_underlying(key);

@@ -10,24 +10,10 @@ namespace
 {
     using namespace e2d;
 
-    const char* level_to_cstr(debug::level l) noexcept {
-        #define DEFINE_CASE(x) case debug::level::x: return #x
-        switch ( l ) {
-            DEFINE_CASE(trace);
-            DEFINE_CASE(warning);
-            DEFINE_CASE(error);
-            DEFINE_CASE(fatal);
-            default:
-                E2D_ASSERT_MSG(false, "unexpected level");
-                return "unknown";
-        }
-        #undef DEFINE_CASE
-    }
-
     str log_text_format(debug::level lvl, str_view text) {
         return strings::rformat(
             "[%0](%1) -> %2\n",
-            level_to_cstr(lvl), time::now_ms(), text);
+            debug::level_traits::to_string(lvl), time::now_ms(), text);
     }
 }
 
