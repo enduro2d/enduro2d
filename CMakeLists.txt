@@ -124,6 +124,7 @@ add_subdirectory(modules/curly.hpp)
 set_target_properties(curly.hpp libcurl PROPERTIES FOLDER modules)
 
 add_subdirectory(modules/ecs.hpp)
+add_subdirectory(modules/enum.hpp)
 add_subdirectory(modules/flat.hpp)
 add_subdirectory(modules/promise.hpp)
 
@@ -228,6 +229,7 @@ source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES
 target_link_libraries(${PROJECT_NAME}
     PUBLIC curly.hpp
     PUBLIC ecs.hpp
+    PUBLIC enum.hpp
     PUBLIC flat.hpp
     PUBLIC promise.hpp)
 
