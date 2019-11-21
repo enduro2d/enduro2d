@@ -402,12 +402,10 @@ namespace
             if ( wrap_json.IsObject() ) {
                 if ( wrap_json.HasMember("s") ) {
                     E2D_ASSERT(wrap_json["s"].IsString());
-                    auto wrap = content.s_wrap();
-                    if ( render::sampler_wrap_traits::from_string_nothrow(
-                        wrap_json["s"].GetString(),
-                        wrap) )
+                    if ( auto wrap = render::sampler_wrap_traits::from_string(
+                        wrap_json["s"].GetString()) )
                     {
-                        content.s_wrap(wrap);
+                        content.s_wrap(*wrap);
                     } else {
                         E2D_ASSERT_MSG(false, "unexpected sampler wrap");
                     }
@@ -415,23 +413,19 @@ namespace
 
                 if ( wrap_json.HasMember("t") ) {
                     E2D_ASSERT(wrap_json["t"].IsString());
-                    auto wrap = content.t_wrap();
-                    if ( render::sampler_wrap_traits::from_string_nothrow(
-                        wrap_json["t"].GetString(),
-                        wrap) )
+                    if ( auto wrap = render::sampler_wrap_traits::from_string(
+                        wrap_json["t"].GetString()) )
                     {
-                        content.t_wrap(wrap);
+                        content.t_wrap(*wrap);
                     } else {
                         E2D_ASSERT_MSG(false, "unexpected sampler wrap");
                     }
                 }
             } else if ( wrap_json.IsString() ) {
-                auto wrap = content.s_wrap();
-                if ( render::sampler_wrap_traits::from_string_nothrow(
-                    wrap_json.GetString(),
-                    wrap) )
+                if ( auto wrap = render::sampler_wrap_traits::from_string(
+                    wrap_json.GetString()) )
                 {
-                    content.wrap(wrap, wrap);
+                    content.wrap(*wrap, *wrap);
                 } else {
                     E2D_ASSERT_MSG(false, "unexpected sampler wrap");
                 }
@@ -443,12 +437,10 @@ namespace
             if ( filter_json.IsObject() ) {
                 if ( filter_json.HasMember("min") ) {
                     E2D_ASSERT(filter_json["min"].IsString());
-                    auto filter = content.min_filter();
-                    if ( render::sampler_min_filter_traits::from_string_nothrow(
-                        filter_json["min"].GetString(),
-                        filter) )
+                    if ( auto filter = render::sampler_min_filter_traits::from_string(
+                        filter_json["min"].GetString()) )
                     {
-                        content.min_filter(filter);
+                        content.min_filter(*filter);
                     } else {
                         E2D_ASSERT_MSG(false, "unexpected sampler min filter");
                     }
@@ -456,33 +448,27 @@ namespace
 
                 if ( filter_json.HasMember("mag") ) {
                     E2D_ASSERT(filter_json["mag"].IsString());
-                    auto filter = content.mag_filter();
-                    if ( render::sampler_mag_filter_traits::from_string_nothrow(
-                        filter_json["mag"].GetString(),
-                        filter) )
+                    if ( auto filter = render::sampler_mag_filter_traits::from_string(
+                        filter_json["mag"].GetString()) )
                     {
-                        content.mag_filter(filter);
+                        content.mag_filter(*filter);
                     } else {
                         E2D_ASSERT_MSG(false, "unexpected sampler mag filter");
                     }
                 }
             } else if ( filter_json.IsString() ) {
-                auto min_filter = content.min_filter();
-                if ( render::sampler_min_filter_traits::from_string_nothrow(
-                    filter_json.GetString(),
-                    min_filter) )
+                if ( auto min_filter = render::sampler_min_filter_traits::from_string(
+                    filter_json.GetString()) )
                 {
-                    content.min_filter(min_filter);
+                    content.min_filter(*min_filter);
                 } else {
                     E2D_ASSERT_MSG(false, "unexpected sampler filter");
                 }
 
-                auto mag_filter = content.mag_filter();
-                if ( render::sampler_mag_filter_traits::from_string_nothrow(
-                    filter_json.GetString(),
-                    mag_filter) )
+                if ( auto mag_filter = render::sampler_mag_filter_traits::from_string(
+                    filter_json.GetString()) )
                 {
-                    content.mag_filter(mag_filter);
+                    content.mag_filter(*mag_filter);
                 } else {
                     E2D_ASSERT_MSG(false, "unexpected sampler filter");
                 }
@@ -616,16 +602,12 @@ namespace
         if ( root.HasMember("func") ) {
             E2D_ASSERT(root["func"].IsString());
 
-            render::compare_func func = depth.func();
-            if ( !render::compare_func_traits::from_string_nothrow(
-                root["func"].GetString(),
-                func) )
-            {
+            if ( auto func = render::compare_func_traits::from_string(root["func"].GetString()) ) {
+                depth.func(*func);
+            } else {
                 E2D_ASSERT_MSG(false, "unexpected depth state func");
                 return false;
             }
-
-            depth.func(func);
         }
 
         return true;
@@ -644,19 +626,15 @@ namespace
         if ( root.HasMember("func") ) {
             E2D_ASSERT(root["func"].IsString());
 
-            render::compare_func func = stencil.func();
-            if ( !render::compare_func_traits::from_string_nothrow(
-                root["func"].GetString(),
-                func) )
-            {
+            if ( auto func = render::compare_func_traits::from_string(root["func"].GetString()) ) {
+                stencil.func(
+                    *func,
+                    stencil.ref(),
+                    stencil.mask());
+            } else {
                 E2D_ASSERT_MSG(false, "unexpected stencil state func");
                 return false;
             }
-
-            stencil.func(
-                func,
-                stencil.ref(),
-                stencil.mask());
         }
 
         if ( root.HasMember("ref") ) {
@@ -680,55 +658,43 @@ namespace
         if ( root.HasMember("pass") ) {
             E2D_ASSERT(root["pass"].IsString());
 
-            render::stencil_op op = stencil.pass();
-            if ( !render::stencil_op_traits::from_string_nothrow(
-                root["pass"].GetString(),
-                op) )
-            {
+            if ( auto op = render::stencil_op_traits::from_string(root["pass"].GetString()) ) {
+                stencil.op(
+                    *op,
+                    stencil.sfail(),
+                    stencil.zfail());
+            } else {
                 E2D_ASSERT_MSG(false, "unexpected stencil state pass");
                 return false;
             }
-
-            stencil.op(
-                op,
-                stencil.sfail(),
-                stencil.zfail());
         }
 
         if ( root.HasMember("sfail") ) {
             E2D_ASSERT(root["sfail"].IsString());
 
-            render::stencil_op op = stencil.sfail();
-            if ( !render::stencil_op_traits::from_string_nothrow(
-                root["sfail"].GetString(),
-                op) )
-            {
+            if ( auto op = render::stencil_op_traits::from_string(root["sfail"].GetString()) ) {
+                stencil.op(
+                    stencil.pass(),
+                    *op,
+                    stencil.zfail());
+            } else {
                 E2D_ASSERT_MSG(false, "unexpected stencil state sfail");
                 return false;
             }
-
-            stencil.op(
-                stencil.pass(),
-                op,
-                stencil.zfail());
         }
 
         if ( root.HasMember("zfail") ) {
             E2D_ASSERT(root["zfail"].IsString());
 
-            render::stencil_op op = stencil.zfail();
-            if ( !render::stencil_op_traits::from_string_nothrow(
-                root["zfail"].GetString(),
-                op) )
-            {
+            if ( auto op = render::stencil_op_traits::from_string(root["zfail"].GetString()) ) {
+                stencil.op(
+                    stencil.pass(),
+                    stencil.sfail(),
+                    *op);
+            } else {
                 E2D_ASSERT_MSG(false, "unexpected stencil state zfail");
                 return false;
             }
-
-            stencil.op(
-                stencil.pass(),
-                stencil.sfail(),
-                op);
         }
 
         return true;
@@ -741,31 +707,23 @@ namespace
         if ( root.HasMember("mode") ) {
             E2D_ASSERT(root["mode"].IsString());
 
-            render::culling_mode mode = culling.mode();
-            if ( !render::culling_mode_traits::from_string_nothrow(
-                root["mode"].GetString(),
-                mode) )
-            {
+            if ( auto mode = render::culling_mode_traits::from_string(root["mode"].GetString()) ) {
+                culling.mode(*mode);
+            } else {
                 E2D_ASSERT_MSG(false, "unexpected culling state mode");
                 return false;
             }
-
-            culling.mode(mode);
         }
 
         if ( root.HasMember("face") ) {
             E2D_ASSERT(root["face"].IsString());
 
-            render::culling_face face = culling.face();
-            if ( !render::culling_face_traits::from_string_nothrow(
-                root["face"].GetString(),
-                face) )
-            {
+            if ( auto face = render::culling_face_traits::from_string(root["face"].GetString()) ) {
+                culling.face(*face);
+            } else {
                 E2D_ASSERT_MSG(false, "unexpected culling state face");
                 return false;
             }
-
-            culling.face(face);
         }
 
         return true;
@@ -790,56 +748,51 @@ namespace
         if ( root.HasMember("color_mask") ) {
             E2D_ASSERT(root["color_mask"].IsString());
 
-            render::blending_color_mask mask = blending.color_mask();
-            if ( !render::blending_color_mask_traits::from_string_nothrow(
-                root["color_mask"].GetString(),
-                mask) )
+            if ( auto mask = render::blending_color_mask_traits::from_string(
+                root["color_mask"].GetString()) )
             {
+                blending.color_mask(*mask);
+            } else {
                 E2D_ASSERT_MSG(false, "unexpected blending state color mask");
                 return false;
             }
-
-            blending.color_mask(mask);
         }
 
         if ( root.HasMember("src_factor") ) {
             if ( root["src_factor"].IsString() ) {
-                render::blending_factor factor = blending.src_rgb_factor();
-                if ( !render::blending_factor_traits::from_string_nothrow(
-                    root["src_factor"].GetString(),
-                    factor) )
+                if ( auto factor = render::blending_factor_traits::from_string(
+                    root["src_factor"].GetString()) )
                 {
+                    blending.src_factor(*factor);
+                } else {
                     E2D_ASSERT_MSG(false, "unexpected blending state src factor");
                     return false;
                 }
-                blending.src_factor(factor);
             } else if ( root["src_factor"].IsObject() ) {
                 const auto& root_src_factor = root["src_factor"];
 
                 if ( root_src_factor.HasMember("rgb") ) {
                     E2D_ASSERT(root_src_factor["rgb"].IsString());
-                    render::blending_factor factor = blending.src_rgb_factor();
-                    if ( !render::blending_factor_traits::from_string_nothrow(
-                        root_src_factor["rgb"].GetString(),
-                        factor) )
+                    if ( auto factor = render::blending_factor_traits::from_string(
+                        root_src_factor["rgb"].GetString()) )
                     {
+                        blending.src_rgb_factor(*factor);
+                    } else {
                         E2D_ASSERT_MSG(false, "unexpected blending state src factor");
                         return false;
                     }
-                    blending.src_rgb_factor(factor);
                 }
 
                 if ( root_src_factor.HasMember("alpha") ) {
                     E2D_ASSERT(root_src_factor["alpha"].IsString());
-                    render::blending_factor factor = blending.src_alpha_factor();
-                    if ( !render::blending_factor_traits::from_string_nothrow(
-                        root_src_factor["alpha"].GetString(),
-                        factor) )
+                    if ( auto factor = render::blending_factor_traits::from_string(
+                        root_src_factor["alpha"].GetString()) )
                     {
+                        blending.src_alpha_factor(*factor);
+                    } else {
                         E2D_ASSERT_MSG(false, "unexpected blending state src factor");
                         return false;
                     }
-                    blending.src_alpha_factor(factor);
                 }
             } else {
                 E2D_ASSERT_MSG(false, "unexpected blending state src factor");
@@ -848,42 +801,39 @@ namespace
 
         if ( root.HasMember("dst_factor") ) {
             if ( root["dst_factor"].IsString() ) {
-                render::blending_factor factor = blending.dst_rgb_factor();
-                if ( !render::blending_factor_traits::from_string_nothrow(
-                    root["dst_factor"].GetString(),
-                    factor) )
+                if ( auto factor = render::blending_factor_traits::from_string(
+                    root["dst_factor"].GetString()) )
                 {
+                    blending.dst_factor(*factor);
+                } else {
                     E2D_ASSERT_MSG(false, "unexpected blending state dst factor");
                     return false;
                 }
-                blending.dst_factor(factor);
             } else if ( root["dst_factor"].IsObject() ) {
                 const auto& root_dst_factor = root["dst_factor"];
 
                 if ( root_dst_factor.HasMember("rgb") ) {
                     E2D_ASSERT(root_dst_factor["rgb"].IsString());
-                    render::blending_factor factor = blending.dst_rgb_factor();
-                    if ( !render::blending_factor_traits::from_string_nothrow(
-                        root_dst_factor["rgb"].GetString(),
-                        factor) )
+                    if ( auto factor = render::blending_factor_traits::from_string(
+                        root_dst_factor["rgb"].GetString()) )
                     {
+                        blending.dst_rgb_factor(*factor);
+                    } else {
                         E2D_ASSERT_MSG(false, "unexpected blending state dst factor");
                         return false;
                     }
-                    blending.dst_rgb_factor(factor);
                 }
 
                 if ( root_dst_factor.HasMember("alpha") ) {
                     E2D_ASSERT(root_dst_factor["alpha"].IsString());
-                    render::blending_factor factor = blending.dst_alpha_factor();
-                    if ( !render::blending_factor_traits::from_string_nothrow(
-                        root_dst_factor["alpha"].GetString(),
-                        factor) )
+                    if ( auto factor = render::blending_factor_traits::from_string(
+                        root_dst_factor["alpha"].GetString()) )
                     {
+                        blending.dst_alpha_factor(*factor);
+                    } else {
                         E2D_ASSERT_MSG(false, "unexpected blending state dst factor");
                         return false;
                     }
-                    blending.dst_alpha_factor(factor);
                 }
             } else {
                 E2D_ASSERT_MSG(false, "unexpected blending state dst factor");
@@ -892,42 +842,39 @@ namespace
 
         if ( root.HasMember("equation") ) {
             if ( root["equation"].IsString() ) {
-                render::blending_equation equation = blending.rgb_equation();
-                if ( !render::blending_equation_traits::from_string_nothrow(
-                    root["equation"].GetString(),
-                    equation) )
+                if ( auto equation = render::blending_equation_traits::from_string(
+                    root["equation"].GetString()) )
                 {
+                    blending.equation(*equation);
+                } else {
                     E2D_ASSERT_MSG(false, "unexpected blending state equation");
                     return false;
                 }
-                blending.equation(equation);
             } else if ( root["equation"].IsObject() ) {
                 const auto& root_equation = root["equation"];
 
                 if ( root_equation.HasMember("rgb") ) {
                     E2D_ASSERT(root_equation["rgb"].IsString());
-                    render::blending_equation equation = blending.rgb_equation();
-                    if ( !render::blending_equation_traits::from_string_nothrow(
-                        root_equation["rgb"].GetString(),
-                        equation) )
+                    if ( auto equation = render::blending_equation_traits::from_string(
+                        root_equation["rgb"].GetString()) )
                     {
+                        blending.rgb_equation(*equation);
+                    } else {
                         E2D_ASSERT_MSG(false, "unexpected blending state equation");
                         return false;
                     }
-                    blending.rgb_equation(equation);
                 }
 
                 if ( root_equation.HasMember("alpha") ) {
                     E2D_ASSERT(root_equation["alpha"].IsString());
-                    render::blending_equation equation = blending.alpha_equation();
-                    if ( !render::blending_equation_traits::from_string_nothrow(
-                        root_equation["alpha"].GetString(),
-                        equation) )
+                    if ( auto equation = render::blending_equation_traits::from_string(
+                        root_equation["alpha"].GetString()) )
                     {
+                        blending.alpha_equation(*equation);
+                    } else {
                         E2D_ASSERT_MSG(false, "unexpected blending state equation");
                         return false;
                     }
-                    blending.alpha_equation(equation);
                 }
             } else {
                 E2D_ASSERT_MSG(false, "unexpected blending state equation");

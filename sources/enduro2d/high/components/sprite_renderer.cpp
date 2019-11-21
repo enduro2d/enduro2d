@@ -58,15 +58,14 @@ namespace e2d
         }
 
         if ( ctx.root.HasMember("blending") ) {
-            sprite_renderer::blendings blending = component.blending();
-            if ( !sprite_renderer::blendings_traits::from_string_nothrow(
-                ctx.root["blending"].GetString(),
-                blending) )
+            if ( auto blending = sprite_renderer::blendings_traits::from_string(
+                ctx.root["blending"].GetString()) )
             {
+                component.blending(*blending);
+            } else {
                 the<debug>().error("SPRITE_RENDERER: Incorrect formatting of 'blending' property");
                 return false;
             }
-            component.blending(blending);
         }
 
         if ( ctx.root.HasMember("filtering") ) {

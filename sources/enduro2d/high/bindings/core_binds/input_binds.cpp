@@ -14,7 +14,7 @@ namespace
         vector<str> strings;
         strings.reserve(keys.size());
         for ( keyboard_key key : keys ) {
-            strings.push_back(str(keyboard_key_traits::to_string(key)));
+            strings.push_back(str(keyboard_key_traits::to_string_or_throw(key)));
         }
         return strings;
     }
@@ -23,7 +23,7 @@ namespace
         vector<str> strings;
         strings.reserve(buttons.size());
         for ( mouse_button btn : buttons ) {
-            strings.push_back(str(mouse_button_traits::to_string(btn)));
+            strings.push_back(str(mouse_button_traits::to_string_or_throw(btn)));
         }
         return strings;
     }
@@ -68,9 +68,8 @@ namespace e2d::bindings::core
             }),
 
             "is_button_pressed", [](const mouse& m, str_view n) -> bool {
-                mouse_button btn = mouse_button::unknown;
-                if ( mouse_button_traits::from_string_nothrow(n, btn) ) {
-                    return m.is_button_pressed(btn);
+                if ( auto btn = mouse_button_traits::from_string(n) ) {
+                    return m.is_button_pressed(*btn);
                 }
                 the<debug>().error("MOUSE: unknown button name:\n"
                     "--> Function: `is_button_pressed`\n"
@@ -80,9 +79,8 @@ namespace e2d::bindings::core
             },
 
             "is_button_just_pressed", [](const mouse& m, str_view n) -> bool {
-                mouse_button btn = mouse_button::unknown;
-                if ( mouse_button_traits::from_string_nothrow(n, btn) ) {
-                    return m.is_button_just_pressed(btn);
+                if ( auto btn = mouse_button_traits::from_string(n) ) {
+                    return m.is_button_just_pressed(*btn);
                 }
                 the<debug>().error("MOUSE: unknown button name:\n"
                     "--> Function: `is_button_just_pressed`\n"
@@ -92,9 +90,8 @@ namespace e2d::bindings::core
             },
 
             "is_button_just_released", [](const mouse& m, str_view n) -> bool {
-                mouse_button btn = mouse_button::unknown;
-                if ( mouse_button_traits::from_string_nothrow(n, btn) ) {
-                    return m.is_button_just_released(btn);
+                if ( auto btn = mouse_button_traits::from_string(n) ) {
+                    return m.is_button_just_released(*btn);
                 }
                 the<debug>().error("MOUSE: unknown button name:\n"
                     "--> Function: `is_button_just_released`\n"
@@ -136,9 +133,8 @@ namespace e2d::bindings::core
             }),
 
             "is_key_pressed", [](const keyboard& k, str_view n) -> bool {
-                keyboard_key key = keyboard_key::unknown;
-                if ( keyboard_key_traits::from_string_nothrow(n, key) ) {
-                    return k.is_key_pressed(key);
+                if ( auto key = keyboard_key_traits::from_string(n) ) {
+                    return k.is_key_pressed(*key);
                 }
                 the<debug>().error("KEYBOARD: unknown key name:\n"
                     "--> Function: `is_key_pressed`\n"
@@ -148,9 +144,8 @@ namespace e2d::bindings::core
             },
 
             "is_key_just_pressed", [](const keyboard& k, str_view n) -> bool {
-                keyboard_key key = keyboard_key::unknown;
-                if ( keyboard_key_traits::from_string_nothrow(n, key) ) {
-                    return k.is_key_just_pressed(key);
+                if ( auto key = keyboard_key_traits::from_string(n) ) {
+                    return k.is_key_just_pressed(*key);
                 }
                 the<debug>().error("KEYBOARD: unknown key name:\n"
                     "--> Function: `is_key_just_pressed`\n"
@@ -160,9 +155,8 @@ namespace e2d::bindings::core
             },
 
             "is_key_just_released", [](const keyboard& k, str_view n) -> bool {
-                keyboard_key key = keyboard_key::unknown;
-                if ( keyboard_key_traits::from_string_nothrow(n, key) ) {
-                    return k.is_key_just_released(key);
+                if ( auto key = keyboard_key_traits::from_string(n) ) {
+                    return k.is_key_just_released(*key);
                 }
                 the<debug>().error("KEYBOARD: unknown key name:\n"
                     "--> Function: `is_key_just_released`\n"
