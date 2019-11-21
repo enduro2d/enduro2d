@@ -10,8 +10,6 @@
 #include "../math/_all.hpp"
 #include "../utils/_all.hpp"
 
-#include <enum.hpp/enum.hpp>
-
 #include <curly.hpp/curly.hpp>
 
 #include <promise.hpp/invoke.hpp>

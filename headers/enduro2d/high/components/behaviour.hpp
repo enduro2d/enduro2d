@@ -70,10 +70,9 @@ namespace e2d
 
 namespace e2d::behaviours
 {
-    enum class fill_result {
-        failed,
-        success,
-    };
+    ENUM_HPP_CLASS_DECL(fill_result, u8,
+        (failed)
+        (success))
 
     inline fill_result fill_meta_table(behaviour& behaviour) {
         if ( !behaviour.script() ) {
@@ -99,11 +98,10 @@ namespace e2d::behaviours
         return fill_result::success;
     }
 
-    enum class call_result {
-        failed,
-        success,
-        method_not_found,
-    };
+    ENUM_HPP_CLASS_DECL(call_result, u8,
+        (failed)
+        (success)
+        (method_not_found))
 
     template < typename... Args >
     call_result call_meta_method(behaviour& behaviour, str_view method, Args&&... args) {

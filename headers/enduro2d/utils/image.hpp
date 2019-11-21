@@ -15,45 +15,43 @@
 
 namespace e2d
 {
-    enum class image_file_format : u8 {
-        dds,
-        jpg,
-        png,
-        pvr,
-        tga
-    };
+    ENUM_HPP_CLASS_DECL(image_file_format, u8,
+        (dds)
+        (jpg)
+        (png)
+        (pvr)
+        (tga))
 
-    enum class image_data_format : u8 {
-        a8,
-        l8,
-        la8,
-        rgb8,
-        rgba8,
+    ENUM_HPP_CLASS_DECL(image_data_format, u8,
+        (a8)
+        (l8)
+        (la8)
+        (rgb8)
+        (rgba8)
 
-        rgba_dxt1,
-        rgba_dxt3,
-        rgba_dxt5,
+        (rgba_dxt1)
+        (rgba_dxt3)
+        (rgba_dxt5)
 
-        rgb_etc1,
-        rgb_etc2,
-        rgba_etc2,
-        rgb_a1_etc2,
+        (rgb_etc1)
+        (rgb_etc2)
+        (rgba_etc2)
+        (rgb_a1_etc2)
 
-        rgba_astc4x4,
-        rgba_astc5x5,
-        rgba_astc6x6,
-        rgba_astc8x8,
-        rgba_astc10x10,
-        rgba_astc12x12,
+        (rgba_astc4x4)
+        (rgba_astc5x5)
+        (rgba_astc6x6)
+        (rgba_astc8x8)
+        (rgba_astc10x10)
+        (rgba_astc12x12)
 
-        rgb_pvrtc2,
-        rgb_pvrtc4,
-        rgba_pvrtc2,
-        rgba_pvrtc4,
+        (rgb_pvrtc2)
+        (rgb_pvrtc4)
+        (rgba_pvrtc2)
+        (rgba_pvrtc4)
 
-        rgba_pvrtc2_v2,
-        rgba_pvrtc4_v2
-    };
+        (rgba_pvrtc2_v2)
+        (rgba_pvrtc4_v2))
 
     class bad_image_access final : public exception {
     public:

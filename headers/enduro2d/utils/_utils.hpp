@@ -9,6 +9,8 @@
 #include "../base/_all.hpp"
 #include "../math/_all.hpp"
 
+#include <enum.hpp/enum.hpp>
+
 namespace e2d
 {
     class buffer;
