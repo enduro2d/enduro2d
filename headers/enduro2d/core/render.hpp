@@ -976,6 +976,26 @@ namespace e2d
     };
 }
 
+ENUM_HPP_REGISTER_TRAITS(e2d::pixel_declaration::pixel_type)
+ENUM_HPP_REGISTER_TRAITS(e2d::index_declaration::index_type)
+ENUM_HPP_REGISTER_TRAITS(e2d::vertex_declaration::attribute_type)
+ENUM_HPP_REGISTER_TRAITS(e2d::index_buffer::usage)
+ENUM_HPP_REGISTER_TRAITS(e2d::vertex_buffer::usage)
+ENUM_HPP_REGISTER_TRAITS(e2d::render_target::external_texture)
+ENUM_HPP_REGISTER_TRAITS(e2d::render::topology)
+ENUM_HPP_REGISTER_TRAITS(e2d::render::stencil_op)
+ENUM_HPP_REGISTER_TRAITS(e2d::render::compare_func)
+ENUM_HPP_REGISTER_TRAITS(e2d::render::culling_mode)
+ENUM_HPP_REGISTER_TRAITS(e2d::render::culling_face)
+ENUM_HPP_REGISTER_TRAITS(e2d::render::blending_factor)
+ENUM_HPP_REGISTER_TRAITS(e2d::render::blending_equation)
+ENUM_HPP_REGISTER_TRAITS(e2d::render::blending_color_mask)
+ENUM_HPP_REGISTER_TRAITS(e2d::render::sampler_wrap)
+ENUM_HPP_REGISTER_TRAITS(e2d::render::sampler_min_filter)
+ENUM_HPP_REGISTER_TRAITS(e2d::render::sampler_mag_filter)
+ENUM_HPP_REGISTER_TRAITS(e2d::render::clear_command::buffer)
+ENUM_HPP_REGISTER_TRAITS(e2d::render::api_profile)
+
 namespace e2d
 {
     //

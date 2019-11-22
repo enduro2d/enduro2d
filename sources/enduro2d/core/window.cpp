@@ -74,15 +74,15 @@ namespace e2d
 
     void window_trace_event_listener::on_mouse_button(mouse_button btn, mouse_button_action act) noexcept {
         debug_.trace("WINDOW: on_mouse_button(btn: %0 act: %1)",
-            mouse_button_traits::to_string_or_empty(btn),
-            mouse_button_action_traits::to_string_or_empty(act));
+            btn,
+            act);
     }
 
     void window_trace_event_listener::on_keyboard_key(keyboard_key key, u32 scancode, keyboard_key_action act) noexcept {
         debug_.trace("WINDOW: on_keyboard_key(key: %0 scancode: %1 act: %2)",
-            keyboard_key_traits::to_string_or_empty(key),
+            key,
             scancode,
-            keyboard_key_action_traits::to_string_or_empty(act));
+            act);
     }
 
     void window_trace_event_listener::on_window_size(const v2u& size) noexcept {

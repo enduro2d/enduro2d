@@ -92,7 +92,12 @@ namespace
         "f_" : "hi",
 
         "vv" : [1,2,2,3],
-        "vv_" : "hello"
+        "vv_" : "hello",
+
+        "e0" : "pvr",
+        "e0_" : "hello",
+        "e1" : "rgb_etc1",
+        "e1_" : "hello"
     })json";
 }
 
@@ -432,5 +437,19 @@ TEST_CASE("json_utils") {
 
         REQUIRE(v5 == v5_);
         REQUIRE(v6 == v6_);
+    }
+    {
+        image_file_format e0 = image_file_format::dds;
+        image_data_format e1 = image_data_format::a8;
+
+        REQUIRE_FALSE(json_utils::try_parse_value(doc["e0_"], e0));
+        REQUIRE(e0 == image_file_format::dds);
+        REQUIRE(json_utils::try_parse_value(doc["e0"], e0));
+        REQUIRE(e0 == image_file_format::pvr);
+
+        REQUIRE_FALSE(json_utils::try_parse_value(doc["e1_"], e1));
+        REQUIRE(e1 == image_data_format::a8);
+        REQUIRE(json_utils::try_parse_value(doc["e1"], e1));
+        REQUIRE(e1 == image_data_format::rgb_etc1);
     }
 }

@@ -107,6 +107,9 @@ namespace e2d
     };
 }
 
+ENUM_HPP_REGISTER_TRAITS(e2d::label::haligns)
+ENUM_HPP_REGISTER_TRAITS(e2d::label::valigns)
+
 namespace e2d
 {
     inline label::label(const font_asset::ptr& value)

@@ -76,6 +76,8 @@ namespace e2d
     };
 }
 
+ENUM_HPP_REGISTER_TRAITS(e2d::debug::level)
+
 namespace e2d
 {
     template < typename T, typename... Args >

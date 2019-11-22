@@ -160,8 +160,8 @@ namespace
             debug_.error("RENDER: unexpected property type:\n"
                 "--> Type: %0\n"
                 "--> Expected: %1",
-                uniform_type_traits::to_string_or_empty(type),
-                uniform_type_traits::to_string_or_empty(ui_.type));
+                type,
+                ui_.type);
             return false;
         }
     private:
@@ -556,7 +556,7 @@ namespace e2d
             state_->dbg().error("RENDER: Failed to create texture:\n"
                 "--> Info: unsupported pixel declaration\n"
                 "--> Pixel type: %0",
-                pixel_declaration::pixel_type_traits::to_string_or_empty(decl.type()));
+                decl.type());
             return nullptr;
         }
 
@@ -564,7 +564,7 @@ namespace e2d
             state_->dbg().error("RENDER: Failed to create texture:\n"
                 "--> Info: depth textures is unsupported\n"
                 "--> Pixel type: %0",
-                pixel_declaration::pixel_type_traits::to_string_or_empty(decl.type()));
+                decl.type());
             return nullptr;
         }
 
@@ -644,7 +644,7 @@ namespace e2d
             state_->dbg().error("RENDER: Failed to create texture:\n"
                 "--> Info: unsupported pixel declaration\n"
                 "--> Pixel type: %0",
-                pixel_declaration::pixel_type_traits::to_string_or_empty(decl.type()));
+                decl.type());
             return nullptr;
         }
 
@@ -652,7 +652,7 @@ namespace e2d
             state_->dbg().error("RENDER: Failed to create texture:\n"
                 "--> Info: depth textures is unsupported\n"
                 "--> Pixel type: %0",
-                pixel_declaration::pixel_type_traits::to_string_or_empty(decl.type()));
+                decl.type());
             return nullptr;
         }
 
@@ -733,7 +733,7 @@ namespace e2d
             state_->dbg().error("RENDER: Failed to create index buffer:\n"
                 "--> Info: unsupported index declaration\n"
                 "--> Index type: %0",
-                index_declaration::index_type_traits::to_string_or_empty(decl.type()));
+                decl.type());
             return nullptr;
         }
 
@@ -1091,8 +1091,8 @@ namespace e2d
                 "--> Info: incompatible pixel formats\n"
                 "--> Texture format: %0\n"
                 "--> Image format: %1",
-                pixel_declaration::pixel_type_traits::to_string_or_empty(tex->decl().type()),
-                pixel_declaration::pixel_type_traits::to_string_or_empty(decl.type()));
+                tex->decl().type(),
+                decl.type());
             throw bad_render_operation();
         }
 

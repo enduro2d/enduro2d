@@ -839,4 +839,24 @@ namespace e2d::strings
                     make_format_arg(value_.value, width_, precision_)));
         }
     };
+
+    //
+    // enum
+    //
+
+    template < typename T >
+    class format_arg<T, std::enable_if_t<std::is_enum_v<T>>> {
+        T value_;
+        u8 width_;
+    public:
+        template < typename U >
+        explicit format_arg(U&& value, u8 width = 0) noexcept
+        : value_(std::forward<U>(value)), width_(width) {}
+
+        std::ptrdiff_t write(char* dst, size_t size) const {
+            return math::numeric_cast<std::ptrdiff_t>(
+                format(dst, size, "%0",
+                    make_format_arg(enum_hpp::to_string_or_throw(value_), width_)));
+        }
+    };
 }

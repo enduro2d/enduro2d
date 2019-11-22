@@ -243,6 +243,9 @@ namespace e2d::opengl
         (unknown))
 }
 
+ENUM_HPP_REGISTER_TRAITS(e2d::opengl::uniform_type)
+ENUM_HPP_REGISTER_TRAITS(e2d::opengl::attribute_type)
+
 namespace e2d::opengl
 {
     GLenum convert_image_data_format_to_external_format(image_data_format f) noexcept;

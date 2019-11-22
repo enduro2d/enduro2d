@@ -83,21 +83,21 @@ namespace e2d
         }
 
         if ( ctx.root.HasMember("halign") ) {
-            if ( auto halign = label::haligns_traits::from_string(ctx.root["halign"].GetString()) ) {
-                component.halign(*halign);
-            } else {
+            label::haligns halign = component.halign();
+            if ( !json_utils::try_parse_value(ctx.root["halign"], halign) ) {
                 the<debug>().error("LABEL: Incorrect formatting of 'halign' property");
                 return false;
             }
+            component.halign(halign);
         }
 
         if ( ctx.root.HasMember("valign") ) {
-            if ( auto valign = label::valigns_traits::from_string(ctx.root["valign"].GetString()) ) {
-                component.valign(*valign);
-            } else {
+            label::valigns valign = component.valign();
+            if ( !json_utils::try_parse_value(ctx.root["valign"], valign) ) {
                 the<debug>().error("LABEL: Incorrect formatting of 'valign' property");
                 return false;
             }
+            component.valign(valign);
         }
 
         if ( ctx.root.HasMember("leading") ) {

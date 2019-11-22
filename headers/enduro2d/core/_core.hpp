@@ -123,3 +123,8 @@ namespace e2d
         (release)
         (unknown))
 }
+
+ENUM_HPP_REGISTER_TRAITS(e2d::mouse_button)
+ENUM_HPP_REGISTER_TRAITS(e2d::keyboard_key)
+ENUM_HPP_REGISTER_TRAITS(e2d::mouse_button_action)
+ENUM_HPP_REGISTER_TRAITS(e2d::keyboard_key_action)

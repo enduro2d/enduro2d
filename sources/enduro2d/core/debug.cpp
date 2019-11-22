@@ -13,7 +13,7 @@ namespace
     str log_text_format(debug::level lvl, str_view text) {
         return strings::rformat(
             "[%0](%1) -> %2\n",
-            debug::level_traits::to_string_or_empty(lvl), time::now_ms(), text);
+            lvl, time::now_ms(), text);
     }
 }
 

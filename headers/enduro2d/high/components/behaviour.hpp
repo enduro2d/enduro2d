@@ -131,3 +131,6 @@ namespace e2d::behaviours
         return call_result::success;
     }
 }
+
+ENUM_HPP_REGISTER_TRAITS(e2d::behaviours::fill_result)
+ENUM_HPP_REGISTER_TRAITS(e2d::behaviours::call_result)

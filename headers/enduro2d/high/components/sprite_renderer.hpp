@@ -64,6 +64,8 @@ namespace e2d
     };
 }
 
+ENUM_HPP_REGISTER_TRAITS(e2d::sprite_renderer::blendings)
+
 namespace e2d
 {
     inline sprite_renderer::sprite_renderer(const sprite_asset::ptr& sprite)

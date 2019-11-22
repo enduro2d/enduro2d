@@ -14,7 +14,7 @@ namespace
         vector<str> strings;
         strings.reserve(keys.size());
         for ( keyboard_key key : keys ) {
-            strings.push_back(str(keyboard_key_traits::to_string_or_throw(key)));
+            strings.push_back(str(enum_hpp::to_string_or_throw(key)));
         }
         return strings;
     }
@@ -23,7 +23,7 @@ namespace
         vector<str> strings;
         strings.reserve(buttons.size());
         for ( mouse_button btn : buttons ) {
-            strings.push_back(str(mouse_button_traits::to_string_or_throw(btn)));
+            strings.push_back(str(enum_hpp::to_string_or_throw(btn)));
         }
         return strings;
     }
@@ -68,7 +68,7 @@ namespace e2d::bindings::core
             }),
 
             "is_button_pressed", [](const mouse& m, str_view n) -> bool {
-                if ( auto btn = mouse_button_traits::from_string(n) ) {
+                if ( auto btn = enum_hpp::from_string<mouse_button>(n) ) {
                     return m.is_button_pressed(*btn);
                 }
                 the<debug>().error("MOUSE: unknown button name:\n"
@@ -79,7 +79,7 @@ namespace e2d::bindings::core
             },
 
             "is_button_just_pressed", [](const mouse& m, str_view n) -> bool {
-                if ( auto btn = mouse_button_traits::from_string(n) ) {
+                if ( auto btn = enum_hpp::from_string<mouse_button>(n) ) {
                     return m.is_button_just_pressed(*btn);
                 }
                 the<debug>().error("MOUSE: unknown button name:\n"
@@ -90,7 +90,7 @@ namespace e2d::bindings::core
             },
 
             "is_button_just_released", [](const mouse& m, str_view n) -> bool {
-                if ( auto btn = mouse_button_traits::from_string(n) ) {
+                if ( auto btn = enum_hpp::from_string<mouse_button>(n) ) {
                     return m.is_button_just_released(*btn);
                 }
                 the<debug>().error("MOUSE: unknown button name:\n"
@@ -133,7 +133,7 @@ namespace e2d::bindings::core
             }),
 
             "is_key_pressed", [](const keyboard& k, str_view n) -> bool {
-                if ( auto key = keyboard_key_traits::from_string(n) ) {
+                if ( auto key = enum_hpp::from_string<keyboard_key>(n) ) {
                     return k.is_key_pressed(*key);
                 }
                 the<debug>().error("KEYBOARD: unknown key name:\n"
@@ -144,7 +144,7 @@ namespace e2d::bindings::core
             },
 
             "is_key_just_pressed", [](const keyboard& k, str_view n) -> bool {
-                if ( auto key = keyboard_key_traits::from_string(n) ) {
+                if ( auto key = enum_hpp::from_string<keyboard_key>(n) ) {
                     return k.is_key_just_pressed(*key);
                 }
                 the<debug>().error("KEYBOARD: unknown key name:\n"
@@ -155,7 +155,7 @@ namespace e2d::bindings::core
             },
 
             "is_key_just_released", [](const keyboard& k, str_view n) -> bool {
-                if ( auto key = keyboard_key_traits::from_string(n) ) {
+                if ( auto key = enum_hpp::from_string<keyboard_key>(n) ) {
                     return k.is_key_just_released(*key);
                 }
                 the<debug>().error("KEYBOARD: unknown key name:\n"

@@ -90,4 +90,6 @@ namespace e2d::filesystem
     bool extract_predef_path(str& dst, predef_path path_type);
 }
 
+ENUM_HPP_REGISTER_TRAITS(e2d::filesystem::predef_path)
+
 #include "filesystem.inl"

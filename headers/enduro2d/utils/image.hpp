@@ -100,6 +100,9 @@ namespace e2d
     bool operator!=(const image& l, const image& r) noexcept;
 }
 
+ENUM_HPP_REGISTER_TRAITS(e2d::image_file_format)
+ENUM_HPP_REGISTER_TRAITS(e2d::image_data_format)
+
 namespace e2d::images
 {
     bool try_load_image(
