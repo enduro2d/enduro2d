@@ -106,28 +106,28 @@ TEST_CASE("json_utils") {
     REQUIRE_FALSE(doc.Parse(json_source).HasParseError());
     REQUIRE(doc.IsObject());
     {
-        bool t;
+        bool t = false;
         REQUIRE(json_utils::try_parse_value(doc["tt"], t));
         REQUIRE(t);
 
-        bool f;
+        bool f = true;
         REQUIRE(json_utils::try_parse_value(doc["ff"], f));
         REQUIRE_FALSE(f);
 
         REQUIRE_FALSE(json_utils::try_parse_value(doc["tt_"], t));
         REQUIRE_FALSE(json_utils::try_parse_value(doc["ff_"], f));
 
-        int i;
+        int i = 0;
         REQUIRE(json_utils::try_parse_value(doc["i"], i));
         REQUIRE(i == 42);
         REQUIRE_FALSE(json_utils::try_parse_value(doc["i_"], i));
 
-        unsigned u;
+        unsigned u = 0;
         REQUIRE(json_utils::try_parse_value(doc["u"], u));
         REQUIRE(u == 42);
         REQUIRE_FALSE(json_utils::try_parse_value(doc["u_"], u));
 
-        float ff;
+        float ff = 0.f;
         REQUIRE(json_utils::try_parse_value(doc["f0"], ff));
         REQUIRE(math::approximately(ff, 1.2f));
         REQUIRE(json_utils::try_parse_value(doc["f1"], ff));

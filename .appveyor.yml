@@ -11,5 +11,5 @@ platform:
   - x64
 build_script:
   - git submodule update --init --recursive
-  - scripts\build_all.bat
+  - scripts\build_release.bat
 test: off

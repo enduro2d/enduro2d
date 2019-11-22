@@ -52,4 +52,4 @@ before_script:
   - git lfs install
   - git lfs pull
 script:
-  - ./scripts/build_all.sh
+  - ./scripts/build_release.sh
