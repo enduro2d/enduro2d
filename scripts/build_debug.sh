@@ -1,9 +1,9 @@
 #!/bin/bash
 set -e
 BUILD_DIR=`dirname "$BASH_SOURCE"`/../build
-mkdir -p $BUILD_DIR/debug
-cd $BUILD_DIR/debug
+mkdir -p $BUILD_DIR/Debug
+cd $BUILD_DIR/Debug
 cmake -DCMAKE_BUILD_TYPE=Debug ../..
-cmake --build . -- -j8
+cmake --build .
 ctest --verbose
 cd ../..

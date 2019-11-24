@@ -147,9 +147,9 @@ TEST_CASE("trig") {
     }
     {
         using namespace e2d::math;
-        REQUIRE(math::approximately(math::cos(make_deg(90.f)), std::cos(half_pi<f32>().value)));
-        REQUIRE(math::approximately(math::sin(make_deg(90.f)), std::sin(half_pi<f32>().value)));
-        REQUIRE(math::approximately(math::tan(make_deg(90.f)), std::tan(half_pi<f32>().value)));
+        REQUIRE(math::approximately(math::cos(make_deg(45.f)), std::cos(quarter_pi<f32>().value)));
+        REQUIRE(math::approximately(math::sin(make_deg(45.f)), std::sin(quarter_pi<f32>().value)));
+        REQUIRE(math::approximately(math::tan(make_deg(45.f)), std::tan(quarter_pi<f32>().value)));
         REQUIRE(math::acos(make_deg(45.f)) == make_rad(std::acos(quarter_pi<f32>().value)));
         REQUIRE(math::asin(make_deg(45.f)) == make_rad(std::asin(quarter_pi<f32>().value)));
         REQUIRE(math::atan(make_deg(45.f)) == make_rad(std::atan(quarter_pi<f32>().value)));
