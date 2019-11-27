@@ -273,66 +273,74 @@ namespace e2d::render_system_impl
 
             texture_ptr tex_p;
             const texture_asset* texture_asset_ptr = atlas_page
-                ? static_cast<texture_asset*>(atlas_page->rendererObject)
+                ? static_cast<const texture_asset*>(atlas_page->rendererObject)
                 : nullptr;
             if ( texture_asset_ptr ) {
                 tex_p = texture_asset_ptr->content();
             }
 
             render::sampler_min_filter tex_min_f = render::sampler_min_filter::linear;
-            switch ( atlas_page->minFilter ) {
-            case SP_ATLAS_NEAREST:
-            case SP_ATLAS_MIPMAP_NEAREST_LINEAR:
-            case SP_ATLAS_MIPMAP_NEAREST_NEAREST:
-                tex_min_f = render::sampler_min_filter::nearest;
-                break;
-            default:
-                tex_min_f = render::sampler_min_filter::linear;
-                break;
+            if ( atlas_page ) {
+                switch ( atlas_page->minFilter ) {
+                case SP_ATLAS_NEAREST:
+                case SP_ATLAS_MIPMAP_NEAREST_LINEAR:
+                case SP_ATLAS_MIPMAP_NEAREST_NEAREST:
+                    tex_min_f = render::sampler_min_filter::nearest;
+                    break;
+                default:
+                    tex_min_f = render::sampler_min_filter::linear;
+                    break;
+                }
             }
 
             render::sampler_mag_filter tex_mag_f = render::sampler_mag_filter::linear;
-            switch ( atlas_page->magFilter ) {
-            case SP_ATLAS_NEAREST:
-            case SP_ATLAS_MIPMAP_NEAREST_LINEAR:
-            case SP_ATLAS_MIPMAP_NEAREST_NEAREST:
-                tex_mag_f = render::sampler_mag_filter::nearest;
-                break;
-            default:
-                tex_mag_f = render::sampler_mag_filter::linear;
-                break;
+            if ( atlas_page ) {
+                switch ( atlas_page->magFilter ) {
+                case SP_ATLAS_NEAREST:
+                case SP_ATLAS_MIPMAP_NEAREST_LINEAR:
+                case SP_ATLAS_MIPMAP_NEAREST_NEAREST:
+                    tex_mag_f = render::sampler_mag_filter::nearest;
+                    break;
+                default:
+                    tex_mag_f = render::sampler_mag_filter::linear;
+                    break;
+                }
             }
 
             render::sampler_wrap tex_wrap_s = render::sampler_wrap::repeat;
-            switch ( atlas_page->uWrap ) {
-            case SP_ATLAS_MIRROREDREPEAT:
-                tex_wrap_s = render::sampler_wrap::mirror;
-                break;
-            case SP_ATLAS_CLAMPTOEDGE:
-                tex_wrap_s = render::sampler_wrap::clamp;
-                break;
-            case SP_ATLAS_REPEAT:
-                tex_wrap_s = render::sampler_wrap::repeat;
-                break;
-            default:
-                E2D_ASSERT_MSG(false, "unexpected wrap mode for slot");
-                break;
+            if ( atlas_page ) {
+                switch ( atlas_page->uWrap ) {
+                case SP_ATLAS_MIRROREDREPEAT:
+                    tex_wrap_s = render::sampler_wrap::mirror;
+                    break;
+                case SP_ATLAS_CLAMPTOEDGE:
+                    tex_wrap_s = render::sampler_wrap::clamp;
+                    break;
+                case SP_ATLAS_REPEAT:
+                    tex_wrap_s = render::sampler_wrap::repeat;
+                    break;
+                default:
+                    E2D_ASSERT_MSG(false, "unexpected wrap mode for slot");
+                    break;
+                }
             }
 
             render::sampler_wrap tex_wrap_t = render::sampler_wrap::repeat;
-            switch ( atlas_page->vWrap ) {
-            case SP_ATLAS_MIRROREDREPEAT:
-                tex_wrap_t = render::sampler_wrap::mirror;
-                break;
-            case SP_ATLAS_CLAMPTOEDGE:
-                tex_wrap_t = render::sampler_wrap::clamp;
-                break;
-            case SP_ATLAS_REPEAT:
-                tex_wrap_t = render::sampler_wrap::repeat;
-                break;
-            default:
-                E2D_ASSERT_MSG(false, "unexpected wrap mode for slot");
-                break;
+            if ( atlas_page ) {
+                switch ( atlas_page->vWrap ) {
+                case SP_ATLAS_MIRROREDREPEAT:
+                    tex_wrap_t = render::sampler_wrap::mirror;
+                    break;
+                case SP_ATLAS_CLAMPTOEDGE:
+                    tex_wrap_t = render::sampler_wrap::clamp;
+                    break;
+                case SP_ATLAS_REPEAT:
+                    tex_wrap_t = render::sampler_wrap::repeat;
+                    break;
+                default:
+                    E2D_ASSERT_MSG(false, "unexpected wrap mode for slot");
+                    break;
+                }
             }
 
             material_asset::ptr mat_a;
