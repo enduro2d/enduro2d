@@ -19,7 +19,7 @@ namespace e2d
         model_renderer(const model_asset::ptr& model);
 
         model_renderer& model(const model_asset::ptr& value) noexcept;
-        const model_asset::ptr& model() const noexcept;
+        [[nodiscard]] const model_asset::ptr& model() const noexcept;
     private:
         model_asset::ptr model_;
     };

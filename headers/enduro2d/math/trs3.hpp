@@ -25,16 +25,17 @@ namespace e2d
         quat<T> rotation = quat<T>::identity();
         vec3<T> scale = vec3<T>::unit();
     public:
-        static const trs3& zero() noexcept;
-        static const trs3& identity() noexcept;
+        static constexpr trs3 zero() noexcept;
+        static constexpr trs3 identity() noexcept;
     public:
-        trs3() noexcept = default;
-        trs3(const trs3& other) noexcept = default;
-        trs3& operator=(const trs3& other) noexcept = default;
+        constexpr trs3() noexcept = default;
+        constexpr trs3(const trs3& other) noexcept = default;
+        constexpr trs3& operator=(const trs3& other) noexcept = default;
 
-        trs3(const vec3<T>& t,
-             const quat<T>& r,
-             const vec3<T>& s) noexcept;
+        constexpr trs3(
+            const vec3<T>& t,
+            const quat<T>& r,
+            const vec3<T>& s) noexcept;
 
         template < typename To >
         trs3<To> cast_to() const noexcept;
@@ -44,25 +45,23 @@ namespace e2d
 namespace e2d
 {
     template < typename T >
-    const trs3<T>& trs3<T>::zero() noexcept {
-        static const trs3<T> zero{
+    constexpr trs3<T> trs3<T>::zero() noexcept {
+        return {
             vec3<T>::zero(),
             quat<T>::zero(),
             vec3<T>::zero()};
-        return zero;
     }
 
     template < typename T >
-    const trs3<T>& trs3<T>::identity() noexcept {
-        static const trs3<T> identity{
+    constexpr trs3<T> trs3<T>::identity() noexcept {
+        return {
             vec3<T>::zero(),
             quat<T>::identity(),
             vec3<T>::unit()};
-        return identity;
     }
 
     template < typename T >
-    trs3<T>::trs3(
+    constexpr trs3<T>::trs3(
         const vec3<T>& t,
         const quat<T>& r,
         const vec3<T>& s) noexcept
@@ -87,7 +86,7 @@ namespace e2d
     //
 
     template < typename T >
-    trs3<T> make_trs3(
+    constexpr trs3<T> make_trs3(
         const vec3<T>& t,
         const quat<T>& r,
         const vec3<T>& s) noexcept

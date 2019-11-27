@@ -13,7 +13,6 @@ namespace e2d
         "required" : [],
         "additionalProperties" : false,
         "properties" : {
-            "enabled" : { "type" : "boolean" },
             "materials" : {
                 "type" : "array",
                 "items" : { "$ref": "#/common_definitions/address" }
@@ -25,15 +24,6 @@ namespace e2d
         renderer& component,
         const fill_context& ctx) const
     {
-        if ( ctx.root.HasMember("enabled") ) {
-            auto enabled = component.enabled();
-            if ( !json_utils::try_parse_value(ctx.root["enabled"], enabled) ) {
-                the<debug>().error("FLIPBOOK_PLAYER: Incorrect formatting of 'enabled' property");
-                return false;
-            }
-            component.enabled(enabled);
-        }
-
         if ( ctx.root.HasMember("properties") ) {
             //TODO(BlackMat): add properties parsing
         }

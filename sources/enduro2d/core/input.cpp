@@ -17,12 +17,9 @@ namespace e2d
         mutable std::mutex mutex;
         v2f cursor_pos;
         v2f scroll_delta;
-        std::bitset<
-            utils::enum_to_underlying(mouse_button::unknown) + 1> pressed;
-        std::bitset<
-            utils::enum_to_underlying(mouse_button::unknown) + 1> just_pressed;
-        std::bitset<
-            utils::enum_to_underlying(mouse_button::unknown) + 1> just_released;
+        std::bitset<enum_hpp::size<mouse_button>()> pressed;
+        std::bitset<enum_hpp::size<mouse_button>()> just_pressed;
+        std::bitset<enum_hpp::size<mouse_button>()> just_released;
     public:
         std::size_t button_index(mouse_button btn) const noexcept {
             const auto index = utils::enum_to_underlying(btn);
@@ -80,12 +77,9 @@ namespace e2d
     public:
         mutable std::mutex mutex;
         str32 input_text;
-        std::bitset<
-            utils::enum_to_underlying(keyboard_key::unknown) + 1> pressed;
-        std::bitset<
-            utils::enum_to_underlying(keyboard_key::unknown) + 1> just_pressed;
-        std::bitset<
-            utils::enum_to_underlying(keyboard_key::unknown) + 1> just_released;
+        std::bitset<enum_hpp::size<keyboard_key>()> pressed;
+        std::bitset<enum_hpp::size<keyboard_key>()> just_pressed;
+        std::bitset<enum_hpp::size<keyboard_key>()> just_released;
     public:
         std::size_t key_index(keyboard_key key) const noexcept {
             const auto index = utils::enum_to_underlying(key);
@@ -182,6 +176,24 @@ namespace e2d
         return state_->just_released.test(index);
     }
 
+    vector<mouse_button> mouse::pressed_buttons() const {
+        vector<mouse_button> buttons;
+        extract_pressed_buttons(buttons);
+        return buttons;
+    }
+
+    vector<mouse_button> mouse::just_pressed_buttons() const {
+        vector<mouse_button> buttons;
+        extract_just_pressed_buttons(buttons);
+        return buttons;
+    }
+
+    vector<mouse_button> mouse::just_released_buttons() const {
+        vector<mouse_button> buttons;
+        extract_just_released_buttons(buttons);
+        return buttons;
+    }
+
     void mouse::extract_pressed_buttons(vector<mouse_button>& dst) const {
         std::lock_guard<std::mutex> guard(state_->mutex);
         for ( std::size_t i = 0; i < state_->pressed.size(); ++i ) {
@@ -258,6 +270,24 @@ namespace e2d
         std::lock_guard<std::mutex> guard(state_->mutex);
         const std::size_t index = state_->key_index(key);
         return state_->just_released.test(index);
+    }
+
+    vector<keyboard_key> keyboard::pressed_keys() const {
+        vector<keyboard_key> keys;
+        extract_pressed_keys(keys);
+        return keys;
+    }
+
+    vector<keyboard_key> keyboard::just_pressed_keys() const {
+        vector<keyboard_key> keys;
+        extract_just_pressed_keys(keys);
+        return keys;
+    }
+
+    vector<keyboard_key> keyboard::just_released_keys() const {
+        vector<keyboard_key> keys;
+        extract_just_released_keys(keys);
+        return keys;
     }
 
     void keyboard::extract_pressed_keys(vector<keyboard_key>& dst) const {

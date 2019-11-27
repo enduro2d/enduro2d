@@ -8,25 +8,38 @@
 
 namespace e2d
 {
-    gobject::gobject(ecs::registry& registry)
-    : entity_(registry.create_entity()) {}
-
-    gobject::gobject(ecs::registry& registry, const ecs::prototype& proto)
-    : entity_(registry.create_entity(proto)) {}
-
-    gobject::~gobject() noexcept {
-        entity_.destroy();
+    const gobject::state_iptr& gobject::internal_state() const noexcept {
+        return state_;
     }
 
-    ecs::entity gobject::entity() noexcept {
-        return entity_;
+    gobject::gobject(state_iptr state)
+    : state_(std::move(state)) {}
+
+    bool gobject::alive() const noexcept {
+        return state_ && !state_->destroyed();
     }
 
-    ecs::const_entity gobject::entity() const noexcept {
-        return entity_;
+    bool gobject::valid() const noexcept {
+        return state_ && !state_->invalided();
     }
 
-    ecs::entity_filler gobject::entity_filler() noexcept {
-        return ecs::entity_filler(entity_);
+    gobject::operator bool() const noexcept {
+        return valid();
+    }
+
+    void gobject::destroy() noexcept {
+        if ( alive() && valid() ) {
+            state_->destroy();
+        }
+    }
+
+    ecs::entity gobject::raw_entity() noexcept {
+        E2D_ASSERT(valid());
+        return state_->raw_entity();
+    }
+
+    ecs::const_entity gobject::raw_entity() const noexcept {
+        E2D_ASSERT(valid());
+        return state_->raw_entity();
     }
 }

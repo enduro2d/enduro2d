@@ -9,8 +9,8 @@
 
 namespace e2d
 {
-    node::node(const gobject_iptr& owner)
-    : owner_(owner) {}
+    node::node(gobject owner)
+    : owner_(std::move(owner)) {}
 
     node::~node() noexcept {
         E2D_ASSERT(!parent_);
@@ -21,6 +21,12 @@ namespace e2d
         return node_iptr(new node());
     }
 
+    node_iptr node::create(const t3f& transform) {
+        node_iptr n = create();
+        n->transform(transform);
+        return n;
+    }
+
     node_iptr node::create(const node_iptr& parent) {
         node_iptr child = create();
         if ( parent ) {
@@ -29,27 +35,41 @@ namespace e2d
         return child;
     }
 
-    node_iptr node::create(const gobject_iptr& owner) {
-        return node_iptr(new node(owner));
+    node_iptr node::create(const node_iptr& parent, const t3f& transform) {
+        node_iptr n = create(parent);
+        n->transform(transform);
+        return n;
     }
 
-    node_iptr node::create(const gobject_iptr& owner, const node_iptr& parent) {
-        node_iptr child = create(owner);
+    node_iptr node::create(gobject owner) {
+        return node_iptr(new node(std::move(owner)));
+    }
+
+    node_iptr node::create(gobject owner, const t3f& transform) {
+        node_iptr n = create(owner);
+        n->transform(transform);
+        return n;
+    }
+
+    node_iptr node::create(gobject owner, const node_iptr& parent) {
+        node_iptr child = create(std::move(owner));
         if ( parent ) {
             parent->add_child(child);
         }
         return child;
     }
 
-    void node::owner(const gobject_iptr& owner) noexcept {
-        owner_ = owner;
+    node_iptr node::create(gobject owner, const node_iptr& parent, const t3f& transform) {
+        node_iptr n = create(owner, parent);
+        n->transform(transform);
+        return n;
     }
 
-    gobject_iptr node::owner() noexcept {
-        return owner_;
+    void node::owner(gobject owner) noexcept {
+        owner_ = std::move(owner);
     }
 
-    const_gobject_iptr node::owner() const noexcept {
+    gobject node::owner() const noexcept {
         return owner_;
     }
 
@@ -413,5 +433,32 @@ namespace e2d
         world_matrix_ = parent_
             ? local_matrix() * parent_->world_matrix()
             : local_matrix();
+    }
+}
+
+namespace e2d::nodes
+{
+    vector<node_iptr> extract_nodes(const node_iptr& root) {
+        vector<node_iptr> nodes;
+        extract_nodes(root, std::back_inserter(nodes));
+        return nodes;
+    }
+
+    vector<const_node_iptr> extract_nodes(const const_node_iptr& root) {
+        vector<const_node_iptr> nodes;
+        extract_nodes(root, std::back_inserter(nodes));
+        return nodes;
+    }
+
+    vector<node_iptr> extract_nodes_reversed(const node_iptr& root) {
+        vector<node_iptr> nodes;
+        extract_nodes_reversed(root, std::back_inserter(nodes));
+        return nodes;
+    }
+
+    vector<const_node_iptr> extract_nodes_reversed(const const_node_iptr& root) {
+        vector<const_node_iptr> nodes;
+        extract_nodes_reversed(root, std::back_inserter(nodes));
+        return nodes;
     }
 }

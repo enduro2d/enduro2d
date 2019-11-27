@@ -43,42 +43,40 @@ namespace e2d
 
     class pixel_declaration final {
     public:
-        enum class pixel_type : u8 {
-            depth16,
-            depth24,
-            depth24_stencil8,
+        ENUM_HPP_CLASS_DECL(pixel_type, u8,
+            (depth16)
+            (depth24)
+            (depth24_stencil8)
 
-            a8,
-            l8,
-            la8,
-            rgb8,
-            rgba8,
+            (a8)
+            (l8)
+            (la8)
+            (rgb8)
+            (rgba8)
 
-            rgba_dxt1,
-            rgba_dxt3,
-            rgba_dxt5,
+            (rgba_dxt1)
+            (rgba_dxt3)
+            (rgba_dxt5)
 
-            rgb_etc1,
-            rgb_etc2,
-            rgba_etc2,
-            rgb_a1_etc2,
+            (rgb_etc1)
+            (rgb_etc2)
+            (rgba_etc2)
+            (rgb_a1_etc2)
 
-            rgba_astc4x4,
-            rgba_astc5x5,
-            rgba_astc6x6,
-            rgba_astc8x8,
-            rgba_astc10x10,
-            rgba_astc12x12,
+            (rgba_astc4x4)
+            (rgba_astc5x5)
+            (rgba_astc6x6)
+            (rgba_astc8x8)
+            (rgba_astc10x10)
+            (rgba_astc12x12)
 
-            rgb_pvrtc2,
-            rgb_pvrtc4,
-            rgba_pvrtc2,
-            rgba_pvrtc4,
+            (rgb_pvrtc2)
+            (rgb_pvrtc4)
+            (rgba_pvrtc2)
+            (rgba_pvrtc4)
 
-            rgba_pvrtc2_v2,
-            rgba_pvrtc4_v2
-        };
-        static const char* pixel_type_to_cstr(pixel_type pt) noexcept;
+            (rgba_pvrtc2_v2)
+            (rgba_pvrtc4_v2))
     public:
         pixel_declaration() = default;
         ~pixel_declaration() noexcept = default;
@@ -113,11 +111,9 @@ namespace e2d
 
     class index_declaration final {
     public:
-        enum class index_type : u8 {
-            unsigned_short,
-            unsigned_int
-        };
-        static const char* index_type_to_cstr(index_type it) noexcept;
+        ENUM_HPP_CLASS_DECL(index_type, u8,
+            (unsigned_short)
+            (unsigned_int))
     public:
         index_declaration() = default;
         ~index_declaration() noexcept = default;
@@ -146,13 +142,12 @@ namespace e2d
 
     class vertex_declaration final {
     public:
-        enum class attribute_type : u8 {
-            signed_byte,
-            unsigned_byte,
-            signed_short,
-            unsigned_short,
-            floating_point
-        };
+        ENUM_HPP_CLASS_DECL(attribute_type, u8,
+            (signed_byte)
+            (unsigned_byte)
+            (signed_short)
+            (unsigned_short)
+            (floating_point))
 
         class attribute_info final {
         public:
@@ -268,11 +263,10 @@ namespace e2d
         using internal_state_uptr = std::unique_ptr<internal_state>;
         const internal_state& state() const noexcept;
     public:
-        enum class usage : u8 {
-            static_draw,
-            stream_draw,
-            dynamic_draw
-        };
+        ENUM_HPP_CLASS_DECL(usage, u8,
+            (static_draw)
+            (stream_draw)
+            (dynamic_draw))
     public:
         explicit index_buffer(internal_state_uptr);
         ~index_buffer() noexcept;
@@ -294,11 +288,10 @@ namespace e2d
         using internal_state_uptr = std::unique_ptr<internal_state>;
         const internal_state& state() const noexcept;
     public:
-        enum class usage : u8 {
-            static_draw,
-            stream_draw,
-            dynamic_draw
-        };
+        ENUM_HPP_CLASS_DECL(usage, u8,
+            (static_draw)
+            (stream_draw)
+            (dynamic_draw))
     public:
         explicit vertex_buffer(internal_state_uptr);
         ~vertex_buffer() noexcept;
@@ -320,11 +313,10 @@ namespace e2d
         using internal_state_uptr = std::unique_ptr<internal_state>;
         const internal_state& state() const noexcept;
     public:
-        enum class external_texture : u8 {
-            color = (1 << 0),
-            depth = (1 << 1),
-            color_and_depth = color | depth
-        };
+        ENUM_HPP_CLASS_DECL(external_texture, u8,
+            (color = 1 << 0)
+            (depth = 1 << 1)
+            (color_and_depth = color | depth))
     public:
         explicit render_target(internal_state_uptr);
         ~render_target() noexcept;
@@ -342,107 +334,96 @@ namespace e2d
 
     class render final : public module<render> {
     public:
-        enum class topology : u8 {
-            triangles,
-            triangles_fan,
-            triangles_strip
-        };
+        ENUM_HPP_CLASS_DECL(topology, u8,
+            (triangles)
+            (triangles_fan)
+            (triangles_strip))
 
-        enum class stencil_op : u8 {
-            keep,
-            zero,
-            replace,
-            incr,
-            incr_wrap,
-            decr,
-            decr_wrap,
-            invert
-        };
+        ENUM_HPP_CLASS_DECL(stencil_op, u8,
+            (keep)
+            (zero)
+            (replace)
+            (incr)
+            (incr_wrap)
+            (decr)
+            (decr_wrap)
+            (invert))
 
-        enum class compare_func : u8 {
-            never,
-            less,
-            lequal,
-            greater,
-            gequal,
-            equal,
-            notequal,
-            always
-        };
+        ENUM_HPP_CLASS_DECL(compare_func, u8,
+            (never)
+            (less)
+            (lequal)
+            (greater)
+            (gequal)
+            (equal)
+            (notequal)
+            (always))
 
-        enum class culling_mode : u8 {
-            cw,
-            ccw
-        };
+        ENUM_HPP_CLASS_DECL(culling_mode, u8,
+            (cw)
+            (ccw))
 
-        enum class culling_face : u8 {
-            back = (1 << 0),
-            front = (1 << 1),
-            back_and_front = back | front
-        };
+        ENUM_HPP_CLASS_DECL(culling_face, u8,
+            (back = 1 << 0)
+            (front = 1 << 1)
+            (back_and_front = back | front))
 
-        enum class blending_factor : u8 {
-            zero,
-            one,
-            src_color,
-            one_minus_src_color,
-            dst_color,
-            one_minus_dst_color,
-            src_alpha,
-            one_minus_src_alpha,
-            dst_alpha,
-            one_minus_dst_alpha,
-            constant_color,
-            one_minus_constant_color,
-            constant_alpha,
-            one_minus_constant_alpha,
-            src_alpha_saturate
-        };
+        ENUM_HPP_CLASS_DECL(blending_factor, u8,
+            (zero)
+            (one)
+            (src_color)
+            (one_minus_src_color)
+            (dst_color)
+            (one_minus_dst_color)
+            (src_alpha)
+            (one_minus_src_alpha)
+            (dst_alpha)
+            (one_minus_dst_alpha)
+            (constant_color)
+            (one_minus_constant_color)
+            (constant_alpha)
+            (one_minus_constant_alpha)
+            (src_alpha_saturate))
 
-        enum class blending_equation : u8 {
-            add,
-            subtract,
-            reverse_subtract
-        };
+        ENUM_HPP_CLASS_DECL(blending_equation, u8,
+            (add)
+            (subtract)
+            (reverse_subtract))
 
-        enum class blending_color_mask : u8 {
-            none = 0,
+        ENUM_HPP_CLASS_DECL(blending_color_mask, u8,
+            (none = 0)
 
-            r = (1 << 0),
-            g = (1 << 1),
-            b = (1 << 2),
-            a = (1 << 3),
+            (r = 1 << 0)
+            (g = 1 << 1)
+            (b = 1 << 2)
+            (a = 1 << 3)
 
-            rg = r | g,
-            rb = r | b,
-            ra = r | a,
-            gb = g | b,
-            ga = g | a,
-            ba = b | a,
+            (rg = r | g)
+            (rb = r | b)
+            (ra = r | a)
+            (gb = g | b)
+            (ga = g | a)
+            (ba = b | a)
 
-            rgb = r | g | b,
-            rga = r | g | a,
-            rba = r | b | a,
-            gba = g | b | a,
+            (rgb = r | g | b)
+            (rga = r | g | a)
+            (rba = r | b | a)
+            (gba = g | b | a)
 
-            rgba = r | g | b | a
-        };
+            (rgba = r | g | b | a))
 
-        enum class sampler_wrap : u8 {
-            clamp,
-            repeat,
-            mirror
-        };
+        ENUM_HPP_CLASS_DECL(sampler_wrap, u8,
+            (clamp)
+            (repeat)
+            (mirror))
 
-        enum class sampler_min_filter : u8 {
-            nearest,
-            linear
-        };
+        ENUM_HPP_CLASS_DECL(sampler_min_filter, u8,
+            (nearest)
+            (linear))
 
-        enum class sampler_mag_filter : u8 {
-            nearest,
-            linear
-        };
+        ENUM_HPP_CLASS_DECL(sampler_mag_filter, u8,
+            (nearest)
+            (linear))
 
         class depth_state final {
         public:
@@ -788,15 +769,14 @@ namespace e2d
 
         class clear_command final {
         public:
-            enum class buffer : u8 {
-                color = (1 << 0),
-                depth = (1 << 1),
-                stencil = (1 << 2),
-                color_depth = color | depth,
-                color_stencil = color | stencil,
-                depth_stencil = depth | stencil,
-                color_depth_stencil = color | depth | stencil
-            };
+            ENUM_HPP_CLASS_DECL(buffer, u8,
+                (color = 1 << 0)
+                (depth = 1 << 1)
+                (stencil = 1 << 2)
+                (color_depth = color | depth)
+                (color_stencil = color | stencil)
+                (depth_stencil = depth | stencil)
+                (color_depth_stencil = color | depth | stencil))
         public:
             clear_command() = default;
             clear_command(buffer clear_buffer) noexcept;
@@ -878,13 +858,12 @@ namespace e2d
             std::size_t command_count_ = 0;
         };
 
-        enum class api_profile {
-            unknown,
-            gles_2_0,
-            gles_3_0,
-            gl_2_1_compat,
-            gl_3_2_compat
-        };
+        ENUM_HPP_CLASS_DECL(api_profile, u8,
+            (unknown)
+            (gles_2_0)
+            (gles_3_0)
+            (gl_2_1_compat)
+            (gl_3_2_compat))
 
         struct device_caps {
             api_profile profile = api_profile::unknown;
@@ -996,6 +975,26 @@ namespace e2d
         std::unique_ptr<internal_state> state_;
     };
 }
+
+ENUM_HPP_REGISTER_TRAITS(e2d::pixel_declaration::pixel_type)
+ENUM_HPP_REGISTER_TRAITS(e2d::index_declaration::index_type)
+ENUM_HPP_REGISTER_TRAITS(e2d::vertex_declaration::attribute_type)
+ENUM_HPP_REGISTER_TRAITS(e2d::index_buffer::usage)
+ENUM_HPP_REGISTER_TRAITS(e2d::vertex_buffer::usage)
+ENUM_HPP_REGISTER_TRAITS(e2d::render_target::external_texture)
+ENUM_HPP_REGISTER_TRAITS(e2d::render::topology)
+ENUM_HPP_REGISTER_TRAITS(e2d::render::stencil_op)
+ENUM_HPP_REGISTER_TRAITS(e2d::render::compare_func)
+ENUM_HPP_REGISTER_TRAITS(e2d::render::culling_mode)
+ENUM_HPP_REGISTER_TRAITS(e2d::render::culling_face)
+ENUM_HPP_REGISTER_TRAITS(e2d::render::blending_factor)
+ENUM_HPP_REGISTER_TRAITS(e2d::render::blending_equation)
+ENUM_HPP_REGISTER_TRAITS(e2d::render::blending_color_mask)
+ENUM_HPP_REGISTER_TRAITS(e2d::render::sampler_wrap)
+ENUM_HPP_REGISTER_TRAITS(e2d::render::sampler_min_filter)
+ENUM_HPP_REGISTER_TRAITS(e2d::render::sampler_mag_filter)
+ENUM_HPP_REGISTER_TRAITS(e2d::render::clear_command::buffer)
+ENUM_HPP_REGISTER_TRAITS(e2d::render::api_profile)
 
 namespace e2d
 {

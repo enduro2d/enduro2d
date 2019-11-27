@@ -66,7 +66,7 @@ namespace e2d
 
     class library final : public module<library> {
     public:
-        library(const url& root, deferrer& deferrer);
+        library(url root);
         ~library() noexcept final;
 
         const url& root() const noexcept;
@@ -101,7 +101,6 @@ namespace e2d
         void wait_all_loading_assets_() noexcept;
     private:
         url root_;
-        deferrer& deferrer_;
         std::atomic<bool> cancelled_{false};
     private:
         mutable asset_cache cache_;

@@ -44,9 +44,8 @@ namespace e2d
     // library
     //
 
-    inline library::library(const url& root, deferrer& deferrer)
-    : root_(root)
-    , deferrer_(deferrer) {}
+    inline library::library(url root)
+    : root_(std::move(root)) {}
 
     inline library::~library() noexcept {
         cancelled_.store(true);
@@ -73,7 +72,7 @@ namespace e2d
     template < typename Asset >
     typename Asset::load_result library::load_main_asset(str_view address) const {
         auto p = load_main_asset_async<Asset>(address);
-        deferrer_.active_safe_wait_promise(p);
+        the<deferrer>().active_safe_wait_promise(p);
         return p.get_or_default(nullptr);
     }
 
@@ -146,7 +145,7 @@ namespace e2d
     template < typename Asset, typename Nested >
     typename Nested::load_result library::load_asset(str_view address) const {
         auto p = load_asset_async<Asset, Nested>(address);
-        deferrer_.active_safe_wait_promise(p);
+        the<deferrer>().active_safe_wait_promise(p);
         return p.get_or_default(nullptr);
     }
 
@@ -210,7 +209,7 @@ namespace e2d
             }
             const auto loading_asset_copy = loading_assets_.back();
             lock.unlock();
-            loading_asset_copy->wait(deferrer_);
+            loading_asset_copy->wait(the<deferrer>());
         }
     }
 

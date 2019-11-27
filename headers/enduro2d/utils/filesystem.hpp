@@ -78,17 +78,18 @@ namespace e2d::filesystem
     bool try_read_all(buffer& dst, str_view path) noexcept;
     bool try_write_all(buffer_view src, str_view path, bool append) noexcept;
 
-    enum class predef_path {
-        home,
-        appdata,
-        desktop,
-        working,
-        documents,
-        resources,
-        executable
-    };
+    ENUM_HPP_CLASS_DECL(predef_path, u8,
+        (home)
+        (appdata)
+        (desktop)
+        (working)
+        (documents)
+        (resources)
+        (executable))
 
     bool extract_predef_path(str& dst, predef_path path_type);
 }
+
+ENUM_HPP_REGISTER_TRAITS(e2d::filesystem::predef_path)
 
 #include "filesystem.inl"

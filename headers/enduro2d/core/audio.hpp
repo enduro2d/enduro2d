@@ -67,9 +67,9 @@ namespace e2d
         void volume(f32 value) noexcept;
         [[nodiscard]] f32 volume() const noexcept;
 
-        void position(secf value) noexcept;
-        [[nodiscard]] secf position() const noexcept;
-        [[nodiscard]] secf duration() const noexcept;
+        void position(f32 value) noexcept;
+        [[nodiscard]] f32 position() const noexcept;
+        [[nodiscard]] f32 duration() const noexcept;
     private:
         internal_state_uptr state_;
     };

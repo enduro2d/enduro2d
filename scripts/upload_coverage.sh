@@ -5,7 +5,7 @@ BUILD_DIR=`dirname "$BASH_SOURCE"`/../build
 mkdir -p $BUILD_DIR/coverage
 cd $BUILD_DIR/coverage
 cmake -DCMAKE_BUILD_TYPE=Debug -DE2D_BUILD_WITH_COVERAGE=ON ../..
-cmake --build . -- -j8
+cmake --build .
 
 lcov -d . -z
 ctest --verbose

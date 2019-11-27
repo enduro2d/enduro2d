@@ -7,24 +7,29 @@
 #include <enduro2d/high/starter.hpp>
 
 #include <enduro2d/high/world.hpp>
+#include <enduro2d/high/luasol.hpp>
 #include <enduro2d/high/factory.hpp>
 #include <enduro2d/high/library.hpp>
 
 #include <enduro2d/high/components/actor.hpp>
+#include <enduro2d/high/components/behaviour.hpp>
 #include <enduro2d/high/components/camera.hpp>
+#include <enduro2d/high/components/commands.hpp>
+#include <enduro2d/high/components/disabled.hpp>
+#include <enduro2d/high/components/events.hpp>
 #include <enduro2d/high/components/flipbook_player.hpp>
 #include <enduro2d/high/components/label.hpp>
 #include <enduro2d/high/components/model_renderer.hpp>
+#include <enduro2d/high/components/named.hpp>
 #include <enduro2d/high/components/renderer.hpp>
 #include <enduro2d/high/components/scene.hpp>
 #include <enduro2d/high/components/spine_player.hpp>
-#include <enduro2d/high/components/spine_player_cmd.hpp>
-#include <enduro2d/high/components/spine_player_evt.hpp>
 #include <enduro2d/high/components/sprite_renderer.hpp>
 
 #include <enduro2d/high/systems/flipbook_system.hpp>
 #include <enduro2d/high/systems/label_system.hpp>
 #include <enduro2d/high/systems/render_system.hpp>
+#include <enduro2d/high/systems/script_system.hpp>
 #include <enduro2d/high/systems/spine_system.hpp>
 
 namespace
@@ -49,10 +54,12 @@ namespace
                     .add_system<flipbook_system>())
                 .feature<struct label_feature>(ecs::feature()
                     .add_system<label_system>())
-                .feature<struct spine_feature>(ecs::feature()
-                    .add_system<spine_system>())
                 .feature<struct render_feature>(ecs::feature()
-                    .add_system<render_system>());
+                    .add_system<render_system>())
+                .feature<struct sript_feature>(ecs::feature()
+                    .add_system<script_system>())
+                .feature<struct spine_feature>(ecs::feature()
+                    .add_system<spine_system>());
             return !application_ || application_->initialize();
         }
 
@@ -82,6 +89,13 @@ namespace
             registry.process_event(systems::render_event{});
             registry.process_event(systems::post_render_event{});
         }
+
+        void frame_finalize() final {
+            world& w = the<world>();
+            ecs::registry& registry = w.registry();
+            registry.process_event(systems::frame_finalize_event{});
+            w.finalize_instances();
+        }
     private:
         starter::application_uptr application_;
     };
@@ -105,36 +119,53 @@ namespace e2d
     }
 
     //
+    // starter::library_parameters
+    //
+
+    starter::library_parameters& starter::library_parameters::root(url value) noexcept {
+        root_ = std::move(value);
+        return *this;
+    }
+
+    url& starter::library_parameters::root() noexcept {
+        return root_;
+    }
+
+    const url& starter::library_parameters::root() const noexcept {
+        return root_;
+    }
+
+    //
     // starter::parameters
     //
 
-    starter::parameters::parameters(const engine::parameters& engine_params)
-    : engine_params_(engine_params) {}
+    starter::parameters::parameters(engine::parameters engine_params) noexcept
+    : engine_params_(std::move(engine_params)) {}
 
-    starter::parameters& starter::parameters::library_root(const url& value) {
-        library_root_ = value;
+    starter::parameters& starter::parameters::engine_params(engine::parameters value) noexcept {
+        engine_params_ = std::move(value);
         return *this;
     }
 
-    starter::parameters& starter::parameters::engine_params(const engine::parameters& value) {
-        engine_params_ = value;
+    starter::parameters& starter::parameters::library_params(library_parameters value) noexcept {
+        library_params_ = std::move(value);
         return *this;
-    }
-
-    url& starter::parameters::library_root() noexcept {
-        return library_root_;
     }
 
     engine::parameters& starter::parameters::engine_params() noexcept {
         return engine_params_;
     }
 
-    const url& starter::parameters::library_root() const noexcept {
-        return library_root_;
+    starter::library_parameters& starter::parameters::library_params() noexcept {
+        return library_params_;
     }
 
     const engine::parameters& starter::parameters::engine_params() const noexcept {
         return engine_params_;
+    }
+
+    const starter::library_parameters& starter::parameters::library_params() const noexcept {
+        return library_params_;
     }
 
     //
@@ -142,27 +173,40 @@ namespace e2d
     //
 
     starter::starter(int argc, char *argv[], const parameters& params) {
-        safe_module_initialize<engine>(argc, argv, params.engine_params());
+        safe_module_initialize<engine>(
+            argc, argv,
+            params.engine_params());
+
         safe_module_initialize<factory>()
             .register_component<actor>("actor")
+            .register_component<behaviour>("behaviour")
             .register_component<camera>("camera")
             .register_component<flipbook_player>("flipbook_player")
             .register_component<label>("label")
             .register_component<label::dirty>("label.dirty")
             .register_component<model_renderer>("model_renderer")
+            .register_component<named>("named")
             .register_component<renderer>("renderer")
             .register_component<scene>("scene")
             .register_component<spine_player>("spine_player")
-            .register_component<spine_player_cmd>("spine_player_cmd")
-            .register_component<spine_player_evt>("spine_player_evt")
+            .register_component<events<spine_player_events::event>>("spine_player_events")
+            .register_component<commands<spine_player_commands::command>>("spine_player_commands")
             .register_component<sprite_renderer>("sprite_renderer");
-        safe_module_initialize<library>(params.library_root(), the<deferrer>());
+
+        safe_module_initialize<luasol>();
+
+        safe_module_initialize<library>(
+            params.library_params().root());
+
         safe_module_initialize<world>();
     }
 
     starter::~starter() noexcept {
+        the<luasol>().collect_garbage();
+
         modules::shutdown<world>();
         modules::shutdown<library>();
+        modules::shutdown<luasol>();
         modules::shutdown<factory>();
         modules::shutdown<engine>();
     }

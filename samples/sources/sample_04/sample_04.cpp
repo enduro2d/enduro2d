@@ -62,8 +62,8 @@ namespace
             auto scene_prefab_res = the<library>().load_asset<prefab_asset>("scenes/scene_prefab.json");
             auto scene_go = scene_prefab_res
                 ? the<world>().instantiate(scene_prefab_res->content())
-                : nullptr;
-            return !!scene_go;
+                : gobject();
+            return scene_go.valid();
         }
 
         bool create_systems() {

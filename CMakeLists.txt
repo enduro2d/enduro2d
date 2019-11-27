@@ -50,52 +50,6 @@ if(MSVC)
 endif(MSVC)
 
 #
-# compilation mode
-#
-
-set(E2D_SHARED_CXX_FLAGS "")
-if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    set(E2D_SHARED_CXX_FLAGS -Wloop-analysis
-                             -Wpointer-arith
-                             -Wpessimizing-move
-                             -Wuninitialized
-                             -Werror=init-self
-                             -Werror=self-assign
-                             -Werror=self-move
-                             -Werror=infinite-recursion
-                             -Werror=dangling-else
-                             -Werror=large-by-value-copy
-                             -Werror=instantiation-after-specialization
-                             -Werror=array-bounds
-                             -Werror=missing-field-initializers
-                             -Werror=user-defined-literals
-                             -Werror=parentheses
-                             -Werror=address
-                             -Werror=return-stack-address)
-elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-    set(E2D_SHARED_CXX_FLAGS
-        /we4297   # function assumed not to throw an exception but does
-        /we4715   # not all control paths return a value
-        /we4716   # must return a value
-        /we4172   # returning address of local variable or temporary
-        /we4717   # recursive on all control paths, function will cause runtime stack overflow
-        /we4239   # conversion from 'type' to 'type &'
-        /we4238   # class rvalue used as lvalue
-        /we4700   # uninitialized local variable used
-        /we4706   # assignment within conditional expression
-        /we4554   # check operator precedence for possible error; use parentheses to clarify precedence
-        /w14100   # unreferenced formal parameter
-        /w14189   # local variable is initialized but not referenced
-        /we4456)  # declaration of 'var' hides previous local declaration
-endif()
-string(REPLACE ";" " " E2D_SHARED_CXX_FLAGS "${E2D_SHARED_CXX_FLAGS}")
-
-foreach(config ${E2D_ALL_CXX_CONFIGS})
-    set(${config} "${${config}} ${E2D_SHARED_CXX_FLAGS}")
-endforeach()
-
-#
 # coverage mode
 #
 
@@ -170,6 +124,7 @@ add_subdirectory(modules/curly.hpp)
 set_target_properties(curly.hpp libcurl PROPERTIES FOLDER modules)
 
 add_subdirectory(modules/ecs.hpp)
+add_subdirectory(modules/enum.hpp)
 add_subdirectory(modules/flat.hpp)
 add_subdirectory(modules/promise.hpp)
 
@@ -274,6 +229,7 @@ source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES
 target_link_libraries(${PROJECT_NAME}
     PUBLIC curly.hpp
     PUBLIC ecs.hpp
+    PUBLIC enum.hpp
     PUBLIC flat.hpp
     PUBLIC promise.hpp)
 
@@ -286,12 +242,14 @@ target_link_libraries(${PROJECT_NAME}
 
 target_include_directories(${PROJECT_NAME}
     PUBLIC headers
+    PUBLIC headers/3rdparty
+    PUBLIC headers/3rdparty/lua
     PRIVATE sources)
 
 target_compile_options(${PROJECT_NAME}
     PRIVATE
     $<$<CXX_COMPILER_ID:MSVC>:
-        /W3 /MP>
+        /W3 /MP /bigobj>
     PRIVATE
     $<$<OR:$<CXX_COMPILER_ID:GNU>,$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>>:
         -Wall -Wextra -Wpedantic>

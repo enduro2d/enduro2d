@@ -21,25 +21,25 @@ namespace e2d
         // data access
 
         flipbook_player& time(f32 value) noexcept;
-        f32 time() const noexcept;
+        [[nodiscard]] f32 time() const noexcept;
 
         flipbook_player& speed(f32 value) noexcept;
-        f32 speed() const noexcept;
+        [[nodiscard]] f32 speed() const noexcept;
 
         flipbook_player& looped(bool value) noexcept;
-        bool looped() const noexcept;
+        [[nodiscard]] bool looped() const noexcept;
 
         flipbook_player& stopped(bool value) noexcept;
-        bool stopped() const noexcept;
+        [[nodiscard]] bool stopped() const noexcept;
 
         flipbook_player& playing(bool value) noexcept;
-        bool playing() const noexcept;
+        [[nodiscard]] bool playing() const noexcept;
 
         flipbook_player& sequence(str_hash value) noexcept;
-        str_hash sequence() const noexcept;
+        [[nodiscard]] str_hash sequence() const noexcept;
 
         flipbook_player& flipbook(const flipbook_asset::ptr& value) noexcept;
-        const flipbook_asset::ptr& flipbook() const noexcept;
+        [[nodiscard]] const flipbook_asset::ptr& flipbook() const noexcept;
 
         // helpers
 
@@ -65,7 +65,7 @@ namespace e2d
         bool operator()(
             flipbook_player& component,
             const fill_context& ctx) const;
-            
+
         bool operator()(
             asset_dependencies& dependencies,
             const collect_context& ctx) const;

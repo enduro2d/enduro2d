@@ -19,6 +19,7 @@ namespace e2d
         class application;
         using application_uptr = std::unique_ptr<application>;
     public:
+        class library_parameters;
         class parameters;
     public:
         starter(int argc, char *argv[], const parameters& params);
@@ -42,25 +43,38 @@ namespace e2d
     };
 
     //
+    // starter::library_parameters
+    //
+
+    class starter::library_parameters {
+    public:
+        library_parameters& root(url value) noexcept;
+        url& root() noexcept;
+        const url& root() const noexcept;
+    private:
+        url root_{"resources://bin/library"};
+    };
+
+    //
     // starter::parameters
     //
 
     class starter::parameters {
     public:
         parameters() = delete;
-        parameters(const engine::parameters& engine_params);
+        parameters(engine::parameters engine_params) noexcept;
 
-        parameters& library_root(const url& value);
-        parameters& engine_params(const engine::parameters& value);
+        parameters& engine_params(engine::parameters value) noexcept;
+        parameters& library_params(library_parameters value) noexcept;
 
-        url& library_root() noexcept;
         engine::parameters& engine_params() noexcept;
+        library_parameters& library_params() noexcept;
 
-        const url& library_root() const noexcept;
         const engine::parameters& engine_params() const noexcept;
+        const library_parameters& library_params() const noexcept;
     private:
-        url library_root_{"resources://bin/library"};
         engine::parameters engine_params_;
+        library_parameters library_params_;
     };
 }
 

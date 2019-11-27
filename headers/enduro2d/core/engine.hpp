@@ -53,6 +53,7 @@ namespace e2d
         virtual void shutdown() noexcept;
         virtual bool frame_tick();
         virtual void frame_render();
+        virtual void frame_finalize();
     };
 
     //
@@ -61,7 +62,7 @@ namespace e2d
 
     class engine::debug_parameters {
     public:
-        debug_parameters& log_filename(str_view value);
+        debug_parameters& log_filename(str value) noexcept;
         debug_parameters& file_logging(bool value) noexcept;
         debug_parameters& console_logging(bool value) noexcept;
 
@@ -80,7 +81,7 @@ namespace e2d
 
     class engine::window_parameters {
     public:
-        window_parameters& caption(str_view value);
+        window_parameters& caption(str value) noexcept;
         window_parameters& size(const v2u& value) noexcept;
         window_parameters& vsync(bool value) noexcept;
         window_parameters& resizable(bool value) noexcept;
@@ -122,16 +123,16 @@ namespace e2d
     class engine::parameters {
     public:
         parameters() = delete;
-        parameters(str_view game_name, str_view company_name);
+        parameters(str game_name, str company_name) noexcept;
 
-        parameters& game_name(str_view value);
-        parameters& company_name(str_view value);
+        parameters& game_name(str value) noexcept;
+        parameters& company_name(str value) noexcept;
         parameters& without_audio(bool value);
         parameters& without_network(bool value);
         parameters& without_graphics(bool value);
-        parameters& debug_params(const debug_parameters& value);
-        parameters& window_params(const window_parameters& value);
-        parameters& timer_params(const timer_parameters& value);
+        parameters& debug_params(debug_parameters value) noexcept;
+        parameters& window_params(window_parameters value) noexcept;
+        parameters& timer_params(timer_parameters value) noexcept;
 
         str& game_name() noexcept;
         str& company_name() noexcept;
@@ -144,9 +145,9 @@ namespace e2d
 
         const str& game_name() const noexcept;
         const str& company_name() const noexcept;
-        const bool& without_audio() const noexcept;
-        const bool& without_network() const noexcept;
-        const bool& without_graphics() const noexcept;
+        bool without_audio() const noexcept;
+        bool without_network() const noexcept;
+        bool without_graphics() const noexcept;
         const debug_parameters& debug_params() const noexcept;
         const window_parameters& window_params() const noexcept;
         const timer_parameters& timer_params() const noexcept;

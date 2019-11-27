@@ -207,9 +207,13 @@ namespace
             f32 kerning{0.f};
         };
 
-        static vector<glyph_desc> glyphs;
+        //TODO(BlackMat): replace it to frame allocator
+        static thread_local vector<glyph_desc> glyphs;
         glyphs.clear();
-        glyphs.reserve(text.size());
+
+        if ( glyphs.capacity() < text.size() ) {
+            glyphs.reserve(math::max(glyphs.capacity() * 2u, text.size()));
+        }
 
         for ( std::size_t i = 0, e = text.size(); i < e; ++i ) {
             glyph_desc desc;
@@ -244,9 +248,14 @@ namespace
             : start(start) {}
         };
 
-        static vector<string_desc> strings;
+        //TODO(BlackMat): replace it to frame allocator
+        static thread_local vector<string_desc> strings;
         strings.clear();
-        strings.reserve(calculate_string_count(text));
+
+        const std::size_t string_count = calculate_string_count(text);
+        if ( strings.capacity() < string_count ) {
+            strings.reserve(math::max(strings.capacity() * 2u, string_count));
+        }
 
         f32 last_space_width = 0.f;
         std::size_t last_space_index = std::size_t(-1);

@@ -60,12 +60,15 @@ namespace e2d
     void engine::application::frame_render() {
     }
 
+    void engine::application::frame_finalize() {
+    }
+
     //
     // engine::debug_parameters
     //
 
-    engine::debug_parameters& engine::debug_parameters::log_filename(str_view value) {
-        log_filename_ = value;
+    engine::debug_parameters& engine::debug_parameters::log_filename(str value) noexcept {
+        log_filename_ = std::move(value);
         return *this;
     }
 
@@ -117,8 +120,8 @@ namespace e2d
     // engine::window_parameters
     //
 
-    engine::window_parameters& engine::window_parameters::caption(str_view value) {
-        caption_ = value;
+    engine::window_parameters& engine::window_parameters::caption(str value) noexcept {
+        caption_ = std::move(value);
         return *this;
     }
 
@@ -166,17 +169,17 @@ namespace e2d
     // engine::parameters
     //
 
-    engine::parameters::parameters(str_view game_name, str_view company_name)
-    : game_name_(game_name)
-    , company_name_(company_name) {}
+    engine::parameters::parameters(str game_name, str company_name) noexcept
+    : game_name_(std::move(game_name))
+    , company_name_(std::move(company_name)) {}
 
-    engine::parameters& engine::parameters::game_name(str_view value) {
-        game_name_ = value;
+    engine::parameters& engine::parameters::game_name(str value) noexcept {
+        game_name_ = std::move(value);
         return *this;
     }
 
-    engine::parameters& engine::parameters::company_name(str_view value) {
-        company_name_ = value;
+    engine::parameters& engine::parameters::company_name(str value) noexcept {
+        company_name_ = std::move(value);
         return *this;
     }
 
@@ -195,18 +198,18 @@ namespace e2d
         return *this;
     }
 
-    engine::parameters& engine::parameters::debug_params(const debug_parameters& value) {
-        debug_params_ = value;
+    engine::parameters& engine::parameters::debug_params(debug_parameters value) noexcept {
+        debug_params_ = std::move(value);
         return *this;
     }
 
-    engine::parameters& engine::parameters::window_params(const window_parameters& value) {
-        window_params_ = value;
+    engine::parameters& engine::parameters::window_params(window_parameters value) noexcept {
+        window_params_ = std::move(value);
         return *this;
     }
 
-    engine::parameters& engine::parameters::timer_params(const timer_parameters& value) {
-        timer_params_ = value;
+    engine::parameters& engine::parameters::timer_params(timer_parameters value) noexcept {
+        timer_params_ = std::move(value);
         return *this;
     }
 
@@ -250,15 +253,15 @@ namespace e2d
         return company_name_;
     }
 
-    const bool& engine::parameters::without_audio() const noexcept {
+    bool engine::parameters::without_audio() const noexcept {
         return without_audio_;
     }
 
-    const bool& engine::parameters::without_network() const noexcept {
+    bool engine::parameters::without_network() const noexcept {
         return without_network_;
     }
 
-    const bool& engine::parameters::without_graphics() const noexcept {
+    bool engine::parameters::without_graphics() const noexcept {
         return without_graphics_;
     }
 
@@ -501,6 +504,7 @@ namespace e2d
                     the<window>().swap_buffers();
                 }
 
+                app->frame_finalize();
                 state_->calculate_end_frame_timers();
             } catch ( ... ) {
                 app->shutdown();

@@ -95,16 +95,16 @@ namespace e2d
         return 1.0f;
     }
 
-    void sound_source::position(secf value) noexcept {
+    void sound_source::position(f32 value) noexcept {
         E2D_UNUSED(value);
     }
 
-    secf sound_source::position() const noexcept {
-        return {};
+    f32 sound_source::position() const noexcept {
+        return 0.f;
     }
 
-    secf sound_source::duration() const noexcept {
-        return {};
+    f32 sound_source::duration() const noexcept {
+        return 0.f;
     }
 
     //

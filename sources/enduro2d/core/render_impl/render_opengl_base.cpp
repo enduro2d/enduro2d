@@ -716,51 +716,6 @@ namespace e2d::opengl
 
 namespace e2d::opengl
 {
-    const char* uniform_type_to_cstr(uniform_type ut) noexcept {
-        #define DEFINE_CASE(x) case uniform_type::x: return #x
-        switch ( ut ) {
-            DEFINE_CASE(signed_integer);
-            DEFINE_CASE(floating_point);
-            DEFINE_CASE(v2i);
-            DEFINE_CASE(v3i);
-            DEFINE_CASE(v4i);
-            DEFINE_CASE(v2f);
-            DEFINE_CASE(v3f);
-            DEFINE_CASE(v4f);
-            DEFINE_CASE(m2f);
-            DEFINE_CASE(m3f);
-            DEFINE_CASE(m4f);
-            DEFINE_CASE(sampler_2d);
-            DEFINE_CASE(sampler_cube);
-            DEFINE_CASE(unknown);
-            default:
-                E2D_ASSERT_MSG(false, "unexpected uniform type");
-                return "";
-        }
-        #undef DEFINE_CASE
-    }
-
-    const char* attribute_type_to_cstr(attribute_type at) noexcept {
-        #define DEFINE_CASE(x) case attribute_type::x: return #x
-        switch ( at ) {
-            DEFINE_CASE(floating_point);
-            DEFINE_CASE(v2f);
-            DEFINE_CASE(v3f);
-            DEFINE_CASE(v4f);
-            DEFINE_CASE(m2f);
-            DEFINE_CASE(m3f);
-            DEFINE_CASE(m4f);
-            DEFINE_CASE(unknown);
-            default:
-                E2D_ASSERT_MSG(false, "unexpected attribute type");
-                return "";
-        }
-        #undef DEFINE_CASE
-    }
-}
-
-namespace e2d::opengl
-{
     GLenum convert_image_data_format_to_external_format(image_data_format f) noexcept {
         #define DEFINE_CASE(x,y) case image_data_format::x: return y
         switch ( f ) {

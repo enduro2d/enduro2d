@@ -26,7 +26,7 @@ namespace e2d
         return library.load_asset_async<text_asset>(address)
         .then([](const text_asset::load_result& json_data){
             return the<deferrer>().do_in_worker_thread([json_data](){
-                auto json = std::make_unique<rapidjson::Document>();
+                auto json = std::make_shared<rapidjson::Document>();
                 if ( json->Parse(json_data->content().c_str()).HasParseError() ) {
                     throw json_asset_loading_exception();
                 }

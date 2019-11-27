@@ -92,60 +92,69 @@ namespace
             }
 
             auto scene_i = the<world>().instantiate();
-
-            scene_i->entity_filler()
-                .component<scene>()
-                .component<actor>(node::create(scene_i));
-
-            node_iptr scene_r = scene_i->get_component<actor>().get().node();
+            scene_i.component<scene>().assign();
 
             {
-                auto model_i = the<world>().instantiate();
-
-                model_i->entity_filler()
+                prefab prefab;
+                prefab.prototype()
                     .component<rotator>(rotator{v3f::unit_y()})
-                    .component<actor>(node::create(model_i, scene_r))
-                    .component<renderer>(renderer()
-                        .materials({model_mat}))
+                    .component<renderer>(renderer().materials({model_mat}))
                     .component<model_renderer>(model_res);
 
-                node_iptr model_n = model_i->get_component<actor>().get().node();
-                model_n->scale(v3f{20.f});
-                model_n->translation(v3f{0.f,50.f,0.f});
+                the<world>().instantiate(
+                    prefab,
+                    scene_i.component<actor>()->node(),
+                    make_trs3(v3f{0,50.f,0}, q4f::identity(), v3f{20.f}));
             }
 
             {
-                auto sprite_i = the<world>().instantiate();
-
-                sprite_i->entity_filler()
+                prefab prefab;
+                prefab.prototype()
                     .component<rotator>(rotator{v3f::unit_z()})
-                    .component<actor>(node::create(sprite_i, scene_r))
                     .component<renderer>()
                     .component<sprite_renderer>(sprite_renderer(sprite_res)
                         .materials({{"normal", sprite_mat}}));
 
-                node_iptr sprite_n = sprite_i->get_component<actor>().get().node();
-                sprite_n->translation(v3f{0,-50.f,0});
+                the<world>().instantiate(
+                    prefab,
+                    scene_i.component<actor>()->node(),
+                    math::make_translation_trs3(v3f{0,-50.f,0}));
             }
 
             {
+                prefab prefab_a;
+                prefab_a.prototype()
+                    .component<rotator>(rotator{v3f::unit_z()})
+                    .component<renderer>()
+                    .component<sprite_renderer>(sprite_renderer()
+                        .filtering(false)
+                        .materials({{"normal", sprite_mat}}))
+                    .component<flipbook_player>(flipbook_player(flipbook_res)
+                        .play("idle")
+                        .looped(true));
+
                 for ( std::size_t i = 0; i < 2; ++i )
                 for ( std::size_t j = 0; j < 5; ++j ) {
-                    auto flipbook_i = the<world>().instantiate();
+                    t3f trans{
+                        {-80.f + j * 40.f, -200.f + i * 40.f, 0},
+                        q4f::identity(),
+                        {2.f,2.f,1.f}};
+                    gobject inst = the<world>().instantiate(
+                        prefab_a,
+                        scene_i.component<actor>()->node(),
+                        trans);
 
-                    flipbook_i->entity_filler()
-                        .component<actor>(node::create(flipbook_i, scene_r))
-                        .component<renderer>()
-                        .component<sprite_renderer>(sprite_renderer()
-                            .filtering(false)
-                            .materials({{"normal", sprite_mat}}))
-                        .component<flipbook_player>(flipbook_player(flipbook_res)
-                            .play("idle")
-                            .looped(true));
+                    prefab prefab_b = prefab_a;
+                    prefab_b.prototype()
+                        .component<rotator>(rotator{v3f::unit_z()})
+                        .component<actor>(node::create(make_trs3(
+                            v3f{20.f,0.f,0.f},
+                            q4f::identity(),
+                            v3f{0.3f,0.3f,3.f})));
 
-                    node_iptr flipbook_n = flipbook_i->get_component<actor>().get().node();
-                    flipbook_n->scale(v3f(2.f,2.f,1.f));
-                    flipbook_n->translation(v3f{-80.f + j * 40.f, -200.f + i * 40.f, 0});
+                    the<world>().instantiate(
+                        prefab_b,
+                        inst.component<actor>()->node());
                 }
             }
 
@@ -154,10 +163,9 @@ namespace
 
         bool create_camera() {
             auto camera_i = the<world>().instantiate();
-            camera_i->entity_filler()
-                .component<camera>(camera()
-                    .background({1.f, 0.4f, 0.f, 1.f}))
-                .component<actor>(node::create(camera_i));
+            camera_i.component<camera>().assign(camera()
+                .background({1.f, 0.4f, 0.f, 1.f}));
+            camera_i.component<actor>().assign(node::create(camera_i));
             return true;
         }
 

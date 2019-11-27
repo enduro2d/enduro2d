@@ -11,7 +11,6 @@ namespace
     using namespace e2d;
 
     struct pixel_type_description {
-        const char* cstr;
         u32 bytes_per_block;
         bool color;
         bool depth;
@@ -22,39 +21,39 @@ namespace
     };
 
     const pixel_type_description pixel_type_descriptions[] = {
-        {"depth16",           2, false, true,  false, pixel_declaration::pixel_type::depth16,          false, v2u(1,1)},
-        {"depth24",           3, false, true,  false, pixel_declaration::pixel_type::depth24,          false, v2u(1,1)},
-        {"depth24_stencil8",  4, false, true,  true,  pixel_declaration::pixel_type::depth24_stencil8, false, v2u(1,1)},
+        {2,  false, true,  false, pixel_declaration::pixel_type::depth16,          false, v2u(1,1)},
+        {3,  false, true,  false, pixel_declaration::pixel_type::depth24,          false, v2u(1,1)},
+        {4,  false, true,  true,  pixel_declaration::pixel_type::depth24_stencil8, false, v2u(1,1)},
 
-        {"a8",                1, true,  false, false, pixel_declaration::pixel_type::a8,               false, v2u(1,1)},
-        {"l8",                1, true,  false, false, pixel_declaration::pixel_type::l8,               false, v2u(1,1)},
-        {"la8",               2, true,  false, false, pixel_declaration::pixel_type::la8,              false, v2u(1,1)},
-        {"rgb8",              3, true,  false, false, pixel_declaration::pixel_type::rgb8,             false, v2u(1,1)},
-        {"rgba8",             4, true,  false, false, pixel_declaration::pixel_type::rgba8,            false, v2u(1,1)},
+        {1,  true,  false, false, pixel_declaration::pixel_type::a8,               false, v2u(1,1)},
+        {1,  true,  false, false, pixel_declaration::pixel_type::l8,               false, v2u(1,1)},
+        {2,  true,  false, false, pixel_declaration::pixel_type::la8,              false, v2u(1,1)},
+        {3,  true,  false, false, pixel_declaration::pixel_type::rgb8,             false, v2u(1,1)},
+        {4,  true,  false, false, pixel_declaration::pixel_type::rgba8,            false, v2u(1,1)},
 
-        {"rgba_dxt1",         8, true,  false, false, pixel_declaration::pixel_type::rgba_dxt1,        true,  v2u(4,4)},
-        {"rgba_dxt3",        16, true,  false, false, pixel_declaration::pixel_type::rgba_dxt3,        true,  v2u(4,4)},
-        {"rgba_dxt5",        16, true,  false, false, pixel_declaration::pixel_type::rgba_dxt5,        true,  v2u(4,4)},
+        {8,  true,  false, false, pixel_declaration::pixel_type::rgba_dxt1,        true,  v2u(4,4)},
+        {16, true,  false, false, pixel_declaration::pixel_type::rgba_dxt3,        true,  v2u(4,4)},
+        {16, true,  false, false, pixel_declaration::pixel_type::rgba_dxt5,        true,  v2u(4,4)},
 
-        {"rgb_etc1",          8, true,  false, false, pixel_declaration::pixel_type::rgb_etc1,         true,  v2u(4,4)},
-        {"rgb_etc2",          8, true,  false, false, pixel_declaration::pixel_type::rgb_etc2,         true,  v2u(4,4)},
-        {"rgba_etc2",        16, true,  false, false, pixel_declaration::pixel_type::rgba_etc2,        true,  v2u(4,4)},
-        {"rgb_a1_etc2",       8, true,  false, false, pixel_declaration::pixel_type::rgb_a1_etc2,      true,  v2u(4,4)},
+        {8,  true,  false, false, pixel_declaration::pixel_type::rgb_etc1,         true,  v2u(4,4)},
+        {8,  true,  false, false, pixel_declaration::pixel_type::rgb_etc2,         true,  v2u(4,4)},
+        {16, true,  false, false, pixel_declaration::pixel_type::rgba_etc2,        true,  v2u(4,4)},
+        {8,  true,  false, false, pixel_declaration::pixel_type::rgb_a1_etc2,      true,  v2u(4,4)},
 
-        {"rgba_astc4x4",     16, true,  false, false, pixel_declaration::pixel_type::rgba_astc4x4,     true,  v2u(4,4)},
-        {"rgba_astc5x5",     16, true,  false, false, pixel_declaration::pixel_type::rgba_astc5x5,     true,  v2u(5,5)},
-        {"rgba_astc6x6",     16, true,  false, false, pixel_declaration::pixel_type::rgba_astc6x6,     true,  v2u(6,6)},
-        {"rgba_astc8x8",     16, true,  false, false, pixel_declaration::pixel_type::rgba_astc8x8,     true,  v2u(8,8)},
-        {"rgba_astc10x10",   16, true,  false, false, pixel_declaration::pixel_type::rgba_astc10x10,   true,  v2u(10,10)},
-        {"rgba_astc12x12",   16, true,  false, false, pixel_declaration::pixel_type::rgba_astc12x12,   true,  v2u(12,12)},
+        {16, true,  false, false, pixel_declaration::pixel_type::rgba_astc4x4,     true,  v2u(4,4)},
+        {16, true,  false, false, pixel_declaration::pixel_type::rgba_astc5x5,     true,  v2u(5,5)},
+        {16, true,  false, false, pixel_declaration::pixel_type::rgba_astc6x6,     true,  v2u(6,6)},
+        {16, true,  false, false, pixel_declaration::pixel_type::rgba_astc8x8,     true,  v2u(8,8)},
+        {16, true,  false, false, pixel_declaration::pixel_type::rgba_astc10x10,   true,  v2u(10,10)},
+        {16, true,  false, false, pixel_declaration::pixel_type::rgba_astc12x12,   true,  v2u(12,12)},
 
-        {"rgb_pvrtc2",        8, true,  false, false, pixel_declaration::pixel_type::rgb_pvrtc2,       true,  v2u(8,4)},
-        {"rgb_pvrtc4",        8, true,  false, false, pixel_declaration::pixel_type::rgb_pvrtc4,       true,  v2u(4,4)},
-        {"rgba_pvrtc2",       8, true,  false, false, pixel_declaration::pixel_type::rgba_pvrtc2,      true,  v2u(8,4)},
-        {"rgba_pvrtc4",       8, true,  false, false, pixel_declaration::pixel_type::rgba_pvrtc4,      true,  v2u(4,4)},
+        {8,  true,  false, false, pixel_declaration::pixel_type::rgb_pvrtc2,       true,  v2u(8,4)},
+        {8,  true,  false, false, pixel_declaration::pixel_type::rgb_pvrtc4,       true,  v2u(4,4)},
+        {8,  true,  false, false, pixel_declaration::pixel_type::rgba_pvrtc2,      true,  v2u(8,4)},
+        {8,  true,  false, false, pixel_declaration::pixel_type::rgba_pvrtc4,      true,  v2u(4,4)},
 
-        {"rgba_pvrtc2_v2",    8, true,  false, false, pixel_declaration::pixel_type::rgba_pvrtc2_v2,   true,  v2u(8,4)},
-        {"rgba_pvrtc4_v2",    8, true,  false, false, pixel_declaration::pixel_type::rgba_pvrtc4_v2,   true,  v2u(4,4)}
+        {8,  true,  false, false, pixel_declaration::pixel_type::rgba_pvrtc2_v2,   true,  v2u(8,4)},
+        {8,  true,  false, false, pixel_declaration::pixel_type::rgba_pvrtc4_v2,   true,  v2u(4,4)}
     };
 
     const pixel_type_description& get_pixel_type_description(pixel_declaration::pixel_type type) noexcept {
@@ -63,18 +62,6 @@ namespace
         const pixel_type_description& desc = pixel_type_descriptions[index];
         E2D_ASSERT(desc.type == type);
         return desc;
-    }
-
-    const char* index_element_cstr(index_declaration::index_type it) noexcept {
-        #define DEFINE_CASE(x) case index_declaration::index_type::x: return #x;
-        switch ( it ) {
-            DEFINE_CASE(unsigned_short);
-            DEFINE_CASE(unsigned_int);
-            default:
-                E2D_ASSERT_MSG(false, "unexpected index type");
-                return "";
-        }
-        #undef DEFINE_CASE
     }
 
     std::size_t index_element_size(index_declaration::index_type it) noexcept {
@@ -139,10 +126,6 @@ namespace e2d
     // pixel_declaration
     //
 
-    const char* pixel_declaration::pixel_type_to_cstr(pixel_type pt) noexcept {
-        return get_pixel_type_description(pt).cstr;
-    }
-
     pixel_declaration::pixel_declaration(pixel_type type) noexcept
     : type_(type) {}
 
@@ -193,10 +176,6 @@ namespace e2d
     //
     // index_declaration
     //
-
-    const char* index_declaration::index_type_to_cstr(index_type it) noexcept {
-        return index_element_cstr(it);
-    }
 
     index_declaration::index_declaration(index_type type) noexcept
     : type_(type) {}

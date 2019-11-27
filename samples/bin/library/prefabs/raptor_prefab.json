@@ -4,7 +4,7 @@
         "spine_player" : {
             "spine" : "../spines/raptor_spine.json"
         },
-        "spine_player_cmd" : {
+        "spine_player_commands" : {
             "commands" : [{
                 "type" : "add_anim_cmd",
                 "desc" : {

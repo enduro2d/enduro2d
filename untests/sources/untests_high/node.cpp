@@ -28,7 +28,7 @@ namespace
             ++s_ctor_count;
         }
 
-        fake_node(const gobject_iptr& owner) : node(owner) {
+        fake_node(gobject owner) : node(std::move(owner)) {
             ++s_ctor_count;
         }
 
@@ -617,13 +617,13 @@ TEST_CASE("node") {
         const vector<node_iptr> ns{p, c1, c2, c3};
         {
             vector<node_iptr> ns2;
-            REQUIRE(4u == p->extract_all_nodes(std::back_inserter(ns2)));
+            REQUIRE(4u == nodes::extract_nodes(p, std::back_inserter(ns2)));
             REQUIRE(ns == ns2);
         }
         {
             const_node_iptr cp = p;
             vector<const_node_iptr> ns2;
-            REQUIRE(4u == cp->extract_all_nodes(std::back_inserter(ns2)));
+            REQUIRE(4u == nodes::extract_nodes(cp, std::back_inserter(ns2)));
             REQUIRE(ns.size() == ns2.size());
             for ( std::size_t i = 0; i < ns.size(); ++i ) {
                 REQUIRE(ns[i] == ns2[i]);

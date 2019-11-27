@@ -73,7 +73,7 @@ namespace
     struct animation_mix {
         str from;
         str to;
-        secf duration;
+        f32 duration{0.f};
     };
 
     animation_mix parse_animation_mix(const rapidjson::Value& root) {
@@ -262,7 +262,7 @@ namespace
             }
         }
 
-        secf default_animation_mix{0.5f};
+        f32 default_animation_mix{0.5f};
         if ( root.HasMember("default_animation_mix") ) {
             if ( !json_utils::try_parse_value(root["default_animation_mix"], default_animation_mix) ) {
                 the<debug>().error("SPINE: Incorrect formating of 'default_animation_mix' property");

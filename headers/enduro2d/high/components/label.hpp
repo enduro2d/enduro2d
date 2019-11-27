@@ -18,27 +18,19 @@ namespace e2d
         class dirty final {
         };
     public:
-        enum class haligns {
-            left,
-            center,
-            right
-        };
+        ENUM_HPP_CLASS_DECL(haligns, u8,
+            (left)
+            (center)
+            (right))
 
-        enum class valigns {
-            top,
-            center,
-            bottom,
-            baseline
-        };
+        ENUM_HPP_CLASS_DECL(valigns, u8,
+            (top)
+            (center)
+            (bottom)
+            (baseline))
     public:
         label() = default;
         label(const font_asset::ptr& font);
-
-        label(label&& other) noexcept;
-        label& operator=(label&& other) noexcept;
-
-        label(const label& other);
-        label& operator=(const label& other);
 
         label& text(str value) noexcept;
         [[nodiscard]] const str& text() const noexcept;
@@ -49,10 +41,10 @@ namespace e2d
         label& tint(const color32& value) noexcept;
         [[nodiscard]] const color32& tint() const noexcept;
 
-        label& haligh(haligns value) noexcept;
+        label& halign(haligns value) noexcept;
         [[nodiscard]] haligns halign() const noexcept;
 
-        label& valigh(valigns value) noexcept;
+        label& valign(valigns value) noexcept;
         [[nodiscard]] valigns valign() const noexcept;
 
         label& leading(f32 value) noexcept;
@@ -115,70 +107,13 @@ namespace e2d
     };
 }
 
+ENUM_HPP_REGISTER_TRAITS(e2d::label::haligns)
+ENUM_HPP_REGISTER_TRAITS(e2d::label::valigns)
+
 namespace e2d
 {
     inline label::label(const font_asset::ptr& value)
     : font_(value) {}
-
-    inline label::label(label&& other) noexcept
-    : text_(std::move(other.text_))
-    , font_(std::move(other.font_))
-    , tint_(other.tint_)
-    , halign_(other.halign_)
-    , valign_(other.valign_)
-    , leading_(other.leading_)
-    , tracking_(other.tracking_)
-    , text_width_(other.text_width_)
-    , glyph_dilate_(other.glyph_dilate_)
-    , outline_width_(other.outline_width_)
-    , outline_color_(other.outline_color_) {}
-
-    inline label& label::operator=(label&& other) noexcept {
-        if ( this != &other ) {
-            text_ = std::move(other.text_);
-            font_ = std::move(other.font_);
-            tint_ = other.tint_;
-            halign_ = other.halign_;
-            valign_ = other.valign_;
-            leading_ = other.leading_;
-            tracking_ = other.tracking_;
-            text_width_ = other.text_width_;
-            glyph_dilate_ = other.glyph_dilate_;
-            outline_width_ = other.outline_width_;
-            outline_color_ = other.outline_color_;
-        }
-        return *this;
-    }
-
-    inline label::label(const label& other)
-    : text_(other.text_)
-    , font_(other.font_)
-    , tint_(other.tint_)
-    , halign_(other.halign_)
-    , valign_(other.valign_)
-    , leading_(other.leading_)
-    , tracking_(other.tracking_)
-    , text_width_(other.text_width_)
-    , glyph_dilate_(other.glyph_dilate_)
-    , outline_width_(other.outline_width_)
-    , outline_color_(other.outline_color_) {}
-
-    inline label& label::operator=(const label& other) {
-        if ( this != &other ) {
-            text_ = other.text_;
-            font_ = other.font_;
-            tint_ = other.tint_;
-            halign_ = other.halign_;
-            valign_ = other.valign_;
-            leading_ = other.leading_;
-            tracking_ = other.tracking_;
-            text_width_ = other.text_width_;
-            glyph_dilate_ = other.glyph_dilate_;
-            outline_width_ = other.outline_width_;
-            outline_color_ = other.outline_color_;
-        }
-        return *this;
-    }
 
     inline label& label::text(str value) noexcept {
         text_ = std::move(value);
@@ -207,7 +142,7 @@ namespace e2d
         return tint_;
     }
 
-    inline label& label::haligh(haligns value) noexcept {
+    inline label& label::halign(haligns value) noexcept {
         halign_ = value;
         return *this;
     }
@@ -216,7 +151,7 @@ namespace e2d
         return halign_;
     }
 
-    inline label& label::valigh(valigns value) noexcept {
+    inline label& label::valign(valigns value) noexcept {
         valign_ = value;
         return *this;
     }

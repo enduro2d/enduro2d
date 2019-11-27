@@ -28,18 +28,20 @@ namespace e2d
             {1, 0},
             {0, 1}};
     public:
-        static const mat2& zero() noexcept;
-        static const mat2& identity() noexcept;
+        static constexpr mat2 zero() noexcept;
+        static constexpr mat2 identity() noexcept;
     public:
-        mat2() noexcept = default;
-        mat2(const mat2& other) noexcept = default;
-        mat2& operator=(const mat2& other) noexcept = default;
+        constexpr mat2() noexcept = default;
+        constexpr mat2(const mat2& other) noexcept = default;
+        constexpr mat2& operator=(const mat2& other) noexcept = default;
 
-        mat2(const vec2<T>& row0,
-             const vec2<T>& row1) noexcept;
+        constexpr mat2(
+            const vec2<T>& row0,
+            const vec2<T>& row1) noexcept;
 
-        mat2(T m11, T m12,
-             T m21, T m22) noexcept;
+        constexpr mat2(
+            T m11, T m12,
+            T m21, T m22) noexcept;
 
         template < typename To >
         mat2<To> cast_to() const noexcept;
@@ -61,29 +63,27 @@ namespace e2d
 namespace e2d
 {
     template < typename T >
-    const mat2<T>& mat2<T>::zero() noexcept {
-        static const mat2<T> zero{
+    constexpr mat2<T> mat2<T>::zero() noexcept {
+        return {
             0, 0,
             0, 0};
-        return zero;
     }
 
     template < typename T >
-    const mat2<T>& mat2<T>::identity() noexcept {
-        static const mat2<T> identity{
+    constexpr mat2<T> mat2<T>::identity() noexcept {
+        return {
             1, 0,
             0, 1};
-        return identity;
     }
 
     template < typename T >
-    mat2<T>::mat2(
+    constexpr mat2<T>::mat2(
         const vec2<T>& row0,
         const vec2<T>& row1) noexcept
     : rows{row0, row1} {}
 
     template < typename T >
-    mat2<T>::mat2(
+    constexpr mat2<T>::mat2(
         T m11, T m12,
         T m21, T m22) noexcept
     : rows{{m11, m12},
@@ -147,7 +147,7 @@ namespace e2d
     //
 
     template < typename T >
-    mat2<T> make_mat2(
+    constexpr mat2<T> make_mat2(
         const vec2<T>& row0,
         const vec2<T>& row1) noexcept
     {
@@ -155,7 +155,7 @@ namespace e2d
     }
 
     template < typename T >
-    mat2<T> make_mat2(
+    constexpr mat2<T> make_mat2(
         T m11, T m12,
         T m21, T m22) noexcept
     {
@@ -312,6 +312,21 @@ namespace e2d::math
     }
 
     //
+    // approximately
+    //
+
+    template < typename T >
+    bool approximately(
+        const mat2<T>& l,
+        const mat2<T>& r,
+        T precision = math::default_precision<T>()) noexcept
+    {
+        return
+            math::approximately(l.rows[0], r.rows[0], precision) &&
+            math::approximately(l.rows[1], r.rows[1], precision);
+    }
+
+    //
     // inversed
     //
 
@@ -348,5 +363,16 @@ namespace e2d::math
         return {
             mm[0], mm[2],
             mm[1], mm[3]};
+    }
+
+    //
+    // contains_nan
+    //
+
+    template < typename T >
+    bool contains_nan(const mat2<T>& v) noexcept {
+        return
+            math::contains_nan(v.rows[0]) ||
+            math::contains_nan(v.rows[1]);
     }
 }

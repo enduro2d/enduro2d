@@ -1,4 +1,6 @@
 -Iheaders
+-Iheaders/3rdparty
+-Iheaders/3rdparty/lua
 -Isources
 
 -Imodules/ecs.hpp/headers

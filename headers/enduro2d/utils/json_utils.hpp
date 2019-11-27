@@ -67,6 +67,20 @@ namespace e2d::json_utils
 
     template < typename T >
     std::enable_if_t<
+        std::is_enum_v<T>, bool>
+    try_parse_value(const rapidjson::Value& root, T& v) noexcept {
+        if ( !root.IsString() ) {
+            return false;
+        }
+        if ( auto vo = enum_hpp::from_string<T>(root.GetString()) ) {
+            v = *vo;
+            return true;
+        }
+        return false;
+    }
+
+    template < typename T >
+    std::enable_if_t<
         std::is_integral_v<T> &&
         std::is_signed_v<T>, bool>
     try_parse_value(const rapidjson::Value& root, T& v) noexcept {

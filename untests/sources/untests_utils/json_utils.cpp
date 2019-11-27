@@ -92,7 +92,12 @@ namespace
         "f_" : "hi",
 
         "vv" : [1,2,2,3],
-        "vv_" : "hello"
+        "vv_" : "hello",
+
+        "e0" : "pvr",
+        "e0_" : "hello",
+        "e1" : "rgb_etc1",
+        "e1_" : "hello"
     })json";
 }
 
@@ -101,28 +106,28 @@ TEST_CASE("json_utils") {
     REQUIRE_FALSE(doc.Parse(json_source).HasParseError());
     REQUIRE(doc.IsObject());
     {
-        bool t;
+        bool t = false;
         REQUIRE(json_utils::try_parse_value(doc["tt"], t));
         REQUIRE(t);
 
-        bool f;
+        bool f = true;
         REQUIRE(json_utils::try_parse_value(doc["ff"], f));
         REQUIRE_FALSE(f);
 
         REQUIRE_FALSE(json_utils::try_parse_value(doc["tt_"], t));
         REQUIRE_FALSE(json_utils::try_parse_value(doc["ff_"], f));
 
-        int i;
+        int i = 0;
         REQUIRE(json_utils::try_parse_value(doc["i"], i));
         REQUIRE(i == 42);
         REQUIRE_FALSE(json_utils::try_parse_value(doc["i_"], i));
 
-        unsigned u;
+        unsigned u = 0;
         REQUIRE(json_utils::try_parse_value(doc["u"], u));
         REQUIRE(u == 42);
         REQUIRE_FALSE(json_utils::try_parse_value(doc["u_"], u));
 
-        float ff;
+        float ff = 0.f;
         REQUIRE(json_utils::try_parse_value(doc["f0"], ff));
         REQUIRE(math::approximately(ff, 1.2f));
         REQUIRE(json_utils::try_parse_value(doc["f1"], ff));
@@ -432,5 +437,19 @@ TEST_CASE("json_utils") {
 
         REQUIRE(v5 == v5_);
         REQUIRE(v6 == v6_);
+    }
+    {
+        image_file_format e0 = image_file_format::dds;
+        image_data_format e1 = image_data_format::a8;
+
+        REQUIRE_FALSE(json_utils::try_parse_value(doc["e0_"], e0));
+        REQUIRE(e0 == image_file_format::dds);
+        REQUIRE(json_utils::try_parse_value(doc["e0"], e0));
+        REQUIRE(e0 == image_file_format::pvr);
+
+        REQUIRE_FALSE(json_utils::try_parse_value(doc["e1_"], e1));
+        REQUIRE(e1 == image_data_format::a8);
+        REQUIRE(json_utils::try_parse_value(doc["e1"], e1));
+        REQUIRE(e1 == image_data_format::rgb_etc1);
     }
 }

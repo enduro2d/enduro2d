@@ -6,6 +6,7 @@
 
 #include "render_system_drawer.hpp"
 
+#include <enduro2d/high/components/disabled.hpp>
 #include <enduro2d/high/components/model_renderer.hpp>
 #include <enduro2d/high/components/renderer.hpp>
 #include <enduro2d/high/components/spine_player.hpp>
@@ -79,28 +80,33 @@ namespace e2d::render_system_impl
         batcher_.clear(true);
     }
 
-    void drawer::context::draw(
-        const const_node_iptr& node)
-    {
+    void drawer::context::draw(const const_node_iptr& node) {
         if ( !node || !node->owner() ) {
             return;
         }
 
-        E2D_ASSERT(node->owner()->entity().valid());
-        ecs::const_entity node_e = node->owner()->entity();
-        const renderer* node_r = node_e.find_component<renderer>();
+        const gobject& owner = node->owner();
+        gcomponent<renderer> node_r{owner};
 
-        if ( node_r && node_r->enabled() ) {
-            if ( auto mdl_r = node_e.find_component<model_renderer>() ) {
-                draw(node, *node_r, *mdl_r);
-            }
-            if ( auto spn_p = node_e.find_component<spine_player>() ) {
-                draw(node, *node_r, *spn_p);
-            }
-            if ( auto spr_r = node_e.find_component<sprite_renderer>() ) {
-                draw(node, *node_r, *spr_r);
-            }
+        if ( !node_r || owner.component<disabled<renderer>>() ) {
+            return;
         }
+
+        if ( auto mdl_r = gcomponent<model_renderer>{owner} ) {
+            draw(node, *node_r, *mdl_r);
+        }
+
+        if ( auto spn_p = gcomponent<spine_player>{owner} ) {
+            draw(node, *node_r, *spn_p);
+        }
+
+        if ( auto spr_r = gcomponent<sprite_renderer>{owner} ) {
+            draw(node, *node_r, *spr_r);
+        }
+    }
+
+    void drawer::context::flush() {
+        batcher_.flush();
     }
 
     void drawer::context::draw(
@@ -108,10 +114,6 @@ namespace e2d::render_system_impl
         const renderer& node_r,
         const model_renderer& mdl_r)
     {
-        if ( !node || !node_r.enabled() ) {
-            return;
-        }
-
         if ( !mdl_r.model() || !mdl_r.model()->content().mesh() ) {
             return;
         }
@@ -153,12 +155,9 @@ namespace e2d::render_system_impl
         const renderer& node_r,
         const spine_player& spine_r)
     {
-        static std::vector<float> temp_vertices(1000u, 0.f);
-        static std::vector<batcher_type::vertex_type> batch_vertices(1000u);
-
-        if ( !node || !node_r.enabled() ) {
-            return;
-        }
+        //TODO(BlackMat): replace it to frame allocator
+        static thread_local std::vector<float> temp_vertices(1000u, 0.f);
+        static thread_local std::vector<batcher_type::vertex_type> batch_vertices(1000u);
 
         spSkeleton* skeleton = spine_r.skeleton().get();
         spSkeletonClipping* clipper = spine_r.clipper().get();
@@ -188,10 +187,10 @@ namespace e2d::render_system_impl
                 continue;
             }
 
-            int vertex_count = 0;
             float* uvs = nullptr;
             unsigned short* indices = nullptr;
-            int index_count = 0;
+            std::size_t index_count = 0;
+            std::size_t vertex_count = 0;
             const spAtlasPage* atlas_page = nullptr;
             const spColor* attachment_color = nullptr;
 
@@ -206,8 +205,8 @@ namespace e2d::render_system_impl
 
                 try {
                     vertex_count = 8;
-                    if ( vertex_count > math::numeric_cast<int>(temp_vertices.size()) ) {
-                        temp_vertices.resize(vertex_count);
+                    if ( temp_vertices.size() < vertex_count ) {
+                        temp_vertices.resize(math::max(temp_vertices.size() * 2u, vertex_count));
                     }
                 } catch (...) {
                     property_cache_.clear();
@@ -237,8 +236,8 @@ namespace e2d::render_system_impl
 
                 try {
                     vertex_count = mesh->super.worldVerticesLength;
-                    if ( vertex_count > math::numeric_cast<int>(temp_vertices.size()) ) {
-                        temp_vertices.resize(vertex_count);
+                    if ( temp_vertices.size() < vertex_count ) {
+                        temp_vertices.resize(math::max(temp_vertices.size() * 2u, vertex_count));
                     }
                 } catch (...) {
                     property_cache_.clear();
@@ -274,66 +273,74 @@ namespace e2d::render_system_impl
 
             texture_ptr tex_p;
             const texture_asset* texture_asset_ptr = atlas_page
-                ? static_cast<texture_asset*>(atlas_page->rendererObject)
+                ? static_cast<const texture_asset*>(atlas_page->rendererObject)
                 : nullptr;
             if ( texture_asset_ptr ) {
                 tex_p = texture_asset_ptr->content();
             }
 
             render::sampler_min_filter tex_min_f = render::sampler_min_filter::linear;
-            switch ( atlas_page->minFilter ) {
-            case SP_ATLAS_NEAREST:
-            case SP_ATLAS_MIPMAP_NEAREST_LINEAR:
-            case SP_ATLAS_MIPMAP_NEAREST_NEAREST:
-                tex_min_f = render::sampler_min_filter::nearest;
-                break;
-            default:
-                tex_min_f = render::sampler_min_filter::linear;
-                break;
+            if ( atlas_page ) {
+                switch ( atlas_page->minFilter ) {
+                case SP_ATLAS_NEAREST:
+                case SP_ATLAS_MIPMAP_NEAREST_LINEAR:
+                case SP_ATLAS_MIPMAP_NEAREST_NEAREST:
+                    tex_min_f = render::sampler_min_filter::nearest;
+                    break;
+                default:
+                    tex_min_f = render::sampler_min_filter::linear;
+                    break;
+                }
             }
 
             render::sampler_mag_filter tex_mag_f = render::sampler_mag_filter::linear;
-            switch ( atlas_page->magFilter ) {
-            case SP_ATLAS_NEAREST:
-            case SP_ATLAS_MIPMAP_NEAREST_LINEAR:
-            case SP_ATLAS_MIPMAP_NEAREST_NEAREST:
-                tex_mag_f = render::sampler_mag_filter::nearest;
-                break;
-            default:
-                tex_mag_f = render::sampler_mag_filter::linear;
-                break;
+            if ( atlas_page ) {
+                switch ( atlas_page->magFilter ) {
+                case SP_ATLAS_NEAREST:
+                case SP_ATLAS_MIPMAP_NEAREST_LINEAR:
+                case SP_ATLAS_MIPMAP_NEAREST_NEAREST:
+                    tex_mag_f = render::sampler_mag_filter::nearest;
+                    break;
+                default:
+                    tex_mag_f = render::sampler_mag_filter::linear;
+                    break;
+                }
             }
 
             render::sampler_wrap tex_wrap_s = render::sampler_wrap::repeat;
-            switch ( atlas_page->uWrap ) {
-            case SP_ATLAS_MIRROREDREPEAT:
-                tex_wrap_s = render::sampler_wrap::mirror;
-                break;
-            case SP_ATLAS_CLAMPTOEDGE:
-                tex_wrap_s = render::sampler_wrap::clamp;
-                break;
-            case SP_ATLAS_REPEAT:
-                tex_wrap_s = render::sampler_wrap::repeat;
-                break;
-            default:
-                E2D_ASSERT_MSG(false, "unexpected wrap mode for slot");
-                break;
+            if ( atlas_page ) {
+                switch ( atlas_page->uWrap ) {
+                case SP_ATLAS_MIRROREDREPEAT:
+                    tex_wrap_s = render::sampler_wrap::mirror;
+                    break;
+                case SP_ATLAS_CLAMPTOEDGE:
+                    tex_wrap_s = render::sampler_wrap::clamp;
+                    break;
+                case SP_ATLAS_REPEAT:
+                    tex_wrap_s = render::sampler_wrap::repeat;
+                    break;
+                default:
+                    E2D_ASSERT_MSG(false, "unexpected wrap mode for slot");
+                    break;
+                }
             }
 
             render::sampler_wrap tex_wrap_t = render::sampler_wrap::repeat;
-            switch ( atlas_page->vWrap ) {
-            case SP_ATLAS_MIRROREDREPEAT:
-                tex_wrap_t = render::sampler_wrap::mirror;
-                break;
-            case SP_ATLAS_CLAMPTOEDGE:
-                tex_wrap_t = render::sampler_wrap::clamp;
-                break;
-            case SP_ATLAS_REPEAT:
-                tex_wrap_t = render::sampler_wrap::repeat;
-                break;
-            default:
-                E2D_ASSERT_MSG(false, "unexpected wrap mode for slot");
-                break;
+            if ( atlas_page ) {
+                switch ( atlas_page->vWrap ) {
+                case SP_ATLAS_MIRROREDREPEAT:
+                    tex_wrap_t = render::sampler_wrap::mirror;
+                    break;
+                case SP_ATLAS_CLAMPTOEDGE:
+                    tex_wrap_t = render::sampler_wrap::clamp;
+                    break;
+                case SP_ATLAS_REPEAT:
+                    tex_wrap_t = render::sampler_wrap::repeat;
+                    break;
+                default:
+                    E2D_ASSERT_MSG(false, "unexpected wrap mode for slot");
+                    break;
+                }
             }
 
             material_asset::ptr mat_a;
@@ -384,10 +391,10 @@ namespace e2d::render_system_impl
             }
 
             try {
-                const std::size_t batch_vertex_count =
-                    math::numeric_cast<std::size_t>(vertex_count >> 1);
-                if ( batch_vertex_count > batch_vertices.size() ) {
-                    batch_vertices.resize(batch_vertex_count);
+                const std::size_t batch_vertex_count = vertex_count >> 1;
+
+                if ( batch_vertices.size() < batch_vertex_count ) {
+                    batch_vertices.resize(math::max(batch_vertices.size() * 2u, batch_vertex_count));
                 }
 
                 for ( std::size_t j = 0; j < batch_vertex_count; ++j ) {
@@ -428,10 +435,6 @@ namespace e2d::render_system_impl
         const renderer& node_r,
         const sprite_renderer& spr_r)
     {
-        if ( !node || !node_r.enabled() ) {
-            return;
-        }
-
         if ( !spr_r.sprite() ) {
             return;
         }
@@ -525,10 +528,6 @@ namespace e2d::render_system_impl
         }
 
         property_cache_.clear();
-    }
-
-    void drawer::context::flush() {
-        batcher_.flush();
     }
 
     //

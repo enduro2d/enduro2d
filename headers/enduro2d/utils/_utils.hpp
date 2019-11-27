@@ -9,6 +9,8 @@
 #include "../base/_all.hpp"
 #include "../math/_all.hpp"
 
+#include <enum.hpp/enum.hpp>
+
 namespace e2d
 {
     class buffer;
@@ -67,8 +69,6 @@ namespace e2d
     using milliseconds = unit<T, milliseconds_tag>;
     template < typename T >
     using microseconds = unit<T, microseconds_tag>;
-
-    using secf = seconds<f32>;
 }
 
 namespace e2d
@@ -200,4 +200,16 @@ namespace e2d::utils
             return self_id;
         }
     };
+
+    //
+    // overloaded
+    //
+
+    template < typename... Ts >
+    struct overloaded : Ts... {
+        using Ts::operator()...;
+    };
+
+    template < typename... Ts >
+    overloaded(Ts...) -> overloaded<Ts...>;
 }

@@ -20,8 +20,8 @@ namespace e2d
 
         actor& node(const node_iptr& value) noexcept;
 
-        node_iptr node() noexcept;
-        const_node_iptr node() const noexcept;
+        [[nodiscard]] node_iptr node() noexcept;
+        [[nodiscard]] const_node_iptr node() const noexcept;
     private:
         node_iptr node_;
     };
@@ -34,7 +34,7 @@ namespace e2d
         bool operator()(
             actor& component,
             const fill_context& ctx) const;
-            
+
         bool operator()(
             asset_dependencies& dependencies,
             const collect_context& ctx) const;

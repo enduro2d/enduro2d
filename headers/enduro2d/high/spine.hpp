@@ -45,11 +45,11 @@ namespace e2d
         spine& set_atlas(atlas_ptr atlas);
         spine& set_skeleton(skeleton_data_ptr skeleton);
 
-        spine& set_default_mix(secf duration);
+        spine& set_default_mix(f32 duration);
         spine& set_animation_mix(
             const str& from,
             const str& to,
-            secf duration);
+            f32 duration);
 
         const atlas_ptr& atlas() const noexcept;
         const skeleton_data_ptr& skeleton() const noexcept;
