@@ -46,6 +46,7 @@
 #include "components/touchable.hpp"
 
 #include "systems/flipbook_system.hpp"
+#include "systems/input_system.hpp"
 #include "systems/label_system.hpp"
 #include "systems/render_system.hpp"
 #include "systems/script_system.hpp"

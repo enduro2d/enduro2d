@@ -29,6 +29,7 @@
 #include <enduro2d/high/components/touchable.hpp>
 
 #include <enduro2d/high/systems/flipbook_system.hpp>
+#include <enduro2d/high/systems/input_system.hpp>
 #include <enduro2d/high/systems/label_system.hpp>
 #include <enduro2d/high/systems/render_system.hpp>
 #include <enduro2d/high/systems/script_system.hpp>
@@ -54,6 +55,8 @@ namespace
             ecs::registry_filler(the<world>().registry())
                 .feature<struct flipbook_feature>(ecs::feature()
                     .add_system<flipbook_system>())
+                .feature<struct input_feature>(ecs::feature()
+                    .add_system<input_system>())
                 .feature<struct label_feature>(ecs::feature()
                     .add_system<label_system>())
                 .feature<struct render_feature>(ecs::feature()
