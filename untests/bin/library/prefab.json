@@ -1,2 +1,18 @@
 {
+    "components" : {
+        "rect_collider" : {
+            "size" : [1,2],
+            "pivot" : [2,4]
+        },
+
+        "circle_collider" : {
+            "radius" : 5,
+            "pivot" : [4,2]
+        },
+
+        "polygon_collider" : {
+            "points" : [[1,2],[2,3],[3,4]],
+            "pivot" : [8,4]
+        }
+    }
 }

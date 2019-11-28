@@ -2,7 +2,7 @@
 set -e
 BUILD_DIR=`dirname "$BASH_SOURCE"`/../build
 mkdir -p $BUILD_DIR/pvs_analyze
-cd $BUILD_DIR/pvs_analyze
+pushd $BUILD_DIR/pvs_analyze
 rm -rf pvs_report
 cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=On ../..
 pvs-studio-analyzer analyze\
@@ -15,3 +15,4 @@ pvs-studio-analyzer analyze\
                     -j8
 plog-converter -a GA:1,2 -t fullhtml -o pvs_report pvs_report.log
 open pvs_report/index.html
+popd
