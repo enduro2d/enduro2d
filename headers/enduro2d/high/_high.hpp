@@ -46,7 +46,7 @@ namespace e2d
     class actor;
     class behaviour;
     class camera;
-    class box_collider;
+    class rect_collider;
     class circle_collider;
     class polygon_collider;
     template < typename C >

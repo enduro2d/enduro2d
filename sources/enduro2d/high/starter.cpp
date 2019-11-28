@@ -182,7 +182,7 @@ namespace e2d
             .register_component<actor>("actor")
             .register_component<behaviour>("behaviour")
             .register_component<camera>("camera")
-            .register_component<box_collider>("box_collider")
+            .register_component<rect_collider>("rect_collider")
             .register_component<circle_collider>("circle_collider")
             .register_component<polygon_collider>("polygon_collider")
             .register_component<flipbook_player>("flipbook_player")

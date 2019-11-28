@@ -42,7 +42,7 @@ namespace e2d::bindings::high
             "actor", sol::property([](gobject& go){ return component_wrapper<actor>{go}; }),
             "behaviour", sol::property([](gobject& go){ return component_wrapper<behaviour>{go}; }),
             "camera", sol::property([](gobject& go){ return component_wrapper<camera>{go}; }),
-            "box_collider", sol::property([](gobject& go){ return component_wrapper<box_collider>{go}; }),
+            "rect_collider", sol::property([](gobject& go){ return component_wrapper<rect_collider>{go}; }),
             "circle_collider", sol::property([](gobject& go){ return component_wrapper<circle_collider>{go}; }),
             "polygon_collider", sol::property([](gobject& go){ return component_wrapper<polygon_collider>{go}; }),
             "flipbook_player", sol::property([](gobject& go){ return component_wrapper<flipbook_player>{go}; }),

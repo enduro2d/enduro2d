@@ -15,8 +15,8 @@ local gobject = {
     ---@type camera
     camera = nil,
 
-    ---@type box_collider
-    box_collider = nil,
+    ---@type rect_collider
+    rect_collider = nil,
 
     ---@type circle_collider
     circle_collider = nil,
