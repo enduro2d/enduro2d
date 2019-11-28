@@ -11,6 +11,7 @@
 #include <enduro2d/high/components/actor.hpp>
 #include <enduro2d/high/components/behaviour.hpp>
 #include <enduro2d/high/components/camera.hpp>
+#include <enduro2d/high/components/colliders.hpp>
 #include <enduro2d/high/components/flipbook_player.hpp>
 #include <enduro2d/high/components/label.hpp>
 #include <enduro2d/high/components/model_renderer.hpp>
@@ -41,6 +42,9 @@ namespace e2d::bindings::high
             "actor", sol::property([](gobject& go){ return component_wrapper<actor>{go}; }),
             "behaviour", sol::property([](gobject& go){ return component_wrapper<behaviour>{go}; }),
             "camera", sol::property([](gobject& go){ return component_wrapper<camera>{go}; }),
+            "box_collider", sol::property([](gobject& go){ return component_wrapper<box_collider>{go}; }),
+            "circle_collider", sol::property([](gobject& go){ return component_wrapper<circle_collider>{go}; }),
+            "polygon_collider", sol::property([](gobject& go){ return component_wrapper<polygon_collider>{go}; }),
             "flipbook_player", sol::property([](gobject& go){ return component_wrapper<flipbook_player>{go}; }),
             "label", sol::property([](gobject& go){ return component_wrapper<label>{go}; }),
             "model_renderer", sol::property([](gobject& go){ return component_wrapper<model_renderer>{go}; }),

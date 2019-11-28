@@ -15,6 +15,15 @@ local gobject = {
     ---@type camera
     camera = nil,
 
+    ---@type box_collider
+    box_collider = nil,
+
+    ---@type circle_collider
+    circle_collider = nil,
+
+    ---@type polygon_collider
+    polygon_collider = nil,
+
     ---@type flipbook_player
     flipbook_player = nil,
 

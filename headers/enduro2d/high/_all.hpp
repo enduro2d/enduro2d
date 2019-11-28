@@ -31,6 +31,7 @@
 #include "components/actor.hpp"
 #include "components/behaviour.hpp"
 #include "components/camera.hpp"
+#include "components/colliders.hpp"
 #include "components/commands.hpp"
 #include "components/disabled.hpp"
 #include "components/events.hpp"

@@ -14,6 +14,7 @@
 #include <enduro2d/high/components/actor.hpp>
 #include <enduro2d/high/components/behaviour.hpp>
 #include <enduro2d/high/components/camera.hpp>
+#include <enduro2d/high/components/colliders.hpp>
 #include <enduro2d/high/components/commands.hpp>
 #include <enduro2d/high/components/disabled.hpp>
 #include <enduro2d/high/components/events.hpp>
@@ -181,6 +182,9 @@ namespace e2d
             .register_component<actor>("actor")
             .register_component<behaviour>("behaviour")
             .register_component<camera>("camera")
+            .register_component<box_collider>("box_collider")
+            .register_component<circle_collider>("circle_collider")
+            .register_component<polygon_collider>("polygon_collider")
             .register_component<flipbook_player>("flipbook_player")
             .register_component<label>("label")
             .register_component<label::dirty>("label.dirty")

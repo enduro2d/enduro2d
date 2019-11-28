@@ -20,6 +20,7 @@ namespace e2d::bindings::high
     void bind_actor(sol::state& l);
     void bind_behaviour(sol::state& l);
     void bind_camera(sol::state& l);
+    void bind_colliders(sol::state& l);
     void bind_flipbook_player(sol::state& l);
     void bind_label(sol::state& l);
     void bind_model_renderer(sol::state& l);
@@ -43,6 +44,7 @@ namespace e2d::bindings
         high::bind_actor(l);
         high::bind_behaviour(l);
         high::bind_camera(l);
+        high::bind_colliders(l);
         high::bind_flipbook_player(l);
         high::bind_label(l);
         high::bind_model_renderer(l);
