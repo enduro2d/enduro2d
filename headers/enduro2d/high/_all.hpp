@@ -43,6 +43,7 @@
 #include "components/scene.hpp"
 #include "components/spine_player.hpp"
 #include "components/sprite_renderer.hpp"
+#include "components/touchable.hpp"
 
 #include "systems/flipbook_system.hpp"
 #include "systems/label_system.hpp"

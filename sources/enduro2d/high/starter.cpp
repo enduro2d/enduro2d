@@ -26,6 +26,7 @@
 #include <enduro2d/high/components/scene.hpp>
 #include <enduro2d/high/components/spine_player.hpp>
 #include <enduro2d/high/components/sprite_renderer.hpp>
+#include <enduro2d/high/components/touchable.hpp>
 
 #include <enduro2d/high/systems/flipbook_system.hpp>
 #include <enduro2d/high/systems/label_system.hpp>
@@ -195,7 +196,8 @@ namespace e2d
             .register_component<spine_player>("spine_player")
             .register_component<events<spine_player_events::event>>("spine_player_events")
             .register_component<commands<spine_player_commands::command>>("spine_player_commands")
-            .register_component<sprite_renderer>("sprite_renderer");
+            .register_component<sprite_renderer>("sprite_renderer")
+            .register_component<touchable>("touchable");
 
         safe_module_initialize<luasol>();
 

@@ -250,6 +250,8 @@ TEST_CASE("library"){
                 ecs::registry w;
                 ecs::entity e = w.create_entity(prefab_res->content().prototype());
 
+                REQUIRE(e.exists_component<touchable>());
+
                 REQUIRE(e.exists_component<rect_collider>());
                 REQUIRE(e.get_component<rect_collider>().size() == v2f(1.f,2.f));
                 REQUIRE(e.get_component<rect_collider>().pivot() == v2f(2.f,4.f));

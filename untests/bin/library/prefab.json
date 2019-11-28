@@ -1,5 +1,7 @@
 {
     "components" : {
+        "touchable" : {},
+
         "rect_collider" : {
             "size" : [1,2],
             "pivot" : [2,4]

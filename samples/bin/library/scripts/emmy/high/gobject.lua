@@ -46,7 +46,10 @@ local gobject = {
     spine_player = nil,
 
     ---@type sprite_renderer
-    sprite_renderer = nil
+    sprite_renderer = nil,
+
+    ---@type touchable
+    touchable = nil
 }
 
 ---@param self gobject

@@ -63,6 +63,7 @@ namespace e2d
     class scene;
     class spine_player;
     class sprite_renderer;
+    class touchable;
 
     class flipbook_system;
     class label_system;
