@@ -17,6 +17,7 @@
 #include <enduro2d/high/components/model_renderer.hpp>
 #include <enduro2d/high/components/named.hpp>
 #include <enduro2d/high/components/renderer.hpp>
+#include <enduro2d/high/components/rigid_body.hpp>
 #include <enduro2d/high/components/scene.hpp>
 #include <enduro2d/high/components/spine_player.hpp>
 #include <enduro2d/high/components/sprite_renderer.hpp>
@@ -51,6 +52,7 @@ namespace e2d::bindings::high
             "model_renderer", sol::property([](gobject& go){ return component_wrapper<model_renderer>{go}; }),
             "named", sol::property([](gobject& go){ return component_wrapper<named>{go}; }),
             "renderer", sol::property([](gobject& go){ return component_wrapper<renderer>{go}; }),
+            "rigid_body", sol::property([](gobject& go){ return component_wrapper<rigid_body>{go}; }),
             "scene", sol::property([](gobject& go){ return component_wrapper<scene>{go}; }),
             "spine_player", sol::property([](gobject& go){ return component_wrapper<spine_player>{go}; }),
             "sprite_renderer", sol::property([](gobject& go){ return component_wrapper<sprite_renderer>{go}; }),

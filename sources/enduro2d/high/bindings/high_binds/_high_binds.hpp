@@ -26,6 +26,7 @@ namespace e2d::bindings::high
     void bind_model_renderer(sol::state& l);
     void bind_named(sol::state& l);
     void bind_renderer(sol::state& l);
+    void bind_rigid_body(sol::state& l);
     void bind_scene(sol::state& l);
     void bind_spine_player(sol::state& l);
     void bind_sprite_renderer(sol::state& l);
@@ -51,6 +52,7 @@ namespace e2d::bindings
         high::bind_model_renderer(l);
         high::bind_named(l);
         high::bind_renderer(l);
+        high::bind_rigid_body(l);
         high::bind_scene(l);
         high::bind_spine_player(l);
         high::bind_sprite_renderer(l);

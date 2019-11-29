@@ -60,6 +60,7 @@ namespace e2d
     class model_renderer;
     class named;
     class renderer;
+    class rigid_body;
     class scene;
     class spine_player;
     class sprite_renderer;

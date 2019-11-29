@@ -250,6 +250,7 @@ TEST_CASE("library"){
                 ecs::registry w;
                 ecs::entity e = w.create_entity(prefab_res->content().prototype());
 
+                REQUIRE(e.exists_component<rigid_body>());
                 REQUIRE(e.exists_component<touchable>());
 
                 REQUIRE(e.exists_component<rect_collider>());
