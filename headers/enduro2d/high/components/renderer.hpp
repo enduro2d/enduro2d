@@ -17,6 +17,18 @@ namespace e2d
     public:
         renderer() = default;
 
+        renderer& transform(const t3f& transform) noexcept;
+        [[nodiscard]] const t3f& transform() const noexcept;
+
+        renderer& translation(const v3f& translation) noexcept;
+        [[nodiscard]] const v3f& translation() const noexcept;
+
+        renderer& rotation(const q4f& rotation) noexcept;
+        [[nodiscard]] const q4f& rotation() const noexcept;
+
+        renderer& scale(const v3f& scale) noexcept;
+        [[nodiscard]] const v3f& scale() const noexcept;
+
         renderer& properties(render::property_block&& value) noexcept;
         renderer& properties(const render::property_block& value);
 
@@ -29,6 +41,7 @@ namespace e2d
         [[nodiscard]] vector<material_asset::ptr>& materials() noexcept;
         [[nodiscard]] const vector<material_asset::ptr>& materials() const noexcept;
     private:
+        t3f transform_ = t3f::identity();
         render::property_block properties_;
         vector<material_asset::ptr> materials_;
     };
@@ -50,6 +63,42 @@ namespace e2d
 
 namespace e2d
 {
+    inline renderer& renderer::transform(const t3f& transform) noexcept {
+        transform_ = transform;
+        return *this;
+    }
+
+    inline const t3f& renderer::transform() const noexcept {
+        return transform_;
+    }
+
+    inline renderer& renderer::translation(const v3f& translation) noexcept {
+        transform_.translation = translation;
+        return *this;
+    }
+
+    inline const v3f& renderer::translation() const noexcept {
+        return transform_.translation;
+    }
+
+    inline renderer& renderer::rotation(const q4f& rotation) noexcept {
+        transform_.rotation = rotation;
+        return *this;
+    }
+
+    inline const q4f& renderer::rotation() const noexcept {
+        return transform_.rotation;
+    }
+
+    inline renderer& renderer::scale(const v3f& scale) noexcept {
+        transform_.scale = scale;
+        return *this;
+    }
+
+    inline const v3f& renderer::scale() const noexcept {
+        return transform_.scale;
+    }
+
     inline renderer& renderer::properties(render::property_block&& value) noexcept {
         properties_ = std::move(value);
         return *this;

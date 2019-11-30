@@ -92,16 +92,20 @@ namespace e2d::render_system_impl
             return;
         }
 
+        const m4f& model_m =
+            math::make_trs_matrix4(node_r->transform()) *
+            node->world_matrix();
+
         if ( auto mdl_r = gcomponent<model_renderer>{owner} ) {
-            draw(node, *node_r, *mdl_r);
+            draw(model_m, *node_r, *mdl_r);
         }
 
         if ( auto spn_p = gcomponent<spine_player>{owner} ) {
-            draw(node, *node_r, *spn_p);
+            draw(model_m, *node_r, *spn_p);
         }
 
         if ( auto spr_r = gcomponent<sprite_renderer>{owner} ) {
-            draw(node, *node_r, *spr_r);
+            draw(model_m, *node_r, *spr_r);
         }
     }
 
@@ -110,7 +114,7 @@ namespace e2d::render_system_impl
     }
 
     void drawer::context::draw(
-        const const_node_iptr& node,
+        const m4f& model_m,
         const renderer& node_r,
         const model_renderer& mdl_r)
     {
@@ -124,7 +128,7 @@ namespace e2d::render_system_impl
         try {
             property_cache_
                 .merge(batcher_.flush())
-                .property(matrix_m_property_hash, node->world_matrix())
+                .property(matrix_m_property_hash, model_m)
                 .merge(node_r.properties());
 
             const std::size_t submesh_count = math::min(
@@ -151,7 +155,7 @@ namespace e2d::render_system_impl
     }
 
     void drawer::context::draw(
-        const const_node_iptr& node,
+        const m4f& model_m,
         const renderer& node_r,
         const spine_player& spine_r)
     {
@@ -175,7 +179,6 @@ namespace e2d::render_system_impl
         material_asset::ptr multiply_mat_a;
         material_asset::ptr screen_mat_a;
 
-        const m4f& sm = node->world_matrix();
         unsigned short quad_indices[6] = { 0, 1, 2, 2, 3, 0 };
 
         for ( int i = 0; i < skeleton->slotsCount; ++i ) {
@@ -399,7 +402,7 @@ namespace e2d::render_system_impl
 
                 for ( std::size_t j = 0; j < batch_vertex_count; ++j ) {
                     batcher_type::vertex_type& vert = batch_vertices[j];
-                    vert.v = v3f(v4f(vertices[j * 2], vertices[j * 2 + 1], 0.f, 1.f) * sm);
+                    vert.v = v3f(v4f(vertices[j * 2], vertices[j * 2 + 1], 0.f, 1.f) * model_m);
                     vert.t = v2f(uvs[j * 2], uvs[j * 2 + 1]);
                     vert.c = vert_color;
                 }
@@ -431,7 +434,7 @@ namespace e2d::render_system_impl
     }
 
     void drawer::context::draw(
-        const const_node_iptr& node,
+        const m4f& model_m,
         const renderer& node_r,
         const sprite_renderer& spr_r)
     {
@@ -467,17 +470,16 @@ namespace e2d::render_system_impl
         const f32 tw = tex_r.size.x / tex_s.x;
         const f32 th = tex_r.size.y / tex_s.y;
 
-        const m4f& sm = node->world_matrix();
         const color32& tc = spr_r.tint();
 
         const batcher_type::index_type indices[] = {
             0u, 1u, 2u, 2u, 3u, 0u};
 
         const batcher_type::vertex_type vertices[] = {
-            { v3f(p1 * sm), {tx + 0.f, ty + 0.f}, tc },
-            { v3f(p2 * sm), {tx + tw,  ty + 0.f}, tc },
-            { v3f(p3 * sm), {tx + tw,  ty + th }, tc },
-            { v3f(p4 * sm), {tx + 0.f, ty + th }, tc }};
+            { v3f(p1 * model_m), {tx + 0.f, ty + 0.f}, tc },
+            { v3f(p2 * model_m), {tx + tw,  ty + 0.f}, tc },
+            { v3f(p3 * model_m), {tx + tw,  ty + th }, tc },
+            { v3f(p4 * model_m), {tx + 0.f, ty + th }, tc }};
 
         const render::sampler_min_filter tex_min_f = spr_r.filtering()
             ? render::sampler_min_filter::linear

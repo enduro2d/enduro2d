@@ -44,17 +44,17 @@ namespace e2d::render_system_impl
             void flush();
         private:
             void draw(
-                const const_node_iptr& node,
+                const m4f& model_m,
                 const renderer& node_r,
                 const model_renderer& mdl_r);
 
             void draw(
-                const const_node_iptr& node,
+                const m4f& model_m,
                 const renderer& node_r,
                 const sprite_renderer& spr_r);
 
             void draw(
-                const const_node_iptr& node,
+                const m4f& model_m,
                 const renderer& node_r,
                 const spine_player& spine_r);
         private:

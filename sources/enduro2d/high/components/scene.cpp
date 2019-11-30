@@ -13,7 +13,7 @@ namespace e2d
         "required" : [],
         "additionalProperties" : false,
         "properties" : {
-            "depth" : { "type" : "number" }
+            "depth" : { "type" : "integer" }
         }
     })json";
 
@@ -22,7 +22,7 @@ namespace e2d
         const fill_context& ctx) const
     {
         if ( ctx.root.HasMember("depth") ) {
-            auto depth = component.depth();
+            i32 depth = component.depth();
             if ( !json_utils::try_parse_value(ctx.root["depth"], depth) ) {
                 the<debug>().error("SCENE: Incorrect formatting of 'depth' property");
                 return false;
