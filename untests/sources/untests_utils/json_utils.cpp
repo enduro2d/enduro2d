@@ -62,6 +62,18 @@ namespace
         "b3_4" : [1,2,3,4,5,6],
         "b3_5" : [1,2,3,4,5,6,7],
 
+        "t2" : {
+            "translation" : [1,2],
+            "rotation" : 3,
+            "scale" : [4,5]
+        },
+
+        "t3" : {
+            "translation" : [1,2,3],
+            "rotation" : [4,5,6,7],
+            "scale" : [8,9,10]
+        },
+
         "c0" : 0.5,
         "c1" : { "r" : 0.1, "b" : 0.2 },
         "c2" : { "r" : 0.1, "g" : 0.2, "b" : 0.3, "a" : 0.4 },
@@ -188,6 +200,15 @@ TEST_CASE("json_utils") {
         REQUIRE_FALSE(json_utils::try_parse_value(doc["s2"], s2));
         REQUIRE_FALSE(json_utils::try_parse_value(doc["s2"], s3));
         REQUIRE_FALSE(json_utils::try_parse_value(doc["s2"], s4));
+    }
+    {
+        t2f t2;
+        REQUIRE(json_utils::try_parse_value(doc["t2"], t2));
+        REQUIRE(t2 == make_trs2(v2f(1,2), radf(3), v2f(4,5)));
+
+        t3f t3;
+        REQUIRE(json_utils::try_parse_value(doc["t3"], t3));
+        REQUIRE(t3 == make_trs3(v3f(1,2,3), q4f(4,5,6,7), v3f(8,9,10)));
     }
     {
         color c0, c1, c2;

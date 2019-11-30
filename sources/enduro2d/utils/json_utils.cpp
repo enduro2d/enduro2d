@@ -192,6 +192,24 @@ namespace
                 }
             }]
         },
+        "t2" : {
+            "type" : "object",
+            "additionalProperties" : false,
+            "properties" : {
+                "translation" : { "$ref": "#/common_definitions/v2" },
+                "rotation" : { "type" : "number" },
+                "scale" : { "$ref": "#/common_definitions/v2" }
+            }
+        },
+        "t3" : {
+            "type" : "object",
+            "additionalProperties" : false,
+            "properties" : {
+                "translation" : { "$ref": "#/common_definitions/v3" },
+                "rotation" : { "$ref": "#/common_definitions/q4" },
+                "scale" : { "$ref": "#/common_definitions/v3" }
+            }
+        },
         "color" : {
             "anyOf" : [{
                 "type" : "number"
