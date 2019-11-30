@@ -8,7 +8,7 @@
         "prototype" : "../prefabs/coin_prefab.json",
         "components" : {
             "actor" : {
-                "translation" : [350,250,0],
+                "translation" : [350,250],
                 "scale" : 0.25
             }
         }
@@ -16,7 +16,7 @@
         "prototype" : "../prefabs/raptor_prefab.json",
         "components" : {
             "actor" : {
-                "translation" : [300,-350,0],
+                "translation" : [300,-350],
                 "scale" : 0.25
             }
         }
@@ -24,7 +24,7 @@
         "prototype" : "../prefabs/dragon_prefab.json",
         "components" : {
             "actor" : {
-                "translation" : [-100,0,0],
+                "translation" : [-100,0],
                 "scale" : 0.9
             }
         }

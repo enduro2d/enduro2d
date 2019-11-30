@@ -134,6 +134,58 @@ namespace e2d::json_utils
     try_parse_value(const rapidjson::Value& root, unit<T, Tag>& v) noexcept {
         return try_parse_value(root, v.value);
     }
+
+    template < typename T >
+    bool try_parse_value(const rapidjson::Value& root, trs2<T>& t) noexcept {
+        trs2<T> tt = trs2<T>::identity();
+
+        if ( root.HasMember("translation") ) {
+            if ( !try_parse_value(root["translation"], tt.translation) ) {
+                return false;
+            }
+        }
+
+        if ( root.HasMember("rotation") ) {
+            if ( !try_parse_value(root["rotation"], tt.rotation) ) {
+                return false;
+            }
+        }
+
+        if ( root.HasMember("scale") ) {
+            if ( !try_parse_value(root["scale"], tt.scale) ) {
+                return false;
+            }
+        }
+
+        t = tt;
+        return true;
+    }
+
+    template < typename T >
+    bool try_parse_value(const rapidjson::Value& root, trs3<T>& t) noexcept {
+        trs3<T> tt = trs3<T>::identity();
+
+        if ( root.HasMember("translation") ) {
+            if ( !try_parse_value(root["translation"], tt.translation) ) {
+                return false;
+            }
+        }
+
+        if ( root.HasMember("rotation") ) {
+            if ( !try_parse_value(root["rotation"], tt.rotation) ) {
+                return false;
+            }
+        }
+
+        if ( root.HasMember("scale") ) {
+            if ( !try_parse_value(root["scale"], tt.scale) ) {
+                return false;
+            }
+        }
+
+        t = tt;
+        return true;
+    }
 }
 
 namespace e2d::json_utils

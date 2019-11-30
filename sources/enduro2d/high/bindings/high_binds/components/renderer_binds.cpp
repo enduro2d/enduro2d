@@ -48,7 +48,23 @@ namespace e2d::bindings::high
                         c.owner().component<disabled<renderer>>().remove();
                     }
                 }
-            )
+            ),
+
+            "transform", sol::property(
+                [](const gcomponent<renderer>& c) -> t3f { return c->transform(); },
+                [](gcomponent<renderer>& c, const t3f& v) { c->transform(v); }),
+
+            "translation", sol::property(
+                [](const gcomponent<renderer>& c) -> v3f { return c->translation(); },
+                [](gcomponent<renderer>& c, const v3f& v) { c->translation(v); }),
+
+            "rotation", sol::property(
+                [](const gcomponent<renderer>& c) -> q4f { return c->rotation(); },
+                [](gcomponent<renderer>& c, const q4f& v) { c->rotation(v); }),
+
+            "scale", sol::property(
+                [](const gcomponent<renderer>& c) -> v3f { return c->scale(); },
+                [](gcomponent<renderer>& c, const v3f& v) { c->scale(v); })
         );
     }
 }

@@ -8,7 +8,7 @@
         "prototype" : "../prefabs/gnome_prefab.json",
         "components" : {
             "actor" : {
-                "translation" : [0,0,0],
+                "translation" : [0,0],
                 "scale" : 20
             }
         }
@@ -19,7 +19,7 @@
                 "blending" : "additive"
             },
             "actor" : {
-                "translation" : [-50,-50,0]
+                "translation" : [-50,-50]
             }
         }
     }, {
@@ -29,7 +29,7 @@
                 "tint" : [255,0,0,255]
             },
             "actor" : {
-                "translation" : [50,-50,0]
+                "translation" : [50,-50]
             }
         }
     }, {
@@ -42,7 +42,7 @@
                 "outline_color" : [0,0,0,255]
             },
             "actor" : {
-                "translation" : [0,180,0],
+                "translation" : [0,180],
                 "scale" : 3
             }
         }
@@ -56,7 +56,7 @@
                 "outline_color" : [0,0,0,255]
             },
             "actor" : {
-                "translation" : [0.5,-180.5,0],
+                "translation" : [0.5,-180.5],
                 "scale" : 3
             }
         }

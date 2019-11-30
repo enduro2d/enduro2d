@@ -13,9 +13,9 @@ namespace e2d
         "required" : [],
         "additionalProperties" : false,
         "properties" : {
-            "translation" : { "$ref": "#/common_definitions/v3" },
-            "rotation" : { "$ref": "#/common_definitions/q4" },
-            "scale" : { "$ref": "#/common_definitions/v3" }
+            "translation" : { "$ref": "#/common_definitions/v2" },
+            "rotation" : { "type" : "number" },
+            "scale" : { "$ref": "#/common_definitions/v2" }
         }
     })json";
 
@@ -28,7 +28,7 @@ namespace e2d
         }
 
         if ( ctx.root.HasMember("translation") ) {
-            auto translation = component.node()->translation();
+            v2f translation = component.node()->translation();
             if ( !json_utils::try_parse_value(ctx.root["translation"], translation) ) {
                 the<debug>().error("ACTOR: Incorrect formatting of 'translation' property");
                 return false;
@@ -37,7 +37,7 @@ namespace e2d
         }
 
         if ( ctx.root.HasMember("rotation") ) {
-            auto rotation = component.node()->rotation();
+            radf rotation = component.node()->rotation();
             if ( !json_utils::try_parse_value(ctx.root["rotation"], rotation) ) {
                 the<debug>().error("ACTOR: Incorrect formatting of 'rotation' property");
                 return false;
@@ -46,7 +46,7 @@ namespace e2d
         }
 
         if ( ctx.root.HasMember("scale") ) {
-            auto scale = component.node()->scale();
+            v2f scale = component.node()->scale();
             if ( !json_utils::try_parse_value(ctx.root["scale"], scale) ) {
                 the<debug>().error("ACTOR: Incorrect formatting of 'scale' property");
                 return false;

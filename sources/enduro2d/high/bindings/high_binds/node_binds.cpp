@@ -15,25 +15,23 @@ namespace e2d::bindings::high
             sol::no_constructor,
 
             "owner", sol::property(
-                [](const node& n) -> gobject {
-                    return n.owner();
-                }),
+                [](const node& n) -> gobject { return n.owner(); }),
 
             "transform", sol::property(
-                [](const node& n) -> t3f { return n.transform(); },
-                sol::resolve<void(const t3f&)>(&node::transform)),
+                [](const node& n) -> t2f { return n.transform(); },
+                [](node& n, const t2f& v) { n.transform(v); }),
 
             "translation", sol::property(
-                [](const node& n) -> v3f { return n.translation(); },
-                sol::resolve<void(const v3f&)>(&node::translation)),
+                [](const node& n) -> v2f { return n.translation(); },
+                [](node& n, const v2f& v) { n.translation(v); }),
 
             "rotation", sol::property(
-                [](const node& n) -> q4f { return n.rotation(); },
-                sol::resolve<void(const q4f&)>(&node::rotation)),
+                [](const node& n) -> f32 { return n.rotation().value; },
+                [](node& n, f32 v) { n.rotation(make_rad(v)); }),
 
             "scale", sol::property(
-                [](const node& n) -> v3f { return n.scale(); },
-                sol::resolve<void(const v3f&)>(&node::scale)),
+                [](const node& n) -> v2f { return n.scale(); },
+                [](node& n, const v2f& v) { n.scale(v); }),
 
             "local_matrix", sol::property(
                 [](const node& n) -> m4f { return n.local_matrix(); }),

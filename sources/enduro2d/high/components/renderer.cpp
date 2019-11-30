@@ -13,6 +13,10 @@ namespace e2d
         "required" : [],
         "additionalProperties" : false,
         "properties" : {
+            "transform" : { "$ref": "#/common_definitions/t3" },
+            "materials" : { "$ref": "#/definitions/materials" }
+        },
+        "definitions" : {
             "materials" : {
                 "type" : "array",
                 "items" : { "$ref": "#/common_definitions/address" }
@@ -24,6 +28,15 @@ namespace e2d
         renderer& component,
         const fill_context& ctx) const
     {
+        if ( ctx.root.HasMember("transform") ) {
+            t3f transform = component.transform();
+            if ( !json_utils::try_parse_value(ctx.root["transform"], transform) ) {
+                the<debug>().error("RENDERER: Incorrect formatting of 'transform' property");
+                return false;
+            }
+            component.transform(transform);
+        }
+
         if ( ctx.root.HasMember("properties") ) {
             //TODO(BlackMat): add properties parsing
         }

@@ -4,7 +4,19 @@ local renderer = {
     enabled = true,
 
     ---@type boolean
-    disabled = false
+    disabled = false,
+
+    ---@type t3f
+    transform = t3f.identity(),
+
+    ---@type v3f
+    translation = v3f.zero(),
+
+    ---@type q4f
+    rotation = q4f.identity(),
+
+    ---@type v3f
+    scale = v3f.unit()
 }
 
 ---@overload fun(self: renderer)
