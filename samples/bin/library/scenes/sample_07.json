@@ -11,7 +11,7 @@
         "prototype" : "../prefabs/gnome_prefab.json",
         "components" : {
             "actor" : {
-                "translation" : [0,0,0],
+                "translation" : [0,0],
                 "scale" : 20
             },
             "behaviour" : {
@@ -28,7 +28,7 @@
                 "outline_color" : [0,0,0,255]
             },
             "actor" : {
-                "translation" : [-315,-235,0],
+                "translation" : [-315,-235],
                 "scale" : 1
             },
             "behaviour" : {

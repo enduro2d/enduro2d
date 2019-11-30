@@ -21,7 +21,7 @@ namespace e2d
         return node_iptr(new node());
     }
 
-    node_iptr node::create(const t3f& transform) {
+    node_iptr node::create(const t2f& transform) {
         node_iptr n = create();
         n->transform(transform);
         return n;
@@ -35,7 +35,7 @@ namespace e2d
         return child;
     }
 
-    node_iptr node::create(const node_iptr& parent, const t3f& transform) {
+    node_iptr node::create(const node_iptr& parent, const t2f& transform) {
         node_iptr n = create(parent);
         n->transform(transform);
         return n;
@@ -45,7 +45,7 @@ namespace e2d
         return node_iptr(new node(std::move(owner)));
     }
 
-    node_iptr node::create(gobject owner, const t3f& transform) {
+    node_iptr node::create(gobject owner, const t2f& transform) {
         node_iptr n = create(owner);
         n->transform(transform);
         return n;
@@ -59,7 +59,7 @@ namespace e2d
         return child;
     }
 
-    node_iptr node::create(gobject owner, const node_iptr& parent, const t3f& transform) {
+    node_iptr node::create(gobject owner, const node_iptr& parent, const t2f& transform) {
         node_iptr n = create(owner, parent);
         n->transform(transform);
         return n;
@@ -73,39 +73,39 @@ namespace e2d
         return owner_;
     }
 
-    void node::transform(const t3f& transform) noexcept {
+    void node::transform(const t2f& transform) noexcept {
         transform_ = transform;
         mark_dirty_local_matrix_();
     }
 
-    const t3f& node::transform() const noexcept {
+    const t2f& node::transform() const noexcept {
         return transform_;
     }
 
-    void node::translation(const v3f& translation) noexcept {
+    void node::translation(const v2f& translation) noexcept {
         transform_.translation = translation;
         mark_dirty_local_matrix_();
     }
 
-    const v3f& node::translation() const noexcept {
+    const v2f& node::translation() const noexcept {
         return transform_.translation;
     }
 
-    void node::rotation(const q4f& rotation) noexcept {
+    void node::rotation(const radf& rotation) noexcept {
         transform_.rotation = rotation;
         mark_dirty_local_matrix_();
     }
 
-    const q4f& node::rotation() const noexcept {
+    const radf& node::rotation() const noexcept {
         return transform_.rotation;
     }
 
-    void node::scale(const v3f& scale) noexcept {
+    void node::scale(const v2f& scale) noexcept {
         transform_.scale = scale;
         mark_dirty_local_matrix_();
     }
 
-    const v3f& node::scale() const noexcept {
+    const v2f& node::scale() const noexcept {
         return transform_.scale;
     }
 

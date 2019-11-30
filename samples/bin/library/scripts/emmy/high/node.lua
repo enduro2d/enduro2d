@@ -1,16 +1,19 @@
 ---@class node
 local node = {
-    ---@type t3f
-    transform = t3f.identity(),
+    ---@type gobject
+    owner = nil,
 
-    ---@type v3f
-    translation = v3f.zero(),
+    ---@type t2f
+    transform = t2f.identity(),
 
-    ---@type q4f
-    rotation = q4f.identity(),
+    ---@type v2f
+    translation = v2f.zero(),
 
-    ---@type v3f
-    scale = v3f.unit(),
+    ---@type number
+    rotation = 0,
+
+    ---@type v2f
+    scale = v2f.unit(),
 
     ---@type m4f
     local_matrix = m4f.identity(),

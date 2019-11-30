@@ -211,11 +211,11 @@ namespace e2d
         return inst;
     }
 
-    gobject world::instantiate(const node_iptr& parent, const t3f& transform) {
+    gobject world::instantiate(const node_iptr& parent, const t2f& transform) {
         return instantiate(prefab(), parent, transform);
     }
 
-    gobject world::instantiate(const prefab& prefab, const node_iptr& parent, const t3f& transform) {
+    gobject world::instantiate(const prefab& prefab, const node_iptr& parent, const t2f& transform) {
         gobject inst = new_instance(*this, prefab);
         inst.component<actor>()->node()->transform(transform);
 
