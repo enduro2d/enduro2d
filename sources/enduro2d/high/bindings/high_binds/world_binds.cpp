@@ -21,7 +21,7 @@ namespace e2d::bindings::high
                 [](world& w, const prefab& prefab, const node_iptr& parent) -> gobject {
                     return w.instantiate(prefab, parent);
                 },
-                [](world& w, const prefab& prefab, const node_iptr& parent, const t3f& transform) -> gobject {
+                [](world& w, const prefab& prefab, const node_iptr& parent, const t2f& transform) -> gobject {
                     return w.instantiate(prefab, parent, transform);
                 }
             )

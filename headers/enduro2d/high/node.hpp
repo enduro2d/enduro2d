@@ -30,31 +30,31 @@ namespace e2d
         virtual ~node() noexcept;
 
         static node_iptr create();
-        static node_iptr create(const t3f& transform);
+        static node_iptr create(const t2f& transform);
 
         static node_iptr create(const node_iptr& parent);
-        static node_iptr create(const node_iptr& parent, const t3f& transform);
+        static node_iptr create(const node_iptr& parent, const t2f& transform);
 
         static node_iptr create(gobject owner);
-        static node_iptr create(gobject owner, const t3f& transform);
+        static node_iptr create(gobject owner, const t2f& transform);
 
         static node_iptr create(gobject owner, const node_iptr& parent);
-        static node_iptr create(gobject owner, const node_iptr& parent, const t3f& transform);
+        static node_iptr create(gobject owner, const node_iptr& parent, const t2f& transform);
 
         void owner(gobject owner) noexcept;
         gobject owner() const noexcept;
 
-        void transform(const t3f& transform) noexcept;
-        const t3f& transform() const noexcept;
+        void transform(const t2f& transform) noexcept;
+        const t2f& transform() const noexcept;
 
-        void translation(const v3f& translation) noexcept;
-        const v3f& translation() const noexcept;
+        void translation(const v2f& translation) noexcept;
+        const v2f& translation() const noexcept;
 
-        void rotation(const q4f& rotation) noexcept;
-        const q4f& rotation() const noexcept;
+        void rotation(const radf& rotation) noexcept;
+        const radf& rotation() const noexcept;
 
-        void scale(const v3f& scale) noexcept;
-        const v3f& scale() const noexcept;
+        void scale(const v2f& scale) noexcept;
+        const v2f& scale() const noexcept;
 
         const m4f& local_matrix() const noexcept;
         const m4f& world_matrix() const noexcept;
@@ -145,7 +145,7 @@ namespace e2d
         void update_local_matrix_() const noexcept;
         void update_world_matrix_() const noexcept;
     private:
-        t3f transform_;
+        t2f transform_;
         gobject owner_;
         node* parent_{nullptr};
         node_children children_;
