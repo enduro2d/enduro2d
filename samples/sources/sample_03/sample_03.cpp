@@ -9,7 +9,10 @@ using namespace e2d;
 
 namespace
 {
-    struct rotator {
+    struct node_rotator {
+    };
+
+    struct renderer_rotator {
         v3f axis;
     };
 
@@ -61,13 +64,20 @@ namespace
             ecs::registry& owner,
             const systems::update_event& event) override
         {
-            owner.for_joined_components<rotator, actor>(
-            [&event](const ecs::const_entity&, const rotator& rot, actor& act){
+            owner.for_joined_components<node_rotator, actor>(
+            [&event](const ecs::const_entity&, const node_rotator&, actor& act){
                 const node_iptr node = act.node();
                 if ( node ) {
-                    const q4f q = math::make_quat_from_axis_angle(make_rad(event.time), rot.axis);
-                    node->rotation(q);
+                    node->rotation(make_rad(event.time));
                 }
+            });
+
+            owner.for_joined_components<renderer_rotator, renderer>(
+            [&event](const ecs::const_entity&, const renderer_rotator& rot, renderer& r){
+                const q4f q = math::make_quat_from_axis_angle(
+                    make_rad(event.time),
+                    rot.axis);
+                r.rotation(q);
             });
         }
     };
@@ -97,20 +107,20 @@ namespace
             {
                 prefab prefab;
                 prefab.prototype()
-                    .component<rotator>(rotator{v3f::unit_y()})
+                    .component<renderer_rotator>(v3f::unit_y())
                     .component<renderer>(renderer().materials({model_mat}))
                     .component<model_renderer>(model_res);
 
                 the<world>().instantiate(
                     prefab,
                     scene_i.component<actor>()->node(),
-                    make_trs3(v3f{0,50.f,0}, q4f::identity(), v3f{20.f}));
+                    make_trs2(v2f{0,50.f}, radf::zero(), v2f{20.f}));
             }
 
             {
                 prefab prefab;
                 prefab.prototype()
-                    .component<rotator>(rotator{v3f::unit_z()})
+                    .component<node_rotator>()
                     .component<renderer>()
                     .component<sprite_renderer>(sprite_renderer(sprite_res)
                         .materials({{"normal", sprite_mat}}));
@@ -118,13 +128,13 @@ namespace
                 the<world>().instantiate(
                     prefab,
                     scene_i.component<actor>()->node(),
-                    math::make_translation_trs3(v3f{0,-50.f,0}));
+                    math::make_translation_trs2(v2f{0,-50.f}));
             }
 
             {
                 prefab prefab_a;
                 prefab_a.prototype()
-                    .component<rotator>(rotator{v3f::unit_z()})
+                    .component<node_rotator>()
                     .component<renderer>()
                     .component<sprite_renderer>(sprite_renderer()
                         .filtering(false)
@@ -135,10 +145,10 @@ namespace
 
                 for ( std::size_t i = 0; i < 2; ++i )
                 for ( std::size_t j = 0; j < 5; ++j ) {
-                    t3f trans{
-                        {-80.f + j * 40.f, -200.f + i * 40.f, 0},
-                        q4f::identity(),
-                        {2.f,2.f,1.f}};
+                    t2f trans{
+                        {-80.f + j * 40.f, -200.f + i * 40.f},
+                        radf::zero(),
+                        {2.f,2.f}};
                     gobject inst = the<world>().instantiate(
                         prefab_a,
                         scene_i.component<actor>()->node(),
@@ -146,11 +156,11 @@ namespace
 
                     prefab prefab_b = prefab_a;
                     prefab_b.prototype()
-                        .component<rotator>(rotator{v3f::unit_z()})
-                        .component<actor>(node::create(make_trs3(
-                            v3f{20.f,0.f,0.f},
-                            q4f::identity(),
-                            v3f{0.3f,0.3f,3.f})));
+                        .component<node_rotator>()
+                        .component<actor>(node::create(make_trs2(
+                            v2f{20.f,0.f},
+                            radf::zero(),
+                            v2f{0.3f,0.3f})));
 
                     the<world>().instantiate(
                         prefab_b,

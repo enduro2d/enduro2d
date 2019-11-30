@@ -655,82 +655,82 @@ TEST_CASE("node") {
     SECTION("transform") {
         auto p = node::create();
 
-        REQUIRE(p->transform() == t3f::identity());
-        REQUIRE(p->translation() == v3f::zero());
-        REQUIRE(p->rotation() == q4f::identity());
-        REQUIRE(p->scale() == v3f::unit());
+        REQUIRE(p->transform() == t2f::identity());
+        REQUIRE(p->translation() == v2f::zero());
+        REQUIRE(p->rotation() == radf::zero());
+        REQUIRE(p->scale() == v2f::unit());
 
-        p->translation(v3f(1,2,3));
-        REQUIRE(p->translation() == v3f(1,2,3));
+        p->translation(v2f(1,2));
+        REQUIRE(p->translation() == v2f(1,2));
 
-        p->rotation(q4f(1,2,3,4));
-        REQUIRE(p->rotation() == q4f(1,2,3,4));
+        p->rotation(radf(1.f));
+        REQUIRE(p->rotation() == radf(1.f));
 
-        p->scale(v3f(1,2,3));
-        REQUIRE(p->scale() == v3f(1,2,3));
+        p->scale(v2f(1,2));
+        REQUIRE(p->scale() == v2f(1,2));
     }
     SECTION("local_matrix") {
         {
             auto p = node::create();
-            p->transform(math::make_translation_trs3(v3f{10.f,0.f,0.f}));
+            p->transform(math::make_translation_trs2(v2f{10.f,0.f}));
 
             auto n = node::create(p);
-            n->transform(math::make_translation_trs3(v3f{20.f,0.f,0.f}));
-            REQUIRE(n->local_matrix() == math::make_translation_matrix4(20.f,0.f,0.f));
+            n->transform(math::make_translation_trs2(v2f{20.f,0.f}));
+            REQUIRE(n->local_matrix() == math::make_translation_matrix4(20.f,0.f));
 
             auto v = v4f(5.f,0.f,0.f,1.f);
             REQUIRE(v * n->local_matrix() == v4f{25.f,0.f,0.f,1.f});
 
-            n->transform(math::make_scale_trs3(v3f(1.f,2.f,3.f)));
-            REQUIRE(n->local_matrix() == math::make_scale_matrix4(1.f,2.f,3.f));
+            n->transform(math::make_scale_trs2(v2f(1.f,2.f)));
+            REQUIRE(n->local_matrix() == math::make_scale_matrix4(1.f,2.f));
         }
     }
     SECTION("world_matrix") {
         {
             auto p = node::create();
-            p->translation({10.f,0.f,0.f});
+            p->translation({10.f,0.f});
 
             auto n = node::create(p);
-            n->translation({20.f,0.f,0.f});
+            n->translation({20.f,0.f});
 
             auto v = v4f(5.f,0.f,0.f,1.f);
             REQUIRE(v * n->world_matrix() == v4f{35.f,0.f,0.f,1.f});
 
-            n->transform(math::make_scale_trs3(v3f(1.f,2.f,3.f)));
+            n->transform(math::make_scale_trs2(v2f(1.f,2.f)));
             REQUIRE(n->world_matrix() ==
-                math::make_scale_matrix4(1.f,2.f,3.f) *
-                math::make_translation_matrix4(10.f,0.f,0.f));
+                math::make_scale_matrix4(1.f,2.f) *
+                math::make_translation_matrix4(10.f,0.f));
         }
         {
             auto n = node::create();
-            n->translation({20.f,0.f,0.f});
+            n->translation({20.f,0.f});
             REQUIRE(n->world_matrix() ==
-                math::make_translation_matrix4(20.f,0.f,0.f));
+                math::make_translation_matrix4(20.f,0.f));
 
             auto p = node::create();
-            p->transform(math::make_translation_trs3(v3f{10.f,0.f,0.f}));
+            p->transform(math::make_translation_trs2(v2f{10.f,0.f}));
 
             p->add_child(n);
             REQUIRE(n->world_matrix() ==
-                math::make_translation_matrix4(30.f,0.f,0.f));
+                math::make_translation_matrix4(30.f,0.f));
         }
         {
             auto p1 = node::create();
-            p1->translation({10.f,0.f,0.f});
+            p1->translation({10.f,0.f});
 
             auto p2 = node::create();
-            p2->transform(math::make_translation_trs3(v3f{20.f,0.f,0.f}));
+            p2->transform(math::make_translation_trs2(v2f{20.f,0.f}));
 
             auto n = node::create(p2);
-            n->transform(math::make_translation_trs3(v3f{30.f,0.f,0.f}));
+            n->transform(math::make_translation_trs2(v2f{30.f,0.f}));
 
             REQUIRE(n->world_matrix() ==
-                math::make_translation_matrix4(50.f,0.f,0.f));
+                math::make_translation_matrix4(50.f,0.f));
 
             p1->add_child(p2);
 
             REQUIRE(n->world_matrix() ==
-                math::make_translation_matrix4(60.f,0.f,0.f));
+                math::make_translation_matrix4(60.f,0.f));
         }
     }
     SECTION("lifetime") {
