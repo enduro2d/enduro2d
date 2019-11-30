@@ -10,6 +10,24 @@ namespace
 {
     using namespace e2d;
 
+    window::cursor_shapes convert_imgui_mouse_cursor(ImGuiMouseCursor mc) noexcept {
+        #define DEFINE_CASE(x,y) case x: return window::cursor_shapes::y
+        switch ( mc ) {
+            DEFINE_CASE(ImGuiMouseCursor_Arrow, arrow);
+            DEFINE_CASE(ImGuiMouseCursor_TextInput, ibeam);
+            DEFINE_CASE(ImGuiMouseCursor_ResizeAll, crosshair);
+            DEFINE_CASE(ImGuiMouseCursor_ResizeNS, vresize);
+            DEFINE_CASE(ImGuiMouseCursor_ResizeEW, hresize);
+            DEFINE_CASE(ImGuiMouseCursor_ResizeNESW, crosshair);
+            DEFINE_CASE(ImGuiMouseCursor_ResizeNWSE, crosshair);
+            DEFINE_CASE(ImGuiMouseCursor_Hand, hand);
+            default:
+                E2D_ASSERT_MSG(false, "unexpected imgui mouse cursor");
+                return window::cursor_shapes::arrow;
+        }
+        #undef DEFINE_CASE
+    }
+
     class imgui_event_listener final : public window::event_listener {
     public:
         imgui_event_listener(ImGuiIO& io, window& w)
@@ -137,6 +155,10 @@ namespace e2d
                 window_.framebuffer_size().cast_to<f32>() /
                 window_.real_size().cast_to<f32>();
 
+            window_.set_cursor_shape(
+                convert_imgui_mouse_cursor(
+                    ImGui::GetMouseCursor()));
+
             if ( ImGui::GetFrameCount() > 0 ) {
                 ImGui::EndFrame();
             }
@@ -250,6 +272,7 @@ namespace e2d
             io.IniFilename = nullptr;
             io.LogFilename = nullptr;
             io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+            io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;
         }
 
         void setup_internal_resources_(ImGuiIO& io) {
