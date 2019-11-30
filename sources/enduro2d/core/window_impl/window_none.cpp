@@ -22,6 +22,7 @@ namespace e2d
         bool resizable = false;
         bool fullscreen = false;
         bool cursor_hidden = false;
+        cursor_shapes cursor_shape = cursor_shapes::arrow;
         bool should_close = false;
         bool enabled = true;
         bool visible = true;
@@ -129,6 +130,17 @@ namespace e2d
     bool window::is_cursor_hidden() const noexcept {
         std::lock_guard<std::recursive_mutex> guard(state_->rmutex);
         return state_->cursor_hidden;
+    }
+
+    window::cursor_shapes window::cursor_shape() const noexcept {
+        std::lock_guard<std::recursive_mutex> guard(state_->rmutex);
+        return state_->cursor_shape;
+    }
+
+    bool window::set_cursor_shape(cursor_shapes shape) noexcept {
+        std::lock_guard<std::recursive_mutex> guard(state_->rmutex);
+        state_->cursor_shape = shape;
+        return true;
     }
 
     v2u window::real_size() const noexcept {
