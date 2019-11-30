@@ -79,12 +79,15 @@ namespace e2d
 {
     class dbgui::internal_state final : private e2d::noncopyable {
     public:
+        using context_uptr = std::unique_ptr<
+            ImGuiContext, void(*)(ImGuiContext*)>;
+    public:
         internal_state(debug& d, input& i, render& r, window& w)
         : debug_(d)
         , input_(i)
         , render_(r)
         , window_(w)
-        , context_(ImGui::CreateContext())
+        , context_(ImGui::CreateContext(), ImGui::DestroyContext)
         , listener_(w.register_event_listener<imgui_event_listener>(bind_context(), w))
         {
             ImGuiIO& io = bind_context();
@@ -95,11 +98,10 @@ namespace e2d
 
         ~internal_state() noexcept {
             window_.unregister_event_listener(listener_);
-            ImGui::DestroyContext(context_);
         }
     public:
         ImGuiIO& bind_context() noexcept {
-            ImGui::SetCurrentContext(context_);
+            ImGui::SetCurrentContext(context_.get());
             return ImGui::GetIO();
         }
 
@@ -389,7 +391,7 @@ namespace e2d
         render& render_;
         window& window_;
         bool visible_{false};
-        ImGuiContext* context_{nullptr};
+        context_uptr context_;
         window::event_listener& listener_;
     private:
         shader_ptr shader_;
