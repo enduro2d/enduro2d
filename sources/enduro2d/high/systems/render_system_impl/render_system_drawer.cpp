@@ -192,8 +192,8 @@ namespace e2d::render_system_impl
 
             float* uvs = nullptr;
             unsigned short* indices = nullptr;
-            std::size_t index_count = 0;
-            std::size_t vertex_count = 0;
+            int index_count = 0;
+            int vertex_count = 0;
             const spAtlasPage* atlas_page = nullptr;
             const spColor* attachment_color = nullptr;
 
@@ -208,8 +208,10 @@ namespace e2d::render_system_impl
 
                 try {
                     vertex_count = 8;
-                    if ( temp_vertices.size() < vertex_count ) {
-                        temp_vertices.resize(math::max(temp_vertices.size() * 2u, vertex_count));
+                    if ( temp_vertices.size() < math::numeric_cast<std::size_t>(vertex_count) ) {
+                        temp_vertices.resize(math::max(
+                            temp_vertices.size() * 2u,
+                            math::numeric_cast<std::size_t>(vertex_count)));
                     }
                 } catch (...) {
                     property_cache_.clear();
@@ -239,8 +241,10 @@ namespace e2d::render_system_impl
 
                 try {
                     vertex_count = mesh->super.worldVerticesLength;
-                    if ( temp_vertices.size() < vertex_count ) {
-                        temp_vertices.resize(math::max(temp_vertices.size() * 2u, vertex_count));
+                    if ( temp_vertices.size() < math::numeric_cast<std::size_t>(vertex_count) ) {
+                        temp_vertices.resize(math::max(
+                            temp_vertices.size() * 2u,
+                            math::numeric_cast<std::size_t>(vertex_count)));
                     }
                 } catch (...) {
                     property_cache_.clear();
@@ -417,7 +421,7 @@ namespace e2d::render_system_impl
                 batcher_.batch(
                     mat_a,
                     property_cache_,
-                    indices, index_count,
+                    indices, math::numeric_cast<std::size_t>(index_count),
                     batch_vertices.data(), batch_vertex_count);
             } catch (...) {
                 property_cache_.clear();

@@ -26,6 +26,7 @@ namespace e2d
         ~internal_state() noexcept = default;
 
         void process(ecs::registry& owner) {
+            E2D_UNUSED(owner);
         }
     };
 
