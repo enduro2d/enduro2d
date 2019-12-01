@@ -10,6 +10,33 @@ namespace
 {
     using namespace e2d;
 
+    const char* imgui_vertex_source_cstr = R"glsl(
+        attribute vec2 a_position;
+        attribute vec2 a_uv;
+        attribute vec4 a_color;
+
+        uniform mat4 u_MVP;
+
+        varying vec4 v_color;
+        varying vec2 v_uv;
+
+        void main(){
+          v_color = a_color;
+          v_uv = a_uv;
+          gl_Position = vec4(a_position.x, -a_position.y, 0.0, 1.0) * u_MVP;
+        }
+    )glsl";
+
+    const char* imgui_fragment_source_cstr = R"glsl(
+        uniform sampler2D u_texture;
+        varying vec4 v_color;
+        varying vec2 v_uv;
+
+        void main(){
+          gl_FragColor = v_color * texture2D(u_texture, v_uv);
+        }
+    )glsl";
+
     window::cursor_shapes convert_imgui_mouse_cursor(ImGuiMouseCursor mc) noexcept {
         #define DEFINE_CASE(x,y) case x: return window::cursor_shapes::y
         switch ( mc ) {
@@ -273,15 +300,18 @@ namespace e2d
         void setup_config_flags_(ImGuiIO& io) noexcept {
             io.IniFilename = nullptr;
             io.LogFilename = nullptr;
+
+            io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
             io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+
             io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;
         }
 
         void setup_internal_resources_(ImGuiIO& io) {
             {
                 shader_ = render_.create_shader(
-                    dbgui_shaders::vertex_source_cstr(),
-                    dbgui_shaders::fragment_source_cstr());
+                    imgui_vertex_source_cstr,
+                    imgui_fragment_source_cstr);
 
                 if ( !shader_ ) {
                     throw bad_dbgui_operation();
@@ -421,7 +451,7 @@ namespace e2d
         state_->frame_tick();
 
         if ( visible() ) {
-            dbgui_widgets::show_main_menu();
+            imgui::show_main_dock_space();
         }
     }
 
