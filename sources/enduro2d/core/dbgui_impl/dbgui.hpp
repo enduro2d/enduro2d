@@ -15,14 +15,15 @@
 #include <enduro2d/core/window.hpp>
 
 #include <3rdparty/imgui/imgui.h>
+#include <3rdparty/imgui/imgui_internal.h>
 
-namespace e2d::dbgui_shaders
+namespace e2d::imgui
 {
-    const char* vertex_source_cstr() noexcept;
-    const char* fragment_source_cstr() noexcept;
+    void show_main_dock_space();
 }
 
-namespace e2d::dbgui_widgets
+namespace e2d::imgui::windows
 {
-    void show_main_menu();
+    void show_debug_engine(bool* open);
+    void show_debug_window(bool* open);
 }
