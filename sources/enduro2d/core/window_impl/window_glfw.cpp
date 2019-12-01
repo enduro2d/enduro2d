@@ -241,6 +241,22 @@ namespace
                 return keyboard_key_action::unknown;
         }
     }
+
+    int convert_cursor_shape(window::cursor_shapes shape) noexcept {
+        #define DEFINE_CASE(x,y) case window::cursor_shapes::x: return y
+        switch ( shape ) {
+            DEFINE_CASE(arrow, GLFW_ARROW_CURSOR);
+            DEFINE_CASE(ibeam, GLFW_IBEAM_CURSOR);
+            DEFINE_CASE(crosshair, GLFW_CROSSHAIR_CURSOR);
+            DEFINE_CASE(hand, GLFW_HAND_CURSOR);
+            DEFINE_CASE(hresize, GLFW_HRESIZE_CURSOR);
+            DEFINE_CASE(vresize, GLFW_VRESIZE_CURSOR);
+            default:
+                E2D_ASSERT_MSG(false, "unexpected cursor shape");
+                return GLFW_ARROW_CURSOR;
+        }
+        #undef DEFINE_CASE
+    }
 }
 
 namespace e2d
@@ -249,11 +265,15 @@ namespace e2d
     public:
         using window_uptr = std::unique_ptr<
             GLFWwindow, void(*)(GLFWwindow*)>;
+        using cursor_uptr = std::unique_ptr<
+            GLFWcursor, void(*)(GLFWcursor*)>;
+        using cursors_t = flat_map<cursor_shapes, cursor_uptr>;
         using listeners_t = vector<event_listener_uptr>;
     public:
         listeners_t listeners;
         std::recursive_mutex rmutex;
         glfw_state_ptr shared_state;
+        cursors_t cursors;
         window_uptr window;
         v2u real_size;
         v2u virtual_size;
@@ -263,9 +283,11 @@ namespace e2d
         bool resizable = false;
         bool fullscreen = false;
         bool cursor_hidden = false;
+        cursor_shapes cursor_shape = cursor_shapes::arrow;
     public:
         state(const v2u& size, str_view ntitle, bool nvsync, bool nresizable, bool nfullscreen)
         : shared_state(glfw_state::get_shared_state())
+        , cursors(create_cursors_())
         , window(nullptr, glfwDestroyWindow)
         , real_size(size)
         , virtual_size(size)
@@ -344,6 +366,16 @@ namespace e2d
             return listener;
         }
     private:
+        static cursors_t create_cursors_() {
+            cursors_t cursors;
+            for ( const cursor_shapes shape : enum_hpp::values<cursor_shapes>() ) {
+                cursors.emplace(shape, cursor_uptr{
+                    glfwCreateStandardCursor(convert_cursor_shape(shape)),
+                    glfwDestroyCursor});
+            }
+            return cursors;
+        }
+
         static window_uptr open_window_(
             const v2u& virtual_size,
             const str& title,
@@ -591,6 +623,26 @@ namespace e2d
     bool window::is_cursor_hidden() const noexcept {
         std::lock_guard<std::recursive_mutex> guard(state_->rmutex);
         return state_->cursor_hidden;
+    }
+
+    window::cursor_shapes window::cursor_shape() const noexcept {
+        std::lock_guard<std::recursive_mutex> guard(state_->rmutex);
+        return state_->cursor_shape;
+    }
+
+    bool window::set_cursor_shape(cursor_shapes shape) noexcept {
+        std::lock_guard<std::recursive_mutex> guard(state_->rmutex);
+        E2D_ASSERT(state_->window);
+        if ( shape == state_->cursor_shape ) {
+            return true;
+        }
+        const auto cursor_iter = state_->cursors.find(shape);
+        if ( cursor_iter == state_->cursors.end() || !cursor_iter->second ) {
+            return false;
+        }
+        glfwSetCursor(state_->window.get(), cursor_iter->second.get());
+        state_->cursor_shape = shape;
+        return true;
     }
 
     v2u window::real_size() const noexcept {
