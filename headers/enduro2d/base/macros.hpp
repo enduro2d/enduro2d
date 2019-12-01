@@ -41,6 +41,13 @@
     std::memset(E2D_ALLOCA((size)), 0, (size))
 
 //
+// E2D_PP_CAT
+//
+
+#define E2D_PP_CAT(x, y) E2D_PP_CAT_I(x, y)
+#define E2D_PP_CAT_I(x, y) x ## y
+
+//
 // E2D_UNUSED
 //
 

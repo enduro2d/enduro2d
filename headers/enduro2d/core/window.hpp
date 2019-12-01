@@ -19,6 +19,14 @@ namespace e2d
 
     class window final : public module<window> {
     public:
+        ENUM_HPP_CLASS_DECL(cursor_shapes, u8,
+            (arrow)
+            (ibeam)
+            (crosshair)
+            (hand)
+            (hresize)
+            (vresize))
+
         class event_listener : private e2d::noncopyable {
         public:
             virtual ~event_listener() noexcept = default;
@@ -54,6 +62,9 @@ namespace e2d
         void hide_cursor() noexcept;
         void show_cursor() noexcept;
         bool is_cursor_hidden() const noexcept;
+
+        cursor_shapes cursor_shape() const noexcept;
+        bool set_cursor_shape(cursor_shapes shape) noexcept;
 
         v2u real_size() const noexcept;
         v2u virtual_size() const noexcept;
@@ -95,6 +106,8 @@ namespace e2d
         debug& debug_;
     };
 }
+
+ENUM_HPP_REGISTER_TRAITS(e2d::window::cursor_shapes)
 
 namespace e2d
 {

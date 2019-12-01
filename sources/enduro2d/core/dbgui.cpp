@@ -10,6 +10,51 @@ namespace
 {
     using namespace e2d;
 
+    const char* imgui_vertex_source_cstr = R"glsl(
+        attribute vec2 a_position;
+        attribute vec2 a_uv;
+        attribute vec4 a_color;
+
+        uniform mat4 u_MVP;
+
+        varying vec4 v_color;
+        varying vec2 v_uv;
+
+        void main(){
+          v_color = a_color;
+          v_uv = a_uv;
+          gl_Position = vec4(a_position.x, -a_position.y, 0.0, 1.0) * u_MVP;
+        }
+    )glsl";
+
+    const char* imgui_fragment_source_cstr = R"glsl(
+        uniform sampler2D u_texture;
+        varying vec4 v_color;
+        varying vec2 v_uv;
+
+        void main(){
+          gl_FragColor = v_color * texture2D(u_texture, v_uv);
+        }
+    )glsl";
+
+    window::cursor_shapes convert_imgui_mouse_cursor(ImGuiMouseCursor mc) noexcept {
+        #define DEFINE_CASE(x,y) case x: return window::cursor_shapes::y
+        switch ( mc ) {
+            DEFINE_CASE(ImGuiMouseCursor_Arrow, arrow);
+            DEFINE_CASE(ImGuiMouseCursor_TextInput, ibeam);
+            DEFINE_CASE(ImGuiMouseCursor_ResizeAll, crosshair);
+            DEFINE_CASE(ImGuiMouseCursor_ResizeNS, vresize);
+            DEFINE_CASE(ImGuiMouseCursor_ResizeEW, hresize);
+            DEFINE_CASE(ImGuiMouseCursor_ResizeNESW, crosshair);
+            DEFINE_CASE(ImGuiMouseCursor_ResizeNWSE, crosshair);
+            DEFINE_CASE(ImGuiMouseCursor_Hand, hand);
+            default:
+                E2D_ASSERT_MSG(false, "unexpected imgui mouse cursor");
+                return window::cursor_shapes::arrow;
+        }
+        #undef DEFINE_CASE
+    }
+
     class imgui_event_listener final : public window::event_listener {
     public:
         imgui_event_listener(ImGuiIO& io, window& w)
@@ -61,12 +106,15 @@ namespace e2d
 {
     class dbgui::internal_state final : private e2d::noncopyable {
     public:
+        using context_uptr = std::unique_ptr<
+            ImGuiContext, void(*)(ImGuiContext*)>;
+    public:
         internal_state(debug& d, input& i, render& r, window& w)
         : debug_(d)
         , input_(i)
         , render_(r)
         , window_(w)
-        , context_(ImGui::CreateContext())
+        , context_(ImGui::CreateContext(), ImGui::DestroyContext)
         , listener_(w.register_event_listener<imgui_event_listener>(bind_context(), w))
         {
             ImGuiIO& io = bind_context();
@@ -77,11 +125,10 @@ namespace e2d
 
         ~internal_state() noexcept {
             window_.unregister_event_listener(listener_);
-            ImGui::DestroyContext(context_);
         }
     public:
         ImGuiIO& bind_context() noexcept {
-            ImGui::SetCurrentContext(context_);
+            ImGui::SetCurrentContext(context_.get());
             return ImGui::GetIO();
         }
 
@@ -136,6 +183,10 @@ namespace e2d
             io.DisplayFramebufferScale =
                 window_.framebuffer_size().cast_to<f32>() /
                 window_.real_size().cast_to<f32>();
+
+            window_.set_cursor_shape(
+                convert_imgui_mouse_cursor(
+                    ImGui::GetMouseCursor()));
 
             if ( ImGui::GetFrameCount() > 0 ) {
                 ImGui::EndFrame();
@@ -249,14 +300,18 @@ namespace e2d
         void setup_config_flags_(ImGuiIO& io) noexcept {
             io.IniFilename = nullptr;
             io.LogFilename = nullptr;
+
+            io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
             io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+
+            io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;
         }
 
         void setup_internal_resources_(ImGuiIO& io) {
             {
                 shader_ = render_.create_shader(
-                    dbgui_shaders::vertex_source_cstr(),
-                    dbgui_shaders::fragment_source_cstr());
+                    imgui_vertex_source_cstr,
+                    imgui_fragment_source_cstr);
 
                 if ( !shader_ ) {
                     throw bad_dbgui_operation();
@@ -366,7 +421,7 @@ namespace e2d
         render& render_;
         window& window_;
         bool visible_{false};
-        ImGuiContext* context_{nullptr};
+        context_uptr context_;
         window::event_listener& listener_;
     private:
         shader_ptr shader_;
@@ -396,7 +451,7 @@ namespace e2d
         state_->frame_tick();
 
         if ( visible() ) {
-            dbgui_widgets::show_main_menu();
+            imgui::show_main_dock_space();
         }
     }
 
