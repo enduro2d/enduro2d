@@ -13,6 +13,7 @@
 #include <enduro2d/core/input.hpp>
 #include <enduro2d/core/network.hpp>
 #include <enduro2d/core/platform.hpp>
+#include <enduro2d/core/profiler.hpp>
 #include <enduro2d/core/render.hpp>
 #include <enduro2d/core/vfs.hpp>
 #include <enduro2d/core/window.hpp>
@@ -374,6 +375,10 @@ namespace e2d
     engine::engine(int argc, char *argv[], const parameters& params)
     : state_(new internal_state(params))
     {
+        // setup profiler
+
+        safe_module_initialize<profiler>();
+
         // setup platform
 
         safe_module_initialize<platform>(argc, argv);
@@ -479,6 +484,7 @@ namespace e2d
         modules::shutdown<debug>();
         modules::shutdown<deferrer>();
         modules::shutdown<platform>();
+        modules::shutdown<profiler>();
     }
 
     bool engine::start(application_uptr app) {

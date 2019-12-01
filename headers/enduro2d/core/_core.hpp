@@ -44,6 +44,7 @@ namespace e2d
     class input;
     class network;
     class platform;
+    class profiler;
     class render;
     class shader;
     class texture;

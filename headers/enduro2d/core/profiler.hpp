@@ -8,16 +8,14 @@
 
 #include "_core.hpp"
 
-#include "audio.hpp"
-#include "dbgui.hpp"
-#include "debug.hpp"
-#include "deferrer.hpp"
-#include "engine.hpp"
-#include "input.hpp"
-#include "network.hpp"
-#include "platform.hpp"
-#include "profiler.hpp"
-#include "render.hpp"
-#include "render.inl"
-#include "vfs.hpp"
-#include "window.hpp"
+namespace e2d
+{
+    class profiler final : public module<profiler> {
+    public:
+        profiler();
+        ~profiler() noexcept final;
+    private:
+        class internal_state;
+        std::unique_ptr<internal_state> state_;
+    };
+}

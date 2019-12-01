@@ -4,20 +4,17 @@
  * Copyright (C) 2018-2019, by Matvey Cherevko (blackmatov@gmail.com)
  ******************************************************************************/
 
-#pragma once
+#include <enduro2d/core/profiler.hpp>
 
-#include "_core.hpp"
+namespace e2d
+{
+    class profiler::internal_state final : private e2d::noncopyable {
+    public:
+        internal_state() = default;
+        ~internal_state() noexcept = default;
+    };
 
-#include "audio.hpp"
-#include "dbgui.hpp"
-#include "debug.hpp"
-#include "deferrer.hpp"
-#include "engine.hpp"
-#include "input.hpp"
-#include "network.hpp"
-#include "platform.hpp"
-#include "profiler.hpp"
-#include "render.hpp"
-#include "render.inl"
-#include "vfs.hpp"
-#include "window.hpp"
+    profiler::profiler()
+    : state_(new internal_state()) {}
+    profiler::~profiler() noexcept = default;
+}
