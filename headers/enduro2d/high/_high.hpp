@@ -93,6 +93,7 @@ namespace e2d
     class sprite;
 
     class luasol;
+    class physics;
     class starter;
     class world;
 

@@ -12,6 +12,7 @@ namespace e2d::bindings::high
 {
     void bind_library(sol::state& l);
     void bind_luasol(sol::state& l);
+    void bind_physics(sol::state& l);
     void bind_world(sol::state& l);
 
     void bind_node(sol::state& l);
@@ -38,6 +39,7 @@ namespace e2d::bindings
     inline void bind_high(sol::state& l) {
         high::bind_library(l);
         high::bind_luasol(l);
+        high::bind_physics(l);
         high::bind_world(l);
 
         high::bind_node(l);

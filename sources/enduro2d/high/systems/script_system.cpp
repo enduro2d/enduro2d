@@ -8,6 +8,7 @@
 
 #include <enduro2d/high/library.hpp>
 #include <enduro2d/high/luasol.hpp>
+#include <enduro2d/high/physics.hpp>
 #include <enduro2d/high/world.hpp>
 
 #include <enduro2d/high/components/actor.hpp>
@@ -33,6 +34,7 @@ namespace
     void init_high_table(sol::state& s) {
         s["the_library"] = &the<library>();
         s["the_luasol"] = &the<luasol>();
+        s["the_physics"] = &the<physics>();
         s["the_world"] = &the<world>();
     }
 

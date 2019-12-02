@@ -67,6 +67,7 @@
 #include "model.hpp"
 #include "node.hpp"
 #include "node.inl"
+#include "physics.hpp"
 #include "prefab.hpp"
 #include "script.hpp"
 #include "spine.hpp"

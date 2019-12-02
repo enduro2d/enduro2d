@@ -6,10 +6,11 @@
 
 #include <enduro2d/high/starter.hpp>
 
-#include <enduro2d/high/world.hpp>
-#include <enduro2d/high/luasol.hpp>
 #include <enduro2d/high/factory.hpp>
 #include <enduro2d/high/library.hpp>
+#include <enduro2d/high/luasol.hpp>
+#include <enduro2d/high/physics.hpp>
+#include <enduro2d/high/world.hpp>
 
 #include <enduro2d/high/components/actor.hpp>
 #include <enduro2d/high/components/behaviour.hpp>
@@ -209,6 +210,7 @@ namespace e2d
         safe_module_initialize<library>(
             params.library_params().root());
 
+        safe_module_initialize<physics>();
         safe_module_initialize<world>();
     }
 
@@ -216,6 +218,7 @@ namespace e2d
         the<luasol>().collect_garbage();
 
         modules::shutdown<world>();
+        modules::shutdown<physics>();
         modules::shutdown<library>();
         modules::shutdown<luasol>();
         modules::shutdown<factory>();
