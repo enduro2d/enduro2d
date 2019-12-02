@@ -24,6 +24,7 @@ namespace e2d
         template < typename F >
         decltype(auto) with_state(F&& f) const;
 
+        std::optional<script> load_script(str_view src);
         std::optional<script> load_script(buffer_view src);
         std::optional<script> load_script(const input_stream_uptr& src);
     private:
