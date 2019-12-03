@@ -182,6 +182,96 @@ namespace e2d::strings
     };
 
     //
+    // ray2
+    //
+
+    template < typename T >
+    class format_arg<ray2<T>, std::enable_if_t<std::is_integral_v<T>>> {
+        ray2<T> value_;
+        u8 width_;
+    public:
+        template < typename U >
+        explicit format_arg(U&& value, u8 width = 0) noexcept
+        : value_(std::forward<U>(value)), width_(width) {}
+
+        std::ptrdiff_t write(char* dst, size_t size) const {
+            return math::numeric_cast<std::ptrdiff_t>(
+                format(dst, size, "(%0,%1,%2,%3)",
+                    make_format_arg(value_.origin.x, width_),
+                    make_format_arg(value_.origin.y, width_),
+                    make_format_arg(value_.direction.x, width_),
+                    make_format_arg(value_.direction.y, width_)));
+        }
+    };
+
+    template < typename T >
+    class format_arg<ray2<T>, std::enable_if_t<std::is_floating_point_v<T>>> {
+        ray2<T> value_;
+        u8 width_;
+        u8 precision_;
+    public:
+        template < typename U >
+        explicit format_arg(U&& value, u8 width = 0, u8 precision = 6) noexcept
+        : value_(std::forward<U>(value)), width_(width), precision_(precision) {}
+
+        std::ptrdiff_t write(char* dst, size_t size) const {
+            return math::numeric_cast<std::ptrdiff_t>(
+                format(dst, size, "(%0,%1,%2,%3)",
+                    make_format_arg(value_.origin.x, width_, precision_),
+                    make_format_arg(value_.origin.y, width_, precision_),
+                    make_format_arg(value_.direction.x, width_, precision_),
+                    make_format_arg(value_.direction.y, width_, precision_)));
+        }
+    };
+
+    //
+    // ray3
+    //
+
+    template < typename T >
+    class format_arg<ray3<T>, std::enable_if_t<std::is_integral_v<T>>> {
+        ray3<T> value_;
+        u8 width_;
+    public:
+        template < typename U >
+        explicit format_arg(U&& value, u8 width = 0) noexcept
+        : value_(std::forward<U>(value)), width_(width) {}
+
+        std::ptrdiff_t write(char* dst, size_t size) const {
+            return math::numeric_cast<std::ptrdiff_t>(
+                format(dst, size, "(%0,%1,%2,%3,%4,%5)",
+                    make_format_arg(value_.origin.x, width_),
+                    make_format_arg(value_.origin.y, width_),
+                    make_format_arg(value_.origin.z, width_),
+                    make_format_arg(value_.direction.x, width_),
+                    make_format_arg(value_.direction.y, width_),
+                    make_format_arg(value_.direction.z, width_)));
+        }
+    };
+
+    template < typename T >
+    class format_arg<ray3<T>, std::enable_if_t<std::is_floating_point_v<T>>> {
+        ray3<T> value_;
+        u8 width_;
+        u8 precision_;
+    public:
+        template < typename U >
+        explicit format_arg(U&& value, u8 width = 0, u8 precision = 6) noexcept
+        : value_(std::forward<U>(value)), width_(width), precision_(precision) {}
+
+        std::ptrdiff_t write(char* dst, size_t size) const {
+            return math::numeric_cast<std::ptrdiff_t>(
+                format(dst, size, "(%0,%1,%2,%3,%4,%5)",
+                    make_format_arg(value_.origin.x, width_, precision_),
+                    make_format_arg(value_.origin.y, width_, precision_),
+                    make_format_arg(value_.origin.z, width_, precision_),
+                    make_format_arg(value_.direction.x, width_, precision_),
+                    make_format_arg(value_.direction.y, width_, precision_),
+                    make_format_arg(value_.direction.z, width_, precision_)));
+        }
+    };
+
+    //
     // rect
     //
 

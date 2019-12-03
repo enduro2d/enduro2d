@@ -47,8 +47,8 @@ TEST_CASE("ray2") {
         REQUIRE(r2i(1,2).origin == v2i(0,0));
         REQUIRE(r2i(1,2).direction == v2i(1,2));
 
-        REQUIRE(r2i({1,2}).origin == v2i(0,0));
-        REQUIRE(r2i({1,2}).direction == v2i(1,2));
+        REQUIRE(r2i(v2i{1,2}).origin == v2i(0,0));
+        REQUIRE(r2i(v2i{1,2}).direction == v2i(1,2));
 
         REQUIRE(r2i(1,2,3,4).origin == v2i(1,2));
         REQUIRE(r2i(1,2,3,4).direction == v2i(3,4));
@@ -140,7 +140,7 @@ TEST_CASE("ray2") {
     {
         REQUIRE_FALSE(math::contains_nan(r2i({1,2},{3,4})));
         REQUIRE_FALSE(math::contains_nan(r2f({1.f,2.f},{3.f,4.f})));
-        REQUIRE(math::contains_nan(r2f({1.f,std::numeric_limits<f32>::quiet_NaN()})));
-        REQUIRE(math::contains_nan(r2f({std::numeric_limits<f32>::infinity(), 1.f})));
+        REQUIRE(math::contains_nan(r2f(1.f,std::numeric_limits<f32>::quiet_NaN())));
+        REQUIRE(math::contains_nan(r2f(std::numeric_limits<f32>::infinity(), 1.f)));
     }
 }
