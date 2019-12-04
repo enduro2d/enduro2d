@@ -1,0 +1,26 @@
+{
+    "components" : {
+        "scene" : {},
+        "behaviour" : {
+            "script" : "../scripts/sample_08/sample_08.lua"
+        }
+    },
+    "children" : [{
+        "prototype" : "../prefabs/camera_prefab.json"
+    },{
+        "prototype" : "../prefabs/ship_prefab.json",
+        "components" : {
+            "actor" : {
+                "translation" : [0,0],
+                "scale" : 1
+            },
+            "behaviour" : {
+                "script" : "../scripts/sample_08/ship.lua"
+            },
+            "touchable" : {},
+            "rect_collider" : {
+                "size" : [66,113]
+            }
+        }
+    }]
+}
