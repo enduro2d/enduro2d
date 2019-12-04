@@ -49,6 +49,7 @@
 #include "systems/flipbook_system.hpp"
 #include "systems/input_system.hpp"
 #include "systems/label_system.hpp"
+#include "systems/physics_system.hpp"
 #include "systems/render_system.hpp"
 #include "systems/script_system.hpp"
 #include "systems/spine_system.hpp"

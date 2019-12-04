@@ -33,6 +33,7 @@
 #include <enduro2d/high/systems/flipbook_system.hpp>
 #include <enduro2d/high/systems/input_system.hpp>
 #include <enduro2d/high/systems/label_system.hpp>
+#include <enduro2d/high/systems/physics_system.hpp>
 #include <enduro2d/high/systems/render_system.hpp>
 #include <enduro2d/high/systems/script_system.hpp>
 #include <enduro2d/high/systems/spine_system.hpp>
@@ -61,6 +62,8 @@ namespace
                     .add_system<input_system>())
                 .feature<struct label_feature>(ecs::feature()
                     .add_system<label_system>())
+                .feature<struct physics_feature>(ecs::feature()
+                    .add_system<physics_system>())
                 .feature<struct render_feature>(ecs::feature()
                     .add_system<render_system>())
                 .feature<struct sript_feature>(ecs::feature()
