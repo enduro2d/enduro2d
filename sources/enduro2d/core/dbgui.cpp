@@ -6,101 +6,8 @@
 
 #include "dbgui_impl/dbgui.hpp"
 
-namespace
-{
-    using namespace e2d;
-
-    const char* imgui_vertex_source_cstr = R"glsl(
-        attribute vec2 a_position;
-        attribute vec2 a_uv;
-        attribute vec4 a_color;
-
-        uniform mat4 u_MVP;
-
-        varying vec4 v_color;
-        varying vec2 v_uv;
-
-        void main(){
-          v_color = a_color;
-          v_uv = a_uv;
-          gl_Position = vec4(a_position.x, -a_position.y, 0.0, 1.0) * u_MVP;
-        }
-    )glsl";
-
-    const char* imgui_fragment_source_cstr = R"glsl(
-        uniform sampler2D u_texture;
-        varying vec4 v_color;
-        varying vec2 v_uv;
-
-        void main(){
-          gl_FragColor = v_color * texture2D(u_texture, v_uv);
-        }
-    )glsl";
-
-    window::cursor_shapes convert_imgui_mouse_cursor(ImGuiMouseCursor mc) noexcept {
-        #define DEFINE_CASE(x,y) case x: return window::cursor_shapes::y
-        switch ( mc ) {
-            DEFINE_CASE(ImGuiMouseCursor_Arrow, arrow);
-            DEFINE_CASE(ImGuiMouseCursor_TextInput, ibeam);
-            DEFINE_CASE(ImGuiMouseCursor_ResizeAll, crosshair);
-            DEFINE_CASE(ImGuiMouseCursor_ResizeNS, vresize);
-            DEFINE_CASE(ImGuiMouseCursor_ResizeEW, hresize);
-            DEFINE_CASE(ImGuiMouseCursor_ResizeNESW, crosshair);
-            DEFINE_CASE(ImGuiMouseCursor_ResizeNWSE, crosshair);
-            DEFINE_CASE(ImGuiMouseCursor_Hand, hand);
-            default:
-                E2D_ASSERT_MSG(false, "unexpected imgui mouse cursor");
-                return window::cursor_shapes::arrow;
-        }
-        #undef DEFINE_CASE
-    }
-
-    class imgui_event_listener final : public window::event_listener {
-    public:
-        imgui_event_listener(ImGuiIO& io, window& w)
-        : io_(io)
-        , window_(w) {}
-
-        void on_input_char(char32_t uchar) noexcept final {
-            if ( uchar <= std::numeric_limits<ImWchar>::max() ) {
-                io_.AddInputCharacter(static_cast<ImWchar>(uchar));
-            }
-        }
-
-        void on_move_cursor(const v2f& pos) noexcept final {
-            const v2f real_size = window_.real_size().cast_to<f32>();
-            if ( math::minimum(real_size) > 0.f ) {
-                io_.MousePos = pos * (v2f(io_.DisplaySize) / real_size);
-            }
-        }
-
-        void on_mouse_scroll(const v2f& delta) noexcept final {
-            io_.MouseWheel += delta.y;
-            io_.MouseWheelH += delta.x;
-        }
-
-        void on_keyboard_key(keyboard_key key, u32 scancode, keyboard_key_action act) noexcept final {
-            E2D_UNUSED(scancode);
-            auto key_i = utils::enum_to_underlying(key);
-            if ( key_i < std::size(io_.KeysDown) ) {
-                switch ( act ) {
-                    case keyboard_key_action::press:
-                    case keyboard_key_action::repeat:
-                        io_.KeysDown[key_i] = true;
-                        break;
-                    case keyboard_key_action::release:
-                        io_.KeysDown[key_i] = false;
-                        break;
-                    case keyboard_key_action::unknown:
-                        break;
-                }
-            }
-        }
-    private:
-        ImGuiIO& io_;
-        window& window_;
-    };
-}
+#include "dbgui_impl/widgets/debug_engine_widget.hpp"
+#include "dbgui_impl/widgets/debug_window_widget.hpp"
 
 namespace e2d
 {
@@ -115,9 +22,9 @@ namespace e2d
         , render_(r)
         , window_(w)
         , context_(ImGui::CreateContext(), ImGui::DestroyContext)
-        , listener_(w.register_event_listener<imgui_event_listener>(bind_context(), w))
+        , listener_(w.register_event_listener<imgui::imgui_event_listener>(bind_context_(), w))
         {
-            ImGuiIO& io = bind_context();
+            ImGuiIO& io = bind_context_();
             setup_key_map_(io);
             setup_config_flags_(io);
             setup_internal_resources_(io);
@@ -127,21 +34,33 @@ namespace e2d
             window_.unregister_event_listener(listener_);
         }
     public:
-        ImGuiIO& bind_context() noexcept {
-            ImGui::SetCurrentContext(context_.get());
-            return ImGui::GetIO();
+        void register_menu_widget(str menu, str item, widget_uptr widget) {
+            E2D_ASSERT(!menu.empty() && !item.empty() && widget);
+            std::lock_guard<std::recursive_mutex> guard(rmutex_);
+            widget_desc desc{std::move(item), std::move(widget), false};
+            if ( widgets_.contains(menu) ) {
+                widgets_[menu].push_back(std::move(desc));
+            } else {
+                vector<widget_desc> descs;
+                descs.push_back(std::move(desc));
+                widgets_.emplace(std::move(menu), std::move(descs));
+            }
         }
 
         bool visible() const noexcept {
+            std::lock_guard<std::recursive_mutex> guard(rmutex_);
             return visible_;
         }
 
         void toggle_visible(bool yesno) noexcept {
+            std::lock_guard<std::recursive_mutex> guard(rmutex_);
             visible_ = yesno;
         }
 
         void frame_tick() {
-            ImGuiIO& io = bind_context();
+            std::lock_guard<std::recursive_mutex> guard(rmutex_);
+
+            ImGuiIO& io = bind_context_();
             const mouse& m = input_.mouse();
             const keyboard& k = input_.keyboard();
 
@@ -185,7 +104,7 @@ namespace e2d
                 window_.real_size().cast_to<f32>();
 
             window_.set_cursor_shape(
-                convert_imgui_mouse_cursor(
+                imgui::convert_mouse_cursor(
                     ImGui::GetMouseCursor()));
 
             if ( ImGui::GetFrameCount() > 0 ) {
@@ -196,8 +115,9 @@ namespace e2d
         }
 
         void frame_render() {
-            ImGui::Render();
+            std::lock_guard<std::recursive_mutex> guard(rmutex_);
 
+            ImGui::Render();
             ImDrawData* draw_data = ImGui::GetDrawData();
             if ( !draw_data ) {
                 return;
@@ -213,11 +133,11 @@ namespace e2d
             for ( int i = 0; i < draw_data->CmdListsCount; ++i ) {
                 const ImDrawList* cmd_list = draw_data->CmdLists[i];
 
-                update_index_buffer({
+                update_index_buffer_({
                     cmd_list->IdxBuffer.Data,
                     math::numeric_cast<std::size_t>(cmd_list->IdxBuffer.Size) * sizeof(ImDrawIdx)});
 
-                update_vertex_buffer({
+                update_vertex_buffer_({
                     cmd_list->VtxBuffer.Data,
                     math::numeric_cast<std::size_t>(cmd_list->VtxBuffer.Size) * sizeof(ImDrawVert)});
 
@@ -262,7 +182,45 @@ namespace e2d
                 }
             }
         }
+
+        void show_main_dock_space() {
+            imgui::show_main_dock_space([this](){
+                if ( ImGui::BeginMenuBar() ) {
+                    E2D_DEFER([](){ ImGui::EndMenuBar(); });
+
+                    for ( auto& p : widgets_ ) {
+                        if ( ImGui::BeginMenu(p.first.c_str()) ) {
+                            E2D_DEFER([](){ ImGui::EndMenu(); });
+
+                            for ( widget_desc& desc : p.second ) {
+                                ImGui::MenuItem(desc.item.c_str(), nullptr, &desc.opened);
+                            }
+                        }
+                    }
+                }
+
+                for ( auto& p : widgets_ ) {
+                    for ( widget_desc& desc : p.second ) {
+                        if ( !desc.opened ) {
+                            continue;
+                        }
+                        if ( E2D_DEFER([](){ ImGui::End(); });
+                            ImGui::Begin(desc.item.c_str(), &desc.opened, ImGuiWindowFlags_None) )
+                        {
+                            if ( !desc.widget->show() ) {
+                                desc.opened = false;
+                            }
+                        }
+                    }
+                }
+            });
+        }
     private:
+        ImGuiIO& bind_context_() noexcept {
+            ImGui::SetCurrentContext(context_.get());
+            return ImGui::GetIO();
+        }
+
         void setup_key_map_(ImGuiIO& io) noexcept {
             const auto map_key = [&io](ImGuiKey_ imgui_key, keyboard_key key) noexcept {
                 E2D_ASSERT(imgui_key < ImGuiKey_COUNT);
@@ -310,8 +268,8 @@ namespace e2d
         void setup_internal_resources_(ImGuiIO& io) {
             {
                 shader_ = render_.create_shader(
-                    imgui_vertex_source_cstr,
-                    imgui_fragment_source_cstr);
+                    imgui::vertex_source_cstr(),
+                    imgui::fragment_source_cstr());
 
                 if ( !shader_ ) {
                     throw bad_dbgui_operation();
@@ -348,7 +306,7 @@ namespace e2d
             }
         }
 
-        static std::size_t calculate_new_buffer_size(
+        static std::size_t calculate_new_buffer_size_(
             std::size_t esize, std::size_t osize, std::size_t nsize)
         {
             std::size_t msize = std::size_t(-1) / esize * esize;
@@ -361,13 +319,13 @@ namespace e2d
             return math::max(osize * 2u, nsize);
         }
 
-        void update_index_buffer(buffer_view indices) {
+        void update_index_buffer_(buffer_view indices) {
             if ( index_buffer_ && index_buffer_->buffer_size() >= indices.size() ) {
                 render_.update_buffer(index_buffer_, indices, 0u);
                 return;
             }
 
-            const std::size_t new_buffer_size = calculate_new_buffer_size(
+            const std::size_t new_buffer_size = calculate_new_buffer_size_(
                 sizeof(ImDrawIdx),
                 index_buffer_ ? index_buffer_->buffer_size() : 0u,
                 indices.size());
@@ -387,13 +345,13 @@ namespace e2d
             }
         }
 
-        void update_vertex_buffer(buffer_view vertices) {
+        void update_vertex_buffer_(buffer_view vertices) {
             if ( vertex_buffer_ && vertex_buffer_->buffer_size() >= vertices.size() ) {
                 render_.update_buffer(vertex_buffer_, vertices, 0u);
                 return;
             }
 
-            const std::size_t new_buffer_size = calculate_new_buffer_size(
+            const std::size_t new_buffer_size = calculate_new_buffer_size_(
                 sizeof(ImDrawVert),
                 vertex_buffer_ ? vertex_buffer_->buffer_size() : 0u,
                 vertices.size());
@@ -420,7 +378,6 @@ namespace e2d
         input& input_;
         render& render_;
         window& window_;
-        bool visible_{false};
         context_uptr context_;
         window::event_listener& listener_;
     private:
@@ -430,14 +387,30 @@ namespace e2d
         render::property_block mprops_;
         index_buffer_ptr index_buffer_;
         vertex_buffer_ptr vertex_buffer_;
+    private:
+        struct widget_desc {
+            str item;
+            widget_uptr widget;
+            bool opened = false;
+        };
+        mutable std::recursive_mutex rmutex_;
+        bool visible_{false};
+        flat_map<str, vector<widget_desc>> widgets_;
     };
 }
 
 namespace e2d
 {
     dbgui::dbgui(debug& d, input& i, render& r, window& w)
-    : state_(new internal_state(d, i, r, w)) {}
+    : state_(new internal_state(d, i, r, w)) {
+        register_menu_widget<dbgui_widgets::debug_engine_widget>("Debug", "Engine...");
+        register_menu_widget<dbgui_widgets::debug_window_widget>("Debug", "Window...");
+    }
     dbgui::~dbgui() noexcept = default;
+
+    void dbgui::register_menu_widget(str menu, str item, widget_uptr widget) {
+        state_->register_menu_widget(std::move(menu), std::move(item), std::move(widget));
+    }
 
     bool dbgui::visible() const noexcept {
         return state_->visible();
@@ -451,7 +424,7 @@ namespace e2d
         state_->frame_tick();
 
         if ( visible() ) {
-            imgui::show_main_dock_space();
+            state_->show_main_dock_space();
         }
     }
 

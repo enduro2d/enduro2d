@@ -27,8 +27,19 @@ namespace e2d
 
     class dbgui final : public module<dbgui> {
     public:
+        class widget : private e2d::noncopyable {
+        public:
+            virtual ~widget() noexcept = default;
+            virtual bool show() = 0;
+        };
+        using widget_uptr = std::unique_ptr<widget>;
+    public:
         dbgui(debug& d, input& i, render& r, window& w);
         ~dbgui() noexcept final;
+
+        template < typename T, typename... Args >
+        void register_menu_widget(str menu, str item, Args&&... args);
+        void register_menu_widget(str menu, str item, widget_uptr widget);
 
         bool visible() const noexcept;
         void toggle_visible(bool yesno) noexcept;
@@ -39,4 +50,15 @@ namespace e2d
         class internal_state;
         std::unique_ptr<internal_state> state_;
     };
+}
+
+namespace e2d
+{
+    template < typename T, typename... Args >
+    void dbgui::register_menu_widget(str menu, str item, Args&&... args) {
+        register_menu_widget(
+            std::move(menu),
+            std::move(item),
+            std::make_unique<T>(std::forward<Args>(args)...));
+    }
 }
