@@ -8,6 +8,10 @@
 
 namespace e2d::dbgui_widgets
 {
+    debug_window_widget::debug_window_widget() {
+        desc_.title = "Window";
+    }
+
     bool debug_window_widget::show() {
         if ( !modules::is_initialized<window>() ) {
             return false;
@@ -17,7 +21,7 @@ namespace e2d::dbgui_widgets
 
         {
             if ( bool visible = w.visible();
-                ImGui::Checkbox("visible", &visible) )
+                imgex::show_checkbox("visible", &visible) )
             {
                 if ( visible ) {
                     w.show();
@@ -28,13 +32,12 @@ namespace e2d::dbgui_widgets
         }
 
         {
-            bool focused = w.focused();
-            ImGui::Checkbox("focused", &focused);
+            imgex::show_disabled_checkbox("focused", w.focused());
         }
 
         {
             if ( bool minimized = w.minimized();
-                ImGui::Checkbox("minimized", &minimized) )
+                imgex::show_checkbox("minimized", &minimized) )
             {
                 if ( minimized ) {
                     w.minimize();
@@ -47,16 +50,24 @@ namespace e2d::dbgui_widgets
         ImGui::Separator();
 
         {
-            ImGui::Text("%s", strings::rformat("real size: %0", w.real_size()).c_str());
-            ImGui::Text("%s", strings::rformat("virtual size: %0", w.virtual_size()).c_str());
-            ImGui::Text("%s", strings::rformat("framebuffer size: %0", w.framebuffer_size()).c_str());
+            imgex::show_text(
+                "real size: %0",
+                w.real_size());
+
+            imgex::show_text(
+                "virtual size: %0",
+                w.virtual_size());
+
+            imgex::show_text(
+                "framebuffer size: %0",
+                w.framebuffer_size());
         }
 
         ImGui::Separator();
 
         {
             if ( bool fullscreen = w.fullscreen();
-                ImGui::Checkbox("fullscreen", &fullscreen) )
+                imgex::show_checkbox("fullscreen", &fullscreen) )
             {
                 w.toggle_fullscreen(fullscreen);
             }
@@ -64,7 +75,7 @@ namespace e2d::dbgui_widgets
 
         {
             if ( bool cursor = !w.is_cursor_hidden();
-                ImGui::Checkbox("system cursor", &cursor) )
+                imgex::show_checkbox("system cursor", &cursor) )
             {
                 if ( cursor ) {
                     w.show_cursor();
@@ -83,5 +94,9 @@ namespace e2d::dbgui_widgets
         }
 
         return true;
+    }
+
+    const debug_window_widget::description& debug_window_widget::desc() const noexcept {
+        return desc_;
     }
 }

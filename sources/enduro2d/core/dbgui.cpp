@@ -6,6 +6,7 @@
 
 #include "dbgui_impl/dbgui.hpp"
 
+#include "dbgui_impl/widgets/debug_console_widget.hpp"
 #include "dbgui_impl/widgets/debug_engine_widget.hpp"
 #include "dbgui_impl/widgets/debug_window_widget.hpp"
 
@@ -37,6 +38,7 @@ namespace e2d
         void register_menu_widget(str menu, str item, widget_uptr widget) {
             E2D_ASSERT(!menu.empty() && !item.empty() && widget);
             std::lock_guard<std::recursive_mutex> guard(rmutex_);
+
             widget_desc desc{std::move(item), std::move(widget), false};
             if ( widgets_.contains(menu) ) {
                 widgets_[menu].push_back(std::move(desc));
@@ -184,35 +186,9 @@ namespace e2d
         }
 
         void show_main_dock_space() {
-            imgui::show_main_dock_space([this](){
-                if ( ImGui::BeginMenuBar() ) {
-                    E2D_DEFER([](){ ImGui::EndMenuBar(); });
-
-                    for ( auto& p : widgets_ ) {
-                        if ( ImGui::BeginMenu(p.first.c_str()) ) {
-                            E2D_DEFER([](){ ImGui::EndMenu(); });
-
-                            for ( widget_desc& desc : p.second ) {
-                                ImGui::MenuItem(desc.item.c_str(), nullptr, &desc.opened);
-                            }
-                        }
-                    }
-                }
-
-                for ( auto& p : widgets_ ) {
-                    for ( widget_desc& desc : p.second ) {
-                        if ( !desc.opened ) {
-                            continue;
-                        }
-                        if ( E2D_DEFER([](){ ImGui::End(); });
-                            ImGui::Begin(desc.item.c_str(), &desc.opened, ImGuiWindowFlags_None) )
-                        {
-                            if ( !desc.widget->show() ) {
-                                desc.opened = false;
-                            }
-                        }
-                    }
-                }
+            imgex::with_main_dock_space([this](){
+                show_widget_menu_bar_();
+                show_widget_windows_();
             });
         }
     private:
@@ -373,6 +349,44 @@ namespace e2d
                     new_buffer_size);
             }
         }
+
+        void show_widget_menu_bar_() {
+            imgex::with_menu_bar([this](){
+                for ( auto& p : widgets_ ) {
+                    imgex::with_menu(p.first, [&p](){
+                        for ( widget_desc& desc : p.second ) {
+                            ImGui::MenuItem(desc.item.c_str(), nullptr, &desc.opened);
+                        }
+                    });
+                }
+            });
+        }
+
+        void show_widget_windows_() {
+            for ( auto& p : widgets_ ) {
+                for ( widget_desc& desc : p.second ) {
+                    if ( !desc.opened ) {
+                        continue;
+                    }
+
+                    const str& title = desc.widget->desc().title
+                        ? *desc.widget->desc().title
+                        : desc.item;
+
+                    if ( desc.widget->desc().first_size ) {
+                        ImGui::SetNextWindowSize(
+                            *desc.widget->desc().first_size,
+                            ImGuiCond_FirstUseEver);
+                    }
+
+                    imgex::with_window(title, &desc.opened, ImGuiWindowFlags_None, [&desc](){
+                        if ( !desc.widget->show() ) {
+                            desc.opened = false;
+                        }
+                    });
+                }
+            }
+        }
     private:
         debug& debug_;
         input& input_;
@@ -403,6 +417,7 @@ namespace e2d
 {
     dbgui::dbgui(debug& d, input& i, render& r, window& w)
     : state_(new internal_state(d, i, r, w)) {
+        register_menu_widget<dbgui_widgets::debug_console_widget>("Debug", "Console...", d);
         register_menu_widget<dbgui_widgets::debug_engine_widget>("Debug", "Engine...");
         register_menu_widget<dbgui_widgets::debug_window_widget>("Debug", "Window...");
     }

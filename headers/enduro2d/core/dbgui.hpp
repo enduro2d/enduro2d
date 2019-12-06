@@ -29,8 +29,14 @@ namespace e2d
     public:
         class widget : private e2d::noncopyable {
         public:
+            struct description {
+                std::optional<str> title;
+                std::optional<v2f> first_size;
+            };
+        public:
             virtual ~widget() noexcept = default;
             virtual bool show() = 0;
+            virtual const description& desc() const noexcept = 0;
         };
         using widget_uptr = std::unique_ptr<widget>;
     public:

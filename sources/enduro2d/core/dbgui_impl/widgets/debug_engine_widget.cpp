@@ -8,6 +8,10 @@
 
 namespace e2d::dbgui_widgets
 {
+    debug_engine_widget::debug_engine_widget() {
+        desc_.title = "Engine";
+    }
+
     bool debug_engine_widget::show() {
         if ( !modules::is_initialized<engine>() ) {
             return false;
@@ -16,18 +20,22 @@ namespace e2d::dbgui_widgets
         engine& e = the<engine>();
 
         {
-            ImGui::Text("%s", strings::rformat("time: %0", e.time()).c_str());
-            ImGui::Text("%s", strings::rformat("delta time: %0", e.delta_time()).c_str());
+            imgex::show_text("time: %0", e.time());
+            imgex::show_text("delta time: %0", e.delta_time());
         }
 
         ImGui::Separator();
 
         {
-            ImGui::Text("%s", strings::rformat("frame rate: %0", e.frame_rate()).c_str());
-            ImGui::Text("%s", strings::rformat("frame count: %0", e.frame_count()).c_str());
-            ImGui::Text("%s", strings::rformat("realtime time: %0", e.realtime_time()).c_str());
+            imgex::show_text("frame rate: %0", e.frame_rate());
+            imgex::show_text("frame count: %0", e.frame_count());
+            imgex::show_text("realtime time: %0", e.realtime_time());
         }
 
         return true;
+    }
+
+    const debug_engine_widget::description& debug_engine_widget::desc() const noexcept {
+        return desc_;
     }
 }

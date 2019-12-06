@@ -12,9 +12,12 @@ namespace e2d::dbgui_widgets
 {
     class debug_window_widget final : public dbgui::widget {
     public:
-        debug_window_widget() = default;
+        debug_window_widget();
         ~debug_window_widget() noexcept = default;
 
         bool show() override;
+        const description& desc() const noexcept override;
+    private:
+        description desc_;
     };
 }
