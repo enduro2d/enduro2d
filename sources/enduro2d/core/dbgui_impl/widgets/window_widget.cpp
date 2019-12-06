@@ -4,15 +4,15 @@
  * Copyright (C) 2018-2019, by Matvey Cherevko (blackmatov@gmail.com)
  ******************************************************************************/
 
-#include "debug_window_widget.hpp"
+#include "window_widget.hpp"
 
 namespace e2d::dbgui_widgets
 {
-    debug_window_widget::debug_window_widget() {
+    window_widget::window_widget() {
         desc_.title = "Window";
     }
 
-    bool debug_window_widget::show() {
+    bool window_widget::show() {
         if ( !modules::is_initialized<window>() ) {
             return false;
         }
@@ -96,7 +96,7 @@ namespace e2d::dbgui_widgets
         return true;
     }
 
-    const debug_window_widget::description& debug_window_widget::desc() const noexcept {
+    const window_widget::description& window_widget::desc() const noexcept {
         return desc_;
     }
 }

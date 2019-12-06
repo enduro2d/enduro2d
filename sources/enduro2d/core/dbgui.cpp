@@ -6,9 +6,9 @@
 
 #include "dbgui_impl/dbgui.hpp"
 
-#include "dbgui_impl/widgets/debug_console_widget.hpp"
-#include "dbgui_impl/widgets/debug_engine_widget.hpp"
-#include "dbgui_impl/widgets/debug_window_widget.hpp"
+#include "dbgui_impl/widgets/console_widget.hpp"
+#include "dbgui_impl/widgets/engine_widget.hpp"
+#include "dbgui_impl/widgets/window_widget.hpp"
 
 namespace e2d
 {
@@ -417,9 +417,9 @@ namespace e2d
 {
     dbgui::dbgui(debug& d, input& i, render& r, window& w)
     : state_(new internal_state(d, i, r, w)) {
-        register_menu_widget<dbgui_widgets::debug_console_widget>("Debug", "Console...", d);
-        register_menu_widget<dbgui_widgets::debug_engine_widget>("Debug", "Engine...");
-        register_menu_widget<dbgui_widgets::debug_window_widget>("Debug", "Window...");
+        register_menu_widget<dbgui_widgets::console_widget>("Debug", "Console...", d);
+        register_menu_widget<dbgui_widgets::engine_widget>("Debug", "Engine...");
+        register_menu_widget<dbgui_widgets::window_widget>("Debug", "Window...");
     }
     dbgui::~dbgui() noexcept = default;
 

@@ -4,7 +4,7 @@
  * Copyright (C) 2018-2019, by Matvey Cherevko (blackmatov@gmail.com)
  ******************************************************************************/
 
-#include "debug_console_widget.hpp"
+#include "console_widget.hpp"
 
 namespace
 {
@@ -33,13 +33,13 @@ namespace
 
 namespace e2d::dbgui_widgets
 {
-    bool debug_console_widget::debug_sink::on_message(debug::level lvl, str_view text) noexcept {
+    bool console_widget::debug_sink::on_message(debug::level lvl, str_view text) noexcept {
         std::lock_guard<std::recursive_mutex> guard(rmutex);
         items.push_back(item{log_text_format(lvl, text), lvl});
         return true;
     }
 
-    debug_console_widget::debug_console_widget(debug& d)
+    console_widget::console_widget(debug& d)
     : debug_(d)
     , sink_(debug_.register_sink<debug_sink>()) {
         desc_.title = "Console";
@@ -47,11 +47,11 @@ namespace e2d::dbgui_widgets
         levels_.set();
     }
 
-    debug_console_widget::~debug_console_widget() noexcept {
+    console_widget::~console_widget() noexcept {
         debug_.unregister_sink(sink_);
     }
 
-    bool debug_console_widget::show() {
+    bool console_widget::show() {
         std::lock_guard<std::recursive_mutex> guard(sink_.rmutex);
 
         if ( imgex::show_button("clear") ) {
@@ -99,7 +99,7 @@ namespace e2d::dbgui_widgets
         return true;
     }
 
-    const debug_console_widget::description& debug_console_widget::desc() const noexcept {
+    const console_widget::description& console_widget::desc() const noexcept {
         return desc_;
     }
 }

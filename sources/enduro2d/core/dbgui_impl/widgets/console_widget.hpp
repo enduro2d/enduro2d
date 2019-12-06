@@ -10,7 +10,7 @@
 
 namespace e2d::dbgui_widgets
 {
-    class debug_console_widget final : public dbgui::widget {
+    class console_widget final : public dbgui::widget {
     public:
         class debug_sink final : public debug::sink {
         public:
@@ -26,8 +26,8 @@ namespace e2d::dbgui_widgets
             vector<item> items;
         };
     public:
-        debug_console_widget(debug& d);
-        ~debug_console_widget() noexcept;
+        console_widget(debug& d);
+        ~console_widget() noexcept;
 
         bool show() override;
         const description& desc() const noexcept override;

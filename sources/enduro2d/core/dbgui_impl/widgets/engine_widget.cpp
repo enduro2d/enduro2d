@@ -4,15 +4,15 @@
  * Copyright (C) 2018-2019, by Matvey Cherevko (blackmatov@gmail.com)
  ******************************************************************************/
 
-#include "debug_engine_widget.hpp"
+#include "engine_widget.hpp"
 
 namespace e2d::dbgui_widgets
 {
-    debug_engine_widget::debug_engine_widget() {
+    engine_widget::engine_widget() {
         desc_.title = "Engine";
     }
 
-    bool debug_engine_widget::show() {
+    bool engine_widget::show() {
         if ( !modules::is_initialized<engine>() ) {
             return false;
         }
@@ -35,7 +35,7 @@ namespace e2d::dbgui_widgets
         return true;
     }
 
-    const debug_engine_widget::description& debug_engine_widget::desc() const noexcept {
+    const engine_widget::description& engine_widget::desc() const noexcept {
         return desc_;
     }
 }

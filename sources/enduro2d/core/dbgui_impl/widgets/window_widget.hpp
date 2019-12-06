@@ -10,10 +10,10 @@
 
 namespace e2d::dbgui_widgets
 {
-    class debug_engine_widget final : public dbgui::widget {
+    class window_widget final : public dbgui::widget {
     public:
-        debug_engine_widget();
-        ~debug_engine_widget() noexcept = default;
+        window_widget();
+        ~window_widget() noexcept = default;
 
         bool show() override;
         const description& desc() const noexcept override;
