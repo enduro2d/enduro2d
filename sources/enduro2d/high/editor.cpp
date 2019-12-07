@@ -7,6 +7,7 @@
 #include <enduro2d/high/editor.hpp>
 
 #include <enduro2d/high/widgets/hierarchy_widget.hpp>
+#include <enduro2d/high/widgets/inspector_widget.hpp>
 
 namespace
 {
@@ -18,6 +19,7 @@ namespace e2d
     editor::editor() {
         if ( modules::is_initialized<dbgui>() ) {
             the<dbgui>().register_menu_widget<dbgui_widgets::hierarchy_widget>("Scene", "Hierarchy");
+            the<dbgui>().register_menu_widget<dbgui_widgets::inspector_widget>("Scene", "Inspector");
         }
     }
 
