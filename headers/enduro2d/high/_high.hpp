@@ -86,6 +86,7 @@ namespace e2d
     class spine;
     class sprite;
 
+    class editor;
     class luasol;
     class starter;
     class world;

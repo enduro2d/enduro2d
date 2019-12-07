@@ -53,6 +53,7 @@
 #include "asset.hpp"
 #include "asset.inl"
 #include "atlas.hpp"
+#include "editor.hpp"
 #include "factory.hpp"
 #include "factory.inl"
 #include "flipbook.hpp"

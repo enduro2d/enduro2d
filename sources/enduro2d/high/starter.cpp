@@ -6,10 +6,11 @@
 
 #include <enduro2d/high/starter.hpp>
 
-#include <enduro2d/high/world.hpp>
-#include <enduro2d/high/luasol.hpp>
+#include <enduro2d/high/editor.hpp>
 #include <enduro2d/high/factory.hpp>
 #include <enduro2d/high/library.hpp>
+#include <enduro2d/high/luasol.hpp>
+#include <enduro2d/high/world.hpp>
 
 #include <enduro2d/high/components/actor.hpp>
 #include <enduro2d/high/components/behaviour.hpp>
@@ -31,8 +32,6 @@
 #include <enduro2d/high/systems/render_system.hpp>
 #include <enduro2d/high/systems/script_system.hpp>
 #include <enduro2d/high/systems/spine_system.hpp>
-
-#include <enduro2d/high/widgets/hierarchy_widget.hpp>
 
 namespace
 {
@@ -201,15 +200,13 @@ namespace e2d
             params.library_params().root());
 
         safe_module_initialize<world>();
-
-        if ( modules::is_initialized<dbgui>() ) {
-            the<dbgui>().register_menu_widget<dbgui_widgets::hierarchy_widget>("Scene", "Hierarchy");
-        }
+        safe_module_initialize<editor>();
     }
 
     starter::~starter() noexcept {
         the<luasol>().collect_garbage();
 
+        modules::shutdown<editor>();
         modules::shutdown<world>();
         modules::shutdown<library>();
         modules::shutdown<luasol>();

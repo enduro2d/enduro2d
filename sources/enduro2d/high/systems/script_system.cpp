@@ -6,6 +6,7 @@
 
 #include <enduro2d/high/systems/script_system.hpp>
 
+#include <enduro2d/high/editor.hpp>
 #include <enduro2d/high/library.hpp>
 #include <enduro2d/high/luasol.hpp>
 #include <enduro2d/high/world.hpp>
@@ -31,6 +32,7 @@ namespace
     }
 
     void init_high_table(sol::state& s) {
+        s["the_editor"] = &the<editor>();
         s["the_library"] = &the<library>();
         s["the_luasol"] = &the<luasol>();
         s["the_world"] = &the<world>();
