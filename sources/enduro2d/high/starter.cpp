@@ -8,6 +8,7 @@
 
 #include <enduro2d/high/editor.hpp>
 #include <enduro2d/high/factory.hpp>
+#include <enduro2d/high/inspector.hpp>
 #include <enduro2d/high/library.hpp>
 #include <enduro2d/high/luasol.hpp>
 #include <enduro2d/high/world.hpp>
@@ -194,6 +195,8 @@ namespace e2d
             .register_component<commands<spine_player_commands::command>>("spine_player_commands")
             .register_component<sprite_renderer>("sprite_renderer");
 
+        safe_module_initialize<inspector>();
+
         safe_module_initialize<luasol>();
 
         safe_module_initialize<library>(
@@ -210,6 +213,7 @@ namespace e2d
         modules::shutdown<world>();
         modules::shutdown<library>();
         modules::shutdown<luasol>();
+        modules::shutdown<inspector>();
         modules::shutdown<factory>();
         modules::shutdown<engine>();
     }

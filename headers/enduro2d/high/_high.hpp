@@ -87,6 +87,7 @@ namespace e2d
     class sprite;
 
     class editor;
+    class inspector;
     class luasol;
     class starter;
     class world;

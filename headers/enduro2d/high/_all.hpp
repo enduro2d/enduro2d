@@ -58,6 +58,7 @@
 #include "factory.inl"
 #include "flipbook.hpp"
 #include "gobject.hpp"
+#include "inspector.hpp"
 #include "library.hpp"
 #include "library.inl"
 #include "luasol.hpp"
