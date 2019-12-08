@@ -9,11 +9,6 @@
 #include <enduro2d/high/widgets/hierarchy_widget.hpp>
 #include <enduro2d/high/widgets/inspector_widget.hpp>
 
-namespace
-{
-    using namespace e2d;
-}
-
 namespace e2d
 {
     editor::editor() {
@@ -24,4 +19,24 @@ namespace e2d
     }
 
     editor::~editor() noexcept = default;
+
+    void editor::select(const gobject& go) {
+        std::lock_guard<std::mutex> guard(mutex_);
+        selection_.insert(go);
+    }
+
+    bool editor::is_selected(const gobject& go) const noexcept {
+        std::lock_guard<std::mutex> guard(mutex_);
+        return selection_.find(go) != selection_.end();
+    }
+
+    void editor::unselect(const gobject& go) noexcept {
+        std::lock_guard<std::mutex> guard(mutex_);
+        selection_.erase(go);
+    }
+
+    void editor::clear_selection() noexcept {
+        std::lock_guard<std::mutex> guard(mutex_);
+        selection_.clear();
+    }
 }
