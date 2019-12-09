@@ -55,5 +55,15 @@ namespace e2d::dbgui_widgets
 
         bool operator()(str_view l, color32& p) const;
         bool operator()(str_view l, property<color32>& p) const;
+
+        template < typename E >
+        std::enable_if_t<std::is_enum_v<E>, bool>
+        operator()(str_view l, property<E>& p) const {
+            if ( E v = *p; imgex::show_enum(l, &v) ) {
+                p = v;
+                return true;
+            }
+            return false;
+        }
     };
 }

@@ -52,6 +52,38 @@ namespace e2d::imgex
     bool show_input_text(str_view label, str* value);
     bool show_input_text_multiline(str_view label, str* value);
 
+    template < typename E >
+    bool show_enum(str_view label, E* value) {
+        char* label_cstr = static_cast<char*>(E2D_CLEAR_ALLOCA(label.size() + 1));
+        std::memcpy(label_cstr, label.data(), label.size());
+
+        std::optional<str_view> preview = enum_hpp::to_string(*value);
+        char* preview_cstr = static_cast<char*>(E2D_CLEAR_ALLOCA((preview ? preview->size() : 0) + 1));
+        if ( preview ) {
+            std::memcpy(preview_cstr, preview->data(), preview->size());
+        }
+
+        if ( ImGui::BeginCombo(label_cstr, preview_cstr) ) {
+            E2D_DEFER([](){ ImGui::EndCombo(); });
+
+            for ( std::size_t i = 0; i < enum_hpp::size<E>(); ++i ) {
+                str_view item_name = enum_hpp::names<E>()[i];
+                char* item_name_cstr = static_cast<char*>(E2D_CLEAR_ALLOCA(item_name.size() + 1));
+                std::memcpy(item_name_cstr, item_name.data(), item_name.size());
+
+                bool selected = *value == enum_hpp::values<E>()[i];
+                if ( ImGui::Selectable(item_name_cstr, selected) ) {
+                    *value = enum_hpp::values<E>()[i];
+                    return true;
+                } else if ( selected ) {
+                    ImGui::SetItemDefaultFocus();
+                }
+            }
+        }
+
+        return false;
+    }
+
     template < typename... Args >
     void show_text(str_view text, Args&&... args) {
         if constexpr ( sizeof... (Args) ) {

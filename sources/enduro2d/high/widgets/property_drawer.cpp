@@ -78,8 +78,7 @@ namespace e2d::dbgui_widgets
     }
 
     bool property_drawer::operator()(str_view l, property<v2f>& p) const {
-        v2f v = *p;
-        if ( (*this)(l, v) ) {
+        if ( v2f v = *p; (*this)(l, v) ) {
             p = v;
             return true;
         }
@@ -135,8 +134,7 @@ namespace e2d::dbgui_widgets
     }
 
     bool property_drawer::operator()(str_view l, property<v3f>& p) const {
-        v3f v = *p;
-        if ( (*this)(l, v) ) {
+        if ( v3f v = *p; (*this)(l, v) ) {
             p = v;
             return true;
         }
@@ -192,8 +190,7 @@ namespace e2d::dbgui_widgets
     }
 
     bool property_drawer::operator()(str_view l, property<v4f>& p) const {
-        v4f v = *p;
-        if ( (*this)(l, v) ) {
+        if ( v4f v = *p; (*this)(l, v) ) {
             p = v;
             return true;
         }
@@ -247,8 +244,7 @@ namespace e2d::dbgui_widgets
     }
 
     bool property_drawer::operator()(str_view l, property<str>& p) const {
-        str v = *p;
-        if ( (*this)(l, v) ) {
+        if ( str v = *p; (*this)(l, v) ) {
             p = std::move(v);
             return true;
         }
@@ -283,8 +279,7 @@ namespace e2d::dbgui_widgets
     }
 
     bool property_drawer::operator()(str_view l, property<degf>& p) const {
-        degf v = *p;
-        if ( (*this)(l, v) ) {
+        if ( degf v = *p; (*this)(l, v) ) {
             p = v;
             return true;
         }
@@ -340,8 +335,7 @@ namespace e2d::dbgui_widgets
     }
 
     bool property_drawer::operator()(str_view l, property<radf>& p) const {
-        radf v = *p;
-        if ( (*this)(l, v) ) {
+        if ( radf v = *p; (*this)(l, v) ) {
             p = v;
             return true;
         }
@@ -397,8 +391,7 @@ namespace e2d::dbgui_widgets
     }
 
     bool property_drawer::operator()(str_view l, property<color>& p) const {
-        color v = *p;
-        if ( (*this)(l, v) ) {
+        if ( color v = *p; (*this)(l, v) ) {
             p = v;
             return true;
         }
@@ -410,8 +403,7 @@ namespace e2d::dbgui_widgets
     //
 
     bool property_drawer::operator()(str_view l, color32& p) const {
-        color v = color(p);
-        if ( (*this)(l, v) ) {
+        if ( color v = color(p); (*this)(l, v) ) {
             p = color32(v);
             return true;
         }
@@ -419,8 +411,7 @@ namespace e2d::dbgui_widgets
     }
 
     bool property_drawer::operator()(str_view l, property<color32>& p) const {
-        color v = color(*p);
-        if ( (*this)(l, v) ) {
+        if ( color v = color(*p); (*this)(l, v) ) {
             p = color32(v);
             return true;
         }
