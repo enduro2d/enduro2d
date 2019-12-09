@@ -97,6 +97,14 @@ namespace e2d
     class gcomponent;
     template < typename T >
     class const_gcomponent;
+
+    template < typename T >
+    class property;
+    class text_property;
+    template < typename T >
+    class drag_property;
+    template < typename T >
+    class slider_property;
 }
 
 namespace sol

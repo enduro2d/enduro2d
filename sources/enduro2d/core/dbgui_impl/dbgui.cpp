@@ -137,4 +137,18 @@ namespace e2d::imgex
 
         show_checkbox(label, &value);
     }
+
+    bool show_input_text(str_view label, str* value) {
+        char* label_cstr = static_cast<char*>(E2D_CLEAR_ALLOCA(label.size() + 1));
+        std::memcpy(label_cstr, label.data(), label.size());
+
+        return ImGui::InputText(label_cstr, value);
+    }
+
+    bool show_input_text_multiline(str_view label, str* value) {
+        char* label_cstr = static_cast<char*>(E2D_CLEAR_ALLOCA(label.size() + 1));
+        std::memcpy(label_cstr, label.data(), label.size());
+
+        return ImGui::InputTextMultiline(label_cstr, value);
+    }
 }

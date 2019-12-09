@@ -27,6 +27,8 @@ cp -fv $MODULES_DIR/imgui/imgui_widgets.cpp $SOURCES_RDPARTY_DIR/imgui/imgui_wid
 cp -fv $MODULES_DIR/imgui/imstb_rectpack.h $SOURCES_RDPARTY_DIR/imgui/imstb_rectpack.h
 cp -fv $MODULES_DIR/imgui/imstb_textedit.h $SOURCES_RDPARTY_DIR/imgui/imstb_textedit.h
 cp -fv $MODULES_DIR/imgui/imstb_truetype.h $SOURCES_RDPARTY_DIR/imgui/imstb_truetype.h
+cp -fv $MODULES_DIR/imgui/misc/cpp/imgui_stdlib.h $SOURCES_RDPARTY_DIR/imgui/imgui_stdlib.h
+cp -fv $MODULES_DIR/imgui/misc/cpp/imgui_stdlib.cpp $SOURCES_RDPARTY_DIR/imgui/imgui_stdlib.cpp
 
 mkdir -p $HEADERS_RDPARTY_DIR/lua
 cp -fv $MODULES_DIR/lua/lapi.c $HEADERS_RDPARTY_DIR/lua/lapi.c

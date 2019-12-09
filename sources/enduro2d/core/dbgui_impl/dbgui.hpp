@@ -15,6 +15,7 @@
 #include <enduro2d/core/window.hpp>
 
 #include <3rdparty/imgui/imgui.h>
+#include <3rdparty/imgui/imgui_stdlib.h>
 #include <3rdparty/imgui/imgui_internal.h>
 
 namespace e2d::imgui
@@ -47,6 +48,9 @@ namespace e2d::imgex
 
     bool show_checkbox(str_view label, bool* value);
     void show_disabled_checkbox(str_view label, bool value);
+
+    bool show_input_text(str_view label, str* value);
+    bool show_input_text_multiline(str_view label, str* value);
 
     template < typename... Args >
     void show_text(str_view text, Args&&... args) {
