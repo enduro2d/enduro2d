@@ -90,9 +90,5 @@ function m4f.inversed(m) end
 ---@return m4f
 function m4f.transposed(m) end
 
----@param m m4f
----@return boolean
-function m4f.contains_nan(m) end
-
 ---@type m4f
 _G.m4f = _G.m4f or m4f

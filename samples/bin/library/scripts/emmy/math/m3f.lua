@@ -43,9 +43,5 @@ function m3f.inversed(m) end
 ---@return m3f
 function m3f.transposed(m) end
 
----@param m m3f
----@return boolean
-function m3f.contains_nan(m) end
-
 ---@type m3f
 _G.m3f = _G.m3f or m3f

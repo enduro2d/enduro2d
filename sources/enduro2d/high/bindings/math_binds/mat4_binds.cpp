@@ -95,10 +95,6 @@ namespace
 
             "transposed", [](const mat4<T>& m) -> mat4<T> {
                 return math::transposed(m);
-            },
-
-            "contains_nan", [](const mat4<T>& m) -> bool {
-                return math::contains_nan(m);
             }
         );
     }

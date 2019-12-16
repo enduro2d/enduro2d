@@ -69,9 +69,7 @@ namespace
             "overlaps", sol::resolve<bool(const rect<T>&,const rect<T>&)>(&math::overlaps),
 
             "normalized_to_point", sol::resolve<vec2<T>(const rect<T>&,const vec2<T>&)>(&math::normalized_to_point),
-            "point_to_normalized", sol::resolve<vec2<T>(const rect<T>&,const vec2<T>&)>(&math::point_to_normalized),
-
-            "contains_nan", sol::resolve<bool(const rect<T>&)>(&math::contains_nan));
+            "point_to_normalized", sol::resolve<vec2<T>(const rect<T>&,const vec2<T>&)>(&math::point_to_normalized));
     }
 }
 

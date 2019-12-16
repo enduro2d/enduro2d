@@ -108,9 +108,5 @@ TEST_CASE("trs2") {
             math::make_translation_trs2(v2i{1,2}),
             math::make_translation_trs2(v2i{1,4}),
             1));
-
-        const f32 inf = std::numeric_limits<f32>::infinity();
-        REQUIRE(math::contains_nan(math::make_scale_trs2(v2f{inf, 0.f})));
-        REQUIRE_FALSE(math::contains_nan(math::make_scale_trs2(v2f{0.f, 0.f})));
     }
 }

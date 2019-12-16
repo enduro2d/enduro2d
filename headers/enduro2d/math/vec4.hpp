@@ -621,17 +621,4 @@ namespace e2d::math
             math::inverse_lerp(l.z, r.z, v.z),
             math::inverse_lerp(l.w, r.w, v.w)};
     }
-
-    //
-    // contains_nan
-    //
-
-    template < typename T >
-    bool contains_nan(const vec4<T>& v) noexcept {
-        return
-            !math::is_finite(v.x) ||
-            !math::is_finite(v.y) ||
-            !math::is_finite(v.z) ||
-            !math::is_finite(v.w);
-    }
 }

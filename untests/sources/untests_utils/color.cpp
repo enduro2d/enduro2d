@@ -121,16 +121,6 @@ TEST_CASE("color") {
         REQUIRE(math::clamped(v0, color(7,6,5,4), color(9,9,9,9)) == color(7,6,5,6));
     }
     {
-        {
-            REQUIRE_FALSE(math::contains_nan(color(0,1,2,3)));
-            REQUIRE_FALSE(math::contains_nan(color(0.f,1.f,2.f,3.f)));
-            REQUIRE(math::contains_nan(color(0.f,1.f,2.f,std::numeric_limits<f32>::quiet_NaN())));
-            REQUIRE(math::contains_nan(color(0.f,1.f,std::numeric_limits<f32>::quiet_NaN(),2.f)));
-            REQUIRE(math::contains_nan(color(std::numeric_limits<f32>::infinity(),1.f,2.f,3.f)));
-            REQUIRE(math::contains_nan(color(1.f,std::numeric_limits<f32>::infinity(),2.f,3.f)));
-        }
-    }
-    {
         REQUIRE(colors::pack_color(color(color32(1,2,3,4))) == 0x04010203);
         REQUIRE(colors::pack_color(color(color32(0x12,0x34,0x56,0x78))) == 0x78123456);
         REQUIRE(colors::unpack_color(0x04010203) == color(color32(1,2,3,4)));

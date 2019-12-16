@@ -364,15 +364,4 @@ namespace e2d::math
             mm[0], mm[2],
             mm[1], mm[3]};
     }
-
-    //
-    // contains_nan
-    //
-
-    template < typename T >
-    bool contains_nan(const mat2<T>& v) noexcept {
-        return
-            math::contains_nan(v.rows[0]) ||
-            math::contains_nan(v.rows[1]);
-    }
 }

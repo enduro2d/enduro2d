@@ -39,9 +39,5 @@ function m2f.inversed(m) end
 ---@return m2f
 function m2f.transposed(m) end
 
----@param m m2f
----@return boolean
-function m2f.contains_nan(m) end
-
 ---@type m2f
 _G.m2f = _G.m2f or m2f

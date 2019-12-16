@@ -37,9 +37,5 @@ function t2f.make_scale(s) end
 ---@return boolean
 function t2f.approximately(l, r) end
 
----@param t t2f
----@return boolean
-function t2f.contains_nan(t) end
-
 ---@type t2f
 _G.t2f = _G.t2f or t2f

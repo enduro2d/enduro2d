@@ -75,9 +75,5 @@ function rect.normalized_to_point(r, p) end
 ---@return v2f
 function rect.point_to_normalized(r, p) end
 
----@param r rect
----@return boolean
-function rect.contains_nan(r) end
-
 ---@type rect
 _G.rect = _G.rect or rect

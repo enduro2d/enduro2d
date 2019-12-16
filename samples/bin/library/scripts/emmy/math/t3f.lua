@@ -37,9 +37,5 @@ function t3f.make_scale(s) end
 ---@return boolean
 function t3f.approximately(l, r) end
 
----@param t t3f
----@return boolean
-function t3f.contains_nan(t) end
-
 ---@type t3f
 _G.t3f = _G.t3f or t3f

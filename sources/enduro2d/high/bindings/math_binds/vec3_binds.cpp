@@ -89,9 +89,7 @@ namespace
             "lerp", sol::overload(
                 sol::resolve<vec3<T>(const vec3<T>&, const vec3<T>&, T)>(&math::lerp),
                 sol::resolve<vec3<T>(const vec3<T>&, const vec3<T>&, const vec3<T>&)>(&math::lerp)),
-            "inverse_lerp", sol::resolve<vec3<T>(const vec3<T>&, const vec3<T>&, const vec3<T>&)>(&math::inverse_lerp),
-
-            "contains_nan", sol::resolve<bool(const vec3<T>&)>(&math::contains_nan));
+            "inverse_lerp", sol::resolve<vec3<T>(const vec3<T>&, const vec3<T>&, const vec3<T>&)>(&math::inverse_lerp));
     }
 }
 

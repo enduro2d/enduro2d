@@ -454,23 +454,6 @@ namespace e2d::math
     }
 
     //
-    // is_finite
-    //
-
-    template < typename T >
-    std::enable_if_t<std::is_integral_v<T>, bool>
-    is_finite(T v) noexcept {
-        E2D_UNUSED(v);
-        return true;
-    }
-
-    template < typename T >
-    std::enable_if_t<std::is_floating_point_v<T>, bool>
-    is_finite(T v) noexcept {
-        return std::isfinite(v);
-    }
-
-    //
     // abs/abs_to_unsigned
     //
 

@@ -44,10 +44,6 @@ namespace
 
             "approximately", [](const trs2<T>& l, const trs2<T>& r) -> bool {
                 return math::approximately(l,r);
-            },
-
-            "contains_nan", [](const trs2<T>& t) -> bool {
-                return math::contains_nan(t);
             }
         );
     }

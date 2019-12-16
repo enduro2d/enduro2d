@@ -138,11 +138,4 @@ namespace e2d::math
             && math::approximately(l.rotation, r.rotation, precision)
             && math::approximately(l.scale, r.scale, precision);
     }
-
-    template < typename T >
-    bool contains_nan(const trs3<T>& v) noexcept {
-        return contains_nan(v.translation)
-            || contains_nan(v.rotation)
-            || contains_nan(v.scale);
-    }
 }
