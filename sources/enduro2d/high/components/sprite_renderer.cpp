@@ -169,3 +169,31 @@ namespace e2d
         return true;
     }
 }
+
+namespace e2d
+{
+    const char* component_inspector<sprite_renderer>::title = "sprite_renderer";
+
+    void component_inspector<sprite_renderer>::operator()(gcomponent<sprite_renderer>& c) const {
+        if ( color tint = color(c->tint());
+            ImGui::ColorEdit4("tint", tint.data()) )
+        {
+            c->tint(color32(tint));
+        }
+
+        if ( sprite_renderer::blendings blending = c->blending();
+            imgui_utils::show_enum_combo_box("blending", &blending) )
+        {
+            c->blending(blending);
+        }
+
+        if ( bool filtering = c->filtering();
+            ImGui::Checkbox("filtering", &filtering) )
+        {
+            c->filtering(filtering);
+        }
+
+        ///TODO(BlackMat): add 'sprite' inspector
+        ///TODO(BlackMat): add 'materials' inspector
+    }
+}

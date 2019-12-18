@@ -110,3 +110,43 @@ namespace e2d
         return true;
     }
 }
+
+namespace e2d
+{
+    const char* component_inspector<flipbook_player>::title = "flipbook_player";
+
+    void component_inspector<flipbook_player>::operator()(gcomponent<flipbook_player>& c) const {
+        if ( f32 time = c->time();
+            ImGui::DragFloat("time", &time, 0.01f) )
+        {
+            c->time(time);
+        }
+
+        if ( f32 speed = c->speed();
+            ImGui::DragFloat("speed", &speed, 0.01f) )
+        {
+            c->speed(speed);
+        }
+
+        if ( bool looped = c->looped();
+            ImGui::Checkbox("looped", &looped) )
+        {
+            c->looped(looped);
+        }
+
+        if ( bool stopped = c->stopped();
+            ImGui::Checkbox("stopped", &stopped) )
+        {
+            c->stopped(stopped);
+        }
+
+        if ( bool playing = c->playing();
+            ImGui::Checkbox("playing", &playing) )
+        {
+            c->playing(playing);
+        }
+
+        ///TODO(BlackMat): add 'sequence' inspector
+        ///TODO(BlackMat): add 'flipbook' inspector
+    }
+}

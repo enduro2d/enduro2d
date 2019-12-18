@@ -83,7 +83,6 @@ namespace
     public:
         bool initialize() final {
             return create_scene()
-                && create_camera()
                 && create_systems();
         }
     private:
@@ -100,6 +99,17 @@ namespace
 
             auto scene_i = the<world>().instantiate();
             scene_i.component<scene>().assign();
+
+            {
+                prefab prefab;
+                prefab.prototype()
+                    .component<camera>(camera()
+                        .background({1.f, 0.4f, 0.f, 1.f}));
+
+                the<world>().instantiate(
+                    prefab,
+                    scene_i.component<actor>()->node());
+            }
 
             {
                 prefab prefab;
@@ -165,14 +175,6 @@ namespace
                 }
             }
 
-            return true;
-        }
-
-        bool create_camera() {
-            auto camera_i = the<world>().instantiate();
-            camera_i.component<camera>().assign(camera()
-                .background({1.f, 0.4f, 0.f, 1.f}));
-            camera_i.component<actor>().assign(node::create(camera_i));
             return true;
         }
 

@@ -9,7 +9,7 @@
                 "screen" : "../materials/spine_material_screen.json"
             }
         },
-        "spine_player_events" : {},
-        "spine_player_commands" : {}
+        "spine_player.events" : {},
+        "spine_player.commands" : {}
     }
 }

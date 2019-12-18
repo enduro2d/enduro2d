@@ -78,3 +78,31 @@ namespace e2d
         return true;
     }
 }
+
+namespace e2d
+{
+    const char* component_inspector<renderer>::title = "renderer";
+
+    void component_inspector<renderer>::operator()(gcomponent<renderer>& c) const {
+        if ( v3f translation = c->translation();
+            ImGui::DragFloat3("translation", translation.data(), 1.f) )
+        {
+            c->translation(translation);
+        }
+
+        if ( v3f rotation = c->rotation() * math::rad_to_deg<f32>();
+            ImGui::DragFloat3("rotation", rotation.data(), 0.1f) )
+        {
+            c->rotation(rotation * math::deg_to_rad<f32>());
+        }
+
+        if ( v3f scale = c->scale();
+            ImGui::DragFloat3("scale", scale.data(), 0.01f) )
+        {
+            c->scale(scale);
+        }
+
+        ///TODO(BlackMat): add 'properties' inspector
+        ///TODO(BlackMat): add 'materials' inspector
+    }
+}

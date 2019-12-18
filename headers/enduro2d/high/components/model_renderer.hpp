@@ -9,6 +9,9 @@
 #include "../_high.hpp"
 
 #include "../factory.hpp"
+#include "../gobject.hpp"
+#include "../inspector.hpp"
+
 #include "../assets/model_asset.hpp"
 
 namespace e2d
@@ -23,7 +26,10 @@ namespace e2d
     private:
         model_asset::ptr model_;
     };
+}
 
+namespace e2d
+{
     template <>
     class factory_loader<model_renderer> final : factory_loader<> {
     public:
@@ -36,6 +42,17 @@ namespace e2d
         bool operator()(
             asset_dependencies& dependencies,
             const collect_context& ctx) const;
+    };
+}
+
+namespace e2d
+{
+    template <>
+    class component_inspector<model_renderer> final : component_inspector<> {
+    public:
+        static const char* title;
+
+        void operator()(gcomponent<model_renderer>& c) const;
     };
 }
 

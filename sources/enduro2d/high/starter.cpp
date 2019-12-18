@@ -191,11 +191,25 @@ namespace e2d
             .register_component<renderer>("renderer")
             .register_component<scene>("scene")
             .register_component<spine_player>("spine_player")
-            .register_component<events<spine_player_events::event>>("spine_player_events")
-            .register_component<commands<spine_player_commands::command>>("spine_player_commands")
+            .register_component<events<spine_player_events::event>>("spine_player.events")
+            .register_component<commands<spine_player_commands::command>>("spine_player.commands")
             .register_component<sprite_renderer>("sprite_renderer");
 
-        safe_module_initialize<inspector>();
+        safe_module_initialize<inspector>()
+            .register_component<actor>("actor")
+            .register_component<behaviour>("behaviour")
+            .register_component<camera>("camera")
+            .register_component<flipbook_player>("flipbook_player")
+            .register_component<label>("label")
+            //.register_component<label::dirty>("label.dirty")
+            .register_component<model_renderer>("model_renderer")
+            .register_component<named>("named")
+            .register_component<renderer>("renderer")
+            .register_component<scene>("scene")
+            .register_component<spine_player>("spine_player")
+            //.register_component<events<spine_player_events::event>>("spine_player.events")
+            //.register_component<commands<spine_player_commands::command>>("spine_player.commands")
+            .register_component<sprite_renderer>("sprite_renderer");
 
         safe_module_initialize<luasol>();
 
