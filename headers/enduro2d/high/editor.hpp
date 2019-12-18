@@ -18,11 +18,10 @@ namespace e2d
         ~editor() noexcept final;
 
         void select(const gobject& go);
-        bool is_selected(const gobject& go) const noexcept;
-        void unselect(const gobject& go) noexcept;
         void clear_selection() noexcept;
+        gobject selection() const noexcept;
     private:
         mutable std::mutex mutex_;
-        flat_set<gobject> selection_;
+        gobject selection_;
     };
 }

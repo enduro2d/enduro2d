@@ -21,22 +21,17 @@ namespace e2d
     editor::~editor() noexcept = default;
 
     void editor::select(const gobject& go) {
-        std::lock_guard<std::mutex> guard(mutex_);
-        selection_.insert(go);
-    }
-
-    bool editor::is_selected(const gobject& go) const noexcept {
-        std::lock_guard<std::mutex> guard(mutex_);
-        return selection_.find(go) != selection_.end();
-    }
-
-    void editor::unselect(const gobject& go) noexcept {
-        std::lock_guard<std::mutex> guard(mutex_);
-        selection_.erase(go);
+        std::lock_guard guard(mutex_);
+        selection_ = go;
     }
 
     void editor::clear_selection() noexcept {
-        std::lock_guard<std::mutex> guard(mutex_);
-        selection_.clear();
+        std::lock_guard guard(mutex_);
+        selection_ = gobject();
+    }
+
+    gobject editor::selection() const noexcept {
+        std::lock_guard guard(mutex_);
+        return selection_;
     }
 }
