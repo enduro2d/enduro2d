@@ -20,16 +20,16 @@ namespace e2d::dbgui_widgets
         engine& e = the<engine>();
 
         {
-            imgex::show_text("time: %0", e.time());
-            imgex::show_text("delta time: %0", e.delta_time());
+            imgui_utils::show_formatted_text("time: %0", e.time());
+            imgui_utils::show_formatted_text("delta time: %0", e.delta_time());
         }
 
         ImGui::Separator();
 
         {
-            imgex::show_text("frame rate: %0", e.frame_rate());
-            imgex::show_text("frame count: %0", e.frame_count());
-            imgex::show_text("realtime time: %0", e.realtime_time());
+            imgui_utils::show_formatted_text("frame rate: %0", e.frame_rate());
+            imgui_utils::show_formatted_text("frame count: %0", e.frame_count());
+            imgui_utils::show_formatted_text("realtime time: %0", e.realtime_time());
         }
 
         return true;

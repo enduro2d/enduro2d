@@ -21,7 +21,7 @@ namespace e2d::dbgui_widgets
 
         {
             if ( bool visible = w.visible();
-                imgex::show_checkbox("visible", &visible) )
+                ImGui::Checkbox("visible", &visible) )
             {
                 if ( visible ) {
                     w.show();
@@ -32,12 +32,15 @@ namespace e2d::dbgui_widgets
         }
 
         {
-            imgex::show_disabled_checkbox("focused", w.focused());
+            imgui_utils::with_disabled_flag([&w](){
+                bool focused = w.focused();
+                ImGui::Checkbox("focused", &focused);
+            });
         }
 
         {
             if ( bool minimized = w.minimized();
-                imgex::show_checkbox("minimized", &minimized) )
+                ImGui::Checkbox("minimized", &minimized) )
             {
                 if ( minimized ) {
                     w.minimize();
@@ -50,15 +53,15 @@ namespace e2d::dbgui_widgets
         ImGui::Separator();
 
         {
-            imgex::show_text(
+            imgui_utils::show_formatted_text(
                 "real size: %0",
                 w.real_size());
 
-            imgex::show_text(
+            imgui_utils::show_formatted_text(
                 "virtual size: %0",
                 w.virtual_size());
 
-            imgex::show_text(
+            imgui_utils::show_formatted_text(
                 "framebuffer size: %0",
                 w.framebuffer_size());
         }
@@ -67,7 +70,7 @@ namespace e2d::dbgui_widgets
 
         {
             if ( bool fullscreen = w.fullscreen();
-                imgex::show_checkbox("fullscreen", &fullscreen) )
+                ImGui::Checkbox("fullscreen", &fullscreen) )
             {
                 w.toggle_fullscreen(fullscreen);
             }
@@ -75,7 +78,7 @@ namespace e2d::dbgui_widgets
 
         {
             if ( bool cursor = !w.is_cursor_hidden();
-                imgex::show_checkbox("system cursor", &cursor) )
+                ImGui::Checkbox("system cursor", &cursor) )
             {
                 if ( cursor ) {
                     w.show_cursor();
@@ -86,10 +89,10 @@ namespace e2d::dbgui_widgets
         }
 
         {
-            char title_buf[128] = {0};
-            strings::format(title_buf, std::size(title_buf), w.title());
-            if ( ImGui::InputText("title", title_buf, std::size(title_buf)) ) {
-                w.set_title(title_buf);
+            if ( str title = w.title();
+                ImGui::InputText("title", &title) )
+            {
+                w.set_title(title);
             }
         }
 

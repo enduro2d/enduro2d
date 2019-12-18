@@ -54,23 +54,23 @@ namespace e2d::dbgui_widgets
     bool console_widget::show() {
         std::lock_guard<std::recursive_mutex> guard(sink_.rmutex);
 
-        if ( imgex::show_button("clear") ) {
+        if ( ImGui::Button("clear") ) {
             sink_.items.clear();
         }
 
         imgex::with_popup("levels", [this](){
             for ( const auto level : enum_hpp::values<debug::level>() ) {
-                const str_view name = enum_hpp::to_string_or_throw(level);
+                const str name = str(enum_hpp::to_string_or_throw(level));
                 const std::size_t index = enum_hpp::to_index_or_throw(level);
 
                 bool level_enable = levels_[index];
-                if ( imgex::show_checkbox(name, &level_enable) ) {
+                if ( ImGui::Checkbox(name.c_str(), &level_enable) ) {
                     levels_[index] = level_enable;
                 }
             }
         });
 
-        if ( ImGui::SameLine(); imgex::show_button("levels...") ) {
+        if ( ImGui::SameLine(); ImGui::Button("levels...") ) {
             ImGui::OpenPopup("levels");
         }
 
@@ -86,9 +86,9 @@ namespace e2d::dbgui_widgets
                     continue;
                 }
 
-                imgex::show_colored_text(
-                    item.text,
-                    debug_level_to_color(item.level));
+                ImGui::TextColored(
+                    make_vec4(debug_level_to_color(item.level)),
+                    "%s", item.text.c_str());
             }
 
             if ( scroll_to_bottom ) {
