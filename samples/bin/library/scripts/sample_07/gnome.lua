@@ -21,7 +21,7 @@ end
 ---@param go gobject
 local function update_gnome_rotation(meta, go)
     local time = the_engine.time
-    go.renderer.rotation = q4f.make_from_euler_angles(0, time, 0)
+    go.renderer.rotation = v3f.new(0, time, 0)
 end
 
 -- -----------------------------------------------------------------------------

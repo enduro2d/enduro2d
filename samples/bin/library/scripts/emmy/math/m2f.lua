@@ -16,8 +16,6 @@ function m2f.zero() end
 function m2f.identity() end
 
 ---@overload fun(x: number, y: number): m2f
----@overload fun(xy: v4f): m2f
----@overload fun(xy: v3f): m2f
 ---@overload fun(xy: v2f): m2f
 ---@return m2f
 function m2f.make_scale(...) end

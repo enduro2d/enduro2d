@@ -18,8 +18,6 @@ namespace e2d::bindings::math
     void bind_mat3(sol::state& l);
     void bind_mat4(sol::state& l);
 
-    void bind_quat(sol::state& l);
-
     void bind_rect(sol::state& l);
     void bind_aabb(sol::state& l);
 
@@ -37,8 +35,6 @@ namespace e2d::bindings
         math::bind_mat2(l);
         math::bind_mat3(l);
         math::bind_mat4(l);
-
-        math::bind_quat(l);
 
         math::bind_rect(l);
         math::bind_aabb(l);

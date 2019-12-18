@@ -10,11 +10,11 @@ using namespace e2d;
 TEST_CASE("trs2") {
     {
         REQUIRE(t2i::zero().translation == v2i(0));
-        REQUIRE(t2i::zero().rotation == make_rad(0));
+        REQUIRE(t2i::zero().rotation == 0);
         REQUIRE(t2i::zero().scale == v2i(0));
 
         REQUIRE(t2i::identity().translation == v2i(0));
-        REQUIRE(t2i::identity().rotation == make_rad(0));
+        REQUIRE(t2i::identity().rotation == 0);
         REQUIRE(t2i::identity().scale == v2i(1));
     }
     {
@@ -28,7 +28,7 @@ TEST_CASE("trs2") {
             i32, decltype(std::declval<t2i>().translation.x)
         >::value, "static unit test error");
         static_assert(std::is_same<
-            i32, decltype(std::declval<t2i>().rotation.value)
+            i32, decltype(std::declval<t2i>().rotation)
         >::value, "static unit test error");
         static_assert(std::is_same<
             i32, decltype(std::declval<t2i>().scale.x)
@@ -44,7 +44,7 @@ TEST_CASE("trs2") {
             f32, decltype(std::declval<t2f>().translation.x)
         >::value, "static unit test error");
         static_assert(std::is_same<
-            f32, decltype(std::declval<t2f>().rotation.value)
+            f32, decltype(std::declval<t2f>().rotation)
         >::value, "static unit test error");
         static_assert(std::is_same<
             f32, decltype(std::declval<t2f>().scale.x)
@@ -52,19 +52,19 @@ TEST_CASE("trs2") {
     }
     {
         auto t0 = t2f();
-        auto t1 = t2f(v2f(1.f,2.f), make_rad(3.f), v2f(4.f,5.f));
-        auto t2 = t2f(v2f(1.f,2.f), math::to_deg(make_rad(3.f)), v2f(4.f,5.f));
+        auto t1 = t2f(v2f(1.f,2.f), 3.f, v2f(4.f,5.f));
+        auto t2 = t1;
 
         REQUIRE(t0.translation == v2f(0.f));
-        REQUIRE(t0.rotation == make_rad(0.f));
+        REQUIRE(math::approximately(t0.rotation, 0.f));
         REQUIRE(t0.scale == v2f(1.f));
 
         REQUIRE(t1.translation == v2f(1.f,2.f));
-        REQUIRE(t1.rotation == make_rad(3.f));
+        REQUIRE(math::approximately(t1.rotation, 3.f));
         REQUIRE(t1.scale == v2f(4.f,5.f));
 
         REQUIRE(t2.translation == v2f(1.f,2.f));
-        REQUIRE(math::approximately(t2.rotation, make_rad(3.f)));
+        REQUIRE(math::approximately(t2.rotation, 3.f));
         REQUIRE(t2.scale == v2f(4.f,5.f));
 
         REQUIRE(t0 == t2f::identity());
@@ -75,28 +75,28 @@ TEST_CASE("trs2") {
         REQUIRE(t0 != t1);
     }
     {
-        auto t1 = make_trs2(v2f(1.f,2.f), make_rad(3.f), v2f(4.f,5.f));
+        auto t1 = make_trs2(v2f(1.f,2.f), 3.f, v2f(4.f,5.f));
         auto t2 = t1.cast_to<i32>();
         REQUIRE(t2.translation == v2i(1,2));
-        REQUIRE(t2.rotation == make_rad(3));
+        REQUIRE(t2.rotation == 3);
         REQUIRE(t2.scale == v2i(4,5));
     }
     {
         auto t1 = math::make_translation_trs2(v2f(3.f,4.f));
         REQUIRE(t1.translation == v2f(3.f,4.f));
-        REQUIRE(t1.rotation == make_rad(0.f));
+        REQUIRE(math::approximately(t1.rotation, 0.f));
         REQUIRE(t1.scale == v2f::unit());
     }
     {
-        auto t1 = math::make_rotation_trs2(make_deg(3.f));
+        auto t1 = math::make_rotation_trs2(3.f);
         REQUIRE(t1.translation == v2f::zero());
-        REQUIRE(t1.rotation == math::to_rad(make_deg(3.f)));
+        REQUIRE(math::approximately(t1.rotation, 3.f));
         REQUIRE(t1.scale == v2f::unit());
     }
     {
         auto t1 = math::make_scale_trs2(v2f(3.f,4.f));
         REQUIRE(t1.translation == v2f::zero());
-        REQUIRE(t1.rotation == make_rad(0.f));
+        REQUIRE(math::approximately(t1.rotation, 0.f));
         REQUIRE(t1.scale == make_vec2(3.f,4.f));
     }
     {

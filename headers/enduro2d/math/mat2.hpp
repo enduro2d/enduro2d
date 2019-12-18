@@ -10,8 +10,6 @@
 #include "trig.hpp"
 #include "unit.hpp"
 #include "vec2.hpp"
-#include "vec3.hpp"
-#include "vec4.hpp"
 
 namespace e2d
 {
@@ -274,20 +272,6 @@ namespace e2d::math
         return {
             x, 0,
             0, y};
-    }
-
-    template < typename T >
-    mat2<T> make_scale_matrix2(const vec4<T>& xy) noexcept {
-        return make_scale_matrix2(
-            xy.x,
-            xy.y);
-    }
-
-    template < typename T >
-    mat2<T> make_scale_matrix2(const vec3<T>& xy) noexcept {
-        return make_scale_matrix2(
-            xy.x,
-            xy.y);
     }
 
     template < typename T >

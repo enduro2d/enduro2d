@@ -55,8 +55,7 @@ namespace
                 sol::resolve<vec3<T>(T, const vec3<T>&)>(::operator*),
                 sol::resolve<vec3<T>(const vec3<T>&, T)>(::operator*),
                 sol::resolve<vec3<T>(const vec3<T>&, const vec3<T>&)>(::operator*),
-                sol::resolve<vec3<T>(const vec3<T>&, const mat3<T>&)>(::operator*),
-                sol::resolve<vec3<T>(const vec3<T>&, const quat<T>&)>(::operator*)),
+                sol::resolve<vec3<T>(const vec3<T>&, const mat3<T>&)>(::operator*)),
 
             sol::meta_function::division, sol::overload(
                 sol::resolve<vec3<T>(T, const vec3<T>&)>(::operator/),

@@ -58,7 +58,7 @@ namespace
                     .add_system<label_system>())
                 .feature<struct render_feature>(ecs::feature()
                     .add_system<render_system>())
-                .feature<struct sript_feature>(ecs::feature()
+                .feature<struct script_feature>(ecs::feature()
                     .add_system<script_system>())
                 .feature<struct spine_feature>(ecs::feature()
                     .add_system<spine_system>());

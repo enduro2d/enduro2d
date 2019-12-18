@@ -29,9 +29,6 @@ namespace e2d
     class mat4;
 
     template < typename T >
-    class quat;
-
-    template < typename T >
     class rect;
 
     template < typename T >
@@ -93,13 +90,6 @@ namespace e2d
     using m4u = mat4<u32>;
     using m4hi = mat4<i16>;
     using m4hu = mat4<u16>;
-
-    using q4d = quat<f64>;
-    using q4f = quat<f32>;
-    using q4i = quat<i32>;
-    using q4u = quat<u32>;
-    using q4hi = quat<i16>;
-    using q4hu = quat<u16>;
 
     using b2d = rect<f64>;
     using b2f = rect<f32>;

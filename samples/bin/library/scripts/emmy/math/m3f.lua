@@ -23,10 +23,9 @@ function m3f.identity() end
 function m3f.make_scale(...) end
 
 ---@overload fun(a: number, x: number, y: number, z: number): m3f
----@overload fun(a: number, xyz: v4f): m3f
 ---@overload fun(a: number, xyz: v3f): m3f
----@overload fun(a: number, xy: v2f, z: number): m3f
----@overload fun(q: q4f): m3f
+---@overload fun(r: number, p: number, y: number): m3f
+---@overload fun(rpy: v3f): m3f
 ---@return m3f
 function m3f.make_rotation(...) end
 

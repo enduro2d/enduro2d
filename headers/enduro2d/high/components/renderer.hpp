@@ -23,8 +23,8 @@ namespace e2d
         renderer& translation(const v3f& translation) noexcept;
         [[nodiscard]] const v3f& translation() const noexcept;
 
-        renderer& rotation(const q4f& rotation) noexcept;
-        [[nodiscard]] const q4f& rotation() const noexcept;
+        renderer& rotation(const v3f& rotation) noexcept;
+        [[nodiscard]] const v3f& rotation() const noexcept;
 
         renderer& scale(const v3f& scale) noexcept;
         [[nodiscard]] const v3f& scale() const noexcept;
@@ -81,12 +81,12 @@ namespace e2d
         return transform_.translation;
     }
 
-    inline renderer& renderer::rotation(const q4f& rotation) noexcept {
+    inline renderer& renderer::rotation(const v3f& rotation) noexcept {
         transform_.rotation = rotation;
         return *this;
     }
 
-    inline const q4f& renderer::rotation() const noexcept {
+    inline const v3f& renderer::rotation() const noexcept {
         return transform_.rotation;
     }
 

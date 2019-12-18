@@ -657,14 +657,14 @@ TEST_CASE("node") {
 
         REQUIRE(p->transform() == t2f::identity());
         REQUIRE(p->translation() == v2f::zero());
-        REQUIRE(p->rotation() == radf::zero());
+        REQUIRE(math::approximately(p->rotation(), 0.f));
         REQUIRE(p->scale() == v2f::unit());
 
         p->translation(v2f(1,2));
         REQUIRE(p->translation() == v2f(1,2));
 
-        p->rotation(radf(1.f));
-        REQUIRE(p->rotation() == radf(1.f));
+        p->rotation(1.f);
+        REQUIRE(math::approximately(p->rotation(), 1.f));
 
         p->scale(v2f(1,2));
         REQUIRE(p->scale() == v2f(1,2));

@@ -32,8 +32,8 @@ namespace
                 return math::make_translation_trs3(t);
             },
 
-            "make_rotation", [](const quat<T>& q) -> trs3<T> {
-                return math::make_rotation_trs3(q);
+            "make_rotation", [](const vec3<T>& r) -> trs3<T> {
+                return math::make_rotation_trs3(r);
             },
 
             "make_scale", [](const vec3<T>& s) -> trs3<T> {

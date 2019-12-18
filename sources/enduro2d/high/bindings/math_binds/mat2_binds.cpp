@@ -42,8 +42,6 @@ namespace
 
             "make_scale", sol::overload(
                 sol::resolve<mat2<T>(T,T)>(&math::make_scale_matrix2),
-                sol::resolve<mat2<T>(const vec4<T>&)>(&math::make_scale_matrix2),
-                sol::resolve<mat2<T>(const vec3<T>&)>(&math::make_scale_matrix2),
                 sol::resolve<mat2<T>(const vec2<T>&)>(&math::make_scale_matrix2)),
 
             "make_rotation", [](T angle) -> mat2<T> {

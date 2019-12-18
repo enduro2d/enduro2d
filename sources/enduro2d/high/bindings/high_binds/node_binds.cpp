@@ -26,8 +26,8 @@ namespace e2d::bindings::high
                 [](node& n, const v2f& v) { n.translation(v); }),
 
             "rotation", sol::property(
-                [](const node& n) -> f32 { return n.rotation().value; },
-                [](node& n, f32 v) { n.rotation(make_rad(v)); }),
+                [](const node& n) -> f32 { return n.rotation(); },
+                [](node& n, f32 v) { n.rotation(v); }),
 
             "scale", sol::property(
                 [](const node& n) -> v2f { return n.scale(); },

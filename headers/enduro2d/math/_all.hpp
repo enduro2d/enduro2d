@@ -12,7 +12,6 @@
 #include "mat2.hpp"
 #include "mat3.hpp"
 #include "mat4.hpp"
-#include "quat.hpp"
 #include "rect.hpp"
 #include "trig.hpp"
 #include "trs2.hpp"

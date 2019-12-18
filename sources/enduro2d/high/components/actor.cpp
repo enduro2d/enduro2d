@@ -37,7 +37,7 @@ namespace e2d
         }
 
         if ( ctx.root.HasMember("rotation") ) {
-            radf rotation = component.node()->rotation();
+            f32 rotation = component.node()->rotation();
             if ( !json_utils::try_parse_value(ctx.root["rotation"], rotation) ) {
                 the<debug>().error("ACTOR: Incorrect formatting of 'rotation' property");
                 return false;
