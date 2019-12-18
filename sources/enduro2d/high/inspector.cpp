@@ -8,4 +8,10 @@
 
 namespace e2d
 {
+    void inspector::show_inspector_for(gobject& go) {
+        std::lock_guard<std::mutex> guard(mutex_);
+        for ( auto& p : drawers_ ) {
+            (*p.second)(go);
+        }
+    }
 }

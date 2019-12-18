@@ -59,6 +59,7 @@
 #include "flipbook.hpp"
 #include "gobject.hpp"
 #include "inspector.hpp"
+#include "inspector.inl"
 #include "library.hpp"
 #include "library.inl"
 #include "luasol.hpp"
