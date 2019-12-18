@@ -6,6 +6,10 @@
 
 #include "inspector_widget.hpp"
 
+#include <enduro2d/high/editor.hpp>
+#include <enduro2d/high/gobject.hpp>
+#include <enduro2d/high/inspector.hpp>
+
 namespace e2d::dbgui_widgets
 {
     inspector_widget::inspector_widget() {
@@ -14,6 +18,17 @@ namespace e2d::dbgui_widgets
     }
 
     bool inspector_widget::show() {
+        if ( !modules::is_initialized<editor>() ) {
+            return false;
+        }
+
+        if ( !modules::is_initialized<inspector>() ) {
+            return false;
+        }
+
+        gobject go = the<editor>().selection();
+        the<inspector>().show_inspector_for(go);
+
         return true;
     }
 
