@@ -179,10 +179,10 @@ namespace e2d
 
             io.DisplaySize =
                 window_.real_size().cast_to<f32>();
-
-            io.DisplayFramebufferScale =
-                window_.framebuffer_size().cast_to<f32>() /
-                window_.real_size().cast_to<f32>();
+            
+            io.DisplayFramebufferScale = io.DisplaySize.x > 0.f && io.DisplaySize.y > 0.f
+                ? window_.framebuffer_size().cast_to<f32>() / v2f(io.DisplaySize)
+                : v2f(1.f, 1.f);
 
             window_.set_cursor_shape(
                 convert_imgui_mouse_cursor(
