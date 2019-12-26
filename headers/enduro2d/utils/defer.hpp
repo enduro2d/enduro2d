@@ -19,17 +19,10 @@ namespace e2d
             : f_(std::move(f)) {}
 
             ~defer_impl() noexcept(std::is_nothrow_invocable_v<F>) {
-                if ( !cancelled_ ) {
-                    f_();
-                }
-            }
-
-            void cancel() noexcept {
-                cancelled_ = true;
+                f_();
             }
         private:
             F f_;
-            bool cancelled_{false};
         };
     }
 

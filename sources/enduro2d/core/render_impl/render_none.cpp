@@ -181,6 +181,14 @@ namespace e2d
     }
 
     shader_ptr render::create_shader(
+        buffer_view vertex_source,
+        buffer_view fragment_source)
+    {
+        E2D_UNUSED(vertex_source, fragment_source);
+        return nullptr;
+    }
+
+    shader_ptr render::create_shader(
         const input_stream_uptr& vertex_stream,
         const input_stream_uptr& fragment_stream)
     {

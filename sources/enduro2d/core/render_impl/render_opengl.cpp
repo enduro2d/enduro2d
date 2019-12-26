@@ -532,6 +532,17 @@ namespace e2d
     }
 
     shader_ptr render::create_shader(
+        buffer_view vertex_source,
+        buffer_view fragment_source)
+    {
+        E2D_ASSERT(is_in_main_thread());
+
+        return create_shader(
+            str_view(reinterpret_cast<const char*>(vertex_source.data()), vertex_source.size()),
+            str_view(reinterpret_cast<const char*>(fragment_source.data()), fragment_source.size()));
+    }
+
+    shader_ptr render::create_shader(
         const input_stream_uptr& vertex,
         const input_stream_uptr& fragment)
     {

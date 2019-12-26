@@ -906,6 +906,10 @@ namespace e2d
         shader_ptr create_shader(
             str_view vertex_source,
             str_view fragment_source);
+        
+        shader_ptr create_shader(
+            buffer_view vertex_source,
+            buffer_view fragment_source);
 
         shader_ptr create_shader(
             const input_stream_uptr& vertex_stream,
