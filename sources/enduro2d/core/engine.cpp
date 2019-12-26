@@ -375,10 +375,6 @@ namespace e2d
     engine::engine(int argc, char *argv[], const parameters& params)
     : state_(new internal_state(params))
     {
-        // setup profiler
-
-        safe_module_initialize<profiler>();
-
         // setup platform
 
         safe_module_initialize<platform>(argc, argv);
@@ -386,6 +382,11 @@ namespace e2d
         // setup deferrer
 
         safe_module_initialize<deferrer>();
+
+        // setup profiler
+
+        safe_module_initialize<profiler>(
+            the<deferrer>());
 
         // setup debug
 
@@ -482,9 +483,9 @@ namespace e2d
         modules::shutdown<input>();
         modules::shutdown<vfs>();
         modules::shutdown<debug>();
+        modules::shutdown<profiler>();
         modules::shutdown<deferrer>();
         modules::shutdown<platform>();
-        modules::shutdown<profiler>();
     }
 
     bool engine::start(application_uptr app) {
