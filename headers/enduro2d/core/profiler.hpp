@@ -15,24 +15,24 @@ namespace e2d
         struct begin_scope_info {
             str name;
             std::thread::id tid;
-            std::chrono::steady_clock::time_point tp;
+            std::chrono::microseconds tp;
         };
 
         struct end_scope_info {
             std::thread::id tid;
-            std::chrono::steady_clock::time_point tp;
+            std::chrono::microseconds tp;
         };
 
         struct thread_event_info {
             str name;
             std::thread::id tid;
-            std::chrono::steady_clock::time_point tp;
+            std::chrono::microseconds tp;
         };
 
         struct global_event_info {
             str name;
             std::thread::id tid;
-            std::chrono::steady_clock::time_point tp;
+            std::chrono::microseconds tp;
         };
 
         using event_info = std::variant<
@@ -83,6 +83,7 @@ namespace e2d
         void unregister_sink(const sink& sink) noexcept;
     private:
         deferrer& deferrer_;
+        std::size_t depth_{0u};
         vector<sink_uptr> sinks_;
         std::recursive_mutex rmutex_;
     };
@@ -91,6 +92,12 @@ namespace e2d
 #define E2D_PROFILER_SCOPE(name)\
     auto E2D_PP_CAT(e2d_generated_profiler_scope_, __LINE__) =\
         ::e2d::profiler::scope(the<profiler>(), name)
+
+#define E2D_PROFILER_THREAD_EVENT(name)\
+    the<profiler>().thread_event(name)
+
+#define E2D_PROFILER_GLOBAL_EVENT(name)\
+    the<profiler>().global_event(name)
 
 namespace e2d
 {
@@ -110,20 +117,25 @@ namespace e2d
 
         class temp_sink final : public sink {
         public:
-            temp_sink(time_point_t time_point)
-            : time_point_(time_point) {}
+            temp_sink(std::size_t depth, time_point_t time_point)
+            : depth_(depth)
+            , time_point_(time_point) {}
 
             void on_event(const event_info& event) noexcept final {
+                const bool skip = info_.events.empty() && depth_;
+                
+                if ( std::holds_alternative<begin_scope_info>(event) ) {
+                    ++depth_;
+                } else if ( std::holds_alternative<end_scope_info>(event) ) {
+                    E2D_ASSERT(depth_);
+                    --depth_;
+                }
+
                 try {
-                    info_.events.push_back(event);
-
-                    if ( std::holds_alternative<begin_scope_info>(event) ) {
-                        ++depth_;
-                    } else if ( std::holds_alternative<end_scope_info>(event) ) {
-                        E2D_ASSERT(depth_);
-                        --depth_;
+                    if ( !skip ) {
+                        info_.events.push_back(event);
                     }
-
+                    
                     if ( !depth_ && time_point_ <= Clock::now() ) {
                         promise_.resolve(std::move(info_));
                     }
@@ -146,7 +158,7 @@ namespace e2d
             time_point_t time_point_;
         };
 
-        temp_sink& s = register_sink<temp_sink>(timeout_time);
+        temp_sink& s = register_sink<temp_sink>(depth_, timeout_time);
         return s.promise().then([&s, this](auto&& info){
             return deferrer_.do_in_main_thread([&s, this](auto&& info){
                 unregister_sink(s);
@@ -160,4 +172,15 @@ namespace e2d
         return static_cast<T&>(
             register_sink(std::make_unique<T>(std::forward<Args>(args)...)));
     }
+}
+
+namespace e2d::profilers
+{
+    bool try_save_recording_info(
+        const profiler::recording_info& src,
+        buffer& dst) noexcept;
+    
+    bool try_save_recording_info(
+        const profiler::recording_info& src,
+        const output_stream_uptr& dst) noexcept;
 }
