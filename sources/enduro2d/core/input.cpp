@@ -6,6 +6,8 @@
 
 #include <enduro2d/core/input.hpp>
 
+#include <enduro2d/core/profiler.hpp>
+
 namespace e2d
 {
     //
@@ -364,6 +366,7 @@ namespace e2d
     }
 
     void input::frame_tick() noexcept {
+        E2D_PROFILER_SCOPE("input.frame_tick");
         state_->mouse.state_->frame_tick();
         state_->keyboard.state_->frame_tick();
     }

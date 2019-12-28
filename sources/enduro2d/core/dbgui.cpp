@@ -448,6 +448,7 @@ namespace e2d
     }
 
     void dbgui::frame_tick() {
+        E2D_PROFILER_SCOPE("dbgui.frame_tick");
         state_->frame_tick();
 
         if ( visible() ) {
@@ -456,6 +457,7 @@ namespace e2d
     }
 
     void dbgui::frame_render() {
+        E2D_PROFILER_SCOPE("dbgui.frame_render");
         state_->frame_render();
     }
 }

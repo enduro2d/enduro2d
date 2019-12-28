@@ -320,6 +320,8 @@ namespace e2d
         }
     public:
         void calculate_end_frame_timers() noexcept {
+            E2D_PROFILER_SCOPE("engine.wait_for_target_fps");
+
             const auto second_us = time::second_us<u64>();
 
             const auto minimal_delta_time_us =
@@ -499,7 +501,7 @@ namespace e2d
         while ( true ) {
             try {
                 the<dbgui>().frame_tick();
-                the<deferrer>().scheduler().process_all_tasks();
+                the<deferrer>().frame_tick();
 
                 if ( !app->frame_tick() ) {
                     break;
@@ -517,8 +519,11 @@ namespace e2d
                 app->shutdown();
                 throw;
             }
+            
             the<input>().frame_tick();
             window::poll_events();
+
+            E2D_PROFILER_GLOBAL_EVENT("engine.end_of_frame");
         }
 
         app->shutdown();

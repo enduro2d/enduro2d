@@ -93,6 +93,7 @@ namespace e2d
         const ecs::after<systems::render_event>& trigger)
     {
         E2D_UNUSED(trigger);
+        E2D_PROFILER_SCOPE("render_system.process");
         state_->process(owner);
     }
 }
