@@ -108,8 +108,17 @@ namespace e2d
 
     vfs::vfs()
     : state_(new state()){}
-
     vfs::~vfs() noexcept = default;
+
+    stdex::jobber& vfs::worker() noexcept {
+        std::lock_guard<std::mutex> guard(state_->mutex);
+        return state_->worker;
+    }
+
+    const stdex::jobber& vfs::worker() const noexcept {
+        std::lock_guard<std::mutex> guard(state_->mutex);
+        return state_->worker;
+    }
 
     bool vfs::register_scheme(str_view scheme, file_source_uptr source) {
         std::lock_guard<std::mutex> guard(state_->mutex);
