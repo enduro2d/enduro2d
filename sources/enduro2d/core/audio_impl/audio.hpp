@@ -6,8 +6,9 @@
 
 #pragma once
 
-#include <enduro2d/core/debug.hpp>
 #include <enduro2d/core/audio.hpp>
+#include <enduro2d/core/debug.hpp>
+#include <enduro2d/core/profiler.hpp>
 
 #define E2D_AUDIO_MODE_NONE 1
 #define E2D_AUDIO_MODE_BASS 2

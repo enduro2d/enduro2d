@@ -156,6 +156,8 @@ namespace e2d
             return nullptr;
         }
 
+        E2D_PROFILER_SCOPE("audio.create_stream");
+
         HSAMPLE sample = BASS_SampleLoad(
             TRUE,
             sound_data.data(),
@@ -188,6 +190,8 @@ namespace e2d
             state_->dbg().error("AUDIO: file stream is null");
             return nullptr;
         }
+
+        E2D_PROFILER_SCOPE("audio.create_stream");
 
         BASS_FILEPROCS file_procs = {
             sound_stream_close_proc,
@@ -225,6 +229,8 @@ namespace e2d
             state_->dbg().error("AUDIO: stream is null");
             return nullptr;
         }
+
+        E2D_PROFILER_SCOPE("audio.create_source");
 
         HCHANNEL channel = stream->state().stream()
             ? stream->state().sound()
