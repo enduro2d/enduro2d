@@ -12,8 +12,11 @@ namespace e2d
 {
     class profiler final : public module<profiler> {
     public:
+        using args_t = flat_map<str, str>;
+
         struct begin_scope_info {
             str name;
+            args_t args;
             std::thread::id tid;
             std::chrono::microseconds tp;
         };
@@ -25,12 +28,14 @@ namespace e2d
 
         struct thread_event_info {
             str name;
+            args_t args;
             std::thread::id tid;
             std::chrono::microseconds tp;
         };
 
         struct global_event_info {
             str name;
+            args_t args;
             std::thread::id tid;
             std::chrono::microseconds tp;
         };
@@ -48,22 +53,27 @@ namespace e2d
         };
         using sink_uptr = std::unique_ptr<sink>;
     public:
-        class scope final : private e2d::noncopyable {
+        class auto_scope final : private e2d::noncopyable {
         public:
-            scope(profiler& profiler, str name);
-            ~scope() noexcept;
+            auto_scope(profiler* profiler, str name);
+            auto_scope(profiler* profiler, str name, args_t args);
+            ~auto_scope() noexcept;
         private:
-            profiler& profiler_;
+            profiler* profiler_ = nullptr;
         };
     public:
         profiler(deferrer& d);
         ~profiler() noexcept final;
 
         void begin_scope(str name) noexcept;
+        void begin_scope(str name, args_t args) noexcept;
         void end_scope() noexcept;
 
         void thread_event(str name) noexcept;
+        void thread_event(str name, args_t args) noexcept;
+
         void global_event(str name) noexcept;
+        void global_event(str name, args_t args) noexcept;
     public:
         struct recording_info {
             vector<event_info> events;
@@ -90,14 +100,37 @@ namespace e2d
 }
 
 #define E2D_PROFILER_SCOPE(name)\
-    auto E2D_PP_CAT(e2d_generated_profiler_scope_, __LINE__) =\
-        ::e2d::profiler::scope(the<profiler>(), name)
+    auto E2D_PP_CAT(e2d_generated_profiler_auto_scope_, __LINE__) =\
+        ::e2d::profiler::auto_scope(\
+            modules::is_initialized<profiler>() ? &the<profiler>() : nullptr,\
+            name);
+
+#define E2D_PROFILER_SCOPE_EX(name, ...)\
+    auto E2D_PP_CAT(e2d_generated_profiler_auto_scope_, __LINE__) =\
+        ::e2d::profiler::auto_scope(\
+            modules::is_initialized<profiler>() ? &the<profiler>() : nullptr,\
+            name,\
+            __VA_ARGS__);
 
 #define E2D_PROFILER_THREAD_EVENT(name)\
-    the<profiler>().thread_event(name)
+    if ( modules::is_initialized<profiler>() ) {\
+        the<profiler>().thread_event(name);\
+    }
+
+#define E2D_PROFILER_THREAD_EVENT_EX(name, ...)\
+    if ( modules::is_initialized<profiler>() ) {\
+        the<profiler>().thread_event(name, __VA_ARGS___);\
+    }
 
 #define E2D_PROFILER_GLOBAL_EVENT(name)\
-    the<profiler>().global_event(name)
+    if ( modules::is_initialized<profiler>() ) {\
+        the<profiler>().global_event(name);\
+    }
+
+#define E2D_PROFILER_GLOBAL_EVENT_EX(name, ...)\
+    if ( modules::is_initialized<profiler>() ) {\
+        the<profiler>().global_event(name, __VA_ARGS__);\
+    }
 
 namespace e2d
 {

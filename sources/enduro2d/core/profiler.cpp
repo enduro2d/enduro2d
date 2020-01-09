@@ -6,27 +6,64 @@
 
 #include <enduro2d/core/profiler.hpp>
 
+#include <enduro2d/core/deferrer.hpp>
+#include <enduro2d/core/engine.hpp>
+#include <enduro2d/core/vfs.hpp>
+
 namespace
 {
     using namespace e2d;
 
+    str recording_args_to_json(const profiler::args_t& args) {
+        str dst = "{";
+        for ( auto iter = args.begin(); iter != args.end(); ) {
+            dst += strings::rformat("\"%0\":\"%1\"", iter->first, iter->second);
+            if ( ++iter != args.end() ) {
+                dst += ",";
+            }
+        }
+        dst += "}";
+        return dst;
+    }
+
     str recording_info_to_json(const profiler::recording_info& src) {
         str dst("{\"traceEvents\":[\n");
-        for ( std::size_t i = 0; i < src.events.size(); ++i ) {
+        
+        dst += strings::rformat(
+            "  {\"name\":\"thread_name\",\"ph\":\"M\",\"tid\":%0,\"pid\":0,\"args\":{\"name\":\"%1\"}},\n",
+            std::hash<std::thread::id>()(the<engine>().main_thread()),
+            "Main");
+
+        for ( std::thread::id tid : the<vfs>().worker().thread_ids() ) {
+            dst += strings::rformat(
+                "  {\"name\":\"thread_name\",\"ph\":\"M\",\"tid\":%0,\"pid\":0,\"args\":{\"name\":\"%1\"}},\n",
+                std::hash<std::thread::id>()(tid),
+                "VFS");
+        }
+
+        for ( std::thread::id tid : the<deferrer>().worker().thread_ids() ) {
+            dst += strings::rformat(
+                "  {\"name\":\"thread_name\",\"ph\":\"M\",\"tid\":%0,\"pid\":0,\"args\":{\"name\":\"%1\"}},\n",
+                std::hash<std::thread::id>()(tid),
+                "Worker");
+        }
+
+        for ( auto iter = src.events.begin(); iter != src.events.end(); ) {
             std::visit(utils::overloaded {
                 [&dst](const profiler::begin_scope_info& e){
                     char buf[512] = {'\0'};
                     strings::format(buf, std::size(buf),
-                        "  {\"name\":\"%0\", \"ph\":\"B\", \"ts\":%1, \"tid\":%2, \"pid\":0}",
+                        "  {\"name\":\"%0\",\"ph\":\"B\",\"ts\":%1,\"tid\":%2,\"pid\":0,\"cat\":\"\",\"args\":%3}",
                         e.name,
                         e.tp.count(),
-                        std::hash<std::thread::id>()(e.tid));
+                        std::hash<std::thread::id>()(e.tid),
+                        recording_args_to_json(e.args));
                     dst += buf;
                 },
                 [&dst](const profiler::end_scope_info& e){
                     char buf[512] = {'\0'};
                     strings::format(buf, std::size(buf),
-                        "  {\"ph\":\"E\", \"ts\":%0, \"tid\":%1, \"pid\":0}",
+                        "  {\"ph\":\"E\",\"ts\":%0,\"tid\":%1,\"pid\":0,\"cat\":\"\"}",
                         e.tp.count(),
                         std::hash<std::thread::id>()(e.tid));
                     dst += buf;
@@ -34,27 +71,30 @@ namespace
                 [&dst](const profiler::thread_event_info& e){
                     char buf[512] = {'\0'};
                     strings::format(buf, std::size(buf),
-                        "  {\"name\":\"%0\", \"ph\":\"i\", \"s\":\"t\", \"ts\":%1, \"tid\":%2, \"pid\":0}",
+                        "  {\"name\":\"%0\",\"ph\":\"i\",\"s\":\"t\",\"ts\":%1,\"tid\":%2,\"pid\":0,\"cat\":\"\",\"args\":%3}",
                         e.name,
                         e.tp.count(),
-                        std::hash<std::thread::id>()(e.tid));
+                        std::hash<std::thread::id>()(e.tid),
+                        recording_args_to_json(e.args));
                     dst += buf;
                 },
                 [&dst](const profiler::global_event_info& e){
                     char buf[512] = {'\0'};
                     strings::format(buf, std::size(buf),
-                        "  {\"name\":\"%0\", \"ph\":\"i\", \"s\":\"g\", \"ts\":%1, \"tid\":%2, \"pid\":0}",
+                        "  {\"name\":\"%0\",\"ph\":\"i\",\"s\":\"g\",\"ts\":%1,\"tid\":%2,\"pid\":0,\"cat\":\"\",\"args\":%3}",
                         e.name,
                         e.tp.count(),
-                        std::hash<std::thread::id>()(e.tid));
+                        std::hash<std::thread::id>()(e.tid),
+                        recording_args_to_json(e.args));
                     dst += buf;
                 }
-            }, src.events[i]);
+            }, *iter);
 
-            if ( i < src.events.size() - 1u ) {
+            if ( ++iter != src.events.end() ) {
                 dst += ",\n";
             }
         }
+
         dst += "\n]}";
         return dst;
     }
@@ -62,13 +102,24 @@ namespace
 
 namespace e2d
 {
-    profiler::scope::scope(profiler& profiler, str name)
+    profiler::auto_scope::auto_scope(profiler* profiler, str name)
     : profiler_(profiler) {
-        profiler_.begin_scope(std::move(name));
+        if ( profiler_ ) {
+            profiler_->begin_scope(std::move(name));
+        }
     }
 
-    profiler::scope::~scope() noexcept {
-        profiler_.end_scope();
+    profiler::auto_scope::auto_scope(profiler* profiler, str name, args_t args)
+    : profiler_(profiler) {
+        if ( profiler_ ) {
+            profiler_->begin_scope(std::move(name), std::move(args));
+        }
+    }
+
+    profiler::auto_scope::~auto_scope() noexcept {
+        if ( profiler_ ) {
+            profiler_->end_scope();
+        }
     }
 }
 
@@ -97,10 +148,15 @@ namespace e2d
     }
 
     void profiler::begin_scope(str name) noexcept {
+        return begin_scope(std::move(name), {});
+    }
+
+    void profiler::begin_scope(str name, args_t args) noexcept {
         ++depth_;
 
         begin_scope_info event{
             std::move(name),
+            std::move(args),
             std::this_thread::get_id(),
             time::to_chrono(time::now_us())};
         
@@ -129,8 +185,13 @@ namespace e2d
     }
 
     void profiler::thread_event(str name) noexcept {
+        return thread_event(std::move(name), {});
+    }
+
+    void profiler::thread_event(str name, args_t args) noexcept {
         thread_event_info event{
             std::move(name),
+            std::move(args),
             std::this_thread::get_id(),
             time::to_chrono(time::now_us())};
         
@@ -143,8 +204,13 @@ namespace e2d
     }
 
     void profiler::global_event(str name) noexcept {
+        return global_event(std::move(name), {});
+    }
+
+    void profiler::global_event(str name, args_t args) noexcept {
         global_event_info event{
             std::move(name),
+            std::move(args),
             std::this_thread::get_id(),
             time::to_chrono(time::now_us())};
         
