@@ -143,7 +143,7 @@ namespace e2d
     audio::~audio() noexcept {
     }
 
-    sound_stream_ptr audio::preload_stream(
+    sound_stream_ptr audio::create_stream(
         buffer_view sound_data)
     {
         if ( !state_->initialized() ) {
@@ -174,23 +174,6 @@ namespace e2d
         return std::make_shared<sound_stream>(
             std::make_unique<sound_stream::internal_state>(
                 state_->dbg(), sample, nullptr));
-    }
-
-    sound_stream_ptr audio::preload_stream(
-        const input_stream_uptr& file_stream)
-    {
-        if ( !state_->initialized() ) {
-            state_->dbg().error("AUDIO: Not initialized");
-            return nullptr;
-        }
-
-        buffer file_data;
-        if ( !streams::try_read_tail(file_data, file_stream) ) {
-            state_->dbg().error("AUDIO: Failed to read file");
-            return nullptr;
-        }
-
-        return preload_stream(buffer_view(file_data));
     }
 
     sound_stream_ptr audio::create_stream(

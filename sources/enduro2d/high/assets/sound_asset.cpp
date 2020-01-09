@@ -77,7 +77,7 @@ namespace
             return library.load_asset_async<binary_asset>(sound_address)
             .then([](const binary_asset::load_result& sound_data){
                 return the<deferrer>().do_in_worker_thread([sound_data](){
-                    sound_stream_ptr content = the<audio>().preload_stream(
+                    sound_stream_ptr content = the<audio>().create_stream(
                         sound_data->content());
                     if ( !content ) {
                         throw sound_asset_loading_exception();

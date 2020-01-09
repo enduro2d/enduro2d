@@ -20,8 +20,8 @@ namespace
                 "audio",
                 url("rpgaudio://Audio"));
             
-            auto sstream1 = the<audio>().preload_stream(the<vfs>().read(url("audio://chop.ogg")));
-            auto sstream2 = the<audio>().create_stream(the<vfs>().read(url("audio://footstep00.ogg")));
+            auto sstream1 = the<audio>().create_stream(the<vfs>().read(url("audio://chop.ogg")));
+            auto sstream2 = the<audio>().create_stream(*the<vfs>().load(url("audio://footstep00.ogg")));
 
             if ( !sstream1 || !sstream2 ) {
                 return false;

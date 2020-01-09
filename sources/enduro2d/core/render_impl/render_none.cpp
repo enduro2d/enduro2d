@@ -188,21 +188,8 @@ namespace e2d
         return nullptr;
     }
 
-    shader_ptr render::create_shader(
-        const input_stream_uptr& vertex_stream,
-        const input_stream_uptr& fragment_stream)
-    {
-        E2D_UNUSED(vertex_stream, fragment_stream);
-        return nullptr;
-    }
-
     texture_ptr render::create_texture(const image& image) {
         E2D_UNUSED(image);
-        return nullptr;
-    }
-
-    texture_ptr render::create_texture(const input_stream_uptr& image_stream) {
-        E2D_UNUSED(image_stream);
         return nullptr;
     }
 

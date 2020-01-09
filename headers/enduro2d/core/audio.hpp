@@ -83,11 +83,8 @@ namespace e2d
         audio(debug& d);
         ~audio() noexcept;
 
-        [[nodiscard]] sound_stream_ptr preload_stream(
+        [[nodiscard]] sound_stream_ptr create_stream(
             buffer_view sound_data);
-
-        [[nodiscard]] sound_stream_ptr preload_stream(
-            const input_stream_uptr& file_stream);
 
         [[nodiscard]] sound_stream_ptr create_stream(
             input_stream_uptr file_stream);

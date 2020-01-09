@@ -542,19 +542,6 @@ namespace e2d
             str_view(reinterpret_cast<const char*>(fragment_source.data()), fragment_source.size()));
     }
 
-    shader_ptr render::create_shader(
-        const input_stream_uptr& vertex,
-        const input_stream_uptr& fragment)
-    {
-        E2D_ASSERT(is_in_main_thread());
-
-        str vertex_source, fragment_source;
-        return streams::try_read_tail(vertex_source, vertex)
-            && streams::try_read_tail(fragment_source, fragment)
-            ? create_shader(vertex_source, fragment_source)
-            : nullptr;
-    }
-
     texture_ptr render::create_texture(
         const image& image)
     {
@@ -631,18 +618,6 @@ namespace e2d
         return std::make_shared<texture>(
             std::make_unique<texture::internal_state>(
                 state_->dbg(), std::move(id), image.size(), decl));
-    }
-
-    texture_ptr render::create_texture(
-        const input_stream_uptr& image_stream)
-    {
-        E2D_ASSERT(is_in_main_thread());
-
-        image image;
-        if ( !images::try_load_image(image, image_stream) ) {
-            return nullptr;
-        }
-        return create_texture(image);
     }
 
     texture_ptr render::create_texture(

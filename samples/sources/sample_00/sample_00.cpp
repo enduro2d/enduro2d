@@ -96,13 +96,20 @@ namespace
             the<vfs>().register_scheme_alias(
                 "ships",
                 url("piratepack://PNG/Retina/Ships"));
+            
+            image texture1_image;
+            if ( !images::try_load_image(texture1_image, the<vfs>().read(url("ships://ship (2).png"))) ) {
+                return false;
+            }
 
-            shader_ = the<render>().create_shader(
-                vs_source_cstr, fs_source_cstr);
-            texture1_ = the<render>().create_texture(
-                the<vfs>().read(url("ships://ship (2).png")));
-            texture2_ = the<render>().create_texture(
-                the<vfs>().read(url("ships://ship (19).png")));
+            image texture2_image;
+            if ( !images::try_load_image(texture2_image, the<vfs>().read(url("ships://ship (19).png"))) ) {
+                return false;
+            }
+
+            shader_ = the<render>().create_shader(vs_source_cstr, fs_source_cstr);
+            texture1_ = the<render>().create_texture(texture1_image);
+            texture2_ = the<render>().create_texture(texture2_image);
 
             if ( !shader_ || !texture1_ || !texture2_ ) {
                 return false;

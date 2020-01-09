@@ -172,12 +172,10 @@ namespace e2d
             }, output_stream_uptr());
     }
 
-    bool vfs::load(const url& url, buffer& dst) const {
-        return load_async(url)
-            .then([&dst](auto&& src){
-                dst = std::forward<decltype(src)>(src);
-                return true;
-            }).get_or_default(false);
+    std::optional<buffer> vfs::load(const url& url) const {
+        return load_async(url).then([](auto&& src){
+            return std::optional(std::forward<decltype(src)>(src));
+        }).get_or_default(std::nullopt);
     }
 
     stdex::promise<buffer> vfs::load_async(const url& url) const {
@@ -191,12 +189,10 @@ namespace e2d
         });
     }
 
-    bool vfs::load_as_string(const url& url, str& dst) const {
-        return load_as_string_async(url)
-            .then([&dst](auto&& src){
-                dst = std::forward<decltype(src)>(src);
-                return true;
-            }).get_or_default(false);
+    std::optional<str> vfs::load_as_string(const url& url) const {
+        return load_as_string_async(url).then([](auto&& src){
+            return std::optional(std::forward<decltype(src)>(src));
+        }).get_or_default(std::nullopt);
     }
 
     stdex::promise<str> vfs::load_as_string_async(const url& url) const {

@@ -55,10 +55,10 @@ namespace e2d
         input_stream_uptr read(const url& url) const;
         output_stream_uptr write(const url& url, bool append) const;
 
-        bool load(const url& url, buffer& dst) const;
+        std::optional<buffer> load(const url& url) const;
         stdex::promise<buffer> load_async(const url& url) const;
 
-        bool load_as_string(const url& url, str& dst) const;
+        std::optional<str> load_as_string(const url& url) const;
         stdex::promise<str> load_as_string_async(const url& url) const;
 
         template < typename Iter >
