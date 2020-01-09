@@ -26,7 +26,6 @@ namespace e2d
 
         std::optional<script> load_script(str_view src);
         std::optional<script> load_script(buffer_view src);
-        std::optional<script> load_script(const input_stream_uptr& src);
     private:
         sol::state state_;
     };

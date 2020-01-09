@@ -21,9 +21,12 @@ namespace
     using namespace e2d::render_system_impl;
 
     void for_all_scenes(drawer::context& ctx, const ecs::registry& owner) {
+        E2D_PROFILER_SCOPE("render_system.for_all_scenes");
+
         const auto comp = [](const auto& l, const auto& r) noexcept {
             return std::get<scene>(l).depth() < std::get<scene>(r).depth();
         };
+        
         const auto func = [&ctx](
             const ecs::const_entity&,
             const scene&,
@@ -33,6 +36,7 @@ namespace
                 ctx.draw(node);
             });
         };
+        
         systems::for_extracted_sorted_components<scene, actor>(
             owner,
             comp,
@@ -41,9 +45,12 @@ namespace
     }
 
     void for_all_cameras(drawer& drawer, const ecs::registry& owner) {
+        E2D_PROFILER_SCOPE("render_system.for_all_cameras");
+
         const auto comp = [](const auto& l, const auto& r) noexcept {
             return std::get<camera>(l).depth() < std::get<camera>(r).depth();
         };
+        
         const auto func = [&drawer, &owner](
             const ecs::const_entity&,
             const camera& cam,
@@ -53,6 +60,7 @@ namespace
                 for_all_scenes(ctx, owner);
             });
         };
+        
         systems::for_extracted_sorted_components<camera, actor>(
             owner,
             comp,

@@ -24,8 +24,16 @@ namespace e2d
         const library& library, str_view address)
     {
         return library.load_asset_async<image_asset>(address)
-        .then([](const image_asset::load_result& texture_data){
-            return the<deferrer>().do_in_main_thread([texture_data](){
+        .then([
+            address = str(address)
+        ](const image_asset::load_result& texture_data){
+            return the<deferrer>().do_in_main_thread([
+                texture_data,
+                address = std::move(address)
+            ](){
+                E2D_PROFILER_SCOPE_EX("texture_asset.create_texture", {
+                    {"address", address}
+                });
                 const texture_ptr content = the<render>().create_texture(
                     texture_data->content());
                 if ( !content ) {

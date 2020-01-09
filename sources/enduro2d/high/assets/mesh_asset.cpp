@@ -24,8 +24,16 @@ namespace e2d
         const library& library, str_view address)
     {
         return library.load_asset_async<binary_asset>(address)
-        .then([](const binary_asset::load_result& mesh_data){
-            return the<deferrer>().do_in_worker_thread([mesh_data](){
+        .then([
+            address = str(address)
+        ](const binary_asset::load_result& mesh_data){
+            return the<deferrer>().do_in_worker_thread([
+                mesh_data,
+                address = std::move(address)
+            ](){
+                E2D_PROFILER_SCOPE_EX("mesh_asset.parsing", {
+                    {"address", address}
+                });
                 mesh content;
                 if ( !meshes::try_load_mesh(content, mesh_data->content()) ) {
                     throw mesh_asset_loading_exception();

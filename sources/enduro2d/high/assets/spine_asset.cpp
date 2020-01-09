@@ -116,58 +116,72 @@ namespace
         return library.load_asset_async<binary_asset>(atlas_path)
         .then([
             &library,
+            atlas_path,
             atlas_folder
         ](const binary_asset::load_result& atlas_data){
-            auto atlas_internal = std::make_unique<atlas_internal_state>();
+            return the<deferrer>().do_in_worker_thread([](){})
+            .then([
+                &library,
+                atlas_data,
+                atlas_path,
+                atlas_folder
+            ](){
+                E2D_PROFILER_SCOPE_EX("spine_asset.atlas_parsing", {
+                    {"address", atlas_path}
+                });
 
-            spine::atlas_ptr atlas(
-                spAtlas_create(
-                    reinterpret_cast<const char*>(atlas_data->content().data()),
-                    math::numeric_cast<int>(atlas_data->content().size()),
-                    atlas_folder.c_str(),
-                    atlas_internal.get()),
-                spAtlas_dispose);
+                auto atlas_internal = std::make_unique<atlas_internal_state>();
 
-            if ( !atlas ) {
-                the<debug>().error("SPINE: Failed to create preload atlas");
-                throw spine_asset_loading_exception();
-            }
+                spine::atlas_ptr atlas(
+                    spAtlas_create(
+                        reinterpret_cast<const char*>(atlas_data->content().data()),
+                        math::numeric_cast<int>(atlas_data->content().size()),
+                        atlas_folder.c_str(),
+                        atlas_internal.get()),
+                    spAtlas_dispose);
 
-            return stdex::make_tuple_promise(std::make_tuple(
-                atlas_internal->loading.load_async(library),
-                stdex::make_resolved_promise(atlas_data)));
-        })
-        .then([
-            atlas_folder
-        ](const std::tuple<
-            asset_group,
-            binary_asset::load_result
-        >& results){
-            auto atlas_internal = std::make_unique<atlas_internal_state>();
-            atlas_internal->loaded = std::get<0>(results);
+                if ( !atlas ) {
+                    the<debug>().error("SPINE: Failed to create preload atlas");
+                    throw spine_asset_loading_exception();
+                }
 
-            spine::atlas_ptr atlas(
-                spAtlas_create(
-                    reinterpret_cast<const char*>(std::get<1>(results)->content().data()),
-                    math::numeric_cast<int>(std::get<1>(results)->content().size()),
-                    atlas_folder.c_str(),
-                    atlas_internal.get()),
-                spAtlas_dispose);
+                return atlas_internal->loading.load_async(library);
+            })
+            .then([
+                atlas_data,
+                atlas_path,
+                atlas_folder
+            ](auto&& dependencies){
+                E2D_PROFILER_SCOPE_EX("spine_asset.atlas_parsing", {
+                    {"address", atlas_path}
+                });
 
-            if ( !atlas ) {
-                the<debug>().error("SPINE: Failed to create preloaded atlas");
-                throw spine_asset_loading_exception();
-            }
+                auto atlas_internal = std::make_unique<atlas_internal_state>();
+                atlas_internal->loaded = std::forward<decltype(dependencies)>(dependencies);
 
-            for ( const spAtlasPage* page = atlas->pages; page; page = page->next ) {
-                if ( !page->rendererObject ) {
+                spine::atlas_ptr atlas(
+                    spAtlas_create(
+                        reinterpret_cast<const char*>(atlas_data->content().data()),
+                        math::numeric_cast<int>(atlas_data->content().size()),
+                        atlas_folder.c_str(),
+                        atlas_internal.get()),
+                    spAtlas_dispose);
+
+                if ( !atlas ) {
                     the<debug>().error("SPINE: Failed to create preloaded atlas");
                     throw spine_asset_loading_exception();
                 }
-            }
 
-            atlas->rendererObject = nullptr;
-            return atlas;
+                for ( const spAtlasPage* page = atlas->pages; page; page = page->next ) {
+                    if ( !page->rendererObject ) {
+                        the<debug>().error("SPINE: Failed to create preloaded atlas");
+                        throw spine_asset_loading_exception();
+                    }
+                }
+
+                atlas->rendererObject = nullptr;
+                return atlas;
+            });
         });
     }
 
@@ -178,75 +192,85 @@ namespace
         f32 skeleton_scale,
         const spine::atlas_ptr& atlas)
     {
-        return library.load_asset_async<binary_asset>(
-            path::combine(parent_address, skeleton_address))
+        str address = path::combine(parent_address, skeleton_address);
+        return library.load_asset_async<binary_asset>(address)
         .then([
             atlas,
             skeleton_scale,
-            skeleton_address
+            address = std::move(address)
         ](const binary_asset::load_result& skeleton_data){
-            if ( strings::ends_with(skeleton_address, ".skel") ) {
-                using skeleton_bin_ptr = std::unique_ptr<
-                    spSkeletonBinary,
-                    decltype(&::spSkeletonBinary_dispose)>;
+            return the<deferrer>().do_in_worker_thread([
+                atlas,
+                skeleton_scale,
+                address = std::move(address),
+                skeleton_data
+            ](){
+                E2D_PROFILER_SCOPE_EX("spine_asset.skeleton_parsing", {
+                    {"address", address}
+                });
+                if ( strings::ends_with(address, ".skel") ) {
+                    using skeleton_bin_ptr = std::unique_ptr<
+                        spSkeletonBinary,
+                        decltype(&::spSkeletonBinary_dispose)>;
 
-                skeleton_bin_ptr binary_skeleton(
-                    spSkeletonBinary_create(atlas.get()),
-                    spSkeletonBinary_dispose);
+                    skeleton_bin_ptr binary_skeleton(
+                        spSkeletonBinary_create(atlas.get()),
+                        spSkeletonBinary_dispose);
 
-                if ( !binary_skeleton ) {
-                    the<debug>().error("SPINE: Failed to create binary skeleton");
-                    throw spine_asset_loading_exception();
+                    if ( !binary_skeleton ) {
+                        the<debug>().error("SPINE: Failed to create binary skeleton");
+                        throw spine_asset_loading_exception();
+                    }
+
+                    binary_skeleton->scale = skeleton_scale;
+
+                    spine::skeleton_data_ptr data_skeleton(
+                        spSkeletonBinary_readSkeletonData(
+                            binary_skeleton.get(),
+                            reinterpret_cast<const unsigned char*>(skeleton_data->content().data()),
+                            math::numeric_cast<int>(skeleton_data->content().size())),
+                        spSkeletonData_dispose);
+
+                    if ( !data_skeleton ) {
+                        the<debug>().error("SPINE: Failed to read binary skeleton data:\n"
+                            "--> Error: %0",
+                            binary_skeleton->error);
+                        throw spine_asset_loading_exception();
+                    }
+
+                    return data_skeleton;
+                } else {
+                    using skeleton_json_ptr = std::unique_ptr<
+                        spSkeletonJson,
+                        decltype(&::spSkeletonJson_dispose)>;
+
+                    skeleton_json_ptr json_skeleton(
+                        spSkeletonJson_create(atlas.get()),
+                        spSkeletonJson_dispose);
+
+                    if ( !json_skeleton ) {
+                        the<debug>().error("SPINE: Failed to create json skeleton");
+                        throw spine_asset_loading_exception();
+                    }
+
+                    json_skeleton->scale = skeleton_scale;
+
+                    spine::skeleton_data_ptr data_skeleton(
+                        spSkeletonJson_readSkeletonData(
+                            json_skeleton.get(),
+                            reinterpret_cast<const char*>(skeleton_data->content().data())),
+                        spSkeletonData_dispose);
+
+                    if ( !data_skeleton ) {
+                        the<debug>().error("SPINE: Failed to read json skeleton data:\n"
+                            "--> Error: %0",
+                            json_skeleton->error);
+                        throw spine_asset_loading_exception();
+                    }
+
+                    return data_skeleton;
                 }
-
-                binary_skeleton->scale = skeleton_scale;
-
-                spine::skeleton_data_ptr data_skeleton(
-                    spSkeletonBinary_readSkeletonData(
-                        binary_skeleton.get(),
-                        reinterpret_cast<const unsigned char*>(skeleton_data->content().data()),
-                        math::numeric_cast<int>(skeleton_data->content().size())),
-                    spSkeletonData_dispose);
-
-                if ( !data_skeleton ) {
-                    the<debug>().error("SPINE: Failed to read binary skeleton data:\n"
-                        "--> Error: %0",
-                        binary_skeleton->error);
-                    throw spine_asset_loading_exception();
-                }
-
-                return data_skeleton;
-            } else {
-                using skeleton_json_ptr = std::unique_ptr<
-                    spSkeletonJson,
-                    decltype(&::spSkeletonJson_dispose)>;
-
-                skeleton_json_ptr json_skeleton(
-                    spSkeletonJson_create(atlas.get()),
-                    spSkeletonJson_dispose);
-
-                if ( !json_skeleton ) {
-                    the<debug>().error("SPINE: Failed to create json skeleton");
-                    throw spine_asset_loading_exception();
-                }
-
-                json_skeleton->scale = skeleton_scale;
-
-                spine::skeleton_data_ptr data_skeleton(
-                    spSkeletonJson_readSkeletonData(
-                        json_skeleton.get(),
-                        reinterpret_cast<const char*>(skeleton_data->content().data())),
-                    spSkeletonData_dispose);
-
-                if ( !data_skeleton ) {
-                    the<debug>().error("SPINE: Failed to read json skeleton data:\n"
-                        "--> Error: %0",
-                        json_skeleton->error);
-                    throw spine_asset_loading_exception();
-                }
-
-                return data_skeleton;
-            }
+            });
         });
     }
 

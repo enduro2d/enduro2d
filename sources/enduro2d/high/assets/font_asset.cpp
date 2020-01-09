@@ -26,8 +26,16 @@ namespace e2d
         const library& library, str_view address)
     {
         return library.load_asset_async<binary_asset>(address)
-        .then([](const binary_asset::load_result& font_data){
-            return the<deferrer>().do_in_worker_thread([font_data](){
+        .then([
+            address = str(address)
+        ](const binary_asset::load_result& font_data){
+            return the<deferrer>().do_in_worker_thread([
+                font_data,
+                address = std::move(address)
+            ](){
+                E2D_PROFILER_SCOPE_EX("font_asset.parsing", {
+                    {"address", address}
+                });
                 font content;
                 if ( !fonts::try_load_font(content, font_data->content()) ) {
                     throw font_asset_loading_exception();
@@ -35,15 +43,14 @@ namespace e2d
                 return content;
             });
         })
-        .then([
+        .then_tuple([
             &library,
             parent_address = path::parent_path(address)
         ](const font& content){
-            return stdex::make_tuple_promise(std::make_tuple(
+            return std::make_tuple(
                 stdex::make_resolved_promise(content),
                 library.load_asset_async<texture_asset>(
-                    path::combine(parent_address, content.info().atlas_file))
-            ));
+                    path::combine(parent_address, content.info().atlas_file)));
         })
         .then([](const std::tuple<
             font,
