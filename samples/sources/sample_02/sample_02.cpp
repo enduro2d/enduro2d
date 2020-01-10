@@ -112,11 +112,13 @@ namespace
                 "ships",
                 url("piratepack://PNG/Retina/Ships"));
 
-            shader_ = the<render>().create_shader(
-                vs_source_cstr, fs_source_cstr);
+            image texture_image;
+            if ( !images::try_load_image(texture_image, the<vfs>().read(url("ships://ship (3).png"))) ) {
+                return false;
+            }
 
-            texture_ = the<render>().create_texture(
-                the<vfs>().read(url("ships://ship (3).png")));
+            shader_ = the<render>().create_shader(vs_source_cstr, fs_source_cstr);
+            texture_ = the<render>().create_texture(texture_image);
 
             if ( !shader_ || !texture_ ) {
                 return false;

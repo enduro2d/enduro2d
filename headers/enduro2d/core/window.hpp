@@ -89,9 +89,9 @@ namespace e2d
         std::unique_ptr<state> state_;
     };
 
-    class window_trace_event_listener final : public window::event_listener {
+    class window_event_tracer final : public window::event_listener {
     public:
-        window_trace_event_listener(debug& debug) noexcept;
+        window_event_tracer(debug& debug) noexcept;
         void on_input_char(char32_t uchar) noexcept final;
         void on_move_cursor(const v2f& pos) noexcept final;
         void on_mouse_scroll(const v2f& delta) noexcept final;
@@ -104,6 +104,18 @@ namespace e2d
         void on_window_minimize(bool minimized) noexcept final;
     private:
         debug& debug_;
+    };
+
+    class window_input_source final : public window::event_listener {
+    public:
+        window_input_source(input& input) noexcept;
+        void on_input_char(char32_t uchar) noexcept final;
+        void on_move_cursor(const v2f& pos) noexcept final;
+        void on_mouse_scroll(const v2f& delta) noexcept final;
+        void on_mouse_button(mouse_button btn, mouse_button_action act) noexcept final;
+        void on_keyboard_key(keyboard_key key, u32 scancode, keyboard_key_action act) noexcept final;
+    private:
+        input& input_;
     };
 }
 

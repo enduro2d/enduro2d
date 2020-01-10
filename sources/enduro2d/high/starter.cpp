@@ -70,31 +70,68 @@ namespace
         }
 
         bool frame_tick() final {
+            E2D_PROFILER_SCOPE("application.frame_tick");
+
+            world& w = the<world>();
             engine& e = the<engine>();
+
             const f32 dt = e.delta_time();
             const f32 time = e.time();
 
-            ecs::registry& registry = the<world>().registry();
-            registry.process_event(systems::pre_update_event{dt,time});
-            registry.process_event(systems::update_event{dt,time});
-            registry.process_event(systems::post_update_event{dt,time});
+            {
+                E2D_PROFILER_SCOPE("ecs.pre_update");
+                w.registry().process_event(systems::pre_update_event{dt,time});
+            }
+
+            {
+                E2D_PROFILER_SCOPE("ecs.update");
+                w.registry().process_event(systems::update_event{dt,time});
+            }
+
+            {
+                E2D_PROFILER_SCOPE("ecs.post_update");
+                w.registry().process_event(systems::post_update_event{dt,time});
+            }
 
             return !the<window>().should_close()
                 || (application_ && !application_->on_should_close());
         }
 
         void frame_render() final {
-            ecs::registry& registry = the<world>().registry();
-            registry.process_event(systems::pre_render_event{});
-            registry.process_event(systems::render_event{});
-            registry.process_event(systems::post_render_event{});
+            E2D_PROFILER_SCOPE("application.frame_render");
+
+            world& w = the<world>();
+
+            {
+                E2D_PROFILER_SCOPE("ecs.pre_render");
+                w.registry().process_event(systems::pre_render_event{});
+            }
+
+            {
+                E2D_PROFILER_SCOPE("ecs.render");
+                w.registry().process_event(systems::render_event{});
+            }
+
+            {
+                E2D_PROFILER_SCOPE("ecs.post_render");
+                w.registry().process_event(systems::post_render_event{});
+            }
         }
 
         void frame_finalize() final {
+            E2D_PROFILER_SCOPE("application.frame_finalize");
+
             world& w = the<world>();
-            ecs::registry& registry = w.registry();
-            registry.process_event(systems::frame_finalize_event{});
-            w.finalize_instances();
+
+            {
+                E2D_PROFILER_SCOPE("ecs.frame_finalize");
+                w.registry().process_event(systems::frame_finalize_event{});
+            }
+
+            {
+                E2D_PROFILER_SCOPE("world.finalize_instances");
+                w.finalize_instances();
+            }
         }
     private:
         starter::application_uptr application_;

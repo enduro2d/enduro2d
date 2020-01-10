@@ -33,15 +33,15 @@ TEST_CASE("vfs"){
             REQUIRE(v.read({"file", nofile_path}) == input_stream_uptr());
         }
         {
-            buffer b0;
-            REQUIRE(v.load({"file", file_path}, b0));
+            auto b0 = v.load({"file", file_path});
+            REQUIRE(b0);
             REQUIRE(b0 == buffer{"hello", 5});
 
             auto b1 = v.load_async({"file", file_path}).get();
             REQUIRE(b1 == buffer{"hello", 5});
 
-            str b2;
-            REQUIRE(v.load_as_string({"file", file_path}, b2));
+            auto b2 = v.load_as_string({"file", file_path});
+            REQUIRE(b2);
             REQUIRE(b2 == "hello");
 
             auto b3 = v.load_as_string_async({"file", file_path}).get();
@@ -135,15 +135,15 @@ TEST_CASE("vfs"){
                 REQUIRE(b == buffer("hello", 5));
             }
             {
-                buffer b0;
-                REQUIRE(v.load(url("archive://test.txt"), b0));
+                auto b0 = v.load(url("archive://test.txt"));
+                REQUIRE(b0);
                 REQUIRE(b0 == buffer("hello", 5));
 
                 auto b1 = v.load_async(url("archive://test.txt")).get();
                 REQUIRE(b1 == buffer("hello", 5));
 
-                str b2;
-                REQUIRE(v.load_as_string(url("archive://test.txt"), b2));
+                auto b2 = v.load_as_string(url("archive://test.txt"));
+                REQUIRE(b2);
                 REQUIRE(b2 == "hello");
 
                 auto b3 = v.load_as_string_async(url("archive://test.txt")).get();
@@ -157,15 +157,15 @@ TEST_CASE("vfs"){
                 REQUIRE(b == buffer("world", 5));
             }
             {
-                buffer b0;
-                REQUIRE(v.load(url("archive://folder/file.txt"), b0));
+                auto b0 = v.load(url("archive://folder/file.txt"));
+                REQUIRE(b0);
                 REQUIRE(b0 == buffer("world", 5));
 
                 auto b1 = v.load_async(url("archive://folder/file.txt")).get();
                 REQUIRE(b1 == buffer("world", 5));
 
-                str b2;
-                REQUIRE(v.load_as_string(url("archive://folder/file.txt"), b2));
+                auto b2 = v.load_as_string(url("archive://folder/file.txt"));
+                REQUIRE(b2);
                 REQUIRE(b2 == "world");
 
                 auto b3 = v.load_as_string_async(url("archive://folder/file.txt")).get();
@@ -174,17 +174,15 @@ TEST_CASE("vfs"){
             {
                 REQUIRE(v.read(url("archive://TEst.txt")) == input_stream_uptr());
 
-                buffer b0;
-                REQUIRE_FALSE(v.load(url("archive://TEst.txt"), b0));
-                REQUIRE(b0.empty());
+                auto b0 = v.load(url("archive://TEst.txt"));
+                REQUIRE_FALSE(b0);
 
                 REQUIRE_THROWS_AS(
                     v.load_async(url("archive://TEst.txt")).get(),
                     vfs_load_async_exception);
 
-                str b2;
-                REQUIRE_FALSE(v.load_as_string(url("archive://TEst.txt"), b2));
-                REQUIRE(b2.empty());
+                auto b2 = v.load_as_string(url("archive://TEst.txt"));
+                REQUIRE_FALSE(b2);
 
                 REQUIRE_THROWS_AS(
                     v.load_as_string_async(url("archive://TEst.txt")).get(),

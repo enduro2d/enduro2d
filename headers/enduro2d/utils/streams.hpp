@@ -81,6 +81,7 @@ namespace e2d
 
         output_sequence& seek(std::ptrdiff_t offset, bool relative) noexcept;
         output_sequence& write(const void* src, std::size_t size) noexcept;
+        output_sequence& write_all(str_view src) noexcept;
         output_sequence& write_all(buffer_view src) noexcept;
 
         output_sequence& flush() noexcept;
@@ -112,6 +113,10 @@ namespace e2d::streams
     bool try_read_tail(
         buffer& dst,
         const input_stream_uptr& stream) noexcept;
+
+    bool try_write_tail(
+        str_view src,
+        const output_stream_uptr& stream) noexcept;
 
     bool try_write_tail(
         buffer_view src,

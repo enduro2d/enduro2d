@@ -6,6 +6,8 @@
 
 #include <enduro2d/core/input.hpp>
 
+#include <enduro2d/core/profiler.hpp>
+
 namespace e2d
 {
     //
@@ -364,35 +366,8 @@ namespace e2d
     }
 
     void input::frame_tick() noexcept {
+        E2D_PROFILER_SCOPE("input.frame_tick");
         state_->mouse.state_->frame_tick();
         state_->keyboard.state_->frame_tick();
-    }
-
-    //
-    // class window_input_source
-    //
-
-    window_input_source::window_input_source(input& input) noexcept
-    : input_(input) {}
-
-    void window_input_source::on_input_char(char32_t uchar) noexcept {
-        input_.post_event(input::input_char_event{uchar});
-    }
-
-    void window_input_source::on_move_cursor(const v2f& pos) noexcept {
-        input_.post_event(input::move_cursor_event{pos});
-    }
-
-    void window_input_source::on_mouse_scroll(const v2f& delta) noexcept {
-        input_.post_event(input::mouse_scroll_event{delta});
-    }
-
-    void window_input_source::on_mouse_button(mouse_button btn, mouse_button_action act) noexcept {
-        input_.post_event(input::mouse_button_event{btn, act});
-    }
-
-    void window_input_source::on_keyboard_key(keyboard_key key, u32 scancode, keyboard_key_action act) noexcept {
-        E2D_UNUSED(scancode);
-        input_.post_event(input::keyboard_key_event{key, act});
     }
 }

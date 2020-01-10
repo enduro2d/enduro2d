@@ -26,8 +26,16 @@ namespace e2d
         const library& library, str_view address)
     {
         return library.load_asset_async<binary_asset>(address)
-        .then([](const binary_asset::load_result& script_data){
-            return the<deferrer>().do_in_main_thread([script_data](){
+        .then([
+            address = str(address)
+        ](const binary_asset::load_result& script_data){
+            return the<deferrer>().do_in_main_thread([
+                script_data,
+                address = std::move(address)
+            ](){
+                E2D_PROFILER_SCOPE_EX("script_asset.parsing", {
+                    {"address", address}
+                });
                 std::optional<script> script_opt = the<luasol>().load_script(
                     script_data->content());
                 if ( !script_opt ) {

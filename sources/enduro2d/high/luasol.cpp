@@ -38,12 +38,13 @@ namespace e2d
         state_.collect_garbage();
     }
 
-    std::optional<script> luasol::load_script(buffer_view src) {
+    std::optional<script> luasol::load_script(str_view src) {
         E2D_ASSERT(is_in_main_thread());
 
+        E2D_PROFILER_SCOPE("luasol.load_script");
+
         sol::load_result result = state_.load_buffer(
-            reinterpret_cast<const char*>(src.data()),
-            src.size());
+            src.data(), src.size());
 
         if ( !result.valid() ) {
             sol::error err = result;
@@ -56,15 +57,11 @@ namespace e2d
         return script(sol::protected_function(result));
     }
 
-    std::optional<script> luasol::load_script(const input_stream_uptr& src) {
+    std::optional<script> luasol::load_script(buffer_view src) {
         E2D_ASSERT(is_in_main_thread());
 
-        buffer file_data;
-        if ( !streams::try_read_tail(file_data, src) ) {
-            the<debug>().error("LUASOL: Failed to read script stream");
-            return std::nullopt;
-        }
-
-        return load_script(file_data);
+        return load_script(str_view(
+            reinterpret_cast<const char*>(src.data()),
+            src.size()));
     }
 }

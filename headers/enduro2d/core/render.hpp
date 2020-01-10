@@ -908,14 +908,11 @@ namespace e2d
             str_view fragment_source);
 
         shader_ptr create_shader(
-            const input_stream_uptr& vertex_stream,
-            const input_stream_uptr& fragment_stream);
+            buffer_view vertex_source,
+            buffer_view fragment_source);
 
         texture_ptr create_texture(
             const image& image);
-
-        texture_ptr create_texture(
-            const input_stream_uptr& image_stream);
 
         texture_ptr create_texture(
             const v2u& size,

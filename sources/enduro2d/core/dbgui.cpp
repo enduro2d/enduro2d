@@ -179,7 +179,7 @@ namespace e2d
 
             io.DisplaySize =
                 window_.real_size().cast_to<f32>();
-            
+
             io.DisplayFramebufferScale = io.DisplaySize.x > 0.f && io.DisplaySize.y > 0.f
                 ? window_.framebuffer_size().cast_to<f32>() / v2f(io.DisplaySize)
                 : v2f(1.f, 1.f);
@@ -448,6 +448,7 @@ namespace e2d
     }
 
     void dbgui::frame_tick() {
+        E2D_PROFILER_SCOPE("dbgui.frame_tick");
         state_->frame_tick();
 
         if ( visible() ) {
@@ -456,6 +457,7 @@ namespace e2d
     }
 
     void dbgui::frame_render() {
+        E2D_PROFILER_SCOPE("dbgui.frame_render");
         state_->frame_render();
     }
 }

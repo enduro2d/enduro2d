@@ -170,6 +170,12 @@ namespace e2d
         return *this;
     }
 
+    output_sequence& output_sequence::write_all(str_view src) noexcept {
+        return success_
+            ? write(src.data(), src.size())
+            : *this;
+    }
+
     output_sequence& output_sequence::write_all(buffer_view src) noexcept {
         return success_
             ? write(src.data(), src.size())
@@ -218,6 +224,14 @@ namespace e2d::streams
         return stream
             ? input_sequence(*stream)
                 .read_all(dst)
+                .success()
+            : false;
+    }
+
+    bool try_write_tail(str_view src, const output_stream_uptr& stream) noexcept {
+        return stream
+            ? output_sequence(*stream)
+                .write_all(src)
                 .success()
             : false;
     }
