@@ -43,7 +43,7 @@ namespace e2d
     const input_stream_uptr& sound_stream::internal_state::stream() const noexcept {
         return stream_;
     }
-    
+
     //
     // sound_source::internal_state
     //

@@ -497,33 +497,51 @@ namespace e2d
     {
         E2D_ASSERT(is_in_main_thread());
 
-        gl_shader_id vs = gl_compile_shader(
-            state_->dbg(),
-            vertex_shader_header_cstr(device_capabilities().profile),
-            vertex_source,
-            GL_VERTEX_SHADER);
+        gl_shader_id vs(state_->dbg());
 
-        if ( vs.empty() ) {
-            return nullptr;
+        {
+            E2D_PROFILER_SCOPE("render.compile_vertex_shader");
+
+            vs = gl_compile_shader(
+                state_->dbg(),
+                vertex_shader_header_cstr(device_capabilities().profile),
+                vertex_source,
+                GL_VERTEX_SHADER);
+
+            if ( vs.empty() ) {
+                return nullptr;
+            }
         }
 
-        gl_shader_id fs = gl_compile_shader(
-            state_->dbg(),
-            fragment_shader_header_cstr(device_capabilities().profile),
-            fragment_source,
-            GL_FRAGMENT_SHADER);
+        gl_shader_id fs(state_->dbg());
 
-        if ( fs.empty() ) {
-            return nullptr;
+        {
+            E2D_PROFILER_SCOPE("render.compile_fragment_shader");
+
+            fs = gl_compile_shader(
+                state_->dbg(),
+                fragment_shader_header_cstr(device_capabilities().profile),
+                fragment_source,
+                GL_FRAGMENT_SHADER);
+
+            if ( fs.empty() ) {
+                return nullptr;
+            }
         }
 
-        gl_program_id ps = gl_link_program(
-            state_->dbg(),
-            std::move(vs),
-            std::move(fs));
+        gl_program_id ps(state_->dbg());
 
-        if ( ps.empty() ) {
-            return nullptr;
+        {
+            E2D_PROFILER_SCOPE("render.link_shader_program");
+
+            ps = gl_link_program(
+                state_->dbg(),
+                std::move(vs),
+                std::move(fs));
+
+            if ( ps.empty() ) {
+                return nullptr;
+            }
         }
 
         return std::make_shared<shader>(
@@ -532,16 +550,14 @@ namespace e2d
     }
 
     shader_ptr render::create_shader(
-        const input_stream_uptr& vertex,
-        const input_stream_uptr& fragment)
+        buffer_view vertex_source,
+        buffer_view fragment_source)
     {
         E2D_ASSERT(is_in_main_thread());
 
-        str vertex_source, fragment_source;
-        return streams::try_read_tail(vertex_source, vertex)
-            && streams::try_read_tail(fragment_source, fragment)
-            ? create_shader(vertex_source, fragment_source)
-            : nullptr;
+        return create_shader(
+            str_view(reinterpret_cast<const char*>(vertex_source.data()), vertex_source.size()),
+            str_view(reinterpret_cast<const char*>(fragment_source.data()), fragment_source.size()));
     }
 
     texture_ptr render::create_texture(
@@ -585,6 +601,11 @@ namespace e2d
             }
         }
 
+        E2D_PROFILER_SCOPE_EX("render.create_texture_from_image", {
+            {"size", strings::rformat("%0", image.size())},
+            {"format", strings::rformat("%0", image.format())}
+        });
+
         gl_texture_id id = gl_texture_id::create(state_->dbg(), GL_TEXTURE_2D);
         if ( id.empty() ) {
             state_->dbg().error("RENDER: Failed to create texture:\n"
@@ -620,18 +641,6 @@ namespace e2d
         return std::make_shared<texture>(
             std::make_unique<texture::internal_state>(
                 state_->dbg(), std::move(id), image.size(), decl));
-    }
-
-    texture_ptr render::create_texture(
-        const input_stream_uptr& image_stream)
-    {
-        E2D_ASSERT(is_in_main_thread());
-
-        image image;
-        if ( !images::try_load_image(image, image_stream) ) {
-            return nullptr;
-        }
-        return create_texture(image);
     }
 
     texture_ptr render::create_texture(
@@ -672,6 +681,11 @@ namespace e2d
                     size);
             }
         }
+
+        E2D_PROFILER_SCOPE_EX("render.create_empty_texture", {
+            {"size", strings::rformat("%0", size)},
+            {"format", strings::rformat("%0", decl.type())}
+        });
 
         gl_texture_id id = gl_texture_id::create(state_->dbg(), GL_TEXTURE_2D);
         if ( id.empty() ) {
@@ -737,6 +751,8 @@ namespace e2d
             return nullptr;
         }
 
+        E2D_PROFILER_SCOPE("render.create_index_buffer");
+
         gl_buffer_id id = gl_buffer_id::create(state_->dbg(), GL_ELEMENT_ARRAY_BUFFER);
         if ( id.empty() ) {
             state_->dbg().error("RENDER: Failed to create index buffer:\n"
@@ -770,6 +786,8 @@ namespace e2d
                 "--> Info: unsupported vertex declaration");
             return nullptr;
         }
+
+        E2D_PROFILER_SCOPE("render.create_vertex_buffer");
 
         gl_buffer_id id = gl_buffer_id::create(state_->dbg(), GL_ARRAY_BUFFER);
         if ( id.empty() ) {
@@ -826,6 +844,8 @@ namespace e2d
                     size);
             }
         }
+
+        E2D_PROFILER_SCOPE("render.create_render_target");
 
         gl_framebuffer_id id = gl_framebuffer_id::create(state_->dbg(), GL_FRAMEBUFFER);
         if ( id.empty() ) {

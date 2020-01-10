@@ -143,7 +143,7 @@ namespace e2d
     audio::~audio() noexcept {
     }
 
-    sound_stream_ptr audio::preload_stream(
+    sound_stream_ptr audio::create_stream(
         buffer_view sound_data)
     {
         if ( !state_->initialized() ) {
@@ -155,6 +155,8 @@ namespace e2d
             state_->dbg().error("AUDIO: Sound data is empty");
             return nullptr;
         }
+
+        E2D_PROFILER_SCOPE("audio.create_stream");
 
         HSAMPLE sample = BASS_SampleLoad(
             TRUE,
@@ -176,23 +178,6 @@ namespace e2d
                 state_->dbg(), sample, nullptr));
     }
 
-    sound_stream_ptr audio::preload_stream(
-        const input_stream_uptr& file_stream)
-    {
-        if ( !state_->initialized() ) {
-            state_->dbg().error("AUDIO: Not initialized");
-            return nullptr;
-        }
-
-        buffer file_data;
-        if ( !streams::try_read_tail(file_data, file_stream) ) {
-            state_->dbg().error("AUDIO: Failed to read file");
-            return nullptr;
-        }
-
-        return preload_stream(buffer_view(file_data));
-    }
-
     sound_stream_ptr audio::create_stream(
         input_stream_uptr file_stream)
     {
@@ -205,6 +190,8 @@ namespace e2d
             state_->dbg().error("AUDIO: file stream is null");
             return nullptr;
         }
+
+        E2D_PROFILER_SCOPE("audio.create_stream");
 
         BASS_FILEPROCS file_procs = {
             sound_stream_close_proc,
@@ -243,10 +230,12 @@ namespace e2d
             return nullptr;
         }
 
+        E2D_PROFILER_SCOPE("audio.create_source");
+
         HCHANNEL channel = stream->state().stream()
             ? stream->state().sound()
             : BASS_SampleGetChannel(stream->state().sound(), FALSE);
-            
+
         if ( !channel ) {
             state_->dbg().error("AUDIO: can net retrive sound channel");
             return nullptr;

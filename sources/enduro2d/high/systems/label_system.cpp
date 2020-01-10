@@ -396,6 +396,7 @@ namespace e2d
         const ecs::after<systems::update_event>& trigger)
     {
         E2D_UNUSED(trigger);
+        E2D_PROFILER_SCOPE("label_system.process");
         state_->process(owner);
     }
 }

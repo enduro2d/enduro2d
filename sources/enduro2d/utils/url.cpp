@@ -135,6 +135,15 @@ namespace e2d
         return path_;
     }
 
+    str url::schemepath() const {
+        str result;
+        result.reserve(scheme_.size() + scheme_separator.size() + path_.size());
+        result.append(scheme_);
+        result.append(scheme_separator);
+        result.append(path_);
+        return result;
+    }
+
     url& url::operator+=(str_view path) {
         return concat(path);
     }

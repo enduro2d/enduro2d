@@ -19,24 +19,28 @@ TEST_CASE("url") {
         REQUIRE(u.empty());
         REQUIRE(u.scheme().empty());
         REQUIRE(u.path().empty());
+        REQUIRE(u.schemepath() == "://");
     }
     {
         url u("://file");
         REQUIRE(!u.empty());
         REQUIRE(u.scheme().empty());
         REQUIRE(u.path() == "file");
+        REQUIRE(u.schemepath() == "://file");
     }
     {
         url u("file://");
         REQUIRE(u.empty());
         REQUIRE(u.scheme() == "file");
         REQUIRE(u.path().empty());
+        REQUIRE(u.schemepath() == "file://");
     }
     {
         url u("file://test_file");
         REQUIRE(!u.empty());
         REQUIRE(u.scheme() == "file");
         REQUIRE(u.path() == "test_file");
+        REQUIRE(u.schemepath() == "file://test_file");
     }
     {
         url u("dir/file");

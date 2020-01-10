@@ -8,8 +8,6 @@
 
 #include "_core.hpp"
 
-#include "window.hpp"
-
 namespace e2d
 {
     class mouse final : private noncopyable {
@@ -119,17 +117,5 @@ namespace e2d
     private:
         class internal_state;
         std::unique_ptr<internal_state> state_;
-    };
-
-    class window_input_source : public window::event_listener {
-    public:
-        window_input_source(input& input) noexcept;
-        void on_input_char(char32_t uchar) noexcept final;
-        void on_move_cursor(const v2f& pos) noexcept final;
-        void on_mouse_scroll(const v2f& delta) noexcept final;
-        void on_mouse_button(mouse_button btn, mouse_button_action act) noexcept final;
-        void on_keyboard_key(keyboard_key key, u32 scancode, keyboard_key_action act) noexcept final;
-    private:
-        input& input_;
     };
 }

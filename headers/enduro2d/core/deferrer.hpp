@@ -33,6 +33,8 @@ namespace e2d
 
         template < typename T >
         void active_safe_wait_promise(const stdex::promise<T>& promise) noexcept;
+
+        void frame_tick() noexcept;
     private:
         stdex::jobber worker_;
         stdex::scheduler scheduler_;

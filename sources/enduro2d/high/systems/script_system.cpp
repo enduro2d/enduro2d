@@ -125,6 +125,7 @@ namespace e2d
         const systems::update_event& event)
     {
         E2D_UNUSED(event);
+        E2D_PROFILER_SCOPE("script_system.process");
         state_->update_process(owner);
     }
 
@@ -133,6 +134,7 @@ namespace e2d
         const ecs::before<systems::update_event>& trigger)
     {
         E2D_UNUSED(trigger);
+        E2D_PROFILER_SCOPE("script_system.process");
         state_->process_events(owner);
     }
 }

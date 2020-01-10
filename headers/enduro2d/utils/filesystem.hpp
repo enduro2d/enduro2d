@@ -76,6 +76,7 @@ namespace e2d::filesystem
 
     bool try_read_all(str& dst, str_view path) noexcept;
     bool try_read_all(buffer& dst, str_view path) noexcept;
+    bool try_write_all(str_view src, str_view path, bool append) noexcept;
     bool try_write_all(buffer_view src, str_view path, bool append) noexcept;
 
     ENUM_HPP_CLASS_DECL(predef_path, u8,

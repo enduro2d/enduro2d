@@ -24,8 +24,16 @@ namespace e2d
         const library& library, str_view address)
     {
         return library.load_asset_async<text_asset>(address)
-        .then([](const text_asset::load_result& json_data){
-            return the<deferrer>().do_in_worker_thread([json_data](){
+        .then([
+            address = str(address)
+        ](const text_asset::load_result& json_data){
+            return the<deferrer>().do_in_worker_thread([
+                json_data,
+                address = std::move(address)
+            ](){
+                E2D_PROFILER_SCOPE_EX("json_asset.parsing", {
+                    {"address", address}
+                });
                 auto json = std::make_shared<rapidjson::Document>();
                 if ( json->Parse(json_data->content().c_str()).HasParseError() ) {
                     throw json_asset_loading_exception();

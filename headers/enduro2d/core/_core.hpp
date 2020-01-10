@@ -12,7 +12,6 @@
 
 #include <curly.hpp/curly.hpp>
 
-#include <promise.hpp/invoke.hpp>
 #include <promise.hpp/jobber.hpp>
 #include <promise.hpp/promise.hpp>
 #include <promise.hpp/scheduler.hpp>
@@ -26,7 +25,6 @@ namespace e2d
 
     namespace stdex
     {
-        using namespace invoke_hpp;
         using namespace jobber_hpp;
         using namespace promise_hpp;
         using namespace scheduler_hpp;
@@ -44,6 +42,7 @@ namespace e2d
     class input;
     class network;
     class platform;
+    class profiler;
     class render;
     class shader;
     class texture;

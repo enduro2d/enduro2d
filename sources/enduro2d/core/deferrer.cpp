@@ -6,6 +6,8 @@
 
 #include <enduro2d/core/deferrer.hpp>
 
+#include <enduro2d/core/profiler.hpp>
+
 namespace e2d
 {
     deferrer::deferrer()
@@ -25,5 +27,10 @@ namespace e2d
 
     const stdex::scheduler& deferrer::scheduler() const noexcept {
         return scheduler_;
+    }
+
+    void deferrer::frame_tick() noexcept {
+        E2D_PROFILER_SCOPE("deferrer.frame_tick");
+        scheduler_.process_all_tasks();
     }
 }

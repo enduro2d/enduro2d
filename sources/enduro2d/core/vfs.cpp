@@ -6,6 +6,8 @@
 
 #include <enduro2d/core/vfs.hpp>
 
+#include <enduro2d/core/profiler.hpp>
+
 #include <3rdparty/miniz/miniz.h>
 
 namespace
@@ -108,8 +110,17 @@ namespace e2d
 
     vfs::vfs()
     : state_(new state()){}
-
     vfs::~vfs() noexcept = default;
+
+    stdex::jobber& vfs::worker() noexcept {
+        std::lock_guard<std::mutex> guard(state_->mutex);
+        return state_->worker;
+    }
+
+    const stdex::jobber& vfs::worker() const noexcept {
+        std::lock_guard<std::mutex> guard(state_->mutex);
+        return state_->worker;
+    }
 
     bool vfs::register_scheme(str_view scheme, file_source_uptr source) {
         std::lock_guard<std::mutex> guard(state_->mutex);
@@ -163,16 +174,20 @@ namespace e2d
             }, output_stream_uptr());
     }
 
-    bool vfs::load(const url& url, buffer& dst) const {
-        return load_async(url)
-            .then([&dst](auto&& src){
-                dst = std::forward<decltype(src)>(src);
-                return true;
-            }).get_or_default(false);
+    std::optional<buffer> vfs::load(const url& url) const {
+        E2D_PROFILER_SCOPE_EX("vfs.sync_load", {
+            {"url", url.schemepath()}
+        });
+        return load_async(url).then([](auto&& src){
+            return std::optional<buffer>(std::forward<decltype(src)>(src));
+        }).get_or_default(std::nullopt);
     }
 
     stdex::promise<buffer> vfs::load_async(const url& url) const {
         return state_->worker.async([this, url](){
+            E2D_PROFILER_SCOPE_EX("vfs.load_async", {
+                {"url", url.schemepath()}
+            });
             buffer content;
             const input_stream_uptr stream = read(url);
             if ( !stream || !streams::try_read_tail(content, stream) ) {
@@ -182,16 +197,20 @@ namespace e2d
         });
     }
 
-    bool vfs::load_as_string(const url& url, str& dst) const {
-        return load_as_string_async(url)
-            .then([&dst](auto&& src){
-                dst = std::forward<decltype(src)>(src);
-                return true;
-            }).get_or_default(false);
+    std::optional<str> vfs::load_as_string(const url& url) const {
+        E2D_PROFILER_SCOPE_EX("vfs.sync_load_as_string", {
+            {"url", url.schemepath()}
+        });
+        return load_as_string_async(url).then([](auto&& src){
+            return std::optional<str>(std::forward<decltype(src)>(src));
+        }).get_or_default(std::nullopt);
     }
 
     stdex::promise<str> vfs::load_as_string_async(const url& url) const {
         return state_->worker.async([this, url](){
+            E2D_PROFILER_SCOPE_EX("vfs.load_as_string_async", {
+                {"url", url.schemepath()}
+            });
             str content;
             const input_stream_uptr stream = read(url);
             if ( !stream || !streams::try_read_tail(content, stream) ) {
