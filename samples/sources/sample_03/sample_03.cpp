@@ -36,20 +36,6 @@ namespace
             if ( k.is_key_pressed(keyboard_key::lsuper) && k.is_key_just_released(keyboard_key::enter) ) {
                 the<window>().toggle_fullscreen(!the<window>().fullscreen());
             }
-
-            if ( k.is_key_just_released(keyboard_key::space) ) {
-                the<profiler>().record_for(std::chrono::seconds(1))
-                .then([](const profiler::recording_info& info){
-                    the<debug>().trace("Profile done: %0", info.events.size());
-                    profilers::try_save_recording_info(info, the<vfs>().write({"desktop", "trace.json"}, false));
-                });
-                the<deferrer>().do_in_main_thread([](){
-                    the<library>().load_asset_async<prefab_asset>("scenes/spine_scene_prefab.json")
-                    .then([](const prefab_asset::load_result& prefab_data){
-                        the<world>().instantiate(prefab_data->content());
-                    });
-                });
-            }
         }
     };
 
