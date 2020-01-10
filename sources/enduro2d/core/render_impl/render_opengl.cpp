@@ -514,7 +514,7 @@ namespace e2d
         }
 
         gl_shader_id fs(state_->dbg());
-        
+
         {
             E2D_PROFILER_SCOPE("render.compile_fragment_shader");
 

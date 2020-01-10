@@ -6,7 +6,6 @@
 
 #include <enduro2d/core/profiler.hpp>
 
-#include <enduro2d/core/deferrer.hpp>
 #include <enduro2d/core/engine.hpp>
 #include <enduro2d/core/vfs.hpp>
 
@@ -28,7 +27,7 @@ namespace
 
     str recording_info_to_json(const profiler::recording_info& src) {
         str dst("{\"traceEvents\":[\n");
-        
+
         dst += strings::rformat(
             "  {\"name\":\"thread_name\",\"ph\":\"M\",\"tid\":%0,\"pid\":0,\"args\":{\"name\":\"%1\"}},\n",
             std::hash<std::thread::id>()(the<engine>().main_thread()),
@@ -159,7 +158,7 @@ namespace e2d
             std::move(args),
             std::this_thread::get_id(),
             time::to_chrono(time::now_us())};
-        
+
         std::lock_guard guard(rmutex_);
         for ( const auto& sink : sinks_ ) {
             if ( sink ) {
@@ -175,7 +174,7 @@ namespace e2d
         end_scope_info event{
             std::this_thread::get_id(),
             time::to_chrono(time::now_us())};
-        
+
         std::lock_guard guard(rmutex_);
         for ( const auto& sink : sinks_ ) {
             if ( sink ) {
@@ -194,7 +193,7 @@ namespace e2d
             std::move(args),
             std::this_thread::get_id(),
             time::to_chrono(time::now_us())};
-        
+
         std::lock_guard guard(rmutex_);
         for ( const auto& sink : sinks_ ) {
             if ( sink ) {
@@ -213,7 +212,7 @@ namespace e2d
             std::move(args),
             std::this_thread::get_id(),
             time::to_chrono(time::now_us())};
-        
+
         std::lock_guard guard(rmutex_);
         for ( const auto& sink : sinks_ ) {
             if ( sink ) {
@@ -237,7 +236,7 @@ namespace e2d::profilers
             return false;
         }
     }
-    
+
     bool try_save_recording_info(
         const profiler::recording_info& src,
         const output_stream_uptr& dst) noexcept

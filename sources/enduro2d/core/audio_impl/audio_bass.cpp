@@ -235,7 +235,7 @@ namespace e2d
         HCHANNEL channel = stream->state().stream()
             ? stream->state().sound()
             : BASS_SampleGetChannel(stream->state().sound(), FALSE);
-            
+
         if ( !channel ) {
             state_->dbg().error("AUDIO: can net retrive sound channel");
             return nullptr;

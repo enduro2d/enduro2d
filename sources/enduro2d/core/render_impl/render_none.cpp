@@ -245,7 +245,7 @@ namespace e2d
         E2D_UNUSED(command);
         return *this;
     }
-    
+
     render& render::update_buffer(
         const index_buffer_ptr& ibuffer,
         buffer_view indices,

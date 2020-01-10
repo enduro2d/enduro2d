@@ -96,7 +96,7 @@ namespace
             the<vfs>().register_scheme_alias(
                 "ships",
                 url("piratepack://PNG/Retina/Ships"));
-            
+
             image texture1_image;
             if ( !images::try_load_image(texture1_image, the<vfs>().read(url("ships://ship (2).png"))) ) {
                 return false;

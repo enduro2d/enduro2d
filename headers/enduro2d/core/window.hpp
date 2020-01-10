@@ -105,7 +105,7 @@ namespace e2d
     private:
         debug& debug_;
     };
-    
+
     class window_input_source final : public window::event_listener {
     public:
         window_input_source(input& input) noexcept;

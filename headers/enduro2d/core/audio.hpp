@@ -96,7 +96,7 @@ namespace e2d
 
         void volume(f32 value) noexcept;
         [[nodiscard]] f32 volume() const noexcept;
-        
+
         void resume() noexcept;
         void pause() noexcept;
     private:

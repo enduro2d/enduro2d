@@ -8,6 +8,8 @@
 
 #include "_core.hpp"
 
+#include "deferrer.hpp"
+
 namespace e2d
 {
     class profiler final : public module<profiler> {
@@ -156,7 +158,7 @@ namespace e2d
 
             void on_event(const event_info& event) noexcept final {
                 const bool skip = info_.events.empty() && depth_;
-                
+
                 if ( std::holds_alternative<begin_scope_info>(event) ) {
                     ++depth_;
                 } else if ( std::holds_alternative<end_scope_info>(event) ) {
@@ -168,7 +170,7 @@ namespace e2d
                     if ( !skip ) {
                         info_.events.push_back(event);
                     }
-                    
+
                     if ( !depth_ && time_point_ <= Clock::now() ) {
                         promise_.resolve(std::move(info_));
                     }
@@ -212,7 +214,7 @@ namespace e2d::profilers
     bool try_save_recording_info(
         const profiler::recording_info& src,
         buffer& dst) noexcept;
-    
+
     bool try_save_recording_info(
         const profiler::recording_info& src,
         const output_stream_uptr& dst) noexcept;

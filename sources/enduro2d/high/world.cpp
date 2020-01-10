@@ -196,7 +196,7 @@ namespace e2d
 
     gobject world::instantiate(const prefab& prefab, const node_iptr& parent) {
         E2D_PROFILER_SCOPE("world.instantiate");
-        
+
         gobject inst = new_instance(*this, prefab);
 
         if ( parent ) {

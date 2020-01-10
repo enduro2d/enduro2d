@@ -99,7 +99,7 @@ namespace
 
         void frame_render() final {
             E2D_PROFILER_SCOPE("application.frame_render");
-           
+
             world& w = the<world>();
 
             {

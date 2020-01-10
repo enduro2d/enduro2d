@@ -179,7 +179,7 @@ namespace e2d
             {"url", url.schemepath()}
         });
         return load_async(url).then([](auto&& src){
-            return std::optional(std::forward<decltype(src)>(src));
+            return std::optional<buffer>(std::forward<decltype(src)>(src));
         }).get_or_default(std::nullopt);
     }
 
@@ -202,7 +202,7 @@ namespace e2d
             {"url", url.schemepath()}
         });
         return load_as_string_async(url).then([](auto&& src){
-            return std::optional(std::forward<decltype(src)>(src));
+            return std::optional<str>(std::forward<decltype(src)>(src));
         }).get_or_default(std::nullopt);
     }
 

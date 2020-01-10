@@ -19,7 +19,7 @@ namespace
             the<vfs>().register_scheme_alias(
                 "audio",
                 url("rpgaudio://Audio"));
-            
+
             auto sstream1 = the<audio>().create_stream(the<vfs>().read(url("audio://chop.ogg")));
             auto sstream2 = the<audio>().create_stream(*the<vfs>().load(url("audio://footstep00.ogg")));
 
@@ -29,7 +29,7 @@ namespace
 
             sound_src1_ = the<audio>().create_source(sstream1);
             sound_src2_ = the<audio>().create_source(sstream2);
-            
+
             if ( !sound_src1_ || !sound_src2_ ) {
                 return false;
             }
