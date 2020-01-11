@@ -34,4 +34,9 @@ namespace e2d
         std::lock_guard guard(mutex_);
         return selection_;
     }
+
+    bool editor::has_selection() const noexcept {
+        std::lock_guard guard(mutex_);
+        return !!selection_;
+    }
 }

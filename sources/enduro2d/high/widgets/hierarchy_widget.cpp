@@ -19,7 +19,7 @@ namespace
 {
     using namespace e2d;
 
-    void show_tree_for_node(const const_node_iptr& root) {
+    void show_tree_for_node(editor& e, input& i, const const_node_iptr& root) {
         const gobject owner = root ? root->owner() : gobject();
         if ( !owner ) {
             return;
@@ -42,15 +42,14 @@ namespace
 
         ImGuiTreeNodeFlags tree_node_flags =
             ImGuiTreeNodeFlags_OpenOnArrow |
+            ImGuiTreeNodeFlags_SpanFullWidth |
             ImGuiTreeNodeFlags_OpenOnDoubleClick;
 
         if ( !root->has_children() ) {
             tree_node_flags |= ImGuiTreeNodeFlags_Leaf;
         }
 
-        editor& e = the<editor>();
-
-        if ( e.selection() == owner ) {
+        if ( e.has_selection() && e.selection() == owner ) {
             tree_node_flags |= ImGuiTreeNodeFlags_Selected;
         }
 
@@ -64,17 +63,36 @@ namespace
         if ( tree_node_opened ) {
             E2D_DEFER([](){ ImGui::TreePop(); });
 
-            root->for_each_child([](const const_node_iptr& child){
-                show_tree_for_node(child);
+            root->for_each_child([&e, &i](const const_node_iptr& child){
+                show_tree_for_node(e, i, child);
             });
         }
     }
 
-    void show_tree_for_all_scenes(const ecs::registry& owner) {
+    void show_tree_for_all_scenes(editor& e, input& i, const ecs::registry& owner) {
         owner.for_joined_components<scene, actor>(
-        [](const ecs::const_entity&, const scene&, const actor& a){
-            show_tree_for_node(a.node());
+        [&e, &i](const ecs::const_entity&, const scene&, const actor& a){
+            show_tree_for_node(e, i, a.node());
         });
+    }
+
+    void process_tree_selection(editor& e, input& i) {
+        if ( !e.has_selection() || !ImGui::IsWindowFocused() ) {
+            return;
+        }
+
+        const keyboard& k = i.keyboard();
+        if ( k.is_key_just_pressed(keyboard_key::del)
+            || k.is_key_just_pressed(keyboard_key::backspace) )
+        {
+            e.selection().destroy();
+        }
+
+        if ( ImGui::IsMouseClicked(ImGuiMouseButton_Left)
+            && ImGui::IsWindowHovered(ImGuiHoveredFlags_RootWindow) )
+        {
+            e.clear_selection();
+        }
     }
 }
 
@@ -86,11 +104,18 @@ namespace e2d::dbgui_widgets
     }
 
     bool hierarchy_widget::show() {
-        if ( !modules::is_initialized<editor, world>() ) {
+        if ( !modules::is_initialized<editor, input, world>() ) {
             return false;
         }
 
-        show_tree_for_all_scenes(the<world>().registry());
+        show_tree_for_all_scenes(
+            the<editor>(),
+            the<input>(),
+            the<world>().registry());
+
+        process_tree_selection(
+            the<editor>(),
+            the<input>());
 
         return true;
     }

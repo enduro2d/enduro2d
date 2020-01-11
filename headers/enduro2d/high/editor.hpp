@@ -20,6 +20,7 @@ namespace e2d
         void select(const gobject& go);
         void clear_selection() noexcept;
         gobject selection() const noexcept;
+        bool has_selection() const noexcept;
     private:
         mutable std::mutex mutex_;
         gobject selection_;
