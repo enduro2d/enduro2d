@@ -18,11 +18,7 @@ namespace e2d::dbgui_widgets
     }
 
     bool inspector_widget::show() {
-        if ( !modules::is_initialized<editor>() ) {
-            return false;
-        }
-
-        if ( !modules::is_initialized<inspector>() ) {
+        if ( !modules::is_initialized<editor, inspector>() ) {
             return false;
         }
 

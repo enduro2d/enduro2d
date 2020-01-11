@@ -26,6 +26,12 @@ namespace
     private:
         u32 m_;
     };
+
+    class empty_module : public module<empty_module> {
+    };
+
+    class empty_module_impl : public empty_module {
+    };
 }
 
 TEST_CASE("module") {
@@ -91,5 +97,28 @@ TEST_CASE("module") {
 
         REQUIRE_THROWS_AS(modules::instance<mul_module>(), module_not_initialized);
         REQUIRE_THROWS_AS(modules::instance<mul_module_impl>(), module_not_initialized);
+    }
+    {
+        REQUIRE_FALSE(modules::is_initialized<mul_module>());
+        REQUIRE_FALSE(modules::is_initialized<empty_module>());
+        REQUIRE_FALSE(modules::is_initialized<mul_module, empty_module>());
+
+        REQUIRE_NOTHROW(modules::initialize<mul_module_impl>(3));
+
+        REQUIRE(modules::is_initialized<mul_module>());
+        REQUIRE_FALSE(modules::is_initialized<empty_module>());
+        REQUIRE_FALSE(modules::is_initialized<mul_module, empty_module>());
+
+        REQUIRE_NOTHROW(modules::initialize<empty_module_impl>());
+
+        REQUIRE(modules::is_initialized<mul_module>());
+        REQUIRE(modules::is_initialized<empty_module>());
+        REQUIRE(modules::is_initialized<mul_module, empty_module>());
+
+        REQUIRE_NOTHROW(modules::shutdown<empty_module, mul_module_impl>());
+
+        REQUIRE_FALSE(modules::is_initialized<mul_module>());
+        REQUIRE_FALSE(modules::is_initialized<empty_module>());
+        REQUIRE_FALSE(modules::is_initialized<mul_module, empty_module>());
     }
 }

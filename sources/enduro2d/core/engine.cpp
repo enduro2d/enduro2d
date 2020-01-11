@@ -23,10 +23,10 @@ namespace
     using namespace e2d;
 
     template < typename Module, typename... Args >
-    void safe_module_initialize(Args&&... args) {
-        if ( !modules::is_initialized<Module>() ) {
-            modules::initialize<Module>(std::forward<Args>(args)...);
-        }
+    Module& safe_module_initialize(Args&&... args) {
+        return modules::is_initialized<Module>()
+            ? modules::instance<Module>()
+            : modules::initialize<Module>(std::forward<Args>(args)...);
     }
 
     void safe_register_predef_path(

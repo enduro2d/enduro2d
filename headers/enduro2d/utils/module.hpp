@@ -80,16 +80,14 @@ namespace e2d::modules
         return module<BaseT>::template initialize<ImplT>(std::forward<Args>(args)...);
     }
 
-    template < typename ImplT >
+    template < typename... ImplTs >
     void shutdown() noexcept {
-        using BaseT = typename ImplT::base_type;
-        module<BaseT>::shutdown();
+        return (... , module<typename ImplTs::base_type>::shutdown());
     }
 
-    template < typename ImplT >
+    template < typename... ImplTs >
     bool is_initialized() noexcept {
-        using BaseT = typename ImplT::base_type;
-        return module<BaseT>::is_initialized();
+        return (... && module<typename ImplTs::base_type>::is_initialized());
     }
 
     template < typename ImplT >

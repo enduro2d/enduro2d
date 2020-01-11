@@ -86,11 +86,7 @@ namespace e2d::dbgui_widgets
     }
 
     bool hierarchy_widget::show() {
-        if ( !modules::is_initialized<editor>() ) {
-            return false;
-        }
-        
-        if ( !modules::is_initialized<world>() ) {
+        if ( !modules::is_initialized<editor, world>() ) {
             return false;
         }
 
