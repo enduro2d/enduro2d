@@ -9,6 +9,9 @@
 #include "../_high.hpp"
 
 #include "../factory.hpp"
+#include "../gobject.hpp"
+#include "../inspector.hpp"
+
 #include "../assets/script_asset.hpp"
 
 namespace e2d
@@ -27,7 +30,10 @@ namespace e2d
         sol::table meta_;
         script_asset::ptr script_;
     };
+}
 
+namespace e2d
+{
     template <>
     class factory_loader<behaviour> final : factory_loader<> {
     public:
@@ -42,6 +48,18 @@ namespace e2d
             const collect_context& ctx) const;
     };
 }
+
+namespace e2d
+{
+    template <>
+    class component_inspector<behaviour> final : component_inspector<> {
+    public:
+        static const char* title;
+
+        void operator()(gcomponent<behaviour>& c) const;
+    };
+}
+
 
 namespace e2d
 {

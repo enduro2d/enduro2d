@@ -93,6 +93,8 @@ namespace e2d
     class spine;
     class sprite;
 
+    class editor;
+    class inspector;
     class luasol;
     class physics;
     class starter;

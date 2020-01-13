@@ -75,11 +75,13 @@ namespace sol {
 		using base_t::rend;
 
 
-		using base_t::swap;
 		using base_t::get_allocator;
+		using base_t::swap;
 
+		using base_t::clear;
 		using base_t::emplace;
 		using base_t::emplace_back;
+		using base_t::erase;
 		using base_t::insert;
 		using base_t::pop_back;
 		using base_t::push_back;
@@ -87,7 +89,7 @@ namespace sol {
 		using base_t::resize;
 		using base_t::shrink_to_fit;
 
-		string_view as_string_view () const {
+		string_view as_string_view() const {
 			return string_view(reinterpret_cast<const char*>(this->data()), this->size());
 		}
 	};
@@ -97,12 +99,16 @@ namespace sol {
 		using storage_t = Container;
 		const std::byte* p_code = static_cast<const std::byte*>(memory);
 		storage_t& bc = *static_cast<storage_t*>(userdata);
+#if defined(SOL_NO_EXCEPTIONS) && SOL_NO_EXCEPTIONS != 0
+		bc.insert(bc.cend(), p_code, p_code + memory_size);
+#else
 		try {
 			bc.insert(bc.cend(), p_code, p_code + memory_size);
 		}
-		catch ( ... ) {
+		catch (...) {
 			return -1;
 		}
+#endif
 		return 0;
 	}
 

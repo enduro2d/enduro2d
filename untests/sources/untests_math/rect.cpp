@@ -172,11 +172,6 @@ TEST_CASE("rect") {
         REQUIRE(math::overlaps(b2i(0,0,10,10), b2i(-9,0,10,10)));
         REQUIRE(math::overlaps(b2i(0,0,10,10), b2i(0,-9,10,10)));
         REQUIRE(math::overlaps(b2i(0,0,10,10), b2i(-9,-9,10,10)));
-
-        REQUIRE_FALSE(math::contains_nan(b2i(1,2,3,4)));
-        REQUIRE_FALSE(math::contains_nan(b2f(1.f,2.f,3.f,4.f)));
-        REQUIRE(math::contains_nan(b2f(1.f,std::numeric_limits<f32>::quiet_NaN())));
-        REQUIRE(math::contains_nan(b2f(std::numeric_limits<f32>::infinity(), 1.f)));
     }
     {
         REQUIRE(math::normalized_to_point(b2f(10.f, 20.f), v2f(0.f, 0.f)) == v2f(0.f, 0.f));

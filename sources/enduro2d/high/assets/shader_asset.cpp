@@ -54,21 +54,32 @@ namespace
         const rapidjson::Value& root)
     {
         E2D_ASSERT(root.HasMember("vertex") && root["vertex"].IsString());
-        auto vertex_p = library.load_asset_async<text_asset>(
-            path::combine(parent_address, root["vertex"].GetString()));
+        auto vertex_a = path::combine(parent_address, root["vertex"].GetString());
+        auto vertex_p = library.load_asset_async<text_asset>(vertex_a);
 
         E2D_ASSERT(root.HasMember("fragment") && root["fragment"].IsString());
-        auto fragment_p = library.load_asset_async<text_asset>(
-            path::combine(parent_address, root["fragment"].GetString()));
+        auto fragment_a = path::combine(parent_address, root["fragment"].GetString());
+        auto fragment_p = library.load_asset_async<text_asset>(fragment_a);
 
         return stdex::make_tuple_promise(std::make_tuple(
             std::move(vertex_p),
             std::move(fragment_p)))
-        .then([](const std::tuple<
+        .then([
+            vertex_a = std::move(vertex_a),
+            fragment_a = std::move(fragment_a)
+        ](const std::tuple<
             text_asset::load_result,
             text_asset::load_result
         >& results){
-            return the<deferrer>().do_in_main_thread([results](){
+            return the<deferrer>().do_in_main_thread([
+                results,
+                vertex_a = std::move(vertex_a),
+                fragment_a = std::move(fragment_a)
+            ](){
+                E2D_PROFILER_SCOPE_EX("shader_asset.create_shader", {
+                    {"vertex_address", vertex_a},
+                    {"fragment_address", fragment_a}
+                });
                 const shader_ptr content = the<render>().create_shader(
                     std::get<0>(results)->content(),
                     std::get<1>(results)->content());

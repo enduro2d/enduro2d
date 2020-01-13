@@ -69,9 +69,7 @@ namespace
             "overlaps", sol::resolve<bool(const aabb<T>&,const aabb<T>&)>(&math::overlaps),
 
             "normalized_to_point", sol::resolve<vec3<T>(const aabb<T>&,const vec3<T>&)>(&math::normalized_to_point),
-            "point_to_normalized", sol::resolve<vec3<T>(const aabb<T>&,const vec3<T>&)>(&math::point_to_normalized),
-
-            "contains_nan", sol::resolve<bool(const aabb<T>&)>(&math::contains_nan));
+            "point_to_normalized", sol::resolve<vec3<T>(const aabb<T>&,const vec3<T>&)>(&math::point_to_normalized));
     }
 }
 

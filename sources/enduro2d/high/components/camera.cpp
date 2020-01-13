@@ -75,3 +75,26 @@ namespace e2d
         return true;
     }
 }
+
+namespace e2d
+{
+    const char* component_inspector<camera>::title = "camera";
+
+    void component_inspector<camera>::operator()(gcomponent<camera>& c) const {
+        if ( i32 depth = c->depth();
+            ImGui::DragInt("depth", &depth) )
+        {
+            c->depth(depth);
+        }
+
+        ///TODO(BlackMat): add 'viewport' inspector
+        ///TODO(BlackMat): add 'projection' inspector
+        ///TODO(BlackMat): add 'target' inspector
+
+        if ( color background = c->background();
+            ImGui::ColorEdit4("background", background.data()) )
+        {
+            c->background(background);
+        }
+    }
+}

@@ -41,3 +41,16 @@ namespace e2d
         return true;
     }
 }
+
+namespace e2d
+{
+    const char* component_inspector<scene>::title = "scene";
+
+    void component_inspector<scene>::operator()(gcomponent<scene>& c) const {
+        if ( i32 depth = c->depth();
+            ImGui::DragInt("depth", &depth) )
+        {
+            c->depth(depth);
+        }
+    }
+}

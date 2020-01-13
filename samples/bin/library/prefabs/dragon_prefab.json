@@ -4,7 +4,7 @@
         "spine_player" : {
             "spine" : "../spines/dragon_spine.json"
         },
-        "spine_player_commands" : {
+        "spine_player.commands" : {
             "commands" : [{
                 "type" : "set_anim_cmd",
                 "desc" : {

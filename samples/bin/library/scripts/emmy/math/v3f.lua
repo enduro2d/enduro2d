@@ -116,9 +116,5 @@ function v3f.lerp(l,r,v) end
 ---@return v3f
 function v3f.inverse_lerp(l,r,v) end
 
----@param v v3f
----@return boolean
-function v3f.contains_nan(v) end
-
 ---@type v3f
 _G.v3f = _G.v3f or v3f

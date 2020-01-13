@@ -13,7 +13,7 @@ namespace
     };
 
     struct renderer_rotator {
-        v3f axis;
+        v3f delta;
     };
 
     class game_system final : public systems::update_system {
@@ -68,16 +68,13 @@ namespace
             [&event](const ecs::const_entity&, const node_rotator&, actor& act){
                 const node_iptr node = act.node();
                 if ( node ) {
-                    node->rotation(make_rad(event.time));
+                    node->rotation(event.time);
                 }
             });
 
             owner.for_joined_components<renderer_rotator, renderer>(
             [&event](const ecs::const_entity&, const renderer_rotator& rot, renderer& r){
-                const q4f q = math::make_quat_from_axis_angle(
-                    make_rad(event.time),
-                    rot.axis);
-                r.rotation(q);
+                r.rotation(r.rotation() + rot.delta * event.dt);
             });
         }
     };
@@ -86,7 +83,6 @@ namespace
     public:
         bool initialize() final {
             return create_scene()
-                && create_camera()
                 && create_systems();
         }
     private:
@@ -107,6 +103,17 @@ namespace
             {
                 prefab prefab;
                 prefab.prototype()
+                    .component<camera>(camera()
+                        .background({1.f, 0.4f, 0.f, 1.f}));
+
+                the<world>().instantiate(
+                    prefab,
+                    scene_i.component<actor>()->node());
+            }
+
+            {
+                prefab prefab;
+                prefab.prototype()
                     .component<renderer_rotator>(v3f::unit_y())
                     .component<renderer>(renderer().materials({model_mat}))
                     .component<model_renderer>(model_res);
@@ -114,7 +121,7 @@ namespace
                 the<world>().instantiate(
                     prefab,
                     scene_i.component<actor>()->node(),
-                    make_trs2(v2f{0,50.f}, radf::zero(), v2f{20.f}));
+                    make_trs2(v2f{0,50.f}, 0.f, v2f{20.f}));
             }
 
             {
@@ -147,7 +154,7 @@ namespace
                 for ( std::size_t j = 0; j < 5; ++j ) {
                     t2f trans{
                         {-80.f + j * 40.f, -200.f + i * 40.f},
-                        radf::zero(),
+                        0.f,
                         {2.f,2.f}};
                     gobject inst = the<world>().instantiate(
                         prefab_a,
@@ -159,7 +166,7 @@ namespace
                         .component<node_rotator>()
                         .component<actor>(node::create(make_trs2(
                             v2f{20.f,0.f},
-                            radf::zero(),
+                            0.f,
                             v2f{0.3f,0.3f})));
 
                     the<world>().instantiate(
@@ -168,14 +175,6 @@ namespace
                 }
             }
 
-            return true;
-        }
-
-        bool create_camera() {
-            auto camera_i = the<world>().instantiate();
-            camera_i.component<camera>().assign(camera()
-                .background({1.f, 0.4f, 0.f, 1.f}));
-            camera_i.component<actor>().assign(node::create(camera_i));
             return true;
         }
 

@@ -195,3 +195,82 @@ namespace e2d
         return true;
     }
 }
+
+namespace e2d
+{
+    const char* component_inspector<label>::title = "label";
+
+    void component_inspector<label>::operator()(gcomponent<label>& c) const {
+        if ( str text = c->text();
+            ImGui::InputTextMultiline("text", &text) )
+        {
+            c->text(std::move(text));
+            c.owner().component<label::dirty>().ensure();
+        }
+
+        ///TODO(BlackMat): add 'font' inspector
+
+        if ( color tint = color(c->tint());
+            ImGui::ColorEdit4("tint", tint.data()) )
+        {
+            c->tint(color32(tint));
+            c.owner().component<label::dirty>().ensure();
+        }
+
+        if ( label::haligns halign = c->halign();
+            imgui_utils::show_enum_combo_box("halign", &halign) )
+        {
+            c->halign(halign);
+            c.owner().component<label::dirty>().ensure();
+        }
+
+        if ( label::valigns valign = c->valign();
+            imgui_utils::show_enum_combo_box("valign", &valign) )
+        {
+            c->valign(valign);
+            c.owner().component<label::dirty>().ensure();
+        }
+
+        if ( f32 leading = c->leading();
+            ImGui::DragFloat("leading", &leading, 0.01f) )
+        {
+            c->leading(leading);
+            c.owner().component<label::dirty>().ensure();
+        }
+
+        if ( f32 tracking = c->tracking();
+            ImGui::DragFloat("tracking", &tracking, 0.01f) )
+        {
+            c->tracking(tracking);
+            c.owner().component<label::dirty>().ensure();
+        }
+
+        if ( f32 text_width = c->text_width();
+            ImGui::DragFloat("text_width", &text_width, 1.f) )
+        {
+            c->text_width(text_width);
+            c.owner().component<label::dirty>().ensure();
+        }
+
+        if ( f32 glyph_dilate = c->glyph_dilate();
+            ImGui::SliderFloat("glyph_dilate", &glyph_dilate, -1.f, 1.f) )
+        {
+            c->glyph_dilate(glyph_dilate);
+            c.owner().component<label::dirty>().ensure();
+        }
+
+        if ( f32 outline_width = c->outline_width();
+            ImGui::SliderFloat("outline_width", &outline_width, 0.f, 1.f) )
+        {
+            c->outline_width(outline_width);
+            c.owner().component<label::dirty>().ensure();
+        }
+
+        if ( color outline_color = color(c->outline_color());
+            ImGui::ColorEdit4("outline_color", outline_color.data()) )
+        {
+            c->outline_color(color32(outline_color));
+            c.owner().component<label::dirty>().ensure();
+        }
+    }
+}

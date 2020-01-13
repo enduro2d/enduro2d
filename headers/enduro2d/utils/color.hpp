@@ -136,8 +136,6 @@ namespace e2d::math
     color minimized(const color& c, const color& cmin) noexcept;
     color maximized(const color& c, const color& cmax) noexcept;
     color clamped(const color& c, const color& cmin, const color& cmax) noexcept;
-
-    bool contains_nan(const color& c) noexcept;
 }
 
 namespace e2d::colors

@@ -7,7 +7,6 @@
 #pragma once
 
 #include "_math.hpp"
-#include "quat.hpp"
 #include "trig.hpp"
 #include "trs2.hpp"
 #include "trs3.hpp"
@@ -336,14 +335,6 @@ namespace e2d::math
     }
 
     template < typename T >
-    mat4<T> make_scale_matrix4(const vec4<T>& xyz) noexcept {
-        return make_scale_matrix4(
-            xyz.x,
-            xyz.y,
-            xyz.z);
-    }
-
-    template < typename T >
     mat4<T> make_scale_matrix4(const vec3<T>& xyz) noexcept {
         return make_scale_matrix4(
             xyz.x,
@@ -373,14 +364,6 @@ namespace e2d::math
     }
 
     template < typename T >
-    mat4<T> make_translation_matrix4(const vec4<T>& xyz) noexcept {
-        return make_translation_matrix4(
-            xyz.x,
-            xyz.y,
-            xyz.z);
-    }
-
-    template < typename T >
     mat4<T> make_translation_matrix4(const vec3<T>& xyz) noexcept {
         return make_translation_matrix4(
             xyz.x,
@@ -397,7 +380,7 @@ namespace e2d::math
     }
 
     //
-    // make_rotation_matrix
+    // make_rotation_matrix (axis)
     //
 
     template < typename T, typename AngleTag >
@@ -433,18 +416,6 @@ namespace e2d::math
     template < typename T, typename AngleTag >
     mat4<T> make_rotation_matrix4(
         const unit<T, AngleTag>& angle,
-        const vec4<T>& axis_xyz) noexcept
-    {
-        return make_rotation_matrix4(
-            angle,
-            axis_xyz.x,
-            axis_xyz.y,
-            axis_xyz.z);
-    }
-
-    template < typename T, typename AngleTag >
-    mat4<T> make_rotation_matrix4(
-        const unit<T, AngleTag>& angle,
         const vec3<T>& axis_xyz) noexcept
     {
         return make_rotation_matrix4(
@@ -454,43 +425,41 @@ namespace e2d::math
             axis_xyz.z);
     }
 
+    //
+    // make_rotation_matrix (euler)
+    //
+
     template < typename T, typename AngleTag >
     mat4<T> make_rotation_matrix4(
-        const unit<T, AngleTag>& angle,
-        const vec2<T>& axis_xy,
-        T axis_z) noexcept
+        const unit<T, AngleTag>& roll,
+        const unit<T, AngleTag>& pitch,
+        const unit<T, AngleTag>& yaw) noexcept
     {
-        return make_rotation_matrix4(
-            angle,
-            axis_xy.x,
-            axis_xy.y,
-            axis_z);
+        const T csr = math::cos(roll);
+        const T snr = math::sin(roll);
+
+        const T csp = math::cos(pitch);
+        const T snp = math::sin(pitch);
+
+        const T csy = math::cos(yaw);
+        const T sny = math::sin(yaw);
+
+        const T snr_snp = snr * snp;
+        const T csr_snp = csr * snp;
+
+        return {
+            csp * csy,                 csp * sny,                 -snp,      T(0),
+            snr_snp * csy - csr * sny, snr_snp * sny + csr * csy, snr * csp, T(0),
+            csr_snp * csy + snr * sny, csr_snp * sny - snr * csy, csr * csp, T(0),
+            T(0),                      T(0),                      T(0),      T(1)};
     }
 
     template < typename T >
-    mat4<T> make_rotation_matrix4(const quat<T>& q) noexcept {
-        const T x = q.x;
-        const T y = q.y;
-        const T z = q.z;
-        const T w = q.w;
-
-        const T xx = x * x;
-        const T xy = x * y;
-        const T xz = x * z;
-        const T xw = x * w;
-
-        const T yy = y * y;
-        const T yz = y * z;
-        const T yw = y * w;
-
-        const T zz = z * z;
-        const T zw = z * w;
-
-        return {
-            T(1) - T(2) * (yy + zz), T(2) * (xy + zw),        T(2) * (xz - yw),        T(0),
-            T(2) * (xy - zw),        T(1) - T(2) * (xx + zz), T(2) * (yz + xw),        T(0),
-            T(2) * (xz + yw),        T(2) * (yz - xw),        T(1) - T(2) * (xx + yy), T(0),
-            T(0),                    T(0),                    T(0),                    T(1)};
+    mat4<T> make_rotation_matrix4(const vec3<T>& rpy) noexcept {
+        return make_rotation_matrix4(
+            make_rad(rpy.x),
+            make_rad(rpy.y),
+            make_rad(rpy.z));
     }
 
     //
@@ -500,7 +469,7 @@ namespace e2d::math
     template < typename T >
     mat4<T> make_trs_matrix4(const trs2<T>& trs) noexcept {
         return make_scale_matrix4(trs.scale)
-             * make_rotation_matrix4(trs.rotation, v4f::unit_z())
+             * make_rotation_matrix4(make_rad(trs.rotation), vec3<T>::unit_z())
              * make_translation_matrix4(trs.translation);
     }
 
@@ -518,8 +487,8 @@ namespace e2d::math
     template < typename T >
     std::enable_if_t<std::is_floating_point_v<T>, mat4<T>>
     make_look_at_lh_matrix4(const vec3<T>& eye, const vec3<T>& at, const vec3<T>& up) noexcept {
-        const vec3<T> az = normalized(at - eye);
-        const vec3<T> ax = normalized(math::cross(up, az));
+        const vec3<T> az = math::normalized(at - eye);
+        const vec3<T> ax = math::normalized(math::cross(up, az));
         const vec3<T> ay = math::cross(az, ax);
         const T dx = math::dot(ax, eye);
         const T dy = math::dot(ay, eye);
@@ -538,8 +507,8 @@ namespace e2d::math
     template < typename T >
     std::enable_if_t<std::is_floating_point_v<T>, mat4<T>>
     make_look_at_rh_matrix4(const vec3<T>& eye, const vec3<T>& at, const vec3<T>& up) noexcept {
-        const vec3<T> az = normalized(eye - at);
-        const vec3<T> ax = normalized(math::cross(up, az));
+        const vec3<T> az = math::normalized(eye - at);
+        const vec3<T> ax = math::normalized(math::cross(up, az));
         const vec3<T> ay = math::cross(az, ax);
         const T dx = math::dot(ax, eye);
         const T dy = math::dot(ay, eye);
@@ -749,18 +718,5 @@ namespace e2d::math
             mm[1], mm[5], mm[ 9], mm[13],
             mm[2], mm[6], mm[10], mm[14],
             mm[3], mm[7], mm[11], mm[15]};
-    }
-
-    //
-    // contains_nan
-    //
-
-    template < typename T >
-    bool contains_nan(const mat4<T>& v) noexcept {
-        return
-            math::contains_nan(v.rows[0]) ||
-            math::contains_nan(v.rows[1]) ||
-            math::contains_nan(v.rows[2]) ||
-            math::contains_nan(v.rows[3]);
     }
 }

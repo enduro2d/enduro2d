@@ -61,48 +61,51 @@ namespace e2d
     // factory_creator
     //
 
-    class factory_creator;
-    using factory_creator_iptr = intrusive_ptr<factory_creator>;
+    namespace impl
+    {
+        class factory_creator;
+        using factory_creator_iptr = intrusive_ptr<factory_creator>;
 
-    class factory_creator
-        : private noncopyable
-        , public ref_counter<factory_creator> {
-    public:
-        factory_creator() = default;
-        virtual ~factory_creator() noexcept = default;
+        class factory_creator
+            : private noncopyable
+            , public ref_counter<factory_creator> {
+        public:
+            factory_creator() = default;
+            virtual ~factory_creator() noexcept = default;
 
-        virtual bool validate_json(
-            const rapidjson::Value& root) const = 0;
+            virtual bool validate_json(
+                const rapidjson::Value& root) const = 0;
 
-        virtual bool fill_prototype(
-            ecs::prototype& prototype,
-            const factory_loader<>::fill_context& ctx) const = 0;
+            virtual bool fill_prototype(
+                ecs::prototype& prototype,
+                const factory_loader<>::fill_context& ctx) const = 0;
 
-        virtual bool collect_dependencies(
-            asset_dependencies& dependencies,
-            const factory_loader<>::collect_context& ctx) const = 0;
-    };
+            virtual bool collect_dependencies(
+                asset_dependencies& dependencies,
+                const factory_loader<>::collect_context& ctx) const = 0;
+        };
 
-    template < typename Component >
-    class typed_factory_creator final : public factory_creator {
-    public:
-        typed_factory_creator();
-        ~typed_factory_creator() noexcept final = default;
+        template < typename Component >
+        class typed_factory_creator final : public factory_creator {
+        public:
+            typed_factory_creator();
+            ~typed_factory_creator() noexcept final = default;
 
-        bool validate_json(
-            const rapidjson::Value& root) const final;
+            bool validate_json(
+                const rapidjson::Value& root) const final;
 
-        bool fill_prototype(
-            ecs::prototype& prototype,
-            const factory_loader<>::fill_context& ctx) const final;
+            bool fill_prototype(
+                ecs::prototype& prototype,
+                const factory_loader<>::fill_context& ctx) const final;
 
-        bool collect_dependencies(
-            asset_dependencies& dependencies,
-            const factory_loader<>::collect_context& ctx) const final;
-    private:
-        factory_loader<Component> loader_;
-        std::unique_ptr<rapidjson::SchemaDocument> schema_;
-    };
+            bool collect_dependencies(
+                asset_dependencies& dependencies,
+                const factory_loader<>::collect_context& ctx) const final;
+        private:
+            factory_loader<Component> loader_;
+            std::unique_ptr<rapidjson::SchemaDocument> schema_;
+        };
+    }
 
     //
     // factory
@@ -130,10 +133,10 @@ namespace e2d
             asset_dependencies& dependencies,
             const factory_loader<>::collect_context& ctx) const;
     private:
-        factory_creator_iptr find_creator(str_hash type) const;
+        impl::factory_creator_iptr find_creator(str_hash type) const;
     private:
         mutable std::mutex mutex_;
-        hash_map<str_hash, factory_creator_iptr> creators_;
+        hash_map<str_hash, impl::factory_creator_iptr> creators_;
     };
 }
 

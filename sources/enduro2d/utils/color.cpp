@@ -266,17 +266,6 @@ namespace e2d::math
             math::clamp(c.b, cmin.b, cmax.b),
             math::clamp(c.a, cmin.a, cmax.a));
     }
-
-    //
-    // contains_nan
-    //
-
-    bool contains_nan(const color& c) noexcept {
-        return !math::is_finite(c.r)
-            || !math::is_finite(c.g)
-            || !math::is_finite(c.b)
-            || !math::is_finite(c.a);
-    }
 }
 
 namespace e2d::colors

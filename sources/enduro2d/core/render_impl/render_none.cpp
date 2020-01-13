@@ -181,20 +181,15 @@ namespace e2d
     }
 
     shader_ptr render::create_shader(
-        const input_stream_uptr& vertex_stream,
-        const input_stream_uptr& fragment_stream)
+        buffer_view vertex_source,
+        buffer_view fragment_source)
     {
-        E2D_UNUSED(vertex_stream, fragment_stream);
+        E2D_UNUSED(vertex_source, fragment_source);
         return nullptr;
     }
 
     texture_ptr render::create_texture(const image& image) {
         E2D_UNUSED(image);
-        return nullptr;
-    }
-
-    texture_ptr render::create_texture(const input_stream_uptr& image_stream) {
-        E2D_UNUSED(image_stream);
         return nullptr;
     }
 
@@ -250,7 +245,7 @@ namespace e2d
         E2D_UNUSED(command);
         return *this;
     }
-    
+
     render& render::update_buffer(
         const index_buffer_ptr& ibuffer,
         buffer_view indices,

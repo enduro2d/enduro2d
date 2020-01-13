@@ -420,14 +420,4 @@ namespace e2d::math
         const vec3<T> max = maximum(r);
         return math::inverse_lerp(min, max, p);
     }
-
-    //
-    // contains_nan
-    //
-
-    template < typename T >
-    bool contains_nan(const aabb<T>& r) noexcept {
-        return math::contains_nan(r.position)
-            || math::contains_nan(r.size);
-    }
 }

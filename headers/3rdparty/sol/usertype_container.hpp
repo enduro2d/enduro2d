@@ -64,7 +64,8 @@ namespace sol {
 		struct has_erase_after_test {
 		private:
 			template <typename C>
-			static meta::sfinae_yes_t test(decltype(std::declval<C>().erase_after(std::declval<std::add_rvalue_reference_t<typename C::const_iterator>>()))*);
+			static meta::sfinae_yes_t test(
+			     decltype(std::declval<C>().erase_after(std::declval<std::add_rvalue_reference_t<typename C::const_iterator>>()))*);
 			template <typename C>
 			static meta::sfinae_no_t test(...);
 
@@ -101,6 +102,18 @@ namespace sol {
 		private:
 			template <typename C>
 			static meta::sfinae_yes_t test(decltype(std::declval<C>().erase(std::declval<typename C::iterator>()))*);
+			template <typename C>
+			static meta::sfinae_no_t test(...);
+
+		public:
+			static constexpr bool value = std::is_same_v<decltype(test<T>(0)), meta::sfinae_yes_t>;
+		};
+
+		template <typename T>
+		struct has_erase_key_test {
+		private:
+			template <typename C>
+			static meta::sfinae_yes_t test(decltype(std::declval<C>().erase(std::declval<typename C::key_type>()))*);
 			template <typename C>
 			static meta::sfinae_no_t test(...);
 
@@ -289,6 +302,9 @@ namespace sol {
 		using has_erase = meta::boolean<has_erase_test<T>::value>;
 
 		template <typename T>
+		using has_erase_key = meta::boolean<has_erase_key_test<T>::value>;
+
+		template <typename T>
 		using has_erase_after = meta::boolean<has_erase_after_test<T>::value>;
 
 		template <typename T>
@@ -404,7 +420,8 @@ namespace sol {
 			}
 
 			static int index_set(lua_State* L) {
-				return luaL_error(L, "sol: cannot call 'container[key] = value' on type '%s': it is not recognized as a container", detail::demangle<T>().c_str());
+				return luaL_error(
+				     L, "sol: cannot call 'container[key] = value' on type '%s': it is not recognized as a container", detail::demangle<T>().c_str());
 			}
 
 			static int add(lua_State* L) {
@@ -463,7 +480,9 @@ namespace sol {
 		};
 
 		template <typename X>
-		struct usertype_container_default<X, std::enable_if_t<meta::all<is_forced_container<meta::unqualified_t<X>>, meta::has_value_type<meta::unqualified_t<container_decay_t<X>>>, meta::has_iterator<meta::unqualified_t<container_decay_t<X>>>>::value>> {
+		struct usertype_container_default<X,
+		     std::enable_if_t<meta::all<is_forced_container<meta::unqualified_t<X>>, meta::has_value_type<meta::unqualified_t<container_decay_t<X>>>,
+		          meta::has_iterator<meta::unqualified_t<container_decay_t<X>>>>::value>> {
 		private:
 			using T = std::remove_pointer_t<meta::unwrap_unqualified_t<container_decay_t<X>>>;
 
@@ -475,32 +494,21 @@ namespace sol {
 			using is_matched_lookup = meta::is_matched_lookup<T>;
 			using iterator = typename T::iterator;
 			using value_type = typename T::value_type;
-			typedef meta::conditional_t<is_matched_lookup::value,
-				std::pair<value_type, value_type>,
-				meta::conditional_t<is_associative::value || is_lookup::value,
-					value_type,
-					std::pair<std::ptrdiff_t, value_type>>>
-				KV;
+			typedef meta::conditional_t<is_matched_lookup::value, std::pair<value_type, value_type>,
+			     meta::conditional_t<is_associative::value || is_lookup::value, value_type, std::pair<std::ptrdiff_t, value_type>>>
+			     KV;
 			typedef typename KV::first_type K;
 			typedef typename KV::second_type V;
 			typedef meta::conditional_t<is_matched_lookup::value, std::ptrdiff_t, K> next_K;
 			typedef decltype(*std::declval<iterator&>()) iterator_return;
-			typedef meta::conditional_t<is_associative::value || is_matched_lookup::value,
-				std::add_lvalue_reference_t<V>,
-				meta::conditional_t<is_lookup::value,
-					V,
-					iterator_return>>
-				captured_type;
+			typedef meta::conditional_t<is_associative::value || is_matched_lookup::value, std::add_lvalue_reference_t<V>,
+			     meta::conditional_t<is_lookup::value, V, iterator_return>>
+			     captured_type;
 			typedef typename meta::iterator_tag<iterator>::type iterator_category;
 			typedef std::is_same<iterator_category, std::input_iterator_tag> is_input_iterator;
-			typedef meta::conditional_t<is_input_iterator::value,
-				V,
-				decltype(detail::deref_non_pointer(std::declval<captured_type>()))>
-				push_type;
+			typedef meta::conditional_t<is_input_iterator::value, V, decltype(detail::deref_move_only(std::declval<captured_type>()))> push_type;
 			typedef std::is_copy_assignable<V> is_copyable;
-			typedef meta::neg<meta::any<
-				std::is_const<V>, std::is_const<std::remove_reference_t<iterator_return>>, meta::neg<is_copyable>>>
-				is_writable;
+			typedef meta::neg<meta::any<std::is_const<V>, std::is_const<std::remove_reference_t<iterator_return>>, meta::neg<is_copyable>>> is_writable;
 			typedef meta::unqualified_t<decltype(get_key(is_associative(), std::declval<std::add_lvalue_reference_t<value_type>>()))> key_type;
 			typedef meta::all<std::is_integral<K>, meta::neg<meta::any<is_associative, is_lookup>>> is_linear_integral;
 
@@ -509,12 +517,10 @@ namespace sol {
 				iterator it;
 				std::size_t i;
 
-				iter(T& source, iterator it)
-				: source(source), it(std::move(it)), i(0) {
+				iter(T& source, iterator it) : source(source), it(std::move(it)), i(0) {
 				}
 
 				~iter() {
-					
 				}
 			};
 
@@ -522,10 +528,13 @@ namespace sol {
 #if defined(SOL_SAFE_USERTYPE) && SOL_SAFE_USERTYPE
 				auto p = stack::unqualified_check_get<T*>(L, 1);
 				if (!p) {
-					luaL_error(L, "sol: 'self' is not of type '%s' (pass 'self' as first argument with ':' or call on proper type)", detail::demangle<T>().c_str());
+					luaL_error(L,
+					     "sol: 'self' is not of type '%s' (pass 'self' as first argument with ':' or call on proper type)",
+					     detail::demangle<T>().c_str());
 				}
 				if (p.value() == nullptr) {
-					luaL_error(L, "sol: 'self' argument is nil (pass 'self' as first argument with ':' or call on a '%s' type)", detail::demangle<T>().c_str());
+					luaL_error(
+					     L, "sol: 'self' argument is nil (pass 'self' as first argument with ':' or call on a '%s' type)", detail::demangle<T>().c_str());
 				}
 				return *p.value();
 #else
@@ -570,12 +579,12 @@ namespace sol {
 			template <typename Iter>
 			static detail::error_result get_associative(std::true_type, lua_State* L, Iter& it) {
 				decltype(auto) v = *it;
-				return stack::stack_detail::push_reference<push_type>(L, detail::deref_non_pointer(v.second));
+				return stack::stack_detail::push_reference<push_type>(L, detail::deref_move_only(v.second));
 			}
 
 			template <typename Iter>
 			static detail::error_result get_associative(std::false_type, lua_State* L, Iter& it) {
-				return stack::stack_detail::push_reference<push_type>(L, detail::deref_non_pointer(*it));
+				return stack::stack_detail::push_reference<push_type>(L, detail::deref_move_only(*it));
 			}
 
 			static detail::error_result get_category(std::input_iterator_tag, lua_State* L, T& self, K& key) {
@@ -613,9 +622,7 @@ namespace sol {
 			}
 
 			static detail::error_result get_comparative(std::true_type, lua_State* L, T& self, K& key) {
-				auto fx = [&](const value_type& r) -> bool {
-					return key == get_key(is_associative(), r);
-				};
+				auto fx = [&](const value_type& r) -> bool { return key == get_key(is_associative(), r); };
 				auto e = deferred_uc::end(L, self);
 				auto it = std::find_if(deferred_uc::begin(L, self), e, std::ref(fx));
 				if (it == e) {
@@ -625,7 +632,9 @@ namespace sol {
 			}
 
 			static detail::error_result get_comparative(std::false_type, lua_State*, T&, K&) {
-				return detail::error_result("cannot get this key on '%s': no suitable way to increment iterator and compare to key value '%s'", detail::demangle<T>().data(), detail::demangle<K>().data());
+				return detail::error_result("cannot get this key on '%s': no suitable way to increment iterator and compare to key value '%s'",
+				     detail::demangle<T>().data(),
+				     detail::demangle<K>().data());
 			}
 
 			static detail::error_result get_it(std::false_type, lua_State* L, T& self, K& key) {
@@ -649,7 +658,8 @@ namespace sol {
 			}
 
 			static detail::error_result set_writable(std::false_type, lua_State*, T&, iterator&, stack_object) {
-				return detail::error_result("cannot perform a 'set': '%s's iterator reference is not writable (non-copy-assignable or const)", detail::demangle<T>().data());
+				return detail::error_result(
+				     "cannot perform a 'set': '%s's iterator reference is not writable (non-copy-assignable or const)", detail::demangle<T>().data());
 			}
 
 			static detail::error_result set_category(std::input_iterator_tag, lua_State* L, T& self, stack_object okey, stack_object value) {
@@ -690,11 +700,10 @@ namespace sol {
 			static detail::error_result set_comparative(std::true_type, lua_State* L, T& self, stack_object okey, stack_object value) {
 				decltype(auto) key = okey.as<K>();
 				if (!is_writable::value) {
-					return detail::error_result("cannot perform a 'set': '%s's iterator reference is not writable (non-copy-assignable or const)", detail::demangle<T>().data());
+					return detail::error_result(
+					     "cannot perform a 'set': '%s's iterator reference is not writable (non-copy-assignable or const)", detail::demangle<T>().data());
 				}
-				auto fx = [&](const value_type& r) -> bool {
-					return key == get_key(is_associative(), r);
-				};
+				auto fx = [&](const value_type& r) -> bool { return key == get_key(is_associative(), r); };
 				auto e = deferred_uc::end(L, self);
 				auto it = std::find_if(deferred_uc::begin(L, self), e, std::ref(fx));
 				if (it == e) {
@@ -704,19 +713,39 @@ namespace sol {
 			}
 
 			static detail::error_result set_comparative(std::false_type, lua_State*, T&, stack_object, stack_object) {
-				return detail::error_result("cannot set this value on '%s': no suitable way to increment iterator or compare to '%s' key", detail::demangle<T>().data(), detail::demangle<K>().data());
+				return detail::error_result("cannot set this value on '%s': no suitable way to increment iterator or compare to '%s' key",
+				     detail::demangle<T>().data(),
+				     detail::demangle<K>().data());
 			}
 
 			template <typename Iter>
 			static detail::error_result set_associative_insert(std::true_type, lua_State*, T& self, Iter& it, K& key, stack_object value) {
-				self.insert(it, value_type(key, value.as<V>()));
-				return {};
+				if constexpr (meta::has_insert<T>::value) {
+					self.insert(it, value_type(key, value.as<V>()));
+					return {};
+				}
+				else {
+					(void)self;
+					(void)it;
+					(void)key;
+					return detail::error_result(
+					     "cannot call 'set' on '%s': there is no 'insert' function on this associative type", detail::demangle<T>().c_str());
+				}
 			}
 
 			template <typename Iter>
 			static detail::error_result set_associative_insert(std::false_type, lua_State*, T& self, Iter& it, K& key, stack_object) {
-				self.insert(it, key);
-				return {};
+				if constexpr (meta::has_insert<T>::value) {
+					self.insert(it, key);
+					return {};
+				}
+				else {
+					(void)self;
+					(void)it;
+					(void)key;
+					return detail::error_result(
+					     "cannot call 'set' on '%s': there is no 'insert' function on this non-associative type", detail::demangle<T>().c_str());
+				}
 			}
 
 			static detail::error_result set_associative_find(std::true_type, lua_State* L, T& self, stack_object okey, stack_object value) {
@@ -806,7 +835,8 @@ namespace sol {
 
 			template <bool = false>
 			static detail::error_result find_comparative(std::false_type, lua_State*, T&) {
-				return detail::error_result("cannot call 'find' on '%s': there is no 'find' function and the value_type is not equality comparable", detail::demangle<T>().c_str());
+				return detail::error_result("cannot call 'find' on '%s': there is no 'find' function and the value_type is not equality comparable",
+				     detail::demangle<T>().c_str());
 			}
 
 			template <bool idx_of = false>
@@ -898,8 +928,18 @@ namespace sol {
 
 			template <typename Iter>
 			static detail::error_result add_associative(std::true_type, lua_State* L, T& self, stack_object key, Iter& pos) {
-				self.insert(pos, value_type(key.as<K>(), stack::unqualified_get<V>(L, 3)));
-				return {};
+				if constexpr (meta::has_insert<T>::value) {
+					self.insert(pos, value_type(key.as<K>(), stack::unqualified_get<V>(L, 3)));
+					return {};
+				}
+				else {
+					(void)L;
+					(void)self;
+					(void)key;
+					(void)pos;
+					return detail::error_result(
+					     "cannot call 'insert' on '%s': there is no 'insert' function on this associative type", detail::demangle<T>().c_str());
+				}
 			}
 
 			static detail::error_result add_associative(std::true_type, lua_State* L, T& self, stack_object key) {
@@ -965,7 +1005,8 @@ namespace sol {
 			}
 
 			static detail::error_result insert_after_has(std::false_type, lua_State*, T&, stack_object, stack_object) {
-				return detail::error_result("cannot call 'insert' on '%s': no suitable or similar functionality detected on this container", detail::demangle<T>().data());
+				return detail::error_result(
+				     "cannot call 'insert' on '%s': no suitable or similar functionality detected on this container", detail::demangle<T>().data());
 			}
 
 			static detail::error_result insert_has(std::true_type, lua_State* L, T& self, stack_object key, stack_object value) {
@@ -994,9 +1035,7 @@ namespace sol {
 			}
 
 			static detail::error_result erase_integral(std::false_type, lua_State* L, T& self, const K& key) {
-				auto fx = [&](const value_type& r) -> bool {
-					return key == r;
-				};
+				auto fx = [&](const value_type& r) -> bool { return key == r; };
 				auto e = deferred_uc::end(L, self);
 				auto it = std::find_if(deferred_uc::begin(L, self), e, std::ref(fx));
 				if (it == e) {
@@ -1035,12 +1074,20 @@ namespace sol {
 				return detail::error_result("sol: cannot call erase on '%s'", detail::demangle<T>().c_str());
 			}
 
+			static detail::error_result erase_key_has(std::true_type, lua_State* L, T& self, K& key) {
+				return erase_associative_lookup(meta::any<is_associative, is_lookup>(), L, self, key);
+			}
+
+			static detail::error_result erase_key_has(std::false_type, lua_State* L, T& self, K& key) {
+				return erase_after_has(has_erase_after<T>(), L, self, key);
+			}
+
 			static detail::error_result erase_has(std::true_type, lua_State* L, T& self, K& key) {
 				return erase_associative_lookup(meta::any<is_associative, is_lookup>(), L, self, key);
 			}
 
 			static detail::error_result erase_has(std::false_type, lua_State* L, T& self, K& key) {
-				return erase_after_has(has_erase_after<T>(), L, self, key);
+				return erase_key_has(has_erase_key<T>(), L, self, key);
 			}
 
 			static auto size_has(std::false_type, lua_State* L, T& self) {
@@ -1067,8 +1114,21 @@ namespace sol {
 				return deferred_uc::begin(L, self) == deferred_uc::end(L, self);
 			}
 
-			static detail::error_result get_start(lua_State* L, T& self, K& key) {
+			static detail::error_result get_associative_find(std::true_type, lua_State* L, T& self, K& key) {
+				auto it = self.find(key);
+				if (it == deferred_uc::end(L, self)) {
+					stack::push(L, lua_nil);
+					return {};
+				}
+				return get_associative(std::true_type(), L, it);
+			}
+
+			static detail::error_result get_associative_find(std::false_type, lua_State* L, T& self, K& key) {
 				return get_it(is_linear_integral(), L, self, key);
+			}
+
+			static detail::error_result get_start(lua_State* L, T& self, K& key) {
+				return get_associative_find(std::integral_constant < bool, is_associative::value&& has_find<T>::value > (), L, self, key);
 			}
 
 			static detail::error_result set_start(lua_State* L, T& self, stack_object key, stack_object value) {
@@ -1107,7 +1167,7 @@ namespace sol {
 				else {
 					p = stack::push_reference(L, it->first);
 				}
-				p += stack::stack_detail::push_reference<push_type>(L, detail::deref_non_pointer(it->second));
+				p += stack::stack_detail::push_reference<push_type>(L, detail::deref_move_only(it->second));
 				std::advance(it, 1);
 				return p;
 			}
@@ -1128,7 +1188,7 @@ namespace sol {
 				else {
 					p = stack::stack_detail::push_reference(L, k + 1);
 				}
-				p += stack::stack_detail::push_reference<push_type>(L, detail::deref_non_pointer(*it));
+				p += stack::stack_detail::push_reference<push_type>(L, detail::deref_move_only(*it));
 				std::advance(it, 1);
 				return p;
 			}
@@ -1221,13 +1281,23 @@ namespace sol {
 			}
 
 			static iterator begin(lua_State*, T& self) {
-				using std::begin;
-				return begin(self);
+				if constexpr (meta::has_begin_end_v<T>) {
+					return self.begin();
+				}
+				else {
+					using std::begin;
+					return begin(self);
+				}
 			}
 
 			static iterator end(lua_State*, T& self) {
-				using std::end;
-				return end(self);
+				if constexpr (meta::has_begin_end_v<T>) {
+					return self.end();
+				}
+				else {
+					using std::end;
+					return end(self);
+				}
 			}
 
 			static int size(lua_State* L) {
@@ -1295,8 +1365,7 @@ namespace sol {
 				T& source;
 				iterator it;
 
-				iter(T& source, iterator it)
-				: source(source), it(std::move(it)) {
+				iter(T& source, iterator it) : source(source), it(std::move(it)) {
 				}
 			};
 
@@ -1304,10 +1373,13 @@ namespace sol {
 				auto p = stack::unqualified_check_get<T*>(L, 1);
 #if defined(SOL_SAFE_USERTYPE) && SOL_SAFE_USERTYPE
 				if (!p) {
-					luaL_error(L, "sol: 'self' is not of type '%s' (pass 'self' as first argument with ':' or call on proper type)", detail::demangle<T>().c_str());
+					luaL_error(L,
+					     "sol: 'self' is not of type '%s' (pass 'self' as first argument with ':' or call on proper type)",
+					     detail::demangle<T>().c_str());
 				}
 				if (p.value() == nullptr) {
-					luaL_error(L, "sol: 'self' argument is nil (pass 'self' as first argument with ':' or call on a '%s' type)", detail::demangle<T>().c_str());
+					luaL_error(
+					     L, "sol: 'self' argument is nil (pass 'self' as first argument with ':' or call on a '%s' type)", detail::demangle<T>().c_str());
 				}
 #endif // Safe getting with error
 				return *p.value();
@@ -1342,7 +1414,7 @@ namespace sol {
 				}
 				int p;
 				p = stack::push(L, k + 1);
-				p += stack::push_reference(L, detail::deref_non_pointer(*it));
+				p += stack::push_reference(L, detail::deref_move_only(*it));
 				std::advance(it, 1);
 				return p;
 			}
@@ -1375,7 +1447,7 @@ namespace sol {
 				if (idx >= static_cast<std::ptrdiff_t>(std::extent<T>::value) || idx < 0) {
 					return stack::push(L, lua_nil);
 				}
-				return stack::push_reference(L, detail::deref_non_pointer(self[idx]));
+				return stack::push_reference(L, detail::deref_move_only(self[idx]));
 			}
 
 			static int index_get(lua_State* L) {

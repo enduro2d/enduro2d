@@ -16,6 +16,7 @@
 #include "input.hpp"
 #include "network.hpp"
 #include "platform.hpp"
+#include "profiler.hpp"
 #include "render.hpp"
 #include "render.inl"
 #include "vfs.hpp"

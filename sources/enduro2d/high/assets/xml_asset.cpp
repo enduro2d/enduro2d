@@ -24,8 +24,16 @@ namespace e2d
         const library& library, str_view address)
     {
         return library.load_asset_async<text_asset>(address)
-        .then([](const text_asset::load_result& xml_data){
-            return the<deferrer>().do_in_worker_thread([xml_data](){
+        .then([
+            address = str(address)
+        ](const text_asset::load_result& xml_data){
+            return the<deferrer>().do_in_worker_thread([
+                xml_data,
+                address = std::move(address)
+            ](){
+                E2D_PROFILER_SCOPE_EX("xml_asset.parsing", {
+                    {"address", address}
+                });
                 auto xml = std::make_shared<pugi::xml_document>();
                 if ( !xml->load_string(xml_data->content().c_str()) ) {
                     throw xml_asset_loading_exception();

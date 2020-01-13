@@ -278,13 +278,4 @@ namespace e2d::math
     unit<T, Tag> saturated(const unit<T, Tag>& u) noexcept {
         return clamped(u, {T(0), Tag{}}, {T(1), Tag{}});
     }
-
-    //
-    // contains_nan
-    //
-
-    template < typename T, typename Tag >
-    bool contains_nan(const unit<T, Tag>& u) noexcept {
-        return !math::is_finite(u.value);
-    }
 }

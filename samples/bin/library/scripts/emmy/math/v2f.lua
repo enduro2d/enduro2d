@@ -105,9 +105,5 @@ function v2f.lerp(l,r,v) end
 ---@return v2f
 function v2f.inverse_lerp(l,r,v) end
 
----@param v v2f
----@return boolean
-function v2f.contains_nan(v) end
-
 ---@type v2f
 _G.v2f = _G.v2f or v2f

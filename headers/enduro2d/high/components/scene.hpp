@@ -9,6 +9,8 @@
 #include "../_high.hpp"
 
 #include "../factory.hpp"
+#include "../gobject.hpp"
+#include "../inspector.hpp"
 
 namespace e2d
 {
@@ -21,7 +23,10 @@ namespace e2d
     private:
         i32 depth_ = 0;
     };
+}
 
+namespace e2d
+{
     template <>
     class factory_loader<scene> final : factory_loader<> {
     public:
@@ -34,6 +39,17 @@ namespace e2d
         bool operator()(
             asset_dependencies& dependencies,
             const collect_context& ctx) const;
+    };
+}
+
+namespace e2d
+{
+    template <>
+    class component_inspector<scene> final : component_inspector<> {
+    public:
+        static const char* title;
+
+        void operator()(gcomponent<scene>& c) const;
     };
 }
 

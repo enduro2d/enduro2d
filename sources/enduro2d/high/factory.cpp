@@ -40,7 +40,7 @@ namespace e2d
             : false;
     }
 
-    factory_creator_iptr factory::find_creator(str_hash type) const {
+    impl::factory_creator_iptr factory::find_creator(str_hash type) const {
         std::lock_guard<std::mutex> guard(mutex_);
         const auto iter = creators_.find(type);
         return iter != creators_.end()

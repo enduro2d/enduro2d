@@ -25,9 +25,6 @@ namespace e2d
 
     class vfs final : public module<vfs> {
     public:
-        vfs();
-        ~vfs() noexcept final;
-
         class file_source : private e2d::noncopyable {
         public:
             virtual ~file_source() noexcept = default;
@@ -38,6 +35,12 @@ namespace e2d
             virtual bool trace(str_view path, filesystem::trace_func func) const = 0;
         };
         using file_source_uptr = std::unique_ptr<file_source>;
+    public:
+        vfs();
+        ~vfs() noexcept final;
+
+        stdex::jobber& worker() noexcept;
+        const stdex::jobber& worker() const noexcept;
 
         template < typename T, typename... Args >
         bool register_scheme(str_view scheme, Args&&... args);
@@ -52,10 +55,10 @@ namespace e2d
         input_stream_uptr read(const url& url) const;
         output_stream_uptr write(const url& url, bool append) const;
 
-        bool load(const url& url, buffer& dst) const;
+        std::optional<buffer> load(const url& url) const;
         stdex::promise<buffer> load_async(const url& url) const;
 
-        bool load_as_string(const url& url, str& dst) const;
+        std::optional<str> load_as_string(const url& url) const;
         stdex::promise<str> load_as_string_async(const url& url) const;
 
         template < typename Iter >

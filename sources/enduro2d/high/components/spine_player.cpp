@@ -909,3 +909,14 @@ namespace e2d
         return true;
     }
 }
+
+namespace e2d
+{
+    const char* component_inspector<spine_player>::title = "spine_player";
+
+    void component_inspector<spine_player>::operator()(gcomponent<spine_player>& c) const {
+        E2D_UNUSED(c);
+        ///TODO(BlackMat): add 'spine' inspector
+        ///TODO(BlackMat): add 'materials' inspector
+    }
+}

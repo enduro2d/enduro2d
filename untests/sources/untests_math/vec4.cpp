@@ -307,12 +307,4 @@ TEST_CASE("vec4") {
         REQUIRE(math::inverse_lerp(v4f(1,2,1,2), v4f(10,20,10,20), v4f(5.5f,11,5.5f,11)) == v4f(0.5f));
         REQUIRE(math::inverse_lerp(v4f(1,2,1,2), v4f(10,20,10,20), v4f(5.5f,38,5.5f,38)) == v4f(0.5f,2.f,0.5f,2.f));
     }
-    {
-        REQUIRE_FALSE(math::contains_nan(v4i(0,1,2,3)));
-        REQUIRE_FALSE(math::contains_nan(v4f(0.f,1.f,2.f,3.f)));
-        REQUIRE(math::contains_nan(v4f(0.f,1.f,2.f,std::numeric_limits<f32>::quiet_NaN())));
-        REQUIRE(math::contains_nan(v4f(0.f,1.f,std::numeric_limits<f32>::quiet_NaN(),2.f)));
-        REQUIRE(math::contains_nan(v4f(std::numeric_limits<f32>::infinity(),1.f,2.f,3.f)));
-        REQUIRE(math::contains_nan(v4f(1.f,std::numeric_limits<f32>::infinity(),2.f,3.f)));
-    }
 }

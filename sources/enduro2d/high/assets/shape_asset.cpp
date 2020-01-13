@@ -24,8 +24,16 @@ namespace e2d
         const library& library, str_view address)
     {
         return library.load_asset_async<binary_asset>(address)
-        .then([](const binary_asset::load_result& shape_data){
-            return the<deferrer>().do_in_worker_thread([shape_data](){
+        .then([
+            address = str(address)
+        ](const binary_asset::load_result& shape_data){
+            return the<deferrer>().do_in_worker_thread([
+                shape_data,
+                address = std::move(address)
+            ](){
+                E2D_PROFILER_SCOPE_EX("shape_asset.parsing", {
+                    {"address", address}
+                });
                 shape content;
                 if ( !shapes::try_load_shape(content, shape_data->content()) ) {
                     throw shape_asset_loading_exception();

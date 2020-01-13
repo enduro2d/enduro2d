@@ -29,9 +29,6 @@ namespace e2d
     class mat4;
 
     template < typename T >
-    class quat;
-
-    template < typename T >
     class ray2;
 
     template < typename T >
@@ -99,13 +96,6 @@ namespace e2d
     using m4u = mat4<u32>;
     using m4hi = mat4<i16>;
     using m4hu = mat4<u16>;
-
-    using q4d = quat<f64>;
-    using q4f = quat<f32>;
-    using q4i = quat<i32>;
-    using q4u = quat<u32>;
-    using q4hi = quat<i16>;
-    using q4hu = quat<u16>;
 
     using r2d = ray2<f64>;
     using r2f = ray2<f32>;
@@ -471,23 +461,6 @@ namespace e2d::math
             i <<= 1;
         } while (v & (v + 1));
         return v + 1;
-    }
-
-    //
-    // is_finite
-    //
-
-    template < typename T >
-    std::enable_if_t<std::is_integral_v<T>, bool>
-    is_finite(T v) noexcept {
-        E2D_UNUSED(v);
-        return true;
-    }
-
-    template < typename T >
-    std::enable_if_t<std::is_floating_point_v<T>, bool>
-    is_finite(T v) noexcept {
-        return std::isfinite(v);
     }
 
     //

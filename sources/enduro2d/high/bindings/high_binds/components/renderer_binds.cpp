@@ -59,8 +59,8 @@ namespace e2d::bindings::high
                 [](gcomponent<renderer>& c, const v3f& v) { c->translation(v); }),
 
             "rotation", sol::property(
-                [](const gcomponent<renderer>& c) -> q4f { return c->rotation(); },
-                [](gcomponent<renderer>& c, const q4f& v) { c->rotation(v); }),
+                [](const gcomponent<renderer>& c) -> v3f { return c->rotation(); },
+                [](gcomponent<renderer>& c, const v3f& v) { c->rotation(v); }),
 
             "scale", sol::property(
                 [](const gcomponent<renderer>& c) -> v3f { return c->scale(); },

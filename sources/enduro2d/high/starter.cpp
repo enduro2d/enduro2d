@@ -6,7 +6,9 @@
 
 #include <enduro2d/high/starter.hpp>
 
+#include <enduro2d/high/editor.hpp>
 #include <enduro2d/high/factory.hpp>
+#include <enduro2d/high/inspector.hpp>
 #include <enduro2d/high/library.hpp>
 #include <enduro2d/high/luasol.hpp>
 #include <enduro2d/high/physics.hpp>
@@ -66,7 +68,7 @@ namespace
                     .add_system<physics_system>())
                 .feature<struct render_feature>(ecs::feature()
                     .add_system<render_system>())
-                .feature<struct sript_feature>(ecs::feature()
+                .feature<struct script_feature>(ecs::feature()
                     .add_system<script_system>())
                 .feature<struct spine_feature>(ecs::feature()
                     .add_system<spine_system>());
@@ -80,31 +82,68 @@ namespace
         }
 
         bool frame_tick() final {
+            E2D_PROFILER_SCOPE("application.frame_tick");
+
+            world& w = the<world>();
             engine& e = the<engine>();
+
             const f32 dt = e.delta_time();
             const f32 time = e.time();
 
-            ecs::registry& registry = the<world>().registry();
-            registry.process_event(systems::pre_update_event{dt,time});
-            registry.process_event(systems::update_event{dt,time});
-            registry.process_event(systems::post_update_event{dt,time});
+            {
+                E2D_PROFILER_SCOPE("ecs.pre_update");
+                w.registry().process_event(systems::pre_update_event{dt,time});
+            }
+
+            {
+                E2D_PROFILER_SCOPE("ecs.update");
+                w.registry().process_event(systems::update_event{dt,time});
+            }
+
+            {
+                E2D_PROFILER_SCOPE("ecs.post_update");
+                w.registry().process_event(systems::post_update_event{dt,time});
+            }
 
             return !the<window>().should_close()
                 || (application_ && !application_->on_should_close());
         }
 
         void frame_render() final {
-            ecs::registry& registry = the<world>().registry();
-            registry.process_event(systems::pre_render_event{});
-            registry.process_event(systems::render_event{});
-            registry.process_event(systems::post_render_event{});
+            E2D_PROFILER_SCOPE("application.frame_render");
+
+            world& w = the<world>();
+
+            {
+                E2D_PROFILER_SCOPE("ecs.pre_render");
+                w.registry().process_event(systems::pre_render_event{});
+            }
+
+            {
+                E2D_PROFILER_SCOPE("ecs.render");
+                w.registry().process_event(systems::render_event{});
+            }
+
+            {
+                E2D_PROFILER_SCOPE("ecs.post_render");
+                w.registry().process_event(systems::post_render_event{});
+            }
         }
 
         void frame_finalize() final {
+            E2D_PROFILER_SCOPE("application.frame_finalize");
+
             world& w = the<world>();
-            ecs::registry& registry = w.registry();
-            registry.process_event(systems::frame_finalize_event{});
-            w.finalize_instances();
+
+            {
+                E2D_PROFILER_SCOPE("ecs.frame_finalize");
+                w.registry().process_event(systems::frame_finalize_event{});
+            }
+
+            {
+                E2D_PROFILER_SCOPE("world.finalize_instances");
+                w.finalize_instances();
+            }
         }
     private:
         starter::application_uptr application_;
@@ -203,10 +242,26 @@ namespace e2d
             .register_component<rigid_body>("rigid_body")
             .register_component<scene>("scene")
             .register_component<spine_player>("spine_player")
-            .register_component<events<spine_player_events::event>>("spine_player_events")
-            .register_component<commands<spine_player_commands::command>>("spine_player_commands")
+            .register_component<events<spine_player_events::event>>("spine_player.events")
+            .register_component<commands<spine_player_commands::command>>("spine_player.commands")
             .register_component<sprite_renderer>("sprite_renderer")
             .register_component<touchable>("touchable");
+
+        safe_module_initialize<inspector>()
+            .register_component<actor>("actor")
+            .register_component<behaviour>("behaviour")
+            .register_component<camera>("camera")
+            .register_component<flipbook_player>("flipbook_player")
+            .register_component<label>("label")
+            //.register_component<label::dirty>("label.dirty")
+            .register_component<model_renderer>("model_renderer")
+            .register_component<named>("named")
+            .register_component<renderer>("renderer")
+            .register_component<scene>("scene")
+            .register_component<spine_player>("spine_player")
+            //.register_component<events<spine_player_events::event>>("spine_player.events")
+            //.register_component<commands<spine_player_commands::command>>("spine_player.commands")
+            .register_component<sprite_renderer>("sprite_renderer");
 
         safe_module_initialize<luasol>();
 
@@ -215,15 +270,18 @@ namespace e2d
 
         safe_module_initialize<physics>();
         safe_module_initialize<world>();
+        safe_module_initialize<editor>();
     }
 
     starter::~starter() noexcept {
         the<luasol>().collect_garbage();
 
+        modules::shutdown<editor>();
         modules::shutdown<world>();
         modules::shutdown<physics>();
         modules::shutdown<library>();
         modules::shutdown<luasol>();
+        modules::shutdown<inspector>();
         modules::shutdown<factory>();
         modules::shutdown<engine>();
     }

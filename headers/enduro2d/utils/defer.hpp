@@ -13,27 +13,16 @@ namespace e2d
     namespace impl
     {
         template < typename F >
-        class defer_impl {
+        class defer_impl final : noncopyable {
         public:
-            defer_impl() = delete;
-            defer_impl(const defer_impl&) = delete;
-            defer_impl& operator=(const defer_impl&) = delete;
-
             explicit defer_impl(F f)
             : f_(std::move(f)) {}
 
             ~defer_impl() noexcept(std::is_nothrow_invocable_v<F>) {
-                if ( !cancelled_ ) {
-                    f_();
-                }
-            }
-
-            void cancel() noexcept {
-                cancelled_ = true;
+                f_();
             }
         private:
             F f_;
-            bool cancelled_{false};
         };
     }
 
@@ -44,4 +33,4 @@ namespace e2d
 }
 
 #define E2D_DEFER(lambda)\
-    auto E2D_PP_CAT(e2d_defer_, __LINE__) = ::e2d::make_defer(lambda)
+    auto E2D_PP_CAT(e2d_generated_defer_, __LINE__) = ::e2d::make_defer(lambda)

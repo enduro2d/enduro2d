@@ -33,7 +33,7 @@ TEST_CASE("mat4") {
         REQUIRE(math::make_translation_matrix4(v2i(1,1),1) == math::make_translation_matrix4(v3i::unit()));
 
         REQUIRE(math::make_rotation_matrix4(make_rad(1.f),1.f,1.f,1.f) == math::make_rotation_matrix4(make_rad(1.f), v3f::unit()));
-        REQUIRE(math::make_rotation_matrix4(make_rad(1.f),v2f(1.f,1.f),1.f) == math::make_rotation_matrix4(make_rad(1.f), v3f::unit()));
+        REQUIRE(math::make_rotation_matrix4(make_rad(1.f),v3f(1.f,1.f,1.f)) == math::make_rotation_matrix4(make_rad(1.f), v3f::unit()));
 
         REQUIRE(math::make_orthogonal_lh_matrix4(640.f, 480.f, 0.f, 1.f) == math::make_orthogonal_lh_matrix4(v2f(640,480), 0.f, 1.f));
         REQUIRE(math::make_orthogonal_lh_matrix4(640.0, 480.0, 0.0, 1.0) == math::make_orthogonal_lh_matrix4(v2d(640,480), 0.0, 1.0));
@@ -137,10 +137,8 @@ TEST_CASE("mat4") {
         REQUIRE(math::make_trs_matrix4(math::make_translation_trs3(v3f(1.f,2.f,3.f)))
             == math::make_translation_matrix4(1.f,2.f,3.f));
 
-        REQUIRE(math::make_trs_matrix4(math::make_rotation_trs2(make_rad(3.f)))
-            == math::make_rotation_matrix4(make_rad(3.f), v4f::unit_z()));
-        REQUIRE(math::make_trs_matrix4(math::make_rotation_trs3(q4f(1,2,3,4)))
-            == math::make_rotation_matrix4(q4f(1,2,3,4)));
+        REQUIRE(math::make_trs_matrix4(math::make_rotation_trs2(3.f))
+            == math::make_rotation_matrix4(make_rad(3.f), v3f::unit_z()));
 
         REQUIRE(math::make_trs_matrix4(math::make_scale_trs2(v2f(1.f,2.f)))
             == math::make_scale_matrix4(1.f,2.f));
@@ -152,7 +150,7 @@ TEST_CASE("mat4") {
                   math::make_translation_matrix4(30.f, 40.f, 50.f);
         REQUIRE(m0 == math::make_trs_matrix4(make_trs3(
             v3f(30.f, 40.f, 50.f),
-            math::make_quat_from_axis_angle(make_rad(1.f), v3f::unit_z()),
+            v3f::unit_z(),
             v3f(2.f,4.f,5.f))));
     }
     {

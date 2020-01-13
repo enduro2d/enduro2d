@@ -6,6 +6,7 @@
 
 #include <enduro2d/high/systems/script_system.hpp>
 
+#include <enduro2d/high/editor.hpp>
 #include <enduro2d/high/library.hpp>
 #include <enduro2d/high/luasol.hpp>
 #include <enduro2d/high/physics.hpp>
@@ -32,6 +33,7 @@ namespace
     }
 
     void init_high_table(sol::state& s) {
+        s["the_editor"] = &the<editor>();
         s["the_library"] = &the<library>();
         s["the_luasol"] = &the<luasol>();
         s["the_physics"] = &the<physics>();
@@ -125,6 +127,7 @@ namespace e2d
         const systems::update_event& event)
     {
         E2D_UNUSED(event);
+        E2D_PROFILER_SCOPE("script_system.process");
         state_->update_process(owner);
     }
 
@@ -133,6 +136,7 @@ namespace e2d
         const ecs::before<systems::update_event>& trigger)
     {
         E2D_UNUSED(trigger);
+        E2D_PROFILER_SCOPE("script_system.process");
         state_->process_events(owner);
     }
 }

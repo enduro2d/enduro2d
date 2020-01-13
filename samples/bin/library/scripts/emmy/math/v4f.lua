@@ -117,9 +117,5 @@ function v4f.lerp(l,r,v) end
 ---@return v4f
 function v4f.inverse_lerp(l,r,v) end
 
----@param v v4f
----@return boolean
-function v4f.contains_nan(v) end
-
 ---@type v4f
 _G.v4f = _G.v4f or v4f

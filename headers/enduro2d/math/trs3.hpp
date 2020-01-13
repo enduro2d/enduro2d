@@ -7,7 +7,6 @@
 #pragma once
 
 #include "_math.hpp"
-#include "quat.hpp"
 #include "vec3.hpp"
 
 namespace e2d
@@ -22,7 +21,7 @@ namespace e2d
         using value_type = T;
     public:
         vec3<T> translation = vec3<T>::zero();
-        quat<T> rotation = quat<T>::identity();
+        vec3<T> rotation = vec3<T>::zero();
         vec3<T> scale = vec3<T>::unit();
     public:
         static constexpr trs3 zero() noexcept;
@@ -34,7 +33,7 @@ namespace e2d
 
         constexpr trs3(
             const vec3<T>& t,
-            const quat<T>& r,
+            const vec3<T>& r,
             const vec3<T>& s) noexcept;
 
         template < typename To >
@@ -48,7 +47,7 @@ namespace e2d
     constexpr trs3<T> trs3<T>::zero() noexcept {
         return {
             vec3<T>::zero(),
-            quat<T>::zero(),
+            vec3<T>::zero(),
             vec3<T>::zero()};
     }
 
@@ -56,14 +55,14 @@ namespace e2d
     constexpr trs3<T> trs3<T>::identity() noexcept {
         return {
             vec3<T>::zero(),
-            quat<T>::identity(),
+            vec3<T>::zero(),
             vec3<T>::unit()};
     }
 
     template < typename T >
     constexpr trs3<T>::trs3(
         const vec3<T>& t,
-        const quat<T>& r,
+        const vec3<T>& r,
         const vec3<T>& s) noexcept
     : translation(t)
     , rotation(r)
@@ -88,10 +87,10 @@ namespace e2d
     template < typename T >
     constexpr trs3<T> make_trs3(
         const vec3<T>& t,
-        const quat<T>& r,
+        const vec3<T>& r,
         const vec3<T>& s) noexcept
     {
-        return trs3<T>(t, r, s);
+        return { t, r, s };
     }
 
     //
@@ -115,17 +114,17 @@ namespace e2d::math
 {
     template < typename T >
     trs3<T> make_translation_trs3(const vec3<T>& t) noexcept {
-        return trs3<T>(t, quat<T>::identity(), vec3<T>::unit());
+        return { t, vec3<T>::zero(), vec3<T>::unit() };
     }
 
     template < typename T >
-    trs3<T> make_rotation_trs3(const quat<T>& r) noexcept {
-        return trs3<T>(vec3<T>::zero(), r, vec3<T>::unit());
+    trs3<T> make_rotation_trs3(const vec3<T>& r) noexcept {
+        return { vec3<T>::zero(), r, vec3<T>::unit() };
     }
 
     template < typename T >
     trs3<T> make_scale_trs3(const vec3<T>& s) noexcept {
-        return trs3<T>(vec3<T>::zero(), quat<T>::identity(), s);
+        return { vec3<T>::zero(), vec3<T>::zero(), s };
     }
 
     template < typename T >
@@ -137,12 +136,5 @@ namespace e2d::math
         return math::approximately(l.translation, r.translation, precision)
             && math::approximately(l.rotation, r.rotation, precision)
             && math::approximately(l.scale, r.scale, precision);
-    }
-
-    template < typename T >
-    bool contains_nan(const trs3<T>& v) noexcept {
-        return contains_nan(v.translation)
-            || contains_nan(v.rotation)
-            || contains_nan(v.scale);
     }
 }

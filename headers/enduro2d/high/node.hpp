@@ -50,8 +50,8 @@ namespace e2d
         void translation(const v2f& translation) noexcept;
         const v2f& translation() const noexcept;
 
-        void rotation(const radf& rotation) noexcept;
-        const radf& rotation() const noexcept;
+        void rotation(f32 rotation) noexcept;
+        f32 rotation() const noexcept;
 
         void scale(const v2f& scale) noexcept;
         const v2f& scale() const noexcept;

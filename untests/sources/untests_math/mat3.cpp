@@ -30,7 +30,7 @@ TEST_CASE("mat3") {
         REQUIRE(math::make_scale_matrix3(v2i(1,1),1) == math::make_scale_matrix3(v3i::unit()));
 
         REQUIRE(math::make_rotation_matrix3(make_rad(1.f),1.f,1.f,1.f) == math::make_rotation_matrix3(make_rad(1.f), v3f::unit()));
-        REQUIRE(math::make_rotation_matrix3(make_rad(1.f),v2f(1.f,1.f),1.f) == math::make_rotation_matrix3(make_rad(1.f), v3f::unit()));
+        REQUIRE(math::make_rotation_matrix3(make_rad(1.f),v3f(1.f,1.f,1.f)) == math::make_rotation_matrix3(make_rad(1.f), v3f::unit()));
     }
     {
         REQUIRE(m3f(m3f::identity()) == m3f::identity());

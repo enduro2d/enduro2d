@@ -66,6 +66,53 @@ namespace e2d::math
     }
 }
 
+namespace e2d::math
+{
+    //
+    // deg_to_rad
+    //
+
+    template < typename T >
+    std::enable_if_t<std::is_floating_point_v<T>, T>
+    deg_to_rad() noexcept {
+        return math::pi<T>().value / T(180);
+    }
+
+    template < typename T >
+    std::enable_if_t<std::is_integral_v<T>, T>
+    deg_to_rad(T deg) noexcept {
+        return math::numeric_cast<T>(deg * deg_to_rad<f64>());
+    }
+
+    template < typename T >
+    std::enable_if_t<std::is_floating_point_v<T>, T>
+    deg_to_rad(T deg) noexcept {
+        return deg * deg_to_rad<T>();
+    }
+
+    //
+    // rad_to_deg
+    //
+
+    template < typename T >
+    std::enable_if_t<std::is_floating_point_v<T>, T>
+    rad_to_deg() noexcept {
+        return T(180) / math::pi<T>().value;
+    }
+
+    template < typename T >
+    std::enable_if_t<std::is_integral_v<T>, T>
+    rad_to_deg(T rad) noexcept {
+        return math::numeric_cast<T>(rad * rad_to_deg<f64>());
+    }
+
+    template < typename T >
+    std::enable_if_t<std::is_floating_point_v<T>, T>
+    rad_to_deg(T rad) noexcept {
+        return rad * rad_to_deg<T>();
+    }
+}
+
 namespace e2d
 {
     template < typename T >
@@ -81,17 +128,8 @@ namespace e2d
     template <>
     struct unit_converter<rad_tag, deg_tag> {
         template < typename T >
-        std::enable_if_t<std::is_integral_v<T>, deg<T>>
-        operator()(const rad<T>& u) const noexcept {
-            const f64 rad_to_deg = 180.0 / math::pi<f64>().value;
-            return make_deg(u.value * rad_to_deg).template cast_to<T>();
-        }
-
-        template < typename T >
-        std::enable_if_t<std::is_floating_point_v<T>, deg<T>>
-        operator()(const rad<T>& u) const noexcept {
-            const T rad_to_deg = T(180) / math::pi<T>().value;
-            return make_deg(u.value * rad_to_deg);
+        deg<T> operator()(const rad<T>& u) const noexcept {
+            return make_deg(math::rad_to_deg(u.value));
         }
     };
 
@@ -99,17 +137,8 @@ namespace e2d
     struct unit_converter<deg_tag, rad_tag> {
     public:
         template < typename T >
-        std::enable_if_t<std::is_integral_v<T>, rad<T>>
-        operator()(const deg<T>& u) const noexcept {
-            const f64 deg_to_rad = math::pi<f64>().value / 180.0;
-            return make_rad(u.value * deg_to_rad).template cast_to<T>();
-        }
-
-        template < typename T >
-        std::enable_if_t<std::is_floating_point_v<T>, rad<T>>
-        operator()(const deg<T>& u) const noexcept {
-            const T deg_to_rad = math::pi<T>().value / T(180);
-            return make_rad(u.value * deg_to_rad);
+        rad<T> operator()(const deg<T>& u) const noexcept {
+            return make_rad(math::deg_to_rad(u.value));
         }
     };
 }
