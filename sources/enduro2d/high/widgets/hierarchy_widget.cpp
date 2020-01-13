@@ -49,7 +49,7 @@ namespace
             tree_node_flags |= ImGuiTreeNodeFlags_Leaf;
         }
 
-        if ( e.has_selection() && e.selection() == owner ) {
+        if ( e.selection() && e.selection() == owner ) {
             tree_node_flags |= ImGuiTreeNodeFlags_Selected;
         }
 
@@ -69,15 +69,15 @@ namespace
         }
     }
 
-    void show_tree_for_all_scenes(editor& e, input& i, const ecs::registry& owner) {
-        owner.for_joined_components<scene, actor>(
+    void show_tree_for_all_scenes(editor& e, input& i, world& w) {
+        w.registry().for_joined_components<scene, actor>(
         [&e, &i](const ecs::const_entity&, const scene&, const actor& a){
             show_tree_for_node(e, i, a.node());
         });
     }
 
     void process_tree_selection(editor& e, input& i) {
-        if ( !e.has_selection() || !ImGui::IsWindowFocused() ) {
+        if ( !e.selection() || !ImGui::IsWindowFocused() ) {
             return;
         }
 
@@ -111,7 +111,7 @@ namespace e2d::dbgui_widgets
         show_tree_for_all_scenes(
             the<editor>(),
             the<input>(),
-            the<world>().registry());
+            the<world>());
 
         process_tree_selection(
             the<editor>(),

@@ -45,6 +45,22 @@ namespace e2d::bindings::high
             "parent", sol::property(
                 [](node& n) -> node_iptr { return n.parent(); }),
 
+            "has_parent", [](const node& n) -> bool {
+                return n.has_parent();
+            },
+
+            "has_parent_recursive", [](const node& n, const node_iptr& p) -> bool {
+                return n.has_parent_recursive(p);
+            },
+
+            "has_children", [](const node& n) -> bool {
+                return n.has_children();
+            },
+
+            "has_child_recursive", [](const node& n, const node_iptr& c) -> bool {
+                return n.has_child_recursive(c);
+            },
+
             "remove_from_parent", [](node& n) -> bool {
                 return n.remove_from_parent();
             },

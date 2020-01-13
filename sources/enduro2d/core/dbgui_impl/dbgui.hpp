@@ -15,10 +15,6 @@
 #include <enduro2d/core/render.hpp>
 #include <enduro2d/core/window.hpp>
 
-#include <3rdparty/imgui/imgui.h>
-#include <3rdparty/imgui/imgui_stdlib.h>
-#include <3rdparty/imgui/imgui_internal.h>
-
 namespace e2d::imgui
 {
     const char* vertex_source_cstr() noexcept;

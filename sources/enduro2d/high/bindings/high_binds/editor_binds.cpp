@@ -12,7 +12,18 @@ namespace e2d::bindings::high
 {
     void bind_editor(sol::state& l) {
         l.new_usertype<editor>("editor",
-            sol::no_constructor
+            sol::no_constructor,
+
+            "select", [](editor& e, const gobject& go) -> void {
+                e.select(go);
+            },
+
+            "clear_selection", [](editor& e) -> void {
+                e.clear_selection();
+            },
+
+            "selection", sol::property(
+                [](const editor& e) -> gobject { return e.selection(); })
         );
     }
 }
