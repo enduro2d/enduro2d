@@ -30,9 +30,5 @@ function ray2.unit_y() end
 ---@return boolean
 function ray2.approximately(l, r) end
 
----@param r ray2
----@return boolean
-function ray2.contains_nan(r) end
-
 ---@type ray2
 _G.ray2 = _G.ray2 or ray2

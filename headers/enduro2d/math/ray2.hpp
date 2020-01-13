@@ -182,7 +182,7 @@ namespace e2d
     constexpr ray2<T> make_ray2(T dx, T dy) noexcept {
         return {dx, dy};
     }
-    
+
     template < typename T >
     constexpr ray2<T> make_ray2(T ox, T oy, T dx, T dy) noexcept {
         return {ox, oy, dx, dy};
@@ -292,15 +292,5 @@ namespace e2d::math
     {
         return math::approximately(l.origin, r.origin, precision)
             && math::approximately(l.direction, r.direction, precision);
-    }
-
-    //
-    // contains_nan
-    //
-
-    template < typename T >
-    bool contains_nan(const ray2<T>& r) noexcept {
-        return math::contains_nan(r.origin)
-            || math::contains_nan(r.direction);
     }
 }

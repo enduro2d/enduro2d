@@ -50,9 +50,7 @@ namespace
                 sol::resolve<ray2<T>(const ray2<T>&, T)>(::operator/),
                 sol::resolve<ray2<T>(const ray2<T>&, const vec2<T>&)>(::operator/)),
 
-            "approximately", [](const ray2<T>& l, const ray2<T>& r){ return math::approximately(l,r); },
-
-            "contains_nan", sol::resolve<bool(const ray2<T>&)>(&math::contains_nan));
+            "approximately", [](const ray2<T>& l, const ray2<T>& r){ return math::approximately(l,r); });
     }
 }
 

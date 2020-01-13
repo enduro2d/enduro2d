@@ -299,14 +299,4 @@ namespace e2d::math
         return math::approximately(l.origin, r.origin, precision)
             && math::approximately(l.direction, r.direction, precision);
     }
-
-    //
-    // contains_nan
-    //
-
-    template < typename T >
-    bool contains_nan(const ray3<T>& r) noexcept {
-        return math::contains_nan(r.origin)
-            || math::contains_nan(r.direction);
-    }
 }

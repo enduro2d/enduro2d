@@ -137,10 +137,4 @@ TEST_CASE("ray2") {
         REQUIRE(math::approximately(r2i({1,2},{3,4}), r2i({1,2},{4,5}), 1));
         REQUIRE_FALSE(math::approximately(r2i({1,2},{3,4}), r2i({1,2},{4,5})));
     }
-    {
-        REQUIRE_FALSE(math::contains_nan(r2i({1,2},{3,4})));
-        REQUIRE_FALSE(math::contains_nan(r2f({1.f,2.f},{3.f,4.f})));
-        REQUIRE(math::contains_nan(r2f(1.f,std::numeric_limits<f32>::quiet_NaN())));
-        REQUIRE(math::contains_nan(r2f(std::numeric_limits<f32>::infinity(), 1.f)));
-    }
 }

@@ -51,9 +51,7 @@ namespace
                 sol::resolve<ray3<T>(const ray3<T>&, T)>(::operator/),
                 sol::resolve<ray3<T>(const ray3<T>&, const vec3<T>&)>(::operator/)),
 
-            "approximately", [](const ray3<T>& l, const ray3<T>& r){ return math::approximately(l,r); },
-
-            "contains_nan", sol::resolve<bool(const ray3<T>&)>(&math::contains_nan));
+            "approximately", [](const ray3<T>& l, const ray3<T>& r){ return math::approximately(l,r); });
     }
 }
 

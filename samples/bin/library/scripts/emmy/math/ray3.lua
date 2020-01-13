@@ -33,9 +33,5 @@ function ray3.unit_z() end
 ---@return boolean
 function ray3.approximately(l, r) end
 
----@param r ray3
----@return boolean
-function ray3.contains_nan(r) end
-
 ---@type ray3
 _G.ray3 = _G.ray3 or ray3
