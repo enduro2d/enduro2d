@@ -42,22 +42,19 @@ namespace
 
             "make_scale", sol::overload(
                 sol::resolve<mat4<T>(T,T,T)>(&math::make_scale_matrix4),
-                sol::resolve<mat4<T>(const vec4<T>&)>(&math::make_scale_matrix4),
                 sol::resolve<mat4<T>(const vec3<T>&)>(&math::make_scale_matrix4),
                 sol::resolve<mat4<T>(const vec2<T>&, T)>(&math::make_scale_matrix4)),
 
             "make_translation", sol::overload(
                 sol::resolve<mat4<T>(T,T,T)>(&math::make_translation_matrix4),
-                sol::resolve<mat4<T>(const vec4<T>&)>(&math::make_translation_matrix4),
                 sol::resolve<mat4<T>(const vec3<T>&)>(&math::make_translation_matrix4),
                 sol::resolve<mat4<T>(const vec2<T>&, T)>(&math::make_translation_matrix4)),
 
             "make_rotation", sol::overload(
                 [](T angle, T x, T y, T z) -> mat4<T> { return math::make_rotation_matrix4(make_rad(angle), x, y, z); },
-                [](T angle, const vec4<T>& xyz) -> mat4<T> { return math::make_rotation_matrix4(make_rad(angle), xyz); },
                 [](T angle, const vec3<T>& xyz) -> mat4<T> { return math::make_rotation_matrix4(make_rad(angle), xyz); },
-                [](T angle, const vec2<T>& xy, T z) -> mat4<T> { return math::make_rotation_matrix4(make_rad(angle), xy, z); },
-                [](const quat<T>& q) -> mat4<T> { return math::make_rotation_matrix4(q); }),
+                [](T r, T p, T y) -> mat4<T> { return math::make_rotation_matrix4(make_rad(r), make_rad(p), make_rad(y)); },
+                [](const vec3<T>& rpy) -> mat4<T> { return math::make_rotation_matrix4(rpy); }),
 
             "make_trs", sol::overload(
                 sol::resolve<mat4<T>(const trs2<T>&)>(&math::make_trs_matrix4),
@@ -95,10 +92,6 @@ namespace
 
             "transposed", [](const mat4<T>& m) -> mat4<T> {
                 return math::transposed(m);
-            },
-
-            "contains_nan", [](const mat4<T>& m) -> bool {
-                return math::contains_nan(m);
             }
         );
     }

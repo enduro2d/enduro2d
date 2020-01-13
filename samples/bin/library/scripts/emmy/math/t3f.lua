@@ -3,8 +3,8 @@ local t3f = {
     ---@type v3f
     translation = v3f.zero(),
 
-    ---@type q4f
-    rotation = q4f.identity(),
+    ---@type v3f
+    rotation = v3f.zero(),
 
     ---@type v3f
     scale = v3f.unit()
@@ -24,7 +24,7 @@ function t3f.identity() end
 ---@return t3f
 function t3f.make_translation(t) end
 
----@param r q4f
+---@param r v3f
 ---@return t3f
 function t3f.make_rotation(r) end
 
@@ -36,10 +36,6 @@ function t3f.make_scale(s) end
 ---@param r t3f
 ---@return boolean
 function t3f.approximately(l, r) end
-
----@param t t3f
----@return boolean
-function t3f.contains_nan(t) end
 
 ---@type t3f
 _G.t3f = _G.t3f or t3f

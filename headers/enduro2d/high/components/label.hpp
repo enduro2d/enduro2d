@@ -9,6 +9,9 @@
 #include "../_high.hpp"
 
 #include "../factory.hpp"
+#include "../gobject.hpp"
+#include "../inspector.hpp"
+
 #include "../assets/font_asset.hpp"
 
 namespace e2d
@@ -77,7 +80,13 @@ namespace e2d
         f32 outline_width_ = 0.f;
         color32 outline_color_ = color32::white();
     };
+}
 
+ENUM_HPP_REGISTER_TRAITS(e2d::label::haligns)
+ENUM_HPP_REGISTER_TRAITS(e2d::label::valigns)
+
+namespace e2d
+{
     template <>
     class factory_loader<label> final : factory_loader<> {
     public:
@@ -107,8 +116,16 @@ namespace e2d
     };
 }
 
-ENUM_HPP_REGISTER_TRAITS(e2d::label::haligns)
-ENUM_HPP_REGISTER_TRAITS(e2d::label::valigns)
+namespace e2d
+{
+    template <>
+    class component_inspector<label> final : component_inspector<> {
+    public:
+        static const char* title;
+
+        void operator()(gcomponent<label>& c) const;
+    };
+}
 
 namespace e2d
 {

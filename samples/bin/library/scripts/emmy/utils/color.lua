@@ -78,9 +78,5 @@ function color.maximized(c,cmax) end
 ---@return color
 function color.clamped(c,cmin,cmax) end
 
----@param c color
----@return boolean
-function color.contains_nan(c) end
-
 ---@type color
 _G.color = _G.color or color

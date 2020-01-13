@@ -26,8 +26,8 @@ namespace e2d::bindings::high
                 [](node& n, const v2f& v) { n.translation(v); }),
 
             "rotation", sol::property(
-                [](const node& n) -> f32 { return n.rotation().value; },
-                [](node& n, f32 v) { n.rotation(make_rad(v)); }),
+                [](const node& n) -> f32 { return n.rotation(); },
+                [](node& n, f32 v) { n.rotation(v); }),
 
             "scale", sol::property(
                 [](const node& n) -> v2f { return n.scale(); },
@@ -44,6 +44,22 @@ namespace e2d::bindings::high
 
             "parent", sol::property(
                 [](node& n) -> node_iptr { return n.parent(); }),
+
+            "has_parent", [](const node& n) -> bool {
+                return n.has_parent();
+            },
+
+            "has_parent_recursive", [](const node& n, const node_iptr& p) -> bool {
+                return n.has_parent_recursive(p);
+            },
+
+            "has_children", [](const node& n) -> bool {
+                return n.has_children();
+            },
+
+            "has_child_recursive", [](const node& n, const node_iptr& c) -> bool {
+                return n.has_child_recursive(c);
+            },
 
             "remove_from_parent", [](node& n) -> bool {
                 return n.remove_from_parent();

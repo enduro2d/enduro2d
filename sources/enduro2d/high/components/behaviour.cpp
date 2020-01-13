@@ -52,3 +52,14 @@ namespace e2d
         return true;
     }
 }
+
+namespace e2d
+{
+    const char* component_inspector<behaviour>::title = "behaviour";
+
+    void component_inspector<behaviour>::operator()(gcomponent<behaviour>& c) const {
+        E2D_UNUSED(c);
+        ///TODO(BlackMat): add 'meta' inspector
+        ///TODO(BlackMat): add 'script' inspector
+    }
+}

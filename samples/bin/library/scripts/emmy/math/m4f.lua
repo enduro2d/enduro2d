@@ -16,24 +16,21 @@ function m4f.zero() end
 function m4f.identity() end
 
 ---@overload fun(x: number, y: number, z: number): m4f
----@overload fun(xyz: v4f): m4f
 ---@overload fun(xyz: v3f): m4f
 ---@overload fun(xy: v2f, z: number): m4f
 ---@return m4f
 function m4f.make_scale(...) end
 
 ---@overload fun(x: number, y: number, z: number): m4f
----@overload fun(xyz: v4f): m4f
 ---@overload fun(xyz: v3f): m4f
 ---@overload fun(xy: v2f, z: number): m4f
 ---@return m4f
 function m4f.make_translation(...) end
 
 ---@overload fun(a: number, x: number, y: number, z: number): m4f
----@overload fun(a: number, xyz: v4f): m4f
 ---@overload fun(a: number, xyz: v3f): m4f
----@overload fun(a: number, xy: v2f, z: number): m4f
----@overload fun(q: q4f): m4f
+---@overload fun(r: number, p: number, y: number): m3f
+---@overload fun(rpy: v3f): m3f
 ---@return m4f
 function m4f.make_rotation(...) end
 
@@ -89,10 +86,6 @@ function m4f.inversed(m) end
 ---@param m m4f
 ---@return m4f
 function m4f.transposed(m) end
-
----@param m m4f
----@return boolean
-function m4f.contains_nan(m) end
 
 ---@type m4f
 _G.m4f = _G.m4f or m4f

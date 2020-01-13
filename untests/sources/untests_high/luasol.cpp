@@ -52,15 +52,6 @@ TEST_CASE("luasol") {
         REQUIRE(r2 == v4f(6));
     }
 
-    SECTION("quat") {
-        v3f r0 = l.with_state([](sol::state& lua){
-            return lua.script(R"lua(
-                return v3f.new(1,2,3) * q4f.make_from_axis_angle(10, v3f.new(1,2,3))
-            )lua");
-        });
-        REQUIRE(r0 == v3f(1,2,3) * math::make_quat_from_axis_angle(radf(10.f), v3f(1,2,3)));
-    }
-
     SECTION("mat2/mat2/mat3") {
         std::pair<m2f, bool> r0 = l.with_state([](sol::state& lua){
             return lua.script(R"lua(

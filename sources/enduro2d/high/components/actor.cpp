@@ -37,7 +37,7 @@ namespace e2d
         }
 
         if ( ctx.root.HasMember("rotation") ) {
-            radf rotation = component.node()->rotation();
+            f32 rotation = component.node()->rotation();
             if ( !json_utils::try_parse_value(ctx.root["rotation"], rotation) ) {
                 the<debug>().error("ACTOR: Incorrect formatting of 'rotation' property");
                 return false;
@@ -63,5 +63,32 @@ namespace e2d
     {
         E2D_UNUSED(dependencies, ctx);
         return true;
+    }
+}
+
+namespace e2d
+{
+    const char* component_inspector<actor>::title = "actor";
+
+    void component_inspector<actor>::operator()(gcomponent<actor>& c) const {
+        if ( node_iptr n = c->node() ) {
+            if ( v2f translation = n->translation();
+                ImGui::DragFloat2("translation", translation.data(), 1.f) )
+            {
+                n->translation(translation);
+            }
+
+            if ( f32 rotation = n->rotation() * math::rad_to_deg<f32>();
+                ImGui::DragFloat("rotation", &rotation, 0.1f) )
+            {
+                n->rotation(rotation * math::deg_to_rad<f32>());
+            }
+
+            if ( v2f scale = n->scale();
+                ImGui::DragFloat2("scale", scale.data(), 0.01f) )
+            {
+                n->scale(scale);
+            }
+        }
     }
 }

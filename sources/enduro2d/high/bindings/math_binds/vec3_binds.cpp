@@ -55,8 +55,7 @@ namespace
                 sol::resolve<vec3<T>(T, const vec3<T>&)>(::operator*),
                 sol::resolve<vec3<T>(const vec3<T>&, T)>(::operator*),
                 sol::resolve<vec3<T>(const vec3<T>&, const vec3<T>&)>(::operator*),
-                sol::resolve<vec3<T>(const vec3<T>&, const mat3<T>&)>(::operator*),
-                sol::resolve<vec3<T>(const vec3<T>&, const quat<T>&)>(::operator*)),
+                sol::resolve<vec3<T>(const vec3<T>&, const mat3<T>&)>(::operator*)),
 
             sol::meta_function::division, sol::overload(
                 sol::resolve<vec3<T>(T, const vec3<T>&)>(::operator/),
@@ -89,9 +88,7 @@ namespace
             "lerp", sol::overload(
                 sol::resolve<vec3<T>(const vec3<T>&, const vec3<T>&, T)>(&math::lerp),
                 sol::resolve<vec3<T>(const vec3<T>&, const vec3<T>&, const vec3<T>&)>(&math::lerp)),
-            "inverse_lerp", sol::resolve<vec3<T>(const vec3<T>&, const vec3<T>&, const vec3<T>&)>(&math::inverse_lerp),
-
-            "contains_nan", sol::resolve<bool(const vec3<T>&)>(&math::contains_nan));
+            "inverse_lerp", sol::resolve<vec3<T>(const vec3<T>&, const vec3<T>&, const vec3<T>&)>(&math::inverse_lerp));
     }
 }
 

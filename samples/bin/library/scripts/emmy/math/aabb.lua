@@ -75,9 +75,5 @@ function aabb.normalized_to_point(r, p) end
 ---@return v3f
 function aabb.point_to_normalized(r, p) end
 
----@param r aabb
----@return boolean
-function aabb.contains_nan(r) end
-
 ---@type aabb
 _G.aabb = _G.aabb or aabb

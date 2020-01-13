@@ -6,10 +6,12 @@
 
 #include <enduro2d/high/starter.hpp>
 
-#include <enduro2d/high/world.hpp>
-#include <enduro2d/high/luasol.hpp>
+#include <enduro2d/high/editor.hpp>
 #include <enduro2d/high/factory.hpp>
+#include <enduro2d/high/inspector.hpp>
 #include <enduro2d/high/library.hpp>
+#include <enduro2d/high/luasol.hpp>
+#include <enduro2d/high/world.hpp>
 
 #include <enduro2d/high/components/actor.hpp>
 #include <enduro2d/high/components/behaviour.hpp>
@@ -56,7 +58,7 @@ namespace
                     .add_system<label_system>())
                 .feature<struct render_feature>(ecs::feature()
                     .add_system<render_system>())
-                .feature<struct sript_feature>(ecs::feature()
+                .feature<struct script_feature>(ecs::feature()
                     .add_system<script_system>())
                 .feature<struct spine_feature>(ecs::feature()
                     .add_system<spine_system>());
@@ -226,8 +228,24 @@ namespace e2d
             .register_component<renderer>("renderer")
             .register_component<scene>("scene")
             .register_component<spine_player>("spine_player")
-            .register_component<events<spine_player_events::event>>("spine_player_events")
-            .register_component<commands<spine_player_commands::command>>("spine_player_commands")
+            .register_component<events<spine_player_events::event>>("spine_player.events")
+            .register_component<commands<spine_player_commands::command>>("spine_player.commands")
+            .register_component<sprite_renderer>("sprite_renderer");
+
+        safe_module_initialize<inspector>()
+            .register_component<actor>("actor")
+            .register_component<behaviour>("behaviour")
+            .register_component<camera>("camera")
+            .register_component<flipbook_player>("flipbook_player")
+            .register_component<label>("label")
+            //.register_component<label::dirty>("label.dirty")
+            .register_component<model_renderer>("model_renderer")
+            .register_component<named>("named")
+            .register_component<renderer>("renderer")
+            .register_component<scene>("scene")
+            .register_component<spine_player>("spine_player")
+            //.register_component<events<spine_player_events::event>>("spine_player.events")
+            //.register_component<commands<spine_player_commands::command>>("spine_player.commands")
             .register_component<sprite_renderer>("sprite_renderer");
 
         safe_module_initialize<luasol>();
@@ -236,14 +254,17 @@ namespace e2d
             params.library_params().root());
 
         safe_module_initialize<world>();
+        safe_module_initialize<editor>();
     }
 
     starter::~starter() noexcept {
         the<luasol>().collect_garbage();
 
+        modules::shutdown<editor>();
         modules::shutdown<world>();
         modules::shutdown<library>();
         modules::shutdown<luasol>();
+        modules::shutdown<inspector>();
         modules::shutdown<factory>();
         modules::shutdown<engine>();
     }

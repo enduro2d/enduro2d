@@ -139,49 +139,6 @@ namespace e2d::strings
     };
 
     //
-    // quat
-    //
-
-    template < typename T >
-    class format_arg<quat<T>, std::enable_if_t<std::is_integral_v<T>>> {
-        quat<T> value_;
-        u8 width_;
-    public:
-        template < typename U >
-        explicit format_arg(U&& value, u8 width = 0) noexcept
-        : value_(std::forward<U>(value)), width_(width) {}
-
-        std::ptrdiff_t write(char* dst, size_t size) const {
-            return math::numeric_cast<std::ptrdiff_t>(
-                format(dst, size, "(%0,%1,%2,%3)",
-                    make_format_arg(value_.x, width_),
-                    make_format_arg(value_.y, width_),
-                    make_format_arg(value_.z, width_),
-                    make_format_arg(value_.w, width_)));
-        }
-    };
-
-    template < typename T >
-    class format_arg<quat<T>, std::enable_if_t<std::is_floating_point_v<T>>> {
-        quat<T> value_;
-        u8 width_;
-        u8 precision_;
-    public:
-        template < typename U >
-        explicit format_arg(U&& value, u8 width = 0, u8 precision = 6) noexcept
-        : value_(std::forward<U>(value)), width_(width), precision_(precision) {}
-
-        std::ptrdiff_t write(char* dst, size_t size) const {
-            return math::numeric_cast<std::ptrdiff_t>(
-                format(dst, size, "(%0,%1,%2,%3)",
-                    make_format_arg(value_.x, width_, precision_),
-                    make_format_arg(value_.y, width_, precision_),
-                    make_format_arg(value_.z, width_, precision_),
-                    make_format_arg(value_.w, width_, precision_)));
-        }
-    };
-
-    //
     // rect
     //
 

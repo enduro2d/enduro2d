@@ -9,6 +9,9 @@
 #include "../_high.hpp"
 
 #include "../factory.hpp"
+#include "../gobject.hpp"
+#include "../inspector.hpp"
+
 #include "../assets/flipbook_asset.hpp"
 
 namespace e2d
@@ -56,7 +59,10 @@ namespace e2d
         str_hash sequence_;
         flipbook_asset::ptr flipbook_;
     };
+}
 
+namespace e2d
+{
     template <>
     class factory_loader<flipbook_player> final : factory_loader<> {
     public:
@@ -69,6 +75,17 @@ namespace e2d
         bool operator()(
             asset_dependencies& dependencies,
             const collect_context& ctx) const;
+    };
+}
+
+namespace e2d
+{
+    template <>
+    class component_inspector<flipbook_player> final : component_inspector<> {
+    public:
+        static const char* title;
+
+        void operator()(gcomponent<flipbook_player>& c) const;
     };
 }
 

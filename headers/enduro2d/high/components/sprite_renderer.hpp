@@ -9,6 +9,9 @@
 #include "../_high.hpp"
 
 #include "../factory.hpp"
+#include "../gobject.hpp"
+#include "../inspector.hpp"
+
 #include "../assets/atlas_asset.hpp"
 #include "../assets/sprite_asset.hpp"
 #include "../assets/material_asset.hpp"
@@ -48,7 +51,12 @@ namespace e2d
         sprite_asset::ptr sprite_;
         flat_map<str_hash, material_asset::ptr> materials_;
     };
+}
 
+ENUM_HPP_REGISTER_TRAITS(e2d::sprite_renderer::blendings)
+
+namespace e2d
+{
     template <>
     class factory_loader<sprite_renderer> final : factory_loader<> {
     public:
@@ -64,7 +72,16 @@ namespace e2d
     };
 }
 
-ENUM_HPP_REGISTER_TRAITS(e2d::sprite_renderer::blendings)
+namespace e2d
+{
+    template <>
+    class component_inspector<sprite_renderer> final : component_inspector<> {
+    public:
+        static const char* title;
+
+        void operator()(gcomponent<sprite_renderer>& c) const;
+    };
+}
 
 namespace e2d
 {

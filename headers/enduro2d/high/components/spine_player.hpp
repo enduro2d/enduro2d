@@ -9,6 +9,9 @@
 #include "../_high.hpp"
 
 #include "../factory.hpp"
+#include "../gobject.hpp"
+#include "../inspector.hpp"
+
 #include "../assets/spine_asset.hpp"
 #include "../assets/material_asset.hpp"
 
@@ -86,7 +89,10 @@ namespace e2d
         animation_ptr animation_;
         flat_map<str_hash, material_asset::ptr> materials_;
     };
+}
 
+namespace e2d
+{
     template <>
     class factory_loader<spine_player> final : factory_loader<> {
     public:
@@ -127,6 +133,17 @@ namespace e2d
         bool operator()(
             asset_dependencies& dependencies,
             const collect_context& ctx) const;
+    };
+}
+
+namespace e2d
+{
+    template <>
+    class component_inspector<spine_player> final : component_inspector<> {
+    public:
+        static const char* title;
+
+        void operator()(gcomponent<spine_player>& c) const;
     };
 }
 

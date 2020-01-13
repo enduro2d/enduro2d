@@ -42,4 +42,18 @@ namespace e2d
         E2D_ASSERT(valid());
         return state_->raw_entity();
     }
+
+    bool operator<(const gobject& l, const gobject& r) noexcept {
+        return (!l && r)
+            || (l && r && l.raw_entity() < r.raw_entity());
+    }
+
+    bool operator==(const gobject& l, const gobject& r) noexcept {
+        return (!l && !r)
+            || (l && r && l.raw_entity() == r.raw_entity());
+    }
+
+    bool operator!=(const gobject& l, const gobject& r) noexcept {
+        return !(l == r);
+    }
 }

@@ -65,8 +65,6 @@ namespace e2d::bindings::utils
 
             "minimized", sol::resolve<color(const color&, const color&)>(&math::minimized),
             "maximized", sol::resolve<color(const color&, const color&)>(&math::maximized),
-            "clamped", sol::resolve<color(const color&, const color&, const color&)>(&math::clamped),
-
-            "contains_nan", sol::resolve<bool(const color&)>(&math::contains_nan));
+            "clamped", sol::resolve<color(const color&, const color&, const color&)>(&math::clamped));
     }
 }

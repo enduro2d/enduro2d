@@ -10,8 +10,6 @@
 #include "trig.hpp"
 #include "unit.hpp"
 #include "vec2.hpp"
-#include "vec3.hpp"
-#include "vec4.hpp"
 
 namespace e2d
 {
@@ -277,20 +275,6 @@ namespace e2d::math
     }
 
     template < typename T >
-    mat2<T> make_scale_matrix2(const vec4<T>& xy) noexcept {
-        return make_scale_matrix2(
-            xy.x,
-            xy.y);
-    }
-
-    template < typename T >
-    mat2<T> make_scale_matrix2(const vec3<T>& xy) noexcept {
-        return make_scale_matrix2(
-            xy.x,
-            xy.y);
-    }
-
-    template < typename T >
     mat2<T> make_scale_matrix2(const vec2<T>& xy) noexcept {
         return make_scale_matrix2(
             xy.x,
@@ -363,16 +347,5 @@ namespace e2d::math
         return {
             mm[0], mm[2],
             mm[1], mm[3]};
-    }
-
-    //
-    // contains_nan
-    //
-
-    template < typename T >
-    bool contains_nan(const mat2<T>& v) noexcept {
-        return
-            math::contains_nan(v.rows[0]) ||
-            math::contains_nan(v.rows[1]);
     }
 }

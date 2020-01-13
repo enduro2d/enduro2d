@@ -19,9 +19,7 @@ namespace
             "identity", &trs2<T>::identity,
 
             "translation", &trs2<T>::translation,
-            "rotation", sol::property(
-                [](const trs2<T>& t){ return t.rotation.value; },
-                [](trs2<T>& t, T v){ t.rotation.value = v; }),
+            "rotation", &trs2<T>::rotation,
             "scale", &trs2<T>::scale,
 
             sol::meta_function::to_string, [](const trs2<T>& v){
@@ -34,8 +32,8 @@ namespace
                 return math::make_translation_trs2(t);
             },
 
-            "make_rotation", [](T angle) -> trs2<T> {
-                return math::make_rotation_trs2(make_rad(angle));
+            "make_rotation", [](T r) -> trs2<T> {
+                return math::make_rotation_trs2(r);
             },
 
             "make_scale", [](const vec2<T>& s) -> trs2<T> {
@@ -44,10 +42,6 @@ namespace
 
             "approximately", [](const trs2<T>& l, const trs2<T>& r) -> bool {
                 return math::approximately(l,r);
-            },
-
-            "contains_nan", [](const trs2<T>& t) -> bool {
-                return math::contains_nan(t);
             }
         );
     }

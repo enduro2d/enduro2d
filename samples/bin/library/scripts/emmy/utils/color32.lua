@@ -78,9 +78,5 @@ function color32.maximized(c,cmax) end
 ---@return color32
 function color32.clamped(c,cmin,cmax) end
 
----@param c color32
----@return boolean
-function color32.contains_nan(c) end
-
 ---@type color32
 _G.color32 = _G.color32 or color32

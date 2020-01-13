@@ -314,28 +314,6 @@ TEST_CASE("math") {
         REQUIRE(math::next_power_of_2(u32(9)) == u32(16));
     }
     {
-        REQUIRE(math::is_finite(0));
-        REQUIRE(math::is_finite(0u));
-
-        REQUIRE(math::is_finite(0.f));
-        REQUIRE(math::is_finite(1.f));
-        REQUIRE(math::is_finite(-1.f));
-
-        REQUIRE(math::is_finite(0.0));
-        REQUIRE(math::is_finite(1.0));
-        REQUIRE(math::is_finite(-1.0));
-
-        REQUIRE_FALSE(math::is_finite(std::numeric_limits<f32>::quiet_NaN()));
-        REQUIRE_FALSE(math::is_finite(std::numeric_limits<f32>::signaling_NaN()));
-        REQUIRE_FALSE(math::is_finite(std::numeric_limits<f32>::infinity()));
-        REQUIRE_FALSE(math::is_finite(-std::numeric_limits<f32>::infinity()));
-
-        REQUIRE_FALSE(math::is_finite(std::numeric_limits<f64>::quiet_NaN()));
-        REQUIRE_FALSE(math::is_finite(std::numeric_limits<f64>::signaling_NaN()));
-        REQUIRE_FALSE(math::is_finite(std::numeric_limits<f64>::infinity()));
-        REQUIRE_FALSE(math::is_finite(-std::numeric_limits<f64>::infinity()));
-    }
-    {
         REQUIRE(math::abs(2) == 2);
         REQUIRE(math::abs(3u) == 3u);
         REQUIRE(math::abs(-4) == 4);

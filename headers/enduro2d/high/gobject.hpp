@@ -59,6 +59,10 @@ namespace e2d
         state_iptr state_;
     };
 
+    bool operator<(const gobject& l, const gobject& r) noexcept;
+    bool operator==(const gobject& l, const gobject& r) noexcept;
+    bool operator!=(const gobject& l, const gobject& r) noexcept;
+
     template < typename T >
     class gcomponent final {
     public:

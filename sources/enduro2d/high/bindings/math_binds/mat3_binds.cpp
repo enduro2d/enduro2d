@@ -42,16 +42,14 @@ namespace
 
             "make_scale", sol::overload(
                 sol::resolve<mat3<T>(T,T,T)>(&math::make_scale_matrix3),
-                sol::resolve<mat3<T>(const vec4<T>&)>(&math::make_scale_matrix3),
                 sol::resolve<mat3<T>(const vec3<T>&)>(&math::make_scale_matrix3),
                 sol::resolve<mat3<T>(const vec2<T>&, T)>(&math::make_scale_matrix3)),
 
             "make_rotation", sol::overload(
                 [](T angle, T x, T y, T z) -> mat3<T> { return math::make_rotation_matrix3(make_rad(angle), x, y, z); },
-                [](T angle, const vec4<T>& xyz) -> mat3<T> { return math::make_rotation_matrix3(make_rad(angle), xyz); },
                 [](T angle, const vec3<T>& xyz) -> mat3<T> { return math::make_rotation_matrix3(make_rad(angle), xyz); },
-                [](T angle, const vec2<T>& xy, T z) -> mat3<T> { return math::make_rotation_matrix3(make_rad(angle), xy, z); },
-                [](const quat<T>& q) -> mat3<T> { return math::make_rotation_matrix3(q); }),
+                [](T r, T p, T y) -> mat3<T> { return math::make_rotation_matrix3(make_rad(r), make_rad(p), make_rad(y)); },
+                [](const vec3<T>& rpy) -> mat3<T> { return math::make_rotation_matrix3(rpy); }),
 
             "approximately", [](const mat3<T>& l, const mat3<T>& r) -> bool {
                 return math::approximately(l,r);
@@ -63,10 +61,6 @@ namespace
 
             "transposed", [](const mat3<T>& m) -> mat3<T> {
                 return math::transposed(m);
-            },
-
-            "contains_nan", [](const mat3<T>& m) -> bool {
-                return math::contains_nan(m);
             }
         );
     }

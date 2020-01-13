@@ -91,12 +91,12 @@ namespace e2d
         return transform_.translation;
     }
 
-    void node::rotation(const radf& rotation) noexcept {
+    void node::rotation(f32 rotation) noexcept {
         transform_.rotation = rotation;
         mark_dirty_local_matrix_();
     }
 
-    const radf& node::rotation() const noexcept {
+    f32 node::rotation() const noexcept {
         return transform_.rotation;
     }
 

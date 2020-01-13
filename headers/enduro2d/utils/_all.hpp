@@ -17,6 +17,7 @@
 #include "filesystem.inl"
 #include "font.hpp"
 #include "image.hpp"
+#include "imgui_utils.hpp"
 #include "intrusive_list.hpp"
 #include "intrusive_ptr.hpp"
 #include "json_utils.hpp"

@@ -9,6 +9,9 @@
 #include "../_high.hpp"
 
 #include "../factory.hpp"
+#include "../gobject.hpp"
+#include "../inspector.hpp"
+
 #include "../assets/material_asset.hpp"
 
 namespace e2d
@@ -23,8 +26,8 @@ namespace e2d
         renderer& translation(const v3f& translation) noexcept;
         [[nodiscard]] const v3f& translation() const noexcept;
 
-        renderer& rotation(const q4f& rotation) noexcept;
-        [[nodiscard]] const q4f& rotation() const noexcept;
+        renderer& rotation(const v3f& rotation) noexcept;
+        [[nodiscard]] const v3f& rotation() const noexcept;
 
         renderer& scale(const v3f& scale) noexcept;
         [[nodiscard]] const v3f& scale() const noexcept;
@@ -45,7 +48,10 @@ namespace e2d
         render::property_block properties_;
         vector<material_asset::ptr> materials_;
     };
+}
 
+namespace e2d
+{
     template <>
     class factory_loader<renderer> final : factory_loader<> {
     public:
@@ -58,6 +64,17 @@ namespace e2d
         bool operator()(
             asset_dependencies& dependencies,
             const collect_context& ctx) const;
+    };
+}
+
+namespace e2d
+{
+    template <>
+    class component_inspector<renderer> final : component_inspector<> {
+    public:
+        static const char* title;
+
+        void operator()(gcomponent<renderer>& c) const;
     };
 }
 
@@ -81,12 +98,12 @@ namespace e2d
         return transform_.translation;
     }
 
-    inline renderer& renderer::rotation(const q4f& rotation) noexcept {
+    inline renderer& renderer::rotation(const v3f& rotation) noexcept {
         transform_.rotation = rotation;
         return *this;
     }
 
-    inline const q4f& renderer::rotation() const noexcept {
+    inline const v3f& renderer::rotation() const noexcept {
         return transform_.rotation;
     }
 

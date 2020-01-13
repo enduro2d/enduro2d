@@ -12,8 +12,8 @@ local renderer = {
     ---@type v3f
     translation = v3f.zero(),
 
-    ---@type q4f
-    rotation = q4f.identity(),
+    ---@type v3f
+    rotation = v3f.zero(),
 
     ---@type v3f
     scale = v3f.unit()

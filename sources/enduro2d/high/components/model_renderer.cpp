@@ -50,3 +50,13 @@ namespace e2d
         return true;
     }
 }
+
+namespace e2d
+{
+    const char* component_inspector<model_renderer>::title = "model_renderer";
+
+    void component_inspector<model_renderer>::operator()(gcomponent<model_renderer>& c) const {
+        E2D_UNUSED(c);
+        ///TODO(BlackMat): add 'model' inspector
+    }
+}
