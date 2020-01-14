@@ -49,3 +49,6 @@
 [submodule "modules/enum.hpp"]
 	path = modules/enum.hpp
 	url = https://github.com/BlackMATov/enum.hpp
+[submodule "modules/box2d"]
+	path = modules/box2d
+	url = https://github.com/erincatto/box2d

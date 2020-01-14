@@ -14,6 +14,10 @@ mkdir -p $UNTESTS_DIR
 mkdir -p $HEADERS_RDPARTY_DIR
 mkdir -p $SOURCES_RDPARTY_DIR
 
+mkdir -p $SOURCES_RDPARTY_DIR/box2d
+cp -rfv $MODULES_DIR/box2d/include/box2d/. $SOURCES_RDPARTY_DIR/box2d/
+cp -rfv $MODULES_DIR/box2d/src/. $SOURCES_RDPARTY_DIR/box2d/src/
+
 mkdir -p $UNTESTS_DIR/catch
 cp -fv $MODULES_DIR/catch2/single_include/catch2/catch.hpp $UNTESTS_DIR/catch/catch.hpp
 
