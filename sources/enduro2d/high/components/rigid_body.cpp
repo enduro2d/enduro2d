@@ -32,3 +32,12 @@ namespace e2d
         return true;
     }
 }
+
+namespace e2d
+{
+    const char* component_inspector<rigid_body>::title = "rigid_body";
+
+    void component_inspector<rigid_body>::operator()(gcomponent<rigid_body>& c) const {
+        E2D_UNUSED(c);
+    }
+}

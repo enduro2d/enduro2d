@@ -32,3 +32,12 @@ namespace e2d
         return true;
     }
 }
+
+namespace e2d
+{
+    const char* component_inspector<touchable>::title = "touchable";
+
+    void component_inspector<touchable>::operator()(gcomponent<touchable>& c) const {
+        E2D_UNUSED(c);
+    }
+}

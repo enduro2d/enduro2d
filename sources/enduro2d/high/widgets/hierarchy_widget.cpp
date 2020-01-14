@@ -56,13 +56,17 @@ namespace
         const bool tree_node_opened =
             ImGui::TreeNodeEx(tree_node_name.c_str(), tree_node_flags);
 
+        E2D_DEFER([tree_node_opened](){
+            if ( tree_node_opened ) {
+                ImGui::TreePop();
+            }
+        });
+
         if ( ImGui::IsItemClicked() ) {
             e.select(owner);
         }
 
         if ( tree_node_opened ) {
-            E2D_DEFER([](){ ImGui::TreePop(); });
-
             root->for_each_child([&e, &i](const const_node_iptr& child){
                 show_tree_for_node(e, i, child);
             });

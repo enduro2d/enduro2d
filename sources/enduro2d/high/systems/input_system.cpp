@@ -6,9 +6,6 @@
 
 #include <enduro2d/high/systems/input_system.hpp>
 
-#include <enduro2d/high/components/colliders.hpp>
-#include <enduro2d/high/components/touchable.hpp>
-
 namespace
 {
     using namespace e2d;

@@ -7,8 +7,8 @@
 #include "../_high_binds.hpp"
 
 #include <enduro2d/high/gobject.hpp>
-#include <enduro2d/high/components/camera.hpp>
 #include <enduro2d/high/components/disabled.hpp>
+#include <enduro2d/high/components/camera.hpp>
 
 namespace e2d::bindings::high
 {

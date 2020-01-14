@@ -22,7 +22,8 @@ namespace e2d
         internal_state() = default;
         ~internal_state() noexcept = default;
 
-        void process(f32 dt, ecs::registry& owner) {
+        void process(ecs::registry& owner) {
+            E2D_UNUSED(owner);
         }
     };
 
@@ -38,6 +39,7 @@ namespace e2d
         ecs::registry& owner,
         const ecs::after<systems::update_event>& trigger)
     {
-        state_->process(trigger.event.dt, owner);
+        E2D_UNUSED(trigger);
+        state_->process(owner);
     }
 }

@@ -9,6 +9,8 @@
 #include "../_high.hpp"
 
 #include "../factory.hpp"
+#include "../gobject.hpp"
+#include "../inspector.hpp"
 
 namespace e2d
 {
@@ -16,7 +18,10 @@ namespace e2d
     public:
         touchable() = default;
     };
+}
 
+namespace e2d
+{
     template <>
     class factory_loader<touchable> final : factory_loader<> {
     public:
@@ -29,5 +34,16 @@ namespace e2d
         bool operator()(
             asset_dependencies& dependencies,
             const collect_context& ctx) const;
+    };
+}
+
+namespace e2d
+{
+    template <>
+    class component_inspector<touchable> final : component_inspector<> {
+    public:
+        static const char* title;
+
+        void operator()(gcomponent<touchable>& c) const;
     };
 }

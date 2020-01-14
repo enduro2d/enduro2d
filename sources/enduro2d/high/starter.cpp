@@ -251,17 +251,22 @@ namespace e2d
             .register_component<actor>("actor")
             .register_component<behaviour>("behaviour")
             .register_component<camera>("camera")
+            .register_component<rect_collider>("rect_collider")
+            .register_component<circle_collider>("circle_collider")
+            .register_component<polygon_collider>("polygon_collider")
             .register_component<flipbook_player>("flipbook_player")
             .register_component<label>("label")
             //.register_component<label::dirty>("label.dirty")
             .register_component<model_renderer>("model_renderer")
             .register_component<named>("named")
             .register_component<renderer>("renderer")
+            .register_component<rigid_body>("rigid_body")
             .register_component<scene>("scene")
             .register_component<spine_player>("spine_player")
             //.register_component<events<spine_player_events::event>>("spine_player.events")
             //.register_component<commands<spine_player_commands::command>>("spine_player.commands")
-            .register_component<sprite_renderer>("sprite_renderer");
+            .register_component<sprite_renderer>("sprite_renderer")
+            .register_component<touchable>("touchable");
 
         safe_module_initialize<luasol>();
 

@@ -9,6 +9,8 @@
 #include "../_high.hpp"
 
 #include "../factory.hpp"
+#include "../gobject.hpp"
+#include "../inspector.hpp"
 
 namespace e2d
 {
@@ -98,6 +100,33 @@ namespace e2d
         bool operator()(
             asset_dependencies& dependencies,
             const collect_context& ctx) const;
+    };
+}
+
+namespace e2d
+{
+    template <>
+    class component_inspector<rect_collider> final : component_inspector<> {
+    public:
+        static const char* title;
+
+        void operator()(gcomponent<rect_collider>& c) const;
+    };
+
+    template <>
+    class component_inspector<circle_collider> final : component_inspector<> {
+    public:
+        static const char* title;
+
+        void operator()(gcomponent<circle_collider>& c) const;
+    };
+
+    template <>
+    class component_inspector<polygon_collider> final : component_inspector<> {
+    public:
+        static const char* title;
+
+        void operator()(gcomponent<polygon_collider>& c) const;
     };
 }
 
