@@ -6,20 +6,67 @@
         }
     },
     "children" : [{
-        "prototype" : "../prefabs/camera_prefab.json"
+        "prototype" : "../prefabs/camera_prefab.json",
+        "components" : {
+            "named" : {
+                "name" : "camera"
+            }
+        }
     },{
         "prototype" : "../prefabs/ship_prefab.json",
         "components" : {
+            "named" : {
+                "name" : "ship(1)"
+            },
             "actor" : {
                 "translation" : [0,0],
-                "scale" : 1
+                "rotation" : 1
             },
             "behaviour" : {
                 "script" : "../scripts/sample_08/ship.lua"
             },
             "touchable" : {},
+            "rigid_body" : {
+                "type" : "dynamic"
+            },
             "rect_collider" : {
                 "size" : [66,113]
+            }
+        }
+    },{
+        "prototype" : "../prefabs/ship_prefab.json",
+        "components" : {
+            "named" : {
+                "name" : "ship(2)"
+            },
+            "actor" : {
+                "translation" : [45,100],
+                "rotation" : 0
+            },
+            "behaviour" : {
+                "script" : "../scripts/sample_08/ship.lua"
+            },
+            "touchable" : {},
+            "rigid_body" : {
+                "type" : "dynamic"
+            },
+            "rect_collider" : {
+                "size" : [66,113]
+            }
+        }
+    },{
+        "components" : {
+            "named" : {
+                "name" : "floor"
+            },
+            "actor" : {
+                "translation" : [0,-240]
+            },
+            "rigid_body" : {
+                "type" : "kinematic"
+            },
+            "rect_collider" : {
+                "size" : [320, 50]
             }
         }
     }]

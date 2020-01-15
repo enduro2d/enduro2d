@@ -16,9 +16,20 @@ namespace e2d
 {
     class rigid_body final {
     public:
+        ENUM_HPP_CLASS_DECL(types, u8,
+            (dynamic)
+            (kinematic))
+    public:
         rigid_body() = default;
+
+        rigid_body& type(types value) noexcept;
+        [[nodiscard]] types type() const noexcept;
+    private:
+        types type_ = types::dynamic;
     };
 }
+
+ENUM_HPP_REGISTER_TRAITS(e2d::rigid_body::types)
 
 namespace e2d
 {
@@ -46,4 +57,16 @@ namespace e2d
 
         void operator()(gcomponent<rigid_body>& c) const;
     };
+}
+
+namespace e2d
+{
+    inline rigid_body& rigid_body::type(types value) noexcept {
+        type_ = value;
+        return *this;
+    }
+
+    inline rigid_body::types rigid_body::type() const noexcept {
+        return type_;
+    }
 }
