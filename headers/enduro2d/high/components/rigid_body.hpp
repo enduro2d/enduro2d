@@ -19,17 +19,44 @@ namespace e2d
         ENUM_HPP_CLASS_DECL(types, u8,
             (dynamic)
             (kinematic))
+
+        ENUM_HPP_CLASS_DECL(sleepings, u8,
+            (never)
+            (start_awake)
+            (start_asleep))
+
+        ENUM_HPP_CLASS_DECL(collisions, u8,
+            (discrete)
+            (continuous))
     public:
         rigid_body() = default;
 
         rigid_body& type(types value) noexcept;
         [[nodiscard]] types type() const noexcept;
+
+        rigid_body& sleeping(sleepings value) noexcept;
+        [[nodiscard]] sleepings sleeping() const noexcept;
+
+        rigid_body& collision(collisions value) noexcept;
+        [[nodiscard]] collisions collision() const noexcept;
+
+        rigid_body& gravity_scale(f32 value) noexcept;
+        [[nodiscard]] f32 gravity_scale() const noexcept;
+
+        rigid_body& fixed_rotation(bool value) noexcept;
+        [[nodiscard]] bool fixed_rotation() const noexcept;
     private:
         types type_ = types::dynamic;
+        sleepings sleeping_ = sleepings::start_awake;
+        collisions collision_ = collisions::discrete;
+        f32 gravity_scale_ = 1.f;
+        bool fixed_rotation_ = false;
     };
 }
 
 ENUM_HPP_REGISTER_TRAITS(e2d::rigid_body::types)
+ENUM_HPP_REGISTER_TRAITS(e2d::rigid_body::sleepings)
+ENUM_HPP_REGISTER_TRAITS(e2d::rigid_body::collisions)
 
 namespace e2d
 {
@@ -68,5 +95,41 @@ namespace e2d
 
     inline rigid_body::types rigid_body::type() const noexcept {
         return type_;
+    }
+
+    inline rigid_body& rigid_body::sleeping(sleepings value) noexcept {
+        sleeping_ = value;
+        return *this;
+    }
+
+    inline rigid_body::sleepings rigid_body::sleeping() const noexcept {
+        return sleeping_;
+    }
+
+    inline rigid_body& rigid_body::collision(collisions value) noexcept {
+        collision_ = value;
+        return *this;
+    }
+
+    inline rigid_body::collisions rigid_body::collision() const noexcept {
+        return collision_;
+    }
+
+    inline rigid_body& rigid_body::gravity_scale(f32 value) noexcept {
+        gravity_scale_ = value;
+        return *this;
+    }
+
+    inline f32 rigid_body::gravity_scale() const noexcept {
+        return gravity_scale_;
+    }
+
+    inline rigid_body& rigid_body::fixed_rotation(bool value) noexcept {
+        fixed_rotation_ = value;
+        return *this;
+    }
+
+    inline bool rigid_body::fixed_rotation() const noexcept {
+        return fixed_rotation_;
     }
 }
