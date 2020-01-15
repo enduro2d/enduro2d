@@ -44,8 +44,8 @@ namespace e2d
     // library
     //
 
-    inline library::library(url root)
-    : root_(std::move(root)) {}
+    inline library::library(starter::library_parameters params)
+    : params_(std::move(params)) {}
 
     inline library::~library() noexcept {
         cancelled_.store(true);
@@ -53,7 +53,7 @@ namespace e2d
     }
 
     inline const url& library::root() const noexcept {
-        return root_;
+        return params_.root();
     }
 
     inline const asset_cache& library::cache() const noexcept {

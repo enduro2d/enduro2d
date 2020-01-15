@@ -6,13 +6,22 @@
 
 #include <enduro2d/high/physics.hpp>
 
-namespace
-{
-    using namespace e2d;
-}
-
 namespace e2d
 {
-    physics::physics() = default;
+    physics::physics(starter::physics_parameters params)
+    : params_(std::move(params)) {}
+
     physics::~physics() noexcept = default;
+
+    const v2f& physics::gravity() const noexcept {
+        return params_.gravity();
+    }
+
+    u32 physics::velocity_iterations() const noexcept {
+        return params_.velocity_iterations();
+    }
+
+    u32 physics::position_iterations() const noexcept {
+        return params_.position_iterations();
+    }
 }

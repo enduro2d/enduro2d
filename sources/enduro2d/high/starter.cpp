@@ -176,12 +176,39 @@ namespace e2d
         return *this;
     }
 
-    url& starter::library_parameters::root() noexcept {
+    const url& starter::library_parameters::root() const noexcept {
         return root_;
     }
 
-    const url& starter::library_parameters::root() const noexcept {
-        return root_;
+    //
+    // starter::physics_parameters
+    //
+
+    starter::physics_parameters& starter::physics_parameters::gravity(const v2f& value) noexcept {
+        gravity_ = value;
+        return *this;
+    }
+
+    starter::physics_parameters& starter::physics_parameters::velocity_iterations(u32 value) noexcept {
+        velocity_iterations_ = value;
+        return *this;
+    }
+
+    starter::physics_parameters& starter::physics_parameters::position_iterations(u32 value) noexcept {
+        position_iterations_ = value;
+        return *this;
+    }
+
+    const v2f& starter::physics_parameters::gravity() const noexcept {
+        return gravity_;
+    }
+
+    u32 starter::physics_parameters::velocity_iterations() const noexcept {
+        return velocity_iterations_;
+    }
+
+    u32 starter::physics_parameters::position_iterations() const noexcept {
+        return position_iterations_;
     }
 
     //
@@ -201,6 +228,11 @@ namespace e2d
         return *this;
     }
 
+    starter::parameters& starter::parameters::physics_params(physics_parameters value) noexcept {
+        physics_params_ = std::move(value);
+        return *this;
+    }
+
     engine::parameters& starter::parameters::engine_params() noexcept {
         return engine_params_;
     }
@@ -209,12 +241,20 @@ namespace e2d
         return library_params_;
     }
 
+    starter::physics_parameters& starter::parameters::physics_params() noexcept {
+        return physics_params_;
+    }
+
     const engine::parameters& starter::parameters::engine_params() const noexcept {
         return engine_params_;
     }
 
     const starter::library_parameters& starter::parameters::library_params() const noexcept {
         return library_params_;
+    }
+
+    const starter::physics_parameters& starter::parameters::physics_params() const noexcept {
+        return physics_params_;
     }
 
     //
@@ -271,9 +311,11 @@ namespace e2d
         safe_module_initialize<luasol>();
 
         safe_module_initialize<library>(
-            params.library_params().root());
+            params.library_params());
 
-        safe_module_initialize<physics>();
+        safe_module_initialize<physics>(
+            params.physics_params());
+
         safe_module_initialize<world>();
         safe_module_initialize<editor>();
     }

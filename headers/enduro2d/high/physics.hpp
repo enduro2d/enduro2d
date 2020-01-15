@@ -8,11 +8,19 @@
 
 #include "_high.hpp"
 
+#include "starter.hpp"
+
 namespace e2d
 {
     class physics final : public module<physics> {
     public:
-        physics();
+        physics(starter::physics_parameters params);
         ~physics() noexcept final;
+
+        const v2f& gravity() const noexcept;
+        u32 velocity_iterations() const noexcept;
+        u32 position_iterations() const noexcept;
+    private:
+        starter::physics_parameters params_;
     };
 }
