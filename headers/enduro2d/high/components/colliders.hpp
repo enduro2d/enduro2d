@@ -12,49 +12,70 @@
 #include "../gobject.hpp"
 #include "../inspector.hpp"
 
+namespace e2d::impl
+{
+    template < typename Collider >
+    class collider_base {
+    public:
+        collider_base() = default;
+
+        Collider& pivot(const v2f& value) noexcept;
+        [[nodiscard]] const v2f& pivot() const noexcept;
+
+        Collider& sensor(bool value) noexcept;
+        [[nodiscard]] bool sensor() const noexcept;
+
+        Collider& density(f32 value) noexcept;
+        [[nodiscard]] f32 density() const noexcept;
+
+        Collider& friction(f32 value) noexcept;
+        [[nodiscard]] f32 friction() const noexcept;
+
+        Collider& restitution(f32 value) noexcept;
+        [[nodiscard]] f32 restitution() const noexcept;
+    private:
+        v2f pivot_ = v2f(0.5f);
+        bool sensor_ = false;
+        f32 density_ = 1.f;
+        f32 friction_ = 0.2f;
+        f32 restitution_ = 0.f;
+    };
+}
+
 namespace e2d
 {
-    class rect_collider final {
+    class rect_collider final
+        : public impl::collider_base<rect_collider> {
     public:
         rect_collider() = default;
 
         rect_collider& size(const v2f& value) noexcept;
         [[nodiscard]] const v2f& size() const noexcept;
-
-        rect_collider& pivot(const v2f& value) noexcept;
-        [[nodiscard]] const v2f& pivot() const noexcept;
     private:
         v2f size_ = v2f::zero();
-        v2f pivot_ = v2f(0.5f);
     };
 
-    class circle_collider final {
+    class circle_collider final
+        : public impl::collider_base<rect_collider> {
     public:
         circle_collider() = default;
 
         circle_collider& radius(f32 value) noexcept;
         [[nodiscard]] f32 radius() const noexcept;
-
-        circle_collider& pivot(const v2f& value) noexcept;
-        [[nodiscard]] const v2f& pivot() const noexcept;
     private:
         f32 radius_ = 0.f;
-        v2f pivot_ = v2f(0.5f);
     };
 
-    class polygon_collider final {
+    class polygon_collider final
+        : public impl::collider_base<rect_collider> {
     public:
         polygon_collider() = default;
 
         polygon_collider& points(vector<v2f> value) noexcept;
         [[nodiscard]] vector<v2f>& points() noexcept;
         [[nodiscard]] const vector<v2f>& points() const noexcept;
-
-        polygon_collider& pivot(const v2f& value) noexcept;
-        [[nodiscard]] const v2f& pivot() const noexcept;
     private:
         vector<v2f> points_;
-        v2f pivot_ = v2f(0.5f);
     };
 }
 
@@ -130,6 +151,64 @@ namespace e2d
     };
 }
 
+namespace e2d::impl
+{
+    template < typename Collider >
+    Collider& collider_base<Collider>::pivot(const v2f& value) noexcept {
+        pivot_ = value;
+        return static_cast<Collider&>(*this);
+    }
+
+    template < typename Collider >
+    const v2f& collider_base<Collider>::pivot() const noexcept {
+        return pivot_;
+    }
+
+    template < typename Collider >
+    Collider& collider_base<Collider>::sensor(bool value) noexcept {
+        sensor_ = value;
+        return static_cast<Collider&>(*this);
+    }
+
+    template < typename Collider >
+    bool collider_base<Collider>::sensor() const noexcept {
+        return sensor_;
+    }
+
+    template < typename Collider >
+    Collider& collider_base<Collider>::density(f32 value) noexcept {
+        density_ = value;
+        return static_cast<Collider&>(*this);
+    }
+
+    template < typename Collider >
+    f32 collider_base<Collider>::density() const noexcept {
+        return density_;
+    }
+
+    template < typename Collider >
+    Collider& collider_base<Collider>::friction(f32 value) noexcept {
+        friction_ = value;
+        return static_cast<Collider&>(*this);
+    }
+
+    template < typename Collider >
+    f32 collider_base<Collider>::friction() const noexcept {
+        return friction_;
+    }
+
+    template < typename Collider >
+    Collider& collider_base<Collider>::restitution(f32 value) noexcept {
+        restitution_ = value;
+        return static_cast<Collider&>(*this);
+    }
+
+    template < typename Collider >
+    f32 collider_base<Collider>::restitution() const noexcept {
+        return restitution_;
+    }
+}
+
 namespace e2d
 {
     inline rect_collider& rect_collider::size(const v2f& value) noexcept {
@@ -139,15 +218,6 @@ namespace e2d
 
     inline const v2f& rect_collider::size() const noexcept {
         return size_;
-    }
-
-    inline rect_collider& rect_collider::pivot(const v2f& value) noexcept {
-        pivot_ = value;
-        return *this;
-    }
-
-    inline const v2f& rect_collider::pivot() const noexcept {
-        return pivot_;
     }
 }
 
@@ -160,15 +230,6 @@ namespace e2d
 
     inline f32 circle_collider::radius() const noexcept {
         return radius_;
-    }
-
-    inline circle_collider& circle_collider::pivot(const v2f& value) noexcept {
-        pivot_ = value;
-        return *this;
-    }
-
-    inline const v2f& circle_collider::pivot() const noexcept {
-        return pivot_;
     }
 }
 
@@ -185,14 +246,5 @@ namespace e2d
 
     inline const vector<v2f>& polygon_collider::points() const noexcept {
         return points_;
-    }
-
-    inline polygon_collider& polygon_collider::pivot(const v2f& value) noexcept {
-        pivot_ = value;
-        return *this;
-    }
-
-    inline const v2f& polygon_collider::pivot() const noexcept {
-        return pivot_;
     }
 }
