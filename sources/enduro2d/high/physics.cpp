@@ -17,6 +17,10 @@ namespace e2d
         return params_.gravity();
     }
 
+    u32 physics::update_framerate() const noexcept {
+        return params_.update_framerate();
+    }
+
     u32 physics::velocity_iterations() const noexcept {
         return params_.velocity_iterations();
     }

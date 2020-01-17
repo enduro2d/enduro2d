@@ -124,3 +124,40 @@ namespace sol
         }
     };
 }
+
+namespace e2d::strings
+{
+    template <>
+    class format_arg<ecs::entity> {
+        ecs::entity value_;
+        u8 width_;
+    public:
+        template < typename U >
+        explicit format_arg(U&& value, u8 width = 0) noexcept
+        : value_(std::forward<U>(value)), width_(width) {}
+
+        std::ptrdiff_t write(char* dst, size_t size) const {
+            return math::numeric_cast<std::ptrdiff_t>(
+                format(dst, size, "(%0,%1)",
+                    make_format_arg(ecs::detail::entity_id_index(value_.id()), width_),
+                    make_format_arg(ecs::detail::entity_id_version(value_.id()), width_)));
+        }
+    };
+
+    template <>
+    class format_arg<ecs::const_entity> {
+        ecs::const_entity value_;
+        u8 width_;
+    public:
+        template < typename U >
+        explicit format_arg(U&& value, u8 width = 0) noexcept
+        : value_(std::forward<U>(value)), width_(width) {}
+
+        std::ptrdiff_t write(char* dst, size_t size) const {
+            return math::numeric_cast<std::ptrdiff_t>(
+                format(dst, size, "(%0,%1)",
+                    make_format_arg(ecs::detail::entity_id_index(value_.id()), width_),
+                    make_format_arg(ecs::detail::entity_id_version(value_.id()), width_)));
+        }
+    };
+}

@@ -18,6 +18,7 @@ namespace e2d
         ~physics() noexcept final;
 
         const v2f& gravity() const noexcept;
+        u32 update_framerate() const noexcept;
         u32 velocity_iterations() const noexcept;
         u32 position_iterations() const noexcept;
     private:

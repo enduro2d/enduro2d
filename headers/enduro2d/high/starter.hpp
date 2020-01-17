@@ -62,16 +62,19 @@ namespace e2d
     class starter::physics_parameters {
     public:
         physics_parameters& gravity(const v2f& value) noexcept;
+        physics_parameters& update_framerate(u32 value) noexcept;
         physics_parameters& velocity_iterations(u32 value) noexcept;
         physics_parameters& position_iterations(u32 value) noexcept;
 
         const v2f& gravity() const noexcept;
+        u32 update_framerate() const noexcept;
         u32 velocity_iterations() const noexcept;
         u32 position_iterations() const noexcept;
     private:
         v2f gravity_ = v2f::zero();
-        u32 velocity_iterations_ = 8u;
-        u32 position_iterations_ = 3u;
+        u32 update_framerate_ = 50u;
+        u32 velocity_iterations_ = 6u;
+        u32 position_iterations_ = 2u;
     };
 
     //

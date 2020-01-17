@@ -189,6 +189,11 @@ namespace e2d
         return *this;
     }
 
+    starter::physics_parameters& starter::physics_parameters::update_framerate(u32 value) noexcept {
+        update_framerate_ = value;
+        return *this;
+    }
+
     starter::physics_parameters& starter::physics_parameters::velocity_iterations(u32 value) noexcept {
         velocity_iterations_ = value;
         return *this;
@@ -201,6 +206,10 @@ namespace e2d
 
     const v2f& starter::physics_parameters::gravity() const noexcept {
         return gravity_;
+    }
+
+    u32 starter::physics_parameters::update_framerate() const noexcept {
+        return update_framerate_;
     }
 
     u32 starter::physics_parameters::velocity_iterations() const noexcept {
