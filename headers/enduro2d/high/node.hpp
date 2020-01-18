@@ -59,6 +59,9 @@ namespace e2d
         const m4f& local_matrix() const noexcept;
         const m4f& world_matrix() const noexcept;
 
+        v4f local_to_world(const v4f& local) const noexcept;
+        v4f world_to_local(const v4f& world) const noexcept;
+
         node_iptr root() noexcept;
         const_node_iptr root() const noexcept;
 
@@ -189,6 +192,19 @@ namespace e2d::nodes
     void for_extracted_nodes_reversed(const node_iptr& root, F&& f);
     template < typename F >
     void for_extracted_nodes_reversed(const const_node_iptr& root, F&& f);
+}
+
+namespace e2d::nodes
+{
+    template < typename Component >
+    gcomponent<Component> get_component_in_parent(const const_node_iptr& root);
+    template < typename Component, typename Iter >
+    std::size_t get_components_in_parent(const const_node_iptr& root, Iter iter);
+
+    template < typename Component >
+    gcomponent<Component> get_component_in_children(const const_node_iptr& root);
+    template < typename Component, typename Iter >
+    std::size_t get_components_in_children(const const_node_iptr& root, Iter iter);
 }
 
 #include "node.inl"

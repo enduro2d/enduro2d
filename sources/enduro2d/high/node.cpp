@@ -123,6 +123,14 @@ namespace e2d
         return world_matrix_;
     }
 
+    v4f node::local_to_world(const v4f& local) const noexcept {
+        return local * world_matrix();
+    }
+
+    v4f node::world_to_local(const v4f& world) const noexcept {
+        return world * math::inversed(world_matrix()).first;
+    }
+
     node_iptr node::root() noexcept {
         node* n = this;
         while ( n->parent_ ) {

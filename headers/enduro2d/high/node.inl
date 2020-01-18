@@ -204,3 +204,74 @@ namespace e2d::nodes
             nodes.end());
     }
 }
+
+namespace e2d::nodes
+{
+    template < typename Component >
+    gcomponent<Component> get_component_in_parent(const const_node_iptr& root) {
+        if ( !root ) {
+            return {};
+        }
+
+        if ( auto component = root->owner().component<Component>() ) {
+            return component;
+        }
+
+        return get_component_in_parent<Component>(root->parent());
+    }
+
+    template < typename Component, typename Iter >
+    std::size_t get_components_in_parent(const const_node_iptr& root, Iter iter) {
+        std::size_t count{0u};
+
+        if ( !root ) {
+            return count;
+        }
+
+        if ( auto component = root->owner().component<Component>() ) {
+            ++count;
+            iter++ = component;
+        }
+
+        return count + get_components_in_parent(root->parent(), iter);
+    }
+
+    template < typename Component >
+    gcomponent<Component> get_component_in_children(const const_node_iptr& root) {
+        if ( !root ) {
+            return {};
+        }
+
+        if ( auto component = root->owner().component<Component>() ) {
+            return component;
+        }
+
+        for ( const_node_iptr child = root->first_child(); child; child = child->next_sibling() ) {
+            if ( auto component = get_component_in_children<Component>(child) ) {
+                return component;
+            }
+        }
+
+        return {};
+    }
+
+    template < typename Component, typename Iter >
+    std::size_t get_components_in_children(const const_node_iptr& root, Iter iter) {
+        std::size_t count{0u};
+
+        if ( !root ) {
+            return count;
+        }
+
+        if ( auto component = root->owner().component<Component>() ) {
+            ++count;
+            iter++ = component;
+        }
+
+        for ( const_node_iptr child = root->first_child(); child; child = child->next_sibling() ) {
+            count += get_components_in_children<Component>(child, iter);
+        }
+
+        return count;
+    }
+}

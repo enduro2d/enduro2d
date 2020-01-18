@@ -39,6 +39,14 @@ namespace e2d::bindings::high
             "world_matrix", sol::property(
                 [](const node& n) -> m4f { return n.world_matrix(); }),
 
+            "local_to_world", [](const node& n, const v4f& v) -> v4f {
+                return n.local_to_world(v);
+            },
+
+            "world_to_local", [](const node& n, const v4f& v) -> v4f {
+                return n.world_to_local(v);
+            },
+
             "root", sol::property(
                 [](node& n) -> node_iptr { return n.root(); }),
 
