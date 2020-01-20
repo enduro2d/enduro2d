@@ -78,9 +78,45 @@ namespace e2d
 
 namespace e2d
 {
+    const char* factory_loader<camera::gizmos>::schema_source = R"json({
+        "type" : "object",
+        "required" : [],
+        "additionalProperties" : false,
+        "properties" : {}
+    })json";
+
+    bool factory_loader<camera::gizmos>::operator()(
+        camera::gizmos& component,
+        const fill_context& ctx) const
+    {
+        E2D_UNUSED(component, ctx);
+        return true;
+    }
+
+    bool factory_loader<camera::gizmos>::operator()(
+        asset_dependencies& dependencies,
+        const collect_context& ctx) const
+    {
+        E2D_UNUSED(dependencies, ctx);
+        return true;
+    }
+}
+
+namespace e2d
+{
     const char* component_inspector<camera>::title = "camera";
 
     void component_inspector<camera>::operator()(gcomponent<camera>& c) const {
+        if ( bool gizmos = c.owner().component<camera::gizmos>().exists();
+            ImGui::Checkbox("gizmos", &gizmos) )
+        {
+            if ( gizmos ) {
+                c.owner().component<camera::gizmos>().ensure();
+            } else {
+                c.owner().component<camera::gizmos>().remove();
+            }
+        }
+
         if ( i32 depth = c->depth();
             ImGui::DragInt("depth", &depth) )
         {

@@ -18,8 +18,7 @@ namespace e2d
 {
     class label final {
     public:
-        class dirty final {
-        };
+        class dirty final {};
     public:
         ENUM_HPP_CLASS_DECL(haligns, u8,
             (left)
