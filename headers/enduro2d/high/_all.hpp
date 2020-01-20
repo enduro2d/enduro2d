@@ -44,10 +44,12 @@
 #include "components/sprite_renderer.hpp"
 
 #include "systems/flipbook_system.hpp"
+#include "systems/frame_system.hpp"
 #include "systems/label_system.hpp"
 #include "systems/render_system.hpp"
 #include "systems/script_system.hpp"
 #include "systems/spine_system.hpp"
+#include "systems/world_system.hpp"
 
 #include "address.hpp"
 #include "asset.hpp"

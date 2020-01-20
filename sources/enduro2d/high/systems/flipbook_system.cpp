@@ -82,7 +82,7 @@ namespace e2d
         internal_state() = default;
         ~internal_state() noexcept = default;
 
-        void process(f32 dt, ecs::registry& owner) {
+        void process_update(f32 dt, ecs::registry& owner) {
             update_flipbook_timers(dt, owner);
             update_flipbook_sprites(owner);
         }
@@ -100,7 +100,7 @@ namespace e2d
         ecs::registry& owner,
         const ecs::after<systems::update_event>& trigger)
     {
-        E2D_PROFILER_SCOPE("flipbook_system.process");
-        state_->process(trigger.event.dt, owner);
+        E2D_PROFILER_SCOPE("flipbook_system.process_update");
+        state_->process_update(trigger.event.dt, owner);
     }
 }

@@ -62,10 +62,12 @@ namespace e2d
     class sprite_renderer;
 
     class flipbook_system;
+    class frame_system;
     class label_system;
     class render_system;
     class script_system;
     class spine_system;
+    class world_system;
 
     template < typename Asset, typename Content >
     class content_asset;

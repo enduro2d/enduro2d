@@ -32,11 +32,11 @@ namespace
         }
     };
 
-    class camera_system final : public systems::render_system {
+    class camera_system final : public systems::post_update_system {
     public:
         void process(
             ecs::registry& owner,
-            const systems::render_event& event) override
+            const systems::post_update_event& event) override
         {
             E2D_UNUSED(event);
             owner.for_joined_components<camera>(
