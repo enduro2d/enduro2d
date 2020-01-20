@@ -97,7 +97,7 @@ namespace
         }
     private:
         bool create_scene() {
-            auto scene_prefab_res = the<library>().load_asset<prefab_asset>("scenes/spine_scene_prefab.json");
+            auto scene_prefab_res = the<library>().load_asset<prefab_asset>("scenes/sample_06.json");
             auto scene_go = scene_prefab_res
                 ? the<world>().instantiate(scene_prefab_res->content())
                 : gobject();

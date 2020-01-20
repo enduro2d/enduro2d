@@ -3,13 +3,21 @@
         "scene" : {}
     },
     "children" : [{
-        "prototype" : "../prefabs/camera_prefab.json"
+        "prototype" : "../prefabs/camera_prefab.json",
+        "components" : {
+            "named" : {
+                "name" : "camera"
+            }
+        }
     },{
         "prototype" : "../prefabs/gnome_prefab.json",
         "components" : {
             "actor" : {
                 "translation" : [0,0],
                 "scale" : 20
+            },
+            "named" : {
+                "name" : "gnome"
             }
         }
     }, {
@@ -20,6 +28,9 @@
             },
             "actor" : {
                 "translation" : [-50,-50]
+            },
+            "named" : {
+                "name" : "ship(1)"
             }
         }
     }, {
@@ -30,6 +41,9 @@
             },
             "actor" : {
                 "translation" : [50,-50]
+            },
+            "named" : {
+                "name" : "ship(2)"
             }
         }
     }, {
@@ -44,6 +58,9 @@
             "actor" : {
                 "translation" : [0,180],
                 "scale" : 3
+            },
+            "named" : {
+                "name" : "label(1)"
             }
         }
     }, {
@@ -58,6 +75,9 @@
             "actor" : {
                 "translation" : [0.5,-180.5],
                 "scale" : 3
+            },
+            "named" : {
+                "name" : "label(2)"
             }
         }
     }]

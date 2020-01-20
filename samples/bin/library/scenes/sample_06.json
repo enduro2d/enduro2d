@@ -3,13 +3,21 @@
         "scene" : {}
     },
     "children" : [{
-        "prototype" : "../prefabs/camera_prefab.json"
+        "prototype" : "../prefabs/camera_prefab.json",
+        "components" : {
+            "named" : {
+                "name" : "camera"
+            }
+        }
     },{
         "prototype" : "../prefabs/coin_prefab.json",
         "components" : {
             "actor" : {
                 "translation" : [350,250],
                 "scale" : 0.25
+            },
+            "named" : {
+                "name" : "coin"
             }
         }
     }, {
@@ -18,6 +26,9 @@
             "actor" : {
                 "translation" : [300,-350],
                 "scale" : 0.25
+            },
+            "named" : {
+                "name" : "raptor"
             }
         }
     }, {
@@ -26,6 +37,9 @@
             "actor" : {
                 "translation" : [-100,0],
                 "scale" : 0.9
+            },
+            "named" : {
+                "name" : "dragon"
             }
         }
     }]
