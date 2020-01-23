@@ -149,7 +149,7 @@ namespace e2d
             dependencies.add_dependency<atlas_asset, sprite_asset>(
                 path::combine(ctx.parent_address, ctx.root["atlas"].GetString()));
         }
-        
+
         if ( ctx.root.HasMember("sprite") ) {
             dependencies.add_dependency<sprite_asset>(
                 path::combine(ctx.parent_address, ctx.root["sprite"].GetString()));
@@ -195,5 +195,22 @@ namespace e2d
 
         ///TODO(BlackMat): add 'sprite' inspector
         ///TODO(BlackMat): add 'materials' inspector
+    }
+
+    void component_inspector<sprite_renderer>::operator()(
+        gcomponent<sprite_renderer>& c,
+        gizmos_context& ctx) const
+    {
+        if ( const sprite_asset::ptr& spr_a = c->sprite() ) {
+            const sprite& spr = spr_a->content();
+            const v2f& s = spr.texrect().size;
+            const v2f& p = spr.texrect().position - spr.pivot();
+            ctx.draw_wire_rect(
+                {p.x + 0.f, p.y + 0.f},
+                {p.x + s.x, p.y + 0.f},
+                {p.x + s.x, p.y + s.y},
+                {p.x + 0.f, p.y + s.y},
+                color32::magenta());
+        }
     }
 }
