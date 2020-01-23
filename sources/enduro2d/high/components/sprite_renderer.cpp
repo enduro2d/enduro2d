@@ -206,11 +206,11 @@ namespace e2d
             const v2f& s = spr.texrect().size;
             const v2f& p = spr.texrect().position - spr.pivot();
             ctx.draw_wire_rect(
-                {p.x + 0.f, p.y + 0.f},
-                {p.x + s.x, p.y + 0.f},
-                {p.x + s.x, p.y + s.y},
-                {p.x + 0.f, p.y + s.y},
-                color32::magenta());
+                p,
+                p + s * v2f::unit_x(),
+                p + s,
+                p + s * v2f::unit_y(),
+                ctx.selected() ? color32::yellow() : color32::magenta());
         }
     }
 }

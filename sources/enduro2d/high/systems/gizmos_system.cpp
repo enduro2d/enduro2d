@@ -16,13 +16,17 @@ namespace
 {
     using namespace e2d;
 
+    ImU32 to_imgui_color(const color32& c) noexcept {
+        return ImGui::GetColorU32(make_vec4(color(c)));
+    }
+
     class imgui_gizmos_context final : public component_inspector<>::gizmos_context {
     public:
         imgui_gizmos_context(editor& e, inspector& i)
         : editor_(e)
         , inspector_(i) {}
 
-        bool setup(const ecs::const_entity& cam_e) {
+        bool setup_camera(const ecs::const_entity& cam_e) {
             if ( !cam_e.valid() || !ecs::exists_all<actor, camera, camera::gizmos>()(cam_e) ) {
                 return false;
             }
@@ -45,13 +49,12 @@ namespace
             return true;
         }
 
-        bool show_for(const ecs::const_entity& e) {
+        bool setup_node(const ecs::const_entity& e) {
             if ( !e.valid() || !ecs::exists_all<actor>()(e) ) {
                 return false;
             }
 
             const actor& e_a = e.get_component<actor>();
-
             const const_node_iptr& e_n = e_a.node();
             if ( !e_n ) {
                 return false;
@@ -64,6 +67,25 @@ namespace
 
             go_matrix_ = e_n->world_matrix() * camera_vp_;
             go_selected_ = e_go == editor_.selection();
+            return true;
+        }
+
+        bool show_for(const ecs::const_entity& e) {
+            if ( !e.valid() || !ecs::exists_all<actor>()(e) ) {
+                return false;
+            }
+
+            const actor& e_a = e.get_component<actor>();
+            const const_node_iptr& e_n = e_a.node();
+            if ( !e_n ) {
+                return false;
+            }
+
+            gobject e_go = e_n->owner();
+            if ( !e_go ) {
+                return false;
+            }
+
             inspector_.show_for(e_go, *this);
             return true;
         }
@@ -77,7 +99,7 @@ namespace
             const v2f pp2 = v2f(v4f(p2, 0.f, 1.f) * go_matrix_);
 
             ImDrawList* draw_list = ImGui::GetWindowDrawList();
-            draw_list->AddLine(pp1, pp2, colors::pack_color32(color));
+            draw_list->AddLine(pp1, pp2, to_imgui_color(color));
         }
 
         void draw_rect(
@@ -93,7 +115,7 @@ namespace
             const v2f pp4 = v2f(v4f(p4, 0.f, 1.f) * go_matrix_);
 
             ImDrawList* draw_list = ImGui::GetWindowDrawList();
-            draw_list->AddQuadFilled(pp1, pp2, pp3, pp4, colors::pack_color32(color));
+            draw_list->AddQuadFilled(pp1, pp2, pp3, pp4, to_imgui_color(color));
         }
 
         void draw_wire_rect(
@@ -109,7 +131,7 @@ namespace
             const v2f pp4 = v2f(v4f(p4, 0.f, 1.f) * go_matrix_);
 
             ImDrawList* draw_list = ImGui::GetWindowDrawList();
-            draw_list->AddQuad(pp1, pp2, pp3, pp4, colors::pack_color32(color));
+            draw_list->AddQuad(pp1, pp2, pp3, pp4, to_imgui_color(color));
         }
 
         void draw_circle(
@@ -130,7 +152,7 @@ namespace
                     radius;
                 draw_list->PathLineTo(v2f(v4f(p, 0.f, 1.f) * go_matrix_));
             }
-            draw_list->PathFillConvex(colors::pack_color32(color));
+            draw_list->PathFillConvex(to_imgui_color(color));
         }
 
         void draw_wire_circle(
@@ -151,7 +173,7 @@ namespace
                     radius;
                 draw_list->PathLineTo(v2f(v4f(p, 0.f, 1.f) * go_matrix_));
             }
-            draw_list->PathStroke(colors::pack_color32(color), true);
+            draw_list->PathStroke(to_imgui_color(color), true);
         }
 
         bool selected() const noexcept final {
@@ -164,6 +186,33 @@ namespace
         m4f go_matrix_ = m4f::identity();
         bool go_selected_ = false;
     };
+
+    template < typename F, typename... Args >
+    void with_gizmos_window(F&& f, Args&&... args) {
+        if ( ImGuiViewport* viewport = ImGui::GetMainViewport() ) {
+            ImGui::SetNextWindowPos(viewport->Pos);
+            ImGui::SetNextWindowSize(viewport->Size);
+            ImGui::SetNextWindowViewport(viewport->ID);
+        }
+
+        const ImGuiWindowFlags window_flags =
+            ImGuiWindowFlags_NoNav |
+            ImGuiWindowFlags_NoDocking |
+            ImGuiWindowFlags_NoDecoration |
+            ImGuiWindowFlags_NoBackground |
+            ImGuiWindowFlags_NoBringToFrontOnFocus;
+
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.f);
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.f);
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.f, 0.f));
+
+        ImGui::Begin("e2d_gizmos_window", nullptr, window_flags);
+        E2D_DEFER([](){ ImGui::End(); });
+
+        ImGui::PopStyleVar(3);
+
+        std::invoke(std::forward<F>(f), std::forward<Args>(args)...);
+    }
 }
 
 namespace e2d
@@ -180,12 +229,14 @@ namespace e2d
         ~internal_state() noexcept = default;
 
         void process_render(const ecs::const_entity& cam_e, ecs::registry& owner) {
-            if ( !dbgui_.visible() || !gcontext_.setup(cam_e) ) {
+            if ( !dbgui_.visible() || !gcontext_.setup_camera(cam_e) ) {
                 return;
             }
-            imgui_utils::with_fullscreen_window("e2d_gizmos_system_window", [this, &owner](){
+            with_gizmos_window([this, &owner](){
                 owner.for_joined_components<actor>([this](const ecs::const_entity& e, const actor&){
-                    gcontext_.show_for(e);
+                    if ( gcontext_.setup_node(e) ) {
+                        gcontext_.show_for(e);
+                    }
                 });
             });
         }
