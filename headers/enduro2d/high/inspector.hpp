@@ -33,7 +33,56 @@ namespace e2d
     template <>
     class component_inspector<> {
     public:
+        class gizmos_context : private noncopyable {
+        public:
+            virtual void draw_line(
+                const v2f& p1,
+                const v2f& p2,
+                const color32& color) = 0;
+
+            virtual void draw_rect(
+                const v2f& p1,
+                const v2f& p2,
+                const v2f& p3,
+                const v2f& p4,
+                const color32& color) = 0;
+
+            virtual void draw_wire_rect(
+                const v2f& p1,
+                const v2f& p2,
+                const v2f& p3,
+                const v2f& p4,
+                const color32& color) = 0;
+
+            virtual void draw_circle(
+                const v2f& center,
+                f32 radius,
+                u32 segments,
+                const color32& color) = 0;
+
+            virtual void draw_wire_circle(
+                const v2f& center,
+                f32 radius,
+                u32 segments,
+                const color32& color) = 0;
+
+            virtual bool selected() const noexcept = 0;
+        };
     };
+
+    namespace impl
+    {
+        template < typename Component >
+        using has_component_inspector =
+            decltype(std::declval<component_inspector<Component>>()(
+                std::declval<gcomponent<Component>&>()));
+
+        template < typename Component >
+        using has_component_inspector_gizmos =
+            decltype(std::declval<component_inspector<Component>>()(
+                std::declval<gcomponent<Component>&>(),
+                std::declval<component_inspector<>::gizmos_context&>()));
+    }
 
     //
     // inspector_drawer
@@ -51,7 +100,12 @@ namespace e2d
             inspector_drawer() = default;
             virtual ~inspector_drawer() noexcept = default;
 
-            virtual void operator()(gobject& go) const = 0;
+            virtual void operator()(
+                gobject& go) const = 0;
+
+            virtual void operator()(
+                gobject& go,
+                component_inspector<>::gizmos_context& ctx) const = 0;
         };
 
         template < typename Component >
@@ -60,7 +114,12 @@ namespace e2d
             typed_inspector_drawer() = default;
             ~typed_inspector_drawer() noexcept final = default;
 
-            void operator()(gobject& go) const final;
+            void operator()(
+                gobject& go) const final;
+
+            void operator()(
+                gobject& go,
+                component_inspector<>::gizmos_context& ctx) const final;
         private:
             component_inspector<Component> inspector_;
         };
@@ -78,7 +137,12 @@ namespace e2d
         template < typename Component >
         inspector& register_component(str_hash type);
 
-        void show_inspector_for(gobject& go);
+        void show_for(
+            gobject& go);
+
+        void show_for(
+            gobject& go,
+            component_inspector<>::gizmos_context& ctx);
     private:
         mutable std::mutex mutex_;
         hash_map<str_hash, impl::inspector_drawer_iptr> drawers_;

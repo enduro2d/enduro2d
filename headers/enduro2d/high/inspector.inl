@@ -17,17 +17,39 @@ namespace e2d
     namespace impl
     {
         template < typename Component >
-        void typed_inspector_drawer<Component>::operator()(gobject& go) const {
-            gcomponent<Component> co = go.component<Component>();
-            if ( !co ) {
-                return;
+        void typed_inspector_drawer<Component>::operator()(
+            gobject& go) const
+        {
+            if constexpr ( utils::is_detected<has_component_inspector, Component>() ) {
+                gcomponent<Component> co = go.component<Component>();
+                if ( !co ) {
+                    return;
+                }
+
+                ImGui::PushID(co.find());
+                E2D_DEFER([](){ ImGui::PopID(); });
+
+                if ( ImGui::CollapsingHeader(component_inspector<Component>::title) ) {
+                    inspector_(co);
+                }
             }
+        }
 
-            ImGui::PushID(co.find());
-            E2D_DEFER([](){ ImGui::PopID(); });
+        template < typename Component >
+        void typed_inspector_drawer<Component>::operator()(
+            gobject& go,
+            component_inspector<>::gizmos_context& ctx) const
+        {
+            if constexpr ( utils::is_detected<has_component_inspector_gizmos, Component>() ) {
+                gcomponent<Component> co = go.component<Component>();
+                if ( !co ) {
+                    return;
+                }
 
-            if ( ImGui::CollapsingHeader(component_inspector<Component>::title) ) {
-                inspector_(co);
+                ImGui::PushID(co.find());
+                E2D_DEFER([](){ ImGui::PopID(); });
+
+                inspector_(co, ctx);
             }
         }
     }

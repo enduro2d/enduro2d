@@ -84,4 +84,32 @@ namespace e2d::imgui_utils
 
         std::invoke(std::forward<F>(f), std::forward<Args>(args)...);
     }
+
+    template < typename F, typename... Args >
+    void with_fullscreen_window(str_view name, F&& f, Args&&... args) {
+        char* name_cstr = static_cast<char*>(E2D_CLEAR_ALLOCA(name.size() + 1));
+        std::memcpy(name_cstr, name.data(), name.size());
+
+        ImGui::SetNextWindowPos(ImGui::GetMainViewport()->Pos);
+        ImGui::SetNextWindowSize(ImGui::GetMainViewport()->Size);
+
+        ImGui::PushStyleColor(ImGuiCol_Border, 0);
+        ImGui::PushStyleColor(ImGuiCol_WindowBg, 0);
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.f);
+        E2D_DEFER([](){
+            ImGui::PopStyleVar(1);
+            ImGui::PopStyleColor(2);
+        });
+
+        ImGui::Begin(
+            name_cstr,
+            nullptr,
+            ImGuiWindowFlags_NoNav |
+            ImGuiWindowFlags_NoInputs |
+            ImGuiWindowFlags_NoDecoration |
+            ImGuiWindowFlags_NoBringToFrontOnFocus);
+        E2D_DEFER([](){ ImGui::End(); });
+
+        std::invoke(std::forward<F>(f), std::forward<Args>(args)...);
+    }
 }

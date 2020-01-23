@@ -23,7 +23,7 @@ namespace e2d::dbgui_widgets
         }
 
         gobject go = the<editor>().selection();
-        the<inspector>().show_inspector_for(go);
+        the<inspector>().show_for(go);
 
         return true;
     }

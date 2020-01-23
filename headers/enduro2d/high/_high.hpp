@@ -63,6 +63,7 @@ namespace e2d
 
     class flipbook_system;
     class frame_system;
+    class gizmos_system;
     class label_system;
     class render_system;
     class script_system;

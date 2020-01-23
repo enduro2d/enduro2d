@@ -45,6 +45,7 @@
 
 #include "systems/flipbook_system.hpp"
 #include "systems/frame_system.hpp"
+#include "systems/gizmos_system.hpp"
 #include "systems/label_system.hpp"
 #include "systems/render_system.hpp"
 #include "systems/script_system.hpp"

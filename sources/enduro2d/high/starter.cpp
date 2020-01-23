@@ -30,6 +30,7 @@
 
 #include <enduro2d/high/systems/flipbook_system.hpp>
 #include <enduro2d/high/systems/frame_system.hpp>
+#include <enduro2d/high/systems/gizmos_system.hpp>
 #include <enduro2d/high/systems/label_system.hpp>
 #include <enduro2d/high/systems/render_system.hpp>
 #include <enduro2d/high/systems/script_system.hpp>
@@ -58,6 +59,8 @@ namespace
                     .add_system<flipbook_system>())
                 .feature<struct frame_feature>(ecs::feature()
                     .add_system<frame_system>())
+                .feature<struct gizmos_feature>(ecs::feature()
+                    .add_system<gizmos_system>())
                 .feature<struct label_feature>(ecs::feature()
                     .add_system<label_system>())
                 .feature<struct render_feature>(ecs::feature()

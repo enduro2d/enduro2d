@@ -27,20 +27,21 @@
             "named" : {
                 "name" : "ship(1)"
             }
-        }
-    }, {
-        "prototype" : "../prefabs/ship_prefab.json",
-        "components" : {
-            "sprite_renderer" : {
-                "tint" : [255,0,0,255]
-            },
-            "actor" : {
-                "translation" : [50,-50]
-            },
-            "named" : {
-                "name" : "ship(2)"
+        },
+        "children" : [{
+            "prototype" : "../prefabs/ship_prefab.json",
+            "components" : {
+                "sprite_renderer" : {
+                    "tint" : [255,0,0,255]
+                },
+                "actor" : {
+                    "translation" : [100,0]
+                },
+                "named" : {
+                    "name" : "ship(2)"
+                }
             }
-        }
+        }]
     }, {
         "prototype" : "../prefabs/label_bm_prefab.json",
         "components" : {
