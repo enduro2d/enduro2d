@@ -19,8 +19,8 @@ namespace e2d::impl
     public:
         collider_base() = default;
 
-        Collider& pivot(const v2f& value) noexcept;
-        [[nodiscard]] const v2f& pivot() const noexcept;
+        Collider& offset(const v2f& value) noexcept;
+        [[nodiscard]] const v2f& offset() const noexcept;
 
         Collider& sensor(bool value) noexcept;
         [[nodiscard]] bool sensor() const noexcept;
@@ -34,7 +34,7 @@ namespace e2d::impl
         Collider& restitution(f32 value) noexcept;
         [[nodiscard]] f32 restitution() const noexcept;
     private:
-        v2f pivot_ = v2f(0.5f);
+        v2f offset_ = v2f::zero();
         bool sensor_ = false;
         f32 density_ = 1.f;
         f32 friction_ = 0.2f;
@@ -52,7 +52,7 @@ namespace e2d
         rect_collider& size(const v2f& value) noexcept;
         [[nodiscard]] const v2f& size() const noexcept;
     private:
-        v2f size_ = v2f::zero();
+        v2f size_ = v2f::unit();
     };
 
     class circle_collider final
@@ -63,7 +63,7 @@ namespace e2d
         circle_collider& radius(f32 value) noexcept;
         [[nodiscard]] f32 radius() const noexcept;
     private:
-        f32 radius_ = 0.f;
+        f32 radius_ = 1.f;
     };
 
     class polygon_collider final
@@ -75,7 +75,11 @@ namespace e2d
         [[nodiscard]] vector<v2f>& points() noexcept;
         [[nodiscard]] const vector<v2f>& points() const noexcept;
     private:
-        vector<v2f> points_;
+        vector<v2f> points_ = {
+            {-0.5f, -0.5f},
+            {+0.5f, -0.5f},
+            {+0.5f, +0.5f},
+            {-0.5f, +0.5f}};
     };
 }
 
@@ -154,14 +158,14 @@ namespace e2d
 namespace e2d::impl
 {
     template < typename Collider >
-    Collider& collider_base<Collider>::pivot(const v2f& value) noexcept {
-        pivot_ = value;
+    Collider& collider_base<Collider>::offset(const v2f& value) noexcept {
+        offset_ = value;
         return static_cast<Collider&>(*this);
     }
 
     template < typename Collider >
-    const v2f& collider_base<Collider>::pivot() const noexcept {
-        return pivot_;
+    const v2f& collider_base<Collider>::offset() const noexcept {
+        return offset_;
     }
 
     template < typename Collider >

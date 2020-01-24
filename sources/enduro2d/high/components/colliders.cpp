@@ -15,13 +15,13 @@ namespace
         impl::collider_base<Collider>& component,
         const factory_loader<>::fill_context& ctx)
     {
-        if ( ctx.root.HasMember("pivot") ) {
-            v2f pivot = component.pivot();
-            if ( !json_utils::try_parse_value(ctx.root["pivot"], pivot) ) {
-                the<debug>().error("COLLIDER_BASE: Incorrect formatting of 'pivot' property");
+        if ( ctx.root.HasMember("offset") ) {
+            v2f offset = component.offset();
+            if ( !json_utils::try_parse_value(ctx.root["offset"], offset) ) {
+                the<debug>().error("COLLIDER_BASE: Incorrect formatting of 'offset' property");
                 return false;
             }
-            component.pivot(pivot);
+            component.offset(offset);
         }
 
         if ( ctx.root.HasMember("sensor") ) {
@@ -65,10 +65,10 @@ namespace
 
     template < typename Collider >
     void collider_base_inspector(impl::collider_base<Collider>& c) {
-        if ( v2f pivot = c.pivot();
-            ImGui::DragFloat2("pivot", pivot.data(), 0.01f) )
+        if ( v2f offset = c.offset();
+            ImGui::DragFloat2("offset", offset.data(), 1.f) )
         {
-            c.pivot(pivot);
+            c.offset(offset);
         }
 
         if ( bool sensor = c.sensor();
@@ -105,7 +105,7 @@ namespace e2d
         "additionalProperties" : false,
         "properties" : {
             "size" : { "$ref": "#/common_definitions/v2" },
-            "pivot" : { "$ref": "#/common_definitions/v2" },
+            "offset" : { "$ref": "#/common_definitions/v2" },
             "sensor" : { "type" : "boolean" },
             "density" : { "type" : "number" },
             "friction" : { "type" : "number" },
@@ -147,7 +147,7 @@ namespace e2d
         "additionalProperties" : false,
         "properties" : {
             "radius" : { "type" : "number" },
-            "pivot" : { "$ref": "#/common_definitions/v2" },
+            "offset" : { "$ref": "#/common_definitions/v2" },
             "sensor" : { "type" : "boolean" },
             "density" : { "type" : "number" },
             "friction" : { "type" : "number" },
@@ -188,7 +188,7 @@ namespace e2d
         "additionalProperties" : false,
         "properties" : {
             "points" : { "$ref": "#/definitions/points" },
-            "pivot" : { "$ref": "#/common_definitions/v2" },
+            "offset" : { "$ref": "#/common_definitions/v2" },
             "sensor" : { "type" : "boolean" },
             "density" : { "type" : "number" },
             "friction" : { "type" : "number" },
@@ -233,7 +233,7 @@ namespace e2d
 
     void component_inspector<rect_collider>::operator()(gcomponent<rect_collider>& c) const {
         if ( v2f size = c->size();
-            ImGui::DragFloat2("size", size.data(), 1.f, 0.f, std::numeric_limits<f32>::max()) )
+            ImGui::DragFloat2("size", size.data(), 1.f, 1.f, std::numeric_limits<f32>::max()) )
         {
             c->size(size);
         }
@@ -248,7 +248,7 @@ namespace e2d
 
     void component_inspector<circle_collider>::operator()(gcomponent<circle_collider>& c) const {
         if ( f32 radius = c->radius();
-            ImGui::DragFloat("radius", &radius, 1.f, 0.f, std::numeric_limits<f32>::max()) )
+            ImGui::DragFloat("radius", &radius, 1.f, 1.f, std::numeric_limits<f32>::max()) )
         {
             c->radius(radius);
         }

@@ -7,10 +7,22 @@ local rect_collider = {
     disabled = false,
 
     ---@type v2f
-    size = v2f.zero(),
+    size = v2f.unit(),
 
     ---@type v2f
-    pivot = v2f.new(0.5)
+    offset = v2f.zero(),
+
+    ---@type boolean
+    sensor = false,
+
+    ---@type number
+    density = 1.0,
+
+    ---@type number
+    friction = 0.2,
+
+    ---@type number
+    restitution = 0.0
 }
 
 ---@overload fun(self: rect_collider)
@@ -33,10 +45,22 @@ local circle_collider = {
     disabled = false,
 
     ---@type number
-    radius = 0,
+    radius = 1.0,
 
     ---@type v2f
-    pivot = v2f.new(0.5)
+    offset = v2f.zero(),
+
+    ---@type boolean
+    sensor = false,
+
+    ---@type number
+    density = 1.0,
+
+    ---@type number
+    friction = 0.2,
+
+    ---@type number
+    restitution = 0.0
 }
 
 ---@overload fun(self: circle_collider)
@@ -59,10 +83,26 @@ local polygon_collider = {
     disabled = false,
 
     ---@type v2f[]
-    points = {},
+    points = {
+        v2f.new(-0.5, -0.5),
+        v2f.new( 0.5, -0.5),
+        v2f.new( 0.5,  0.5),
+        v2f.new(-0.5,  0.5)},
 
     ---@type v2f
-    pivot = v2f.new(0.5)
+    offset = v2f.zero(),
+
+    ---@type boolean
+    sensor = false,
+
+    ---@type number
+    density = 1.0,
+
+    ---@type number
+    friction = 0.2,
+
+    ---@type number
+    restitution = 0.0
 }
 
 ---@overload fun(self: polygon_collider)
