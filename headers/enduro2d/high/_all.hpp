@@ -46,7 +46,6 @@
 #include "components/sprite_renderer.hpp"
 #include "components/touchable.hpp"
 
-#include "systems/editor_system.hpp"
 #include "systems/flipbook_system.hpp"
 #include "systems/frame_system.hpp"
 #include "systems/gizmos_system.hpp"

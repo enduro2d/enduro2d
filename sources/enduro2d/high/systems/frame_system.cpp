@@ -99,7 +99,7 @@ namespace e2d
         const ecs::after<systems::frame_update_event>& trigger)
     {
         E2D_UNUSED(trigger);
-        E2D_PROFILER_SCOPE("frame_system.frame_update");
+        E2D_PROFILER_SCOPE("frame_system.process_frame_update");
         state_->process_frame_update(owner);
     }
 
