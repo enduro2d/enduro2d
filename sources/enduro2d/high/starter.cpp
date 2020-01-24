@@ -29,10 +29,13 @@
 #include <enduro2d/high/components/sprite_renderer.hpp>
 
 #include <enduro2d/high/systems/flipbook_system.hpp>
+#include <enduro2d/high/systems/frame_system.hpp>
+#include <enduro2d/high/systems/gizmos_system.hpp>
 #include <enduro2d/high/systems/label_system.hpp>
 #include <enduro2d/high/systems/render_system.hpp>
 #include <enduro2d/high/systems/script_system.hpp>
 #include <enduro2d/high/systems/spine_system.hpp>
+#include <enduro2d/high/systems/world_system.hpp>
 
 namespace
 {
@@ -54,6 +57,10 @@ namespace
             ecs::registry_filler(the<world>().registry())
                 .feature<struct flipbook_feature>(ecs::feature()
                     .add_system<flipbook_system>())
+                .feature<struct frame_feature>(ecs::feature()
+                    .add_system<frame_system>())
+                .feature<struct gizmos_feature>(ecs::feature()
+                    .add_system<gizmos_system>())
                 .feature<struct label_feature>(ecs::feature()
                     .add_system<label_system>())
                 .feature<struct render_feature>(ecs::feature()
@@ -61,7 +68,9 @@ namespace
                 .feature<struct script_feature>(ecs::feature()
                     .add_system<script_system>())
                 .feature<struct spine_feature>(ecs::feature()
-                    .add_system<spine_system>());
+                    .add_system<spine_system>())
+                .feature<struct world_feature>(ecs::feature()
+                    .add_system<world_system>());
             return !application_ || application_->initialize();
         }
 
@@ -73,67 +82,19 @@ namespace
 
         bool frame_tick() final {
             E2D_PROFILER_SCOPE("application.frame_tick");
-
-            world& w = the<world>();
-            engine& e = the<engine>();
-
-            const f32 dt = e.delta_time();
-            const f32 time = e.time();
-
-            {
-                E2D_PROFILER_SCOPE("ecs.pre_update");
-                w.registry().process_event(systems::pre_update_event{dt,time});
-            }
-
-            {
-                E2D_PROFILER_SCOPE("ecs.update");
-                w.registry().process_event(systems::update_event{dt,time});
-            }
-
-            {
-                E2D_PROFILER_SCOPE("ecs.post_update");
-                w.registry().process_event(systems::post_update_event{dt,time});
-            }
-
+            the<world>().registry().process_event(systems::frame_update_event{});
             return !the<window>().should_close()
                 || (application_ && !application_->on_should_close());
         }
 
         void frame_render() final {
             E2D_PROFILER_SCOPE("application.frame_render");
-
-            world& w = the<world>();
-
-            {
-                E2D_PROFILER_SCOPE("ecs.pre_render");
-                w.registry().process_event(systems::pre_render_event{});
-            }
-
-            {
-                E2D_PROFILER_SCOPE("ecs.render");
-                w.registry().process_event(systems::render_event{});
-            }
-
-            {
-                E2D_PROFILER_SCOPE("ecs.post_render");
-                w.registry().process_event(systems::post_render_event{});
-            }
+            the<world>().registry().process_event(systems::frame_render_event{});
         }
 
         void frame_finalize() final {
             E2D_PROFILER_SCOPE("application.frame_finalize");
-
-            world& w = the<world>();
-
-            {
-                E2D_PROFILER_SCOPE("ecs.frame_finalize");
-                w.registry().process_event(systems::frame_finalize_event{});
-            }
-
-            {
-                E2D_PROFILER_SCOPE("world.finalize_instances");
-                w.finalize_instances();
-            }
+            the<world>().registry().process_event(systems::frame_finalize_event{});
         }
     private:
         starter::application_uptr application_;
@@ -220,6 +181,7 @@ namespace e2d
             .register_component<actor>("actor")
             .register_component<behaviour>("behaviour")
             .register_component<camera>("camera")
+            .register_component<camera::gizmos>("camera.gizmos")
             .register_component<flipbook_player>("flipbook_player")
             .register_component<label>("label")
             .register_component<label::dirty>("label.dirty")
@@ -236,6 +198,7 @@ namespace e2d
             .register_component<actor>("actor")
             .register_component<behaviour>("behaviour")
             .register_component<camera>("camera")
+            //.register_component<camera::gizmos>("camera.gizmos")
             .register_component<flipbook_player>("flipbook_player")
             .register_component<label>("label")
             //.register_component<label::dirty>("label.dirty")

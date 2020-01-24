@@ -80,6 +80,7 @@ namespace e2d
         static const char* title;
 
         void operator()(gcomponent<sprite_renderer>& c) const;
+        void operator()(gcomponent<sprite_renderer>& c, gizmos_context& ctx) const;
     };
 }
 

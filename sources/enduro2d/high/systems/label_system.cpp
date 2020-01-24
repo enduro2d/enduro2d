@@ -378,7 +378,7 @@ namespace e2d
         internal_state() = default;
         ~internal_state() noexcept = default;
 
-        void process(ecs::registry& owner) {
+        void process_update(ecs::registry& owner) {
             update_dirty_labels(owner);
         }
     };
@@ -396,7 +396,7 @@ namespace e2d
         const ecs::after<systems::update_event>& trigger)
     {
         E2D_UNUSED(trigger);
-        E2D_PROFILER_SCOPE("label_system.process");
-        state_->process(owner);
+        E2D_PROFILER_SCOPE("label_system.process_update");
+        state_->process_update(owner);
     }
 }

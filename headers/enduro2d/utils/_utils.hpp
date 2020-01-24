@@ -73,6 +73,12 @@ namespace e2d
 
 namespace e2d
 {
+    struct nonesuch {
+        ~nonesuch() = delete;
+        nonesuch(const nonesuch&) = delete;
+        void operator=(const nonesuch&) = delete;
+    };
+
     class noncopyable {
     public:
         noncopyable(const noncopyable&) = delete;
@@ -212,4 +218,37 @@ namespace e2d::utils
 
     template < typename... Ts >
     overloaded(Ts...) -> overloaded<Ts...>;
+
+    //
+    // detected
+    //
+
+    namespace impl
+    {
+        template < typename Default
+                 , typename AlwaysVoid
+                 , template < typename... > class Op
+                 , typename... Args >
+        struct detector {
+            using value_t = std::false_type;
+            using type = Default;
+        };
+
+        template < typename Default
+                 , template < typename... > class Op
+                 , typename... Args >
+        struct detector<Default, std::void_t<Op<Args...>>, Op, Args...> {
+            using value_t = std::true_type;
+            using type = Op<Args...>;
+        };
+    }
+
+    template < template < typename... > class Op, typename... Args >
+    using is_detected = typename impl::detector<nonesuch, void, Op, Args...>::value_t;
+
+    template < template < typename... > class Op, typename... Args >
+    using detected_t = typename impl::detector<nonesuch, void, Op, Args...>::type;
+
+    template < typename Default, template < typename... > class Op, typename... Args >
+    using detected_or = impl::detector<Default, void, Op, Args...>;
 }

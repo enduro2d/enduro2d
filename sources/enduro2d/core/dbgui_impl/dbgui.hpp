@@ -97,20 +97,20 @@ namespace e2d::imgex
 
     template < typename F >
     void with_main_dock_space(F&& f) {
-        ImGuiViewport* viewport = ImGui::GetMainViewport();
-        ImGui::SetNextWindowPos(viewport->Pos);
-        ImGui::SetNextWindowSize(viewport->Size);
-        ImGui::SetNextWindowViewport(viewport->ID);
+        if ( ImGuiViewport* viewport = ImGui::GetMainViewport() ) {
+            ImGui::SetNextWindowPos(viewport->Pos);
+            ImGui::SetNextWindowSize(viewport->Size);
+            ImGui::SetNextWindowViewport(viewport->ID);
+        }
 
-        ImGuiWindowFlags window_flags =
+        const ImGuiWindowFlags window_flags =
             ImGuiWindowFlags_MenuBar |
             ImGuiWindowFlags_NoNav |
             ImGuiWindowFlags_NoDocking |
             ImGuiWindowFlags_NoDecoration |
-            ImGuiWindowFlags_NoBackground |
-            ImGuiWindowFlags_NoBringToFrontOnFocus;
+            ImGuiWindowFlags_NoBackground;
 
-        ImGuiDockNodeFlags dock_node_flags =
+        const ImGuiDockNodeFlags dock_node_flags =
             ImGuiDockNodeFlags_PassthruCentralNode |
             ImGuiDockNodeFlags_NoDockingInCentralNode;
 

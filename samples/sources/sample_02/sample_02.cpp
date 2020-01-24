@@ -254,6 +254,8 @@ namespace
 
 int e2d_main(int argc, char *argv[]) {
     auto params = engine::parameters("sample_02", "enduro2d")
+        .window_params(engine::window_parameters()
+            .size({1024, 768}))
         .timer_params(engine::timer_parameters()
             .maximal_framerate(100));
     modules::initialize<engine>(argc, argv, params).start<game>();

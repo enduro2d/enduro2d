@@ -10,6 +10,9 @@
             "actor" : {
                 "translation" : [0,0],
                 "scale" : 20
+            },
+            "named" : {
+                "name" : "gnome"
             }
         }
     }, {
@@ -20,18 +23,25 @@
             },
             "actor" : {
                 "translation" : [-50,-50]
-            }
-        }
-    }, {
-        "prototype" : "../prefabs/ship_prefab.json",
-        "components" : {
-            "sprite_renderer" : {
-                "tint" : [255,0,0,255]
             },
-            "actor" : {
-                "translation" : [50,-50]
+            "named" : {
+                "name" : "ship(1)"
             }
-        }
+        },
+        "children" : [{
+            "prototype" : "../prefabs/ship_prefab.json",
+            "components" : {
+                "sprite_renderer" : {
+                    "tint" : [255,0,0,255]
+                },
+                "actor" : {
+                    "translation" : [100,0]
+                },
+                "named" : {
+                    "name" : "ship(2)"
+                }
+            }
+        }]
     }, {
         "prototype" : "../prefabs/label_bm_prefab.json",
         "components" : {
@@ -44,6 +54,9 @@
             "actor" : {
                 "translation" : [0,180],
                 "scale" : 3
+            },
+            "named" : {
+                "name" : "label(1)"
             }
         }
     }, {
@@ -58,6 +71,9 @@
             "actor" : {
                 "translation" : [0.5,-180.5],
                 "scale" : 3
+            },
+            "named" : {
+                "name" : "label(2)"
             }
         }
     }]
