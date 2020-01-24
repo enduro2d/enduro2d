@@ -16,6 +16,8 @@ namespace e2d
 {
     class camera final {
     public:
+        class gizmos final {};
+    public:
         camera() = default;
 
         camera& depth(i32 value) noexcept;
@@ -47,6 +49,20 @@ namespace e2d
 
         bool operator()(
             camera& component,
+            const fill_context& ctx) const;
+
+        bool operator()(
+            asset_dependencies& dependencies,
+            const collect_context& ctx) const;
+    };
+
+    template <>
+    class factory_loader<camera::gizmos> final : factory_loader<> {
+    public:
+        static const char* schema_source;
+
+        bool operator()(
+            camera::gizmos& component,
             const fill_context& ctx) const;
 
         bool operator()(

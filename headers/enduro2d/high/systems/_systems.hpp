@@ -25,10 +25,20 @@ namespace e2d::systems
         f32 time{0.f};
     };
 
-    struct render_event {};
-    struct pre_render_event {};
-    struct post_render_event {};
+    struct render_event {
+        ecs::const_entity cam_e;
+    };
 
+    struct pre_render_event {
+        ecs::const_entity cam_e;
+    };
+
+    struct post_render_event {
+        ecs::const_entity cam_e;
+    };
+
+    struct frame_update_event {};
+    struct frame_render_event {};
     struct frame_finalize_event {};
 
     using update_system = ecs::system<update_event>;

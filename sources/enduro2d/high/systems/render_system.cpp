@@ -21,8 +21,6 @@ namespace
     using namespace e2d::render_system_impl;
 
     void for_all_scenes(drawer::context& ctx, const ecs::registry& owner) {
-        E2D_PROFILER_SCOPE("render_system.for_all_scenes");
-
         const auto comp = [](const auto& l, const auto& r) noexcept {
             return std::get<scene>(l).depth() < std::get<scene>(r).depth();
         };
@@ -43,30 +41,6 @@ namespace
             func,
             !ecs::exists<disabled<scene>>());
     }
-
-    void for_all_cameras(drawer& drawer, const ecs::registry& owner) {
-        E2D_PROFILER_SCOPE("render_system.for_all_cameras");
-
-        const auto comp = [](const auto& l, const auto& r) noexcept {
-            return std::get<camera>(l).depth() < std::get<camera>(r).depth();
-        };
-
-        const auto func = [&drawer, &owner](
-            const ecs::const_entity&,
-            const camera& cam,
-            const actor& cam_a)
-        {
-            drawer.with(cam, cam_a.node(), [&owner](drawer::context& ctx){
-                for_all_scenes(ctx, owner);
-            });
-        };
-
-        systems::for_extracted_sorted_components<camera, actor>(
-            owner,
-            comp,
-            func,
-            !ecs::exists<disabled<camera>>());
-    }
 }
 
 namespace e2d
@@ -81,8 +55,16 @@ namespace e2d
         : drawer_(the<engine>(), the<debug>(), the<render>(), the<window>()) {}
         ~internal_state() noexcept = default;
 
-        void process(ecs::registry& owner) {
-            for_all_cameras(drawer_, owner);
+        void process_render(const ecs::const_entity& cam_e, ecs::registry& owner) {
+            if ( !cam_e.valid() || !ecs::exists_all<actor, camera>()(cam_e) ) {
+                return;
+            }
+            drawer_.with(
+                cam_e.get_component<camera>(),
+                cam_e.get_component<actor>().node(),
+                [&owner](drawer::context& ctx){
+                    for_all_scenes(ctx, owner);
+                });
         }
     private:
         drawer drawer_;
@@ -100,8 +82,7 @@ namespace e2d
         ecs::registry& owner,
         const ecs::after<systems::render_event>& trigger)
     {
-        E2D_UNUSED(trigger);
-        E2D_PROFILER_SCOPE("render_system.process");
-        state_->process(owner);
+        E2D_PROFILER_SCOPE("render_system.process_render");
+        state_->process_render(trigger.event.cam_e, owner);
     }
 }
