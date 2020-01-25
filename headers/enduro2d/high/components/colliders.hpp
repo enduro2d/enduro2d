@@ -136,6 +136,7 @@ namespace e2d
         static const char* title;
 
         void operator()(gcomponent<rect_collider>& c) const;
+        void operator()(gcomponent<rect_collider>& c, gizmos_context& ctx) const;
     };
 
     template <>
@@ -144,6 +145,7 @@ namespace e2d
         static const char* title;
 
         void operator()(gcomponent<circle_collider>& c) const;
+        void operator()(gcomponent<circle_collider>& c, gizmos_context& ctx) const;
     };
 
     template <>
@@ -152,6 +154,7 @@ namespace e2d
         static const char* title;
 
         void operator()(gcomponent<polygon_collider>& c) const;
+        void operator()(gcomponent<polygon_collider>& c, gizmos_context& ctx) const;
     };
 }
 

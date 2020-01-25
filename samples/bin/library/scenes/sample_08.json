@@ -31,6 +31,9 @@
             },
             "rect_collider" : {
                 "size" : [66,113]
+            },
+            "circle_collider" : {
+                "radius" : 33
             }
         }
     },{
@@ -52,6 +55,14 @@
             },
             "rect_collider" : {
                 "size" : [66,113]
+            },
+            "polygon_collider" : {
+                "points" : [
+                    [-20,0],
+                    [20,0],
+                    [30,-50],
+                    [-30,-50]
+                ]
             }
         }
     },{

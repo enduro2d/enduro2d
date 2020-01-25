@@ -240,6 +240,20 @@ namespace e2d
 
         collider_base_inspector(*c);
     }
+
+    void component_inspector<rect_collider>::operator()(
+        gcomponent<rect_collider>& c,
+        gizmos_context& ctx) const
+    {
+        const v2f& p = c->offset() - c->size() * 0.5f;
+        const v2f& s = c->size();
+        ctx.draw_wire_rect(
+            p,
+            p + s * v2f::unit_x(),
+            p + s,
+            p + s * v2f::unit_y(),
+            ctx.selected() ? color32::cyan() : color32::green());
+    }
 }
 
 namespace e2d
@@ -254,6 +268,17 @@ namespace e2d
         }
 
         collider_base_inspector(*c);
+    }
+
+    void component_inspector<circle_collider>::operator()(
+        gcomponent<circle_collider>& c,
+        gizmos_context& ctx) const
+    {
+        ctx.draw_wire_circle(
+            c->offset(),
+            c->radius(),
+            math::to_rad_v(math::two_pi<f32>()) * c->radius() * 0.2f,
+            ctx.selected() ? color32::cyan() : color32::green());
     }
 }
 
@@ -287,5 +312,19 @@ namespace e2d
         }
 
         collider_base_inspector(*c);
+    }
+
+    void component_inspector<polygon_collider>::operator()(
+        gcomponent<polygon_collider>& c,
+        gizmos_context& ctx) const
+    {
+        const v2f& o = c->offset();
+        const vector<v2f>& points = c->points();
+        for ( std::size_t i = 0, e = c->points().size(); i < e; ++i ) {
+            ctx.draw_line(
+                o + points[i],
+                o + (i + 1u == e ? points[0] : points[i + 1u]),
+                ctx.selected() ? color32::cyan() : color32::green());
+        }
     }
 }

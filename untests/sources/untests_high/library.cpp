@@ -255,15 +255,15 @@ TEST_CASE("library"){
 
                 REQUIRE(e.exists_component<rect_collider>());
                 REQUIRE(e.get_component<rect_collider>().size() == v2f(1.f,2.f));
-                REQUIRE(e.get_component<rect_collider>().pivot() == v2f(2.f,4.f));
+                REQUIRE(e.get_component<rect_collider>().offset() == v2f(2.f,4.f));
 
                 REQUIRE(e.exists_component<circle_collider>());
                 REQUIRE(math::approximately(e.get_component<circle_collider>().radius(), 5.f));
-                REQUIRE(e.get_component<circle_collider>().pivot() == v2f(4.f,2.f));
+                REQUIRE(e.get_component<circle_collider>().offset() == v2f(4.f,2.f));
 
                 REQUIRE(e.exists_component<polygon_collider>());
                 REQUIRE(e.get_component<polygon_collider>().points() == vector<v2f>{{1,2},{2,3},{3,4}});
-                REQUIRE(e.get_component<polygon_collider>().pivot() == v2f(8.f,4.f));
+                REQUIRE(e.get_component<polygon_collider>().offset() == v2f(8.f,4.f));
             }
         }
     }
