@@ -816,23 +816,23 @@ namespace e2d
         class viewport_command final {
         public:
             viewport_command() = delete;
-            viewport_command(const b2u& viewport_rect) noexcept;
-            viewport_command(const b2u& viewport_rect, const b2u& scissor_rect) noexcept;
+            viewport_command(const b2i& viewport_rect) noexcept;
+            viewport_command(const b2i& viewport_rect, const b2i& scissor_rect) noexcept;
 
-            viewport_command& viewport_rect(const b2u& value) noexcept;
-            viewport_command& scissor_rect(const b2u& value) noexcept;
+            viewport_command& viewport_rect(const b2i& value) noexcept;
+            viewport_command& scissor_rect(const b2i& value) noexcept;
             viewport_command& scissoring(bool value) noexcept;
 
-            b2u& viewport_rect() noexcept;
-            b2u& scissor_rect() noexcept;
+            b2i& viewport_rect() noexcept;
+            b2i& scissor_rect() noexcept;
             bool& scissoring() noexcept;
 
-            const b2u& viewport_rect() const noexcept;
-            const b2u& scissor_rect() const noexcept;
+            const b2i& viewport_rect() const noexcept;
+            const b2i& scissor_rect() const noexcept;
             bool scissoring() const noexcept;
         private:
-            b2u viewport_rect_ = b2u::zero();
-            b2u scissor_rect_ = b2u::zero();
+            b2i viewport_rect_ = b2i::zero();
+            b2i scissor_rect_ = b2i::zero();
             bool scissoring_ = false;
         };
 

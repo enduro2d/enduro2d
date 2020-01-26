@@ -174,8 +174,8 @@ namespace e2d
 
                         render_.execute(render::command_block<8>()
                             .add_command(render::viewport_command(
-                                framebuffer_size.cast_to<u32>(),
-                                clip_r.cast_to<u32>()))
+                                framebuffer_size.cast_to<i32>(),
+                                clip_r.cast_to<i32>()))
                             .add_command(render::draw_command(material_, geometry, mprops_)
                                 .index_range(first_index, pcmd.ElemCount)));
                     }
