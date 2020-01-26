@@ -60,10 +60,10 @@ namespace e2d::bindings::high
 
             "viewport", sol::property(
                 [](const gcomponent<camera>& c) -> b2f {
-                    return c->viewport().cast_to<f32>();
+                    return c->viewport();
                 },
                 [](gcomponent<camera>& c, const b2f& v){
-                    c->viewport(v.cast_to<u32>());
+                    c->viewport(v);
                 }),
 
             "projection", sol::property(

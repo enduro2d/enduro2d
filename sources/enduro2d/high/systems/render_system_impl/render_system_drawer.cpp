@@ -69,9 +69,20 @@ namespace e2d::render_system_impl
             .property(matrix_vp_property_hash, m_v * m_p)
             .property(time_property_hash, engine.time());
 
+        const v2u target_size = cam.target()
+            ? cam.target()->size()
+            : window.framebuffer_size();
+
+        const b2f target_viewport = make_rect(
+            cam.viewport().position * target_size.cast_to<f32>(),
+            cam.viewport().size * target_size.cast_to<f32>());
+
         render.execute(render::command_block<3>()
-            .add_command(render::target_command(cam.target()))
-            .add_command(render::viewport_command(cam.viewport()))
+            .add_command(render::target_command(
+                cam.target()))
+            .add_command(render::viewport_command(
+                target_viewport.cast_to<i32>(),
+                target_viewport.cast_to<i32>()))
             .add_command(render::clear_command()
                 .color_value(cam.background())));
     }

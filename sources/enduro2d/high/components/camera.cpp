@@ -25,7 +25,7 @@ namespace e2d
         const fill_context& ctx) const
     {
         if ( ctx.root.HasMember("depth") ) {
-            auto depth = component.depth();
+            i32 depth = component.depth();
             if ( !json_utils::try_parse_value(ctx.root["depth"], depth) ) {
                 the<debug>().error("CAMERA: Incorrect formatting of 'depth' property");
                 return false;
@@ -34,7 +34,7 @@ namespace e2d
         }
 
         if ( ctx.root.HasMember("viewport") ) {
-            auto viewport = component.viewport();
+            b2f viewport = component.viewport();
             if ( !json_utils::try_parse_value(ctx.root["viewport"], viewport) ) {
                 the<debug>().error("CAMERA: Incorrect formatting of 'viewport' property");
                 return false;
@@ -43,7 +43,7 @@ namespace e2d
         }
 
         if ( ctx.root.HasMember("projection") ) {
-            auto projection = component.projection();
+            m4f projection = component.projection();
             if ( !json_utils::try_parse_value(ctx.root["projection"], projection) ) {
                 the<debug>().error("CAMERA: Incorrect formatting of 'projection' property");
                 return false;
@@ -56,7 +56,7 @@ namespace e2d
         }
 
         if ( ctx.root.HasMember("background") ) {
-            auto background = component.background();
+            color background = component.background();
             if ( !json_utils::try_parse_value(ctx.root["background"], background) ) {
                 the<debug>().error("CAMERA: Incorrect formatting of 'background' property");
                 return false;
@@ -123,7 +123,22 @@ namespace e2d
             c->depth(depth);
         }
 
-        ///TODO(BlackMat): add 'viewport' inspector
+        if ( ImGui::TreeNode("viewport") ) {
+            E2D_DEFER([](){ ImGui::TreePop(); });
+
+            if ( b2f viewport = c->viewport();
+                ImGui::DragFloat2("position", viewport.position.data(), 0.01f) )
+            {
+                c->viewport(viewport);
+            }
+
+            if ( b2f viewport = c->viewport();
+                ImGui::DragFloat2("size", viewport.size.data(), 0.01f) )
+            {
+                c->viewport(viewport);
+            }
+        }
+
         ///TODO(BlackMat): add 'projection' inspector
         ///TODO(BlackMat): add 'target' inspector
 
