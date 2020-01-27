@@ -101,8 +101,11 @@ namespace
             {
                 prefab prefab;
                 prefab.prototype()
+                    .component<named>(named()
+                        .name("camera"))
                     .component<camera>(camera()
-                        .background({1.f, 0.4f, 0.f, 1.f}));
+                        .background({1.f, 0.4f, 0.f, 1.f}))
+                    .component<camera::gizmos>();
 
                 the<world>().instantiate(
                     prefab,
@@ -112,6 +115,8 @@ namespace
             {
                 prefab prefab;
                 prefab.prototype()
+                    .component<named>(named()
+                        .name("gnome"))
                     .component<renderer_rotator>(v3f::unit_y())
                     .component<renderer>(renderer().materials({model_mat}))
                     .component<model_renderer>(model_res);
@@ -125,6 +130,8 @@ namespace
             {
                 prefab prefab;
                 prefab.prototype()
+                    .component<named>(named()
+                        .name("ship"))
                     .component<node_rotator>()
                     .component<renderer>()
                     .component<sprite_renderer>(sprite_renderer(sprite_res)
@@ -139,6 +146,8 @@ namespace
             {
                 prefab prefab_a;
                 prefab_a.prototype()
+                    .component<named>(named()
+                        .name("cube"))
                     .component<node_rotator>()
                     .component<renderer>()
                     .component<sprite_renderer>(sprite_renderer()
