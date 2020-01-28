@@ -18,30 +18,48 @@ namespace e2d
     public:
         class gizmos final {};
     public:
+        ENUM_HPP_CLASS_DECL(modes, u8,
+            (manual)
+            (stretch)
+            (flexible)
+            (fixed_fit)
+            (fixed_crop))
+    public:
         camera() = default;
 
         camera& depth(i32 value) noexcept;
+        camera& mode(modes value) noexcept;
         camera& znear(f32 value) noexcept;
         camera& zfar(f32 value) noexcept;
+        camera& view(const m4f& value) noexcept;
         camera& viewport(const b2f& value) noexcept;
+        camera& projection(const m4f& value) noexcept;
         camera& target(const render_target_ptr& value) noexcept;
         camera& background(const color& value) noexcept;
 
         [[nodiscard]] i32 depth() const noexcept;
+        [[nodiscard]] modes mode() const noexcept;
         [[nodiscard]] f32 znear() const noexcept;
         [[nodiscard]] f32 zfar() const noexcept;
+        [[nodiscard]] const m4f& view() const noexcept;
         [[nodiscard]] const b2f& viewport() const noexcept;
+        [[nodiscard]] const m4f& projection() const noexcept;
         [[nodiscard]] const render_target_ptr& target() const noexcept;
         [[nodiscard]] const color& background() const noexcept;
     private:
         i32 depth_ = 0;
+        modes mode_ = modes::flexible;
         f32 znear_ = 0.f;
         f32 zfar_ = 1000.f;
+        m4f view_ = m4f::identity();
         b2f viewport_ = b2f::unit();
+        m4f projection_ = m4f::identity();
         render_target_ptr target_ = nullptr;
         color background_ = color::clear();
     };
 }
+
+ENUM_HPP_REGISTER_TRAITS(e2d::camera::modes)
 
 namespace e2d
 {
@@ -92,6 +110,11 @@ namespace e2d
         return *this;
     }
 
+    inline camera& camera::mode(modes value) noexcept {
+        mode_ = value;
+        return *this;
+    }
+
     inline camera& camera::znear(f32 value) noexcept {
         znear_ = value;
         return *this;
@@ -102,8 +125,18 @@ namespace e2d
         return *this;
     }
 
+    inline camera& camera::view(const m4f& value) noexcept {
+        view_ = value;
+        return *this;
+    }
+
     inline camera& camera::viewport(const b2f& value) noexcept {
         viewport_ = value;
+        return *this;
+    }
+
+    inline camera& camera::projection(const m4f& value) noexcept {
+        projection_ = value;
         return *this;
     }
 
@@ -121,6 +154,10 @@ namespace e2d
         return depth_;
     }
 
+    inline camera::modes camera::mode() const noexcept {
+        return mode_;
+    }
+
     inline f32 camera::znear() const noexcept {
         return znear_;
     }
@@ -129,8 +166,16 @@ namespace e2d
         return zfar_;
     }
 
+    inline const m4f& camera::view() const noexcept {
+        return view_;
+    }
+
     inline const b2f& camera::viewport() const noexcept {
         return viewport_;
+    }
+
+    inline const m4f& camera::projection() const noexcept {
+        return projection_;
     }
 
     inline const render_target_ptr& camera::target() const noexcept {
@@ -139,18 +184,5 @@ namespace e2d
 
     inline const color& camera::background() const noexcept {
         return background_;
-    }
-}
-
-namespace e2d::cameras
-{
-    inline m4f make_projection_matrix(const camera& camera, const window& window) noexcept {
-        const v2u target_size = camera.target()
-            ? camera.target()->size()
-            : window.real_size();
-        return math::make_orthographic_lh_matrix4(
-            target_size.cast_to<f32>(),
-            camera.znear(),
-            math::max(camera.zfar(), camera.znear() + math::default_precision<f32>()));
     }
 }

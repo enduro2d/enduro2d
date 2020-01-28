@@ -13,11 +13,26 @@ namespace e2d
         "required" : [],
         "additionalProperties" : false,
         "properties" : {
-            "depth" : { "type" : "number" },
+            "depth" : { "type" : "integer" },
+            "mode" : { "$ref": "#/definitions/modes" },
             "znear" : { "type" : "number" },
             "zfar" : { "type" : "number" },
+            "view" : { "$ref": "#/common_definitions/m4" },
             "viewport" : { "$ref": "#/common_definitions/b2" },
+            "projection" : { "$ref": "#/common_definitions/m4" },
             "background" : { "$ref": "#/common_definitions/color" }
+        },
+        "definitions" : {
+            "modes" : {
+                "type" : "string",
+                "enum" : [
+                    "manual",
+                    "stretch",
+                    "flexible",
+                    "fixed_fit",
+                    "fixed_crop"
+                ]
+            }
         }
     })json";
 
@@ -32,6 +47,15 @@ namespace e2d
                 return false;
             }
             component.depth(depth);
+        }
+
+        if ( ctx.root.HasMember("mode") ) {
+            camera::modes mode = component.mode();
+            if ( !json_utils::try_parse_value(ctx.root["mode"], mode) ) {
+                the<debug>().error("CAMERA: Incorrect formatting of 'mode' property");
+                return false;
+            }
+            component.mode(mode);
         }
 
         if ( ctx.root.HasMember("znear") ) {
@@ -52,6 +76,15 @@ namespace e2d
             component.zfar(zfar);
         }
 
+        if ( ctx.root.HasMember("view") ) {
+            m4f view = component.view();
+            if ( !json_utils::try_parse_value(ctx.root["view"], view) ) {
+                the<debug>().error("CAMERA: Incorrect formatting of 'view' property");
+                return false;
+            }
+            component.view(view);
+        }
+
         if ( ctx.root.HasMember("viewport") ) {
             b2f viewport = component.viewport();
             if ( !json_utils::try_parse_value(ctx.root["viewport"], viewport) ) {
@@ -59,6 +92,15 @@ namespace e2d
                 return false;
             }
             component.viewport(viewport);
+        }
+
+        if ( ctx.root.HasMember("projection") ) {
+            m4f projection = component.projection();
+            if ( !json_utils::try_parse_value(ctx.root["projection"], projection) ) {
+                the<debug>().error("CAMERA: Incorrect formatting of 'projection' property");
+                return false;
+            }
+            component.projection(projection);
         }
 
         if ( ctx.root.HasMember("target") ) {
@@ -133,6 +175,12 @@ namespace e2d
             c->depth(depth);
         }
 
+        if ( camera::modes mode = c->mode();
+            imgui_utils::show_enum_combo_box("mode", &mode) )
+        {
+            c->mode(mode);
+        }
+
         if ( ImGui::TreeNode("clipping") ) {
             E2D_DEFER([](){ ImGui::TreePop(); });
 
@@ -151,6 +199,8 @@ namespace e2d
             }
         }
 
+        ///TODO(BlackMat): add 'view' inspector
+
         if ( ImGui::TreeNode("viewport") ) {
             E2D_DEFER([](){ ImGui::TreePop(); });
 
@@ -167,6 +217,7 @@ namespace e2d
             }
         }
 
+        ///TODO(BlackMat): add 'projection' inspector
         ///TODO(BlackMat): add 'target' inspector
 
         if ( color background = c->background();

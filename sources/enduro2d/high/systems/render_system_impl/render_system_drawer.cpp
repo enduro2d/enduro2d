@@ -50,16 +50,8 @@ namespace e2d::render_system_impl
     : render_(render)
     , batcher_(batcher)
     {
-        const m4f& cam_w = cam_n
-            ? cam_n->world_matrix()
-            : m4f::identity();
-        const std::pair<m4f, bool> cam_w_inv = math::inversed(cam_w);
-
-        const m4f& m_v = cam_w_inv.second
-            ? cam_w_inv.first
-            : m4f::identity();
-
-        const m4f& m_p = cameras::make_projection_matrix(cam, window);
+        const m4f& m_v = cam.view();
+        const m4f& m_p = cam.projection();
 
         batcher_.flush()
             .property(screen_s_property_hash, cam.target()

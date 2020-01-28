@@ -58,6 +58,14 @@ namespace e2d::bindings::high
                     c->depth(v);
                 }),
 
+            "mode", sol::property(
+                [](const gcomponent<camera>& c) -> camera::modes {
+                    return c->mode();
+                },
+                [](gcomponent<camera>& c, camera::modes v){
+                    c->mode(v);
+                }),
+
             "znear", sol::property(
                 [](const gcomponent<camera>& c) -> f32 {
                     return c->znear();
@@ -74,12 +82,28 @@ namespace e2d::bindings::high
                     c->zfar(v);
                 }),
 
+            "view", sol::property(
+                [](const gcomponent<camera>& c) -> m4f {
+                    return c->view();
+                },
+                [](gcomponent<camera>& c, const m4f& v){
+                    c->view(v);
+                }),
+
             "viewport", sol::property(
                 [](const gcomponent<camera>& c) -> b2f {
                     return c->viewport();
                 },
                 [](gcomponent<camera>& c, const b2f& v){
                     c->viewport(v);
+                }),
+
+            "projection", sol::property(
+                [](const gcomponent<camera>& c) -> m4f {
+                    return c->projection();
+                },
+                [](gcomponent<camera>& c, const m4f& v){
+                    c->projection(v);
                 }),
 
             "background", sol::property(
@@ -90,5 +114,16 @@ namespace e2d::bindings::high
                     c->background(v);
                 })
         );
+
+    #define CAMERA_MODE_PAIR(x) {#x, camera::modes::x},
+        l["camera"].get_or_create<sol::table>()
+        .new_enum<camera::modes>("modes", {
+            CAMERA_MODE_PAIR(manual)
+            CAMERA_MODE_PAIR(stretch)
+            CAMERA_MODE_PAIR(flexible)
+            CAMERA_MODE_PAIR(fixed_fit)
+            CAMERA_MODE_PAIR(fixed_crop)
+        });
+    #undef CAMERA_MODE_PAIR
     }
 }
