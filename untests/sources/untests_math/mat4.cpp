@@ -35,11 +35,11 @@ TEST_CASE("mat4") {
         REQUIRE(math::make_rotation_matrix4(make_rad(1.f),1.f,1.f,1.f) == math::make_rotation_matrix4(make_rad(1.f), v3f::unit()));
         REQUIRE(math::make_rotation_matrix4(make_rad(1.f),v3f(1.f,1.f,1.f)) == math::make_rotation_matrix4(make_rad(1.f), v3f::unit()));
 
-        REQUIRE(math::make_orthographic_lh_no_matrix4(640.f, 480.f, 0.f, 1.f) == math::make_orthographic_lh_no_matrix4(v2f(640,480), 0.f, 1.f));
-        REQUIRE(math::make_orthographic_lh_no_matrix4(640.0, 480.0, 0.0, 1.0) == math::make_orthographic_lh_no_matrix4(v2d(640,480), 0.0, 1.0));
+        REQUIRE(math::make_orthographic_lh_matrix4(640.f, 480.f, 0.f, 1.f) == math::make_orthographic_lh_matrix4(v2f(640,480), 0.f, 1.f));
+        REQUIRE(math::make_orthographic_lh_matrix4(640.0, 480.0, 0.0, 1.0) == math::make_orthographic_lh_matrix4(v2d(640,480), 0.0, 1.0));
 
-        REQUIRE(math::make_orthographic_lh_zo_matrix4(640.f, 480.f, 0.f, 1.f) == math::make_orthographic_lh_zo_matrix4(v2f(640,480), 0.f, 1.f));
-        REQUIRE(math::make_orthographic_lh_zo_matrix4(640.0, 480.0, 0.0, 1.0) == math::make_orthographic_lh_zo_matrix4(v2d(640,480), 0.0, 1.0));
+        REQUIRE(math::make_orthographic_lh_matrix4(640.f, 480.f, 0.f, 1.f) == math::make_orthographic_lh_matrix4(v2f(640,480), 0.f, 1.f));
+        REQUIRE(math::make_orthographic_lh_matrix4(640.0, 480.0, 0.0, 1.0) == math::make_orthographic_lh_matrix4(v2d(640,480), 0.0, 1.0));
     }
     {
         REQUIRE(m4f(m4f::identity()) == m4f::identity());

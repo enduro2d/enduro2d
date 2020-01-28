@@ -184,7 +184,7 @@ namespace
 
         void frame_render() final {
             const auto framebuffer_size = the<window>().real_size().cast_to<f32>();
-            const auto projection = math::make_orthographic_lh_no_matrix4(
+            const auto projection = math::make_orthographic_lh_matrix4(
                 framebuffer_size, 0.f, 1.f);
 
             material_.properties()

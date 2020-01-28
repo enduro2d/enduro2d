@@ -148,7 +148,7 @@ namespace e2d::cameras
         const v2u target_size = camera.target()
             ? camera.target()->size()
             : window.real_size();
-        return math::make_orthographic_lh_no_matrix4(
+        return math::make_orthographic_lh_matrix4(
             target_size.cast_to<f32>(),
             camera.znear(),
             math::max(camera.zfar(), camera.znear() + math::default_precision<f32>()));

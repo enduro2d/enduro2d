@@ -205,7 +205,7 @@ namespace
 
         void frame_render() final {
             const auto framebuffer_size = the<window>().real_size().cast_to<f32>();
-            const auto projection = math::make_perspective_lh_no_matrix4(
+            const auto projection = math::make_perspective_lh_matrix4(
                 make_deg(45.f),
                 framebuffer_size.x / framebuffer_size.y,
                 0.1f,
