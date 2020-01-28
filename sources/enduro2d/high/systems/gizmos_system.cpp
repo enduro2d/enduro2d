@@ -22,8 +22,9 @@ namespace
 
     class imgui_gizmos_context final : public component_inspector<>::gizmos_context {
     public:
-        imgui_gizmos_context(editor& e, inspector& i)
+        imgui_gizmos_context(editor& e, window& w, inspector& i)
         : editor_(e)
+        , window_(w)
         , inspector_(i) {}
 
         bool setup_camera(const ecs::const_entity& cam_e) {
@@ -41,7 +42,7 @@ namespace
 
             camera_vp_ =
                 math::inversed(cam_n->world_matrix()).first *
-                cam.projection() *
+                cameras::make_projection_matrix(cam, window_) *
                 math::make_scale_matrix4(0.5f, 0.5f) *
                 math::make_translation_matrix4(0.5f, 0.5f) *
                 math::make_scale_matrix4(cam.viewport().size) *
@@ -185,6 +186,7 @@ namespace
         }
     private:
         editor& editor_;
+        window& window_;
         inspector& inspector_;
         m4f camera_vp_ = m4f::identity();
         m4f go_matrix_ = m4f::identity();
@@ -227,9 +229,9 @@ namespace e2d
 
     class gizmos_system::internal_state final : private noncopyable {
     public:
-        internal_state(dbgui& d, editor& e, inspector& i)
+        internal_state(dbgui& d, window& w, editor& e, inspector& i)
         : dbgui_(d)
-        , gcontext_(e, i) {}
+        , gcontext_(e, w, i) {}
         ~internal_state() noexcept = default;
 
         void process_render(const ecs::const_entity& cam_e, ecs::registry& owner) {
@@ -254,7 +256,7 @@ namespace e2d
     //
 
     gizmos_system::gizmos_system()
-    : state_(new internal_state(the<dbgui>(), the<editor>(), the<inspector>())) {}
+    : state_(new internal_state(the<dbgui>(), the<window>(), the<editor>(), the<inspector>())) {}
     gizmos_system::~gizmos_system() noexcept = default;
 
     void gizmos_system::process(

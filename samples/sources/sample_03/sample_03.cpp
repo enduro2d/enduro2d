@@ -39,23 +39,6 @@ namespace
         }
     };
 
-    class camera_system final : public systems::post_update_system {
-    public:
-        void process(
-            ecs::registry& owner,
-            const systems::post_update_event& event) override
-        {
-            E2D_UNUSED(event);
-            owner.for_joined_components<camera>(
-            [](const ecs::const_entity&, camera& cam){
-                if ( !cam.target() ) {
-                    cam.projection(math::make_orthogonal_lh_matrix4(
-                        the<window>().real_size().cast_to<f32>(), 0.f, 1000.f));
-                }
-            });
-        }
-    };
-
     class rotator_system final : public systems::update_system {
     public:
         void process(
@@ -118,7 +101,9 @@ namespace
                     .component<named>(named()
                         .name("gnome"))
                     .component<renderer_rotator>(v3f::unit_y())
-                    .component<renderer>(renderer().materials({model_mat}))
+                    .component<renderer>(renderer()
+                        .materials({model_mat})
+                        .translation({0.f, 0.f, 5.f}))
                     .component<model_renderer>(model_res);
 
                 the<world>().instantiate(
@@ -189,8 +174,7 @@ namespace
             ecs::registry_filler(the<world>().registry())
             .feature<struct game_feature>(ecs::feature()
                 .add_system<game_system>()
-                .add_system<rotator_system>()
-                .add_system<camera_system>());
+                .add_system<rotator_system>());
             return true;
         }
     };

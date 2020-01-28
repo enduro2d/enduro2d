@@ -14,8 +14,9 @@ namespace e2d
         "additionalProperties" : false,
         "properties" : {
             "depth" : { "type" : "number" },
+            "znear" : { "type" : "number" },
+            "zfar" : { "type" : "number" },
             "viewport" : { "$ref": "#/common_definitions/b2" },
-            "projection" : { "$ref": "#/common_definitions/m4" },
             "background" : { "$ref": "#/common_definitions/color" }
         }
     })json";
@@ -33,6 +34,24 @@ namespace e2d
             component.depth(depth);
         }
 
+        if ( ctx.root.HasMember("znear") ) {
+            f32 znear = component.znear();
+            if ( !json_utils::try_parse_value(ctx.root["znear"], znear) ) {
+                the<debug>().error("CAMERA: Incorrect formatting of 'znear' property");
+                return false;
+            }
+            component.znear(znear);
+        }
+
+        if ( ctx.root.HasMember("zfar") ) {
+            f32 zfar = component.zfar();
+            if ( !json_utils::try_parse_value(ctx.root["zfar"], zfar) ) {
+                the<debug>().error("CAMERA: Incorrect formatting of 'zfar' property");
+                return false;
+            }
+            component.zfar(zfar);
+        }
+
         if ( ctx.root.HasMember("viewport") ) {
             b2f viewport = component.viewport();
             if ( !json_utils::try_parse_value(ctx.root["viewport"], viewport) ) {
@@ -40,15 +59,6 @@ namespace e2d
                 return false;
             }
             component.viewport(viewport);
-        }
-
-        if ( ctx.root.HasMember("projection") ) {
-            m4f projection = component.projection();
-            if ( !json_utils::try_parse_value(ctx.root["projection"], projection) ) {
-                the<debug>().error("CAMERA: Incorrect formatting of 'projection' property");
-                return false;
-            }
-            component.projection(projection);
         }
 
         if ( ctx.root.HasMember("target") ) {
@@ -118,9 +128,27 @@ namespace e2d
         }
 
         if ( i32 depth = c->depth();
-            ImGui::DragInt("depth", &depth) )
+            ImGui::DragInt("depth", &depth, 1.f) )
         {
             c->depth(depth);
+        }
+
+        if ( ImGui::TreeNode("clipping") ) {
+            E2D_DEFER([](){ ImGui::TreePop(); });
+
+            if ( f32 znear = c->znear();
+                ImGui::DragFloat("znear", &znear, 1.f) )
+            {
+                c->znear(znear);
+                c->zfar(math::max(c->zfar(), c->znear()));
+            }
+
+            if ( f32 zfar = c->zfar();
+                ImGui::DragFloat("zfar", &zfar, 1.f) )
+            {
+                c->zfar(zfar);
+                c->znear(math::min(c->znear(), c->zfar()));
+            }
         }
 
         if ( ImGui::TreeNode("viewport") ) {
@@ -133,13 +161,12 @@ namespace e2d
             }
 
             if ( b2f viewport = c->viewport();
-                ImGui::DragFloat2("size", viewport.size.data(), 0.01f) )
+                ImGui::DragFloat2("size", viewport.size.data(), 0.01f, 0.f, std::numeric_limits<f32>::max()) )
             {
                 c->viewport(viewport);
             }
         }
 
-        ///TODO(BlackMat): add 'projection' inspector
         ///TODO(BlackMat): add 'target' inspector
 
         if ( color background = c->background();

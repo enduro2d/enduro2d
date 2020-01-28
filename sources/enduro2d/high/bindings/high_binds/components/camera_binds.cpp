@@ -58,20 +58,28 @@ namespace e2d::bindings::high
                     c->depth(v);
                 }),
 
+            "znear", sol::property(
+                [](const gcomponent<camera>& c) -> f32 {
+                    return c->znear();
+                },
+                [](gcomponent<camera>& c, f32 v){
+                    c->znear(v);
+                }),
+
+            "zfar", sol::property(
+                [](const gcomponent<camera>& c) -> f32 {
+                    return c->zfar();
+                },
+                [](gcomponent<camera>& c, f32 v){
+                    c->zfar(v);
+                }),
+
             "viewport", sol::property(
                 [](const gcomponent<camera>& c) -> b2f {
                     return c->viewport();
                 },
                 [](gcomponent<camera>& c, const b2f& v){
                     c->viewport(v);
-                }),
-
-            "projection", sol::property(
-                [](const gcomponent<camera>& c) -> m4f {
-                    return c->projection();
-                },
-                [](gcomponent<camera>& c, const m4f& v){
-                    c->projection(v);
                 }),
 
             "background", sol::property(

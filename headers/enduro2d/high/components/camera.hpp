@@ -21,20 +21,23 @@ namespace e2d
         camera() = default;
 
         camera& depth(i32 value) noexcept;
+        camera& znear(f32 value) noexcept;
+        camera& zfar(f32 value) noexcept;
         camera& viewport(const b2f& value) noexcept;
-        camera& projection(const m4f& value) noexcept;
         camera& target(const render_target_ptr& value) noexcept;
         camera& background(const color& value) noexcept;
 
         [[nodiscard]] i32 depth() const noexcept;
+        [[nodiscard]] f32 znear() const noexcept;
+        [[nodiscard]] f32 zfar() const noexcept;
         [[nodiscard]] const b2f& viewport() const noexcept;
-        [[nodiscard]] const m4f& projection() const noexcept;
         [[nodiscard]] const render_target_ptr& target() const noexcept;
         [[nodiscard]] const color& background() const noexcept;
     private:
         i32 depth_ = 0;
+        f32 znear_ = 0.f;
+        f32 zfar_ = 1000.f;
         b2f viewport_ = b2f::unit();
-        m4f projection_ = m4f::identity();
         render_target_ptr target_ = nullptr;
         color background_ = color::clear();
     };
@@ -89,13 +92,18 @@ namespace e2d
         return *this;
     }
 
-    inline camera& camera::viewport(const b2f& value) noexcept {
-        viewport_ = value;
+    inline camera& camera::znear(f32 value) noexcept {
+        znear_ = value;
         return *this;
     }
 
-    inline camera& camera::projection(const m4f& value) noexcept {
-        projection_ = value;
+    inline camera& camera::zfar(f32 value) noexcept {
+        zfar_ = value;
+        return *this;
+    }
+
+    inline camera& camera::viewport(const b2f& value) noexcept {
+        viewport_ = value;
         return *this;
     }
 
@@ -113,12 +121,16 @@ namespace e2d
         return depth_;
     }
 
-    inline const b2f& camera::viewport() const noexcept {
-        return viewport_;
+    inline f32 camera::znear() const noexcept {
+        return znear_;
     }
 
-    inline const m4f& camera::projection() const noexcept {
-        return projection_;
+    inline f32 camera::zfar() const noexcept {
+        return zfar_;
+    }
+
+    inline const b2f& camera::viewport() const noexcept {
+        return viewport_;
     }
 
     inline const render_target_ptr& camera::target() const noexcept {
@@ -127,5 +139,18 @@ namespace e2d
 
     inline const color& camera::background() const noexcept {
         return background_;
+    }
+}
+
+namespace e2d::cameras
+{
+    inline m4f make_projection_matrix(const camera& camera, const window& window) noexcept {
+        const v2u target_size = camera.target()
+            ? camera.target()->size()
+            : window.real_size();
+        return math::make_orthographic_lh_no_matrix4(
+            target_size.cast_to<f32>(),
+            camera.znear(),
+            math::max(camera.zfar(), camera.znear() + math::default_precision<f32>()));
     }
 }

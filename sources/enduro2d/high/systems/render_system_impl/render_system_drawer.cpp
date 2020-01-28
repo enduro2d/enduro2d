@@ -58,7 +58,8 @@ namespace e2d::render_system_impl
         const m4f& m_v = cam_w_inv.second
             ? cam_w_inv.first
             : m4f::identity();
-        const m4f& m_p = cam.projection();
+
+        const m4f& m_p = cameras::make_projection_matrix(cam, window);
 
         batcher_.flush()
             .property(screen_s_property_hash, cam.target()

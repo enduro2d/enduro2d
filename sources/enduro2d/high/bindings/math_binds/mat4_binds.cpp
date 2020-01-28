@@ -66,20 +66,36 @@ namespace
             "make_look_at_rh", sol::resolve<
                 mat4<T>(const vec3<T>&,const vec3<T>&,const vec3<T>&)>(&math::make_look_at_rh_matrix4),
 
-            "make_orthogonal_lh", sol::overload(
-                sol::resolve<mat4<T>(T,T,T,T)>(&math::make_orthogonal_lh_matrix4),
-                sol::resolve<mat4<T>(const vec2<T>&,T,T)>(&math::make_orthogonal_lh_matrix4)),
+            "make_orthographic_lh_zo", sol::overload(
+                sol::resolve<mat4<T>(T,T,T,T)>(&math::make_orthographic_lh_zo_matrix4),
+                sol::resolve<mat4<T>(const vec2<T>&,T,T)>(&math::make_orthographic_lh_zo_matrix4)),
 
-            "make_orthogonal_rh", sol::overload(
-                sol::resolve<mat4<T>(T,T,T,T)>(&math::make_orthogonal_rh_matrix4),
-                sol::resolve<mat4<T>(const vec2<T>&,T,T)>(&math::make_orthogonal_rh_matrix4)),
+            "make_orthographic_lh_no", sol::overload(
+                sol::resolve<mat4<T>(T,T,T,T)>(&math::make_orthographic_lh_no_matrix4),
+                sol::resolve<mat4<T>(const vec2<T>&,T,T)>(&math::make_orthographic_lh_no_matrix4)),
 
-            "make_perspective_lh", [](T angle, T aspect, T znear, T zfar) -> mat4<T> {
-                return math::make_perspective_lh_matrix4(make_rad(angle), aspect, znear, zfar);
+            "make_orthographic_rh_zo", sol::overload(
+                sol::resolve<mat4<T>(T,T,T,T)>(&math::make_orthographic_rh_zo_matrix4),
+                sol::resolve<mat4<T>(const vec2<T>&,T,T)>(&math::make_orthographic_rh_zo_matrix4)),
+
+            "make_orthographic_rh_no", sol::overload(
+                sol::resolve<mat4<T>(T,T,T,T)>(&math::make_orthographic_rh_no_matrix4),
+                sol::resolve<mat4<T>(const vec2<T>&,T,T)>(&math::make_orthographic_rh_no_matrix4)),
+
+            "make_perspective_lh_zo", [](T angle, T aspect, T znear, T zfar) -> mat4<T> {
+                return math::make_perspective_lh_zo_matrix4(make_rad(angle), aspect, znear, zfar);
             },
 
-            "make_perspective_rh", [](T angle, T aspect, T znear, T zfar) -> mat4<T> {
-                return math::make_perspective_rh_matrix4(make_rad(angle), aspect, znear, zfar);
+            "make_perspective_lh_no", [](T angle, T aspect, T znear, T zfar) -> mat4<T> {
+                return math::make_perspective_lh_no_matrix4(make_rad(angle), aspect, znear, zfar);
+            },
+
+            "make_perspective_rh_zo", [](T angle, T aspect, T znear, T zfar) -> mat4<T> {
+                return math::make_perspective_rh_zo_matrix4(make_rad(angle), aspect, znear, zfar);
+            },
+
+            "make_perspective_rh_no", [](T angle, T aspect, T znear, T zfar) -> mat4<T> {
+                return math::make_perspective_rh_no_matrix4(make_rad(angle), aspect, znear, zfar);
             },
 
             "approximately", [](const mat4<T>& l, const mat4<T>& r) -> bool {

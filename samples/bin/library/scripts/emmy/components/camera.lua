@@ -9,11 +9,14 @@ local camera = {
     ---@type integer
     depth = 0,
 
+    ---@type number
+    znear = 0.0,
+
+    ---@type number
+    zfar = 1000.0,
+
     ---@type rect
     viewport = rect.zero(),
-
-    ---@type m4f
-    projection = m4f.identity(),
 
     ---@type color
     background = color.white()
