@@ -6,7 +6,7 @@
 
 #include "platform.hpp"
 
-#if defined(E2D_PLATFORM_MODE) && E2D_PLATFORM_MODE == E2D_PLATFORM_MODE_WINDOWS
+#if defined(E2D_PLATFORM) && E2D_PLATFORM == E2D_PLATFORM_WINDOWS
 
 #include <windows.h>
 
