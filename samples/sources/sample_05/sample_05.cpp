@@ -67,7 +67,7 @@ namespace
         void frame_render() final {
             the<render>().execute(render::command_block<64>()
                 .add_command(render::viewport_command(
-                    the<window>().framebuffer_size()))
+                    the<window>().framebuffer_size().cast_to<i32>()))
                 .add_command(render::clear_command()
                     .color_value({1.f, 0.4f, 0.f, 1.f})));
         }

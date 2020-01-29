@@ -3,7 +3,57 @@
         "scene" : {}
     },
     "children" : [{
-        "prototype" : "../prefabs/camera_prefab.json"
+        "prototype" : "../prefabs/camera_prefab.json",
+        "components" : {
+            "actor" : {
+                "rotation" : 0.5
+            },
+            "camera" : {
+                "viewport" : [0.0,0.0,0.5,0.5]
+            },
+            "named" : {
+                "name" : "camera(1)"
+            }
+        }
+    },{
+        "prototype" : "../prefabs/camera_prefab.json",
+        "components" : {
+            "actor" : {
+                "rotation" : -0.5
+            },
+            "camera" : {
+                "viewport" : [0.5,0.0,0.5,0.5]
+            },
+            "named" : {
+                "name" : "camera(2)"
+            }
+        }
+    },{
+        "prototype" : "../prefabs/camera_prefab.json",
+        "components" : {
+            "actor" : {
+                "rotation" : 0.5
+            },
+            "camera" : {
+                "viewport" : [0.5,0.5,0.5,0.5]
+            },
+            "named" : {
+                "name" : "camera(3)"
+            }
+        }
+    },{
+        "prototype" : "../prefabs/camera_prefab.json",
+        "components" : {
+            "actor" : {
+                "rotation" : -0.5
+            },
+            "camera" : {
+                "viewport" : [0.0,0.5,0.5,0.5]
+            },
+            "named" : {
+                "name" : "camera(4)"
+            }
+        }
     },{
         "prototype" : "../prefabs/gnome_prefab.json",
         "components" : {
