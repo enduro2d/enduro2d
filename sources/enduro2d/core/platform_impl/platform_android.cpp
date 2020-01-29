@@ -6,23 +6,23 @@
 
 #include "platform.hpp"
 
-#if defined(E2D_PLATFORM_MODE) && E2D_PLATFORM_MODE == E2D_PLATFORM_MODE_NONE
+#if defined(E2D_PLATFORM) && E2D_PLATFORM == E2D_PLATFORM_ANDROID
 
 namespace
 {
     using namespace e2d;
 
-    class platform_internal_state_impl_none final : public platform_internal_state_impl {
+    class platform_internal_state_impl_android final : public platform_internal_state_impl {
     public:
-        platform_internal_state_impl_none() = default;
-        ~platform_internal_state_impl_none() noexcept final = default;
+        platform_internal_state_impl_android() = default;
+        ~platform_internal_state_impl_android() noexcept final = default;
     };
 }
 
 namespace e2d
 {
     platform_internal_state_impl_uptr platform_internal_state_impl::create() {
-        return std::make_unique<platform_internal_state_impl_none>();
+        return std::make_unique<platform_internal_state_impl_android>();
     }
 }
 

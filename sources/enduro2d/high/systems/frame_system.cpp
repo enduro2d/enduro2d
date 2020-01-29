@@ -13,6 +13,15 @@ namespace
 {
     using namespace e2d;
 
+    void clear_framebuffer(render& render, window& window) {
+        render.execute(render::command_block<3>()
+            .add_command(render::target_command())
+            .add_command(render::viewport_command(
+                window.framebuffer_size().cast_to<i32>()))
+            .add_command(render::clear_command()
+                .color_value(color::black())));
+    }
+
     template < typename Event >
     void for_all_cameras(ecs::registry& owner) {
         const auto comp = [](const auto& l, const auto& r) noexcept {
@@ -42,8 +51,10 @@ namespace e2d
 
     class frame_system::internal_state final : private noncopyable {
     public:
-        internal_state(engine& e)
-        : engine_(e) {}
+        internal_state(engine& e, render& r, window& w)
+        : engine_(e)
+        , render_(r)
+        , window_(w) {}
         ~internal_state() noexcept = default;
 
         void process_frame_update(ecs::registry& owner) {
@@ -67,6 +78,8 @@ namespace e2d
         }
 
         void process_frame_render(ecs::registry& owner) {
+            clear_framebuffer(render_, window_);
+
             {
                 E2D_PROFILER_SCOPE("ecs.pre_render");
                 for_all_cameras<systems::pre_render_event>(owner);
@@ -84,6 +97,8 @@ namespace e2d
         }
     private:
         engine& engine_;
+        render& render_;
+        window& window_;
     };
 
     //
@@ -91,7 +106,7 @@ namespace e2d
     //
 
     frame_system::frame_system()
-    : state_(new internal_state(the<engine>())) {}
+    : state_(new internal_state(the<engine>(), the<render>(), the<window>())) {}
     frame_system::~frame_system() noexcept = default;
 
     void frame_system::process(

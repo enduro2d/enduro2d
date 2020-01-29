@@ -1076,20 +1076,20 @@ namespace e2d
     // viewport_command
     //
 
-    render::viewport_command::viewport_command(const b2u& viewport_rect) noexcept
+    render::viewport_command::viewport_command(const b2i& viewport_rect) noexcept
     : viewport_rect_(viewport_rect) {}
 
-    render::viewport_command::viewport_command(const b2u& viewport_rect, const b2u& scissor_rect) noexcept
+    render::viewport_command::viewport_command(const b2i& viewport_rect, const b2i& scissor_rect) noexcept
     : viewport_rect_(viewport_rect)
     , scissor_rect_(scissor_rect)
     , scissoring_(true) {}
 
-    render::viewport_command& render::viewport_command::viewport_rect(const b2u& value) noexcept {
+    render::viewport_command& render::viewport_command::viewport_rect(const b2i& value) noexcept {
         viewport_rect_ = value;
         return *this;
     }
 
-    render::viewport_command& render::viewport_command::scissor_rect(const b2u& value) noexcept {
+    render::viewport_command& render::viewport_command::scissor_rect(const b2i& value) noexcept {
         scissor_rect_ = value;
         scissoring_ = true;
         return *this;
@@ -1100,11 +1100,11 @@ namespace e2d
         return *this;
     }
 
-    b2u& render::viewport_command::viewport_rect() noexcept {
+    b2i& render::viewport_command::viewport_rect() noexcept {
         return viewport_rect_;
     }
 
-    b2u& render::viewport_command::scissor_rect() noexcept {
+    b2i& render::viewport_command::scissor_rect() noexcept {
         return scissor_rect_;
     }
 
@@ -1112,11 +1112,11 @@ namespace e2d
         return scissoring_;
     }
 
-    const b2u& render::viewport_command::viewport_rect() const noexcept {
+    const b2i& render::viewport_command::viewport_rect() const noexcept {
         return viewport_rect_;
     }
 
-    const b2u& render::viewport_command::scissor_rect() const noexcept {
+    const b2i& render::viewport_command::scissor_rect() const noexcept {
         return scissor_rect_;
     }
 

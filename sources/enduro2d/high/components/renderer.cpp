@@ -85,7 +85,7 @@ namespace e2d
 
     void component_inspector<renderer>::operator()(gcomponent<renderer>& c) const {
         if ( v3f translation = c->translation();
-            ImGui::DragFloat3("translation", translation.data(), 1.f) )
+            ImGui::DragFloat3("translation", translation.data(), 0.01f) )
         {
             c->translation(translation);
         }

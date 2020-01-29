@@ -1,0 +1,84 @@
+{
+    "components" : {},
+    "children" : [{
+        "prototype" : "sprite_prefab.json",
+        "components" : {
+            "actor" : {
+                "translation" : [-512,0]
+            },
+            "sprite_renderer" : {
+                "sprite" : "../sprites/background_sprite.json"
+            }
+        }
+    },{
+        "prototype" : "sprite_prefab.json",
+        "components" : {
+            "actor" : {
+                "translation" : [-256,0]
+            },
+            "sprite_renderer" : {
+                "sprite" : "../sprites/background_sprite.json"
+            }
+        }
+    },{
+        "prototype" : "sprite_prefab.json",
+        "components" : {
+            "actor" : {
+                "translation" : [0,0]
+            },
+            "sprite_renderer" : {
+                "sprite" : "../sprites/background_sprite.json"
+            }
+        }
+    },{
+        "prototype" : "sprite_prefab.json",
+        "components" : {
+            "actor" : {
+                "translation" : [256,0]
+            },
+            "sprite_renderer" : {
+                "sprite" : "../sprites/background_sprite.json"
+            }
+        }
+    },{
+        "prototype" : "sprite_prefab.json",
+        "components" : {
+            "actor" : {
+                "translation" : [-512,-256]
+            },
+            "sprite_renderer" : {
+                "sprite" : "../sprites/background_sprite.json"
+            }
+        }
+    },{
+        "prototype" : "sprite_prefab.json",
+        "components" : {
+            "actor" : {
+                "translation" : [-256,-256]
+            },
+            "sprite_renderer" : {
+                "sprite" : "../sprites/background_sprite.json"
+            }
+        }
+    },{
+        "prototype" : "sprite_prefab.json",
+        "components" : {
+            "actor" : {
+                "translation" : [0,-256]
+            },
+            "sprite_renderer" : {
+                "sprite" : "../sprites/background_sprite.json"
+            }
+        }
+    },{
+        "prototype" : "sprite_prefab.json",
+        "components" : {
+            "actor" : {
+                "translation" : [256,-256]
+            },
+            "sprite_renderer" : {
+                "sprite" : "../sprites/background_sprite.json"
+            }
+        }
+    }]
+}

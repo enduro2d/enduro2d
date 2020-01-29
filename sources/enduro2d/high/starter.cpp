@@ -32,6 +32,7 @@
 #include <enduro2d/high/components/sprite_renderer.hpp>
 #include <enduro2d/high/components/touchable.hpp>
 
+#include <enduro2d/high/systems/camera_system.hpp>
 #include <enduro2d/high/systems/flipbook_system.hpp>
 #include <enduro2d/high/systems/frame_system.hpp>
 #include <enduro2d/high/systems/gizmos_system.hpp>
@@ -61,6 +62,8 @@ namespace
 
         bool initialize() final {
             ecs::registry_filler(the<world>().registry())
+                .feature<struct camera_feature>(ecs::feature()
+                    .add_system<camera_system>())
                 .feature<struct flipbook_feature>(ecs::feature()
                     .add_system<flipbook_system>())
                 .feature<struct frame_feature>(ecs::feature()

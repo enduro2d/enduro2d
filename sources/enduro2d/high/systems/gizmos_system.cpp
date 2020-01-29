@@ -40,10 +40,14 @@ namespace
             }
 
             camera_vp_ =
-                math::inversed(cam_n->world_matrix()).first *
+                cam.view() *
                 cam.projection() *
-                math::make_scale_matrix4(0.5f, -0.5f) *
+                math::make_scale_matrix4(0.5f, 0.5f) *
                 math::make_translation_matrix4(0.5f, 0.5f) *
+                math::make_scale_matrix4(cam.viewport().size) *
+                math::make_translation_matrix4(cam.viewport().position) *
+                math::make_scale_matrix4(1.f, -1.f) *
+                math::make_translation_matrix4(0.f, 1.f) *
                 math::make_scale_matrix4(v2f(ImGui::GetIO().DisplaySize));
 
             return true;

@@ -39,25 +39,6 @@ namespace
         }
     };
 
-    class camera_system final : public systems::post_update_system {
-    public:
-        void process(
-            ecs::registry& owner,
-            const systems::post_update_event& event) override
-        {
-            E2D_UNUSED(event);
-            owner.for_joined_components<camera>(
-            [](const ecs::const_entity&, camera& cam){
-                if ( !cam.target() ) {
-                    cam.viewport(
-                        the<window>().framebuffer_size());
-                    cam.projection(math::make_orthogonal_lh_matrix4(
-                        the<window>().real_size().cast_to<f32>(), 0.f, 1000.f));
-                }
-            });
-        }
-    };
-
     class rotator_system final : public systems::update_system {
     public:
         void process(
@@ -103,8 +84,11 @@ namespace
             {
                 prefab prefab;
                 prefab.prototype()
+                    .component<named>(named()
+                        .name("camera"))
                     .component<camera>(camera()
-                        .background({1.f, 0.4f, 0.f, 1.f}));
+                        .background({1.f, 0.4f, 0.f, 1.f}))
+                    .component<camera::gizmos>();
 
                 the<world>().instantiate(
                     prefab,
@@ -114,8 +98,12 @@ namespace
             {
                 prefab prefab;
                 prefab.prototype()
+                    .component<named>(named()
+                        .name("gnome"))
                     .component<renderer_rotator>(v3f::unit_y())
-                    .component<renderer>(renderer().materials({model_mat}))
+                    .component<renderer>(renderer()
+                        .materials({model_mat})
+                        .translation({0.f, 0.f, 5.f}))
                     .component<model_renderer>(model_res);
 
                 the<world>().instantiate(
@@ -127,6 +115,8 @@ namespace
             {
                 prefab prefab;
                 prefab.prototype()
+                    .component<named>(named()
+                        .name("ship"))
                     .component<node_rotator>()
                     .component<renderer>()
                     .component<sprite_renderer>(sprite_renderer(sprite_res)
@@ -141,6 +131,8 @@ namespace
             {
                 prefab prefab_a;
                 prefab_a.prototype()
+                    .component<named>(named()
+                        .name("cube"))
                     .component<node_rotator>()
                     .component<renderer>()
                     .component<sprite_renderer>(sprite_renderer()
@@ -182,8 +174,7 @@ namespace
             ecs::registry_filler(the<world>().registry())
             .feature<struct game_feature>(ecs::feature()
                 .add_system<game_system>()
-                .add_system<rotator_system>()
-                .add_system<camera_system>());
+                .add_system<rotator_system>());
             return true;
         }
     };

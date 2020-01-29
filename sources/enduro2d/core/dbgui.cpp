@@ -129,8 +129,8 @@ namespace e2d
             const v2f framebuffer_size = display_size * v2f(draw_data->FramebufferScale);
 
             const m4f projection =
-                math::make_translation_matrix4(display_size * v2f(-0.5f, 0.5f)) *
-                math::make_orthogonal_lh_matrix4(display_size, 0.f, 1.f);
+                math::make_orthographic_lh_matrix4(display_size, 0.f, 1.f) *
+                math::make_translation_matrix4(-1.f, 1.f);
 
             for ( int i = 0; i < draw_data->CmdListsCount; ++i ) {
                 const ImDrawList* cmd_list = draw_data->CmdLists[i];
@@ -174,8 +174,8 @@ namespace e2d
 
                         render_.execute(render::command_block<8>()
                             .add_command(render::viewport_command(
-                                framebuffer_size.cast_to<u32>(),
-                                clip_r.cast_to<u32>()))
+                                framebuffer_size.cast_to<i32>(),
+                                clip_r.cast_to<i32>()))
                             .add_command(render::draw_command(material_, geometry, mprops_)
                                 .index_range(first_index, pcmd.ElemCount)));
                     }

@@ -224,7 +224,7 @@ namespace
 
             the<render>().execute(render::command_block<64>()
                 .add_command(render::target_command(render_target_))
-                .add_command(render::viewport_command(render_target_->size()))
+                .add_command(render::viewport_command(render_target_->size().cast_to<i32>()))
                 .add_command(render::clear_command()
                     .color_value({0.f, 0.4f, 0.f, 1.f}))
                 .add_command(render::draw_command(material_, geometry_, tex_props_)));
@@ -233,8 +233,8 @@ namespace
                 .add_command(render::target_command(nullptr))
                 .add_command(render::clear_command()
                     .color_value(color::blue()))
-                .add_command(render::viewport_command(the<window>().framebuffer_size())
-                    .scissor_rect(make_rect(v2u{100u}, the<window>().framebuffer_size() - 200u)))
+                .add_command(render::viewport_command(the<window>().framebuffer_size().cast_to<i32>())
+                    .scissor_rect(make_rect(v2i{100}, the<window>().framebuffer_size().cast_to<i32>() - 200)))
                 .add_command(render::clear_command()
                     .color_value({1.f, 0.4f, 0.f, 1.f}))
                 .add_command(render::draw_command(material_, geometry_, rt_props_)));

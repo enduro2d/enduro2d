@@ -66,6 +66,7 @@ namespace e2d
     class sprite_renderer;
     class touchable;
 
+    class camera_system;
     class flipbook_system;
     class frame_system;
     class gizmos_system;

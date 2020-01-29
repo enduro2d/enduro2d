@@ -9,6 +9,18 @@ local camera = {
     ---@type integer
     depth = 0,
 
+    ---@type camera_modes
+    mode = camera.modes.flexible,
+
+    ---@type number
+    znear = 0.0,
+
+    ---@type number
+    zfar = 1000.0,
+
+    ---@type m4f
+    view = m4f.identity(),
+
     ---@type rect
     viewport = rect.zero(),
 
@@ -17,6 +29,15 @@ local camera = {
 
     ---@type color
     background = color.white()
+}
+
+---@class camera_modes
+camera.modes = {
+    manual = "manual",
+    stretch = "stretch",
+    flexible = "flexible",
+    fixed_fit = "fixed_fit",
+    fixed_crop = "fixed_crop"
 }
 
 ---@overload fun(self: camera)
