@@ -166,4 +166,158 @@ TEST_CASE("mat4") {
         REQUIRE(m4i::identity() == m4i::identity());
         REQUIRE_FALSE(m4i::identity() != m4i::identity());
     }
+    {
+        m4f projection = math::make_perspective_lh_matrix4(make_deg(80.f), 4.f / 3.f, 0.01f, 1.f);
+        b2f viewport = make_rect(800.f, 600.f);
+
+        const v3f p1 = v3f(0.f,0.f,0.01f);
+        const v3f p2 = v3f(+1.f,0.f,0.01f);
+        const v3f p3 = v3f(-1.f,0.f,0.01f);
+
+        REQUIRE(math::project(p1, m4f::identity(), projection, viewport).second);
+        REQUIRE(math::project(p2, m4f::identity(), projection, viewport).second);
+        REQUIRE(math::project(p3, m4f::identity(), projection, viewport).second);
+
+        REQUIRE(math::impl::project_zo(p1, m4f::identity(), projection, viewport).second);
+        REQUIRE(math::impl::project_zo(p2, m4f::identity(), projection, viewport).second);
+        REQUIRE(math::impl::project_zo(p3, m4f::identity(), projection, viewport).second);
+
+        REQUIRE(math::impl::project_no(p1, m4f::identity(), projection, viewport).second);
+        REQUIRE(math::impl::project_no(p2, m4f::identity(), projection, viewport).second);
+        REQUIRE(math::impl::project_no(p3, m4f::identity(), projection, viewport).second);
+
+        REQUIRE(math::unproject(
+            math::project(p1, m4f::identity(), projection, viewport).first,
+            m4f::identity(),
+            projection,
+            viewport).second);
+
+        REQUIRE(math::unproject(
+            math::project(p2, m4f::identity(), projection, viewport).first,
+            m4f::identity(),
+            projection,
+            viewport).second);
+
+        REQUIRE(math::unproject(
+            math::project(p3, m4f::identity(), projection, viewport).first,
+            m4f::identity(),
+            projection,
+            viewport).second);
+
+        REQUIRE(math::unproject(
+            math::project(p1, m4f::identity(), projection, viewport).first,
+            m4f::identity(),
+            projection,
+            viewport).first == v3f(p1));
+
+        REQUIRE(math::unproject(
+            math::project(p2, m4f::identity(), projection, viewport).first,
+            m4f::identity(),
+            projection,
+            viewport).first == v3f(p2));
+
+        REQUIRE(math::unproject(
+            math::project(p3, m4f::identity(), projection, viewport).first,
+            m4f::identity(),
+            projection,
+            viewport).first == v3f(p3));
+    }
+    {
+        m4f projection = math::make_orthographic_lh_matrix4({400.f, 300.f}, 0.f, 1.f);
+        m4f model = math::make_scale_matrix4(2.f, 2.f);
+        b2f viewport = make_rect(800.f, 600.f);
+
+        const v3f p1 = v3f(0.f,0.f,0.f);
+        const v3f p2 = v3f(+1.f,0.f,0.f);
+        const v3f p3 = v3f(-1.f,0.f,0.f);
+
+        REQUIRE(math::project(p1, model, projection, viewport).second);
+        REQUIRE(math::project(p2, model, projection, viewport).second);
+        REQUIRE(math::project(p3, model, projection, viewport).second);
+
+        m4f projection_zo = math::impl::make_orthographic_lh_zo_matrix4(400.f, 300.f, 0.f, 1.f);
+        REQUIRE(math::impl::project_zo(p1, model, projection_zo, viewport).second);
+        REQUIRE(math::impl::project_zo(p2, model, projection_zo, viewport).second);
+        REQUIRE(math::impl::project_zo(p3, model, projection_zo, viewport).second);
+
+        m4f projection_no = math::impl::make_orthographic_lh_no_matrix4(400.f, 300.f, 0.f, 1.f);
+        REQUIRE(math::impl::project_no(p1, model, projection_no, viewport).second);
+        REQUIRE(math::impl::project_no(p2, model, projection_no, viewport).second);
+        REQUIRE(math::impl::project_no(p3, model, projection_no, viewport).second);
+
+        REQUIRE(math::approximately(
+            math::project(p1, model, projection, viewport).first,
+            v3f(400.f, 300.f, 0.f),
+            0.01f));
+        REQUIRE(math::approximately(
+            math::project(p2, model, projection, viewport).first,
+            v3f(404.f, 300.f, 0.f),
+            0.01f));
+        REQUIRE(math::approximately(
+            math::project(p3, model, projection, viewport).first,
+            v3f(396.f, 300.f, 0.f),
+            0.01f));
+
+        REQUIRE(math::approximately(
+            math::impl::project_zo(p1, model, projection_zo, viewport).first,
+            v3f(400.f, 300.f, 0.f),
+            0.01f));
+        REQUIRE(math::approximately(
+            math::impl::project_zo(p2, model, projection_zo, viewport).first,
+            v3f(404.f, 300.f, 0.f),
+            0.01f));
+        REQUIRE(math::approximately(
+            math::impl::project_zo(p3, model, projection_zo, viewport).first,
+            v3f(396.f, 300.f, 0.f),
+            0.01f));
+
+        REQUIRE(math::approximately(
+            math::impl::project_no(p1, model, projection_no, viewport).first,
+            v3f(400.f, 300.f, 0.f),
+            0.01f));
+        REQUIRE(math::approximately(
+            math::impl::project_no(p2, model, projection_no, viewport).first,
+            v3f(404.f, 300.f, 0.f),
+            0.01f));
+        REQUIRE(math::approximately(
+            math::impl::project_no(p3, model, projection_no, viewport).first,
+            v3f(396.f, 300.f, 0.f),
+            0.01f));
+
+        REQUIRE(math::unproject(
+            math::project(p1, model, projection, viewport).first,
+            model,
+            projection,
+            viewport).second);
+
+        REQUIRE(math::unproject(
+            math::project(p2, model, projection, viewport).first,
+            model,
+            projection,
+            viewport).second);
+
+        REQUIRE(math::unproject(
+            math::project(p3, model, projection, viewport).first,
+            model,
+            projection,
+            viewport).second);
+
+        REQUIRE(math::unproject(
+            math::project(p1, model, projection, viewport).first,
+            model,
+            projection,
+            viewport).first == v3f(p1));
+
+        REQUIRE(math::unproject(
+            math::project(p2, model, projection, viewport).first,
+            model,
+            projection,
+            viewport).first == v3f(p2));
+
+        REQUIRE(math::unproject(
+            math::project(p3, model, projection, viewport).first,
+            model,
+            projection,
+            viewport).first == v3f(p3));
+    }
 }
