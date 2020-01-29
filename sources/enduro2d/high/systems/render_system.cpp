@@ -56,12 +56,11 @@ namespace e2d
         ~internal_state() noexcept = default;
 
         void process_render(const ecs::const_entity& cam_e, ecs::registry& owner) {
-            if ( !cam_e.valid() || !ecs::exists_all<actor, camera>()(cam_e) ) {
+            if ( !cam_e.valid() || !cam_e.exists_component<camera>() ) {
                 return;
             }
             drawer_.with(
                 cam_e.get_component<camera>(),
-                cam_e.get_component<actor>().node(),
                 [&owner](drawer::context& ctx){
                     for_all_scenes(ctx, owner);
                 });

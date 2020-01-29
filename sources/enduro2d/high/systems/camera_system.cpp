@@ -25,19 +25,21 @@ namespace
             camera.zfar(),
             camera.znear() + math::default_precision<f32>());
 
-        const v2f target_size = camera.target()
-            ? camera.target()->size().cast_to<f32>()
-            : window.real_size().cast_to<f32>();
-        const v2f virtual_size = window.virtual_size().cast_to<f32>();
+        const v2u target_size = camera.target()
+            ? camera.target()->size()
+            : window.real_size();
 
-        if ( math::is_near_zero(math::length_squared(target_size), 0.f) ||
-            math::is_near_zero(math::length_squared(virtual_size), 0.f) )
+        const v2f virtual_size = window.virtual_size().cast_to<f32>();
+        const v2f viewport_size = target_size.cast_to<f32>() * camera.viewport().size;
+
+        if ( math::is_near_zero(math::length_squared(virtual_size), 0.f) ||
+            math::is_near_zero(math::length_squared(viewport_size), 0.f) )
         {
             return camera.projection();
         }
 
-        const f32 target_aspect = target_size.x / target_size.y;
         const f32 virtual_aspect = virtual_size.x / virtual_size.y;
+        const f32 viewport_aspect = viewport_size.x / viewport_size.y;
 
         switch ( camera.mode() ) {
         case camera::modes::manual:
@@ -49,21 +51,21 @@ namespace
                 ortho_zfar);
         case camera::modes::flexible:
             return math::make_orthographic_lh_matrix4(
-                target_size,
+                viewport_size,
                 ortho_znear,
                 ortho_zfar);
         case camera::modes::fixed_fit:
             return math::make_orthographic_lh_matrix4(
-                target_aspect < virtual_aspect
-                    ? v2f(virtual_size.x, virtual_size.y * (virtual_aspect / target_aspect))
-                    : v2f(virtual_size.x * (target_aspect / virtual_aspect), virtual_size.y),
+                viewport_aspect < virtual_aspect
+                    ? v2f(virtual_size.x, virtual_size.y * (virtual_aspect / viewport_aspect))
+                    : v2f(virtual_size.x * (viewport_aspect / virtual_aspect), virtual_size.y),
                 ortho_znear,
                 ortho_zfar);
         case camera::modes::fixed_crop:
             return math::make_orthographic_lh_matrix4(
-                virtual_aspect < target_aspect
-                    ? v2f(virtual_size.x, virtual_size.y * (virtual_aspect / target_aspect))
-                    : v2f(virtual_size.x * (target_aspect / virtual_aspect), virtual_size.y),
+                virtual_aspect < viewport_aspect
+                    ? v2f(virtual_size.x, virtual_size.y * (virtual_aspect / viewport_aspect))
+                    : v2f(virtual_size.x * (viewport_aspect / virtual_aspect), virtual_size.y),
                 ortho_znear,
                 ortho_zfar);
         default:

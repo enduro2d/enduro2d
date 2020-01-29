@@ -42,7 +42,6 @@ namespace e2d::render_system_impl
 
     drawer::context::context(
         const camera& cam,
-        const const_node_iptr& cam_n,
         engine& engine,
         render& render,
         window& window,
