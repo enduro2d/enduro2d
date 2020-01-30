@@ -82,7 +82,7 @@ namespace e2d::imgui
     void imgui_event_listener::on_move_cursor(const v2f& pos) noexcept {
         const v2f real_size = window_.real_size().cast_to<f32>();
         if ( math::minimum(real_size) > 0.f ) {
-            io_.MousePos = pos * (v2f(io_.DisplaySize) / real_size);
+            io_.MousePos = v2f(pos.x, real_size.y - pos.y) / real_size * v2f(io_.DisplaySize);
         }
     }
 
