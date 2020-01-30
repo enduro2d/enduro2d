@@ -19,6 +19,14 @@ namespace
             : m4f::identity();
     }
 
+    m4f make_camera_orthographic(const v2f& size, f32 znear, f32 zfar) noexcept {
+        return
+            math::make_orthographic_lh_matrix4(
+                -0.5f * size.x, 0.5f * size.x,
+                -0.5f * size.y, 0.5f * size.y,
+                znear, zfar);
+    }
+
     m4f make_camera_projection(const camera& camera, const window& window) noexcept {
         const f32 ortho_znear = camera.znear();
         const f32 ortho_zfar = math::max(
@@ -45,24 +53,24 @@ namespace
         case camera::modes::manual:
             return camera.projection();
         case camera::modes::stretch:
-            return math::make_orthographic_lh_matrix4(
+            return make_camera_orthographic(
                 virtual_size,
                 ortho_znear,
                 ortho_zfar);
         case camera::modes::flexible:
-            return math::make_orthographic_lh_matrix4(
+            return make_camera_orthographic(
                 viewport_size,
                 ortho_znear,
                 ortho_zfar);
         case camera::modes::fixed_fit:
-            return math::make_orthographic_lh_matrix4(
+            return make_camera_orthographic(
                 viewport_aspect < virtual_aspect
                     ? v2f(virtual_size.x, virtual_size.y * (virtual_aspect / viewport_aspect))
                     : v2f(virtual_size.x * (viewport_aspect / virtual_aspect), virtual_size.y),
                 ortho_znear,
                 ortho_zfar);
         case camera::modes::fixed_crop:
-            return math::make_orthographic_lh_matrix4(
+            return make_camera_orthographic(
                 virtual_aspect < viewport_aspect
                     ? v2f(virtual_size.x, virtual_size.y * (virtual_aspect / viewport_aspect))
                     : v2f(virtual_size.x * (viewport_aspect / virtual_aspect), virtual_size.y),

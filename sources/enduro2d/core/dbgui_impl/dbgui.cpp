@@ -23,7 +23,7 @@ namespace
         void main(){
           v_color = a_color;
           v_uv = a_uv;
-          gl_Position = vec4(a_position.x, -a_position.y, 0.0, 1.0) * u_MVP;
+          gl_Position = vec4(a_position.x, a_position.y, 0.0, 1.0) * u_MVP;
         }
     )glsl";
 

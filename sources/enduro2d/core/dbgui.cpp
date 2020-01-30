@@ -128,9 +128,10 @@ namespace e2d
             const v2f display_size = draw_data->DisplaySize;
             const v2f framebuffer_size = display_size * v2f(draw_data->FramebufferScale);
 
-            const m4f projection =
-                math::make_orthographic_lh_matrix4(display_size, 0.f, 1.f) *
-                math::make_translation_matrix4(-1.f, 1.f);
+            const m4f projection = math::make_orthographic_lh_matrix4(
+                0.f, display_size.x,
+                display_size.y, 0.f,
+                -1.f, 1.f);
 
             for ( int i = 0; i < draw_data->CmdListsCount; ++i ) {
                 const ImDrawList* cmd_list = draw_data->CmdLists[i];
