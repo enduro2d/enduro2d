@@ -6,12 +6,7 @@
         }
     },
     "children" : [{
-        "prototype" : "../prefabs/camera_prefab.json",
-        "components" : {
-            "named" : {
-                "name" : "camera"
-            }
-        }
+        "prototype" : "../prefabs/camera_prefab.json"
     },{
         "prototype" : "../prefabs/ship_prefab.json",
         "components" : {
