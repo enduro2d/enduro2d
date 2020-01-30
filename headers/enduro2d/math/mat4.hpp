@@ -589,6 +589,24 @@ namespace e2d::math
     #endif
     }
 
+    template < typename T >
+    std::enable_if_t<std::is_floating_point_v<T>, mat4<T>>
+    make_orthographic_lh_matrix4(const vec2<T>& lb, const vec2<T>& rt, T znear, T zfar) noexcept {
+        return make_orthographic_lh_matrix4(lb.x, rt.x, lb.y, rt.y, znear, zfar);
+    }
+
+    template < typename T >
+    std::enable_if_t<std::is_floating_point_v<T>, mat4<T>>
+    make_orthographic_lh_matrix4(const vec2<T>& size, T znear, T zfar) noexcept {
+        return make_orthographic_lh_matrix4(size * T(-0.5), size * T(0.5), znear, zfar);
+    }
+
+    template < typename T >
+    std::enable_if_t<std::is_floating_point_v<T>, mat4<T>>
+    make_orthographic_lh_matrix4(T width, T height, T znear, T zfar) noexcept {
+        return make_orthographic_lh_matrix4(vec2<T>(width, height), znear, zfar);
+    }
+
     //
     // make_orthographic_rh_matrix4
     //
@@ -650,6 +668,24 @@ namespace e2d::math
     #else
     #  error "E2D_CLIPPING_MODE not detected"
     #endif
+    }
+
+    template < typename T >
+    std::enable_if_t<std::is_floating_point_v<T>, mat4<T>>
+    make_orthographic_rh_matrix4(const vec2<T>& lb, const vec2<T>& rt, T znear, T zfar) noexcept {
+        return make_orthographic_rh_matrix4(lb.x, rt.x, lb.y, rt.y, znear, zfar);
+    }
+
+    template < typename T >
+    std::enable_if_t<std::is_floating_point_v<T>, mat4<T>>
+    make_orthographic_rh_matrix4(const vec2<T>& size, T znear, T zfar) noexcept {
+        return make_orthographic_rh_matrix4(size * T(-0.5), size * T(0.5), znear, zfar);
+    }
+
+    template < typename T >
+    std::enable_if_t<std::is_floating_point_v<T>, mat4<T>>
+    make_orthographic_rh_matrix4(T width, T height, T znear, T zfar) noexcept {
+        return make_orthographic_rh_matrix4(vec2<T>(width, height), znear, zfar);
     }
 
     //
@@ -871,12 +907,11 @@ namespace e2d::math
         template < typename T >
         std::enable_if_t<std::is_floating_point_v<T>, std::pair<vec3<T>, bool>>
         project_zo(
-            const vec3<T>& v,
-            const mat4<T>& model,
+            const vec3<T>& world,
             const mat4<T>& projection,
             const rect<T>& viewport) noexcept
         {
-            const vec4<T> t4 = vec4<T>(v, T(1)) * model * projection;
+            const vec4<T> t4 = vec4<T>(world, T(1)) * projection;
 
             if ( math::is_near_zero(t4.w, T(0)) ) {
                 return std::make_pair(vec3<T>::zero(), false);
@@ -896,12 +931,11 @@ namespace e2d::math
         template < typename T >
         std::enable_if_t<std::is_floating_point_v<T>, std::pair<vec3<T>, bool>>
         project_no(
-            const vec3<T>& v,
-            const mat4<T>& model,
+            const vec3<T>& world,
             const mat4<T>& projection,
             const rect<T>& viewport) noexcept
         {
-            const vec4<T> t4 = vec4<T>(v, T(1)) * model * projection;
+            const vec4<T> t4 = vec4<T>(world, T(1)) * projection;
 
             if ( math::is_near_zero(t4.w, T(0)) ) {
                 return std::make_pair(vec3<T>::zero(), false);
@@ -923,14 +957,13 @@ namespace e2d::math
     template < typename T >
     std::enable_if_t<std::is_floating_point_v<T>, std::pair<vec3<T>, bool>>
     project(
-        const vec3<T>& v,
-        const mat4<T>& model,
+        const vec3<T>& world,
         const mat4<T>& projection,
         const rect<T>& viewport) noexcept {
     #if defined(E2D_CLIPPING_MODE) && E2D_CLIPPING_MODE == E2D_CLIPPING_MODE_ZO
-        return impl::project_zo(v, model, projection, viewport);
+        return impl::project_zo(world, projection, viewport);
     #elif defined(E2D_CLIPPING_MODE) && E2D_CLIPPING_MODE == E2D_CLIPPING_MODE_NO
-        return impl::project_no(v, model, projection, viewport);
+        return impl::project_no(world, projection, viewport);
     #else
     #  error "E2D_CLIPPING_MODE not detected"
     #endif
@@ -945,18 +978,15 @@ namespace e2d::math
         template < typename T >
         std::enable_if_t<std::is_floating_point_v<T>, std::pair<vec3<T>, bool>>
         unproject_zo(
-            const vec3<T>& v,
-            const mat4<T>& model,
-            const mat4<T>& projection,
+            const vec3<T>& screen,
+            const mat4<T>& inv_projection,
             const rect<T>& viewport) noexcept
         {
-            const std::pair<mat4<T>, bool> inv_matrix = math::inversed(model * projection);
-
-            if ( !inv_matrix.second || math::is_near_zero(math::area(viewport), T(0)) ) {
+            if ( math::is_near_zero(math::area(viewport), T(0)) ) {
                 return std::make_pair(vec3<T>::zero(), false);
             }
 
-            vec4<T> t4 = vec4<T>(v, T(1));
+            vec4<T> t4 = vec4<T>(screen, T(1));
 
             t4.x = (t4.x - viewport.position.x) / viewport.size.x;
             t4.y = (t4.y - viewport.position.y) / viewport.size.y;
@@ -964,7 +994,7 @@ namespace e2d::math
             t4.x = t4.x * T(2) - T(1);
             t4.y = t4.y * T(2) - T(1);
 
-            t4 = t4 * inv_matrix.first;
+            t4 = t4 * inv_projection;
 
             return math::is_near_zero(t4.w, T(0))
                 ? std::make_pair(vec3<T>::zero(), false)
@@ -974,18 +1004,15 @@ namespace e2d::math
         template < typename T >
         std::enable_if_t<std::is_floating_point_v<T>, std::pair<vec3<T>, bool>>
         unproject_no(
-            const vec3<T>& v,
-            const mat4<T>& model,
-            const mat4<T>& projection,
+            const vec3<T>& screen,
+            const mat4<T>& inv_projection,
             const rect<T>& viewport) noexcept
         {
-            const std::pair<mat4<T>, bool> inv_matrix = math::inversed(model * projection);
-
-            if ( !inv_matrix.second || math::is_near_zero(math::area(viewport), T(0)) ) {
+            if ( math::is_near_zero(math::area(viewport), T(0)) ) {
                 return std::make_pair(vec3<T>::zero(), false);
             }
 
-            vec4<T> t4 = vec4<T>(v, T(1));
+            vec4<T> t4 = vec4<T>(screen, T(1));
 
             t4.x = (t4.x - viewport.position.x) / viewport.size.x;
             t4.y = (t4.y - viewport.position.y) / viewport.size.y;
@@ -994,7 +1021,7 @@ namespace e2d::math
             t4.y = t4.y * T(2) - T(1);
             t4.z = t4.z * T(2) - T(1);
 
-            t4 = t4 * inv_matrix.first;
+            t4 = t4 * inv_projection;
 
             return math::is_near_zero(t4.w, T(0))
                 ? std::make_pair(vec3<T>::zero(), false)
@@ -1005,14 +1032,13 @@ namespace e2d::math
     template < typename T >
     std::enable_if_t<std::is_floating_point_v<T>, std::pair<vec3<T>, bool>>
     unproject(
-        const vec3<T>& v,
-        const mat4<T>& model,
-        const mat4<T>& projection,
+        const vec3<T>& screen,
+        const mat4<T>& inv_projection,
         const rect<T>& viewport) noexcept {
     #if defined(E2D_CLIPPING_MODE) && E2D_CLIPPING_MODE == E2D_CLIPPING_MODE_ZO
-        return impl::unproject_zo(v, model, projection, viewport);
+        return impl::unproject_zo(screen, inv_projection, viewport);
     #elif defined(E2D_CLIPPING_MODE) && E2D_CLIPPING_MODE == E2D_CLIPPING_MODE_NO
-        return impl::unproject_no(v, model, projection, viewport);
+        return impl::unproject_no(screen, inv_projection, viewport);
     #else
     #  error "E2D_CLIPPING_MODE not detected"
     #endif
