@@ -52,3 +52,6 @@
 [submodule "modules/box2d"]
 	path = modules/box2d
 	url = https://github.com/erincatto/box2d
+[submodule "modules/pnpoly.h"]
+	path = modules/pnpoly.h
+	url = https://github.com/BlackMATov/pnpoly.h
