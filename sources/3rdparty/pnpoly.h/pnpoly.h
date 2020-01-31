@@ -19,7 +19,8 @@ extern "C" {
 #  endif
 #endif
 
-PNPOLY_DEF int pnpoly(int nvert, const float *vertx, const float *verty, float testx, float testy);
+PNPOLY_DEF int pnpoly_aos(int nvert, const float *verts, float testx, float testy);
+PNPOLY_DEF int pnpoly_soa(int nvert, const float *vertx, const float *verty, float testx, float testy);
 
 #ifdef __cplusplus
 }
@@ -35,13 +36,24 @@ PNPOLY_DEF int pnpoly(int nvert, const float *vertx, const float *verty, float t
 
 #ifdef PNPOLY_IMPLEMENTATION
 
-PNPOLY_DEF int pnpoly(int nvert, const float *vertx, const float *verty, float testx, float testy)
-{
+PNPOLY_DEF int pnpoly_aos(int nvert, const float *verts, float testx, float testy) {
   int i, j, c = 0;
-  for (i = 0, j = nvert-1; i < nvert; j = i++) {
-    if ( ((verty[i]>testy) != (verty[j]>testy)) &&
-         (testx < (vertx[j]-vertx[i]) * (testy-verty[i]) / (verty[j]-verty[i]) + vertx[i]) )
+  for ( i = 0, j = nvert - 1; i < nvert; j = i++ ) {
+    if ( ((verts[i*2+1] > testy) != (verts[j*2+1] > testy)) &&
+         (testx < (verts[j*2] - verts[i*2]) * (testy - verts[i*2+1]) / (verts[j*2+1] - verts[i*2+1]) + verts[i*2]) ) {
        c = !c;
+    }
+  }
+  return c;
+}
+
+PNPOLY_DEF int pnpoly_soa(int nvert, const float *vertx, const float *verty, float testx, float testy) {
+  int i, j, c = 0;
+  for ( i = 0, j = nvert - 1; i < nvert; j = i++ ) {
+    if ( ((verty[i] > testy) != (verty[j] > testy)) &&
+         (testx < (vertx[j] - vertx[i]) * (testy - verty[i]) / (verty[j] - verty[i]) + vertx[i]) ) {
+       c = !c;
+    }
   }
   return c;
 }
