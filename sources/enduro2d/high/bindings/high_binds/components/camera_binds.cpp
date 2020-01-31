@@ -50,6 +50,32 @@ namespace e2d::bindings::high
                 }
             ),
 
+            "input", sol::property(
+                [](const gcomponent<camera>& c) -> bool {
+                    return c.owner().component<camera::input>().exists();
+                },
+                [](gcomponent<camera>& c, bool yesno){
+                    if ( yesno ) {
+                        c.owner().component<camera::input>().ensure();
+                    } else {
+                        c.owner().component<camera::input>().remove();
+                    }
+                }
+            ),
+
+            "gizmos", sol::property(
+                [](const gcomponent<camera>& c) -> bool {
+                    return c.owner().component<camera::gizmos>().exists();
+                },
+                [](gcomponent<camera>& c, bool yesno){
+                    if ( yesno ) {
+                        c.owner().component<camera::gizmos>().ensure();
+                    } else {
+                        c.owner().component<camera::gizmos>().remove();
+                    }
+                }
+            ),
+
             "depth", sol::property(
                 [](const gcomponent<camera>& c) -> i32 {
                     return c->depth();
