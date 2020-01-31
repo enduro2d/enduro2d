@@ -48,6 +48,32 @@ namespace e2d::bindings::high
                         c.owner().component<disabled<touchable>>().remove();
                     }
                 }
+            ),
+
+            "touched", sol::property(
+                [](const gcomponent<touchable>& c) -> bool {
+                    return c.owner().component<touchable::touched>().exists();
+                },
+                [](gcomponent<touchable>& c, bool yesno){
+                    if ( yesno ) {
+                        c.owner().component<touchable::touched>().ensure();
+                    } else {
+                        c.owner().component<touchable::touched>().remove();
+                    }
+                }
+            ),
+
+            "under_mouse", sol::property(
+                [](const gcomponent<touchable>& c) -> bool {
+                    return c.owner().component<touchable::under_mouse>().exists();
+                },
+                [](gcomponent<touchable>& c, bool yesno){
+                    if ( yesno ) {
+                        c.owner().component<touchable::under_mouse>().ensure();
+                    } else {
+                        c.owner().component<touchable::under_mouse>().remove();
+                    }
+                }
             )
         );
     }

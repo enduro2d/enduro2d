@@ -4,7 +4,13 @@ local touchable = {
     enabled = true,
 
     ---@type boolean
-    disabled = false
+    disabled = false,
+
+    ---@type boolean
+    touched = false,
+
+    ---@type boolean
+    under_mouse = false
 }
 
 ---@overload fun(self: touchable)

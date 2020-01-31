@@ -6,7 +6,31 @@
         }
     },
     "children" : [{
-        "prototype" : "../prefabs/camera_prefab.json"
+        "prototype" : "../prefabs/camera_prefab.json",
+        "components" : {
+            "actor" : {
+                "rotation" : 0.5
+            },
+            "camera" : {
+                "viewport" : [0.0, 0.0, 0.45, 1.0]
+            },
+            "named" : {
+                "name" : "camera(1)"
+            }
+        }
+    },{
+        "prototype" : "../prefabs/camera_prefab.json",
+        "components" : {
+            "actor" : {
+                "rotation" : -0.5
+            },
+            "camera" : {
+                "viewport" : [0.55, 0.0, 0.45, 1.0]
+            },
+            "named" : {
+                "name" : "camera(2)"
+            }
+        }
     },{
         "prototype" : "../prefabs/ship_prefab.json",
         "components" : {
@@ -28,6 +52,7 @@
                 "size" : [66,113]
             },
             "circle_collider" : {
+                "offset" : [50,25],
                 "radius" : 33
             }
         }
@@ -38,8 +63,8 @@
                 "name" : "ship(2)"
             },
             "actor" : {
-                "translation" : [45,100],
-                "rotation" : 0
+                "translation" : [120,100],
+                "rotation" : 0.2
             },
             "behaviour" : {
                 "script" : "../scripts/sample_08/ship.lua"
@@ -52,8 +77,10 @@
                 "size" : [66,113]
             },
             "polygon_collider" : {
+                "offset" : [25,50],
                 "points" : [
                     [-20,0],
+                    [0,-20],
                     [20,0],
                     [30,-50],
                     [-30,-50]

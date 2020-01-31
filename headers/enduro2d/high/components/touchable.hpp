@@ -16,6 +16,9 @@ namespace e2d
 {
     class touchable final {
     public:
+        class touched final {};
+        class under_mouse final {};
+    public:
         touchable() = default;
     };
 }
@@ -29,6 +32,34 @@ namespace e2d
 
         bool operator()(
             touchable& component,
+            const fill_context& ctx) const;
+
+        bool operator()(
+            asset_dependencies& dependencies,
+            const collect_context& ctx) const;
+    };
+
+    template <>
+    class factory_loader<touchable::touched> final : factory_loader<> {
+    public:
+        static const char* schema_source;
+
+        bool operator()(
+            touchable::touched& component,
+            const fill_context& ctx) const;
+
+        bool operator()(
+            asset_dependencies& dependencies,
+            const collect_context& ctx) const;
+    };
+
+    template <>
+    class factory_loader<touchable::under_mouse> final : factory_loader<> {
+    public:
+        static const char* schema_source;
+
+        bool operator()(
+            touchable::under_mouse& component,
             const fill_context& ctx) const;
 
         bool operator()(

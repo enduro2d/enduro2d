@@ -260,7 +260,10 @@ namespace e2d
             .register_component<events<spine_player_events::event>>("spine_player.events")
             .register_component<commands<spine_player_commands::command>>("spine_player.commands")
             .register_component<sprite_renderer>("sprite_renderer")
-            .register_component<touchable>("touchable");
+            .register_component<touchable>("touchable")
+            .register_component<touchable::touched>("touchable.touched")
+            .register_component<touchable::under_mouse>("touchable.under_mouse")
+            ;
 
         safe_module_initialize<inspector>()
             .register_component<actor>("actor")
@@ -283,7 +286,10 @@ namespace e2d
             //.register_component<events<spine_player_events::event>>("spine_player.events")
             //.register_component<commands<spine_player_commands::command>>("spine_player.commands")
             .register_component<sprite_renderer>("sprite_renderer")
-            .register_component<touchable>("touchable");
+            .register_component<touchable>("touchable")
+            //.register_component<touchable::touched>("touchable.touched")
+            //.register_component<touchable::under_mouse>("touchable.under_mouse")
+            ;
 
         safe_module_initialize<luasol>();
 
