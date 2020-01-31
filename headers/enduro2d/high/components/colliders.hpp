@@ -184,7 +184,7 @@ namespace e2d::impl
 
     template < typename Collider >
     Collider& collider_base<Collider>::density(f32 value) noexcept {
-        density_ = value;
+        density_ = math::max(0.f, value);
         return static_cast<Collider&>(*this);
     }
 
@@ -219,7 +219,7 @@ namespace e2d::impl
 namespace e2d
 {
     inline rect_collider& rect_collider::size(const v2f& value) noexcept {
-        size_ = value;
+        size_ = math::maximized(v2f::unit(), value);
         return *this;
     }
 
@@ -231,7 +231,7 @@ namespace e2d
 namespace e2d
 {
     inline circle_collider& circle_collider::radius(f32 value) noexcept {
-        radius_ = value;
+        radius_ = math::max(1.f, value);
         return *this;
     }
 

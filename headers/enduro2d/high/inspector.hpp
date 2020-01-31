@@ -67,6 +67,29 @@ namespace e2d
                 const color32& color) = 0;
 
             virtual bool selected() const noexcept = 0;
+        public:
+            void draw_rect(
+                const v2f& center,
+                const v2f& size,
+                const color32& color);
+
+            void draw_wire_rect(
+                const v2f& center,
+                const v2f& size,
+                const color32& color);
+
+            template < typename Iter >
+            void draw_wire_polygon(
+                Iter begin,
+                Iter end,
+                const v2f& center,
+                const color32& color);
+
+            template < typename Container >
+            void draw_wire_polygon(
+                Container&& container,
+                const v2f& center,
+                const color32& color);
         };
     };
 

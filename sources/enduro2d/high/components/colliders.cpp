@@ -78,7 +78,7 @@ namespace
         }
 
         if ( f32 density = c.density();
-            ImGui::DragFloat("density", &density, 0.01f, 0.f, std::numeric_limits<f32>::max()) )
+            ImGui::DragFloat("density", &density, 0.01f) )
         {
             c.density(density);
         }
@@ -233,7 +233,7 @@ namespace e2d
 
     void component_inspector<rect_collider>::operator()(gcomponent<rect_collider>& c) const {
         if ( v2f size = c->size();
-            ImGui::DragFloat2("size", size.data(), 1.f, 1.f, std::numeric_limits<f32>::max()) )
+            ImGui::DragFloat2("size", size.data(), 1.f) )
         {
             c->size(size);
         }
@@ -245,13 +245,9 @@ namespace e2d
         gcomponent<rect_collider>& c,
         gizmos_context& ctx) const
     {
-        const v2f& p = c->offset() - c->size() * 0.5f;
-        const v2f& s = c->size();
         ctx.draw_wire_rect(
-            p,
-            p + s * v2f::unit_x(),
-            p + s,
-            p + s * v2f::unit_y(),
+            c->offset(),
+            c->size(),
             ctx.selected() ? color32::cyan() : color32::green());
     }
 }
@@ -262,7 +258,7 @@ namespace e2d
 
     void component_inspector<circle_collider>::operator()(gcomponent<circle_collider>& c) const {
         if ( f32 radius = c->radius();
-            ImGui::DragFloat("radius", &radius, 1.f, 1.f, std::numeric_limits<f32>::max()) )
+            ImGui::DragFloat("radius", &radius, 1.f) )
         {
             c->radius(radius);
         }
@@ -274,10 +270,15 @@ namespace e2d
         gcomponent<circle_collider>& c,
         gizmos_context& ctx) const
     {
+        const u32 segments = math::numeric_cast<u32>(
+            math::to_rad_v(math::two_pi<f32>()) *
+            c->radius() *
+            0.2f);
+
         ctx.draw_wire_circle(
             c->offset(),
             c->radius(),
-            math::to_rad_v(math::two_pi<f32>()) * c->radius() * 0.2f,
+            segments,
             ctx.selected() ? color32::cyan() : color32::green());
     }
 }
@@ -318,13 +319,9 @@ namespace e2d
         gcomponent<polygon_collider>& c,
         gizmos_context& ctx) const
     {
-        const v2f& o = c->offset();
-        const vector<v2f>& points = c->points();
-        for ( std::size_t i = 0, e = c->points().size(); i < e; ++i ) {
-            ctx.draw_line(
-                o + points[i],
-                o + (i + 1u == e ? points[0] : points[i + 1u]),
-                ctx.selected() ? color32::cyan() : color32::green());
-        }
+        ctx.draw_wire_polygon(
+            c->points(),
+            c->offset(),
+            ctx.selected() ? color32::cyan() : color32::green());
     }
 }

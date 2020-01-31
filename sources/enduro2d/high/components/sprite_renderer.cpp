@@ -203,13 +203,9 @@ namespace e2d
     {
         if ( const sprite_asset::ptr& spr_a = c->sprite() ) {
             const sprite& spr = spr_a->content();
-            const v2f& s = spr.texrect().size;
-            const v2f& p = spr.texrect().position - spr.pivot();
             ctx.draw_wire_rect(
-                p,
-                p + s * v2f::unit_x(),
-                p + s,
-                p + s * v2f::unit_y(),
+                spr.pivot() - spr.texrect().position - spr.texrect().size * 0.5f,
+                spr.texrect().size,
                 ctx.selected() ? color32::yellow() : color32::magenta());
         }
     }
