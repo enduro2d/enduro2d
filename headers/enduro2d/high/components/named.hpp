@@ -6,11 +6,7 @@
 
 #pragma once
 
-#include "../_high.hpp"
-
-#include "../factory.hpp"
-#include "../gobject.hpp"
-#include "../inspector.hpp"
+#include "_components.hpp"
 
 namespace e2d
 {
@@ -50,7 +46,7 @@ namespace e2d
     class component_inspector<named> final : component_inspector<> {
     public:
         static const char* title;
-        
+
         void operator()(gcomponent<named>& c) const;
     };
 }

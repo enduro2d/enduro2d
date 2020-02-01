@@ -6,11 +6,7 @@
 
 #pragma once
 
-#include "../_high.hpp"
-
-#include "../factory.hpp"
-#include "../gobject.hpp"
-#include "../inspector.hpp"
+#include "_components.hpp"
 
 #include "../assets/flipbook_asset.hpp"
 

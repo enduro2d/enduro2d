@@ -6,13 +6,12 @@
 
 #pragma once
 
-#include "_components.hpp"
+#include "../_high.hpp"
 
-namespace e2d
+#include "../factory.hpp"
+#include "../gobject.hpp"
+#include "../inspector.hpp"
+
+namespace e2d::components
 {
-    template < typename T >
-    class disabled final {
-    public:
-        disabled() = default;
-    };
 }
