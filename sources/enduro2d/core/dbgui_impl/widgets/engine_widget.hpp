@@ -12,7 +12,7 @@ namespace e2d::dbgui_widgets
 {
     class engine_widget final : public dbgui::widget {
     public:
-        engine_widget();
+        engine_widget() = default;
         ~engine_widget() noexcept = default;
 
         bool show() override;

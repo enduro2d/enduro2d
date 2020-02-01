@@ -103,7 +103,6 @@ namespace
 namespace e2d::dbgui_widgets
 {
     hierarchy_widget::hierarchy_widget() {
-        desc_.title = "Hierarchy";
         desc_.first_size = v2f(300.f, 400.f);
     }
 

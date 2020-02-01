@@ -8,10 +8,6 @@
 
 namespace e2d::dbgui_widgets
 {
-    window_widget::window_widget() {
-        desc_.title = "Window";
-    }
-
     bool window_widget::show() {
         if ( !modules::is_initialized<window>() ) {
             return false;

@@ -42,7 +42,6 @@ namespace e2d::dbgui_widgets
     console_widget::console_widget(debug& d)
     : debug_(d)
     , sink_(debug_.register_sink<debug_sink>()) {
-        desc_.title = "Console";
         desc_.first_size = v2f(400.f, 300.f);
         levels_.set();
     }
@@ -95,7 +94,7 @@ namespace e2d::dbgui_widgets
                 ImGui::SetScrollHereY(1.f);
             }
         });
-        
+
         return true;
     }
 

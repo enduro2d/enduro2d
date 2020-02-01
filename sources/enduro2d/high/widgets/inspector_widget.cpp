@@ -13,7 +13,6 @@
 namespace e2d::dbgui_widgets
 {
     inspector_widget::inspector_widget() {
-        desc_.title = "Inspector";
         desc_.first_size = v2f(300.f, 400.f);
     }
 

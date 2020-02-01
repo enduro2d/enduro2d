@@ -12,7 +12,7 @@ namespace e2d::dbgui_widgets
 {
     class input_widget final : public dbgui::widget {
     public:
-        input_widget();
+        input_widget() = default;
         ~input_widget() noexcept = default;
 
         bool show() override;

@@ -8,10 +8,6 @@
 
 namespace e2d::dbgui_widgets
 {
-    input_widget::input_widget() {
-        desc_.title = "Input";
-    }
-
     bool input_widget::show() {
         if ( !modules::is_initialized<input>() ) {
             return false;

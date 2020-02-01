@@ -8,10 +8,6 @@
 
 namespace e2d::dbgui_widgets
 {
-    engine_widget::engine_widget() {
-        desc_.title = "Engine";
-    }
-
     bool engine_widget::show() {
         if ( !modules::is_initialized<engine>() ) {
             return false;

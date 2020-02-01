@@ -459,10 +459,10 @@ namespace e2d
 {
     dbgui::dbgui(debug& d, input& i, render& r, window& w)
     : state_(new internal_state(d, i, r, w)) {
-        register_menu_widget<dbgui_widgets::console_widget>("Debug", "Console...", d);
-        register_menu_widget<dbgui_widgets::engine_widget>("Debug", "Engine...");
-        register_menu_widget<dbgui_widgets::input_widget>("Debug", "Input...");
-        register_menu_widget<dbgui_widgets::window_widget>("Debug", "Window...");
+        register_menu_widget<dbgui_widgets::console_widget>("Debug", ICON_FA_TERMINAL " Console", d);
+        register_menu_widget<dbgui_widgets::engine_widget>("Debug", ICON_FA_COGS " Engine");
+        register_menu_widget<dbgui_widgets::input_widget>("Debug", ICON_FA_GAMEPAD " Input");
+        register_menu_widget<dbgui_widgets::window_widget>("Debug", ICON_FA_DESKTOP " Window");
     }
     dbgui::~dbgui() noexcept = default;
 
