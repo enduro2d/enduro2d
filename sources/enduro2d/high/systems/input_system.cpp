@@ -24,17 +24,17 @@ namespace
     using namespace e2d;
 
     struct world_space_rect_collider {
-        using src_collider_t = rect_collider;
+        using local_space_collider_t = rect_collider;
         std::array<v3f, 4> points{};
     };
 
     struct world_space_circle_collider {
-        using src_collider_t = circle_collider;
+        using local_space_collider_t = circle_collider;
         std::array<v3f, 12> points{};
     };
 
     struct world_space_polygon_collider {
-        using src_collider_t = polygon_collider;
+        using local_space_collider_t = polygon_collider;
         vector<v3f> points{};
     };
 
@@ -97,19 +97,22 @@ namespace
 
     template < typename WorldSpaceCollider >
     void update_world_space_colliders(ecs::registry& owner) {
-        using dst_collider_t = WorldSpaceCollider;
-        using src_collider_t = typename WorldSpaceCollider::src_collider_t;
-        owner.for_joined_components<touchable, src_collider_t, actor>([](
+        using world_space_collider_t = WorldSpaceCollider;
+        using local_space_collider_t = typename WorldSpaceCollider::local_space_collider_t;
+        owner.for_joined_components<touchable, local_space_collider_t, actor>([](
             ecs::entity e,
             const touchable&,
-            const src_collider_t& src,
+            const local_space_collider_t& src,
             const actor& a)
         {
             update_world_space_collider(
-                e.ensure_component<dst_collider_t>(),
+                e.ensure_component<world_space_collider_t>(),
                 src,
                 a.node() ? a.node()->world_matrix() : m4f::identity());
-        }, !ecs::exists_any<disabled<touchable>, disabled<src_collider_t>>());
+        }, !ecs::exists_any<
+            disabled<touchable>,
+            disabled<world_space_collider_t>,
+            disabled<local_space_collider_t>>());
     }
 }
 
@@ -199,6 +202,7 @@ namespace
         const b2f& camera_viewport)
     {
         using world_space_collider_t = WorldSpaceCollider;
+        using local_space_collider_t = typename WorldSpaceCollider::local_space_collider_t;
         owner.for_joined_components<touchable, world_space_collider_t>([
             &mouse_p,
             &camera_vp,
@@ -207,7 +211,10 @@ namespace
             if ( is_collider_under_mouse(c, mouse_p, camera_vp, camera_viewport) ) {
                 e.ensure_component<touchable::under_mouse>();
             }
-        }, !ecs::exists_any<disabled<touchable>, disabled<world_space_collider_t>>());
+        }, !ecs::exists_any<
+            disabled<touchable>,
+            disabled<world_space_collider_t>,
+            disabled<local_space_collider_t>>());
     }
 }
 
