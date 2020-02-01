@@ -237,7 +237,7 @@ namespace e2d
         return inst;
     }
 
-    void world::destroy_instance(gobject& inst) noexcept {
+    void world::destroy_instance(gobject inst) noexcept {
         auto gstate = inst
             ? dynamic_pointer_cast<gobject_state>(inst.internal_state())
             : nullptr;

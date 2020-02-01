@@ -31,7 +31,7 @@ namespace e2d
         gobject instantiate(const node_iptr& parent, const t2f& transform);
         gobject instantiate(const prefab& prefab, const node_iptr& parent, const t2f& transform);
 
-        void destroy_instance(gobject& inst) noexcept;
+        void destroy_instance(gobject inst) noexcept;
         void finalize_instances() noexcept;
     private:
         ecs::registry registry_;

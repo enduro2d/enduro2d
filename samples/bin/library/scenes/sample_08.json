@@ -1,5 +1,8 @@
 {
     "components" : {
+        "named" : {
+            "name" : "scene"
+        },
         "scene" : {},
         "behaviour" : {
             "script" : "../scripts/sample_08/sample_08.lua"
@@ -100,6 +103,23 @@
             },
             "rect_collider" : {
                 "size" : [320, 50]
+            }
+        }
+    },{
+        "prototype" : "../prefabs/label_sdf_prefab.json",
+        "components" : {
+            "named" : {
+                "name" : "label"
+            },
+            "label" : {
+                "text" : "Hello!",
+                "halign" : "center",
+                "outline_width" : 0.5,
+                "outline_color" : [0,0,0,255]
+            },
+            "actor" : {
+                "translation" : [-80,-140],
+                "scale" : 1
             }
         }
     }]
