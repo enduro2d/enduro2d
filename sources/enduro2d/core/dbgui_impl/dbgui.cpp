@@ -21,9 +21,9 @@ namespace
         varying vec2 v_uv;
 
         void main(){
-          v_color = a_color;
-          v_uv = a_uv;
-          gl_Position = vec4(a_position.x, a_position.y, 0.0, 1.0) * u_MVP;
+            v_color = a_color;
+            v_uv = a_uv;
+            gl_Position = vec4(a_position.x, a_position.y, 0.0, 1.0) * u_MVP;
         }
     )glsl";
 
@@ -33,7 +33,8 @@ namespace
         varying vec2 v_uv;
 
         void main(){
-          gl_FragColor = v_color * texture2D(u_texture, v_uv);
+            float glyph_alpha = v_color.a * texture2D(u_texture, v_uv).a;
+            gl_FragColor = vec4(v_color.rgb * glyph_alpha, glyph_alpha);
         }
     )glsl";
 }

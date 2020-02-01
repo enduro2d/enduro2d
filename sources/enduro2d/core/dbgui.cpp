@@ -256,14 +256,14 @@ namespace e2d
             {
                 unsigned char* font_pixels;
                 int font_width, font_height;
-                io.Fonts->GetTexDataAsRGBA32(&font_pixels, &font_width, &font_height);
+                io.Fonts->GetTexDataAsAlpha8(&font_pixels, &font_width, &font_height);
 
                 texture_ = render_.create_texture(image(
                     make_vec2(font_width, font_height).cast_to<u32>(),
-                    image_data_format::rgba8,
+                    image_data_format::a8,
                     buffer(
                         font_pixels,
-                        math::numeric_cast<std::size_t>(font_width * font_height) * sizeof(u32))));
+                        math::numeric_cast<std::size_t>(font_width * font_height) * sizeof(u8))));
 
                 if ( !texture_ ) {
                     throw bad_dbgui_operation();
@@ -278,7 +278,7 @@ namespace e2d
                             .capabilities(render::capabilities_state()
                                 .blending(true))
                             .blending(render::blending_state()
-                                .src_factor(render::blending_factor::src_alpha)
+                                .src_factor(render::blending_factor::one)
                                 .dst_factor(render::blending_factor::one_minus_src_alpha)))
                         .shader(shader_));
             }
