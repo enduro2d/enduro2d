@@ -99,6 +99,11 @@ namespace
     void update_world_space_colliders(ecs::registry& owner) {
         using world_space_collider_t = WorldSpaceCollider;
         using local_space_collider_t = typename WorldSpaceCollider::local_space_collider_t;
+
+        ecsex::remove_all_components<world_space_collider_t>(
+            owner,
+            !ecs::exists_all<touchable, local_space_collider_t>());
+
         owner.for_joined_components<touchable, local_space_collider_t, actor>([](
             ecs::entity e,
             const touchable&,

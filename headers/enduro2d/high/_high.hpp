@@ -129,6 +129,29 @@ namespace sol
     };
 }
 
+namespace e2d::ecsex
+{
+    template < typename T, typename... Opts >
+    void remove_all_components(ecs::registry& owner, Opts&&... opts) {
+        static thread_local vector<ecs::entity> to_remove_components;
+
+        try {
+            owner.for_each_component<T>([](const ecs::entity& e, const T&){
+                to_remove_components.push_back(e);
+            }, std::forward<Opts>(opts)...);
+        } catch (...) {
+            to_remove_components.clear();
+            throw;
+        }
+
+        for ( ecs::entity& e : to_remove_components ) {
+            e.remove_component<T>();
+        }
+
+        to_remove_components.clear();
+    }
+}
+
 namespace e2d::strings
 {
     template <>
