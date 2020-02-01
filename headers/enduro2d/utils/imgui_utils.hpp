@@ -16,6 +16,9 @@
 #include <3rdparty/imgui/imgui_stdlib.h>
 #include <3rdparty/imgui/imgui_internal.h>
 
+#include <3rdparty/icons/icon_fa.h>
+#include <3rdparty/icons/icon_md.h>
+
 namespace e2d::imgui_utils
 {
     template < typename... Args >

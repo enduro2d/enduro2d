@@ -55,3 +55,6 @@
 [submodule "modules/pnpoly.h"]
 	path = modules/pnpoly.h
 	url = https://github.com/BlackMATov/pnpoly.h
+[submodule "modules/IconFontCppHeaders"]
+	path = modules/IconFontCppHeaders
+	url = https://github.com/juliettef/IconFontCppHeaders

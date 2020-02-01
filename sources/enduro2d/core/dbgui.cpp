@@ -11,6 +11,10 @@
 #include "dbgui_impl/widgets/input_widget.hpp"
 #include "dbgui_impl/widgets/window_widget.hpp"
 
+#include <3rdparty/icons/fa_solid_900.h>
+#include <3rdparty/icons/fa_regular_400.h>
+#include <3rdparty/icons/materialicons_regular.h>
+
 namespace e2d
 {
     class dbgui::internal_state final : private e2d::noncopyable {
@@ -29,6 +33,7 @@ namespace e2d
             ImGuiIO& io = bind_context_();
             setup_key_map_(io);
             setup_config_flags_(io);
+            setup_custom_fonts_(io);
             setup_internal_resources_(io);
         }
 
@@ -241,6 +246,41 @@ namespace e2d
             io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 
             io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;
+        }
+
+        void setup_custom_fonts_(ImGuiIO& io) {
+            io.Fonts->AddFontDefault();
+
+            ImFontConfig icons_config;
+            icons_config.MergeMode = true;
+            icons_config.PixelSnapH = true;
+
+            {
+                const ImWchar icons_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0};
+                io.Fonts->AddFontFromMemoryCompressedTTF(
+                    fa_solid_900_compressed_data,
+                    math::numeric_cast<int>(fa_solid_900_compressed_size),
+                    13.f,
+                    &icons_config, icons_ranges);
+            }
+
+            {
+                const ImWchar icons_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0};
+                io.Fonts->AddFontFromMemoryCompressedTTF(
+                    fa_regular_400_compressed_data,
+                    math::numeric_cast<int>(fa_regular_400_compressed_size),
+                    13.f,
+                    &icons_config, icons_ranges);
+            }
+
+            {
+                const ImWchar icons_ranges[] = { ICON_MIN_MD, ICON_MAX_MD, 0};
+                io.Fonts->AddFontFromMemoryCompressedTTF(
+                    materialicons_regular_compressed_data,
+                    math::numeric_cast<int>(materialicons_regular_compressed_size),
+                    13.f,
+                    &icons_config, icons_ranges);
+            }
         }
 
         void setup_internal_resources_(ImGuiIO& io) {
