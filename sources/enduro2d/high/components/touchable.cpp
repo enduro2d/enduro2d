@@ -87,7 +87,7 @@ namespace e2d
 
 namespace e2d
 {
-    const char* component_inspector<touchable>::title = "touchable";
+    const char* component_inspector<touchable>::title = ICON_FA_FINGERPRINT " touchable";
 
     void component_inspector<touchable>::operator()(gcomponent<touchable>& c) const {
         if ( bool touched = c.owner().component<touchable::touched>().exists();

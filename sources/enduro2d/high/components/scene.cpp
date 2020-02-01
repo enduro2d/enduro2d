@@ -44,7 +44,7 @@ namespace e2d
 
 namespace e2d
 {
-    const char* component_inspector<scene>::title = "scene";
+    const char* component_inspector<scene>::title = ICON_FA_CUBES " scene";
 
     void component_inspector<scene>::operator()(gcomponent<scene>& c) const {
         if ( i32 depth = c->depth();

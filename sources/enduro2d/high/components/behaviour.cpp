@@ -55,7 +55,7 @@ namespace e2d
 
 namespace e2d
 {
-    const char* component_inspector<behaviour>::title = "behaviour";
+    const char* component_inspector<behaviour>::title = ICON_FA_SCROLL " behaviour";
 
     void component_inspector<behaviour>::operator()(gcomponent<behaviour>& c) const {
         E2D_UNUSED(c);

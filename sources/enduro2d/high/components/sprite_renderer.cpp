@@ -172,7 +172,7 @@ namespace e2d
 
 namespace e2d
 {
-    const char* component_inspector<sprite_renderer>::title = "sprite_renderer";
+    const char* component_inspector<sprite_renderer>::title = ICON_FA_IMAGE " sprite_renderer";
 
     void component_inspector<sprite_renderer>::operator()(gcomponent<sprite_renderer>& c) const {
         if ( color tint = color(c->tint());

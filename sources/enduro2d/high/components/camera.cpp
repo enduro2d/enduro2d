@@ -182,7 +182,7 @@ namespace e2d
 
 namespace e2d
 {
-    const char* component_inspector<camera>::title = "camera";
+    const char* component_inspector<camera>::title = ICON_FA_VIDEO " camera";
 
     void component_inspector<camera>::operator()(gcomponent<camera>& c) const {
         if ( bool input = c.owner().component<camera::input>().exists();

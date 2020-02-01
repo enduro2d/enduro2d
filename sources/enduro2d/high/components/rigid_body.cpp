@@ -108,7 +108,7 @@ namespace e2d
 
 namespace e2d
 {
-    const char* component_inspector<rigid_body>::title = "rigid_body";
+    const char* component_inspector<rigid_body>::title = ICON_FA_WEIGHT_HANGING " rigid_body";
 
     void component_inspector<rigid_body>::operator()(gcomponent<rigid_body>& c) const {
         if ( rigid_body::types type = c->type();

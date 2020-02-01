@@ -198,7 +198,7 @@ namespace e2d
 
 namespace e2d
 {
-    const char* component_inspector<label>::title = "label";
+    const char* component_inspector<label>::title = ICON_FA_PARAGRAPH " label";
 
     void component_inspector<label>::operator()(gcomponent<label>& c) const {
         if ( str text = c->text();

@@ -229,7 +229,7 @@ namespace e2d
 
 namespace e2d
 {
-    const char* component_inspector<rect_collider>::title = "rect_collider";
+    const char* component_inspector<rect_collider>::title = ICON_FA_DICE_FOUR " rect_collider";
 
     void component_inspector<rect_collider>::operator()(gcomponent<rect_collider>& c) const {
         if ( v2f size = c->size();
@@ -254,7 +254,7 @@ namespace e2d
 
 namespace e2d
 {
-    const char* component_inspector<circle_collider>::title = "circle_collider";
+    const char* component_inspector<circle_collider>::title = ICON_FA_DICE_ONE " circle_collider";
 
     void component_inspector<circle_collider>::operator()(gcomponent<circle_collider>& c) const {
         if ( f32 radius = c->radius();
@@ -285,7 +285,7 @@ namespace e2d
 
 namespace e2d
 {
-    const char* component_inspector<polygon_collider>::title = "polygon_collider";
+    const char* component_inspector<polygon_collider>::title = ICON_FA_DICE_SIX " polygon_collider";
 
     void component_inspector<polygon_collider>::operator()(gcomponent<polygon_collider>& c) const {
         const str points_label = strings::rformat(

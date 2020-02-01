@@ -68,7 +68,7 @@ namespace e2d
 
 namespace e2d
 {
-    const char* component_inspector<actor>::title = "actor";
+    const char* component_inspector<actor>::title = ICON_FA_CUBE " actor";
 
     void component_inspector<actor>::operator()(gcomponent<actor>& c) const {
         if ( node_iptr n = c->node() ) {
