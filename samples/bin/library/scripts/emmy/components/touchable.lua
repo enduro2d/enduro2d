@@ -10,7 +10,13 @@ local touchable = {
     touched = false,
 
     ---@type boolean
-    under_mouse = false
+    under_mouse = false,
+
+    ---@type boolean
+    bubbling = true,
+
+    ---@type boolean
+    capturing = true
 }
 
 ---@overload fun(self: touchable)

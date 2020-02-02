@@ -74,7 +74,23 @@ namespace e2d::bindings::high
                         c.owner().component<touchable::under_mouse>().remove();
                     }
                 }
-            )
+            ),
+
+            "bubbling", sol::property(
+                [](const gcomponent<touchable>& c) -> bool {
+                    return c->bubbling();
+                },
+                [](gcomponent<touchable>& c, bool v){
+                    c->bubbling(v);
+                }),
+
+            "capturing", sol::property(
+                [](const gcomponent<touchable>& c) -> bool {
+                    return c->capturing();
+                },
+                [](gcomponent<touchable>& c, bool v){
+                    c->capturing(v);
+                })
         );
     }
 }

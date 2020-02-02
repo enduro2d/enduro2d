@@ -13,6 +13,8 @@ namespace e2d
         "required" : [],
         "additionalProperties" : false,
         "properties" : {
+            "bubbling" : { "type" : "boolean" },
+            "capturing" : { "type" : "boolean" }
         }
     })json";
 
@@ -20,7 +22,24 @@ namespace e2d
         touchable& component,
         const fill_context& ctx) const
     {
-        E2D_UNUSED(component, ctx);
+        if ( ctx.root.HasMember("bubbling") ) {
+            bool bubbling = component.bubbling();
+            if ( !json_utils::try_parse_value(ctx.root["bubbling"], bubbling) ) {
+                the<debug>().error("TOUCHABLE: Incorrect formatting of 'bubbling' property");
+                return false;
+            }
+            component.bubbling(bubbling);
+        }
+
+        if ( ctx.root.HasMember("capturing") ) {
+            bool capturing = component.capturing();
+            if ( !json_utils::try_parse_value(ctx.root["capturing"], capturing) ) {
+                the<debug>().error("TOUCHABLE: Incorrect formatting of 'capturing' property");
+                return false;
+            }
+            component.capturing(capturing);
+        }
+
         return true;
     }
 
@@ -100,6 +119,8 @@ namespace e2d
             }
         }
 
+        ImGui::SameLine();
+
         if ( bool under_mouse = c.owner().component<touchable::under_mouse>().exists();
             ImGui::Checkbox("under_mouse", &under_mouse) )
         {
@@ -108,6 +129,20 @@ namespace e2d
             } else {
                 c.owner().component<touchable::under_mouse>().remove();
             }
+        }
+
+        if ( bool bubbling = c->bubbling();
+            ImGui::Checkbox("bubbling", &bubbling) )
+        {
+            c->bubbling(bubbling);
+        }
+
+        ImGui::SameLine();
+
+        if ( bool capturing = c->capturing();
+            ImGui::Checkbox("capturing", &capturing) )
+        {
+            c->capturing(capturing);
         }
     }
 }
