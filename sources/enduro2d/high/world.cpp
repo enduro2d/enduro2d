@@ -71,9 +71,10 @@ namespace
         auto inst_n = inst_a ? inst_a->node() : nullptr;
 
         if ( inst_n ) {
-            inst_n->for_each_child([](const node_iptr& child_n){
-                delete_instance(child_n->owner());
-            });
+            inst_n->remove_from_parent();
+            while ( node_iptr child = inst_n->first_child() ) {
+                delete_instance(child->owner());
+            }
         }
 
         if ( inst ) {

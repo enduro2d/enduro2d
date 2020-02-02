@@ -87,4 +87,13 @@ namespace e2d::imgui_utils
 
         std::invoke(std::forward<F>(f), std::forward<Args>(args)...);
     }
+
+    template < typename F, typename... Args >
+    void with_disabled_flag_ex(bool disabled, F&& f, Args&&... args) {
+        if ( disabled ) {
+            with_disabled_flag(std::forward<F>(f), std::forward<Args>(args)...);
+        } else {
+            std::invoke(std::forward<F>(f), std::forward<Args>(args)...);
+        }
+    }
 }

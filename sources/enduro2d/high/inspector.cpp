@@ -28,10 +28,14 @@ namespace e2d
                 E2D_DEFER([](){ ImGui::EndPopup(); });
 
                 for ( const auto& p : inspector_impls_ ) {
-                    if ( ImGui::Button(p.second.creator->title()) ) {
-                        p.second.creator->ensure(go);
-                        ImGui::CloseCurrentPopup();
-                    }
+                    imgui_utils::with_disabled_flag_ex(
+                        p.second.creator->exists(go),
+                        [&go, &p](){
+                            if ( ImGui::Button(p.second.creator->title()) ) {
+                                p.second.creator->ensure(go);
+                                ImGui::CloseCurrentPopup();
+                            }
+                        });
                 }
             }
         }
