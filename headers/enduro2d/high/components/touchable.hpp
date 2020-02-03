@@ -8,12 +8,20 @@
 
 #include "_components.hpp"
 
+namespace e2d::touchable_events
+{
+    class input_evt;
+    class mouse_evt;
+    class touch_evt;
+
+    using event = std::variant<std::monostate,
+        mouse_evt,
+        touch_evt>;
+}
+
 namespace e2d
 {
     class touchable final {
-    public:
-        class touched final {};
-        class under_mouse final {};
     public:
         touchable() = default;
 
@@ -23,12 +31,12 @@ namespace e2d
         [[nodiscard]] bool bubbling() const noexcept;
         [[nodiscard]] bool capturing() const noexcept;
     private:
-        enum flag_masks : u32 {
+        enum flag_masks : u8 {
             fm_bubbling = 1u << 0,
             fm_capturing = 1u << 1,
         };
     private:
-        u32 flags_{
+        std::underlying_type_t<flag_masks> flags_{
             fm_bubbling |
             fm_capturing};
     };
@@ -51,26 +59,12 @@ namespace e2d
     };
 
     template <>
-    class factory_loader<touchable::touched> final : factory_loader<> {
+    class factory_loader<events<touchable_events::event>> final : factory_loader<> {
     public:
         static const char* schema_source;
 
         bool operator()(
-            touchable::touched& component,
-            const fill_context& ctx) const;
-
-        bool operator()(
-            asset_dependencies& dependencies,
-            const collect_context& ctx) const;
-    };
-
-    template <>
-    class factory_loader<touchable::under_mouse> final : factory_loader<> {
-    public:
-        static const char* schema_source;
-
-        bool operator()(
-            touchable::under_mouse& component,
+            events<touchable_events::event>& component,
             const fill_context& ctx) const;
 
         bool operator()(
@@ -89,6 +83,82 @@ namespace e2d
         void operator()(gcomponent<touchable>& c) const;
     };
 }
+
+namespace e2d::touchable_events
+{
+    class input_evt {
+    public:
+        input_evt(gobject target, bool bubbling, bool capturing)
+        : target_(target)
+        , bubbling_(bubbling)
+        , capturing_(capturing) {}
+
+        [[nodiscard]] gobject target() const noexcept {
+            return target_;
+        }
+
+        [[nodiscard]] bool bubbling() const noexcept {
+            return bubbling_;
+        }
+
+        [[nodiscard]] bool capturing() const noexcept {
+            return capturing_;
+        }
+    private:
+        gobject target_;
+        bool bubbling_ = true;
+        bool capturing_ = true;
+    };
+
+    class mouse_evt final : public input_evt {
+    public:
+        ENUM_HPP_CLASS_DECL(types, u8,
+            (pressed)
+            (released))
+    public:
+        mouse_evt(gobject target, types type, mouse_button button)
+        : input_evt(target, true, true)
+        , type_(type)
+        , button_(button) {}
+
+        [[nodiscard]] types type() const noexcept {
+            return type_;
+        }
+
+        [[nodiscard]] mouse_button button() const noexcept {
+            return button_;
+        }
+    private:
+        types type_ = types::pressed;
+        mouse_button button_ = mouse_button::left;
+    };
+
+    class touch_evt final : public input_evt {
+    public:
+        ENUM_HPP_CLASS_DECL(types, u8,
+            (pressed)
+            (released))
+    public:
+        touch_evt(gobject target, types type, u32 finger)
+        : input_evt(target, true, true)
+        , type_(type)
+        , finger_(finger) {}
+
+        [[nodiscard]] types type() const noexcept {
+            return type_;
+        }
+
+        [[nodiscard]] u32 finger() const noexcept {
+            return finger_;
+        }
+    private:
+        types type_ = types::pressed;
+        u32 finger_ = 0u;
+    };
+}
+
+ENUM_HPP_REGISTER_TRAITS(e2d::touchable_events::mouse_evt::types)
+ENUM_HPP_REGISTER_TRAITS(e2d::touchable_events::touch_evt::types)
 
 namespace e2d
 {

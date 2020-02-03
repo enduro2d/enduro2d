@@ -698,7 +698,7 @@ namespace e2d
         "required" : [],
         "additionalProperties" : false,
         "properties" : {
-            "commands" : { "$ref": "#/definitions/events" }
+            "events" : { "$ref": "#/definitions/events" }
         },
         "definitions" : {
             "events" : {

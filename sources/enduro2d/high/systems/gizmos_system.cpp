@@ -31,10 +31,8 @@ namespace
                 return false;
             }
 
-            const camera& cam = cam_e.get_component<camera>();
-            if ( cam.target() ) {
-                return false;
-            }
+            const camera& cam =
+                cam_e.get_component<camera>();
 
             camera_vp_ =
                 cam.view() *

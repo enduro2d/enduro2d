@@ -54,48 +54,22 @@ namespace e2d
 
 namespace e2d
 {
-    const char* factory_loader<touchable::touched>::schema_source = R"json({
+    const char* factory_loader<events<touchable_events::event>>::schema_source = R"json({
         "type" : "object",
         "required" : [],
         "additionalProperties" : false,
         "properties" : {}
     })json";
 
-    bool factory_loader<touchable::touched>::operator()(
-        touchable::touched& component,
+    bool factory_loader<events<touchable_events::event>>::operator()(
+        events<touchable_events::event>& component,
         const fill_context& ctx) const
     {
         E2D_UNUSED(component, ctx);
         return true;
     }
 
-    bool factory_loader<touchable::touched>::operator()(
-        asset_dependencies& dependencies,
-        const collect_context& ctx) const
-    {
-        E2D_UNUSED(dependencies, ctx);
-        return true;
-    }
-}
-
-namespace e2d
-{
-    const char* factory_loader<touchable::under_mouse>::schema_source = R"json({
-        "type" : "object",
-        "required" : [],
-        "additionalProperties" : false,
-        "properties" : {}
-    })json";
-
-    bool factory_loader<touchable::under_mouse>::operator()(
-        touchable::under_mouse& component,
-        const fill_context& ctx) const
-    {
-        E2D_UNUSED(component, ctx);
-        return true;
-    }
-
-    bool factory_loader<touchable::under_mouse>::operator()(
+    bool factory_loader<events<touchable_events::event>>::operator()(
         asset_dependencies& dependencies,
         const collect_context& ctx) const
     {
@@ -109,28 +83,6 @@ namespace e2d
     const char* component_inspector<touchable>::title = ICON_FA_FINGERPRINT " touchable";
 
     void component_inspector<touchable>::operator()(gcomponent<touchable>& c) const {
-        if ( bool touched = c.owner().component<touchable::touched>().exists();
-            ImGui::Checkbox("touched", &touched) )
-        {
-            if ( touched ) {
-                c.owner().component<touchable::touched>().ensure();
-            } else {
-                c.owner().component<touchable::touched>().remove();
-            }
-        }
-
-        ImGui::SameLine();
-
-        if ( bool under_mouse = c.owner().component<touchable::under_mouse>().exists();
-            ImGui::Checkbox("under_mouse", &under_mouse) )
-        {
-            if ( under_mouse ) {
-                c.owner().component<touchable::under_mouse>().ensure();
-            } else {
-                c.owner().component<touchable::under_mouse>().remove();
-            }
-        }
-
         if ( bool bubbling = c->bubbling();
             ImGui::Checkbox("bubbling", &bubbling) )
         {

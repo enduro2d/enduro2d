@@ -50,32 +50,6 @@ namespace e2d::bindings::high
                 }
             ),
 
-            "touched", sol::property(
-                [](const gcomponent<touchable>& c) -> bool {
-                    return c.owner().component<touchable::touched>().exists();
-                },
-                [](gcomponent<touchable>& c, bool yesno){
-                    if ( yesno ) {
-                        c.owner().component<touchable::touched>().ensure();
-                    } else {
-                        c.owner().component<touchable::touched>().remove();
-                    }
-                }
-            ),
-
-            "under_mouse", sol::property(
-                [](const gcomponent<touchable>& c) -> bool {
-                    return c.owner().component<touchable::under_mouse>().exists();
-                },
-                [](gcomponent<touchable>& c, bool yesno){
-                    if ( yesno ) {
-                        c.owner().component<touchable::under_mouse>().ensure();
-                    } else {
-                        c.owner().component<touchable::under_mouse>().remove();
-                    }
-                }
-            ),
-
             "bubbling", sol::property(
                 [](const gcomponent<touchable>& c) -> bool {
                     return c->bubbling();
@@ -90,6 +64,62 @@ namespace e2d::bindings::high
                 },
                 [](gcomponent<touchable>& c, bool v){
                     c->capturing(v);
+                })
+        );
+
+        //
+        // events
+        //
+
+        l["touchable"].get_or_create<sol::table>()
+        .new_usertype<touchable_events::input_evt>("input_evt",
+            sol::no_constructor,
+
+            "target", sol::property(
+                [](const touchable_events::input_evt& c) -> gobject {
+                    return c.target();
+                }),
+
+            "bubbling", sol::property(
+                [](const touchable_events::input_evt& c) -> bool {
+                    return c.bubbling();
+                }),
+
+            "capturing", sol::property(
+                [](const touchable_events::input_evt& c) -> bool {
+                    return c.capturing();
+                })
+        );
+
+        l["touchable"].get_or_create<sol::table>()
+        .new_usertype<touchable_events::mouse_evt>("mouse_evt",
+            sol::no_constructor,
+            sol::base_classes, sol::bases<touchable_events::input_evt>(),
+
+            "type", sol::property(
+                [](const touchable_events::mouse_evt& c) -> str {
+                    return str(enum_hpp::to_string_or_throw(c.type()));
+                }),
+
+            "button", sol::property(
+                [](const touchable_events::mouse_evt& c) -> str {
+                    return str(enum_hpp::to_string_or_throw(c.button()));
+                })
+        );
+
+        l["touchable"].get_or_create<sol::table>()
+        .new_usertype<touchable_events::touch_evt>("touch_evt",
+            sol::no_constructor,
+            sol::base_classes, sol::bases<touchable_events::input_evt>(),
+
+            "type", sol::property(
+                [](const touchable_events::touch_evt& c) -> str {
+                    return str(enum_hpp::to_string_or_throw(c.type()));
+                }),
+
+            "finger", sol::property(
+                [](const touchable_events::touch_evt& c) -> u32 {
+                    return c.finger();
                 })
         );
     }
