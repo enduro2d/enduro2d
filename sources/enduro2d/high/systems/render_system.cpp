@@ -35,7 +35,7 @@ namespace
             });
         };
 
-        systems::for_extracted_sorted_components<scene, actor>(
+        ecsex::for_extracted_sorted_components<scene, actor>(
             owner,
             comp,
             func,

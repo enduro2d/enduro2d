@@ -35,7 +35,7 @@ namespace
             owner.process_event(Event{e});
         };
 
-        systems::for_extracted_sorted_components<camera>(
+        ecsex::for_extracted_sorted_components<camera>(
             owner,
             comp,
             func,

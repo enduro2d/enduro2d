@@ -134,21 +134,152 @@ namespace e2d::ecsex
     template < typename T, typename... Opts >
     void remove_all_components(ecs::registry& owner, Opts&&... opts) {
         static thread_local vector<ecs::entity> to_remove_components;
+        E2D_DEFER([](){ to_remove_components.clear(); });
 
-        try {
-            owner.for_each_component<T>([](const ecs::entity& e, const T&){
-                to_remove_components.push_back(e);
-            }, std::forward<Opts>(opts)...);
-        } catch (...) {
-            to_remove_components.clear();
-            throw;
-        }
+        owner.for_each_component<T>([](const ecs::entity& e, const T&){
+            to_remove_components.push_back(e);
+        }, std::forward<Opts>(opts)...);
 
         for ( ecs::entity& e : to_remove_components ) {
             e.remove_component<T>();
         }
+    }
+}
 
-        to_remove_components.clear();
+namespace e2d::ecsex
+{
+    template < typename... Ts, typename Iter, typename... Opts >
+    std::size_t extract_components(ecs::registry& owner, Iter iter, Opts&&... opts) {
+        std::size_t count{0u};
+        owner.for_joined_components<Ts...>(
+        [&iter, &count](const ecs::entity& e, Ts&... cs){
+            iter++ = std::make_tuple(e, cs...);
+            ++count;
+        }, std::forward<Opts>(opts)...);
+        return count;
+    }
+
+    template < typename... Ts, typename Iter, typename... Opts >
+    std::size_t extract_components(const ecs::registry& owner, Iter iter, Opts&&... opts) {
+        std::size_t count{0u};
+        owner.for_joined_components<Ts...>(
+        [&iter, &count](const ecs::const_entity& e, const Ts&... cs){
+            iter++ = std::make_tuple(e, cs...);
+            ++count;
+        }, std::forward<Opts>(opts)...);
+        return count;
+    }
+}
+
+namespace e2d::ecsex
+{
+    template < typename... Ts, typename F, typename... Opts >
+    void for_extracted_components(ecs::registry& owner, F&& f, Opts&&... opts) {
+        //TODO(BlackMat): replace it to frame allocator
+        static thread_local vector<
+            std::tuple<ecs::entity, Ts...>> components;
+
+        const std::size_t begin_index = components.size();
+        E2D_DEFER([begin_index](){
+            components.erase(
+                components.begin() + begin_index,
+                components.end());
+        });
+
+        extract_components<Ts...>(
+            owner,
+            std::back_inserter(components),
+            std::forward<Opts>(opts)...);
+
+        const std::size_t end_index = components.size();
+        for ( std::size_t i = begin_index; i < end_index; ++i ) {
+            std::apply(f, components[i]);
+        }
+    }
+
+    template < typename... Ts, typename F, typename... Opts >
+    void for_extracted_components(const ecs::registry& owner, F&& f, Opts&&... opts) {
+        //TODO(BlackMat): replace it to frame allocator
+        static thread_local vector<
+            std::tuple<ecs::const_entity, Ts...>> components;
+
+        const std::size_t begin_index = components.size();
+        E2D_DEFER([begin_index](){
+            components.erase(
+                components.begin() + begin_index,
+                components.end());
+        });
+
+        extract_components<Ts...>(
+            owner,
+            std::back_inserter(components),
+            std::forward<Opts>(opts)...);
+
+        const std::size_t end_index = components.size();
+        for ( std::size_t i = begin_index; i < end_index; ++i ) {
+            std::apply(f, components[i]);
+        }
+    }
+}
+
+namespace e2d::ecsex
+{
+    template < typename... Ts, typename Comp, typename F, typename... Opts >
+    void for_extracted_sorted_components(ecs::registry& owner, Comp&& comp, F&& f, Opts&&... opts) {
+        //TODO(BlackMat): replace it to frame allocator
+        static thread_local vector<
+            std::tuple<ecs::entity, Ts...>> components;
+
+        const std::size_t begin_index = components.size();
+        E2D_DEFER([begin_index](){
+            components.erase(
+                components.begin() + begin_index,
+                components.end());
+        });
+
+        extract_components<Ts...>(
+            owner,
+            std::back_inserter(components),
+            std::forward<Opts>(opts)...);
+
+        std::sort(
+            components.begin() + begin_index,
+            components.end(),
+            comp);
+
+        const std::size_t end_index = components.size();
+        for ( std::size_t i = begin_index; i < end_index; ++i ) {
+            std::apply(f, components[i]);
+        }
+    }
+
+    template < typename... Ts, typename Comp, typename F, typename... Opts >
+    void for_extracted_sorted_components(const ecs::registry& owner, Comp&& comp, F&& f, Opts&&... opts) {
+        //TODO(BlackMat): replace it to frame allocator
+        static thread_local vector<
+            std::tuple<ecs::const_entity, Ts...>> components;
+
+        const std::size_t begin_index = components.size();
+        E2D_DEFER([begin_index](){
+            components.erase(
+                components.begin() + begin_index,
+                components.end());
+        });
+
+        extract_components<Ts...>(
+            owner,
+            std::back_inserter(components),
+            std::forward<Opts>(opts)...);
+
+        std::sort(
+            components.begin() + begin_index,
+            components.end(),
+            comp);
+
+        const std::size_t end_index = components.size();
+        for ( std::size_t i = begin_index; i < end_index; ++i ) {
+            std::apply(f, components[i]);
+        }
     }
 }
 

@@ -51,7 +51,7 @@ namespace
     }
 
     void process_spine_player_events(ecs::registry& owner) {
-        systems::for_extracted_components<events<spine_player_events::event>, behaviour, actor>(owner,
+        ecsex::for_extracted_components<events<spine_player_events::event>, behaviour, actor>(owner,
         [](ecs::entity e, const events<spine_player_events::event>& es, behaviour& b, actor& a){
             if ( !a.node() || !a.node()->owner() ) {
                 return;
@@ -80,7 +80,7 @@ namespace
     }
 
     void process_touchable_events(ecs::registry& owner) {
-        systems::for_extracted_components<events<touchable_events::event>, behaviour, actor>(owner,
+        ecsex::for_extracted_components<events<touchable_events::event>, behaviour, actor>(owner,
         [](ecs::entity e, const events<touchable_events::event>& es, behaviour& b, actor& a){
             if ( !a.node() || !a.node()->owner() ) {
                 return;
@@ -124,7 +124,7 @@ namespace e2d
         ~internal_state() noexcept = default;
 
         void process_update(ecs::registry& owner) {
-            systems::for_extracted_components<behaviour, actor>(owner,
+            ecsex::for_extracted_components<behaviour, actor>(owner,
             [](ecs::entity e, behaviour& b, actor& a){
                 if ( !a.node() || !a.node()->owner() ) {
                     return;
