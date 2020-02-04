@@ -96,112 +96,230 @@ namespace e2d::nodes
 
 namespace e2d::nodes
 {
+    template < typename Iter >
+    std::size_t extract_parents(const node_iptr& root, Iter iter) {
+        std::size_t count{0u};
+        if ( root ) {
+            ++count;
+            iter++ = root;
+            count += extract_parents(root->parent(), iter);
+        }
+        return count;
+    }
+
+    template < typename Iter >
+    std::size_t extract_parents(const const_node_iptr& root, Iter iter) {
+        std::size_t count{0u};
+        if ( root ) {
+            ++count;
+            iter++ = root;
+            count += extract_parents(root->parent(), iter);
+        }
+        return count;
+    }
+
+    template < typename Iter >
+    std::size_t extract_parents_reversed(const node_iptr& root, Iter iter) {
+        std::size_t count{0u};
+        if ( root ) {
+            count += extract_parents(root->parent(), iter);
+            ++count;
+            iter++ = root;
+        }
+        return count;
+    }
+
+    template < typename Iter >
+    std::size_t extract_parents_reversed(const const_node_iptr& root, Iter iter) {
+        std::size_t count{0u};
+        if ( root ) {
+            count += extract_parents(root->parent(), iter);
+            ++count;
+            iter++ = root;
+        }
+        return count;
+    }
+}
+
+namespace e2d::nodes
+{
     template < typename F >
     void for_extracted_nodes(const node_iptr& root, F&& f) {
         //TODO(BlackMat): replace it to frame allocator
         static thread_local vector<node_iptr> nodes;
+
         const std::size_t begin_index = nodes.size();
-
-        try {
-            extract_nodes(
-                root,
-                std::back_inserter(nodes));
-
-            const std::size_t end_index = nodes.size();
-            for ( std::size_t i = begin_index; i < end_index; ++i ) {
-                f(nodes[i]);
-            }
-        } catch (...) {
+        E2D_DEFER([begin_index](){
             nodes.erase(
                 nodes.begin() + begin_index,
                 nodes.end());
-            throw;
-        }
+        });
 
-        nodes.erase(
-            nodes.begin() + begin_index,
-            nodes.end());
+        extract_nodes(
+            root,
+            std::back_inserter(nodes));
+
+        const std::size_t end_index = nodes.size();
+        for ( std::size_t i = begin_index; i < end_index; ++i ) {
+            f(nodes[i]);
+        }
     }
 
     template < typename F >
     void for_extracted_nodes(const const_node_iptr& root, F&& f) {
         //TODO(BlackMat): replace it to frame allocator
         static thread_local vector<const_node_iptr> nodes;
+
         const std::size_t begin_index = nodes.size();
-
-        try {
-            extract_nodes(
-                root,
-                std::back_inserter(nodes));
-
-            const std::size_t end_index = nodes.size();
-            for ( std::size_t i = begin_index; i < end_index; ++i ) {
-                f(nodes[i]);
-            }
-        } catch (...) {
+        E2D_DEFER([begin_index](){
             nodes.erase(
                 nodes.begin() + begin_index,
                 nodes.end());
-            throw;
-        }
+        });
 
-        nodes.erase(
-            nodes.begin() + begin_index,
-            nodes.end());
+        extract_nodes(
+            root,
+            std::back_inserter(nodes));
+
+        const std::size_t end_index = nodes.size();
+        for ( std::size_t i = begin_index; i < end_index; ++i ) {
+            f(nodes[i]);
+        }
     }
 
     template < typename F >
     void for_extracted_nodes_reversed(const node_iptr& root, F&& f) {
         //TODO(BlackMat): replace it to frame allocator
         static thread_local vector<node_iptr> nodes;
+
         const std::size_t begin_index = nodes.size();
-
-        try {
-            extract_nodes_reversed(
-                root,
-                std::back_inserter(nodes));
-
-            const std::size_t end_index = nodes.size();
-            for ( std::size_t i = begin_index; i < end_index; ++i ) {
-                f(nodes[i]);
-            }
-        } catch (...) {
+        E2D_DEFER([begin_index](){
             nodes.erase(
                 nodes.begin() + begin_index,
                 nodes.end());
-            throw;
-        }
+        });
 
-        nodes.erase(
-            nodes.begin() + begin_index,
-            nodes.end());
+        extract_nodes_reversed(
+            root,
+            std::back_inserter(nodes));
+
+        const std::size_t end_index = nodes.size();
+        for ( std::size_t i = begin_index; i < end_index; ++i ) {
+            f(nodes[i]);
+        }
     }
 
     template < typename F >
     void for_extracted_nodes_reversed(const const_node_iptr& root, F&& f) {
         //TODO(BlackMat): replace it to frame allocator
         static thread_local vector<const_node_iptr> nodes;
+
         const std::size_t begin_index = nodes.size();
-
-        try {
-            extract_nodes_reversed(
-                root,
-                std::back_inserter(nodes));
-
-            const std::size_t end_index = nodes.size();
-            for ( std::size_t i = begin_index; i < end_index; ++i ) {
-                f(nodes[i]);
-            }
-        } catch (...) {
+        E2D_DEFER([begin_index](){
             nodes.erase(
                 nodes.begin() + begin_index,
                 nodes.end());
-            throw;
-        }
+        });
 
-        nodes.erase(
-            nodes.begin() + begin_index,
-            nodes.end());
+        extract_nodes_reversed(
+            root,
+            std::back_inserter(nodes));
+
+        const std::size_t end_index = nodes.size();
+        for ( std::size_t i = begin_index; i < end_index; ++i ) {
+            f(nodes[i]);
+        }
+    }
+}
+
+namespace e2d::nodes
+{
+    template < typename F >
+    void for_extracted_parents(const node_iptr& root, F&& f) {
+        //TODO(BlackMat): replace it to frame allocator
+        static thread_local vector<node_iptr> parents;
+
+        const std::size_t begin_index = parents.size();
+        E2D_DEFER([begin_index](){
+            parents.erase(
+                parents.begin() + begin_index,
+                parents.end());
+        });
+
+        extract_parents(
+            root,
+            std::back_inserter(parents));
+
+        const std::size_t end_index = parents.size();
+        for ( std::size_t i = begin_index; i < end_index; ++i ) {
+            f(parents[i]);
+        }
+    }
+
+    template < typename F >
+    void for_extracted_parents(const const_node_iptr& root, F&& f) {
+        //TODO(BlackMat): replace it to frame allocator
+        static thread_local vector<const_node_iptr> parents;
+
+        const std::size_t begin_index = parents.size();
+        E2D_DEFER([begin_index](){
+            parents.erase(
+                parents.begin() + begin_index,
+                parents.end());
+        });
+
+        extract_parents(
+            root,
+            std::back_inserter(parents));
+
+        const std::size_t end_index = parents.size();
+        for ( std::size_t i = begin_index; i < end_index; ++i ) {
+            f(parents[i]);
+        }
+    }
+
+    template < typename F >
+    void for_extracted_parents_reversed(const node_iptr& root, F&& f) {
+        //TODO(BlackMat): replace it to frame allocator
+        static thread_local vector<node_iptr> parents;
+
+        const std::size_t begin_index = parents.size();
+        E2D_DEFER([begin_index](){
+            parents.erase(
+                parents.begin() + begin_index,
+                parents.end());
+        });
+
+        extract_parents_reversed(
+            root,
+            std::back_inserter(parents));
+
+        const std::size_t end_index = parents.size();
+        for ( std::size_t i = begin_index; i < end_index; ++i ) {
+            f(parents[i]);
+        }
+    }
+
+    template < typename F >
+    void for_extracted_parents_reversed(const const_node_iptr& root, F&& f) {
+        //TODO(BlackMat): replace it to frame allocator
+        static thread_local vector<const_node_iptr> parents;
+
+        const std::size_t begin_index = parents.size();
+        E2D_DEFER([begin_index](){
+            parents.erase(
+                parents.begin() + begin_index,
+                parents.end());
+        });
+
+        extract_parents_reversed(
+            root,
+            std::back_inserter(parents));
+
+        const std::size_t end_index = parents.size();
+        for ( std::size_t i = begin_index; i < end_index; ++i ) {
+            f(parents[i]);
+        }
     }
 }
 
@@ -233,7 +351,7 @@ namespace e2d::nodes
             iter++ = component;
         }
 
-        return count + get_components_in_parent(root->parent(), iter);
+        return count + get_components_in_parent<Component>(root->parent(), iter);
     }
 
     template < typename Component >

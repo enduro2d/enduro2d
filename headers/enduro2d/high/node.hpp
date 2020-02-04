@@ -170,6 +170,16 @@ namespace e2d::nodes
     std::size_t extract_nodes_reversed(const node_iptr& root, Iter iter);
     template < typename Iter >
     std::size_t extract_nodes_reversed(const const_node_iptr& root, Iter iter);
+
+    template < typename Iter >
+    std::size_t extract_parents(const node_iptr& root, Iter iter);
+    template < typename Iter >
+    std::size_t extract_parents(const const_node_iptr& root, Iter iter);
+
+    template < typename Iter >
+    std::size_t extract_parents_reversed(const node_iptr& root, Iter iter);
+    template < typename Iter >
+    std::size_t extract_parents_reversed(const const_node_iptr& root, Iter iter);
 }
 
 namespace e2d::nodes
@@ -179,6 +189,12 @@ namespace e2d::nodes
 
     vector<node_iptr> extract_nodes_reversed(const node_iptr& root);
     vector<const_node_iptr> extract_nodes_reversed(const const_node_iptr& root);
+
+    vector<node_iptr> extract_parents(const node_iptr& root);
+    vector<const_node_iptr> extract_parents(const const_node_iptr& root);
+
+    vector<node_iptr> extract_parents_reversed(const node_iptr& root);
+    vector<const_node_iptr> extract_parents_reversed(const const_node_iptr& root);
 }
 
 namespace e2d::nodes
@@ -192,6 +208,16 @@ namespace e2d::nodes
     void for_extracted_nodes_reversed(const node_iptr& root, F&& f);
     template < typename F >
     void for_extracted_nodes_reversed(const const_node_iptr& root, F&& f);
+
+    template < typename F >
+    void for_extracted_parents(const node_iptr& parents, F&& f);
+    template < typename F >
+    void for_extracted_parents(const const_node_iptr& parents, F&& f);
+
+    template < typename F >
+    void for_extracted_parents_reversed(const node_iptr& parents, F&& f);
+    template < typename F >
+    void for_extracted_parents_reversed(const const_node_iptr& parents, F&& f);
 }
 
 namespace e2d::nodes

@@ -470,3 +470,30 @@ namespace e2d::nodes
         return nodes;
     }
 }
+
+namespace e2d::nodes
+{
+    vector<node_iptr> extract_parents(const node_iptr& child) {
+        vector<node_iptr> parents;
+        extract_parents(child, std::back_inserter(parents));
+        return parents;
+    }
+
+    vector<const_node_iptr> extract_parents(const const_node_iptr& child) {
+        vector<const_node_iptr> parents;
+        extract_parents(child, std::back_inserter(parents));
+        return parents;
+    }
+
+    vector<node_iptr> extract_parents_reversed(const node_iptr& child) {
+        vector<node_iptr> parents;
+        extract_parents_reversed(child, std::back_inserter(parents));
+        return parents;
+    }
+
+    vector<const_node_iptr> extract_parents_reversed(const const_node_iptr& child) {
+        vector<const_node_iptr> parents;
+        extract_parents_reversed(child, std::back_inserter(parents));
+        return parents;
+    }
+}
