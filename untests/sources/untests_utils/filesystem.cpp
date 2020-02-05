@@ -8,6 +8,9 @@
 using namespace e2d;
 
 TEST_CASE("filesystem") {
+    E2D_DEFER([](){
+        filesystem::remove_file("files_test");
+    });
     SECTION("files") {
         {
             auto f = make_write_file("files_test", false);
