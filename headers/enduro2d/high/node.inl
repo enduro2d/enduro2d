@@ -315,7 +315,11 @@ namespace e2d::nodes
     {
         gcomponent<Component> component;
         for_each_parent(root, [&component](const auto& child){
-            return !(component = child->owner().template component<Component>());
+            if ( auto child_component = child->owner().template component<Component>() ) {
+                component = child_component;
+                return false;
+            }
+            return true;
         }, opts);
         return component;
     }
@@ -327,7 +331,11 @@ namespace e2d::nodes
     {
         gcomponent<Component> component;
         for_each_child(root, [&component](const auto& child){
-            return !(component = child->owner().template component<Component>());
+            if ( auto child_component = child->owner().template component<Component>() ) {
+                component = child_component;
+                return false;
+            }
+            return true;
         }, opts);
         return component;
     }
