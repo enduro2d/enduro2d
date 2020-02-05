@@ -60,7 +60,6 @@ namespace e2d
     class model_renderer;
     class named;
     class renderer;
-    class rigid_body;
     class scene;
     class spine_player;
     class sprite_renderer;
@@ -71,7 +70,6 @@ namespace e2d
     class frame_system;
     class gizmos_system;
     class label_system;
-    class physics_system;
     class render_system;
     class script_system;
     class spine_system;
@@ -100,7 +98,6 @@ namespace e2d
     class editor;
     class inspector;
     class luasol;
-    class physics;
     class starter;
     class world;
 

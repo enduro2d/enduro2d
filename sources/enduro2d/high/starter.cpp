@@ -11,7 +11,6 @@
 #include <enduro2d/high/inspector.hpp>
 #include <enduro2d/high/library.hpp>
 #include <enduro2d/high/luasol.hpp>
-#include <enduro2d/high/physics.hpp>
 #include <enduro2d/high/world.hpp>
 
 #include <enduro2d/high/components/actor.hpp>
@@ -26,7 +25,6 @@
 #include <enduro2d/high/components/model_renderer.hpp>
 #include <enduro2d/high/components/named.hpp>
 #include <enduro2d/high/components/renderer.hpp>
-#include <enduro2d/high/components/rigid_body.hpp>
 #include <enduro2d/high/components/scene.hpp>
 #include <enduro2d/high/components/spine_player.hpp>
 #include <enduro2d/high/components/sprite_renderer.hpp>
@@ -37,7 +35,6 @@
 #include <enduro2d/high/systems/frame_system.hpp>
 #include <enduro2d/high/systems/gizmos_system.hpp>
 #include <enduro2d/high/systems/label_system.hpp>
-#include <enduro2d/high/systems/physics_system.hpp>
 #include <enduro2d/high/systems/render_system.hpp>
 #include <enduro2d/high/systems/script_system.hpp>
 #include <enduro2d/high/systems/spine_system.hpp>
@@ -72,8 +69,6 @@ namespace
                     .add_system<gizmos_system>())
                 .feature<struct label_feature>(ecs::feature()
                     .add_system<label_system>())
-                .feature<struct physics_feature>(ecs::feature()
-                    .add_system<physics_system>())
                 .feature<struct render_feature>(ecs::feature()
                     .add_system<render_system>())
                 .feature<struct script_feature>(ecs::feature()
@@ -145,46 +140,6 @@ namespace e2d
     }
 
     //
-    // starter::physics_parameters
-    //
-
-    starter::physics_parameters& starter::physics_parameters::gravity(const v2f& value) noexcept {
-        gravity_ = value;
-        return *this;
-    }
-
-    starter::physics_parameters& starter::physics_parameters::update_framerate(u32 value) noexcept {
-        update_framerate_ = value;
-        return *this;
-    }
-
-    starter::physics_parameters& starter::physics_parameters::velocity_iterations(u32 value) noexcept {
-        velocity_iterations_ = value;
-        return *this;
-    }
-
-    starter::physics_parameters& starter::physics_parameters::position_iterations(u32 value) noexcept {
-        position_iterations_ = value;
-        return *this;
-    }
-
-    const v2f& starter::physics_parameters::gravity() const noexcept {
-        return gravity_;
-    }
-
-    u32 starter::physics_parameters::update_framerate() const noexcept {
-        return update_framerate_;
-    }
-
-    u32 starter::physics_parameters::velocity_iterations() const noexcept {
-        return velocity_iterations_;
-    }
-
-    u32 starter::physics_parameters::position_iterations() const noexcept {
-        return position_iterations_;
-    }
-
-    //
     // starter::parameters
     //
 
@@ -201,11 +156,6 @@ namespace e2d
         return *this;
     }
 
-    starter::parameters& starter::parameters::physics_params(physics_parameters value) noexcept {
-        physics_params_ = std::move(value);
-        return *this;
-    }
-
     engine::parameters& starter::parameters::engine_params() noexcept {
         return engine_params_;
     }
@@ -214,20 +164,12 @@ namespace e2d
         return library_params_;
     }
 
-    starter::physics_parameters& starter::parameters::physics_params() noexcept {
-        return physics_params_;
-    }
-
     const engine::parameters& starter::parameters::engine_params() const noexcept {
         return engine_params_;
     }
 
     const starter::library_parameters& starter::parameters::library_params() const noexcept {
         return library_params_;
-    }
-
-    const starter::physics_parameters& starter::parameters::physics_params() const noexcept {
-        return physics_params_;
     }
 
     //
@@ -254,7 +196,6 @@ namespace e2d
             .register_component<model_renderer>("model_renderer")
             .register_component<named>("named")
             .register_component<renderer>("renderer")
-            .register_component<rigid_body>("rigid_body")
             .register_component<scene>("scene")
             .register_component<spine_player>("spine_player")
             .register_component<events<spine_player_events::event>>("spine_player.events")
@@ -279,7 +220,6 @@ namespace e2d
             .register_component<model_renderer>("model_renderer")
             .register_component<named>("named")
             .register_component<renderer>("renderer")
-            .register_component<rigid_body>("rigid_body")
             .register_component<scene>("scene")
             .register_component<spine_player>("spine_player")
             //.register_component<events<spine_player_events::event>>("spine_player.events")
@@ -294,9 +234,6 @@ namespace e2d
         safe_module_initialize<library>(
             params.library_params());
 
-        safe_module_initialize<physics>(
-            params.physics_params());
-
         safe_module_initialize<world>();
         safe_module_initialize<editor>();
     }
@@ -306,7 +243,6 @@ namespace e2d
 
         modules::shutdown<editor>();
         modules::shutdown<world>();
-        modules::shutdown<physics>();
         modules::shutdown<library>();
         modules::shutdown<luasol>();
         modules::shutdown<inspector>();

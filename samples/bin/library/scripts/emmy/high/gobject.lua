@@ -39,9 +39,6 @@ local gobject = {
     ---@type renderer
     renderer = nil,
 
-    ---@type rigid_body
-    rigid_body = nil,
-
     ---@type scene
     scene = nil,
 

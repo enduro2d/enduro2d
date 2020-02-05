@@ -20,7 +20,6 @@ namespace e2d
         using application_uptr = std::unique_ptr<application>;
     public:
         class library_parameters;
-        class physics_parameters;
         class parameters;
     public:
         starter(int argc, char *argv[], const parameters& params);
@@ -56,28 +55,6 @@ namespace e2d
     };
 
     //
-    // starter::physics_parameters
-    //
-
-    class starter::physics_parameters {
-    public:
-        physics_parameters& gravity(const v2f& value) noexcept;
-        physics_parameters& update_framerate(u32 value) noexcept;
-        physics_parameters& velocity_iterations(u32 value) noexcept;
-        physics_parameters& position_iterations(u32 value) noexcept;
-
-        const v2f& gravity() const noexcept;
-        u32 update_framerate() const noexcept;
-        u32 velocity_iterations() const noexcept;
-        u32 position_iterations() const noexcept;
-    private:
-        v2f gravity_ = v2f::zero();
-        u32 update_framerate_ = 50u;
-        u32 velocity_iterations_ = 6u;
-        u32 position_iterations_ = 2u;
-    };
-
-    //
     // starter::parameters
     //
 
@@ -88,19 +65,15 @@ namespace e2d
 
         parameters& engine_params(engine::parameters value) noexcept;
         parameters& library_params(library_parameters value) noexcept;
-        parameters& physics_params(physics_parameters value) noexcept;
 
         engine::parameters& engine_params() noexcept;
         library_parameters& library_params() noexcept;
-        physics_parameters& physics_params() noexcept;
 
         const engine::parameters& engine_params() const noexcept;
         const library_parameters& library_params() const noexcept;
-        const physics_parameters& physics_params() const noexcept;
     private:
         engine::parameters engine_params_;
         library_parameters library_params_;
-        physics_parameters physics_params_;
     };
 }
 

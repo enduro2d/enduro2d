@@ -1,6 +1,5 @@
 {
     "components" : {
-        "rigid_body" : {},
         "touchable" : {},
 
         "rect_collider" : {

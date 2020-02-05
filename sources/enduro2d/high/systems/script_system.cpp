@@ -9,7 +9,6 @@
 #include <enduro2d/high/editor.hpp>
 #include <enduro2d/high/library.hpp>
 #include <enduro2d/high/luasol.hpp>
-#include <enduro2d/high/physics.hpp>
 #include <enduro2d/high/world.hpp>
 
 #include <enduro2d/high/components/actor.hpp>
@@ -37,7 +36,6 @@ namespace
         s["the_editor"] = &the<editor>();
         s["the_library"] = &the<library>();
         s["the_luasol"] = &the<luasol>();
-        s["the_physics"] = &the<physics>();
         s["the_world"] = &the<world>();
     }
 

@@ -48,9 +48,6 @@
                 "script" : "../scripts/sample_08/ship.lua"
             },
             "touchable" : {},
-            "rigid_body" : {
-                "type" : "dynamic"
-            },
             "circle_collider" : {
                 "offset" : [10,15],
                 "radius" : 33
@@ -71,9 +68,6 @@
                     "script" : "../scripts/sample_08/ship.lua"
                 },
                 "touchable" : {},
-                "rigid_body" : {
-                    "type" : "dynamic"
-                },
                 "circle_collider" : {
                     "offset" : [10,15],
                     "radius" : 33
@@ -95,9 +89,6 @@
                 "script" : "../scripts/sample_08/ship.lua"
             },
             "touchable" : {},
-            "rigid_body" : {
-                "type" : "dynamic"
-            },
             "rect_collider" : {
                 "size" : [66,113]
             },
@@ -119,9 +110,6 @@
             },
             "actor" : {
                 "translation" : [0,-240]
-            },
-            "rigid_body" : {
-                "type" : "kinematic"
             },
             "rect_collider" : {
                 "size" : [320, 50]
