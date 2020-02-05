@@ -10,7 +10,6 @@
 
 namespace e2d::touchable_events
 {
-    class input_evt;
     class mouse_evt;
     class touch_evt;
 
@@ -86,71 +85,76 @@ namespace e2d
 
 namespace e2d::touchable_events
 {
-    class input_evt {
-    public:
-        input_evt(gobject target, bool bubbling, bool capturing)
-        : target_(target)
-        , bubbling_(bubbling)
-        , capturing_(capturing) {}
+    namespace impl
+    {
+        template < typename Event >
+        class base_evt {
+        public:
+            base_evt(bool bubbling, bool capturing)
+            : bubbling_(bubbling)
+            , capturing_(capturing) {}
 
-        [[nodiscard]] gobject target() const noexcept {
-            return target_;
-        }
+            base_evt(gobject target, bool bubbling, bool capturing)
+            : target_(target)
+            , bubbling_(bubbling)
+            , capturing_(capturing) {}
 
-        [[nodiscard]] bool bubbling() const noexcept {
-            return bubbling_;
-        }
+            Event& target(gobject value) noexcept {
+                target_ = std::move(value);
+                return static_cast<Event&>(*this);
+            }
 
-        [[nodiscard]] bool capturing() const noexcept {
-            return capturing_;
-        }
-    private:
-        gobject target_;
-        bool bubbling_ = true;
-        bool capturing_ = true;
-    };
+            [[nodiscard]] gobject target() const noexcept { return target_; }
+            [[nodiscard]] bool bubbling() const noexcept { return bubbling_; }
+            [[nodiscard]] bool capturing() const noexcept { return capturing_; }
+        private:
+            gobject target_;
+            bool bubbling_ = true;
+            bool capturing_ = true;
+        };
+    }
 
-    class mouse_evt final : public input_evt {
+    class mouse_evt final : public impl::base_evt<mouse_evt> {
     public:
         ENUM_HPP_CLASS_DECL(types, u8,
             (pressed)
             (released))
     public:
-        mouse_evt(gobject target, types type, mouse_button button)
-        : input_evt(target, true, true)
+        mouse_evt(types type, mouse_button button)
+        : base_evt(true, true)
         , type_(type)
         , button_(button) {}
 
-        [[nodiscard]] types type() const noexcept {
-            return type_;
-        }
+        mouse_evt(gobject target, types type, mouse_button button)
+        : base_evt(target, true, true)
+        , type_(type)
+        , button_(button) {}
 
-        [[nodiscard]] mouse_button button() const noexcept {
-            return button_;
-        }
+        [[nodiscard]] types type() const noexcept { return type_; }
+        [[nodiscard]] mouse_button button() const noexcept { return button_; }
     private:
         types type_ = types::pressed;
         mouse_button button_ = mouse_button::left;
     };
 
-    class touch_evt final : public input_evt {
+    class touch_evt final : public impl::base_evt<touch_evt> {
     public:
         ENUM_HPP_CLASS_DECL(types, u8,
             (pressed)
             (released))
     public:
-        touch_evt(gobject target, types type, u32 finger)
-        : input_evt(target, true, true)
+        touch_evt(types type, u32 finger)
+        : base_evt(true, true)
         , type_(type)
         , finger_(finger) {}
 
-        [[nodiscard]] types type() const noexcept {
-            return type_;
-        }
+        touch_evt(gobject target, types type, u32 finger)
+        : base_evt(target, true, true)
+        , type_(type)
+        , finger_(finger) {}
 
-        [[nodiscard]] u32 finger() const noexcept {
-            return finger_;
-        }
+        [[nodiscard]] types type() const noexcept { return type_; }
+        [[nodiscard]] u32 finger() const noexcept { return finger_; }
     private:
         types type_ = types::pressed;
         u32 finger_ = 0u;

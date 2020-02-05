@@ -72,29 +72,23 @@ namespace e2d::bindings::high
         //
 
         l["touchable"].get_or_create<sol::table>()
-        .new_usertype<touchable_events::input_evt>("input_evt",
+        .new_usertype<touchable_events::mouse_evt>("mouse_evt",
             sol::no_constructor,
 
             "target", sol::property(
-                [](const touchable_events::input_evt& c) -> gobject {
+                [](const touchable_events::mouse_evt& c) -> gobject {
                     return c.target();
                 }),
 
             "bubbling", sol::property(
-                [](const touchable_events::input_evt& c) -> bool {
+                [](const touchable_events::mouse_evt& c) -> bool {
                     return c.bubbling();
                 }),
 
             "capturing", sol::property(
-                [](const touchable_events::input_evt& c) -> bool {
+                [](const touchable_events::mouse_evt& c) -> bool {
                     return c.capturing();
-                })
-        );
-
-        l["touchable"].get_or_create<sol::table>()
-        .new_usertype<touchable_events::mouse_evt>("mouse_evt",
-            sol::no_constructor,
-            sol::base_classes, sol::bases<touchable_events::input_evt>(),
+                }),
 
             "type", sol::property(
                 [](const touchable_events::mouse_evt& c) -> str {
@@ -110,7 +104,21 @@ namespace e2d::bindings::high
         l["touchable"].get_or_create<sol::table>()
         .new_usertype<touchable_events::touch_evt>("touch_evt",
             sol::no_constructor,
-            sol::base_classes, sol::bases<touchable_events::input_evt>(),
+
+            "target", sol::property(
+                [](const touchable_events::touch_evt& c) -> gobject {
+                    return c.target();
+                }),
+
+            "bubbling", sol::property(
+                [](const touchable_events::touch_evt& c) -> bool {
+                    return c.bubbling();
+                }),
+
+            "capturing", sol::property(
+                [](const touchable_events::touch_evt& c) -> bool {
+                    return c.capturing();
+                }),
 
             "type", sol::property(
                 [](const touchable_events::touch_evt& c) -> str {

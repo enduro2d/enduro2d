@@ -31,7 +31,7 @@ function touchable.disable(self) end
 -- input_evt
 --
 
----@class touchable_input_evt
+---@class touchable_base_evt
 touchable.input_evt = {
     ---@type gobject
     target = nil,
@@ -47,7 +47,7 @@ touchable.input_evt = {
 -- mouse_evt
 --
 
----@class touchable_mouse_evt : touchable_input_evt
+---@class touchable_mouse_evt : touchable_base_evt
 touchable.mouse_evt = {
     ---@type string
     type = "pressed",
@@ -60,7 +60,7 @@ touchable.mouse_evt = {
 -- touch_evt
 --
 
----@class touchable_touch_evt : touchable_input_evt
+---@class touchable_touch_evt : touchable_base_evt
 touchable.touch_evt = {
     ---@type string
     type = "pressed",
