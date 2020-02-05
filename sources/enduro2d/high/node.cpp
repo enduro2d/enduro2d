@@ -5,7 +5,6 @@
  ******************************************************************************/
 
 #include <enduro2d/high/node.hpp>
-#include <enduro2d/high/world.hpp>
 
 namespace e2d
 {
@@ -446,54 +445,36 @@ namespace e2d
 
 namespace e2d::nodes
 {
-    vector<node_iptr> extract_nodes(const node_iptr& root) {
-        vector<node_iptr> nodes;
-        extract_nodes(root, std::back_inserter(nodes));
-        return nodes;
+    options& options::reversed(bool value) noexcept {
+        if ( value != reversed() ) {
+            math::flip_flags_inplace(flags_, fm_reversed);
+        }
+        return *this;
     }
 
-    vector<const_node_iptr> extract_nodes(const const_node_iptr& root) {
-        vector<const_node_iptr> nodes;
-        extract_nodes(root, std::back_inserter(nodes));
-        return nodes;
+    options& options::recursive(bool value) noexcept {
+        if ( value != recursive() ) {
+            math::flip_flags_inplace(flags_, fm_recursive);
+        }
+        return *this;
     }
 
-    vector<node_iptr> extract_nodes_reversed(const node_iptr& root) {
-        vector<node_iptr> nodes;
-        extract_nodes_reversed(root, std::back_inserter(nodes));
-        return nodes;
+    options& options::include_root(bool value) noexcept {
+        if ( value != include_root() ) {
+            math::flip_flags_inplace(flags_, fm_include_root);
+        }
+        return *this;
     }
 
-    vector<const_node_iptr> extract_nodes_reversed(const const_node_iptr& root) {
-        vector<const_node_iptr> nodes;
-        extract_nodes_reversed(root, std::back_inserter(nodes));
-        return nodes;
-    }
-}
-
-namespace e2d::nodes
-{
-    vector<node_iptr> extract_parents(const node_iptr& child) {
-        vector<node_iptr> parents;
-        extract_parents(child, std::back_inserter(parents));
-        return parents;
+    bool options::reversed() const noexcept {
+        return math::check_any_flags(flags_, fm_reversed);
     }
 
-    vector<const_node_iptr> extract_parents(const const_node_iptr& child) {
-        vector<const_node_iptr> parents;
-        extract_parents(child, std::back_inserter(parents));
-        return parents;
+    bool options::recursive() const noexcept {
+        return math::check_any_flags(flags_, fm_recursive);
     }
 
-    vector<node_iptr> extract_parents_reversed(const node_iptr& child) {
-        vector<node_iptr> parents;
-        extract_parents_reversed(child, std::back_inserter(parents));
-        return parents;
-    }
-
-    vector<const_node_iptr> extract_parents_reversed(const const_node_iptr& child) {
-        vector<const_node_iptr> parents;
-        extract_parents_reversed(child, std::back_inserter(parents));
-        return parents;
+    bool options::include_root() const noexcept {
+        return math::check_any_flags(flags_, fm_include_root);
     }
 }

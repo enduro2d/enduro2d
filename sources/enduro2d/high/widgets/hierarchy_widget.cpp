@@ -103,7 +103,7 @@ namespace
         }
 
         if ( tree_node_opened ) {
-            root->for_each_child([&e, &i, &w](const node_iptr& child){
+            nodes::for_each_child(root, [&e, &i, &w](const node_iptr& child){
                 show_tree_for_node(e, i, w, child);
             });
         }

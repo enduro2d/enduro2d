@@ -8,388 +8,327 @@
 
 #include "node.hpp"
 
-namespace e2d
+namespace e2d::nodes::impl
 {
-    template < typename F >
-    void node::for_each_child(F&& f) {
-        for ( auto iter = children_.begin(); iter != children_.end(); ++iter ) {
-            f(node_iptr(&*iter));
-        }
-    }
-
-    template < typename F >
-    void node::for_each_child(F&& f) const {
-        for ( auto iter = children_.begin(); iter != children_.end(); ++iter ) {
-            f(const_node_iptr(&*iter));
-        }
-    }
-
-    template < typename F >
-    void node::for_each_child_reversed(F&& f) {
-        for ( auto iter = children_.rbegin(); iter != children_.rend(); ++iter ) {
-            f(node_iptr(&*iter));
-        }
-    }
-
-    template < typename F >
-    void node::for_each_child_reversed(F&& f) const {
-        for ( auto iter = children_.rbegin(); iter != children_.rend(); ++iter ) {
-            f(const_node_iptr(&*iter));
+    template < typename F, typename... Args >
+    bool invoke_with_force_bool(F&& f, Args&&... args) {
+        if constexpr ( std::is_invocable_r_v<bool, F, Args...> ) {
+            return std::invoke(std::forward<F>(f), std::forward<Args>(args)...);
+        } else {
+            std::invoke(std::forward<F>(f), std::forward<Args>(args)...);
+            return true;
         }
     }
 }
 
 namespace e2d::nodes
 {
-    template < typename Iter >
-    std::size_t extract_nodes(const node_iptr& root, Iter iter) {
-        std::size_t count{0u};
-        if ( root ) {
-            ++count;
-            iter++ = root;
-            root->for_each_child([&iter, &count](const node_iptr& child){
-                count += extract_nodes(child, iter);
-            });
-        }
-        return count;
-    }
-
-    template < typename Iter >
-    std::size_t extract_nodes(const const_node_iptr& root, Iter iter) {
-        std::size_t count{0u};
-        if ( root ) {
-            ++count;
-            iter++ = root;
-            root->for_each_child([&iter, &count](const const_node_iptr& child){
-                count += extract_nodes(child, iter);
-            });
-        }
-        return count;
-    }
-
-    template < typename Iter >
-    std::size_t extract_nodes_reversed(const node_iptr& root, Iter iter) {
-        std::size_t count{0u};
-        if ( root ) {
-            root->for_each_child_reversed([&iter, &count](const node_iptr& child){
-                count += extract_nodes_reversed(child, iter);
-            });
-            ++count;
-            iter++ = root;
-        }
-        return count;
-    }
-
-    template < typename Iter >
-    std::size_t extract_nodes_reversed(const const_node_iptr& root, Iter iter) {
-        std::size_t count{0u};
-        if ( root ) {
-            root->for_each_child_reversed([&iter, &count](const const_node_iptr& child){
-                count += extract_nodes_reversed(child, iter);
-            });
-            ++count;
-            iter++ = root;
-        }
-        return count;
-    }
-}
-
-namespace e2d::nodes
-{
-    template < typename Iter >
-    std::size_t extract_parents(const node_iptr& root, Iter iter) {
-        std::size_t count{0u};
-        if ( root ) {
-            ++count;
-            iter++ = root;
-            count += extract_parents(root->parent(), iter);
-        }
-        return count;
-    }
-
-    template < typename Iter >
-    std::size_t extract_parents(const const_node_iptr& root, Iter iter) {
-        std::size_t count{0u};
-        if ( root ) {
-            ++count;
-            iter++ = root;
-            count += extract_parents(root->parent(), iter);
-        }
-        return count;
-    }
-
-    template < typename Iter >
-    std::size_t extract_parents_reversed(const node_iptr& root, Iter iter) {
-        std::size_t count{0u};
-        if ( root ) {
-            count += extract_parents(root->parent(), iter);
-            ++count;
-            iter++ = root;
-        }
-        return count;
-    }
-
-    template < typename Iter >
-    std::size_t extract_parents_reversed(const const_node_iptr& root, Iter iter) {
-        std::size_t count{0u};
-        if ( root ) {
-            count += extract_parents(root->parent(), iter);
-            ++count;
-            iter++ = root;
-        }
-        return count;
-    }
-}
-
-namespace e2d::nodes
-{
-    template < typename F >
-    void for_extracted_nodes(const node_iptr& root, F&& f) {
-        //TODO(BlackMat): replace it to frame allocator
-        static thread_local vector<node_iptr> nodes;
-
-        const std::size_t begin_index = nodes.size();
-        E2D_DEFER([begin_index](){
-            nodes.erase(
-                nodes.begin() + begin_index,
-                nodes.end());
-        });
-
-        extract_nodes(
-            root,
-            std::back_inserter(nodes));
-
-        const std::size_t end_index = nodes.size();
-        for ( std::size_t i = begin_index; i < end_index; ++i ) {
-            f(nodes[i]);
-        }
-    }
-
-    template < typename F >
-    void for_extracted_nodes(const const_node_iptr& root, F&& f) {
-        //TODO(BlackMat): replace it to frame allocator
-        static thread_local vector<const_node_iptr> nodes;
-
-        const std::size_t begin_index = nodes.size();
-        E2D_DEFER([begin_index](){
-            nodes.erase(
-                nodes.begin() + begin_index,
-                nodes.end());
-        });
-
-        extract_nodes(
-            root,
-            std::back_inserter(nodes));
-
-        const std::size_t end_index = nodes.size();
-        for ( std::size_t i = begin_index; i < end_index; ++i ) {
-            f(nodes[i]);
-        }
-    }
-
-    template < typename F >
-    void for_extracted_nodes_reversed(const node_iptr& root, F&& f) {
-        //TODO(BlackMat): replace it to frame allocator
-        static thread_local vector<node_iptr> nodes;
-
-        const std::size_t begin_index = nodes.size();
-        E2D_DEFER([begin_index](){
-            nodes.erase(
-                nodes.begin() + begin_index,
-                nodes.end());
-        });
-
-        extract_nodes_reversed(
-            root,
-            std::back_inserter(nodes));
-
-        const std::size_t end_index = nodes.size();
-        for ( std::size_t i = begin_index; i < end_index; ++i ) {
-            f(nodes[i]);
-        }
-    }
-
-    template < typename F >
-    void for_extracted_nodes_reversed(const const_node_iptr& root, F&& f) {
-        //TODO(BlackMat): replace it to frame allocator
-        static thread_local vector<const_node_iptr> nodes;
-
-        const std::size_t begin_index = nodes.size();
-        E2D_DEFER([begin_index](){
-            nodes.erase(
-                nodes.begin() + begin_index,
-                nodes.end());
-        });
-
-        extract_nodes_reversed(
-            root,
-            std::back_inserter(nodes));
-
-        const std::size_t end_index = nodes.size();
-        for ( std::size_t i = begin_index; i < end_index; ++i ) {
-            f(nodes[i]);
-        }
-    }
-}
-
-namespace e2d::nodes
-{
-    template < typename F >
-    void for_extracted_parents(const node_iptr& root, F&& f) {
-        //TODO(BlackMat): replace it to frame allocator
-        static thread_local vector<node_iptr> parents;
-
-        const std::size_t begin_index = parents.size();
-        E2D_DEFER([begin_index](){
-            parents.erase(
-                parents.begin() + begin_index,
-                parents.end());
-        });
-
-        extract_parents(
-            root,
-            std::back_inserter(parents));
-
-        const std::size_t end_index = parents.size();
-        for ( std::size_t i = begin_index; i < end_index; ++i ) {
-            f(parents[i]);
-        }
-    }
-
-    template < typename F >
-    void for_extracted_parents(const const_node_iptr& root, F&& f) {
-        //TODO(BlackMat): replace it to frame allocator
-        static thread_local vector<const_node_iptr> parents;
-
-        const std::size_t begin_index = parents.size();
-        E2D_DEFER([begin_index](){
-            parents.erase(
-                parents.begin() + begin_index,
-                parents.end());
-        });
-
-        extract_parents(
-            root,
-            std::back_inserter(parents));
-
-        const std::size_t end_index = parents.size();
-        for ( std::size_t i = begin_index; i < end_index; ++i ) {
-            f(parents[i]);
-        }
-    }
-
-    template < typename F >
-    void for_extracted_parents_reversed(const node_iptr& root, F&& f) {
-        //TODO(BlackMat): replace it to frame allocator
-        static thread_local vector<node_iptr> parents;
-
-        const std::size_t begin_index = parents.size();
-        E2D_DEFER([begin_index](){
-            parents.erase(
-                parents.begin() + begin_index,
-                parents.end());
-        });
-
-        extract_parents_reversed(
-            root,
-            std::back_inserter(parents));
-
-        const std::size_t end_index = parents.size();
-        for ( std::size_t i = begin_index; i < end_index; ++i ) {
-            f(parents[i]);
-        }
-    }
-
-    template < typename F >
-    void for_extracted_parents_reversed(const const_node_iptr& root, F&& f) {
-        //TODO(BlackMat): replace it to frame allocator
-        static thread_local vector<const_node_iptr> parents;
-
-        const std::size_t begin_index = parents.size();
-        E2D_DEFER([begin_index](){
-            parents.erase(
-                parents.begin() + begin_index,
-                parents.end());
-        });
-
-        extract_parents_reversed(
-            root,
-            std::back_inserter(parents));
-
-        const std::size_t end_index = parents.size();
-        for ( std::size_t i = begin_index; i < end_index; ++i ) {
-            f(parents[i]);
-        }
-    }
-}
-
-namespace e2d::nodes
-{
-    template < typename Component >
-    gcomponent<Component> get_component_in_parent(const const_node_iptr& root) {
+    template < typename Node, typename F >
+    bool for_each_child(
+        const intrusive_ptr<Node>& root,
+        F&& f,
+        const options& opts)
+    {
         if ( !root ) {
-            return {};
+            return true;
         }
 
-        if ( auto component = root->owner().component<Component>() ) {
-            return component;
-        }
+        if ( opts.reversed() ) {
+            for ( auto child = root->last_child(); child; child = child->prev_sibling() ) {
+                if ( opts.recursive() && !for_each_child(child, f, options(opts).include_root(false)) ) {
+                    return false;
+                }
 
-        return get_component_in_parent<Component>(root->parent());
-    }
+                if ( !impl::invoke_with_force_bool(f, child) ) {
+                    return false;
+                }
+            }
 
-    template < typename Component, typename Iter >
-    std::size_t get_components_in_parent(const const_node_iptr& root, Iter iter) {
-        std::size_t count{0u};
+            if ( opts.include_root() && !impl::invoke_with_force_bool(f, root) ) {
+                return false;
+            }
+        } else {
+            if ( opts.include_root() && !impl::invoke_with_force_bool(f, root) ) {
+                return false;
+            }
 
-        if ( !root ) {
-            return count;
-        }
+            for ( auto child = root->first_child(); child; child = child->next_sibling() ) {
+                if ( !impl::invoke_with_force_bool(f, child) ) {
+                    return false;
+                }
 
-        if ( auto component = root->owner().component<Component>() ) {
-            ++count;
-            iter++ = component;
-        }
-
-        return count + get_components_in_parent<Component>(root->parent(), iter);
-    }
-
-    template < typename Component >
-    gcomponent<Component> get_component_in_children(const const_node_iptr& root) {
-        if ( !root ) {
-            return {};
-        }
-
-        if ( auto component = root->owner().component<Component>() ) {
-            return component;
-        }
-
-        for ( const_node_iptr child = root->first_child(); child; child = child->next_sibling() ) {
-            if ( auto component = get_component_in_children<Component>(child) ) {
-                return component;
+                if ( opts.recursive() && !for_each_child(child, f, options(opts).include_root(false)) ) {
+                    return false;
+                }
             }
         }
 
-        return {};
+        return true;
     }
 
-    template < typename Component, typename Iter >
-    std::size_t get_components_in_children(const const_node_iptr& root, Iter iter) {
-        std::size_t count{0u};
-
+    template < typename Node, typename F >
+    bool for_each_parent(
+        const intrusive_ptr<Node>& root,
+        F&& f,
+        const options& opts)
+    {
         if ( !root ) {
-            return count;
+            return true;
         }
 
-        if ( auto component = root->owner().component<Component>() ) {
+        if ( opts.reversed() ) {
+            if ( root->has_parent() ) {
+                if ( opts.recursive() && !for_each_parent(root->parent(), f, options(opts).include_root(false)) ) {
+                    return false;
+                }
+
+                if ( !impl::invoke_with_force_bool(f, root->parent()) ) {
+                    return false;
+                }
+            }
+
+            if ( opts.include_root() && !impl::invoke_with_force_bool(f, root) ) {
+                return false;
+            }
+        } else {
+            if ( opts.include_root() && !impl::invoke_with_force_bool(f, root) ) {
+                return false;
+            }
+
+            if ( root->has_parent() ) {
+                if ( !impl::invoke_with_force_bool(f, root->parent()) ) {
+                    return false;
+                }
+
+                if ( opts.recursive() && !for_each_parent(root->parent(), f, options(opts).include_root(false)) ) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+}
+
+namespace e2d::nodes
+{
+    template < typename Node, typename Iter >
+    std::size_t extract_parents(
+        const intrusive_ptr<Node>& root,
+        Iter iter,
+        const options& opts)
+    {
+        std::size_t count{0u};
+        for_each_parent(root, [&count, &iter](const auto& parent){
             ++count;
-            iter++ = component;
-        }
-
-        for ( const_node_iptr child = root->first_child(); child; child = child->next_sibling() ) {
-            count += get_components_in_children<Component>(child, iter);
-        }
-
+            iter++ = parent;
+        }, opts);
         return count;
+    }
+
+    template < typename Node, typename Iter >
+    std::size_t extract_children(
+        const intrusive_ptr<Node>& root,
+        Iter iter,
+        const options& opts)
+    {
+        std::size_t count{0u};
+        for_each_child(root, [&count, &iter](const auto& child){
+            ++count;
+            iter++ = child;
+        }, opts);
+        return count;
+    }
+}
+
+namespace e2d::nodes
+{
+    template < typename Node, typename F >
+    bool for_extracted_parents(
+        const intrusive_ptr<Node>& root,
+        F&& f,
+        const options& opts)
+    {
+        //TODO(BlackMat): replace it to frame allocator
+        static thread_local vector<intrusive_ptr<Node>> parents;
+
+        const std::size_t begin_index = parents.size();
+        E2D_DEFER([begin_index](){
+            parents.erase(
+                parents.begin() + begin_index,
+                parents.end());
+        });
+
+        extract_parents(
+            root,
+            std::back_inserter(parents),
+            opts);
+
+        const std::size_t end_index = parents.size();
+        for ( std::size_t i = begin_index; i < end_index; ++i ) {
+            if ( !impl::invoke_with_force_bool(f, parents[i]) ) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    template < typename Node, typename F >
+    bool for_extracted_children(
+        const intrusive_ptr<Node>& root,
+        F&& f,
+        const options& opts)
+    {
+        //TODO(BlackMat): replace it to frame allocator
+        static thread_local vector<intrusive_ptr<Node>> children;
+
+        const std::size_t begin_index = children.size();
+        E2D_DEFER([begin_index](){
+            children.erase(
+                children.begin() + begin_index,
+                children.end());
+        });
+
+        extract_children(
+            root,
+            std::back_inserter(children),
+            opts);
+
+        const std::size_t end_index = children.size();
+        for ( std::size_t i = begin_index; i < end_index; ++i ) {
+            if ( !impl::invoke_with_force_bool(f, children[i]) ) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+}
+
+namespace e2d::nodes
+{
+    template < typename Component, typename Node, typename Iter >
+    std::size_t extract_components_from_parents(
+        const intrusive_ptr<Node>& root,
+        Iter iter,
+        const options& opts)
+    {
+        std::size_t count{0u};
+        for_each_parent(root, [&count, &iter](const auto& parent){
+            if ( auto component = parent->owner().template component<Component>() ) {
+                ++count;
+                iter++ = component;
+            }
+        }, opts);
+        return count;
+    }
+
+    template < typename Component, typename Node, typename Iter >
+    std::size_t extract_components_from_children(
+        const intrusive_ptr<Node>& root,
+        Iter iter,
+        const options& opts)
+    {
+        std::size_t count{0u};
+        for_each_child(root, [&count, &iter](const auto& child){
+            if ( auto component = child->owner().template component<Component>() ) {
+                ++count;
+                iter++ = component;
+            }
+        }, opts);
+        return count;
+    }
+}
+
+namespace e2d::nodes
+{
+    template < typename Component, typename Node, typename F >
+    bool for_extracted_components_from_parents(
+        const intrusive_ptr<Node>& root,
+        F&& f,
+        const options& opts)
+    {
+        //TODO(BlackMat): replace it to frame allocator
+        static thread_local vector<gcomponent<Component>> components;
+
+        const std::size_t begin_index = components.size();
+        E2D_DEFER([begin_index](){
+            components.erase(
+                components.begin() + begin_index,
+                components.end());
+        });
+
+        extract_components_from_parents<Component>(
+            root,
+            std::back_inserter(components),
+            opts);
+
+        const std::size_t end_index = components.size();
+        for ( std::size_t i = begin_index; i < end_index; ++i ) {
+            if ( !impl::invoke_with_force_bool(f, components[i]) ) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    template < typename Component, typename Node, typename F >
+    bool for_extracted_components_from_children(
+        const intrusive_ptr<Node>& root,
+        F&& f,
+        const options& opts)
+    {
+        //TODO(BlackMat): replace it to frame allocator
+        static thread_local vector<gcomponent<Component>> components;
+
+        const std::size_t begin_index = components.size();
+        E2D_DEFER([begin_index](){
+            components.erase(
+                components.begin() + begin_index,
+                components.end());
+        });
+
+        extract_components_from_children<Component>(
+            root,
+            std::back_inserter(components),
+            opts);
+
+        const std::size_t end_index = components.size();
+        for ( std::size_t i = begin_index; i < end_index; ++i ) {
+            if ( !impl::invoke_with_force_bool(f, components[i]) ) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+}
+
+namespace e2d::nodes
+{
+    template < typename Component, typename Node >
+    gcomponent<Component> find_component_from_parents(
+        const intrusive_ptr<Node>& root,
+        const options& opts)
+    {
+        gcomponent<Component> component;
+        for_each_parent(root, [&component](const auto& child){
+            return !(component = child->owner().template component<Component>());
+        }, opts);
+        return component;
+    }
+
+    template < typename Component, typename Node >
+    gcomponent<Component> find_component_from_children(
+        const intrusive_ptr<Node>& root,
+        const options& opts)
+    {
+        gcomponent<Component> component;
+        for_each_child(root, [&component](const auto& child){
+            return !(component = child->owner().template component<Component>());
+        }, opts);
+        return component;
     }
 }

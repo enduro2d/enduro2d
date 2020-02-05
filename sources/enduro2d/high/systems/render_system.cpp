@@ -30,9 +30,9 @@ namespace
             const scene&,
             const actor& scn_a)
         {
-            nodes::for_extracted_nodes(scn_a.node(), [&ctx](const const_node_iptr& node){
+            nodes::for_extracted_children(scn_a.node(), [&ctx](const const_node_iptr& node){
                 ctx.draw(node);
-            });
+            }, nodes::options().recursive(true).include_root(true));
         };
 
         ecsex::for_extracted_sorted_components<scene, actor>(

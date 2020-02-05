@@ -595,7 +595,7 @@ TEST_CASE("node") {
             node::create(p)};
         {
             std::size_t count = 0;
-            p->for_each_child([&ns, &count](const node_iptr& n){
+            nodes::for_each_child(p, [&ns, &count](const node_iptr& n){
                 REQUIRE(ns[count++] == n);
             });
             REQUIRE(count == 3);
@@ -603,7 +603,7 @@ TEST_CASE("node") {
         {
             const_node_iptr cp = p;
             std::size_t count = 0;
-            cp->for_each_child([&ns, &count](const const_node_iptr& n){
+            nodes::for_each_child(cp, [&ns, &count](const const_node_iptr& n){
                 REQUIRE(ns[count++] == n);
             });
             REQUIRE(count == 3);
@@ -617,13 +617,19 @@ TEST_CASE("node") {
         const vector<node_iptr> ns{p, c1, c2, c3};
         {
             vector<node_iptr> ns2;
-            REQUIRE(4u == nodes::extract_nodes(p, std::back_inserter(ns2)));
+            REQUIRE(4u == nodes::extract_children(
+                p,
+                std::back_inserter(ns2),
+                nodes::options().recursive(true).include_root(true)));
             REQUIRE(ns == ns2);
         }
         {
             const_node_iptr cp = p;
             vector<const_node_iptr> ns2;
-            REQUIRE(4u == nodes::extract_nodes(cp, std::back_inserter(ns2)));
+            REQUIRE(4u == nodes::extract_children(
+                cp,
+                std::back_inserter(ns2),
+                nodes::options().recursive(true).include_root(true)));
             REQUIRE(ns.size() == ns2.size());
             for ( std::size_t i = 0; i < ns.size(); ++i ) {
                 REQUIRE(ns[i] == ns2[i]);
