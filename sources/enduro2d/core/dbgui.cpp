@@ -256,7 +256,7 @@ namespace e2d
             icons_config.PixelSnapH = true;
 
             {
-                const ImWchar icons_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0};
+                static const ImWchar icons_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0};
                 io.Fonts->AddFontFromMemoryCompressedTTF(
                     fa_solid_900_compressed_data,
                     math::numeric_cast<int>(fa_solid_900_compressed_size),
@@ -265,7 +265,7 @@ namespace e2d
             }
 
             {
-                const ImWchar icons_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0};
+                static const ImWchar icons_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0};
                 io.Fonts->AddFontFromMemoryCompressedTTF(
                     fa_regular_400_compressed_data,
                     math::numeric_cast<int>(fa_regular_400_compressed_size),
@@ -274,7 +274,7 @@ namespace e2d
             }
 
             {
-                const ImWchar icons_ranges[] = { ICON_MIN_MD, ICON_MAX_MD, 0};
+                static const ImWchar icons_ranges[] = { ICON_MIN_MD, ICON_MAX_MD, 0};
                 io.Fonts->AddFontFromMemoryCompressedTTF(
                     materialicons_regular_compressed_data,
                     math::numeric_cast<int>(materialicons_regular_compressed_size),
