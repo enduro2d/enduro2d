@@ -29,12 +29,6 @@ namespace e2d
     class mat4;
 
     template < typename T >
-    class ray2;
-
-    template < typename T >
-    class ray3;
-
-    template < typename T >
     class rect;
 
     template < typename T >
@@ -96,20 +90,6 @@ namespace e2d
     using m4u = mat4<u32>;
     using m4hi = mat4<i16>;
     using m4hu = mat4<u16>;
-
-    using r2d = ray2<f64>;
-    using r2f = ray2<f32>;
-    using r2i = ray2<i32>;
-    using r2u = ray2<u32>;
-    using r2hi = ray2<i16>;
-    using r2hu = ray2<u16>;
-
-    using r3d = ray3<f64>;
-    using r3f = ray3<f32>;
-    using r3i = ray3<i32>;
-    using r3u = ray3<u32>;
-    using r3hi = ray3<i16>;
-    using r3hu = ray3<u16>;
 
     using b2d = rect<f64>;
     using b2f = rect<f32>;

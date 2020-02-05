@@ -156,18 +156,8 @@ TEST_CASE("strfmts") {
             " 4.00us");
     }
     {
-        REQUIRE(strings::rformat("%0", make_ray2(v2i{1,2},v2i{3,4})) == "(1,2,3,4)");
-        REQUIRE(strings::rformat("%0", make_ray3(v3i{1,2,3},v3i{4,5,6})) == "(1,2,3,4,5,6)");
-
         REQUIRE(strings::rformat("%0", make_rect(1,2,3,4)) == "(1,2,3,4)");
         REQUIRE(strings::rformat("%0", make_aabb(1,2,3,4,5,6)) == "(1,2,3,4,5,6)");
-
-        REQUIRE(strings::rformat(
-            "%0",
-            strings::make_format_arg(make_ray2(v2f{1.f,2.f},v2f{3.f,4.f}), u8(5), u8(2))) == "( 1.00, 2.00, 3.00, 4.00)");
-        REQUIRE(strings::rformat(
-            "%0",
-            strings::make_format_arg(make_ray3(v3f{1.f,2.f,3.f},v3f{4.f,5.f,6.f}), u8(5), u8(2))) == "( 1.00, 2.00, 3.00, 4.00, 5.00, 6.00)");
 
         REQUIRE(strings::rformat(
             "%0",
