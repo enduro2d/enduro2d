@@ -51,14 +51,36 @@
             "rigid_body" : {
                 "type" : "dynamic"
             },
-            "rect_collider" : {
-                "size" : [66,113]
-            },
             "circle_collider" : {
-                "offset" : [50,25],
+                "offset" : [10,15],
                 "radius" : 33
             }
-        }
+        },
+        "children" : [{
+            "prototype" : "../prefabs/ship_prefab.json",
+            "components" : {
+                "named" : {
+                    "name" : "ship(11)"
+                },
+                "actor" : {
+                    "translation" : [0,0],
+                    "rotation" : 1,
+                    "scale" : [0.5,0.5]
+                },
+                "behaviour" : {
+                    "script" : "../scripts/sample_08/ship.lua"
+                },
+                "touchable" : {},
+                "rigid_body" : {
+                    "type" : "dynamic"
+                },
+                "circle_collider" : {
+                    "offset" : [10,15],
+                    "radius" : 33
+                }
+            },
+            "children" : []
+        }]
     },{
         "prototype" : "../prefabs/ship_prefab.json",
         "components" : {

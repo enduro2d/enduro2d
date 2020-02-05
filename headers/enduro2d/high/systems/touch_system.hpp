@@ -10,11 +10,11 @@
 
 namespace e2d
 {
-    class input_system final
+    class touch_system final
         : public ecs::system<ecs::before<systems::update_event>> {
     public:
-        input_system();
-        ~input_system() noexcept final;
+        touch_system();
+        ~touch_system() noexcept final;
 
         void process(
             ecs::registry& owner,

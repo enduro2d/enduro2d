@@ -36,12 +36,12 @@
 #include <enduro2d/high/systems/flipbook_system.hpp>
 #include <enduro2d/high/systems/frame_system.hpp>
 #include <enduro2d/high/systems/gizmos_system.hpp>
-#include <enduro2d/high/systems/input_system.hpp>
 #include <enduro2d/high/systems/label_system.hpp>
 #include <enduro2d/high/systems/physics_system.hpp>
 #include <enduro2d/high/systems/render_system.hpp>
 #include <enduro2d/high/systems/script_system.hpp>
 #include <enduro2d/high/systems/spine_system.hpp>
+#include <enduro2d/high/systems/touch_system.hpp>
 #include <enduro2d/high/systems/world_system.hpp>
 
 namespace
@@ -70,8 +70,6 @@ namespace
                     .add_system<frame_system>())
                 .feature<struct gizmos_feature>(ecs::feature()
                     .add_system<gizmos_system>())
-                .feature<struct input_feature>(ecs::feature()
-                    .add_system<input_system>())
                 .feature<struct label_feature>(ecs::feature()
                     .add_system<label_system>())
                 .feature<struct physics_feature>(ecs::feature()
@@ -82,6 +80,8 @@ namespace
                     .add_system<script_system>())
                 .feature<struct spine_feature>(ecs::feature()
                     .add_system<spine_system>())
+                .feature<struct touch_feature>(ecs::feature()
+                    .add_system<touch_system>())
                 .feature<struct world_feature>(ecs::feature()
                     .add_system<world_system>());
             return !application_ || application_->initialize();

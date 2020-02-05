@@ -70,12 +70,12 @@ namespace e2d
     class flipbook_system;
     class frame_system;
     class gizmos_system;
-    class input_system;
     class label_system;
     class physics_system;
     class render_system;
     class script_system;
     class spine_system;
+    class touch_system;
     class world_system;
 
     template < typename Asset, typename Content >
