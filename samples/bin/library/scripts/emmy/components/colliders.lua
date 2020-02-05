@@ -10,19 +10,7 @@ local rect_collider = {
     size = v2f.unit(),
 
     ---@type v2f
-    offset = v2f.zero(),
-
-    ---@type boolean
-    sensor = false,
-
-    ---@type number
-    density = 1.0,
-
-    ---@type number
-    friction = 0.2,
-
-    ---@type number
-    restitution = 0.0
+    offset = v2f.zero()
 }
 
 ---@overload fun(self: rect_collider)
@@ -48,19 +36,7 @@ local circle_collider = {
     radius = 1.0,
 
     ---@type v2f
-    offset = v2f.zero(),
-
-    ---@type boolean
-    sensor = false,
-
-    ---@type number
-    density = 1.0,
-
-    ---@type number
-    friction = 0.2,
-
-    ---@type number
-    restitution = 0.0
+    offset = v2f.zero()
 }
 
 ---@overload fun(self: circle_collider)
@@ -90,19 +66,7 @@ local polygon_collider = {
         v2f.new(-0.5,  0.5)},
 
     ---@type v2f
-    offset = v2f.zero(),
-
-    ---@type boolean
-    sensor = false,
-
-    ---@type number
-    density = 1.0,
-
-    ---@type number
-    friction = 0.2,
-
-    ---@type number
-    restitution = 0.0
+    offset = v2f.zero()
 }
 
 ---@overload fun(self: polygon_collider)

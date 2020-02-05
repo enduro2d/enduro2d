@@ -24,42 +24,6 @@ namespace
             component.offset(offset);
         }
 
-        if ( ctx.root.HasMember("sensor") ) {
-            bool sensor = component.sensor();
-            if ( !json_utils::try_parse_value(ctx.root["sensor"], sensor) ) {
-                the<debug>().error("COLLIDER_BASE: Incorrect formatting of 'sensor' property");
-                return false;
-            }
-            component.sensor(sensor);
-        }
-
-        if ( ctx.root.HasMember("density") ) {
-            f32 density = component.density();
-            if ( !json_utils::try_parse_value(ctx.root["density"], density) ) {
-                the<debug>().error("COLLIDER_BASE: Incorrect formatting of 'density' property");
-                return false;
-            }
-            component.density(density);
-        }
-
-        if ( ctx.root.HasMember("friction") ) {
-            f32 friction = component.friction();
-            if ( !json_utils::try_parse_value(ctx.root["friction"], friction) ) {
-                the<debug>().error("COLLIDER_BASE: Incorrect formatting of 'friction' property");
-                return false;
-            }
-            component.friction(friction);
-        }
-
-        if ( ctx.root.HasMember("restitution") ) {
-            f32 restitution = component.restitution();
-            if ( !json_utils::try_parse_value(ctx.root["restitution"], restitution) ) {
-                the<debug>().error("COLLIDER_BASE: Incorrect formatting of 'restitution' property");
-                return false;
-            }
-            component.restitution(restitution);
-        }
-
         return true;
     }
 
@@ -69,30 +33,6 @@ namespace
             ImGui::DragFloat2("offset", offset.data(), 1.f) )
         {
             c.offset(offset);
-        }
-
-        if ( bool sensor = c.sensor();
-            ImGui::Checkbox("sensor", &sensor) )
-        {
-            c.sensor(sensor);
-        }
-
-        if ( f32 density = c.density();
-            ImGui::DragFloat("density", &density, 0.01f) )
-        {
-            c.density(density);
-        }
-
-        if ( f32 friction = c.friction();
-            ImGui::DragFloat("friction", &friction, 0.01f) )
-        {
-            c.friction(friction);
-        }
-
-        if ( f32 restitution = c.restitution();
-            ImGui::DragFloat("restitution", &restitution, 0.01f) )
-        {
-            c.restitution(restitution);
         }
     }
 }
@@ -105,11 +45,7 @@ namespace e2d
         "additionalProperties" : false,
         "properties" : {
             "size" : { "$ref": "#/common_definitions/v2" },
-            "offset" : { "$ref": "#/common_definitions/v2" },
-            "sensor" : { "type" : "boolean" },
-            "density" : { "type" : "number" },
-            "friction" : { "type" : "number" },
-            "restitution" : { "type" : "number" }
+            "offset" : { "$ref": "#/common_definitions/v2" }
         }
     })json";
 
@@ -147,11 +83,7 @@ namespace e2d
         "additionalProperties" : false,
         "properties" : {
             "radius" : { "type" : "number" },
-            "offset" : { "$ref": "#/common_definitions/v2" },
-            "sensor" : { "type" : "boolean" },
-            "density" : { "type" : "number" },
-            "friction" : { "type" : "number" },
-            "restitution" : { "type" : "number" }
+            "offset" : { "$ref": "#/common_definitions/v2" }
         }
     })json";
 
@@ -188,11 +120,7 @@ namespace e2d
         "additionalProperties" : false,
         "properties" : {
             "points" : { "$ref": "#/definitions/points" },
-            "offset" : { "$ref": "#/common_definitions/v2" },
-            "sensor" : { "type" : "boolean" },
-            "density" : { "type" : "number" },
-            "friction" : { "type" : "number" },
-            "restitution" : { "type" : "number" }
+            "offset" : { "$ref": "#/common_definitions/v2" }
         },
         "definitions" : {
             "points" : {

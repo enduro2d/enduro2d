@@ -66,38 +66,6 @@ namespace
                 },
                 [](gcomponent<rect_collider>& c, const v2f& v){
                     c->offset(v);
-                }),
-
-            "sensor", sol::property(
-                [](const gcomponent<rect_collider>& c) -> bool {
-                    return c->sensor();
-                },
-                [](gcomponent<rect_collider>& c, bool v){
-                    c->sensor(v);
-                }),
-
-            "density", sol::property(
-                [](const gcomponent<rect_collider>& c) -> f32 {
-                    return c->density();
-                },
-                [](gcomponent<rect_collider>& c, f32 v){
-                    c->density(v);
-                }),
-
-            "friction", sol::property(
-                [](const gcomponent<rect_collider>& c) -> f32 {
-                    return c->friction();
-                },
-                [](gcomponent<rect_collider>& c, f32 v){
-                    c->friction(v);
-                }),
-
-            "restitution", sol::property(
-                [](const gcomponent<rect_collider>& c) -> f32 {
-                    return c->restitution();
-                },
-                [](gcomponent<rect_collider>& c, f32 v){
-                    c->restitution(v);
                 })
         );
     }
@@ -154,38 +122,6 @@ namespace
                 },
                 [](gcomponent<circle_collider>& c, const v2f& v){
                     c->offset(v);
-                }),
-
-            "sensor", sol::property(
-                [](const gcomponent<circle_collider>& c) -> bool {
-                    return c->sensor();
-                },
-                [](gcomponent<circle_collider>& c, bool v){
-                    c->sensor(v);
-                }),
-
-            "density", sol::property(
-                [](const gcomponent<circle_collider>& c) -> f32 {
-                    return c->density();
-                },
-                [](gcomponent<circle_collider>& c, f32 v){
-                    c->density(v);
-                }),
-
-            "friction", sol::property(
-                [](const gcomponent<circle_collider>& c) -> f32 {
-                    return c->friction();
-                },
-                [](gcomponent<circle_collider>& c, f32 v){
-                    c->friction(v);
-                }),
-
-            "restitution", sol::property(
-                [](const gcomponent<circle_collider>& c) -> f32 {
-                    return c->restitution();
-                },
-                [](gcomponent<circle_collider>& c, f32 v){
-                    c->restitution(v);
                 })
         );
     }
@@ -242,38 +178,6 @@ namespace
                 },
                 [](gcomponent<polygon_collider>& c, const v2f& v){
                     c->offset(v);
-                }),
-
-            "sensor", sol::property(
-                [](const gcomponent<polygon_collider>& c) -> bool {
-                    return c->sensor();
-                },
-                [](gcomponent<polygon_collider>& c, bool v){
-                    c->sensor(v);
-                }),
-
-            "density", sol::property(
-                [](const gcomponent<polygon_collider>& c) -> f32 {
-                    return c->density();
-                },
-                [](gcomponent<polygon_collider>& c, f32 v){
-                    c->density(v);
-                }),
-
-            "friction", sol::property(
-                [](const gcomponent<polygon_collider>& c) -> f32 {
-                    return c->friction();
-                },
-                [](gcomponent<polygon_collider>& c, f32 v){
-                    c->friction(v);
-                }),
-
-            "restitution", sol::property(
-                [](const gcomponent<polygon_collider>& c) -> f32 {
-                    return c->restitution();
-                },
-                [](gcomponent<polygon_collider>& c, f32 v){
-                    c->restitution(v);
                 })
         );
     }

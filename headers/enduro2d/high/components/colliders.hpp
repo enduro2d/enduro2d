@@ -17,24 +17,8 @@ namespace e2d::impl
 
         Collider& offset(const v2f& value) noexcept;
         [[nodiscard]] const v2f& offset() const noexcept;
-
-        Collider& sensor(bool value) noexcept;
-        [[nodiscard]] bool sensor() const noexcept;
-
-        Collider& density(f32 value) noexcept;
-        [[nodiscard]] f32 density() const noexcept;
-
-        Collider& friction(f32 value) noexcept;
-        [[nodiscard]] f32 friction() const noexcept;
-
-        Collider& restitution(f32 value) noexcept;
-        [[nodiscard]] f32 restitution() const noexcept;
     private:
         v2f offset_ = v2f::zero();
-        bool sensor_ = false;
-        f32 density_ = 1.f;
-        f32 friction_ = 0.2f;
-        f32 restitution_ = 0.f;
     };
 }
 
@@ -165,50 +149,6 @@ namespace e2d::impl
     template < typename Collider >
     const v2f& collider_base<Collider>::offset() const noexcept {
         return offset_;
-    }
-
-    template < typename Collider >
-    Collider& collider_base<Collider>::sensor(bool value) noexcept {
-        sensor_ = value;
-        return static_cast<Collider&>(*this);
-    }
-
-    template < typename Collider >
-    bool collider_base<Collider>::sensor() const noexcept {
-        return sensor_;
-    }
-
-    template < typename Collider >
-    Collider& collider_base<Collider>::density(f32 value) noexcept {
-        density_ = math::max(0.f, value);
-        return static_cast<Collider&>(*this);
-    }
-
-    template < typename Collider >
-    f32 collider_base<Collider>::density() const noexcept {
-        return density_;
-    }
-
-    template < typename Collider >
-    Collider& collider_base<Collider>::friction(f32 value) noexcept {
-        friction_ = value;
-        return static_cast<Collider&>(*this);
-    }
-
-    template < typename Collider >
-    f32 collider_base<Collider>::friction() const noexcept {
-        return friction_;
-    }
-
-    template < typename Collider >
-    Collider& collider_base<Collider>::restitution(f32 value) noexcept {
-        restitution_ = value;
-        return static_cast<Collider&>(*this);
-    }
-
-    template < typename Collider >
-    f32 collider_base<Collider>::restitution() const noexcept {
-        return restitution_;
     }
 }
 

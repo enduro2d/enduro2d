@@ -11,7 +11,7 @@ end
 
 ---@param go gobject
 ---@param type string
----@param event touchable_input_evt | touchable_mouse_evt
+---@param event touchable_base_evt | touchable_mouse_evt
 function M:on_event(go, type, event)
     if type == "touchable.mouse_evt" then
         the_debug:trace(string.format(
