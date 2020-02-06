@@ -13,8 +13,6 @@
 
 ## [Bootstrap](https://github.com/enduro2d/enduro2d-bootstrap)
 
-## [Roadmap](./ROADMAP.md)
-
 ## [License (MIT)](./LICENSE.md)
 
 [badge.travis]: https://img.shields.io/travis/enduro2d/enduro2d/master.svg?logo=travis
