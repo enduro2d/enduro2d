@@ -121,7 +121,7 @@ namespace
 
         ImGui::Separator();
 
-        if ( ImGui::Button("+ Add None") ) {
+        if ( ImGui::Button("+ Add Node") ) {
             w.instantiate();
         }
     }
