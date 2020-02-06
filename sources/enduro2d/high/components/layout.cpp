@@ -12,14 +12,33 @@ namespace e2d
         "type" : "object",
         "required" : [],
         "additionalProperties" : false,
-        "properties" : {}
+        "properties" : {
+            "mode" : { "$ref": "#/definitions/modes" }
+        },
+        "definitions" : {
+            "modes" : {
+                "type" : "string",
+                "enum" : [
+                    "vertical",
+                    "horizontal"
+                ]
+            }
+        }
     })json";
 
     bool factory_loader<layout>::operator()(
         layout& component,
         const fill_context& ctx) const
     {
-        E2D_UNUSED(component, ctx);
+        if ( ctx.root.HasMember("mode") ) {
+            layout::modes mode = component.mode();
+            if ( !json_utils::try_parse_value(ctx.root["mode"], mode) ) {
+                the<debug>().error("LAYOUT: Incorrect formatting of 'mode' property");
+                return false;
+            }
+            component.mode(mode);
+        }
+
         return true;
     }
 
@@ -63,7 +82,11 @@ namespace e2d
     const char* component_inspector<layout>::title = ICON_FA_BARS " layout";
 
     void component_inspector<layout>::operator()(gcomponent<layout>& c) const {
-        E2D_UNUSED(c);
+        if ( layout::modes mode = c->mode();
+            imgui_utils::show_enum_combo_box("mode", &mode) )
+        {
+            c->mode(mode);
+        }
     }
 }
 

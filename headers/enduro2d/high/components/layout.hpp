@@ -12,7 +12,16 @@ namespace e2d
 {
     class layout final {
     public:
+        ENUM_HPP_CLASS_DECL(modes, u8,
+            (vertical)
+            (horizontal))
+    public:
         layout() = default;
+
+        layout& mode(modes value) noexcept;
+        [[nodiscard]] modes mode() const noexcept;
+    private:
+        modes mode_ = modes::vertical;
     };
 
     class layout_item final {
@@ -20,6 +29,8 @@ namespace e2d
         layout_item() = default;
     };
 }
+
+ENUM_HPP_REGISTER_TRAITS(e2d::layout::modes)
 
 namespace e2d
 {
@@ -73,4 +84,12 @@ namespace e2d
 
 namespace e2d
 {
+    inline layout& layout::mode(modes value) noexcept {
+        mode_ = value;
+        return *this;
+    }
+
+    inline layout::modes layout::mode() const noexcept {
+        return mode_;
+    }
 }
