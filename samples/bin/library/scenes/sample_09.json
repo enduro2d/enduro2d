@@ -1,0 +1,8 @@
+{
+    "prototype" : "../prefabs/scene_prefab.json",
+    "children" : [{
+        "prototype" : "../prefabs/background_prefab.json"
+    },{
+        "prototype" : "../prefabs/camera_prefab.json"
+    }]
+}
