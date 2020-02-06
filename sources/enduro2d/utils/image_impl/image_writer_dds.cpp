@@ -1,7 +1,7 @@
 /*******************************************************************************
  * This file is part of the "Enduro2D"
  * For conditions of distribution and use, see copyright notice in LICENSE.md
- * Copyright (C) 2018-2019, by Matvey Cherevko (blackmatov@gmail.com)
+ * Copyright (C) 2018-2020, by Matvey Cherevko (blackmatov@gmail.com)
  ******************************************************************************/
 
 #include "image_impl.hpp"
@@ -22,7 +22,7 @@ namespace e2d::images::impl
             case image_data_format::la8:
             case image_data_format::rgb8:
             case image_data_format::rgba8:
-                
+
             case image_data_format::rgba_dxt1:
             case image_data_format::rgba_dxt3:
             case image_data_format::rgba_dxt5:

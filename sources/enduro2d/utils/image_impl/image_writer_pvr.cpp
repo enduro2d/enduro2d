@@ -1,7 +1,7 @@
 /*******************************************************************************
  * This file is part of the "Enduro2D"
  * For conditions of distribution and use, see copyright notice in LICENSE.md
- * Copyright (C) 2018-2019, by Matvey Cherevko (blackmatov@gmail.com)
+ * Copyright (C) 2018-2020, by Matvey Cherevko (blackmatov@gmail.com)
  ******************************************************************************/
 
 #include "image_impl.hpp"
@@ -80,7 +80,7 @@ namespace e2d::images::impl
             case image_data_format::rgb_pvrtc4:
             case image_data_format::rgba_pvrtc2:
             case image_data_format::rgba_pvrtc4:
-                
+
             case image_data_format::rgba_pvrtc2_v2:
             case image_data_format::rgba_pvrtc4_v2:
                 return true;
@@ -88,7 +88,7 @@ namespace e2d::images::impl
                 return false;
         }
     }
-    
+
     bool save_image_pvr(const image& src, buffer& dst) {
         if ( !check_save_image_pvr(src) ) {
             return false;

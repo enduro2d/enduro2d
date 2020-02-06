@@ -1,7 +1,7 @@
 /*******************************************************************************
  * This file is part of the "Enduro2D"
  * For conditions of distribution and use, see copyright notice in LICENSE.md
- * Copyright (C) 2018-2019, by Matvey Cherevko (blackmatov@gmail.com)
+ * Copyright (C) 2018-2020, by Matvey Cherevko (blackmatov@gmail.com)
  ******************************************************************************/
 
 #include <enduro2d/utils/buffer_view.hpp>
@@ -11,7 +11,7 @@ namespace e2d
     buffer_view::buffer_view(const buffer& buffer) noexcept
     : data_(buffer.data())
     , size_(buffer.size()) {}
-    
+
     buffer_view::buffer_view(const void* data, std::size_t size) noexcept
     : data_(data)
     , size_(size){
