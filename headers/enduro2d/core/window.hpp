@@ -36,6 +36,7 @@ namespace e2d
             virtual void on_mouse_button(mouse_button btn, mouse_button_action act) noexcept;
             virtual void on_keyboard_key(keyboard_key key, u32 scancode, keyboard_key_action act) noexcept;
             virtual void on_window_size(const v2u& size) noexcept;
+            virtual void on_window_scale(const v2f& scale) noexcept;
             virtual void on_framebuffer_size(const v2u& size) noexcept;
             virtual void on_window_close() noexcept;
             virtual void on_window_focus(bool focused) noexcept;
@@ -66,6 +67,7 @@ namespace e2d
         cursor_shapes cursor_shape() const noexcept;
         bool set_cursor_shape(cursor_shapes shape) noexcept;
 
+        v2f dpi_scale() const noexcept;
         v2u real_size() const noexcept;
         v2u virtual_size() const noexcept;
         v2u framebuffer_size() const noexcept;
@@ -98,6 +100,7 @@ namespace e2d
         void on_mouse_button(mouse_button btn, mouse_button_action act) noexcept final;
         void on_keyboard_key(keyboard_key key, u32 scancode, keyboard_key_action act) noexcept final;
         void on_window_size(const v2u& size) noexcept final;
+        void on_window_scale(const v2f& scale) noexcept final;
         void on_framebuffer_size(const v2u& size) noexcept final;
         void on_window_close() noexcept final;
         void on_window_focus(bool focused) noexcept final;

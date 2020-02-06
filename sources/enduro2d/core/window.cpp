@@ -35,6 +35,10 @@ namespace e2d
         E2D_UNUSED(size);
     }
 
+    void window::event_listener::on_window_scale(const v2f& scale) noexcept {
+        E2D_UNUSED(scale);
+    }
+
     void window::event_listener::on_framebuffer_size(const v2u& size) noexcept {
         E2D_UNUSED(size);
     }
@@ -78,6 +82,10 @@ namespace e2d
 
     void window_event_tracer::on_window_size(const v2u& size) noexcept {
         debug_.trace("WINDOW: on_window_size(size: %0)", size);
+    }
+
+    void window_event_tracer::on_window_scale(const v2f& scale) noexcept {
+        debug_.trace("WINDOW: on_window_scale(scale: %0)", scale);
     }
 
     void window_event_tracer::on_framebuffer_size(const v2u& size) noexcept {

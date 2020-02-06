@@ -26,7 +26,7 @@ namespace
         : editor_(e)
         , inspector_(i) {}
 
-        bool setup_camera(const ecs::const_entity& cam_e) {
+        bool setup_camera(const ecs::const_entity& cam_e, ImRect& clip_rect) {
             if ( !cam_e.valid() || !ecs::exists_all<camera, camera::gizmos>()(cam_e) ) {
                 return false;
             }
@@ -44,6 +44,17 @@ namespace
                 math::make_scale_matrix4(1.f, -1.f) *
                 math::make_translation_matrix4(0.f, 1.f) *
                 math::make_scale_matrix4(v2f(ImGui::GetIO().DisplaySize));
+
+            clip_rect = ImRect({
+                cam.viewport().position.x,
+                (1.f - cam.viewport().position.y - cam.viewport().size.y)
+            }, {
+                (cam.viewport().position.x + cam.viewport().size.x),
+                (1.f - cam.viewport().position.y)
+            });
+
+            clip_rect.Min = v2f(clip_rect.Min) * v2f(ImGui::GetIO().DisplaySize);
+            clip_rect.Max = v2f(clip_rect.Max) * v2f(ImGui::GetIO().DisplaySize);
 
             return true;
         }
@@ -187,7 +198,7 @@ namespace
     };
 
     template < typename F, typename... Args >
-    void with_gizmos_window(F&& f, Args&&... args) {
+    void with_gizmos_window(const ImRect& clip_rect, F&& f, Args&&... args) {
         if ( ImGuiViewport* viewport = ImGui::GetMainViewport() ) {
             ImGui::SetNextWindowPos(viewport->Pos);
             ImGui::SetNextWindowSize(viewport->Size);
@@ -210,6 +221,9 @@ namespace
 
         ImGui::PopStyleVar(3);
 
+        ImGui::PushClipRect(clip_rect.Min, clip_rect.Max, true);
+        E2D_DEFER([](){ ImGui::PopClipRect(); });
+
         std::invoke(std::forward<F>(f), std::forward<Args>(args)...);
     }
 }
@@ -228,10 +242,11 @@ namespace e2d
         ~internal_state() noexcept = default;
 
         void process_render(const ecs::const_entity& cam_e, ecs::registry& owner) {
-            if ( !dbgui_.visible() || !gcontext_.setup_camera(cam_e) ) {
+            ImRect clip_rect;
+            if ( !dbgui_.visible() || !gcontext_.setup_camera(cam_e, clip_rect) ) {
                 return;
             }
-            with_gizmos_window([this, &owner](){
+            with_gizmos_window(clip_rect, [this, &owner](){
                 owner.for_joined_components<actor>([this](const ecs::const_entity& e, const actor&){
                     if ( gcontext_.setup_node(e) ) {
                         gcontext_.show_for(e);

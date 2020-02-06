@@ -62,6 +62,10 @@ namespace e2d::bindings::core
                     }
                 }),
 
+            "dpi_scale", sol::property([](const window& w) -> v2f {
+                return w.dpi_scale().cast_to<f32>();
+            }),
+
             "real_size", sol::property([](const window& w) -> v2f {
                 return w.real_size().cast_to<f32>();
             }),

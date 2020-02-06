@@ -50,6 +50,10 @@ namespace e2d::dbgui_widgets
 
         {
             imgui_utils::show_formatted_text(
+                "dpi scale: %0",
+                strings::make_format_arg(w.dpi_scale(), 0u, 2u));
+
+            imgui_utils::show_formatted_text(
                 "real size: %0",
                 w.real_size());
 
