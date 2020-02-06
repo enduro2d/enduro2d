@@ -1,5 +1,8 @@
 {
     "components" : {
+        "named" : {
+            "name" : "model"
+        },
         "renderer" : {},
         "model_renderer" : {}
     }

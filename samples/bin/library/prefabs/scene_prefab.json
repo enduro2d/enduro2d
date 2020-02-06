@@ -1,0 +1,8 @@
+{
+    "components" : {
+        "named" : {
+            "name" : "scene"
+        },
+        "scene" : {}
+    }
+}

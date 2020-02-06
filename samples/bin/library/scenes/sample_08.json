@@ -1,9 +1,6 @@
 {
+    "prototype" : "../prefabs/scene_prefab.json",
     "components" : {
-        "named" : {
-            "name" : "scene"
-        },
-        "scene" : {},
         "behaviour" : {
             "script" : "../scripts/sample_08/sample_08.lua"
         }

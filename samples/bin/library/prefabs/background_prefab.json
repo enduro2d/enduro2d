@@ -1,5 +1,9 @@
 {
-    "components" : {},
+    "components" : {
+        "named" : {
+            "name" : "background"
+        }
+    },
     "children" : [{
         "prototype" : "sprite_prefab.json",
         "components" : {

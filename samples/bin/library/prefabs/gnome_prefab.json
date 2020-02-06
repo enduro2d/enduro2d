@@ -1,6 +1,9 @@
 {
     "prototype" : "model_prefab.json",
     "components" : {
+        "named" : {
+            "name" : "gnome"
+        },
         "renderer" : {
             "materials" : [
                 "../models/gnome/gnome_material.json"

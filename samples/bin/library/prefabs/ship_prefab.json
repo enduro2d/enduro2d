@@ -1,6 +1,9 @@
 {
     "prototype" : "sprite_prefab.json",
     "components" : {
+        "named" : {
+            "name" : "ship"
+        },
         "sprite_renderer" : {
             "sprite" : "../sprites/ship_sprite.json"
         }
