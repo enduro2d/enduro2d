@@ -57,6 +57,7 @@ namespace e2d
     class events;
     class flipbook_player;
     class label;
+    class layout;
     class model_renderer;
     class named;
     class renderer;
@@ -70,6 +71,7 @@ namespace e2d
     class frame_system;
     class gizmos_system;
     class label_system;
+    class layout_system;
     class render_system;
     class script_system;
     class spine_system;
