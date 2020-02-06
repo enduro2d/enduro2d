@@ -275,6 +275,7 @@ namespace e2d
         glfw_state_ptr shared_state;
         cursors_t cursors;
         window_uptr window;
+        v2f dpi_scale;
         v2u real_size;
         v2u virtual_size;
         v2u framebuffer_size;
@@ -308,6 +309,7 @@ namespace e2d
                 throw bad_window_operation();
             }
 
+            update_dpi_scale();
             update_window_size();
             update_framebuffer_size();
 
@@ -319,6 +321,7 @@ namespace e2d
             glfwSetMouseButtonCallback(window.get(), mouse_button_callback_);
             glfwSetKeyCallback(window.get(), keyboard_key_callback_);
 
+            glfwSetWindowContentScaleCallback(window.get(), window_content_scale_callback_);
             glfwSetWindowSizeCallback(window.get(), window_size_callback_);
             glfwSetFramebufferSizeCallback(window.get(), framebuffer_size_callback_);
 
@@ -330,6 +333,14 @@ namespace e2d
         ~state() noexcept {
             // reset window before shared state
             window.reset();
+        }
+
+        void update_dpi_scale() noexcept {
+            std::lock_guard<std::recursive_mutex> guard(rmutex);
+            E2D_ASSERT(window);
+            float w = 0, h = 0;
+            glfwGetWindowContentScale(window.get(), &w, &h);
+            dpi_scale = make_vec2(w, h).cast_to<f32>();
         }
 
         void update_window_size() noexcept {
@@ -396,6 +407,8 @@ namespace e2d
             glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
             glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
             glfwWindowHint(GLFW_RESIZABLE, resizable ? GLFW_TRUE : GLFW_FALSE);
+            glfwWindowHint(GLFW_SCALE_TO_MONITOR, GLFW_TRUE);
+            glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_TRUE);
         #if defined(E2D_BUILD_MODE) && E2D_BUILD_MODE == E2D_BUILD_MODE_DEBUG
             glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
         #endif
@@ -465,8 +478,17 @@ namespace e2d
             }
         }
 
+        static void window_content_scale_callback_(GLFWwindow* window, float w, float h) noexcept {
+            state* self = static_cast<state*>(glfwGetWindowUserPointer(window));
+            if ( self ) {
+                self->update_dpi_scale();
+                self->for_all_listeners(
+                    &event_listener::on_window_scale,
+                    make_vec2(w,h).cast_to<f32>());
+            }
+        }
+
         static void window_size_callback_(GLFWwindow* window, int w, int h) noexcept {
-            E2D_UNUSED(w, h);
             state* self = static_cast<state*>(glfwGetWindowUserPointer(window));
             if ( self ) {
                 self->update_window_size();
@@ -477,7 +499,6 @@ namespace e2d
         }
 
         static void framebuffer_size_callback_(GLFWwindow* window, int w, int h) noexcept {
-            E2D_UNUSED(w, h);
             state* self = static_cast<state*>(glfwGetWindowUserPointer(window));
             if ( self ) {
                 self->update_framebuffer_size();
@@ -645,6 +666,11 @@ namespace e2d
         glfwSetCursor(state_->window.get(), cursor_iter->second.get());
         state_->cursor_shape = shape;
         return true;
+    }
+
+    v2f window::dpi_scale() const noexcept {
+        std::lock_guard<std::recursive_mutex> guard(state_->rmutex);
+        return state_->dpi_scale;
     }
 
     v2u window::real_size() const noexcept {

@@ -143,6 +143,11 @@ namespace e2d
         return true;
     }
 
+    v2f window::dpi_scale() const noexcept {
+        std::lock_guard<std::recursive_mutex> guard(state_->rmutex);
+        return v2f::unit();
+    }
+
     v2u window::real_size() const noexcept {
         std::lock_guard<std::recursive_mutex> guard(state_->rmutex);
         return state_->virtual_size;
