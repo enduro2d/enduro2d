@@ -1,7 +1,7 @@
 /*******************************************************************************
  * This file is part of the "Enduro2D"
  * For conditions of distribution and use, see copyright notice in LICENSE.md
- * Copyright (C) 2018-2019, by Matvey Cherevko (blackmatov@gmail.com)
+ * Copyright (C) 2018-2020, by Matvey Cherevko (blackmatov@gmail.com)
  ******************************************************************************/
 
 #include "render_opengl_base.hpp"
@@ -116,7 +116,7 @@ namespace
 
         gl_2_0 = 200 | gl_bit_,
         gl_2_1 = 210 | gl_bit_,
-        
+
         gl_3_0 = 300 | gl_bit_,
         gl_3_1 = 310 | gl_bit_,
         gl_3_2 = 320 | gl_bit_,
@@ -131,7 +131,7 @@ namespace
         gl_4_6 = 460 | gl_bit_,
 
         gles_2_0 = 200 | gles_bit_,
-        
+
         gles_3_0 = 300 | gles_bit_,
         gles_3_1 = 310 | gles_bit_,
         gles_3_2 = 320 | gles_bit_

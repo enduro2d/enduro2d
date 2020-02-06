@@ -1,7 +1,7 @@
 /*******************************************************************************
  * This file is part of the "Enduro2D"
  * For conditions of distribution and use, see copyright notice in LICENSE.md
- * Copyright (C) 2018-2019, by Matvey Cherevko (blackmatov@gmail.com)
+ * Copyright (C) 2018-2020, by Matvey Cherevko (blackmatov@gmail.com)
  ******************************************************************************/
 
 #pragma once
@@ -36,7 +36,7 @@ namespace e2d
 
         script& assign(sol::protected_function&& func) noexcept;
         script& assign(const sol::protected_function& func);
-        
+
         void clear() noexcept;
         void swap(script& other) noexcept;
         bool empty() const noexcept;
