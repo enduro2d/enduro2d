@@ -71,9 +71,10 @@ namespace
         auto inst_n = inst_a ? inst_a->node() : nullptr;
 
         if ( inst_n ) {
-            inst_n->for_each_child([](const node_iptr& child_n){
-                delete_instance(child_n->owner());
-            });
+            inst_n->remove_from_parent();
+            while ( node_iptr child = inst_n->first_child() ) {
+                delete_instance(child->owner());
+            }
         }
 
         if ( inst ) {
@@ -141,32 +142,36 @@ namespace
     }
 
     void shutdown_instance(gobject& inst) noexcept {
-        if ( gcomponent<actor> inst_a{inst}; inst_a ) {
-            nodes::for_extracted_nodes(inst_a->node(), [](const node_iptr& node){
-                if ( gcomponent<behaviour> inst_b{node->owner()}; inst_b ) {
-                    behaviours::call_meta_method(
-                        *inst_b,
-                        "on_shutdown",
-                        node->owner());
-                }
-            });
+        gcomponent<actor> inst_a = inst.component<actor>();
+        if ( !inst_a ) {
+            return;
         }
+        nodes::for_extracted_components_from_children<behaviour>(
+            inst_a->node(),
+            [](gcomponent<behaviour>& inst_b){
+                behaviours::call_meta_method(
+                    *inst_b,
+                    "on_shutdown",
+                    inst_b.owner());
+            }, nodes::options().recursive(true).include_root(true));
     }
 
     void start_instance(gobject& inst) {
-        if ( gcomponent<actor> inst_a{inst}; inst_a ) {
-            nodes::for_extracted_nodes(inst_a->node(), [&inst](const node_iptr& node){
-                if ( gcomponent<behaviour> inst_b{node->owner()}; inst_b ) {
-                    const auto result = behaviours::call_meta_method(
-                        *inst_b,
-                        "on_start",
-                        node->owner());
-                    if ( result == behaviours::call_result::failed ) {
-                        inst.component<disabled<behaviour>>().assign();
-                    }
-                }
-            });
+        gcomponent<actor> inst_a = inst.component<actor>();
+        if ( !inst_a ) {
+            return;
         }
+        nodes::for_extracted_components_from_children<behaviour>(
+            inst_a->node(),
+            [&inst](gcomponent<behaviour>& inst_b){
+                const auto result = behaviours::call_meta_method(
+                    *inst_b,
+                    "on_start",
+                    inst_b.owner());
+                if ( result == behaviours::call_result::failed ) {
+                    inst.component<disabled<behaviour>>().assign();
+                }
+            }, nodes::options().recursive(true).include_root(true));
     }
 }
 
@@ -237,7 +242,7 @@ namespace e2d
         return inst;
     }
 
-    void world::destroy_instance(gobject& inst) noexcept {
+    void world::destroy_instance(gobject inst) noexcept {
         auto gstate = inst
             ? dynamic_pointer_cast<gobject_state>(inst.internal_state())
             : nullptr;

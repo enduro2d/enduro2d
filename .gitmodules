@@ -49,3 +49,9 @@
 [submodule "modules/enum.hpp"]
 	path = modules/enum.hpp
 	url = https://github.com/BlackMATov/enum.hpp
+[submodule "modules/pnpoly.h"]
+	path = modules/pnpoly.h
+	url = https://github.com/BlackMATov/pnpoly.h
+[submodule "modules/IconFontCppHeaders"]
+	path = modules/IconFontCppHeaders
+	url = https://github.com/juliettef/IconFontCppHeaders

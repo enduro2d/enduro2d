@@ -101,6 +101,9 @@ cp -fv $MODULES_DIR/miniz/miniz_tinfl.h $SOURCES_RDPARTY_DIR/miniz/miniz_tinfl.h
 cp -fv $MODULES_DIR/miniz/miniz_zip.c $SOURCES_RDPARTY_DIR/miniz/miniz_zip.c
 cp -fv $MODULES_DIR/miniz/miniz_zip.h $SOURCES_RDPARTY_DIR/miniz/miniz_zip.h
 
+mkdir -p $SOURCES_RDPARTY_DIR/pnpoly.h
+cp -fv $MODULES_DIR/pnpoly.h/pnpoly.h $SOURCES_RDPARTY_DIR/pnpoly.h/pnpoly.h
+
 mkdir -p $HEADERS_RDPARTY_DIR/pugixml
 cp -rfv $MODULES_DIR/pugixml/src/. $HEADERS_RDPARTY_DIR/pugixml/
 

@@ -8,7 +8,12 @@
 
 #include "dbgui_impl/widgets/console_widget.hpp"
 #include "dbgui_impl/widgets/engine_widget.hpp"
+#include "dbgui_impl/widgets/input_widget.hpp"
 #include "dbgui_impl/widgets/window_widget.hpp"
+
+#include <3rdparty/icons/fa_solid_900.h>
+#include <3rdparty/icons/fa_regular_400.h>
+#include <3rdparty/icons/materialicons_regular.h>
 
 namespace e2d
 {
@@ -28,6 +33,7 @@ namespace e2d
             ImGuiIO& io = bind_context_();
             setup_key_map_(io);
             setup_config_flags_(io);
+            setup_custom_fonts_(io);
             setup_internal_resources_(io);
         }
 
@@ -128,9 +134,10 @@ namespace e2d
             const v2f display_size = draw_data->DisplaySize;
             const v2f framebuffer_size = display_size * v2f(draw_data->FramebufferScale);
 
-            const m4f projection =
-                math::make_orthographic_lh_matrix4(display_size, 0.f, 1.f) *
-                math::make_translation_matrix4(-1.f, 1.f);
+            const m4f projection = math::make_orthographic_lh_matrix4(
+                0.f, display_size.x,
+                display_size.y, 0.f,
+                -1.f, 1.f);
 
             for ( int i = 0; i < draw_data->CmdListsCount; ++i ) {
                 const ImDrawList* cmd_list = draw_data->CmdLists[i];
@@ -241,6 +248,41 @@ namespace e2d
             io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;
         }
 
+        void setup_custom_fonts_(ImGuiIO& io) {
+            io.Fonts->AddFontDefault();
+
+            ImFontConfig icons_config;
+            icons_config.MergeMode = true;
+            icons_config.PixelSnapH = true;
+
+            {
+                static const ImWchar icons_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0};
+                io.Fonts->AddFontFromMemoryCompressedTTF(
+                    fa_solid_900_compressed_data,
+                    math::numeric_cast<int>(fa_solid_900_compressed_size),
+                    13.f,
+                    &icons_config, icons_ranges);
+            }
+
+            {
+                static const ImWchar icons_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0};
+                io.Fonts->AddFontFromMemoryCompressedTTF(
+                    fa_regular_400_compressed_data,
+                    math::numeric_cast<int>(fa_regular_400_compressed_size),
+                    13.f,
+                    &icons_config, icons_ranges);
+            }
+
+            {
+                static const ImWchar icons_ranges[] = { ICON_MIN_MD, ICON_MAX_MD, 0};
+                io.Fonts->AddFontFromMemoryCompressedTTF(
+                    materialicons_regular_compressed_data,
+                    math::numeric_cast<int>(materialicons_regular_compressed_size),
+                    13.f,
+                    &icons_config, icons_ranges);
+            }
+        }
+
         void setup_internal_resources_(ImGuiIO& io) {
             {
                 shader_ = render_.create_shader(
@@ -254,14 +296,14 @@ namespace e2d
             {
                 unsigned char* font_pixels;
                 int font_width, font_height;
-                io.Fonts->GetTexDataAsRGBA32(&font_pixels, &font_width, &font_height);
+                io.Fonts->GetTexDataAsAlpha8(&font_pixels, &font_width, &font_height);
 
                 texture_ = render_.create_texture(image(
                     make_vec2(font_width, font_height).cast_to<u32>(),
-                    image_data_format::rgba8,
+                    image_data_format::a8,
                     buffer(
                         font_pixels,
-                        math::numeric_cast<std::size_t>(font_width * font_height) * sizeof(u32))));
+                        math::numeric_cast<std::size_t>(font_width * font_height) * sizeof(u8))));
 
                 if ( !texture_ ) {
                     throw bad_dbgui_operation();
@@ -276,7 +318,7 @@ namespace e2d
                             .capabilities(render::capabilities_state()
                                 .blending(true))
                             .blending(render::blending_state()
-                                .src_factor(render::blending_factor::src_alpha)
+                                .src_factor(render::blending_factor::one)
                                 .dst_factor(render::blending_factor::one_minus_src_alpha)))
                         .shader(shader_));
             }
@@ -417,9 +459,10 @@ namespace e2d
 {
     dbgui::dbgui(debug& d, input& i, render& r, window& w)
     : state_(new internal_state(d, i, r, w)) {
-        register_menu_widget<dbgui_widgets::console_widget>("Debug", "Console...", d);
-        register_menu_widget<dbgui_widgets::engine_widget>("Debug", "Engine...");
-        register_menu_widget<dbgui_widgets::window_widget>("Debug", "Window...");
+        register_menu_widget<dbgui_widgets::console_widget>("Debug", ICON_FA_TERMINAL " Console", d);
+        register_menu_widget<dbgui_widgets::engine_widget>("Debug", ICON_FA_COGS " Engine");
+        register_menu_widget<dbgui_widgets::input_widget>("Debug", ICON_FA_GAMEPAD " Input");
+        register_menu_widget<dbgui_widgets::window_widget>("Debug", ICON_FA_DESKTOP " Window");
     }
     dbgui::~dbgui() noexcept = default;
 

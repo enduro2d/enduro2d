@@ -112,7 +112,7 @@ namespace e2d
         u32 minimal_framerate() const noexcept;
         u32 maximal_framerate() const noexcept;
     private:
-        u32 minimal_framerate_{30u};
+        u32 minimal_framerate_{15u};
         u32 maximal_framerate_{1000u};
     };
 

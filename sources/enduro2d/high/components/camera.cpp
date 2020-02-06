@@ -130,6 +130,32 @@ namespace e2d
 
 namespace e2d
 {
+    const char* factory_loader<camera::input>::schema_source = R"json({
+        "type" : "object",
+        "required" : [],
+        "additionalProperties" : false,
+        "properties" : {}
+    })json";
+
+    bool factory_loader<camera::input>::operator()(
+        camera::input& component,
+        const fill_context& ctx) const
+    {
+        E2D_UNUSED(component, ctx);
+        return true;
+    }
+
+    bool factory_loader<camera::input>::operator()(
+        asset_dependencies& dependencies,
+        const collect_context& ctx) const
+    {
+        E2D_UNUSED(dependencies, ctx);
+        return true;
+    }
+}
+
+namespace e2d
+{
     const char* factory_loader<camera::gizmos>::schema_source = R"json({
         "type" : "object",
         "required" : [],
@@ -156,9 +182,21 @@ namespace e2d
 
 namespace e2d
 {
-    const char* component_inspector<camera>::title = "camera";
+    const char* component_inspector<camera>::title = ICON_FA_VIDEO " camera";
 
     void component_inspector<camera>::operator()(gcomponent<camera>& c) const {
+        if ( bool input = c.owner().component<camera::input>().exists();
+            ImGui::Checkbox("input", &input) )
+        {
+            if ( input ) {
+                c.owner().component<camera::input>().ensure();
+            } else {
+                c.owner().component<camera::input>().remove();
+            }
+        }
+
+        ImGui::SameLine();
+
         if ( bool gizmos = c.owner().component<camera::gizmos>().exists();
             ImGui::Checkbox("gizmos", &gizmos) )
         {

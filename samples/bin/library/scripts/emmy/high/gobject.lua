@@ -15,6 +15,15 @@ local gobject = {
     ---@type camera
     camera = nil,
 
+    ---@type rect_collider
+    rect_collider = nil,
+
+    ---@type circle_collider
+    circle_collider = nil,
+
+    ---@type polygon_collider
+    polygon_collider = nil,
+
     ---@type flipbook_player
     flipbook_player = nil,
 
@@ -37,7 +46,10 @@ local gobject = {
     spine_player = nil,
 
     ---@type sprite_renderer
-    sprite_renderer = nil
+    sprite_renderer = nil,
+
+    ---@type touchable
+    touchable = nil
 }
 
 ---@param self gobject

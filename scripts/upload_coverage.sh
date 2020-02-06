@@ -3,7 +3,7 @@ set -e
 
 BUILD_DIR=`dirname "$BASH_SOURCE"`/../build
 mkdir -p $BUILD_DIR/coverage
-cd $BUILD_DIR/coverage
+pushd $BUILD_DIR/coverage
 cmake -DCMAKE_BUILD_TYPE=Debug -DE2D_BUILD_WITH_COVERAGE=ON ../..
 cmake --build .
 
@@ -15,3 +15,4 @@ lcov -r "coverage.info" "*/usr/*" "*/Xcode.app/*" "*/untests/*" "*/samples/*" "*
 lcov -l "coverage.info"
 
 bash <(curl -s https://codecov.io/bash) || echo "Codecov did not collect coverage reports"
+popd

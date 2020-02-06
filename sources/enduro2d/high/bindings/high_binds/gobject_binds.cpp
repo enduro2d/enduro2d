@@ -11,6 +11,7 @@
 #include <enduro2d/high/components/actor.hpp>
 #include <enduro2d/high/components/behaviour.hpp>
 #include <enduro2d/high/components/camera.hpp>
+#include <enduro2d/high/components/colliders.hpp>
 #include <enduro2d/high/components/flipbook_player.hpp>
 #include <enduro2d/high/components/label.hpp>
 #include <enduro2d/high/components/model_renderer.hpp>
@@ -19,6 +20,7 @@
 #include <enduro2d/high/components/scene.hpp>
 #include <enduro2d/high/components/spine_player.hpp>
 #include <enduro2d/high/components/sprite_renderer.hpp>
+#include <enduro2d/high/components/touchable.hpp>
 
 namespace e2d::bindings::high
 {
@@ -41,6 +43,9 @@ namespace e2d::bindings::high
             "actor", sol::property([](gobject& go){ return component_wrapper<actor>{go}; }),
             "behaviour", sol::property([](gobject& go){ return component_wrapper<behaviour>{go}; }),
             "camera", sol::property([](gobject& go){ return component_wrapper<camera>{go}; }),
+            "rect_collider", sol::property([](gobject& go){ return component_wrapper<rect_collider>{go}; }),
+            "circle_collider", sol::property([](gobject& go){ return component_wrapper<circle_collider>{go}; }),
+            "polygon_collider", sol::property([](gobject& go){ return component_wrapper<polygon_collider>{go}; }),
             "flipbook_player", sol::property([](gobject& go){ return component_wrapper<flipbook_player>{go}; }),
             "label", sol::property([](gobject& go){ return component_wrapper<label>{go}; }),
             "model_renderer", sol::property([](gobject& go){ return component_wrapper<model_renderer>{go}; }),
@@ -48,7 +53,8 @@ namespace e2d::bindings::high
             "renderer", sol::property([](gobject& go){ return component_wrapper<renderer>{go}; }),
             "scene", sol::property([](gobject& go){ return component_wrapper<scene>{go}; }),
             "spine_player", sol::property([](gobject& go){ return component_wrapper<spine_player>{go}; }),
-            "sprite_renderer", sol::property([](gobject& go){ return component_wrapper<sprite_renderer>{go}; })
+            "sprite_renderer", sol::property([](gobject& go){ return component_wrapper<sprite_renderer>{go}; }),
+            "touchable", sol::property([](gobject& go){ return component_wrapper<touchable>{go}; })
         );
     }
 }

@@ -7,8 +7,8 @@
 #include "../_high_binds.hpp"
 
 #include <enduro2d/high/gobject.hpp>
-#include <enduro2d/high/components/camera.hpp>
 #include <enduro2d/high/components/disabled.hpp>
+#include <enduro2d/high/components/camera.hpp>
 
 namespace e2d::bindings::high
 {
@@ -46,6 +46,32 @@ namespace e2d::bindings::high
                         c.owner().component<disabled<camera>>().ensure();
                     } else {
                         c.owner().component<disabled<camera>>().remove();
+                    }
+                }
+            ),
+
+            "input", sol::property(
+                [](const gcomponent<camera>& c) -> bool {
+                    return c.owner().component<camera::input>().exists();
+                },
+                [](gcomponent<camera>& c, bool yesno){
+                    if ( yesno ) {
+                        c.owner().component<camera::input>().ensure();
+                    } else {
+                        c.owner().component<camera::input>().remove();
+                    }
+                }
+            ),
+
+            "gizmos", sol::property(
+                [](const gcomponent<camera>& c) -> bool {
+                    return c.owner().component<camera::gizmos>().exists();
+                },
+                [](gcomponent<camera>& c, bool yesno){
+                    if ( yesno ) {
+                        c.owner().component<camera::gizmos>().ensure();
+                    } else {
+                        c.owner().component<camera::gizmos>().remove();
                     }
                 }
             ),

@@ -44,7 +44,7 @@ namespace e2d
 
 namespace e2d
 {
-    const char* component_inspector<named>::title = "named";
+    const char* component_inspector<named>::title = ICON_FA_SIGNATURE " named";
 
     void component_inspector<named>::operator()(gcomponent<named>& c) const {
         if ( str name = c->name();

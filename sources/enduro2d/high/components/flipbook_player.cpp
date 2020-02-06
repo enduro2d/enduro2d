@@ -113,7 +113,7 @@ namespace e2d
 
 namespace e2d
 {
-    const char* component_inspector<flipbook_player>::title = "flipbook_player";
+    const char* component_inspector<flipbook_player>::title = ICON_FA_IMAGES " flipbook_player";
 
     void component_inspector<flipbook_player>::operator()(gcomponent<flipbook_player>& c) const {
         if ( f32 time = c->time();

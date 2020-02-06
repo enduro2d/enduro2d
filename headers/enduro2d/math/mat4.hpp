@@ -7,6 +7,7 @@
 #pragma once
 
 #include "_math.hpp"
+#include "rect.hpp"
 #include "trig.hpp"
 #include "trs2.hpp"
 #include "trs3.hpp"
@@ -414,7 +415,8 @@ namespace e2d::math
     }
 
     template < typename T, typename AngleTag >
-    mat4<T> make_rotation_matrix4(
+    std::enable_if_t<std::is_floating_point_v<T>, mat4<T>>
+    make_rotation_matrix4(
         const unit<T, AngleTag>& angle,
         const vec3<T>& axis_xyz) noexcept
     {
@@ -430,7 +432,8 @@ namespace e2d::math
     //
 
     template < typename T, typename AngleTag >
-    mat4<T> make_rotation_matrix4(
+    std::enable_if_t<std::is_floating_point_v<T>, mat4<T>>
+    make_rotation_matrix4(
         const unit<T, AngleTag>& roll,
         const unit<T, AngleTag>& pitch,
         const unit<T, AngleTag>& yaw) noexcept
@@ -455,7 +458,8 @@ namespace e2d::math
     }
 
     template < typename T >
-    mat4<T> make_rotation_matrix4(const vec3<T>& rpy) noexcept {
+    std::enable_if_t<std::is_floating_point_v<T>, mat4<T>>
+    make_rotation_matrix4(const vec3<T>& rpy) noexcept {
         return make_rotation_matrix4(
             make_rad(rpy.x),
             make_rad(rpy.y),
@@ -467,14 +471,16 @@ namespace e2d::math
     //
 
     template < typename T >
-    mat4<T> make_trs_matrix4(const trs2<T>& trs) noexcept {
+    std::enable_if_t<std::is_floating_point_v<T>, mat4<T>>
+    make_trs_matrix4(const trs2<T>& trs) noexcept {
         return make_scale_matrix4(trs.scale)
              * make_rotation_matrix4(make_rad(trs.rotation), vec3<T>::unit_z())
              * make_translation_matrix4(trs.translation);
     }
 
     template < typename T >
-    mat4<T> make_trs_matrix4(const trs3<T>& trs) noexcept {
+    std::enable_if_t<std::is_floating_point_v<T>, mat4<T>>
+    make_trs_matrix4(const trs3<T>& trs) noexcept {
         return make_scale_matrix4(trs.scale)
              * make_rotation_matrix4(trs.rotation)
              * make_translation_matrix4(trs.translation);
@@ -528,46 +534,56 @@ namespace e2d::math
     {
         template < typename T >
         std::enable_if_t<std::is_floating_point_v<T>, mat4<T>>
-        make_orthographic_lh_zo_matrix4(T width, T height, T znear, T zfar) noexcept {
-            E2D_ASSERT(!math::is_near_zero(width, T(0)));
-            E2D_ASSERT(!math::is_near_zero(height, T(0)));
+        make_orthographic_lh_zo_matrix4(T left, T right, T bottom, T top, T znear, T zfar) noexcept {
+            E2D_ASSERT(!math::approximately(left, right, T(0)));
+            E2D_ASSERT(!math::approximately(bottom, top, T(0)));
             E2D_ASSERT(!math::approximately(znear, zfar, T(0)));
-            const T sx = T(2) / width;
-            const T sy = T(2) / height;
+
+            const T sx = T(2) / (right - left);
+            const T sy = T(2) / (top - bottom);
             const T sz = T(1) / (zfar - znear);
-            const T tz = -znear / (zfar - znear);
+
+            const T tx = - (right + left) / (right - left);
+            const T ty = - (top + bottom) / (top - bottom);
+            const T tz = - znear / (zfar - znear);
+
             return {
                 sx,   T(0), T(0), T(0),
                 T(0), sy,   T(0), T(0),
                 T(0), T(0), sz,   T(0),
-                T(0), T(0), tz,   T(1)};
+                tx,   ty,   tz,   T(1)};
         }
 
         template < typename T >
         std::enable_if_t<std::is_floating_point_v<T>, mat4<T>>
-        make_orthographic_lh_no_matrix4(T width, T height, T znear, T zfar) noexcept {
-            E2D_ASSERT(!math::is_near_zero(width, T(0)));
-            E2D_ASSERT(!math::is_near_zero(height, T(0)));
+        make_orthographic_lh_no_matrix4(T left, T right, T bottom, T top, T znear, T zfar) noexcept {
+            E2D_ASSERT(!math::approximately(left, right, T(0)));
+            E2D_ASSERT(!math::approximately(bottom, top, T(0)));
             E2D_ASSERT(!math::approximately(znear, zfar, T(0)));
-            const T sx = T(2) / width;
-            const T sy = T(2) / height;
+
+            const T sx = T(2) / (right - left);
+            const T sy = T(2) / (top - bottom);
             const T sz = T(2) / (zfar - znear);
-            const T tz = -(zfar + znear) / (zfar - znear);
+
+            const T tx = - (right + left) / (right - left);
+            const T ty = - (top + bottom) / (top - bottom);
+            const T tz = - (zfar + znear) / (zfar - znear);
+
             return {
                 sx,   T(0), T(0), T(0),
                 T(0), sy,   T(0), T(0),
                 T(0), T(0), sz,   T(0),
-                T(0), T(0), tz,   T(1)};
+                tx,   ty,   tz,   T(1)};
         }
     }
 
     template < typename T >
     std::enable_if_t<std::is_floating_point_v<T>, mat4<T>>
-    make_orthographic_lh_matrix4(T width, T height, T znear, T zfar) noexcept {
+    make_orthographic_lh_matrix4(T left, T right, T bottom, T top, T znear, T zfar) noexcept {
     #if defined(E2D_CLIPPING_MODE) && E2D_CLIPPING_MODE == E2D_CLIPPING_MODE_ZO
-        return impl::make_orthographic_lh_zo_matrix4(width, height, znear, zfar);
+        return impl::make_orthographic_lh_zo_matrix4(left, right, bottom, top, znear, zfar);
     #elif defined(E2D_CLIPPING_MODE) && E2D_CLIPPING_MODE == E2D_CLIPPING_MODE_NO
-        return impl::make_orthographic_lh_no_matrix4(width, height, znear, zfar);
+        return impl::make_orthographic_lh_no_matrix4(left, right, bottom, top, znear, zfar);
     #else
     #  error "E2D_CLIPPING_MODE not detected"
     #endif
@@ -575,8 +591,20 @@ namespace e2d::math
 
     template < typename T >
     std::enable_if_t<std::is_floating_point_v<T>, mat4<T>>
+    make_orthographic_lh_matrix4(const vec2<T>& lb, const vec2<T>& rt, T znear, T zfar) noexcept {
+        return make_orthographic_lh_matrix4(lb.x, rt.x, lb.y, rt.y, znear, zfar);
+    }
+
+    template < typename T >
+    std::enable_if_t<std::is_floating_point_v<T>, mat4<T>>
     make_orthographic_lh_matrix4(const vec2<T>& size, T znear, T zfar) noexcept {
-        return make_orthographic_lh_matrix4(size.x, size.y, znear, zfar);
+        return make_orthographic_lh_matrix4(size * T(-0.5), size * T(0.5), znear, zfar);
+    }
+
+    template < typename T >
+    std::enable_if_t<std::is_floating_point_v<T>, mat4<T>>
+    make_orthographic_lh_matrix4(T width, T height, T znear, T zfar) noexcept {
+        return make_orthographic_lh_matrix4(vec2<T>(width, height), znear, zfar);
     }
 
     //
@@ -587,46 +615,56 @@ namespace e2d::math
     {
         template < typename T >
         std::enable_if_t<std::is_floating_point_v<T>, mat4<T>>
-        make_orthographic_rh_zo_matrix4(T width, T height, T znear, T zfar) noexcept {
-            E2D_ASSERT(!math::is_near_zero(width, T(0)));
-            E2D_ASSERT(!math::is_near_zero(height, T(0)));
+        make_orthographic_rh_zo_matrix4(T left, T right, T bottom, T top, T znear, T zfar) noexcept {
+            E2D_ASSERT(!math::approximately(left, right, T(0)));
+            E2D_ASSERT(!math::approximately(bottom, top, T(0)));
             E2D_ASSERT(!math::approximately(znear, zfar, T(0)));
-            const T sx = T(2) / width;
-            const T sy = T(2) / height;
+
+            const T sx = T(2) / (right - left);
+            const T sy = T(2) / (top - bottom);
             const T sz = T(-1) / (zfar - znear);
-            const T tz = -znear / (zfar - znear);
+
+            const T tx = - (right + left) / (right - left);
+            const T ty = - (top + bottom) / (top - bottom);
+            const T tz = - znear / (zfar - znear);
+
             return {
                 sx,   T(0), T(0), T(0),
                 T(0), sy,   T(0), T(0),
                 T(0), T(0), sz,   T(0),
-                T(0), T(0), tz,   T(1)};
+                tx,   ty,   tz,   T(1)};
         }
 
         template < typename T >
         std::enable_if_t<std::is_floating_point_v<T>, mat4<T>>
-        make_orthographic_rh_no_matrix4(T width, T height, T znear, T zfar) noexcept {
-            E2D_ASSERT(!math::is_near_zero(width, T(0)));
-            E2D_ASSERT(!math::is_near_zero(height, T(0)));
+        make_orthographic_rh_no_matrix4(T left, T right, T bottom, T top, T znear, T zfar) noexcept {
+            E2D_ASSERT(!math::approximately(left, right, T(0)));
+            E2D_ASSERT(!math::approximately(bottom, top, T(0)));
             E2D_ASSERT(!math::approximately(znear, zfar, T(0)));
-            const T sx = T(2) / width;
-            const T sy = T(2) / height;
+
+            const T sx = T(2) / (right - left);
+            const T sy = T(2) / (top - bottom);
             const T sz = T(-2) / (zfar - znear);
-            const T tz = -(zfar + znear) / (zfar - znear);
+
+            const T tx = - (right + left) / (right - left);
+            const T ty = - (top + bottom) / (top - bottom);
+            const T tz = - (zfar + znear) / (zfar - znear);
+
             return {
                 sx,   T(0), T(0), T(0),
                 T(0), sy,   T(0), T(0),
                 T(0), T(0), sz,   T(0),
-                T(0), T(0), tz,   T(1)};
+                tx,   ty,   tz,   T(1)};
         }
     }
 
     template < typename T >
     std::enable_if_t<std::is_floating_point_v<T>, mat4<T>>
-    make_orthographic_rh_matrix4(T width, T height, T znear, T zfar) noexcept {
+    make_orthographic_rh_matrix4(T left, T right, T bottom, T top, T znear, T zfar) noexcept {
     #if defined(E2D_CLIPPING_MODE) && E2D_CLIPPING_MODE == E2D_CLIPPING_MODE_ZO
-        return impl::make_orthographic_rh_zo_matrix4(width, height, znear, zfar);
+        return impl::make_orthographic_rh_zo_matrix4(left, right, bottom, top, znear, zfar);
     #elif defined(E2D_CLIPPING_MODE) && E2D_CLIPPING_MODE == E2D_CLIPPING_MODE_NO
-        return impl::make_orthographic_rh_no_matrix4(width, height, znear, zfar);
+        return impl::make_orthographic_rh_no_matrix4(left, right, bottom, top, znear, zfar);
     #else
     #  error "E2D_CLIPPING_MODE not detected"
     #endif
@@ -634,8 +672,20 @@ namespace e2d::math
 
     template < typename T >
     std::enable_if_t<std::is_floating_point_v<T>, mat4<T>>
+    make_orthographic_rh_matrix4(const vec2<T>& lb, const vec2<T>& rt, T znear, T zfar) noexcept {
+        return make_orthographic_rh_matrix4(lb.x, rt.x, lb.y, rt.y, znear, zfar);
+    }
+
+    template < typename T >
+    std::enable_if_t<std::is_floating_point_v<T>, mat4<T>>
     make_orthographic_rh_matrix4(const vec2<T>& size, T znear, T zfar) noexcept {
-        return make_orthographic_rh_matrix4(size.x, size.y, znear, zfar);
+        return make_orthographic_rh_matrix4(size * T(-0.5), size * T(0.5), znear, zfar);
+    }
+
+    template < typename T >
+    std::enable_if_t<std::is_floating_point_v<T>, mat4<T>>
+    make_orthographic_rh_matrix4(T width, T height, T znear, T zfar) noexcept {
+        return make_orthographic_rh_matrix4(vec2<T>(width, height), znear, zfar);
     }
 
     //
@@ -846,5 +896,151 @@ namespace e2d::math
             mm[1], mm[5], mm[ 9], mm[13],
             mm[2], mm[6], mm[10], mm[14],
             mm[3], mm[7], mm[11], mm[15]};
+    }
+
+    //
+    // project
+    //
+
+    namespace impl
+    {
+        template < typename T >
+        std::enable_if_t<std::is_floating_point_v<T>, std::pair<vec3<T>, bool>>
+        project_zo(
+            const vec3<T>& world,
+            const mat4<T>& projection,
+            const rect<T>& viewport) noexcept
+        {
+            const vec4<T> t4 = vec4<T>(world, T(1)) * projection;
+
+            if ( math::is_near_zero(t4.w, T(0)) ) {
+                return std::make_pair(vec3<T>::zero(), false);
+            }
+
+            vec3<T> t3 = vec3<T>(t4) / t4.w;
+
+            t3.x = t3.x * T(0.5) + T(0.5);
+            t3.y = t3.y * T(0.5) + T(0.5);
+
+            t3.x = t3.x * viewport.size.x + viewport.position.x;
+            t3.y = t3.y * viewport.size.y + viewport.position.y;
+
+            return std::make_pair(t3, true);
+        }
+
+        template < typename T >
+        std::enable_if_t<std::is_floating_point_v<T>, std::pair<vec3<T>, bool>>
+        project_no(
+            const vec3<T>& world,
+            const mat4<T>& projection,
+            const rect<T>& viewport) noexcept
+        {
+            const vec4<T> t4 = vec4<T>(world, T(1)) * projection;
+
+            if ( math::is_near_zero(t4.w, T(0)) ) {
+                return std::make_pair(vec3<T>::zero(), false);
+            }
+
+            vec3<T> t3 = vec3<T>(t4) / t4.w;
+
+            t3.x = t3.x * T(0.5) + T(0.5);
+            t3.y = t3.y * T(0.5) + T(0.5);
+            t3.z = t3.z * T(0.5) + T(0.5);
+
+            t3.x = t3.x * viewport.size.x + viewport.position.x;
+            t3.y = t3.y * viewport.size.y + viewport.position.y;
+
+            return std::make_pair(t3, true);
+        }
+    }
+
+    template < typename T >
+    std::enable_if_t<std::is_floating_point_v<T>, std::pair<vec3<T>, bool>>
+    project(
+        const vec3<T>& world,
+        const mat4<T>& projection,
+        const rect<T>& viewport) noexcept {
+    #if defined(E2D_CLIPPING_MODE) && E2D_CLIPPING_MODE == E2D_CLIPPING_MODE_ZO
+        return impl::project_zo(world, projection, viewport);
+    #elif defined(E2D_CLIPPING_MODE) && E2D_CLIPPING_MODE == E2D_CLIPPING_MODE_NO
+        return impl::project_no(world, projection, viewport);
+    #else
+    #  error "E2D_CLIPPING_MODE not detected"
+    #endif
+    }
+
+    //
+    // unproject
+    //
+
+    namespace impl
+    {
+        template < typename T >
+        std::enable_if_t<std::is_floating_point_v<T>, std::pair<vec3<T>, bool>>
+        unproject_zo(
+            const vec3<T>& screen,
+            const mat4<T>& inv_projection,
+            const rect<T>& viewport) noexcept
+        {
+            if ( math::is_near_zero(math::area(viewport), T(0)) ) {
+                return std::make_pair(vec3<T>::zero(), false);
+            }
+
+            vec4<T> t4 = vec4<T>(screen, T(1));
+
+            t4.x = (t4.x - viewport.position.x) / viewport.size.x;
+            t4.y = (t4.y - viewport.position.y) / viewport.size.y;
+
+            t4.x = t4.x * T(2) - T(1);
+            t4.y = t4.y * T(2) - T(1);
+
+            t4 = t4 * inv_projection;
+
+            return math::is_near_zero(t4.w, T(0))
+                ? std::make_pair(vec3<T>::zero(), false)
+                : std::make_pair(vec3<T>(t4) / t4.w, true);
+        }
+
+        template < typename T >
+        std::enable_if_t<std::is_floating_point_v<T>, std::pair<vec3<T>, bool>>
+        unproject_no(
+            const vec3<T>& screen,
+            const mat4<T>& inv_projection,
+            const rect<T>& viewport) noexcept
+        {
+            if ( math::is_near_zero(math::area(viewport), T(0)) ) {
+                return std::make_pair(vec3<T>::zero(), false);
+            }
+
+            vec4<T> t4 = vec4<T>(screen, T(1));
+
+            t4.x = (t4.x - viewport.position.x) / viewport.size.x;
+            t4.y = (t4.y - viewport.position.y) / viewport.size.y;
+
+            t4.x = t4.x * T(2) - T(1);
+            t4.y = t4.y * T(2) - T(1);
+            t4.z = t4.z * T(2) - T(1);
+
+            t4 = t4 * inv_projection;
+
+            return math::is_near_zero(t4.w, T(0))
+                ? std::make_pair(vec3<T>::zero(), false)
+                : std::make_pair(vec3<T>(t4) / t4.w, true);
+        }
+    }
+
+    template < typename T >
+    std::enable_if_t<std::is_floating_point_v<T>, std::pair<vec3<T>, bool>>
+    unproject(
+        const vec3<T>& screen,
+        const mat4<T>& inv_projection,
+        const rect<T>& viewport) noexcept {
+    #if defined(E2D_CLIPPING_MODE) && E2D_CLIPPING_MODE == E2D_CLIPPING_MODE_ZO
+        return impl::unproject_zo(screen, inv_projection, viewport);
+    #elif defined(E2D_CLIPPING_MODE) && E2D_CLIPPING_MODE == E2D_CLIPPING_MODE_NO
+        return impl::unproject_no(screen, inv_projection, viewport);
+    #else
+    #  error "E2D_CLIPPING_MODE not detected"
+    #endif
     }
 }

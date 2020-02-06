@@ -50,15 +50,20 @@ function m4f.make_look_at_lh(eye, at, up) end
 ---@return m4f
 function m4f.make_look_at_rh(eye, at, up) end
 
----@overload fun(width: number, height: number, znear: number, zfar: number): m4f
----@overload fun(size: v2f, znear: number, zfar: number): m4f
----@return m4f
-function m4f.make_orthographic_lh(...) end
 
----@overload fun(width: number, height: number, znear: number, zfar: number): m4f
+---@overload fun(left: number, right: number, bottom: number, top: number, znear: number, zfar: number): m4f
+---@overload fun(lb: v2f, rt: v2f, znear: number, zfar: number): m4f
 ---@overload fun(size: v2f, znear: number, zfar: number): m4f
+---@overload fun(width: number, height: number, znear: number, zfar: number): m4f
 ---@return m4f
-function m4f.make_orthographic_rh(...) end
+function m4f.make_orthographic_lh() end
+
+---@overload fun(left: number, right: number, bottom: number, top: number, znear: number, zfar: number): m4f
+---@overload fun(lb: v2f, rt: v2f, znear: number, zfar: number): m4f
+---@overload fun(size: v2f, znear: number, zfar: number): m4f
+---@overload fun(width: number, height: number, znear: number, zfar: number): m4f
+---@return m4f
+function m4f.make_orthographic_rh(left, right, bottom, top, znear, zfar) end
 
 ---@param angle number
 ---@param aspect number

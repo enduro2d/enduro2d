@@ -47,6 +47,34 @@ local node = {
 }
 
 ---@param self node
+---@param point v4f
+---@return v4f
+function node.local_to_world(self, point) end
+
+---@param self node
+---@param point v4f
+---@return v4f
+function node.world_to_local(self, point) end
+
+---@param self node
+---@return boolean
+function node.has_parent(self) end
+
+---@param self node
+---@param parent node
+---@return boolean
+function node.has_parent_recursive(self, parent) end
+
+---@param self node
+---@return boolean
+function node.has_children(self) end
+
+---@param self node
+---@param child node
+---@return boolean
+function node.has_child_recursive(self, child) end
+
+---@param self node
 ---@return boolean
 function node.remove_from_parent(self) end
 

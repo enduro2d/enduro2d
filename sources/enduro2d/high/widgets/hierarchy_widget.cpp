@@ -19,23 +19,23 @@ namespace
 {
     using namespace e2d;
 
-    void show_tree_for_node(editor& e, input& i, const const_node_iptr& root) {
+    void show_tree_for_node(editor& e, input& i, world& w, const node_iptr& root) {
         const gobject owner = root ? root->owner() : gobject();
         if ( !owner ) {
             return;
         }
 
-        const str basic_name = owner.component<scene>().exists()
-            ? "Scene"
-            : "Node";
+        const str icon_name = owner.component<scene>().exists()
+            ? ICON_FA_CUBES
+            : ICON_FA_CUBE;
 
         const str component_name = owner.component<named>()
             ? owner.component<named>()->name()
             : str();
 
         const str tree_node_name = component_name.empty()
-            ? basic_name
-            : strings::rformat("%0(%1)", basic_name, component_name);
+            ? icon_name
+            : strings::rformat("%0 %1", icon_name, component_name);
 
         ImGui::PushID(root.get());
         E2D_DEFER([](){ ImGui::PopID(); });
@@ -53,27 +53,74 @@ namespace
             tree_node_flags |= ImGuiTreeNodeFlags_Selected;
         }
 
-        const bool tree_node_opened =
-            ImGui::TreeNodeEx(tree_node_name.c_str(), tree_node_flags);
+        const bool tree_node_opened = ImGui::TreeNodeEx(
+            root.get(),
+            tree_node_flags,
+            "%s", tree_node_name.c_str());
+
+        E2D_DEFER([tree_node_opened](){
+            if ( tree_node_opened ) {
+                ImGui::TreePop();
+            }
+        });
 
         if ( ImGui::IsItemClicked() ) {
             e.select(owner);
         }
 
-        if ( tree_node_opened ) {
-            E2D_DEFER([](){ ImGui::TreePop(); });
+        if ( ImGui::BeginPopupContextItem() ) {
+            E2D_DEFER([](){ ImGui::EndPopup(); });
 
-            root->for_each_child([&e, &i](const const_node_iptr& child){
-                show_tree_for_node(e, i, child);
+            if ( ImGui::MenuItem("Add child") ) {
+                gobject inst = w.instantiate();
+                if ( !root->add_child(inst.component<actor>()->node()) ) {
+                    inst.destroy();
+                }
+            }
+
+            imgui_utils::with_disabled_flag_ex(!root->has_parent(), [&w, &root](){
+                if ( ImGui::MenuItem("Add sibling after") ) {
+                    gobject inst = w.instantiate();
+                    if ( !root->add_sibling_after(inst.component<actor>()->node()) ) {
+                        inst.destroy();
+                    }
+                }
+
+                if ( ImGui::MenuItem("Add sibling before") ) {
+                    gobject inst = w.instantiate();
+                    if ( !root->add_sibling_before(inst.component<actor>()->node()) ) {
+                        inst.destroy();
+                    }
+                }
+            });
+
+            ImGui::Separator();
+
+            if ( ImGui::MenuItem("Destroy") ) {
+                w.destroy_instance(owner);
+                return;
+            }
+        }
+
+        if ( tree_node_opened ) {
+            nodes::for_each_child(root, [&e, &i, &w](const node_iptr& child){
+                show_tree_for_node(e, i, w, child);
             });
         }
     }
 
     void show_tree_for_all_scenes(editor& e, input& i, world& w) {
         w.registry().for_joined_components<scene, actor>(
-        [&e, &i](const ecs::const_entity&, const scene&, const actor& a){
-            show_tree_for_node(e, i, a.node());
+        [&e, &i, &w](const ecs::const_entity&, const scene&, actor& a){
+            show_tree_for_node(e, i, w, a.node());
         });
+
+        ImGui::Separator();
+
+        if ( ImGui::Button("+ Add Scene") ) {
+            gobject inst = w.instantiate();
+            inst.component<scene>().ensure();
+        }
     }
 
     void process_tree_selection(editor& e, input& i) {
@@ -99,7 +146,6 @@ namespace
 namespace e2d::dbgui_widgets
 {
     hierarchy_widget::hierarchy_widget() {
-        desc_.title = "Hierarchy";
         desc_.first_size = v2f(300.f, 400.f);
     }
 

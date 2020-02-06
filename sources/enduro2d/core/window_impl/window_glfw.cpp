@@ -362,7 +362,9 @@ namespace e2d
             double cursor_x = 0.0, cursor_y = 0.0;
             E2D_ASSERT(window);
             glfwGetCursorPos(window.get(), &cursor_x, &cursor_y);
-            listener.on_move_cursor(make_vec2(cursor_x, cursor_y).cast_to<f32>());
+            listener.on_move_cursor(make_vec2(
+                cursor_x,
+                math::numeric_cast<double>(real_size.y) - cursor_y).cast_to<f32>());
             return listener;
         }
     private:
@@ -427,7 +429,7 @@ namespace e2d
             if ( self ) {
                 self->for_all_listeners(
                     &event_listener::on_move_cursor,
-                    make_vec2(pos_x, pos_y).cast_to<f32>());
+                    make_vec2(pos_x, math::numeric_cast<double>(self->real_size.y) - pos_y).cast_to<f32>());
             }
         }
 

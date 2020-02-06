@@ -27,17 +27,12 @@ namespace
         , inspector_(i) {}
 
         bool setup_camera(const ecs::const_entity& cam_e) {
-            if ( !cam_e.valid() || !ecs::exists_all<actor, camera, camera::gizmos>()(cam_e) ) {
+            if ( !cam_e.valid() || !ecs::exists_all<camera, camera::gizmos>()(cam_e) ) {
                 return false;
             }
 
-            const camera& cam = cam_e.get_component<camera>();
-            const actor& cam_a = cam_e.get_component<actor>();
-
-            const const_node_iptr& cam_n = cam_a.node();
-            if ( !cam_n ) {
-                return false;
-            }
+            const camera& cam =
+                cam_e.get_component<camera>();
 
             camera_vp_ =
                 cam.view() *

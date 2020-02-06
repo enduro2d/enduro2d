@@ -90,6 +90,11 @@ namespace e2d::math
         return deg * deg_to_rad<T>();
     }
 
+    template < typename T >
+    rad<T> deg_to_rad(const deg<T>& deg) noexcept {
+        return rad<T>(deg_to_rad(deg.value));
+    }
+
     //
     // rad_to_deg
     //
@@ -111,6 +116,11 @@ namespace e2d::math
     rad_to_deg(T rad) noexcept {
         return rad * rad_to_deg<T>();
     }
+
+    template < typename T >
+    deg<T> rad_to_deg(const rad<T>& rad) noexcept {
+        return deg<T>(rad_to_deg(rad.value));
+    }
 }
 
 namespace e2d
@@ -129,7 +139,7 @@ namespace e2d
     struct unit_converter<rad_tag, deg_tag> {
         template < typename T >
         deg<T> operator()(const rad<T>& u) const noexcept {
-            return make_deg(math::rad_to_deg(u.value));
+            return math::rad_to_deg(u);
         }
     };
 
@@ -138,7 +148,7 @@ namespace e2d
     public:
         template < typename T >
         rad<T> operator()(const deg<T>& u) const noexcept {
-            return make_rad(math::deg_to_rad(u.value));
+            return math::deg_to_rad(u);
         }
     };
 }
@@ -155,8 +165,18 @@ namespace e2d::math
     }
 
     template < typename T, typename Tag >
+    T to_deg_v(const unit<T, Tag>& u) noexcept {
+        return to_deg(u).value;
+    }
+
+    template < typename T, typename Tag >
     rad<T> to_rad(const unit<T, Tag>& u) noexcept {
         return u.template convert_to<rad_tag>();
+    }
+
+    template < typename T, typename Tag >
+    T to_rad_v(const unit<T, Tag>& u) noexcept {
+        return to_rad(u).value;
     }
 
     //

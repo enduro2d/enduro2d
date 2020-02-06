@@ -5,7 +5,6 @@
  ******************************************************************************/
 
 #include <enduro2d/high/node.hpp>
-#include <enduro2d/high/world.hpp>
 
 namespace e2d
 {
@@ -121,6 +120,14 @@ namespace e2d
             update_world_matrix_();
         }
         return world_matrix_;
+    }
+
+    v4f node::local_to_world(const v4f& local) const noexcept {
+        return local * world_matrix();
+    }
+
+    v4f node::world_to_local(const v4f& world) const noexcept {
+        return world * math::inversed(world_matrix()).first;
     }
 
     node_iptr node::root() noexcept {
@@ -438,27 +445,36 @@ namespace e2d
 
 namespace e2d::nodes
 {
-    vector<node_iptr> extract_nodes(const node_iptr& root) {
-        vector<node_iptr> nodes;
-        extract_nodes(root, std::back_inserter(nodes));
-        return nodes;
+    options& options::reversed(bool value) noexcept {
+        if ( value != reversed() ) {
+            math::flip_flags_inplace(flags_, fm_reversed);
+        }
+        return *this;
     }
 
-    vector<const_node_iptr> extract_nodes(const const_node_iptr& root) {
-        vector<const_node_iptr> nodes;
-        extract_nodes(root, std::back_inserter(nodes));
-        return nodes;
+    options& options::recursive(bool value) noexcept {
+        if ( value != recursive() ) {
+            math::flip_flags_inplace(flags_, fm_recursive);
+        }
+        return *this;
     }
 
-    vector<node_iptr> extract_nodes_reversed(const node_iptr& root) {
-        vector<node_iptr> nodes;
-        extract_nodes_reversed(root, std::back_inserter(nodes));
-        return nodes;
+    options& options::include_root(bool value) noexcept {
+        if ( value != include_root() ) {
+            math::flip_flags_inplace(flags_, fm_include_root);
+        }
+        return *this;
     }
 
-    vector<const_node_iptr> extract_nodes_reversed(const const_node_iptr& root) {
-        vector<const_node_iptr> nodes;
-        extract_nodes_reversed(root, std::back_inserter(nodes));
-        return nodes;
+    bool options::reversed() const noexcept {
+        return math::check_any_flags(flags_, fm_reversed);
+    }
+
+    bool options::recursive() const noexcept {
+        return math::check_any_flags(flags_, fm_recursive);
+    }
+
+    bool options::include_root() const noexcept {
+        return math::check_any_flags(flags_, fm_include_root);
     }
 }

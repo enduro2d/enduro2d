@@ -172,7 +172,7 @@ namespace e2d
 
 namespace e2d
 {
-    const char* component_inspector<sprite_renderer>::title = "sprite_renderer";
+    const char* component_inspector<sprite_renderer>::title = ICON_FA_IMAGE " sprite_renderer";
 
     void component_inspector<sprite_renderer>::operator()(gcomponent<sprite_renderer>& c) const {
         if ( color tint = color(c->tint());
@@ -203,13 +203,9 @@ namespace e2d
     {
         if ( const sprite_asset::ptr& spr_a = c->sprite() ) {
             const sprite& spr = spr_a->content();
-            const v2f& s = spr.texrect().size;
-            const v2f& p = spr.texrect().position - spr.pivot();
             ctx.draw_wire_rect(
-                p,
-                p + s * v2f::unit_x(),
-                p + s,
-                p + s * v2f::unit_y(),
+                spr.texrect().position - spr.pivot() + spr.texrect().size * 0.5f,
+                spr.texrect().size,
                 ctx.selected() ? color32::yellow() : color32::magenta());
         }
     }

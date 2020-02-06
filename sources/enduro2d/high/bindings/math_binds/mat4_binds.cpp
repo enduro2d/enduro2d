@@ -67,12 +67,10 @@ namespace
                 mat4<T>(const vec3<T>&,const vec3<T>&,const vec3<T>&)>(&math::make_look_at_rh_matrix4),
 
             "make_orthographic_lh", sol::overload(
-                sol::resolve<mat4<T>(T,T,T,T)>(&math::make_orthographic_lh_matrix4),
-                sol::resolve<mat4<T>(const vec2<T>&,T,T)>(&math::make_orthographic_lh_matrix4)),
+                sol::resolve<mat4<T>(T,T,T,T,T,T)>(&math::make_orthographic_lh_matrix4)),
 
             "make_orthographic_rh", sol::overload(
-                sol::resolve<mat4<T>(T,T,T,T)>(&math::make_orthographic_rh_matrix4),
-                sol::resolve<mat4<T>(const vec2<T>&,T,T)>(&math::make_orthographic_rh_matrix4)),
+                sol::resolve<mat4<T>(T,T,T,T,T,T)>(&math::make_orthographic_rh_matrix4)),
 
             "make_perspective_lh", [](T angle, T aspect, T znear, T zfar) -> mat4<T> {
                 return math::make_perspective_lh_matrix4(make_rad(angle), aspect, znear, zfar);

@@ -31,6 +31,7 @@
 #include "components/actor.hpp"
 #include "components/behaviour.hpp"
 #include "components/camera.hpp"
+#include "components/colliders.hpp"
 #include "components/commands.hpp"
 #include "components/disabled.hpp"
 #include "components/events.hpp"
@@ -42,6 +43,7 @@
 #include "components/scene.hpp"
 #include "components/spine_player.hpp"
 #include "components/sprite_renderer.hpp"
+#include "components/touchable.hpp"
 
 #include "systems/camera_system.hpp"
 #include "systems/flipbook_system.hpp"
@@ -51,6 +53,7 @@
 #include "systems/render_system.hpp"
 #include "systems/script_system.hpp"
 #include "systems/spine_system.hpp"
+#include "systems/touch_system.hpp"
 #include "systems/world_system.hpp"
 
 #include "address.hpp"

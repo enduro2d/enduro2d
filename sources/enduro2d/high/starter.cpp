@@ -16,6 +16,7 @@
 #include <enduro2d/high/components/actor.hpp>
 #include <enduro2d/high/components/behaviour.hpp>
 #include <enduro2d/high/components/camera.hpp>
+#include <enduro2d/high/components/colliders.hpp>
 #include <enduro2d/high/components/commands.hpp>
 #include <enduro2d/high/components/disabled.hpp>
 #include <enduro2d/high/components/events.hpp>
@@ -27,6 +28,7 @@
 #include <enduro2d/high/components/scene.hpp>
 #include <enduro2d/high/components/spine_player.hpp>
 #include <enduro2d/high/components/sprite_renderer.hpp>
+#include <enduro2d/high/components/touchable.hpp>
 
 #include <enduro2d/high/systems/camera_system.hpp>
 #include <enduro2d/high/systems/flipbook_system.hpp>
@@ -36,6 +38,7 @@
 #include <enduro2d/high/systems/render_system.hpp>
 #include <enduro2d/high/systems/script_system.hpp>
 #include <enduro2d/high/systems/spine_system.hpp>
+#include <enduro2d/high/systems/touch_system.hpp>
 #include <enduro2d/high/systems/world_system.hpp>
 
 namespace
@@ -72,6 +75,8 @@ namespace
                     .add_system<script_system>())
                 .feature<struct spine_feature>(ecs::feature()
                     .add_system<spine_system>())
+                .feature<struct touch_feature>(ecs::feature()
+                    .add_system<touch_system>())
                 .feature<struct world_feature>(ecs::feature()
                     .add_system<world_system>());
             return !application_ || application_->initialize();
@@ -130,10 +135,6 @@ namespace e2d
         return *this;
     }
 
-    url& starter::library_parameters::root() noexcept {
-        return root_;
-    }
-
     const url& starter::library_parameters::root() const noexcept {
         return root_;
     }
@@ -184,7 +185,11 @@ namespace e2d
             .register_component<actor>("actor")
             .register_component<behaviour>("behaviour")
             .register_component<camera>("camera")
+            .register_component<camera::input>("camera.input")
             .register_component<camera::gizmos>("camera.gizmos")
+            .register_component<rect_collider>("rect_collider")
+            .register_component<circle_collider>("circle_collider")
+            .register_component<polygon_collider>("polygon_collider")
             .register_component<flipbook_player>("flipbook_player")
             .register_component<label>("label")
             .register_component<label::dirty>("label.dirty")
@@ -195,13 +200,20 @@ namespace e2d
             .register_component<spine_player>("spine_player")
             .register_component<events<spine_player_events::event>>("spine_player.events")
             .register_component<commands<spine_player_commands::command>>("spine_player.commands")
-            .register_component<sprite_renderer>("sprite_renderer");
+            .register_component<sprite_renderer>("sprite_renderer")
+            .register_component<touchable>("touchable")
+            .register_component<events<touchable_events::event>>("touchable.events")
+            ;
 
         safe_module_initialize<inspector>()
             .register_component<actor>("actor")
             .register_component<behaviour>("behaviour")
             .register_component<camera>("camera")
+            //.register_component<camera::gizmos>("camera.input")
             //.register_component<camera::gizmos>("camera.gizmos")
+            .register_component<rect_collider>("rect_collider")
+            .register_component<circle_collider>("circle_collider")
+            .register_component<polygon_collider>("polygon_collider")
             .register_component<flipbook_player>("flipbook_player")
             .register_component<label>("label")
             //.register_component<label::dirty>("label.dirty")
@@ -212,12 +224,15 @@ namespace e2d
             .register_component<spine_player>("spine_player")
             //.register_component<events<spine_player_events::event>>("spine_player.events")
             //.register_component<commands<spine_player_commands::command>>("spine_player.commands")
-            .register_component<sprite_renderer>("sprite_renderer");
+            .register_component<sprite_renderer>("sprite_renderer")
+            .register_component<touchable>("touchable")
+            //.register_component<events<touchable_events::event>>("touchable.events")
+            ;
 
         safe_module_initialize<luasol>();
 
         safe_module_initialize<library>(
-            params.library_params().root());
+            params.library_params());
 
         safe_module_initialize<world>();
         safe_module_initialize<editor>();

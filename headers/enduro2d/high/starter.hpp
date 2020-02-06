@@ -49,7 +49,6 @@ namespace e2d
     class starter::library_parameters {
     public:
         library_parameters& root(url value) noexcept;
-        url& root() noexcept;
         const url& root() const noexcept;
     private:
         url root_{"resources://bin/library"};

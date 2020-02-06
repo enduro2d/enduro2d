@@ -6,6 +6,12 @@ local camera = {
     ---@type boolean
     disabled = false,
 
+    ---@type boolean
+    input = false,
+
+    ---@type boolean
+    gizmos = false,
+
     ---@type integer
     depth = 0,
 

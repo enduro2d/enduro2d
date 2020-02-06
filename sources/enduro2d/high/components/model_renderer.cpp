@@ -53,7 +53,7 @@ namespace e2d
 
 namespace e2d
 {
-    const char* component_inspector<model_renderer>::title = "model_renderer";
+    const char* component_inspector<model_renderer>::title = ICON_FA_DRAW_POLYGON " model_renderer";
 
     void component_inspector<model_renderer>::operator()(gcomponent<model_renderer>& c) const {
         E2D_UNUSED(c);

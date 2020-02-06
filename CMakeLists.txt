@@ -244,7 +244,8 @@ target_include_directories(${PROJECT_NAME}
     PUBLIC headers
     PUBLIC headers/3rdparty
     PUBLIC headers/3rdparty/lua
-    PRIVATE sources)
+    PRIVATE sources
+    PRIVATE sources/3rdparty)
 
 target_compile_options(${PROJECT_NAME}
     PRIVATE

@@ -12,7 +12,7 @@ namespace e2d::dbgui_widgets
 {
     class window_widget final : public dbgui::widget {
     public:
-        window_widget();
+        window_widget() = default;
         ~window_widget() noexcept = default;
 
         bool show() override;

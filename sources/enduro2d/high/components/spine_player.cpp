@@ -698,7 +698,7 @@ namespace e2d
         "required" : [],
         "additionalProperties" : false,
         "properties" : {
-            "commands" : { "$ref": "#/definitions/events" }
+            "events" : { "$ref": "#/definitions/events" }
         },
         "definitions" : {
             "events" : {
@@ -912,7 +912,7 @@ namespace e2d
 
 namespace e2d
 {
-    const char* component_inspector<spine_player>::title = "spine_player";
+    const char* component_inspector<spine_player>::title = ICON_FA_PARAGRAPH " spine_player";
 
     void component_inspector<spine_player>::operator()(gcomponent<spine_player>& c) const {
         E2D_UNUSED(c);

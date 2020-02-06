@@ -16,6 +16,7 @@
 #include <enduro2d/high/components/disabled.hpp>
 #include <enduro2d/high/components/events.hpp>
 #include <enduro2d/high/components/spine_player.hpp>
+#include <enduro2d/high/components/touchable.hpp>
 
 namespace
 {
@@ -48,7 +49,7 @@ namespace
     }
 
     void process_spine_player_events(ecs::registry& owner) {
-        systems::for_extracted_components<events<spine_player_events::event>, behaviour, actor>(owner,
+        ecsex::for_extracted_components<events<spine_player_events::event>, behaviour, actor>(owner,
         [](ecs::entity e, const events<spine_player_events::event>& es, behaviour& b, actor& a){
             if ( !a.node() || !a.node()->owner() ) {
                 return;
@@ -67,6 +68,32 @@ namespace
                     [&b,&a,&r](const spine_player_events::complete_evt& e){
                         r = behaviours::call_meta_method(
                             b, "on_event", a.node()->owner(), "spine_player.complete_evt", e);
+                    }
+                }, evt);
+                if ( r == behaviours::call_result::failed ) {
+                    e.assign_component<disabled<behaviour>>();
+                }
+            }
+        }, !ecs::exists<disabled<behaviour>>());
+    }
+
+    void process_touchable_events(ecs::registry& owner) {
+        ecsex::for_extracted_components<events<touchable_events::event>, behaviour, actor>(owner,
+        [](ecs::entity e, const events<touchable_events::event>& es, behaviour& b, actor& a){
+            if ( !a.node() || !a.node()->owner() ) {
+                return;
+            }
+            for ( const touchable_events::event& evt : es.get() ) {
+                behaviours::call_result r = behaviours::call_result::success;
+                std::visit(utils::overloaded {
+                    [](std::monostate){},
+                    [&b,&a,&r](const touchable_events::mouse_evt& e){
+                        r = behaviours::call_meta_method(
+                            b, "on_event", a.node()->owner(), "touchable.mouse_evt", e);
+                    },
+                    [&b,&a,&r](const touchable_events::touch_evt& e){
+                        r = behaviours::call_meta_method(
+                            b, "on_event", a.node()->owner(), "touchable.touch_evt", e);
                     }
                 }, evt);
                 if ( r == behaviours::call_result::failed ) {
@@ -95,7 +122,7 @@ namespace e2d
         ~internal_state() noexcept = default;
 
         void process_update(ecs::registry& owner) {
-            systems::for_extracted_components<behaviour, actor>(owner,
+            ecsex::for_extracted_components<behaviour, actor>(owner,
             [](ecs::entity e, behaviour& b, actor& a){
                 if ( !a.node() || !a.node()->owner() ) {
                     return;
@@ -109,6 +136,7 @@ namespace e2d
 
         void process_events(ecs::registry& owner) {
             process_spine_player_events(owner);
+            process_touchable_events(owner);
         }
     };
 

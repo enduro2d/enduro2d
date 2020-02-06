@@ -16,6 +16,9 @@
 #include <3rdparty/imgui/imgui_stdlib.h>
 #include <3rdparty/imgui/imgui_internal.h>
 
+#include <3rdparty/icons/icon_fa.h>
+#include <3rdparty/icons/icon_md.h>
+
 namespace e2d::imgui_utils
 {
     template < typename... Args >
@@ -83,5 +86,14 @@ namespace e2d::imgui_utils
         E2D_DEFER([](){ ImGui::PopStyleVar(); });
 
         std::invoke(std::forward<F>(f), std::forward<Args>(args)...);
+    }
+
+    template < typename F, typename... Args >
+    void with_disabled_flag_ex(bool disabled, F&& f, Args&&... args) {
+        if ( disabled ) {
+            with_disabled_flag(std::forward<F>(f), std::forward<Args>(args)...);
+        } else {
+            std::invoke(std::forward<F>(f), std::forward<Args>(args)...);
+        }
     }
 }

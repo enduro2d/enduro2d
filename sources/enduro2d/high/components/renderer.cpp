@@ -81,7 +81,7 @@ namespace e2d
 
 namespace e2d
 {
-    const char* component_inspector<renderer>::title = "renderer";
+    const char* component_inspector<renderer>::title = ICON_FA_FILL " renderer";
 
     void component_inspector<renderer>::operator()(gcomponent<renderer>& c) const {
         if ( v3f translation = c->translation();

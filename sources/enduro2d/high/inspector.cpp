@@ -8,17 +8,46 @@
 
 namespace e2d
 {
-    void inspector::show_for(gobject& go) {
+    void inspector::show_for(gobject go) {
         std::lock_guard<std::mutex> guard(mutex_);
-        for ( auto& p : drawers_ ) {
-            (*p.second)(go);
+
+        for ( const auto& p : inspector_impls_ ) {
+            (*p.second.drawer)(go);
+        }
+
+        ImGui::Separator();
+
+        {
+            const char* add_component_popup_str_id = "e2d_add_component_popup";
+
+            if ( ImGui::Button("+ Add Component") ) {
+                ImGui::OpenPopup(add_component_popup_str_id);
+            }
+
+            if ( ImGui::BeginPopup(add_component_popup_str_id) ) {
+                E2D_DEFER([](){ ImGui::EndPopup(); });
+
+                for ( const auto& p : inspector_impls_ ) {
+                    imgui_utils::with_disabled_flag_ex(
+                        p.second.creator->exists(go),
+                        [&go, &p](){
+                            if ( ImGui::Button(p.second.creator->title()) ) {
+                                p.second.creator->ensure(go);
+                                ImGui::CloseCurrentPopup();
+                            }
+                        });
+                }
+            }
         }
     }
 
-    void inspector::show_for(gobject& go, component_inspector<>::gizmos_context& ctx) {
+    void inspector::show_for(
+        gobject go,
+        component_inspector<>::gizmos_context& ctx)
+    {
         std::lock_guard<std::mutex> guard(mutex_);
-        for ( auto& p : drawers_ ) {
-            (*p.second)(go, ctx);
+        for ( auto& p : inspector_impls_ ) {
+            (*p.second.drawer)(go, ctx);
         }
     }
 }

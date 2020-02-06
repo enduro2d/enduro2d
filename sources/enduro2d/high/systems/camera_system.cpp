@@ -32,8 +32,8 @@ namespace
         const v2f virtual_size = window.virtual_size().cast_to<f32>();
         const v2f viewport_size = target_size.cast_to<f32>() * camera.viewport().size;
 
-        if ( math::is_near_zero(math::length_squared(virtual_size), 0.f) ||
-            math::is_near_zero(math::length_squared(viewport_size), 0.f) )
+        if ( math::is_near_zero(virtual_size.x * virtual_size.y, 0.f) ||
+            math::is_near_zero(viewport_size.x * viewport_size.y, 0.f) )
         {
             return camera.projection();
         }

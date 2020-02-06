@@ -67,6 +67,29 @@ namespace e2d
                 const color32& color) = 0;
 
             virtual bool selected() const noexcept = 0;
+        public:
+            void draw_rect(
+                const v2f& center,
+                const v2f& size,
+                const color32& color);
+
+            void draw_wire_rect(
+                const v2f& center,
+                const v2f& size,
+                const color32& color);
+
+            template < typename Iter >
+            void draw_wire_polygon(
+                Iter begin,
+                Iter end,
+                const v2f& center,
+                const color32& color);
+
+            template < typename Container >
+            void draw_wire_polygon(
+                Container&& container,
+                const v2f& center,
+                const color32& color);
         };
     };
 
@@ -126,6 +149,41 @@ namespace e2d
     }
 
     //
+    // inspector_creator
+    //
+
+    namespace impl
+    {
+        class inspector_creator;
+        using inspector_creator_iptr = intrusive_ptr<inspector_creator>;
+
+        class inspector_creator
+            : private noncopyable
+            , public ref_counter<inspector_creator> {
+        public:
+            inspector_creator() = default;
+            virtual ~inspector_creator() noexcept = default;
+
+            virtual void ensure(gobject& go) const = 0;
+            virtual bool exists(gobject& go) const noexcept = 0;
+
+            virtual const char* title() const noexcept = 0;
+        };
+
+        template < typename Component >
+        class typed_inspector_creator final : public inspector_creator {
+        public:
+            typed_inspector_creator() = default;
+            ~typed_inspector_creator() noexcept final = default;
+
+            void ensure(gobject& go) const final;
+            bool exists(gobject& go) const noexcept final;
+
+            const char* title() const noexcept final;
+        };
+    }
+
+    //
     // inspector
     //
 
@@ -135,17 +193,22 @@ namespace e2d
         ~inspector() noexcept final = default;
 
         template < typename Component >
-        inspector& register_component(str_hash type);
+        inspector& register_component(str type);
 
         void show_for(
-            gobject& go);
+            gobject go);
 
         void show_for(
-            gobject& go,
+            gobject go,
             component_inspector<>::gizmos_context& ctx);
     private:
+        struct inspector_impl {
+            impl::inspector_drawer_iptr drawer;
+            impl::inspector_creator_iptr creator;
+        };
+    private:
         mutable std::mutex mutex_;
-        hash_map<str_hash, impl::inspector_drawer_iptr> drawers_;
+        flat_map<str, inspector_impl> inspector_impls_;
     };
 }
 

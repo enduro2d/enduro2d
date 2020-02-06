@@ -59,6 +59,9 @@ namespace e2d
         const m4f& local_matrix() const noexcept;
         const m4f& world_matrix() const noexcept;
 
+        v4f local_to_world(const v4f& local) const noexcept;
+        v4f world_to_local(const v4f& world) const noexcept;
+
         node_iptr root() noexcept;
         const_node_iptr root() const noexcept;
 
@@ -122,16 +125,6 @@ namespace e2d
 
         node_iptr next_sibling() noexcept;
         const_node_iptr next_sibling() const noexcept;
-
-        template < typename F >
-        void for_each_child(F&& f);
-        template < typename F >
-        void for_each_child(F&& f) const;
-
-        template < typename F >
-        void for_each_child_reversed(F&& f);
-        template < typename F >
-        void for_each_child_reversed(F&& f) const;
     protected:
         node() = default;
         node(gobject owner);
@@ -158,37 +151,114 @@ namespace e2d
 
 namespace e2d::nodes
 {
-    template < typename Iter >
-    std::size_t extract_nodes(const node_iptr& root, Iter iter);
-    template < typename Iter >
-    std::size_t extract_nodes(const const_node_iptr& root, Iter iter);
+    class options final {
+    public:
+        options() = default;
 
-    template < typename Iter >
-    std::size_t extract_nodes_reversed(const node_iptr& root, Iter iter);
-    template < typename Iter >
-    std::size_t extract_nodes_reversed(const const_node_iptr& root, Iter iter);
+        options& reversed(bool value) noexcept;
+        options& recursive(bool value) noexcept;
+        options& include_root(bool value) noexcept;
+
+        [[nodiscard]] bool reversed() const noexcept;
+        [[nodiscard]] bool recursive() const noexcept;
+        [[nodiscard]] bool include_root() const noexcept;
+    private:
+        enum flag_masks : u8 {
+            fm_reversed = 1u << 0,
+            fm_recursive = 1u << 1,
+            fm_include_root = 1u << 2,
+        };
+    private:
+        std::underlying_type_t<flag_masks> flags_{};
+    };
 }
 
 namespace e2d::nodes
 {
-    vector<node_iptr> extract_nodes(const node_iptr& root);
-    vector<const_node_iptr> extract_nodes(const const_node_iptr& root);
+    template < typename Node, typename F >
+    bool for_each_child(
+        const intrusive_ptr<Node>& root,
+        F&& f,
+        const options& opts = options());
 
-    vector<node_iptr> extract_nodes_reversed(const node_iptr& root);
-    vector<const_node_iptr> extract_nodes_reversed(const const_node_iptr& root);
+    template < typename Node, typename F >
+    bool for_each_parent(
+        const intrusive_ptr<Node>& root,
+        F&& f,
+        const options& opts = options());
 }
 
 namespace e2d::nodes
 {
-    template < typename F >
-    void for_extracted_nodes(const node_iptr& root, F&& f);
-    template < typename F >
-    void for_extracted_nodes(const const_node_iptr& root, F&& f);
+    template < typename Node, typename Iter >
+    std::size_t extract_parents(
+        const intrusive_ptr<Node>& root,
+        Iter iter,
+        const options& opts = options());
 
-    template < typename F >
-    void for_extracted_nodes_reversed(const node_iptr& root, F&& f);
-    template < typename F >
-    void for_extracted_nodes_reversed(const const_node_iptr& root, F&& f);
+    template < typename Node, typename Iter >
+    std::size_t extract_children(
+        const intrusive_ptr<Node>& root,
+        Iter iter,
+        const options& opts = options());
+}
+
+namespace e2d::nodes
+{
+    template < typename Node, typename F >
+    bool for_extracted_parents(
+        const intrusive_ptr<Node>& root,
+        F&& f,
+        const options& opts = options());
+
+    template < typename Node, typename F >
+    bool for_extracted_children(
+        const intrusive_ptr<Node>& root,
+        F&& f,
+        const options& opts = options());
+}
+
+namespace e2d::nodes
+{
+    template < typename Component, typename Node, typename Iter >
+    std::size_t extract_components_from_parents(
+        const intrusive_ptr<Node>& root,
+        Iter iter,
+        const options& opts = options());
+
+    template < typename Component, typename Node, typename Iter >
+    std::size_t extract_components_from_children(
+        const intrusive_ptr<Node>& root,
+        Iter iter,
+        const options& opts = options());
+}
+
+namespace e2d::nodes
+{
+    template < typename Component, typename Node, typename F >
+    bool for_extracted_components_from_parents(
+        const intrusive_ptr<Node>& root,
+        F&& f,
+        const options& opts = options());
+
+    template < typename Component, typename Node, typename F >
+    bool for_extracted_components_from_children(
+        const intrusive_ptr<Node>& root,
+        F&& f,
+        const options& opts = options());
+}
+
+namespace e2d::nodes
+{
+    template < typename Component, typename Node >
+    gcomponent<Component> find_component_from_parents(
+        const intrusive_ptr<Node>& root,
+        const options& opts = options());
+
+    template < typename Component, typename Node >
+    gcomponent<Component> find_component_from_children(
+        const intrusive_ptr<Node>& root,
+        const options& opts = options());
 }
 
 #include "node.inl"

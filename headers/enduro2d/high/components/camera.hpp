@@ -6,16 +6,13 @@
 
 #pragma once
 
-#include "../_high.hpp"
-
-#include "../factory.hpp"
-#include "../gobject.hpp"
-#include "../inspector.hpp"
+#include "_components.hpp"
 
 namespace e2d
 {
     class camera final {
     public:
+        class input final {};
         class gizmos final {};
     public:
         ENUM_HPP_CLASS_DECL(modes, u8,
@@ -70,6 +67,20 @@ namespace e2d
 
         bool operator()(
             camera& component,
+            const fill_context& ctx) const;
+
+        bool operator()(
+            asset_dependencies& dependencies,
+            const collect_context& ctx) const;
+    };
+
+    template <>
+    class factory_loader<camera::input> final : factory_loader<> {
+    public:
+        static const char* schema_source;
+
+        bool operator()(
+            camera::input& component,
             const fill_context& ctx) const;
 
         bool operator()(
