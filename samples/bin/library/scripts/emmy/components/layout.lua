@@ -65,7 +65,10 @@ local layout_item = {
     enabled = true,
 
     ---@type boolean
-    disabled = false
+    disabled = false,
+
+    ---@type v2f
+    size = v2f.unit()
 }
 
 ---@overload fun(self: layout_item)

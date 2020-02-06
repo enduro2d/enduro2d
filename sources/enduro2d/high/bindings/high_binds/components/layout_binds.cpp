@@ -144,7 +144,15 @@ namespace e2d::bindings::high
                         c.owner().component<disabled<layout_item>>().remove();
                     }
                 }
-            )
+            ),
+
+            "size", sol::property(
+                [](const gcomponent<layout_item>& c) -> v2f {
+                    return c->size();
+                },
+                [](gcomponent<layout_item>& c, const v2f& v){
+                    c->size(v);
+                })
         );
     }
 }

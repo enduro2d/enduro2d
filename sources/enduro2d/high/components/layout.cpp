@@ -103,14 +103,24 @@ namespace e2d
         "type" : "object",
         "required" : [],
         "additionalProperties" : false,
-        "properties" : {}
+        "properties" : {
+            "size" : { "$ref": "#/common_definitions/v2" }
+        }
     })json";
 
     bool factory_loader<layout_item>::operator()(
         layout_item& component,
         const fill_context& ctx) const
     {
-        E2D_UNUSED(component, ctx);
+        if ( ctx.root.HasMember("size") ) {
+            v2f size = component.size();
+            if ( !json_utils::try_parse_value(ctx.root["size"], size) ) {
+                the<debug>().error("LAYOUT_ITEM: Incorrect formatting of 'size' property");
+                return false;
+            }
+            component.size(size);
+        }
+
         return true;
     }
 
@@ -159,6 +169,10 @@ namespace e2d
     const char* component_inspector<layout_item>::title = ICON_FA_GRIP_LINES " layout_item";
 
     void component_inspector<layout_item>::operator()(gcomponent<layout_item>& c) const {
-        E2D_UNUSED(c);
+        if ( v2f size = c->size();
+            ImGui::DragFloat2("size", size.data(), 1.f) )
+        {
+            c->size(size);
+        }
     }
 }

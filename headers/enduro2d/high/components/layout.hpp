@@ -49,6 +49,11 @@ namespace e2d
     class layout_item final {
     public:
         layout_item() = default;
+
+        layout_item& size(const v2f& value) noexcept;
+        [[nodiscard]] const v2f& size() const noexcept;
+    private:
+        v2f size_ = v2f::unit();
     };
 }
 
@@ -142,5 +147,17 @@ namespace e2d
 
     inline f32 layout::spacing() const noexcept {
         return spacing_;
+    }
+}
+
+namespace e2d
+{
+    inline layout_item& layout_item::size(const v2f& value) noexcept {
+        size_ = value;
+        return *this;
+    }
+
+    inline const v2f& layout_item::size() const noexcept {
+        return size_;
     }
 }
