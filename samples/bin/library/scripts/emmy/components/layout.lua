@@ -14,12 +14,35 @@ local layout = {
 
     ---@type layout_modes
     mode = layout.modes.vertical,
+
+    ---@type layout_valigns
+    valign = layout.valigns.center,
+
+    ---@type layout_haligns
+    halign = layout.haligns.center,
+
+    ---@type number
+    spacing = 0.0
 }
 
 ---@class layout_modes
 layout.modes = {
     vertical = "vertical",
     horizontal = "horizontal"
+}
+
+---@class layout_valigns
+layout.valigns = {
+    top = "top",
+    center = "center",
+    bottom = "bottom"
+}
+
+---@class layout_haligns
+layout.haligns = {
+    left = "left",
+    center = "center",
+    right = "right"
 }
 
 ---@overload fun(self: layout)

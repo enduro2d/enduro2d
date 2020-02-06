@@ -13,7 +13,10 @@ namespace e2d
         "required" : [],
         "additionalProperties" : false,
         "properties" : {
-            "mode" : { "$ref": "#/definitions/modes" }
+            "mode" : { "$ref": "#/definitions/modes" },
+            "valign" : { "$ref": "#/definitions/valigns" },
+            "halign" : { "$ref": "#/definitions/haligns" },
+            "spacing" : { "type" : "number" }
         },
         "definitions" : {
             "modes" : {
@@ -21,6 +24,22 @@ namespace e2d
                 "enum" : [
                     "vertical",
                     "horizontal"
+                ]
+            },
+            "valigns" : {
+                "type" : "string",
+                "enum" : [
+                    "top",
+                    "center",
+                    "bottom"
+                ]
+            },
+            "haligns" : {
+                "type" : "string",
+                "enum" : [
+                    "left",
+                    "center",
+                    "right"
                 ]
             }
         }
@@ -37,6 +56,33 @@ namespace e2d
                 return false;
             }
             component.mode(mode);
+        }
+
+        if ( ctx.root.HasMember("valign") ) {
+            layout::valigns valign = component.valign();
+            if ( !json_utils::try_parse_value(ctx.root["valign"], valign) ) {
+                the<debug>().error("LAYOUT: Incorrect formatting of 'valign' property");
+                return false;
+            }
+            component.valign(valign);
+        }
+
+        if ( ctx.root.HasMember("halign") ) {
+            layout::haligns halign = component.halign();
+            if ( !json_utils::try_parse_value(ctx.root["halign"], halign) ) {
+                the<debug>().error("LAYOUT: Incorrect formatting of 'halign' property");
+                return false;
+            }
+            component.halign(halign);
+        }
+
+        if ( ctx.root.HasMember("spacing") ) {
+            f32 spacing = component.spacing();
+            if ( !json_utils::try_parse_value(ctx.root["spacing"], spacing) ) {
+                the<debug>().error("LAYOUT: Incorrect formatting of 'spacing' property");
+                return false;
+            }
+            component.spacing(spacing);
         }
 
         return true;
@@ -86,6 +132,24 @@ namespace e2d
             imgui_utils::show_enum_combo_box("mode", &mode) )
         {
             c->mode(mode);
+        }
+
+        if ( layout::valigns valign = c->valign();
+            imgui_utils::show_enum_combo_box("valign", &valign) )
+        {
+            c->valign(valign);
+        }
+
+        if ( layout::haligns halign = c->halign();
+            imgui_utils::show_enum_combo_box("halign", &halign) )
+        {
+            c->halign(halign);
+        }
+
+        if ( f32 spacing = c->spacing();
+            ImGui::DragFloat("spacing", &spacing, 1.f) )
+        {
+            c->spacing(spacing);
         }
     }
 }

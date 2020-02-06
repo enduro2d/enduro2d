@@ -56,6 +56,30 @@ namespace e2d::bindings::high
                 },
                 [](gcomponent<layout>& c, layout::modes v){
                     c->mode(v);
+                }),
+
+            "valign", sol::property(
+                [](const gcomponent<layout>& c) -> layout::valigns {
+                    return c->valign();
+                },
+                [](gcomponent<layout>& c, layout::valigns v){
+                    c->valign(v);
+                }),
+
+            "halign", sol::property(
+                [](const gcomponent<layout>& c) -> layout::haligns {
+                    return c->halign();
+                },
+                [](gcomponent<layout>& c, layout::haligns v){
+                    c->halign(v);
+                }),
+
+            "spacing", sol::property(
+                [](const gcomponent<layout>& c) -> f32 {
+                    return c->spacing();
+                },
+                [](gcomponent<layout>& c, f32 v){
+                    c->spacing(v);
                 })
         );
 
@@ -66,6 +90,24 @@ namespace e2d::bindings::high
             LAYOUT_MODE_PAIR(horizontal)
         });
     #undef LAYOUT_MODE_PAIR
+
+    #define LAYOUT_HALIGN_PAIR(x) {#x, layout::haligns::x},
+        l["layout"].get_or_create<sol::table>()
+        .new_enum<layout::haligns>("haligns", {
+            LAYOUT_HALIGN_PAIR(left)
+            LAYOUT_HALIGN_PAIR(center)
+            LAYOUT_HALIGN_PAIR(right)
+        });
+    #undef LAYOUT_HALIGN_PAIR
+
+    #define LAYOUT_VALIGN_PAIR(x) {#x, layout::valigns::x},
+        l["layout"].get_or_create<sol::table>()
+        .new_enum<layout::valigns>("valigns", {
+            LAYOUT_VALIGN_PAIR(top)
+            LAYOUT_VALIGN_PAIR(center)
+            LAYOUT_VALIGN_PAIR(bottom)
+        });
+    #undef LAYOUT_VALIGN_PAIR
 
         l.new_usertype<gcomponent<layout_item>>("layout_item",
             sol::no_constructor,
