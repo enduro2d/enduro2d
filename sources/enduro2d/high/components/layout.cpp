@@ -224,6 +224,17 @@ namespace e2d::layouts
         return self;
     }
 
+    gcomponent<layout> unmark_dirty(gcomponent<layout> self) {
+        if ( self ) {
+            self.owner().component<layout::dirty>().remove();
+        }
+        return self;
+    }
+
+    bool is_dirty(const const_gcomponent<layout>& self) noexcept {
+        return self.owner().component<layout::dirty>().exists();
+    }
+
     gcomponent<layout> change_mode(gcomponent<layout> self, layout::modes value) {
         if ( self ) {
             self->mode(value);
@@ -256,18 +267,17 @@ namespace e2d::layouts
 namespace e2d::layout_items
 {
     gcomponent<layout_item> mark_dirty(gcomponent<layout_item> self) {
-        gcomponent<actor> self_actor = self.owner().component<actor>();
-        if ( !self_actor ) {
-            return self;
-        }
-
-        gcomponent<layout> parent_layout = nodes::find_component_from_parents<layout>(self_actor->node());
-        if ( !parent_layout ) {
-            return self;
-        }
-
-        layouts::mark_dirty(parent_layout);
+        layouts::mark_dirty(find_parent_layout(self));
         return self;
+    }
+
+    gcomponent<layout_item> unmark_dirty(gcomponent<layout_item> self) {
+        layouts::unmark_dirty(find_parent_layout(self));
+        return self;
+    }
+
+    bool is_dirty(const const_gcomponent<layout_item>& self) noexcept {
+        return layouts::is_dirty(find_parent_layout(self));
     }
 
     gcomponent<layout_item> change_size(gcomponent<layout_item> self, const v2f& value) {
@@ -275,5 +285,12 @@ namespace e2d::layout_items
             self->size(value);
         }
         return mark_dirty(self);
+    }
+
+    gcomponent<layout> find_parent_layout(const_gcomponent<layout_item> self) noexcept {
+        const_gcomponent<actor> self_actor = self.owner().component<actor>();
+        return self_actor
+            ? nodes::find_component_from_parents<layout>(self_actor->node())
+            : gcomponent<layout>();
     }
 }

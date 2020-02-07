@@ -70,6 +70,9 @@ local layout_item = {
     ---@type boolean
     disabled = false,
 
+    ---@type boolean
+    dirty = false,
+
     ---@type v2f
     size = v2f.unit()
 }

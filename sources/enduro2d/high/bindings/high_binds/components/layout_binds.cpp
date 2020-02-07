@@ -56,13 +56,13 @@ namespace e2d::bindings::high
 
             "dirty", sol::property(
                 [](const gcomponent<layout>& c) -> bool {
-                    return c.owner().component<layout::dirty>().exists();
+                    return layouts::is_dirty(c);
                 },
                 [](gcomponent<layout>& c, bool yesno){
                     if ( yesno ) {
-                        c.owner().component<layout::dirty>().ensure();
+                        layouts::mark_dirty(c);
                     } else {
-                        c.owner().component<layout::dirty>().remove();
+                        layouts::unmark_dirty(c);
                     }
                 }
             ),
@@ -164,6 +164,19 @@ namespace e2d::bindings::high
                         c.owner().component<disabled<layout_item>>().remove();
                     }
                     layout_items::mark_dirty(c);
+                }
+            ),
+
+            "dirty", sol::property(
+                [](const gcomponent<layout_item>& c) -> bool {
+                    return layout_items::is_dirty(c);
+                },
+                [](gcomponent<layout_item>& c, bool yesno){
+                    if ( yesno ) {
+                        layout_items::mark_dirty(c);
+                    } else {
+                        layout_items::unmark_dirty(c);
+                    }
                 }
             ),
 

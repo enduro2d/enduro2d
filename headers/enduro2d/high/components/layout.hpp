@@ -182,6 +182,9 @@ namespace e2d
 namespace e2d::layouts
 {
     gcomponent<layout> mark_dirty(gcomponent<layout> self);
+    gcomponent<layout> unmark_dirty(gcomponent<layout> self);
+    bool is_dirty(const const_gcomponent<layout>& self) noexcept;
+
     gcomponent<layout> change_mode(gcomponent<layout> self, layout::modes value);
     gcomponent<layout> change_halign(gcomponent<layout> self, layout::haligns value);
     gcomponent<layout> change_valign(gcomponent<layout> self, layout::valigns value);
@@ -191,5 +194,10 @@ namespace e2d::layouts
 namespace e2d::layout_items
 {
     gcomponent<layout_item> mark_dirty(gcomponent<layout_item> self);
+    gcomponent<layout_item> unmark_dirty(gcomponent<layout_item> self);
+    bool is_dirty(const const_gcomponent<layout_item>& self) noexcept;
+
     gcomponent<layout_item> change_size(gcomponent<layout_item> self, const v2f& value);
+
+    gcomponent<layout> find_parent_layout(const_gcomponent<layout_item> self) noexcept;
 }
