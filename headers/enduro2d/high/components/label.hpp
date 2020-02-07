@@ -226,3 +226,22 @@ namespace e2d
         return outline_color_;
     }
 }
+
+namespace e2d::labels
+{
+    gcomponent<label> mark_dirty(gcomponent<label> self);
+    gcomponent<label> unmark_dirty(gcomponent<label> self);
+    bool is_dirty(const const_gcomponent<label>& self) noexcept;
+
+    gcomponent<label> change_text(gcomponent<label> self, str value);
+    gcomponent<label> change_font(gcomponent<label> self, const font_asset::ptr& value);
+    gcomponent<label> change_tint(gcomponent<label> self, const color32& value);
+    gcomponent<label> change_halign(gcomponent<label> self, label::haligns value);
+    gcomponent<label> change_valign(gcomponent<label> self, label::valigns value);
+    gcomponent<label> change_leading(gcomponent<label> self, f32 value);
+    gcomponent<label> change_tracking(gcomponent<label> self, f32 value);
+    gcomponent<label> change_text_width(gcomponent<label> self, f32 value);
+    gcomponent<label> change_glyph_dilate(gcomponent<label> self, f32 value);
+    gcomponent<label> change_outline_width(gcomponent<label> self, f32 value);
+    gcomponent<label> change_outline_color(gcomponent<label> self, const color32& value);
+}

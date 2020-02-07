@@ -17,13 +17,13 @@ namespace e2d::bindings::high
 
             "dirty", sol::property(
                 [](const gcomponent<label>& c) -> bool {
-                    return c.owner().component<label::dirty>().exists();
+                    return labels::is_dirty(c);
                 },
                 [](gcomponent<label>& c, bool yesno){
                     if ( yesno ) {
-                        c.owner().component<label::dirty>().ensure();
+                        labels::mark_dirty(c);
                     } else {
-                        c.owner().component<label::dirty>().remove();
+                        labels::unmark_dirty(c);
                     }
                 }
             ),
@@ -33,8 +33,7 @@ namespace e2d::bindings::high
                     return c->text();
                 },
                 [](gcomponent<label>& c, str_view v){
-                    c->text(str(v));
-                    c.owner().component<label::dirty>().ensure();
+                    labels::change_text(c, str(v));
                 }),
 
             "font", sol::property(
@@ -42,8 +41,7 @@ namespace e2d::bindings::high
                     return c->font();
                 },
                 [](gcomponent<label>& c, const font_asset::ptr& v){
-                    c->font(v);
-                    c.owner().component<label::dirty>().ensure();
+                    labels::change_font(c, v);
                 }),
 
             "tint", sol::property(
@@ -51,8 +49,7 @@ namespace e2d::bindings::high
                     return c->tint();
                 },
                 [](gcomponent<label>& c, const color32& v){
-                    c->tint(v);
-                    c.owner().component<label::dirty>().ensure();
+                    labels::change_tint(c, v);
                 }),
 
             "halign", sol::property(
@@ -60,8 +57,7 @@ namespace e2d::bindings::high
                     return c->halign();
                 },
                 [](gcomponent<label>& c, label::haligns v){
-                    c->halign(v);
-                    c.owner().component<label::dirty>().ensure();
+                    labels::change_halign(c, v);
                 }),
 
             "valign", sol::property(
@@ -69,8 +65,7 @@ namespace e2d::bindings::high
                     return c->valign();
                 },
                 [](gcomponent<label>& c, label::valigns v){
-                    c->valign(v);
-                    c.owner().component<label::dirty>().ensure();
+                    labels::change_valign(c, v);
                 }),
 
             "leading", sol::property(
@@ -78,8 +73,7 @@ namespace e2d::bindings::high
                     return c->leading();
                 },
                 [](gcomponent<label>& c, f32 v){
-                    c->leading(v);
-                    c.owner().component<label::dirty>().ensure();
+                    labels::change_leading(c, v);
                 }),
 
             "tracking", sol::property(
@@ -87,8 +81,7 @@ namespace e2d::bindings::high
                     return c->tracking();
                 },
                 [](gcomponent<label>& c, f32 v){
-                    c->tracking(v);
-                    c.owner().component<label::dirty>().ensure();
+                    labels::change_tracking(c, v);
                 }),
 
             "text_width", sol::property(
@@ -96,8 +89,7 @@ namespace e2d::bindings::high
                     return c->text_width();
                 },
                 [](gcomponent<label>& c, f32 v){
-                    c->text_width(v);
-                    c.owner().component<label::dirty>().ensure();
+                    labels::change_text_width(c, v);
                 }),
 
             "glyph_dilate", sol::property(
@@ -105,8 +97,7 @@ namespace e2d::bindings::high
                     return c->glyph_dilate();
                 },
                 [](gcomponent<label>& c, f32 v){
-                    c->glyph_dilate(v);
-                    c.owner().component<label::dirty>().ensure();
+                    labels::change_glyph_dilate(c, v);
                 }),
 
             "outline_width", sol::property(
@@ -114,8 +105,7 @@ namespace e2d::bindings::high
                     return c->outline_width();
                 },
                 [](gcomponent<label>& c, f32 v){
-                    c->outline_width(v);
-                    c.owner().component<label::dirty>().ensure();
+                    labels::change_outline_width(c, v);
                 }),
 
             "outline_color", sol::property(
@@ -123,8 +113,7 @@ namespace e2d::bindings::high
                     return c->outline_color();
                 },
                 [](gcomponent<label>& c, const color32& v){
-                    c->outline_color(v);
-                    c.owner().component<label::dirty>().ensure();
+                    labels::change_outline_color(c, v);
                 })
         );
 
