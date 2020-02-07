@@ -178,3 +178,18 @@ namespace e2d
         return size_;
     }
 }
+
+namespace e2d::layouts
+{
+    gcomponent<layout> mark_dirty(gcomponent<layout> self);
+    gcomponent<layout> change_mode(gcomponent<layout> self, layout::modes value);
+    gcomponent<layout> change_halign(gcomponent<layout> self, layout::haligns value);
+    gcomponent<layout> change_valign(gcomponent<layout> self, layout::valigns value);
+    gcomponent<layout> change_spacing(gcomponent<layout> self, f32 value);
+}
+
+namespace e2d::layout_items
+{
+    gcomponent<layout_item> mark_dirty(gcomponent<layout_item> self);
+    gcomponent<layout_item> change_size(gcomponent<layout_item> self, const v2f& value);
+}

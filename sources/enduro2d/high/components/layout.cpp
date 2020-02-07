@@ -8,20 +8,6 @@
 
 #include <enduro2d/high/components/actor.hpp>
 
-namespace
-{
-    using namespace e2d;
-
-    void mark_dirty_parent_layout(const const_gcomponent<layout_item>& item) {
-        if ( gcomponent<actor> item_actor = item.owner().component<actor>() ) {
-            gcomponent<layout> parent_layout = nodes::find_component_from_parents<layout>(item_actor->node());
-            if ( parent_layout ) {
-                parent_layout.owner().component<layout::dirty>().ensure();
-            }
-        }
-    }
-}
-
 namespace e2d
 {
     const char* factory_loader<layout>::schema_source = R"json({
@@ -183,29 +169,25 @@ namespace e2d
         if ( layout::modes mode = c->mode();
             imgui_utils::show_enum_combo_box("mode", &mode) )
         {
-            c->mode(mode);
-            c.owner().component<layout::dirty>().ensure();
+            layouts::change_mode(c, mode);
         }
 
         if ( layout::haligns halign = c->halign();
             imgui_utils::show_enum_combo_box("halign", &halign) )
         {
-            c->halign(halign);
-            c.owner().component<layout::dirty>().ensure();
+            layouts::change_halign(c, halign);
         }
 
         if ( layout::valigns valign = c->valign();
             imgui_utils::show_enum_combo_box("valign", &valign) )
         {
-            c->valign(valign);
-            c.owner().component<layout::dirty>().ensure();
+            layouts::change_valign(c, valign);
         }
 
         if ( f32 spacing = c->spacing();
             ImGui::DragFloat("spacing", &spacing, 1.f) )
         {
-            c->spacing(spacing);
-            c.owner().component<layout::dirty>().ensure();
+            layouts::change_spacing(c, spacing);
         }
     }
 }
@@ -218,8 +200,7 @@ namespace e2d
         if ( v2f size = c->size();
             ImGui::DragFloat2("size", size.data(), 1.f) )
         {
-            c->size(size);
-            mark_dirty_parent_layout(c);
+            layout_items::change_size(c, size);
         }
     }
 
@@ -231,5 +212,68 @@ namespace e2d
             c->size() * 0.5f,
             c->size(),
             ctx.selected() ? color32(255,255,255) : color32(127,127,127));
+    }
+}
+
+namespace e2d::layouts
+{
+    gcomponent<layout> mark_dirty(gcomponent<layout> self) {
+        if ( self ) {
+            self.owner().component<layout::dirty>().ensure();
+        }
+        return self;
+    }
+
+    gcomponent<layout> change_mode(gcomponent<layout> self, layout::modes value) {
+        if ( self ) {
+            self->mode(value);
+        }
+        return mark_dirty(self);
+    }
+
+    gcomponent<layout> change_halign(gcomponent<layout> self, layout::haligns value) {
+        if ( self ) {
+            self->halign(value);
+        }
+        return mark_dirty(self);
+    }
+
+    gcomponent<layout> change_valign(gcomponent<layout> self, layout::valigns value) {
+        if ( self ) {
+            self->valign(value);
+        }
+        return mark_dirty(self);
+    }
+
+    gcomponent<layout> change_spacing(gcomponent<layout> self, f32 value) {
+        if ( self ) {
+            self->spacing(value);
+        }
+        return mark_dirty(self);
+    }
+}
+
+namespace e2d::layout_items
+{
+    gcomponent<layout_item> mark_dirty(gcomponent<layout_item> self) {
+        gcomponent<actor> self_actor = self.owner().component<actor>();
+        if ( !self_actor ) {
+            return self;
+        }
+
+        gcomponent<layout> parent_layout = nodes::find_component_from_parents<layout>(self_actor->node());
+        if ( !parent_layout ) {
+            return self;
+        }
+
+        layouts::mark_dirty(parent_layout);
+        return self;
+    }
+
+    gcomponent<layout_item> change_size(gcomponent<layout_item> self, const v2f& value) {
+        if ( self ) {
+            self->size(value);
+        }
+        return mark_dirty(self);
     }
 }
