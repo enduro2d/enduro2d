@@ -1,5 +1,8 @@
 ---@class label
 local label = {
+    ---@type boolean
+    dirty = false,
+
     ---@type string
     text = "",
 

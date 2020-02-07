@@ -15,6 +15,19 @@ namespace e2d::bindings::high
         l.new_usertype<gcomponent<label>>("label",
             sol::no_constructor,
 
+            "dirty", sol::property(
+                [](const gcomponent<label>& c) -> bool {
+                    return c.owner().component<label::dirty>().exists();
+                },
+                [](gcomponent<label>& c, bool yesno){
+                    if ( yesno ) {
+                        c.owner().component<label::dirty>().ensure();
+                    } else {
+                        c.owner().component<label::dirty>().remove();
+                    }
+                }
+            ),
+
             "text", sol::property(
                 [](const gcomponent<label>& c) -> str {
                     return c->text();
