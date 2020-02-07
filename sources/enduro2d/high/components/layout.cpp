@@ -14,24 +14,16 @@ namespace e2d
         "additionalProperties" : false,
         "properties" : {
             "mode" : { "$ref": "#/definitions/modes" },
-            "valign" : { "$ref": "#/definitions/valigns" },
             "halign" : { "$ref": "#/definitions/haligns" },
+            "valign" : { "$ref": "#/definitions/valigns" },
             "spacing" : { "type" : "number" }
         },
         "definitions" : {
             "modes" : {
                 "type" : "string",
                 "enum" : [
-                    "vertical",
-                    "horizontal"
-                ]
-            },
-            "valigns" : {
-                "type" : "string",
-                "enum" : [
-                    "top",
-                    "center",
-                    "bottom"
+                    "horizontal",
+                    "vertical"
                 ]
             },
             "haligns" : {
@@ -40,6 +32,14 @@ namespace e2d
                     "left",
                     "center",
                     "right"
+                ]
+            },
+            "valigns" : {
+                "type" : "string",
+                "enum" : [
+                    "top",
+                    "center",
+                    "bottom"
                 ]
             }
         }
@@ -58,15 +58,6 @@ namespace e2d
             component.mode(mode);
         }
 
-        if ( ctx.root.HasMember("valign") ) {
-            layout::valigns valign = component.valign();
-            if ( !json_utils::try_parse_value(ctx.root["valign"], valign) ) {
-                the<debug>().error("LAYOUT: Incorrect formatting of 'valign' property");
-                return false;
-            }
-            component.valign(valign);
-        }
-
         if ( ctx.root.HasMember("halign") ) {
             layout::haligns halign = component.halign();
             if ( !json_utils::try_parse_value(ctx.root["halign"], halign) ) {
@@ -74,6 +65,15 @@ namespace e2d
                 return false;
             }
             component.halign(halign);
+        }
+
+        if ( ctx.root.HasMember("valign") ) {
+            layout::valigns valign = component.valign();
+            if ( !json_utils::try_parse_value(ctx.root["valign"], valign) ) {
+                the<debug>().error("LAYOUT: Incorrect formatting of 'valign' property");
+                return false;
+            }
+            component.valign(valign);
         }
 
         if ( ctx.root.HasMember("spacing") ) {
@@ -144,16 +144,16 @@ namespace e2d
             c->mode(mode);
         }
 
-        if ( layout::valigns valign = c->valign();
-            imgui_utils::show_enum_combo_box("valign", &valign) )
-        {
-            c->valign(valign);
-        }
-
         if ( layout::haligns halign = c->halign();
             imgui_utils::show_enum_combo_box("halign", &halign) )
         {
             c->halign(halign);
+        }
+
+        if ( layout::valigns valign = c->valign();
+            imgui_utils::show_enum_combo_box("valign", &valign) )
+        {
+            c->valign(valign);
         }
 
         if ( f32 spacing = c->spacing();

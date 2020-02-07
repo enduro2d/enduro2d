@@ -58,20 +58,20 @@ namespace e2d::bindings::high
                     c->mode(v);
                 }),
 
-            "valign", sol::property(
-                [](const gcomponent<layout>& c) -> layout::valigns {
-                    return c->valign();
-                },
-                [](gcomponent<layout>& c, layout::valigns v){
-                    c->valign(v);
-                }),
-
             "halign", sol::property(
                 [](const gcomponent<layout>& c) -> layout::haligns {
                     return c->halign();
                 },
                 [](gcomponent<layout>& c, layout::haligns v){
                     c->halign(v);
+                }),
+
+            "valign", sol::property(
+                [](const gcomponent<layout>& c) -> layout::valigns {
+                    return c->valign();
+                },
+                [](gcomponent<layout>& c, layout::valigns v){
+                    c->valign(v);
                 }),
 
             "spacing", sol::property(
