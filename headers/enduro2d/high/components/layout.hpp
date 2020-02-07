@@ -108,6 +108,7 @@ namespace e2d
         static const char* title;
 
         void operator()(gcomponent<layout_item>& c) const;
+        void operator()(gcomponent<layout_item>& c, gizmos_context& ctx) const;
     };
 }
 

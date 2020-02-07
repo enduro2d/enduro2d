@@ -175,4 +175,14 @@ namespace e2d
             c->size(size);
         }
     }
+
+    void component_inspector<layout_item>::operator()(
+        gcomponent<layout_item>& c,
+        gizmos_context& ctx) const
+    {
+        ctx.draw_wire_rect(
+            c->size() * 0.5f,
+            c->size(),
+            ctx.selected() ? color32(255,255,255) : color32(127,127,127));
+    }
 }
