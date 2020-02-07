@@ -1,0 +1,9 @@
+{
+    "components" : {
+        "named" : {
+            "name" : "layout"
+        },
+        "layout" : {},
+        "layout.dirty" : {}
+    }
+}

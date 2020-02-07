@@ -139,6 +139,20 @@ namespace
             item_cursor += (item->size() + layout.spacing()) * cursor_offset_mul;
         }
     }
+
+    void update_dirty_layouts(ecs::registry& owner) {
+        owner.for_joined_components<layout::dirty, layout, actor>([](
+            const ecs::const_entity&,
+            const layout::dirty&,
+            const layout& layout,
+            const actor& layout_actor)
+        {
+            update_layout_items(layout, layout_actor.node());
+        }, !ecs::exists_any<
+            disabled<actor>,
+            disabled<layout>>());
+        owner.remove_all_components<layout::dirty>();
+    }
 }
 
 namespace e2d
@@ -153,15 +167,7 @@ namespace e2d
         ~internal_state() noexcept = default;
 
         void process_update(ecs::registry& owner) {
-            owner.for_joined_components<layout, actor>([](
-                const ecs::const_entity&,
-                const layout& layout,
-                const actor& layout_actor)
-            {
-                update_layout_items(layout, layout_actor.node());
-            }, !ecs::exists_any<
-                disabled<actor>,
-                disabled<layout>>());
+            update_dirty_layouts(owner);
         }
     };
 

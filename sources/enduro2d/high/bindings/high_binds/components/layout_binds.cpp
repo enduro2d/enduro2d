@@ -7,8 +7,23 @@
 #include "../_high_binds.hpp"
 
 #include <enduro2d/high/gobject.hpp>
+#include <enduro2d/high/components/actor.hpp>
 #include <enduro2d/high/components/disabled.hpp>
 #include <enduro2d/high/components/layout.hpp>
+
+namespace
+{
+    using namespace e2d;
+
+    void mark_dirty_parent_layout(const const_gcomponent<layout_item>& item) {
+        if ( gcomponent<actor> item_actor = item.owner().component<actor>() ) {
+            gcomponent<layout> parent_layout = nodes::find_component_from_parents<layout>(item_actor->node());
+            if ( parent_layout ) {
+                parent_layout.owner().component<layout::dirty>().ensure();
+            }
+        }
+    }
+}
 
 namespace e2d::bindings::high
 {
@@ -18,10 +33,12 @@ namespace e2d::bindings::high
 
             "enable", [](gcomponent<layout>& c){
                 c.owner().component<disabled<layout>>().remove();
+                c.owner().component<layout::dirty>().ensure();
             },
 
             "disable", [](gcomponent<layout>& c){
                 c.owner().component<disabled<layout>>().ensure();
+                c.owner().component<layout::dirty>().ensure();
             },
 
             "enabled", sol::property(
@@ -34,6 +51,7 @@ namespace e2d::bindings::high
                     } else {
                         c.owner().component<disabled<layout>>().ensure();
                     }
+                    c.owner().component<layout::dirty>().ensure();
                 }
             ),
 
@@ -47,6 +65,20 @@ namespace e2d::bindings::high
                     } else {
                         c.owner().component<disabled<layout>>().remove();
                     }
+                    c.owner().component<layout::dirty>().ensure();
+                }
+            ),
+
+            "dirty", sol::property(
+                [](const gcomponent<layout>& c) -> bool {
+                    return c.owner().component<layout::dirty>().exists();
+                },
+                [](gcomponent<layout>& c, bool yesno){
+                    if ( yesno ) {
+                        c.owner().component<layout::dirty>().ensure();
+                    } else {
+                        c.owner().component<layout::dirty>().remove();
+                    }
                 }
             ),
 
@@ -56,6 +88,7 @@ namespace e2d::bindings::high
                 },
                 [](gcomponent<layout>& c, layout::modes v){
                     c->mode(v);
+                    c.owner().component<layout::dirty>().ensure();
                 }),
 
             "halign", sol::property(
@@ -64,6 +97,7 @@ namespace e2d::bindings::high
                 },
                 [](gcomponent<layout>& c, layout::haligns v){
                     c->halign(v);
+                    c.owner().component<layout::dirty>().ensure();
                 }),
 
             "valign", sol::property(
@@ -72,6 +106,7 @@ namespace e2d::bindings::high
                 },
                 [](gcomponent<layout>& c, layout::valigns v){
                     c->valign(v);
+                    c.owner().component<layout::dirty>().ensure();
                 }),
 
             "spacing", sol::property(
@@ -80,6 +115,7 @@ namespace e2d::bindings::high
                 },
                 [](gcomponent<layout>& c, f32 v){
                     c->spacing(v);
+                    c.owner().component<layout::dirty>().ensure();
                 })
         );
 
@@ -114,10 +150,12 @@ namespace e2d::bindings::high
 
             "enable", [](gcomponent<layout_item>& c){
                 c.owner().component<disabled<layout_item>>().remove();
+                mark_dirty_parent_layout(c);
             },
 
             "disable", [](gcomponent<layout_item>& c){
                 c.owner().component<disabled<layout_item>>().ensure();
+                mark_dirty_parent_layout(c);
             },
 
             "enabled", sol::property(
@@ -130,6 +168,7 @@ namespace e2d::bindings::high
                     } else {
                         c.owner().component<disabled<layout_item>>().ensure();
                     }
+                    mark_dirty_parent_layout(c);
                 }
             ),
 
@@ -143,6 +182,7 @@ namespace e2d::bindings::high
                     } else {
                         c.owner().component<disabled<layout_item>>().remove();
                     }
+                    mark_dirty_parent_layout(c);
                 }
             ),
 
@@ -152,6 +192,7 @@ namespace e2d::bindings::high
                 },
                 [](gcomponent<layout_item>& c, const v2f& v){
                     c->size(v);
+                    mark_dirty_parent_layout(c);
                 })
         );
     }

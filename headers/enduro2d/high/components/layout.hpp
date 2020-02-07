@@ -12,6 +12,8 @@ namespace e2d
 {
     class layout final {
     public:
+        class dirty final {};
+    public:
         ENUM_HPP_CLASS_DECL(modes, u8,
             (horizontal)
             (vertical))
@@ -70,6 +72,20 @@ namespace e2d
 
         bool operator()(
             layout& component,
+            const fill_context& ctx) const;
+
+        bool operator()(
+            asset_dependencies& dependencies,
+            const collect_context& ctx) const;
+    };
+
+    template <>
+    class factory_loader<layout::dirty> final : factory_loader<> {
+    public:
+        static const char* schema_source;
+
+        bool operator()(
+            layout::dirty& component,
             const fill_context& ctx) const;
 
         bool operator()(

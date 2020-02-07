@@ -12,6 +12,9 @@ local layout = {
     ---@type boolean
     disabled = false,
 
+    ---@type boolean
+    dirty = false,
+
     ---@type layout_modes
     mode = layout.modes.horizontal,
 

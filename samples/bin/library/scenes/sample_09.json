@@ -5,12 +5,7 @@
     },{
         "prototype" : "../prefabs/camera_prefab.json"
     },{
-        "components" : {
-            "named" : {
-                "name" : "layout"
-            },
-            "layout" : {}
-        },
+        "prototype" : "../prefabs/layout_prefab.json",
         "children" : [{
             "components" : {
                 "named" : {

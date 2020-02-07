@@ -6,6 +6,22 @@
 
 #include <enduro2d/high/components/layout.hpp>
 
+#include <enduro2d/high/components/actor.hpp>
+
+namespace
+{
+    using namespace e2d;
+
+    void mark_dirty_parent_layout(const const_gcomponent<layout_item>& item) {
+        if ( gcomponent<actor> item_actor = item.owner().component<actor>() ) {
+            gcomponent<layout> parent_layout = nodes::find_component_from_parents<layout>(item_actor->node());
+            if ( parent_layout ) {
+                parent_layout.owner().component<layout::dirty>().ensure();
+            }
+        }
+    }
+}
+
 namespace e2d
 {
     const char* factory_loader<layout>::schema_source = R"json({
@@ -99,6 +115,32 @@ namespace e2d
 
 namespace e2d
 {
+    const char* factory_loader<layout::dirty>::schema_source = R"json({
+        "type" : "object",
+        "required" : [],
+        "additionalProperties" : false,
+        "properties" : {}
+    })json";
+
+    bool factory_loader<layout::dirty>::operator()(
+        layout::dirty& component,
+        const fill_context& ctx) const
+    {
+        E2D_UNUSED(component, ctx);
+        return true;
+    }
+
+    bool factory_loader<layout::dirty>::operator()(
+        asset_dependencies& dependencies,
+        const collect_context& ctx) const
+    {
+        E2D_UNUSED(dependencies, ctx);
+        return true;
+    }
+}
+
+namespace e2d
+{
     const char* factory_loader<layout_item>::schema_source = R"json({
         "type" : "object",
         "required" : [],
@@ -142,24 +184,28 @@ namespace e2d
             imgui_utils::show_enum_combo_box("mode", &mode) )
         {
             c->mode(mode);
+            c.owner().component<layout::dirty>().ensure();
         }
 
         if ( layout::haligns halign = c->halign();
             imgui_utils::show_enum_combo_box("halign", &halign) )
         {
             c->halign(halign);
+            c.owner().component<layout::dirty>().ensure();
         }
 
         if ( layout::valigns valign = c->valign();
             imgui_utils::show_enum_combo_box("valign", &valign) )
         {
             c->valign(valign);
+            c.owner().component<layout::dirty>().ensure();
         }
 
         if ( f32 spacing = c->spacing();
             ImGui::DragFloat("spacing", &spacing, 1.f) )
         {
             c->spacing(spacing);
+            c.owner().component<layout::dirty>().ensure();
         }
     }
 }
@@ -173,6 +219,7 @@ namespace e2d
             ImGui::DragFloat2("size", size.data(), 1.f) )
         {
             c->size(size);
+            mark_dirty_parent_layout(c);
         }
     }
 
