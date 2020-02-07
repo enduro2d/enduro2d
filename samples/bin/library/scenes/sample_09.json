@@ -4,5 +4,64 @@
         "prototype" : "../prefabs/background_prefab.json"
     },{
         "prototype" : "../prefabs/camera_prefab.json"
+    },{
+        "components" : {
+            "named" : {
+                "name" : "layout"
+            },
+            "layout" : {}
+        },
+        "children" : [{
+            "components" : {
+                "named" : {
+                    "name" : "layout_item"
+                },
+                "layout_item" : {
+                    "size" : [66,113]
+                }
+            },
+            "children" : [{
+                "prototype" : "../prefabs/ship_prefab.json",
+                "components" : {
+                    "actor" : {
+                        "translation" : [33,56.5]
+                    }
+                }
+            }]
+        },{
+            "components" : {
+                "named" : {
+                    "name" : "layout_item"
+                },
+                "layout_item" : {
+                    "size" : [66,113]
+                }
+            },
+            "children" : [{
+                "prototype" : "../prefabs/ship_prefab.json",
+                "components" : {
+                    "actor" : {
+                        "translation" : [33,56.5]
+                    }
+                }
+            }]
+        },{
+            "components" : {
+                "named" : {
+                    "name" : "layout_item"
+                },
+                "layout_item" : {
+                    "size" : [66,113]
+                }
+            },
+            "children" : [{
+                "prototype" : "../prefabs/ship_prefab.json",
+                "components" : {
+                    "actor" : {
+                        "translation" : [33,56.5]
+                    }
+                }
+            }]
+        }]
     }]
 }
