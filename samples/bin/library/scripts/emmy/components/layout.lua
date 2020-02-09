@@ -78,6 +78,9 @@ local layout_item = {
     size = v2f.unit(),
 
     ---@type v2f
+    margin = v2f.zero(),
+
+    ---@type v2f
     padding = v2f.zero()
 }
 

@@ -184,6 +184,14 @@ namespace e2d::bindings::high
                     layout_items::change_size(c, v);
                 }),
 
+            "margin", sol::property(
+                [](const gcomponent<layout_item>& c) -> v2f {
+                    return c->margin();
+                },
+                [](gcomponent<layout_item>& c, const v2f& v){
+                    layout_items::change_margin(c, v);
+                }),
+
             "padding", sol::property(
                 [](const gcomponent<layout_item>& c) -> v2f {
                     return c->padding();

@@ -127,6 +127,7 @@ namespace e2d
         "additionalProperties" : false,
         "properties" : {
             "size" : { "$ref": "#/common_definitions/v2" },
+            "margin" : { "$ref": "#/common_definitions/v2" },
             "padding" : { "$ref": "#/common_definitions/v2" }
         }
     })json";
@@ -142,6 +143,15 @@ namespace e2d
                 return false;
             }
             component.size(size);
+        }
+
+        if ( ctx.root.HasMember("margin") ) {
+            v2f margin = component.margin();
+            if ( !json_utils::try_parse_value(ctx.root["margin"], margin) ) {
+                the<debug>().error("LAYOUT_ITEM: Incorrect formatting of 'margin' property");
+                return false;
+            }
+            component.margin(margin);
         }
 
         if ( ctx.root.HasMember("padding") ) {
@@ -201,6 +211,12 @@ namespace e2d
             layout_items::change_size(c, size);
         }
 
+        if ( v2f margin = c->margin();
+            ImGui::DragFloat2("margin", margin.data(), 1.f) )
+        {
+            layout_items::change_margin(c, margin);
+        }
+
         if ( v2f padding = c->padding();
             ImGui::DragFloat2("padding", padding.data(), 1.f) )
         {
@@ -217,11 +233,20 @@ namespace e2d
             c->size(),
             ctx.selected() ? color32(255,255,255) : color32(127,127,127));
 
-        if ( ctx.selected() && c->padding() != v2f::zero() ) {
-            ctx.draw_wire_rect(
-                c->size() * 0.5f,
-                c->size() - c->padding() * 2.f,
-                ctx.selected() ? color32(255,255,255) : color32(127,127,127));
+        if ( ctx.selected() ) {
+            if ( c->margin() != v2f::zero() ) {
+                ctx.draw_wire_rect(
+                    c->size() * 0.5f,
+                    c->size() + c->margin() * 2.f,
+                    ctx.selected() ? color32(255,255,255) : color32(127,127,127));
+            }
+
+            if ( c->padding() != v2f::zero() ) {
+                ctx.draw_wire_rect(
+                    c->size() * 0.5f,
+                    c->size() - c->padding() * 2.f,
+                    ctx.selected() ? color32(255,255,255) : color32(127,127,127));
+            }
         }
     }
 }
@@ -287,6 +312,13 @@ namespace e2d::layout_items
     gcomponent<layout_item> change_size(gcomponent<layout_item> self, const v2f& value) {
         if ( self ) {
             self->size(value);
+        }
+        return mark_dirty(self);
+    }
+
+    gcomponent<layout_item> change_margin(gcomponent<layout_item> self, const v2f& value) {
+        if ( self ) {
+            self->margin(value);
         }
         return mark_dirty(self);
     }

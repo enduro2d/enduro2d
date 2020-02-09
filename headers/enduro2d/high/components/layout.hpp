@@ -55,10 +55,14 @@ namespace e2d
         layout_item& size(const v2f& value) noexcept;
         [[nodiscard]] const v2f& size() const noexcept;
 
+        layout_item& margin(const v2f& value) noexcept;
+        [[nodiscard]] const v2f& margin() const noexcept;
+
         layout_item& padding(const v2f& value) noexcept;
         [[nodiscard]] const v2f& padding() const noexcept;
     private:
         v2f size_ = v2f::unit();
+        v2f margin_ = v2f::zero();
         v2f padding_ = v2f::zero();
     };
 }
@@ -173,6 +177,15 @@ namespace e2d
         return size_;
     }
 
+    inline layout_item& layout_item::margin(const v2f& value) noexcept {
+        margin_ = value;
+        return *this;
+    }
+
+    inline const v2f& layout_item::margin() const noexcept {
+        return margin_;
+    }
+
     inline layout_item& layout_item::padding(const v2f& value) noexcept {
         padding_ = value;
         return *this;
@@ -201,6 +214,7 @@ namespace e2d::layout_items
     bool is_dirty(const const_gcomponent<layout_item>& self) noexcept;
 
     gcomponent<layout_item> change_size(gcomponent<layout_item> self, const v2f& value);
+    gcomponent<layout_item> change_margin(gcomponent<layout_item> self, const v2f& value);
     gcomponent<layout_item> change_padding(gcomponent<layout_item> self, const v2f& value);
 
     gcomponent<layout> find_parent_layout(const_gcomponent<layout_item> self) noexcept;
