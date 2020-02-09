@@ -22,10 +22,7 @@ local layout = {
     halign = layout.haligns.center,
 
     ---@type layout_valigns
-    valign = layout.valigns.center,
-
-    ---@type number
-    spacing = 0.0
+    valign = layout.valigns.center
 }
 
 ---@class layout_modes
@@ -38,14 +35,18 @@ layout.modes = {
 layout.haligns = {
     left = "left",
     center = "center",
-    right = "right"
+    right = "right",
+    space_around = "space_around",
+    space_between = "space_between"
 }
 
 ---@class layout_valigns
 layout.valigns = {
     top = "top",
     center = "center",
-    bottom = "bottom"
+    bottom = "bottom",
+    space_around = "space_around",
+    space_between = "space_between"
 }
 
 ---@overload fun(self: layout)
@@ -74,7 +75,10 @@ local layout_item = {
     dirty = false,
 
     ---@type v2f
-    size = v2f.unit()
+    size = v2f.unit(),
+
+    ---@type v2f
+    padding = v2f.zero()
 }
 
 ---@overload fun(self: layout_item)

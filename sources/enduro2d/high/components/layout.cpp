@@ -17,8 +17,7 @@ namespace e2d
         "properties" : {
             "mode" : { "$ref": "#/definitions/modes" },
             "halign" : { "$ref": "#/definitions/haligns" },
-            "valign" : { "$ref": "#/definitions/valigns" },
-            "spacing" : { "type" : "number" }
+            "valign" : { "$ref": "#/definitions/valigns" }
         },
         "definitions" : {
             "modes" : {
@@ -33,7 +32,9 @@ namespace e2d
                 "enum" : [
                     "left",
                     "center",
-                    "right"
+                    "right",
+                    "space_around",
+                    "space_between"
                 ]
             },
             "valigns" : {
@@ -41,7 +42,9 @@ namespace e2d
                 "enum" : [
                     "top",
                     "center",
-                    "bottom"
+                    "bottom",
+                    "space_around",
+                    "space_between"
                 ]
             }
         }
@@ -76,15 +79,6 @@ namespace e2d
                 return false;
             }
             component.valign(valign);
-        }
-
-        if ( ctx.root.HasMember("spacing") ) {
-            f32 spacing = component.spacing();
-            if ( !json_utils::try_parse_value(ctx.root["spacing"], spacing) ) {
-                the<debug>().error("LAYOUT: Incorrect formatting of 'spacing' property");
-                return false;
-            }
-            component.spacing(spacing);
         }
 
         return true;
@@ -132,7 +126,8 @@ namespace e2d
         "required" : [],
         "additionalProperties" : false,
         "properties" : {
-            "size" : { "$ref": "#/common_definitions/v2" }
+            "size" : { "$ref": "#/common_definitions/v2" },
+            "padding" : { "$ref": "#/common_definitions/v2" }
         }
     })json";
 
@@ -147,6 +142,15 @@ namespace e2d
                 return false;
             }
             component.size(size);
+        }
+
+        if ( ctx.root.HasMember("padding") ) {
+            v2f padding = component.padding();
+            if ( !json_utils::try_parse_value(ctx.root["padding"], padding) ) {
+                the<debug>().error("LAYOUT_ITEM: Incorrect formatting of 'padding' property");
+                return false;
+            }
+            component.padding(padding);
         }
 
         return true;
@@ -183,12 +187,6 @@ namespace e2d
         {
             layouts::change_valign(c, valign);
         }
-
-        if ( f32 spacing = c->spacing();
-            ImGui::DragFloat("spacing", &spacing, 1.f) )
-        {
-            layouts::change_spacing(c, spacing);
-        }
     }
 }
 
@@ -202,6 +200,12 @@ namespace e2d
         {
             layout_items::change_size(c, size);
         }
+
+        if ( v2f padding = c->padding();
+            ImGui::DragFloat2("padding", padding.data(), 1.f) )
+        {
+            layout_items::change_padding(c, padding);
+        }
     }
 
     void component_inspector<layout_item>::operator()(
@@ -212,6 +216,13 @@ namespace e2d
             c->size() * 0.5f,
             c->size(),
             ctx.selected() ? color32(255,255,255) : color32(127,127,127));
+
+        if ( ctx.selected() && c->padding() != v2f::zero() ) {
+            ctx.draw_wire_rect(
+                c->size() * 0.5f,
+                c->size() - c->padding() * 2.f,
+                ctx.selected() ? color32(255,255,255) : color32(127,127,127));
+        }
     }
 }
 
@@ -255,13 +266,6 @@ namespace e2d::layouts
         }
         return mark_dirty(self);
     }
-
-    gcomponent<layout> change_spacing(gcomponent<layout> self, f32 value) {
-        if ( self ) {
-            self->spacing(value);
-        }
-        return mark_dirty(self);
-    }
 }
 
 namespace e2d::layout_items
@@ -283,6 +287,13 @@ namespace e2d::layout_items
     gcomponent<layout_item> change_size(gcomponent<layout_item> self, const v2f& value) {
         if ( self ) {
             self->size(value);
+        }
+        return mark_dirty(self);
+    }
+
+    gcomponent<layout_item> change_padding(gcomponent<layout_item> self, const v2f& value) {
+        if ( self ) {
+            self->padding(value);
         }
         return mark_dirty(self);
     }

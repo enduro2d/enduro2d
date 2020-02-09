@@ -21,12 +21,16 @@ namespace e2d
         ENUM_HPP_CLASS_DECL(haligns, u8,
             (left)
             (center)
-            (right))
+            (right)
+            (space_around)
+            (space_between))
 
         ENUM_HPP_CLASS_DECL(valigns, u8,
             (top)
             (center)
-            (bottom))
+            (bottom)
+            (space_around)
+            (space_between))
     public:
         layout() = default;
 
@@ -38,14 +42,10 @@ namespace e2d
 
         layout& valign(valigns value) noexcept;
         [[nodiscard]] valigns valign() const noexcept;
-
-        layout& spacing(f32 value) noexcept;
-        [[nodiscard]] f32 spacing() const noexcept;
     private:
         modes mode_ = modes::horizontal;
         haligns halign_ = haligns::center;
         valigns valign_ = valigns::center;
-        f32 spacing_ = 0.f;
     };
 
     class layout_item final {
@@ -54,8 +54,12 @@ namespace e2d
 
         layout_item& size(const v2f& value) noexcept;
         [[nodiscard]] const v2f& size() const noexcept;
+
+        layout_item& padding(const v2f& value) noexcept;
+        [[nodiscard]] const v2f& padding() const noexcept;
     private:
         v2f size_ = v2f::unit();
+        v2f padding_ = v2f::zero();
     };
 }
 
@@ -156,15 +160,6 @@ namespace e2d
     inline layout::valigns layout::valign() const noexcept {
         return valign_;
     }
-
-    inline layout& layout::spacing(f32 value) noexcept {
-        spacing_ = value;
-        return *this;
-    }
-
-    inline f32 layout::spacing() const noexcept {
-        return spacing_;
-    }
 }
 
 namespace e2d
@@ -177,6 +172,15 @@ namespace e2d
     inline const v2f& layout_item::size() const noexcept {
         return size_;
     }
+
+    inline layout_item& layout_item::padding(const v2f& value) noexcept {
+        padding_ = value;
+        return *this;
+    }
+
+    inline const v2f& layout_item::padding() const noexcept {
+        return padding_;
+    }
 }
 
 namespace e2d::layouts
@@ -188,7 +192,6 @@ namespace e2d::layouts
     gcomponent<layout> change_mode(gcomponent<layout> self, layout::modes value);
     gcomponent<layout> change_halign(gcomponent<layout> self, layout::haligns value);
     gcomponent<layout> change_valign(gcomponent<layout> self, layout::valigns value);
-    gcomponent<layout> change_spacing(gcomponent<layout> self, f32 value);
 }
 
 namespace e2d::layout_items
@@ -198,6 +201,7 @@ namespace e2d::layout_items
     bool is_dirty(const const_gcomponent<layout_item>& self) noexcept;
 
     gcomponent<layout_item> change_size(gcomponent<layout_item> self, const v2f& value);
+    gcomponent<layout_item> change_padding(gcomponent<layout_item> self, const v2f& value);
 
     gcomponent<layout> find_parent_layout(const_gcomponent<layout_item> self) noexcept;
 }

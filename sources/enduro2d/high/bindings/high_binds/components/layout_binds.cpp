@@ -89,14 +89,6 @@ namespace e2d::bindings::high
                 },
                 [](gcomponent<layout>& c, layout::valigns v){
                     layouts::change_valign(c, v);
-                }),
-
-            "spacing", sol::property(
-                [](const gcomponent<layout>& c) -> f32 {
-                    return c->spacing();
-                },
-                [](gcomponent<layout>& c, f32 v){
-                    layouts::change_spacing(c, v);
                 })
         );
 
@@ -114,6 +106,8 @@ namespace e2d::bindings::high
             LAYOUT_HALIGN_PAIR(left)
             LAYOUT_HALIGN_PAIR(center)
             LAYOUT_HALIGN_PAIR(right)
+            LAYOUT_HALIGN_PAIR(space_around)
+            LAYOUT_HALIGN_PAIR(space_between)
         });
     #undef LAYOUT_HALIGN_PAIR
 
@@ -123,6 +117,8 @@ namespace e2d::bindings::high
             LAYOUT_VALIGN_PAIR(top)
             LAYOUT_VALIGN_PAIR(center)
             LAYOUT_VALIGN_PAIR(bottom)
+            LAYOUT_VALIGN_PAIR(space_around)
+            LAYOUT_VALIGN_PAIR(space_between)
         });
     #undef LAYOUT_VALIGN_PAIR
 
@@ -186,6 +182,14 @@ namespace e2d::bindings::high
                 },
                 [](gcomponent<layout_item>& c, const v2f& v){
                     layout_items::change_size(c, v);
+                }),
+
+            "padding", sol::property(
+                [](const gcomponent<layout_item>& c) -> v2f {
+                    return c->padding();
+                },
+                [](gcomponent<layout_item>& c, const v2f& v){
+                    layout_items::change_padding(c, v);
                 })
         );
     }
