@@ -17,7 +17,10 @@ namespace e2d
         "properties" : {
             "mode" : { "$ref": "#/definitions/modes" },
             "halign" : { "$ref": "#/definitions/haligns" },
-            "valign" : { "$ref": "#/definitions/valigns" }
+            "valign" : { "$ref": "#/definitions/valigns" },
+            "size" : { "$ref": "#/common_definitions/v2" },
+            "margin" : { "$ref": "#/common_definitions/v2" },
+            "padding" : { "$ref": "#/common_definitions/v2" }
         },
         "definitions" : {
             "modes" : {
@@ -81,6 +84,33 @@ namespace e2d
             component.valign(valign);
         }
 
+        if ( ctx.root.HasMember("size") ) {
+            v2f size = component.size();
+            if ( !json_utils::try_parse_value(ctx.root["size"], size) ) {
+                the<debug>().error("LAYOUT: Incorrect formatting of 'size' property");
+                return false;
+            }
+            component.size(size);
+        }
+
+        if ( ctx.root.HasMember("margin") ) {
+            v2f margin = component.margin();
+            if ( !json_utils::try_parse_value(ctx.root["margin"], margin) ) {
+                the<debug>().error("LAYOUT: Incorrect formatting of 'margin' property");
+                return false;
+            }
+            component.margin(margin);
+        }
+
+        if ( ctx.root.HasMember("padding") ) {
+            v2f padding = component.padding();
+            if ( !json_utils::try_parse_value(ctx.root["padding"], padding) ) {
+                the<debug>().error("LAYOUT: Incorrect formatting of 'padding' property");
+                return false;
+            }
+            component.padding(padding);
+        }
+
         return true;
     }
 
@@ -121,62 +151,6 @@ namespace e2d
 
 namespace e2d
 {
-    const char* factory_loader<layout_item>::schema_source = R"json({
-        "type" : "object",
-        "required" : [],
-        "additionalProperties" : false,
-        "properties" : {
-            "size" : { "$ref": "#/common_definitions/v2" },
-            "margin" : { "$ref": "#/common_definitions/v2" },
-            "padding" : { "$ref": "#/common_definitions/v2" }
-        }
-    })json";
-
-    bool factory_loader<layout_item>::operator()(
-        layout_item& component,
-        const fill_context& ctx) const
-    {
-        if ( ctx.root.HasMember("size") ) {
-            v2f size = component.size();
-            if ( !json_utils::try_parse_value(ctx.root["size"], size) ) {
-                the<debug>().error("LAYOUT_ITEM: Incorrect formatting of 'size' property");
-                return false;
-            }
-            component.size(size);
-        }
-
-        if ( ctx.root.HasMember("margin") ) {
-            v2f margin = component.margin();
-            if ( !json_utils::try_parse_value(ctx.root["margin"], margin) ) {
-                the<debug>().error("LAYOUT_ITEM: Incorrect formatting of 'margin' property");
-                return false;
-            }
-            component.margin(margin);
-        }
-
-        if ( ctx.root.HasMember("padding") ) {
-            v2f padding = component.padding();
-            if ( !json_utils::try_parse_value(ctx.root["padding"], padding) ) {
-                the<debug>().error("LAYOUT_ITEM: Incorrect formatting of 'padding' property");
-                return false;
-            }
-            component.padding(padding);
-        }
-
-        return true;
-    }
-
-    bool factory_loader<layout_item>::operator()(
-        asset_dependencies& dependencies,
-        const collect_context& ctx) const
-    {
-        E2D_UNUSED(dependencies, ctx);
-        return true;
-    }
-}
-
-namespace e2d
-{
     const char* component_inspector<layout>::title = ICON_FA_BARS " layout";
 
     void component_inspector<layout>::operator()(gcomponent<layout>& c) const {
@@ -197,35 +171,28 @@ namespace e2d
         {
             layouts::change_valign(c, valign);
         }
-    }
-}
 
-namespace e2d
-{
-    const char* component_inspector<layout_item>::title = ICON_FA_GRIP_LINES " layout_item";
-
-    void component_inspector<layout_item>::operator()(gcomponent<layout_item>& c) const {
         if ( v2f size = c->size();
             ImGui::DragFloat2("size", size.data(), 1.f) )
         {
-            layout_items::change_size(c, size);
+            layouts::change_size(c, size);
         }
 
         if ( v2f margin = c->margin();
             ImGui::DragFloat2("margin", margin.data(), 1.f) )
         {
-            layout_items::change_margin(c, margin);
+            layouts::change_margin(c, margin);
         }
 
         if ( v2f padding = c->padding();
             ImGui::DragFloat2("padding", padding.data(), 1.f) )
         {
-            layout_items::change_padding(c, padding);
+            layouts::change_padding(c, padding);
         }
     }
 
-    void component_inspector<layout_item>::operator()(
-        gcomponent<layout_item>& c,
+    void component_inspector<layout>::operator()(
+        gcomponent<layout>& c,
         gizmos_context& ctx) const
     {
         ctx.draw_wire_rect(
@@ -256,6 +223,9 @@ namespace e2d::layouts
     gcomponent<layout> mark_dirty(gcomponent<layout> self) {
         if ( self ) {
             self.owner().component<layout::dirty>().ensure();
+            if ( gcomponent<layout> parent = find_parent_layout(self) ) {
+                parent.owner().component<layout::dirty>().ensure();
+            }
         }
         return self;
     }
@@ -291,46 +261,29 @@ namespace e2d::layouts
         }
         return mark_dirty(self);
     }
-}
 
-namespace e2d::layout_items
-{
-    gcomponent<layout_item> mark_dirty(gcomponent<layout_item> self) {
-        layouts::mark_dirty(find_parent_layout(self));
-        return self;
-    }
-
-    gcomponent<layout_item> unmark_dirty(gcomponent<layout_item> self) {
-        layouts::unmark_dirty(find_parent_layout(self));
-        return self;
-    }
-
-    bool is_dirty(const const_gcomponent<layout_item>& self) noexcept {
-        return layouts::is_dirty(find_parent_layout(self));
-    }
-
-    gcomponent<layout_item> change_size(gcomponent<layout_item> self, const v2f& value) {
+    gcomponent<layout> change_size(gcomponent<layout> self, const v2f& value) {
         if ( self ) {
             self->size(value);
         }
         return mark_dirty(self);
     }
 
-    gcomponent<layout_item> change_margin(gcomponent<layout_item> self, const v2f& value) {
+    gcomponent<layout> change_margin(gcomponent<layout> self, const v2f& value) {
         if ( self ) {
             self->margin(value);
         }
         return mark_dirty(self);
     }
 
-    gcomponent<layout_item> change_padding(gcomponent<layout_item> self, const v2f& value) {
+    gcomponent<layout> change_padding(gcomponent<layout> self, const v2f& value) {
         if ( self ) {
             self->padding(value);
         }
         return mark_dirty(self);
     }
 
-    gcomponent<layout> find_parent_layout(const_gcomponent<layout_item> self) noexcept {
+    gcomponent<layout> find_parent_layout(const_gcomponent<layout> self) noexcept {
         const_gcomponent<actor> self_actor = self.owner().component<actor>();
         return self_actor
             ? nodes::find_component_from_parents<layout>(self_actor->node())

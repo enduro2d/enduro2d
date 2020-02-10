@@ -89,6 +89,30 @@ namespace e2d::bindings::high
                 },
                 [](gcomponent<layout>& c, layout::valigns v){
                     layouts::change_valign(c, v);
+                }),
+
+            "size", sol::property(
+                [](const gcomponent<layout>& c) -> v2f {
+                    return c->size();
+                },
+                [](gcomponent<layout>& c, const v2f& v){
+                    layouts::change_size(c, v);
+                }),
+
+            "margin", sol::property(
+                [](const gcomponent<layout>& c) -> v2f {
+                    return c->margin();
+                },
+                [](gcomponent<layout>& c, const v2f& v){
+                    layouts::change_margin(c, v);
+                }),
+
+            "padding", sol::property(
+                [](const gcomponent<layout>& c) -> v2f {
+                    return c->padding();
+                },
+                [](gcomponent<layout>& c, const v2f& v){
+                    layouts::change_padding(c, v);
                 })
         );
 
@@ -121,84 +145,5 @@ namespace e2d::bindings::high
             LAYOUT_VALIGN_PAIR(space_between)
         });
     #undef LAYOUT_VALIGN_PAIR
-
-        l.new_usertype<gcomponent<layout_item>>("layout_item",
-            sol::no_constructor,
-
-            "enable", [](gcomponent<layout_item>& c){
-                c.owner().component<disabled<layout_item>>().remove();
-                layout_items::mark_dirty(c);
-            },
-
-            "disable", [](gcomponent<layout_item>& c){
-                c.owner().component<disabled<layout_item>>().ensure();
-                layout_items::mark_dirty(c);
-            },
-
-            "enabled", sol::property(
-                [](const gcomponent<layout_item>& c) -> bool {
-                    return !c.owner().component<disabled<layout_item>>().exists();
-                },
-                [](gcomponent<layout_item>& c, bool yesno){
-                    if ( yesno ) {
-                        c.owner().component<disabled<layout_item>>().remove();
-                    } else {
-                        c.owner().component<disabled<layout_item>>().ensure();
-                    }
-                    layout_items::mark_dirty(c);
-                }
-            ),
-
-            "disabled", sol::property(
-                [](const gcomponent<layout_item>& c) -> bool {
-                    return c.owner().component<disabled<layout_item>>().exists();
-                },
-                [](gcomponent<layout_item>& c, bool yesno){
-                    if ( yesno ) {
-                        c.owner().component<disabled<layout_item>>().ensure();
-                    } else {
-                        c.owner().component<disabled<layout_item>>().remove();
-                    }
-                    layout_items::mark_dirty(c);
-                }
-            ),
-
-            "dirty", sol::property(
-                [](const gcomponent<layout_item>& c) -> bool {
-                    return layout_items::is_dirty(c);
-                },
-                [](gcomponent<layout_item>& c, bool yesno){
-                    if ( yesno ) {
-                        layout_items::mark_dirty(c);
-                    } else {
-                        layout_items::unmark_dirty(c);
-                    }
-                }
-            ),
-
-            "size", sol::property(
-                [](const gcomponent<layout_item>& c) -> v2f {
-                    return c->size();
-                },
-                [](gcomponent<layout_item>& c, const v2f& v){
-                    layout_items::change_size(c, v);
-                }),
-
-            "margin", sol::property(
-                [](const gcomponent<layout_item>& c) -> v2f {
-                    return c->margin();
-                },
-                [](gcomponent<layout_item>& c, const v2f& v){
-                    layout_items::change_margin(c, v);
-                }),
-
-            "padding", sol::property(
-                [](const gcomponent<layout_item>& c) -> v2f {
-                    return c->padding();
-                },
-                [](gcomponent<layout_item>& c, const v2f& v){
-                    layout_items::change_padding(c, v);
-                })
-        );
     }
 }

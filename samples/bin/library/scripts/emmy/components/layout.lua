@@ -1,9 +1,3 @@
--- -----------------------------------------------------------------------------
---
--- layout
---
--- -----------------------------------------------------------------------------
-
 ---@class layout
 local layout = {
     ---@type boolean
@@ -22,7 +16,16 @@ local layout = {
     halign = layout.haligns.center,
 
     ---@type layout_valigns
-    valign = layout.valigns.center
+    valign = layout.valigns.center,
+
+    ---@type v2f
+    size = v2f.zero(),
+
+    ---@type v2f
+    margin = v2f.zero(),
+
+    ---@type v2f
+    padding = v2f.zero()
 }
 
 ---@class layout_modes
@@ -57,49 +60,5 @@ function layout.enable(self) end
 ---@param self layout
 function layout.disable(self) end
 
--- -----------------------------------------------------------------------------
---
--- layout_item
---
--- -----------------------------------------------------------------------------
-
----@class layout_item
-local layout_item = {
-    ---@type boolean
-    enabled = true,
-
-    ---@type boolean
-    disabled = false,
-
-    ---@type boolean
-    dirty = false,
-
-    ---@type v2f
-    size = v2f.unit(),
-
-    ---@type v2f
-    margin = v2f.zero(),
-
-    ---@type v2f
-    padding = v2f.zero()
-}
-
----@overload fun(self: layout_item)
----@param self layout_item
-function layout_item.enable(self) end
-
----@overload fun(self: layout_item)
----@param self layout_item
-function layout_item.disable(self) end
-
--- -----------------------------------------------------------------------------
---
--- global
---
--- -----------------------------------------------------------------------------
-
 ---@type layout
 _G.layout = _G.layout or layout
-
----@type layout_item
-_G.layout_item = _G.layout_item or layout_item
