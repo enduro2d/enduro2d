@@ -154,6 +154,16 @@ namespace e2d
     const char* component_inspector<layout>::title = ICON_FA_BARS " layout";
 
     void component_inspector<layout>::operator()(gcomponent<layout>& c) const {
+        if ( bool dirty = c.owner().component<layout::dirty>().exists();
+            ImGui::Checkbox("dirty", &dirty) )
+        {
+            if ( dirty ) {
+                layouts::mark_dirty(c);
+            } else {
+                layouts::unmark_dirty(c);
+            }
+        }
+
         if ( layout::modes mode = c->mode();
             imgui_utils::show_enum_combo_box("mode", &mode) )
         {

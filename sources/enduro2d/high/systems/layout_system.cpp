@@ -10,147 +10,214 @@
 #include <enduro2d/high/components/disabled.hpp>
 #include <enduro2d/high/components/layout.hpp>
 
+#include <3rdparty/yoga/Yoga.h>
+
 namespace
 {
     using namespace e2d;
 
-    bool is_layout_item_enabled(const const_gcomponent<layout_item>& item) noexcept {
-        const auto filter = !ecs::exists_any<
-            disabled<actor>,
-            disabled<layout_item>
-        >() && ecs::exists_all<
-            actor,
-            layout_item
-        >();
+    struct yogo_node final {
+        using node_ptr = std::shared_ptr<YGNode>;
+        node_ptr as_item{YGNodeNew(), YGNodeFree};
+        node_ptr as_root{YGNodeNew(), YGNodeFree};
+    };
+}
 
-        return item
-            || filter(item.owner().raw_entity())
-            || item.owner().component<actor>()->node();
-    }
+namespace
+{
+    using namespace e2d;
 
-    void update_layout_items(const layout& layout, const const_node_iptr& layout_node) {
-        static thread_local vector<gcomponent<layout_item>> items;
-        E2D_DEFER([](){ items.clear(); });
+    void update_yogo_node(const layout& l, const actor& a, const yogo_node& yn) {
+        switch ( l.mode() ) {
+        case layout::modes::horizontal:
+            YGNodeStyleSetFlexDirection(yn.as_root.get(), YGFlexDirectionRow);
 
-        nodes::extract_components_from_children<layout_item>(
-            layout_node,
-            std::back_inserter(items));
-
-        //
-        // layout size
-        //
-
-        v2f layout_size = v2f::zero();
-
-        for ( std::size_t i = 0; i < items.size(); ++i ) {
-            const gcomponent<layout_item>& item = items[i];
-            if ( !is_layout_item_enabled(item) ) {
-                continue;
-            }
-            layout_size += item->size();
-            if ( i > 0u ) {
-                layout_size += layout.spacing();
-            }
-        }
-
-        //
-        // cursor offsets
-        //
-
-        v2f item_cursor = v2f::zero();
-        v2f size_offset_mul = v2f::zero();
-        v2f cursor_offset_mul = v2f::zero();
-
-        if ( layout.mode() == layout::modes::horizontal ) {
-            cursor_offset_mul = v2f::unit_x();
-
-            switch ( layout.halign() ) {
+            switch ( l.halign() ) {
             case layout::haligns::left:
-                item_cursor = 0.0f * layout_size.x * cursor_offset_mul;
+                YGNodeStyleSetJustifyContent(yn.as_root.get(), YGJustifyFlexStart);
                 break;
             case layout::haligns::center:
-                item_cursor = -0.5f * layout_size.x * cursor_offset_mul;
+                YGNodeStyleSetJustifyContent(yn.as_root.get(), YGJustifyCenter);
                 break;
             case layout::haligns::right:
-                item_cursor = -1.0f * layout_size.x * cursor_offset_mul;
+                YGNodeStyleSetJustifyContent(yn.as_root.get(), YGJustifyFlexEnd);
+                break;
+            case layout::haligns::space_around:
+                YGNodeStyleSetJustifyContent(yn.as_root.get(), YGJustifySpaceAround);
+                break;
+            case layout::haligns::space_between:
+                YGNodeStyleSetJustifyContent(yn.as_root.get(), YGJustifySpaceBetween);
                 break;
             default:
                 E2D_ASSERT_MSG(false, "unexpected layout halign");
+                break;
             }
 
-            switch ( layout.valign() ) {
+            switch ( l.valign() ) {
             case layout::valigns::top:
-                size_offset_mul = -1.0f * v2f::unit_y();
+            case layout::valigns::space_between:
+                YGNodeStyleSetAlignItems(yn.as_root.get(), YGAlignFlexEnd);
                 break;
             case layout::valigns::center:
-                size_offset_mul = -0.5f * v2f::unit_y();
+            case layout::valigns::space_around:
+                YGNodeStyleSetAlignItems(yn.as_root.get(), YGAlignCenter);
                 break;
             case layout::valigns::bottom:
-                size_offset_mul = 0.0f * v2f::unit_y();
+                YGNodeStyleSetAlignItems(yn.as_root.get(), YGAlignFlexStart);
                 break;
             default:
                 E2D_ASSERT_MSG(false, "unexpected layout valign");
+                break;
             }
-        } else if ( layout.mode() == layout::modes::vertical ) {
-            cursor_offset_mul = v2f::unit_y();
 
-            switch ( layout.valign() ) {
+            break;
+        case layout::modes::vertical:
+            YGNodeStyleSetFlexDirection(yn.as_root.get(), YGFlexDirectionColumn);
+
+            switch ( l.valign() ) {
             case layout::valigns::top:
-                item_cursor = -1.0f * layout_size.y * cursor_offset_mul;
+                YGNodeStyleSetJustifyContent(yn.as_root.get(), YGJustifyFlexEnd);
                 break;
             case layout::valigns::center:
-                item_cursor = -0.5f * layout_size.y * cursor_offset_mul;
+                YGNodeStyleSetJustifyContent(yn.as_root.get(), YGJustifyCenter);
                 break;
             case layout::valigns::bottom:
-                item_cursor = 0.0f * layout_size.y * cursor_offset_mul;
+                YGNodeStyleSetJustifyContent(yn.as_root.get(), YGJustifyFlexStart);
+                break;
+            case layout::valigns::space_around:
+                YGNodeStyleSetJustifyContent(yn.as_root.get(), YGJustifySpaceAround);
+                break;
+            case layout::valigns::space_between:
+                YGNodeStyleSetJustifyContent(yn.as_root.get(), YGJustifySpaceBetween);
                 break;
             default:
                 E2D_ASSERT_MSG(false, "unexpected layout valign");
+                break;
             }
 
-            switch ( layout.halign() ) {
+            switch ( l.halign() ) {
             case layout::haligns::left:
-                size_offset_mul = 0.0f * v2f::unit_x();
+            case layout::haligns::space_between:
+                YGNodeStyleSetAlignItems(yn.as_root.get(), YGAlignFlexStart);
                 break;
             case layout::haligns::center:
-                size_offset_mul = -0.5f * v2f::unit_x();
+            case layout::haligns::space_around:
+                YGNodeStyleSetAlignItems(yn.as_root.get(), YGAlignCenter);
                 break;
             case layout::haligns::right:
-                size_offset_mul = -1.0f * v2f::unit_x();
+                YGNodeStyleSetAlignItems(yn.as_root.get(), YGAlignFlexEnd);
                 break;
             default:
                 E2D_ASSERT_MSG(false, "unexpected layout halign");
+                break;
             }
-        } else {
+            break;
+        default:
             E2D_ASSERT_MSG(false, "unexpected layout mode");
+            break;
         }
 
-        //
-        // placing
-        //
+        {
+            YGNodeStyleSetWidth(yn.as_root.get(), l.size().x);
+            YGNodeStyleSetHeight(yn.as_root.get(), l.size().y);
 
-        for ( std::size_t i = 0; i < items.size(); ++i ) {
-            const gcomponent<layout_item>& item = items[i];
-            if ( !is_layout_item_enabled(item) ) {
-                continue;
-            }
-            const node_iptr& item_node = item.owner().component<actor>()->node();
-            item_node->translation(item_cursor + item->size() * size_offset_mul);
-            item_cursor += (item->size() + layout.spacing()) * cursor_offset_mul;
+            YGNodeStyleSetPadding(yn.as_root.get(), YGEdgeHorizontal, l.padding().x);
+            YGNodeStyleSetPadding(yn.as_root.get(), YGEdgeVertical, l.padding().y);
+        }
+
+        {
+            const v2f& scale = a.node()
+                ? a.node()->scale()
+                : v2f::unit();
+
+            YGNodeStyleSetWidth(yn.as_item.get(), l.size().x * scale.x);
+            YGNodeStyleSetHeight(yn.as_item.get(), l.size().y * scale.y);
+
+            YGNodeStyleSetMargin(yn.as_item.get(), YGEdgeHorizontal, l.margin().x * scale.x);
+            YGNodeStyleSetMargin(yn.as_item.get(), YGEdgeVertical, l.margin().y * scale.y);
         }
     }
+}
 
-    void update_dirty_layouts(ecs::registry& owner) {
-        owner.for_joined_components<layout::dirty, layout, actor>([](
-            const ecs::const_entity&,
-            const layout::dirty&,
-            const layout& layout,
-            const actor& layout_actor)
+namespace
+{
+    using namespace e2d;
+
+    void process_yogo_nodes(ecs::registry& owner) {
+        ecsex::remove_all_components<yogo_node>(
+            owner,
+            !ecs::exists_all<
+                actor,
+                layout>() ||
+            ecs::exists_any<
+                disabled<actor>,
+                disabled<layout>>());
+
+        owner.for_joined_components<layout, actor>([](
+            ecs::entity e,
+            const layout& l,
+            const actor& a)
         {
-            update_layout_items(layout, layout_actor.node());
+            e.ensure_component<yogo_node>();
         }, !ecs::exists_any<
             disabled<actor>,
             disabled<layout>>());
+    }
+
+    void process_dirty_layouts(ecs::registry& owner) {
+        owner.for_joined_components<layout::dirty, layout, actor, yogo_node>([](
+            const ecs::const_entity&,
+            const layout::dirty&,
+            const layout& l,
+            const actor& a,
+            const yogo_node& yn)
+        {
+            update_yogo_node(l, a, yn);
+        });
+
+        owner.for_joined_components<layout::dirty, yogo_node, actor>([](
+            const ecs::const_entity&,
+            const layout::dirty&,
+            const yogo_node& root_yn,
+            const actor& root_a)
+        {
+            static thread_local vector<gcomponent<layout>> items;
+            E2D_DEFER([](){ items.clear(); });
+
+            nodes::extract_components_from_children<layout>(
+                root_a.node(),
+                std::back_inserter(items));
+
+            E2D_DEFER([&root_yn](){
+                YGNodeRemoveAllChildren(root_yn.as_root.get());
+            });
+
+            for ( const auto& item : items ) {
+                if ( const auto& item_yn = item.owner().component<yogo_node>() ) {
+                    YGNodeInsertChild(
+                        root_yn.as_root.get(),
+                        item_yn->as_item.get(),
+                        YGNodeGetChildCount(root_yn.as_root.get()));
+                }
+            }
+
+            YGNodeCalculateLayout(
+                root_yn.as_root.get(),
+                YGUndefined,
+                YGUndefined,
+                YGDirectionLTR);
+
+            for ( const auto& item : items ) {
+                auto& item_a = item.owner().component<actor>();
+                const auto& item_yn = item.owner().component<yogo_node>();
+                if ( item_a && item_a->node() && item_yn && item_yn->as_item ) {
+                    item_a->node()->translation(v2f(
+                        YGNodeLayoutGetLeft(item_yn->as_item.get()),
+                        YGNodeLayoutGetTop(item_yn->as_item.get())));
+                }
+            }
+        });
+
         owner.remove_all_components<layout::dirty>();
     }
 }
@@ -167,7 +234,8 @@ namespace e2d
         ~internal_state() noexcept = default;
 
         void process_update(ecs::registry& owner) {
-            update_dirty_layouts(owner);
+            process_yogo_nodes(owner);
+            process_dirty_layouts(owner);
         }
     };
 
