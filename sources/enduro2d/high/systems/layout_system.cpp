@@ -27,7 +27,7 @@ namespace
 {
     using namespace e2d;
 
-    void update_yogo_node(const layout& l, const actor& a, const yogo_node& yn) {
+    void update_yogo_node(const yogo_node& yn, const layout& l, const actor& a) {
         switch ( l.mode() ) {
         case layout::modes::horizontal:
             YGNodeStyleSetFlexDirection(yn.as_root.get(), YGFlexDirectionRow);
@@ -144,8 +144,17 @@ namespace
     using namespace e2d;
 
     void process_yogo_nodes(ecs::registry& owner) {
-        ecsex::remove_all_components<yogo_node>(
+        ecsex::remove_all_components_with_disposer<yogo_node>(
             owner,
+            [](ecs::entity e, const yogo_node&){
+                if ( const actor* a = e.find_component<actor>();
+                    a && a->node() && a->node()->owner() )
+                {
+                    gcomponent<layout> l{a->node()->owner()};
+                    layouts::mark_dirty(l);
+                    layouts::mark_dirty(layouts::find_parent_layout(l));
+                }
+            },
             !ecs::exists_all<
                 actor,
                 layout>() ||
@@ -159,20 +168,29 @@ namespace
             const actor& a)
         {
             e.ensure_component<yogo_node>();
-        }, !ecs::exists_any<
+            if ( a.node() && a.node()->owner() ) {
+                gcomponent<layout> l{a.node()->owner()};
+                layouts::mark_dirty(l);
+                layouts::mark_dirty(layouts::find_parent_layout(l));
+            }
+        },
+        !ecs::exists_any<
+            yogo_node,
             disabled<actor>,
             disabled<layout>>());
     }
 
     void process_dirty_layouts(ecs::registry& owner) {
-        owner.for_joined_components<layout::dirty, layout, actor, yogo_node>([](
+        owner.remove_all_components<layout::was_moved>();
+
+        owner.for_joined_components<layout::dirty, yogo_node, layout, actor>([](
             const ecs::const_entity&,
             const layout::dirty&,
-            const layout& l,
-            const actor& a,
-            const yogo_node& yn)
+            const yogo_node& root_yn,
+            const layout& root_l,
+            const actor& root_a)
         {
-            update_yogo_node(l, a, yn);
+            update_yogo_node(root_yn, root_l, root_a);
         });
 
         owner.for_joined_components<layout::dirty, yogo_node, actor>([](
@@ -214,6 +232,8 @@ namespace
                     item_a->node()->translation(v2f(
                         YGNodeLayoutGetLeft(item_yn->as_item.get()),
                         YGNodeLayoutGetTop(item_yn->as_item.get())));
+                    layouts::mark_was_moved(
+                        item.owner().component<layout>());
                 }
             }
         });

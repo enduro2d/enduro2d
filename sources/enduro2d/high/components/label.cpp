@@ -201,6 +201,18 @@ namespace e2d
     const char* component_inspector<label>::title = ICON_FA_PARAGRAPH " label";
 
     void component_inspector<label>::operator()(gcomponent<label>& c) const {
+        if ( bool dirty = c.owner().component<label::dirty>().exists();
+            ImGui::Checkbox("dirty", &dirty) )
+        {
+            if ( dirty ) {
+                labels::mark_dirty(c);
+            } else {
+                labels::unmark_dirty(c);
+            }
+        }
+
+        ImGui::Separator();
+
         if ( str text = c->text();
             ImGui::InputTextMultiline("text", &text) )
         {

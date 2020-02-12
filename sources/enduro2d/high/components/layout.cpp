@@ -151,6 +151,32 @@ namespace e2d
 
 namespace e2d
 {
+    const char* factory_loader<layout::was_moved>::schema_source = R"json({
+        "type" : "object",
+        "required" : [],
+        "additionalProperties" : false,
+        "properties" : {}
+    })json";
+
+    bool factory_loader<layout::was_moved>::operator()(
+        layout::was_moved& component,
+        const fill_context& ctx) const
+    {
+        E2D_UNUSED(component, ctx);
+        return true;
+    }
+
+    bool factory_loader<layout::was_moved>::operator()(
+        asset_dependencies& dependencies,
+        const collect_context& ctx) const
+    {
+        E2D_UNUSED(dependencies, ctx);
+        return true;
+    }
+}
+
+namespace e2d
+{
     const char* component_inspector<layout>::title = ICON_FA_BARS " layout";
 
     void component_inspector<layout>::operator()(gcomponent<layout>& c) const {
@@ -163,6 +189,20 @@ namespace e2d
                 layouts::unmark_dirty(c);
             }
         }
+
+        ImGui::SameLine();
+
+        if ( bool was_moved = c.owner().component<layout::was_moved>().exists();
+            ImGui::Checkbox("was_moved", &was_moved) )
+        {
+            if ( was_moved ) {
+                layouts::mark_was_moved(c);
+            } else {
+                layouts::unmark_was_moved(c);
+            }
+        }
+
+        ImGui::Separator();
 
         if ( layout::modes mode = c->mode();
             imgui_utils::show_enum_combo_box("mode", &mode) )
@@ -233,9 +273,6 @@ namespace e2d::layouts
     gcomponent<layout> mark_dirty(gcomponent<layout> self) {
         if ( self ) {
             self.owner().component<layout::dirty>().ensure();
-            if ( gcomponent<layout> parent = find_parent_layout(self) ) {
-                parent.owner().component<layout::dirty>().ensure();
-            }
         }
         return self;
     }
@@ -249,6 +286,24 @@ namespace e2d::layouts
 
     bool is_dirty(const const_gcomponent<layout>& self) noexcept {
         return self.owner().component<layout::dirty>().exists();
+    }
+
+    gcomponent<layout> mark_was_moved(gcomponent<layout> self) {
+        if ( self ) {
+            self.owner().component<layout::was_moved>().ensure();
+        }
+        return self;
+    }
+
+    gcomponent<layout> unmark_was_moved(gcomponent<layout> self) {
+        if ( self ) {
+            self.owner().component<layout::was_moved>().remove();
+        }
+        return self;
+    }
+
+    bool is_was_moved(const const_gcomponent<layout>& self) noexcept {
+        return self.owner().component<layout::was_moved>().exists();
     }
 
     gcomponent<layout> change_mode(gcomponent<layout> self, layout::modes value) {
@@ -276,6 +331,7 @@ namespace e2d::layouts
         if ( self ) {
             self->size(value);
         }
+        mark_dirty(find_parent_layout(self));
         return mark_dirty(self);
     }
 
@@ -283,6 +339,7 @@ namespace e2d::layouts
         if ( self ) {
             self->margin(value);
         }
+        mark_dirty(find_parent_layout(self));
         return mark_dirty(self);
     }
 
@@ -290,6 +347,7 @@ namespace e2d::layouts
         if ( self ) {
             self->padding(value);
         }
+        mark_dirty(find_parent_layout(self));
         return mark_dirty(self);
     }
 

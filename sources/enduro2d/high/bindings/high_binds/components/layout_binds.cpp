@@ -67,6 +67,19 @@ namespace e2d::bindings::high
                 }
             ),
 
+            "was_moved", sol::property(
+                [](const gcomponent<layout>& c) -> bool {
+                    return layouts::is_was_moved(c);
+                },
+                [](gcomponent<layout>& c, bool yesno){
+                    if ( yesno ) {
+                        layouts::mark_was_moved(c);
+                    } else {
+                        layouts::unmark_was_moved(c);
+                    }
+                }
+            ),
+
             "mode", sol::property(
                 [](const gcomponent<layout>& c) -> layout::modes {
                     return c->mode();
