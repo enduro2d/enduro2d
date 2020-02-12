@@ -45,6 +45,9 @@ namespace
             case layout::haligns::space_around:
                 YGNodeStyleSetJustifyContent(yn.as_root.get(), YGJustifySpaceAround);
                 break;
+            case layout::haligns::space_evenly:
+                YGNodeStyleSetJustifyContent(yn.as_root.get(), YGJustifySpaceEvenly);
+                break;
             case layout::haligns::space_between:
                 YGNodeStyleSetJustifyContent(yn.as_root.get(), YGJustifySpaceBetween);
                 break;
@@ -60,6 +63,7 @@ namespace
                 break;
             case layout::valigns::center:
             case layout::valigns::space_around:
+            case layout::valigns::space_evenly:
                 YGNodeStyleSetAlignItems(yn.as_root.get(), YGAlignCenter);
                 break;
             case layout::valigns::bottom:
@@ -87,6 +91,9 @@ namespace
             case layout::valigns::space_around:
                 YGNodeStyleSetJustifyContent(yn.as_root.get(), YGJustifySpaceAround);
                 break;
+            case layout::valigns::space_evenly:
+                YGNodeStyleSetJustifyContent(yn.as_root.get(), YGJustifySpaceEvenly);
+                break;
             case layout::valigns::space_between:
                 YGNodeStyleSetJustifyContent(yn.as_root.get(), YGJustifySpaceBetween);
                 break;
@@ -102,6 +109,7 @@ namespace
                 break;
             case layout::haligns::center:
             case layout::haligns::space_around:
+            case layout::haligns::space_evenly:
                 YGNodeStyleSetAlignItems(yn.as_root.get(), YGAlignCenter);
                 break;
             case layout::haligns::right:
@@ -164,7 +172,7 @@ namespace
 
         owner.for_joined_components<layout, actor>([](
             ecs::entity e,
-            const layout& l,
+            const layout&,
             const actor& a)
         {
             e.ensure_component<yogo_node>();
@@ -226,8 +234,8 @@ namespace
                 YGDirectionLTR);
 
             for ( const auto& item : items ) {
-                auto& item_a = item.owner().component<actor>();
-                const auto& item_yn = item.owner().component<yogo_node>();
+                gcomponent<actor> item_a = item.owner().component<actor>();
+                const_gcomponent<yogo_node> item_yn = item.owner().component<yogo_node>();
                 if ( item_a && item_a->node() && item_yn && item_yn->as_item ) {
                     item_a->node()->translation(v2f(
                         YGNodeLayoutGetLeft(item_yn->as_item.get()),

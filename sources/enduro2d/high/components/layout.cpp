@@ -37,6 +37,7 @@ namespace e2d
                     "center",
                     "right",
                     "space_around",
+                    "space_evenly",
                     "space_between"
                 ]
             },
@@ -47,6 +48,7 @@ namespace e2d
                     "center",
                     "bottom",
                     "space_around",
+                    "space_evenly",
                     "space_between"
                 ]
             }

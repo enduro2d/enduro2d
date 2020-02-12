@@ -24,6 +24,7 @@ namespace e2d
             (center)
             (right)
             (space_around)
+            (space_evenly)
             (space_between))
 
         ENUM_HPP_CLASS_DECL(valigns, u8,
@@ -31,6 +32,7 @@ namespace e2d
             (center)
             (bottom)
             (space_around)
+            (space_evenly)
             (space_between))
     public:
         layout() = default;

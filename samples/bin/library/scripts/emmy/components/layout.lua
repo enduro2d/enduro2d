@@ -43,6 +43,7 @@ layout.haligns = {
     center = "center",
     right = "right",
     space_around = "space_around",
+    space_evenly = "space_evenly",
     space_between = "space_between"
 }
 
@@ -52,6 +53,7 @@ layout.valigns = {
     center = "center",
     bottom = "bottom",
     space_around = "space_around",
+    space_evenly = "space_evenly",
     space_between = "space_between"
 }
 

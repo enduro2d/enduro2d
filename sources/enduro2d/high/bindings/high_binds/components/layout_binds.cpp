@@ -144,6 +144,7 @@ namespace e2d::bindings::high
             LAYOUT_HALIGN_PAIR(center)
             LAYOUT_HALIGN_PAIR(right)
             LAYOUT_HALIGN_PAIR(space_around)
+            LAYOUT_HALIGN_PAIR(space_evenly)
             LAYOUT_HALIGN_PAIR(space_between)
         });
     #undef LAYOUT_HALIGN_PAIR
@@ -155,6 +156,7 @@ namespace e2d::bindings::high
             LAYOUT_VALIGN_PAIR(center)
             LAYOUT_VALIGN_PAIR(bottom)
             LAYOUT_VALIGN_PAIR(space_around)
+            LAYOUT_VALIGN_PAIR(space_evenly)
             LAYOUT_VALIGN_PAIR(space_between)
         });
     #undef LAYOUT_VALIGN_PAIR
