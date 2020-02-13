@@ -283,8 +283,16 @@ namespace e2d
     }
 
     //
-    // (-) vec3
+    // (+,-) vec3
     //
+
+    template < typename T >
+    vec3<T> operator+(const vec3<T>& v) noexcept {
+        return {
+            +v.x,
+            +v.y,
+            +v.z};
+    }
 
     template < typename T >
     vec3<T> operator-(const vec3<T>& v) noexcept {

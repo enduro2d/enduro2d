@@ -306,8 +306,17 @@ namespace e2d
     }
 
     //
-    // (-) vec4
+    // (+,-) vec4
     //
+
+    template < typename T >
+    vec4<T> operator+(const vec4<T>& v) noexcept {
+        return {
+            +v.x,
+            +v.y,
+            +v.z,
+            +v.w};
+    }
 
     template < typename T >
     vec4<T> operator-(const vec4<T>& v) noexcept {

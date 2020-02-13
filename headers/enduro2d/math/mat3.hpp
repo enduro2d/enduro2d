@@ -193,8 +193,16 @@ namespace e2d
     }
 
     //
-    // (-) mat3
+    // (+,-) mat3
     //
+
+    template < typename T >
+    mat3<T> operator+(const mat3<T>& m) noexcept {
+        return {
+            +m.rows[0],
+            +m.rows[1],
+            +m.rows[2]};
+    }
 
     template < typename T >
     mat3<T> operator-(const mat3<T>& m) noexcept {

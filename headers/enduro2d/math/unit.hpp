@@ -167,8 +167,15 @@ namespace e2d
     }
 
     //
-    // (-) unit
+    // (+,-) unit
     //
+
+    template < typename T, typename Tag >
+    unit<T, Tag> operator+(const unit<T, Tag>& u) noexcept {
+        return {
+            +u.value,
+            Tag{}};
+    }
 
     template < typename T, typename Tag >
     unit<T, Tag> operator-(const unit<T, Tag>& u) noexcept {
