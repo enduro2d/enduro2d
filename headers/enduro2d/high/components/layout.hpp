@@ -14,10 +14,6 @@ namespace e2d
     public:
         class dirty final {};
     public:
-        ENUM_HPP_CLASS_DECL(modes, u8,
-            (horizontal)
-            (vertical))
-
         ENUM_HPP_CLASS_DECL(haligns, u8,
             (left)
             (center)
@@ -33,17 +29,23 @@ namespace e2d
             (space_around)
             (space_evenly)
             (space_between))
+
+        ENUM_HPP_CLASS_DECL(directions, u8,
+            (row)
+            (row_reversed)
+            (column)
+            (column_reversed))
     public:
         layout() = default;
-
-        layout& mode(modes value) noexcept;
-        [[nodiscard]] modes mode() const noexcept;
 
         layout& halign(haligns value) noexcept;
         [[nodiscard]] haligns halign() const noexcept;
 
         layout& valign(valigns value) noexcept;
         [[nodiscard]] valigns valign() const noexcept;
+
+        layout& direction(directions value) noexcept;
+        [[nodiscard]] directions direction() const noexcept;
     public:
         layout& size(const v2f& value) noexcept;
         [[nodiscard]] const v2f& size() const noexcept;
@@ -54,9 +56,9 @@ namespace e2d
         layout& padding(const v2f& value) noexcept;
         [[nodiscard]] const v2f& padding() const noexcept;
     private:
-        modes mode_ = modes::horizontal;
         haligns halign_ = haligns::center;
         valigns valign_ = valigns::center;
+        directions direction_ = directions::row;
     private:
         v2f size_ = v2f::zero();
         v2f margin_ = v2f::zero();
@@ -64,9 +66,9 @@ namespace e2d
     };
 }
 
-ENUM_HPP_REGISTER_TRAITS(e2d::layout::modes)
 ENUM_HPP_REGISTER_TRAITS(e2d::layout::haligns)
 ENUM_HPP_REGISTER_TRAITS(e2d::layout::valigns)
+ENUM_HPP_REGISTER_TRAITS(e2d::layout::directions)
 
 namespace e2d
 {
@@ -113,15 +115,6 @@ namespace e2d
 
 namespace e2d
 {
-    inline layout& layout::mode(modes value) noexcept {
-        mode_ = value;
-        return *this;
-    }
-
-    inline layout::modes layout::mode() const noexcept {
-        return mode_;
-    }
-
     inline layout& layout::halign(haligns value) noexcept {
         halign_ = value;
         return *this;
@@ -138,6 +131,15 @@ namespace e2d
 
     inline layout::valigns layout::valign() const noexcept {
         return valign_;
+    }
+
+    inline layout& layout::direction(directions value) noexcept {
+        direction_ = value;
+        return *this;
+    }
+
+    inline layout::directions layout::direction() const noexcept {
+        return direction_;
     }
 
     inline layout& layout::size(const v2f& value) noexcept {
@@ -174,9 +176,9 @@ namespace e2d::layouts
     gcomponent<layout> unmark_dirty(gcomponent<layout> self);
     bool is_dirty(const const_gcomponent<layout>& self) noexcept;
 
-    gcomponent<layout> change_mode(gcomponent<layout> self, layout::modes value);
     gcomponent<layout> change_halign(gcomponent<layout> self, layout::haligns value);
     gcomponent<layout> change_valign(gcomponent<layout> self, layout::valigns value);
+    gcomponent<layout> change_direction(gcomponent<layout> self, layout::directions value);
 
     gcomponent<layout> change_size(gcomponent<layout> self, const v2f& value);
     gcomponent<layout> change_margin(gcomponent<layout> self, const v2f& value);

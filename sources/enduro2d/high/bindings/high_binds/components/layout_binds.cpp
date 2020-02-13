@@ -67,14 +67,6 @@ namespace e2d::bindings::high
                 }
             ),
 
-            "mode", sol::property(
-                [](const gcomponent<layout>& c) -> layout::modes {
-                    return c->mode();
-                },
-                [](gcomponent<layout>& c, layout::modes v){
-                    layouts::change_mode(c, v);
-                }),
-
             "halign", sol::property(
                 [](const gcomponent<layout>& c) -> layout::haligns {
                     return c->halign();
@@ -89,6 +81,14 @@ namespace e2d::bindings::high
                 },
                 [](gcomponent<layout>& c, layout::valigns v){
                     layouts::change_valign(c, v);
+                }),
+
+            "direction", sol::property(
+                [](const gcomponent<layout>& c) -> layout::directions {
+                    return c->direction();
+                },
+                [](gcomponent<layout>& c, layout::directions v){
+                    layouts::change_direction(c, v);
                 }),
 
             "size", sol::property(
@@ -116,14 +116,6 @@ namespace e2d::bindings::high
                 })
         );
 
-    #define LAYOUT_MODE_PAIR(x) {#x, layout::modes::x},
-        l["layout"].get_or_create<sol::table>()
-        .new_enum<layout::modes>("modes", {
-            LAYOUT_MODE_PAIR(vertical)
-            LAYOUT_MODE_PAIR(horizontal)
-        });
-    #undef LAYOUT_MODE_PAIR
-
     #define LAYOUT_HALIGN_PAIR(x) {#x, layout::haligns::x},
         l["layout"].get_or_create<sol::table>()
         .new_enum<layout::haligns>("haligns", {
@@ -147,5 +139,15 @@ namespace e2d::bindings::high
             LAYOUT_VALIGN_PAIR(space_between)
         });
     #undef LAYOUT_VALIGN_PAIR
+
+    #define LAYOUT_DIRECTION_PAIR(x) {#x, layout::directions::x},
+        l["layout"].get_or_create<sol::table>()
+        .new_enum<layout::directions>("directions", {
+            LAYOUT_DIRECTION_PAIR(row)
+            LAYOUT_DIRECTION_PAIR(row_reversed)
+            LAYOUT_DIRECTION_PAIR(column)
+            LAYOUT_DIRECTION_PAIR(column_reversed)
+        });
+    #undef LAYOUT_DIRECTION_PAIR
     }
 }

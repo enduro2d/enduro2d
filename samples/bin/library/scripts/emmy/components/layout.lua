@@ -9,14 +9,14 @@ local layout = {
     ---@type boolean
     dirty = false,
 
-    ---@type layout_modes
-    mode = layout.modes.horizontal,
-
     ---@type layout_haligns
     halign = layout.haligns.center,
 
     ---@type layout_valigns
     valign = layout.valigns.center,
+
+    ---@type layout_directions
+    direction = layout.directions.row,
 
     ---@type v2f
     size = v2f.zero(),
@@ -26,12 +26,6 @@ local layout = {
 
     ---@type v2f
     padding = v2f.zero()
-}
-
----@class layout_modes
-layout.modes = {
-    horizontal = "horizontal",
-    vertical = "vertical"
 }
 
 ---@class layout_haligns
@@ -52,6 +46,14 @@ layout.valigns = {
     space_around = "space_around",
     space_evenly = "space_evenly",
     space_between = "space_between"
+}
+
+---@class layout_directions
+layout.directions = {
+    row = "row",
+    row_reversed = "row_reversed",
+    column = "column",
+    column_reversed = "column_reversed"
 }
 
 ---@overload fun(self: layout)

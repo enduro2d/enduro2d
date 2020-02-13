@@ -28,10 +28,27 @@ namespace
     using namespace e2d;
 
     void update_yogo_node(const yogo_node& yn, const layout& l, const actor& a) {
-        switch ( l.mode() ) {
-        case layout::modes::horizontal:
+        switch ( l.direction() ) {
+        case layout::directions::row:
             YGNodeStyleSetFlexDirection(yn.as_root.get(), YGFlexDirectionRow);
+            break;
+        case layout::directions::row_reversed:
+            YGNodeStyleSetFlexDirection(yn.as_root.get(), YGFlexDirectionRowReverse);
+            break;
+        case layout::directions::column:
+            YGNodeStyleSetFlexDirection(yn.as_root.get(), YGFlexDirectionColumn);
+            break;
+        case layout::directions::column_reversed:
+            YGNodeStyleSetFlexDirection(yn.as_root.get(), YGFlexDirectionColumnReverse);
+            break;
+        default:
+            E2D_ASSERT_MSG(false, "unexpected layout direction");
+            break;
+        }
 
+        switch ( l.direction() ) {
+        case layout::directions::row:
+        case layout::directions::row_reversed:
             switch ( l.halign() ) {
             case layout::haligns::left:
                 YGNodeStyleSetJustifyContent(yn.as_root.get(), YGJustifyFlexStart);
@@ -75,9 +92,8 @@ namespace
             }
 
             break;
-        case layout::modes::vertical:
-            YGNodeStyleSetFlexDirection(yn.as_root.get(), YGFlexDirectionColumn);
-
+        case layout::directions::column:
+        case layout::directions::column_reversed:
             switch ( l.valign() ) {
             case layout::valigns::top:
                 YGNodeStyleSetJustifyContent(yn.as_root.get(), YGJustifyFlexEnd);

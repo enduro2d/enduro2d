@@ -15,21 +15,14 @@ namespace e2d
         "required" : [],
         "additionalProperties" : false,
         "properties" : {
-            "mode" : { "$ref": "#/definitions/modes" },
             "halign" : { "$ref": "#/definitions/haligns" },
             "valign" : { "$ref": "#/definitions/valigns" },
+            "direction" : { "$ref": "#/definitions/directions" },
             "size" : { "$ref": "#/common_definitions/v2" },
             "margin" : { "$ref": "#/common_definitions/v2" },
             "padding" : { "$ref": "#/common_definitions/v2" }
         },
         "definitions" : {
-            "modes" : {
-                "type" : "string",
-                "enum" : [
-                    "horizontal",
-                    "vertical"
-                ]
-            },
             "haligns" : {
                 "type" : "string",
                 "enum" : [
@@ -51,6 +44,15 @@ namespace e2d
                     "space_evenly",
                     "space_between"
                 ]
+            },
+            "directions" : {
+                "type" : "string",
+                "enum" : [
+                    "row",
+                    "row_reversed",
+                    "column",
+                    "column_reversed"
+                ]
             }
         }
     })json";
@@ -59,15 +61,6 @@ namespace e2d
         layout& component,
         const fill_context& ctx) const
     {
-        if ( ctx.root.HasMember("mode") ) {
-            layout::modes mode = component.mode();
-            if ( !json_utils::try_parse_value(ctx.root["mode"], mode) ) {
-                the<debug>().error("LAYOUT: Incorrect formatting of 'mode' property");
-                return false;
-            }
-            component.mode(mode);
-        }
-
         if ( ctx.root.HasMember("halign") ) {
             layout::haligns halign = component.halign();
             if ( !json_utils::try_parse_value(ctx.root["halign"], halign) ) {
@@ -84,6 +77,15 @@ namespace e2d
                 return false;
             }
             component.valign(valign);
+        }
+
+        if ( ctx.root.HasMember("direction") ) {
+            layout::directions direction = component.direction();
+            if ( !json_utils::try_parse_value(ctx.root["direction"], direction) ) {
+                the<debug>().error("LAYOUT: Incorrect formatting of 'direction' property");
+                return false;
+            }
+            component.direction(direction);
         }
 
         if ( ctx.root.HasMember("size") ) {
@@ -168,12 +170,6 @@ namespace e2d
 
         ImGui::Separator();
 
-        if ( layout::modes mode = c->mode();
-            imgui_utils::show_enum_combo_box("mode", &mode) )
-        {
-            layouts::change_mode(c, mode);
-        }
-
         if ( layout::haligns halign = c->halign();
             imgui_utils::show_enum_combo_box("halign", &halign) )
         {
@@ -184,6 +180,12 @@ namespace e2d
             imgui_utils::show_enum_combo_box("valign", &valign) )
         {
             layouts::change_valign(c, valign);
+        }
+
+        if ( layout::directions direction = c->direction();
+            imgui_utils::show_enum_combo_box("direction", &direction) )
+        {
+            layouts::change_direction(c, direction);
         }
 
         if ( v2f size = c->size();
@@ -252,13 +254,6 @@ namespace e2d::layouts
         return self.owner().component<layout::dirty>().exists();
     }
 
-    gcomponent<layout> change_mode(gcomponent<layout> self, layout::modes value) {
-        if ( self ) {
-            self->mode(value);
-        }
-        return mark_dirty(self);
-    }
-
     gcomponent<layout> change_halign(gcomponent<layout> self, layout::haligns value) {
         if ( self ) {
             self->halign(value);
@@ -269,6 +264,13 @@ namespace e2d::layouts
     gcomponent<layout> change_valign(gcomponent<layout> self, layout::valigns value) {
         if ( self ) {
             self->valign(value);
+        }
+        return mark_dirty(self);
+    }
+
+    gcomponent<layout> change_direction(gcomponent<layout> self, layout::directions value) {
+        if ( self ) {
+            self->direction(value);
         }
         return mark_dirty(self);
     }
