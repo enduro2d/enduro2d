@@ -275,6 +275,62 @@ namespace e2d
             labels::change_outline_color(c, color32(outline_color));
         }
     }
+
+    void component_inspector<label>::operator()(
+        gcomponent<label>& c,
+        gizmos_context& ctx) const
+    {
+        if ( c->font() && c->text_width() > 0.f ) {
+            const f32 corner_height = 0.2f * c->font()->content().info().line_height;
+            const color32 line_color = ctx.selected() ? color32(255,255,255) : color32(127,127,127);
+            const color32 corner_color = ctx.selected() ? color32(0,255,0) : color32(0,127,0);
+
+            v2f ox = v2f::zero();
+            switch ( c->halign() ) {
+            case label::haligns::left:
+                ox = +0.5f * v2f::unit_x() * c->text_width();
+                break;
+            case label::haligns::center:
+                ox = v2f::zero();
+                break;
+            case label::haligns::right:
+                ox = -0.5f * v2f::unit_x() * c->text_width();
+                break;
+            default:
+                E2D_ASSERT_MSG(false, "unexpected label halign");
+                break;
+            }
+
+            v2f oy = v2f::zero();
+            switch ( c->valign() ) {
+            case label::valigns::top:
+                oy = -v2f::unit_y() * corner_height;
+                break;
+            case label::valigns::center:
+                oy = v2f::zero();
+                break;
+            case label::valigns::bottom:
+                oy = +v2f::unit_y() * corner_height;
+                break;
+            case label::valigns::baseline:
+                oy = v2f::zero();
+                break;
+            default:
+                E2D_ASSERT_MSG(false, "unexpected label valign");
+                break;
+            }
+
+            ctx.draw_line(
+                ox - 0.5f * v2f::unit_x() * c->text_width(),
+                ox + 0.5f * v2f::unit_x() * c->text_width(),
+                line_color);
+
+            ctx.draw_line(
+                oy - v2f::unit_y() * corner_height,
+                oy + v2f::unit_y() * corner_height,
+                corner_color);
+        }
+    }
 }
 
 namespace e2d::labels
