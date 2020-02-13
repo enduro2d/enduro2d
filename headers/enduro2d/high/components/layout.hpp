@@ -13,7 +13,6 @@ namespace e2d
     class layout final {
     public:
         class dirty final {};
-        class was_moved final {};
     public:
         ENUM_HPP_CLASS_DECL(modes, u8,
             (horizontal)
@@ -98,20 +97,6 @@ namespace e2d
             asset_dependencies& dependencies,
             const collect_context& ctx) const;
     };
-
-    template <>
-    class factory_loader<layout::was_moved> final : factory_loader<> {
-    public:
-        static const char* schema_source;
-
-        bool operator()(
-            layout::was_moved& component,
-            const fill_context& ctx) const;
-
-        bool operator()(
-            asset_dependencies& dependencies,
-            const collect_context& ctx) const;
-    };
 }
 
 namespace e2d
@@ -188,10 +173,6 @@ namespace e2d::layouts
     gcomponent<layout> mark_dirty(gcomponent<layout> self);
     gcomponent<layout> unmark_dirty(gcomponent<layout> self);
     bool is_dirty(const const_gcomponent<layout>& self) noexcept;
-
-    gcomponent<layout> mark_was_moved(gcomponent<layout> self);
-    gcomponent<layout> unmark_was_moved(gcomponent<layout> self);
-    bool is_was_moved(const const_gcomponent<layout>& self) noexcept;
 
     gcomponent<layout> change_mode(gcomponent<layout> self, layout::modes value);
     gcomponent<layout> change_halign(gcomponent<layout> self, layout::haligns value);

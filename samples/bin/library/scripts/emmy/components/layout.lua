@@ -9,9 +9,6 @@ local layout = {
     ---@type boolean
     dirty = false,
 
-    ---@type boolean
-    was_moved = false,
-
     ---@type layout_modes
     mode = layout.modes.horizontal,
 

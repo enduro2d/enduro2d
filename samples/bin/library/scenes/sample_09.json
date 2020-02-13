@@ -6,6 +6,15 @@
         "prototype" : "../prefabs/camera_prefab.json"
     },{
         "prototype" : "../prefabs/layout_prefab.json",
+        "components" : {
+            "actor" : {
+                "translation" : [-250,0]
+            },
+            "layout" : {
+                "size" : [500,200],
+                "halign" : "space_evenly"
+            }
+        },
         "children" : [{
             "prototype" : "../prefabs/layout_prefab.json",
             "components" : {

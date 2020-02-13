@@ -189,8 +189,6 @@ namespace
     }
 
     void process_dirty_layouts(ecs::registry& owner) {
-        owner.remove_all_components<layout::was_moved>();
-
         owner.for_joined_components<layout::dirty, yogo_node, layout, actor>([](
             const ecs::const_entity&,
             const layout::dirty&,
@@ -240,8 +238,6 @@ namespace
                     item_a->node()->translation(v2f(
                         YGNodeLayoutGetLeft(item_yn->as_item.get()),
                         YGNodeLayoutGetTop(item_yn->as_item.get())));
-                    layouts::mark_was_moved(
-                        item.owner().component<layout>());
                 }
             }
         });
