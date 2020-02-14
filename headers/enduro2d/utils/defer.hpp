@@ -76,14 +76,14 @@ namespace e2d
     }
 }
 
-#define E2D_DEFER(lambda)\
+#define E2D_DEFER(...)\
     auto E2D_PP_CAT(e2d_generated_defer_, __LINE__) =\
-        ::e2d::make_defer(lambda)
+        ::e2d::make_defer(__VA_ARGS__)
 
-#define E2D_ERROR_DEFER(lambda)\
+#define E2D_ERROR_DEFER(...)\
     auto E2D_PP_CAT(e2d_generated_error_defer_, __LINE__) =\
-        ::e2d::make_error_defer(lambda)
+        ::e2d::make_error_defer(__VA_ARGS__)
 
-#define E2D_RETURN_DEFER(lambda)\
+#define E2D_RETURN_DEFER(...)\
     auto E2D_PP_CAT(e2d_generated_return_defer_, __LINE__) =\
-        ::e2d::make_return_defer(lambda)
+        ::e2d::make_return_defer(__VA_ARGS__)
