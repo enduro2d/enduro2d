@@ -13,49 +13,54 @@ namespace e2d
     namespace impl
     {
         template < typename F >
-        class defer_impl final : noncopyable {
+        class defer_impl : noncopyable {
         public:
             explicit defer_impl(F f)
             : f_(std::move(f)) {}
 
-            ~defer_impl() noexcept {
-                f_();
-            }
-        private:
-            F f_;
-        };
-
-        template < typename F >
-        class error_defer_impl final : noncopyable {
-        public:
-            explicit error_defer_impl(F f)
-            : f_(std::move(f))
-            , exceptions_(std::uncaught_exceptions()) {}
-
-            ~error_defer_impl() noexcept {
-                if ( exceptions_ != std::uncaught_exceptions() ) {
+            virtual ~defer_impl() noexcept {
+                if ( !dismissed_ ) {
                     f_();
                 }
             }
+
+            void dismiss() noexcept {
+                dismissed_ = true;
+            }
         private:
-            F f_{};
+            F f_;
+            bool dismissed_{};
+        };
+
+        template < typename F >
+        class error_defer_impl final : public defer_impl<F> {
+        public:
+            explicit error_defer_impl(F f)
+            : defer_impl<F>(std::move(f))
+            , exceptions_(std::uncaught_exceptions()) {}
+
+            ~error_defer_impl() noexcept final {
+                if ( exceptions_ == std::uncaught_exceptions() ) {
+                    this->dismiss();
+                }
+            }
+        private:
             int exceptions_{};
         };
 
         template < typename F >
-        class return_defer_impl final : noncopyable {
+        class return_defer_impl final : public defer_impl<F> {
         public:
             explicit return_defer_impl(F f)
-            : f_(std::move(f))
+            : defer_impl<F>(std::move(f))
             , exceptions_(std::uncaught_exceptions()) {}
 
-            ~return_defer_impl() noexcept {
-                if ( exceptions_ == std::uncaught_exceptions() ) {
-                    f_();
+            ~return_defer_impl() noexcept final {
+                if ( exceptions_ != std::uncaught_exceptions() ) {
+                    this->dismiss();
                 }
             }
         private:
-            F f_{};
             int exceptions_{};
         };
     }
