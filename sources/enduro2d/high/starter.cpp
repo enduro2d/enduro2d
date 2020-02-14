@@ -23,6 +23,7 @@
 #include <enduro2d/high/components/flipbook_player.hpp>
 #include <enduro2d/high/components/label.hpp>
 #include <enduro2d/high/components/layout.hpp>
+#include <enduro2d/high/components/mask.hpp>
 #include <enduro2d/high/components/model_renderer.hpp>
 #include <enduro2d/high/components/named.hpp>
 #include <enduro2d/high/components/renderer.hpp>
@@ -199,6 +200,7 @@ namespace e2d
             .register_component<label::dirty>("label.dirty")
             .register_component<layout>("layout")
             .register_component<layout::dirty>("layout.dirty")
+            .register_component<mask>("mask")
             .register_component<model_renderer>("model_renderer")
             .register_component<named>("named")
             .register_component<renderer>("renderer")
@@ -225,6 +227,7 @@ namespace e2d
             //.register_component<label::dirty>("label.dirty")
             .register_component<layout>("layout")
             //.register_component<layout::dirty>("layout.dirty")
+            .register_component<mask>("mask")
             .register_component<model_renderer>("model_renderer")
             .register_component<named>("named")
             .register_component<renderer>("renderer")

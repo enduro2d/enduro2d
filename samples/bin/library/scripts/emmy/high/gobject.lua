@@ -33,6 +33,9 @@ local gobject = {
     ---@type layout
     layout = nil,
 
+    ---@type mask
+    mask = nil,
+
     ---@type model_renderer
     model_renderer = nil,
 
