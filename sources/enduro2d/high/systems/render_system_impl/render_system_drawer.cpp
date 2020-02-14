@@ -128,33 +128,31 @@ namespace e2d::render_system_impl
         const model& mdl = mdl_r.model()->content();
         const mesh& msh = mdl.mesh()->content();
 
-        try {
-            property_cache_
-                .merge(batcher_.flush())
-                .property(matrix_m_property_hash, model_m)
-                .merge(node_r.properties());
-
-            const std::size_t submesh_count = math::min(
-                msh.indices_submesh_count(),
-                node_r.materials().size());
-
-            for ( std::size_t i = 0, first_index = 0; i < submesh_count; ++i ) {
-                const std::size_t index_count = msh.indices(i).size();
-                const material_asset::ptr& mat = node_r.materials()[i];
-                if ( mat ) {
-                    render_.execute(render::draw_command(
-                        mat->content(),
-                        mdl.geometry(),
-                        property_cache_
-                    ).index_range(first_index, index_count));
-                }
-                first_index += index_count;
-            }
-        } catch (...) {
+        E2D_DEFER([this](){
             property_cache_.clear();
-            throw;
+        });
+
+        property_cache_
+            .merge(batcher_.flush())
+            .property(matrix_m_property_hash, model_m)
+            .merge(node_r.properties());
+
+        const std::size_t submesh_count = math::min(
+            msh.indices_submesh_count(),
+            node_r.materials().size());
+
+        for ( std::size_t i = 0, first_index = 0; i < submesh_count; ++i ) {
+            const std::size_t index_count = msh.indices(i).size();
+            const material_asset::ptr& mat = node_r.materials()[i];
+            if ( mat ) {
+                render_.execute(render::draw_command(
+                    mat->content(),
+                    mdl.geometry(),
+                    property_cache_
+                ).index_range(first_index, index_count));
+            }
+            first_index += index_count;
         }
-        property_cache_.clear();
     }
 
     void drawer::context::draw(
@@ -184,12 +182,20 @@ namespace e2d::render_system_impl
 
         unsigned short quad_indices[6] = { 0, 1, 2, 2, 3, 0 };
 
+        E2D_DEFER([this, clipper](){
+            property_cache_.clear();
+            spSkeletonClipping_clipEnd2(clipper);
+        });
+
         for ( int i = 0; i < skeleton->slotsCount; ++i ) {
             spSlot* slot = skeleton->drawOrder[i];
 
+            auto slot_clipping_defer = make_defer([clipper, slot](){
+                spSkeletonClipping_clipEnd(clipper, slot);
+            });
+
             spAttachment* attachment = slot->attachment;
             if ( !attachment || math::is_near_zero(slot->color.a) ) {
-                spSkeletonClipping_clipEnd(clipper, slot);
                 continue;
             }
 
@@ -205,22 +211,16 @@ namespace e2d::render_system_impl
 
                 attachment_color = &region->color;
                 if ( math::is_near_zero(attachment_color->a) ) {
-                    spSkeletonClipping_clipEnd(clipper, slot);
                     continue;
                 }
 
-                try {
+                {
                     vertex_count = 8;
                     if ( temp_vertices.size() < math::numeric_cast<std::size_t>(vertex_count) ) {
                         temp_vertices.resize(math::max(
                             temp_vertices.size() * 2u,
                             math::numeric_cast<std::size_t>(vertex_count)));
                     }
-                } catch (...) {
-                    property_cache_.clear();
-                    spSkeletonClipping_clipEnd(clipper, slot);
-                    spSkeletonClipping_clipEnd2(clipper);
-                    throw;
                 }
 
                 spRegionAttachment_computeWorldVertices(
@@ -238,22 +238,16 @@ namespace e2d::render_system_impl
 
                 attachment_color = &mesh->color;
                 if ( math::is_near_zero(attachment_color->a) ) {
-                    spSkeletonClipping_clipEnd(clipper, slot);
                     continue;
                 }
 
-                try {
+                {
                     vertex_count = mesh->super.worldVerticesLength;
                     if ( temp_vertices.size() < math::numeric_cast<std::size_t>(vertex_count) ) {
                         temp_vertices.resize(math::max(
                             temp_vertices.size() * 2u,
                             math::numeric_cast<std::size_t>(vertex_count)));
                     }
-                } catch (...) {
-                    property_cache_.clear();
-                    spSkeletonClipping_clipEnd(clipper, slot);
-                    spSkeletonClipping_clipEnd2(clipper);
-                    throw;
                 }
 
                 spVertexAttachment_computeWorldVertices(
@@ -271,8 +265,10 @@ namespace e2d::render_system_impl
             } else if ( attachment->type == SP_ATTACHMENT_CLIPPING ) {
                 spClippingAttachment* clip = reinterpret_cast<spClippingAttachment*>(attachment);
                 spSkeletonClipping_clipStart(clipper, slot, clip);
+                slot_clipping_defer.dismiss();
                 continue;
             } else {
+                slot_clipping_defer.dismiss();
                 continue;
             }
 
@@ -381,7 +377,6 @@ namespace e2d::render_system_impl
             }
 
             if ( math::is_near_zero(vert_color.a) || !tex_p || !mat_a ) {
-                spSkeletonClipping_clipEnd(clipper, slot);
                 continue;
             }
 
@@ -400,7 +395,7 @@ namespace e2d::render_system_impl
                 index_count = clipper->clippedTriangles->size;
             }
 
-            try {
+            {
                 const std::size_t batch_vertex_count = vertex_count >> 1;
 
                 if ( batch_vertices.size() < batch_vertex_count ) {
@@ -426,18 +421,8 @@ namespace e2d::render_system_impl
                     property_cache_,
                     indices, math::numeric_cast<std::size_t>(index_count),
                     batch_vertices.data(), batch_vertex_count);
-            } catch (...) {
-                property_cache_.clear();
-                spSkeletonClipping_clipEnd(clipper, slot);
-                spSkeletonClipping_clipEnd2(clipper);
-                throw;
             }
-
-            spSkeletonClipping_clipEnd(clipper, slot);
         }
-
-        spSkeletonClipping_clipEnd2(clipper);
-        property_cache_.clear();
     }
 
     void drawer::context::draw(
@@ -519,24 +504,21 @@ namespace e2d::render_system_impl
             return;
         }
 
-        try {
-            property_cache_
-                .sampler(texture_sampler_hash, render::sampler_state()
-                    .texture(tex_p)
-                    .filter(tex_min_f, tex_mag_f))
-                .merge(node_r.properties());
-
-            batcher_.batch(
-                mat_a,
-                property_cache_,
-                indices, std::size(indices),
-                vertices, std::size(vertices));
-        } catch (...) {
+        E2D_DEFER([this](){
             property_cache_.clear();
-            throw;
-        }
+        });
 
-        property_cache_.clear();
+        property_cache_
+            .sampler(texture_sampler_hash, render::sampler_state()
+                .texture(tex_p)
+                .filter(tex_min_f, tex_mag_f))
+            .merge(node_r.properties());
+
+        batcher_.batch(
+            mat_a,
+            property_cache_,
+            indices, std::size(indices),
+            vertices, std::size(vertices));
     }
 
     //
