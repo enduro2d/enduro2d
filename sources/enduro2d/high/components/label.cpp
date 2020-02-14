@@ -201,11 +201,22 @@ namespace e2d
     const char* component_inspector<label>::title = ICON_FA_PARAGRAPH " label";
 
     void component_inspector<label>::operator()(gcomponent<label>& c) const {
+        if ( bool dirty = c.owner().component<label::dirty>().exists();
+            ImGui::Checkbox("dirty", &dirty) )
+        {
+            if ( dirty ) {
+                labels::mark_dirty(c);
+            } else {
+                labels::unmark_dirty(c);
+            }
+        }
+
+        ImGui::Separator();
+
         if ( str text = c->text();
             ImGui::InputTextMultiline("text", &text) )
         {
-            c->text(std::move(text));
-            c.owner().component<label::dirty>().ensure();
+            labels::change_text(c, std::move(text));
         }
 
         ///TODO(BlackMat): add 'font' inspector
@@ -213,64 +224,209 @@ namespace e2d
         if ( color tint = color(c->tint());
             ImGui::ColorEdit4("tint", tint.data()) )
         {
-            c->tint(color32(tint));
-            c.owner().component<label::dirty>().ensure();
+            labels::change_tint(c, color32(tint));
         }
 
         if ( label::haligns halign = c->halign();
             imgui_utils::show_enum_combo_box("halign", &halign) )
         {
-            c->halign(halign);
-            c.owner().component<label::dirty>().ensure();
+            labels::change_halign(c, halign);
         }
 
         if ( label::valigns valign = c->valign();
             imgui_utils::show_enum_combo_box("valign", &valign) )
         {
-            c->valign(valign);
-            c.owner().component<label::dirty>().ensure();
+            labels::change_valign(c, valign);
         }
 
         if ( f32 leading = c->leading();
             ImGui::DragFloat("leading", &leading, 0.01f) )
         {
-            c->leading(leading);
-            c.owner().component<label::dirty>().ensure();
+            labels::change_leading(c, leading);
         }
 
         if ( f32 tracking = c->tracking();
             ImGui::DragFloat("tracking", &tracking, 0.01f) )
         {
-            c->tracking(tracking);
-            c.owner().component<label::dirty>().ensure();
+            labels::change_tracking(c, tracking);
         }
 
         if ( f32 text_width = c->text_width();
             ImGui::DragFloat("text_width", &text_width, 1.f) )
         {
-            c->text_width(text_width);
-            c.owner().component<label::dirty>().ensure();
+            labels::change_text_width(c, text_width);
         }
 
         if ( f32 glyph_dilate = c->glyph_dilate();
             ImGui::SliderFloat("glyph_dilate", &glyph_dilate, -1.f, 1.f) )
         {
-            c->glyph_dilate(glyph_dilate);
-            c.owner().component<label::dirty>().ensure();
+            labels::change_glyph_dilate(c, glyph_dilate);
         }
 
         if ( f32 outline_width = c->outline_width();
             ImGui::SliderFloat("outline_width", &outline_width, 0.f, 1.f) )
         {
-            c->outline_width(outline_width);
-            c.owner().component<label::dirty>().ensure();
+            labels::change_outline_width(c, outline_width);
         }
 
         if ( color outline_color = color(c->outline_color());
             ImGui::ColorEdit4("outline_color", outline_color.data()) )
         {
-            c->outline_color(color32(outline_color));
-            c.owner().component<label::dirty>().ensure();
+            labels::change_outline_color(c, color32(outline_color));
         }
+    }
+
+    void component_inspector<label>::operator()(
+        gcomponent<label>& c,
+        gizmos_context& ctx) const
+    {
+        if ( c->font() && c->text_width() > 0.f ) {
+            const f32 corner_height = 0.2f * c->font()->content().info().line_height;
+            const color32 line_color = ctx.selected() ? color32(255,255,255) : color32(127,127,127);
+            const color32 corner_color = ctx.selected() ? color32(0,255,0) : color32(0,127,0);
+
+            v2f ox = v2f::zero();
+            switch ( c->halign() ) {
+            case label::haligns::left:
+                ox = +0.5f * v2f::unit_x() * c->text_width();
+                break;
+            case label::haligns::center:
+                ox = v2f::zero();
+                break;
+            case label::haligns::right:
+                ox = -0.5f * v2f::unit_x() * c->text_width();
+                break;
+            default:
+                E2D_ASSERT_MSG(false, "unexpected label halign");
+                break;
+            }
+
+            v2f oy = v2f::zero();
+            switch ( c->valign() ) {
+            case label::valigns::top:
+                oy = -v2f::unit_y() * corner_height;
+                break;
+            case label::valigns::center:
+                oy = v2f::zero();
+                break;
+            case label::valigns::bottom:
+                oy = +v2f::unit_y() * corner_height;
+                break;
+            case label::valigns::baseline:
+                oy = v2f::zero();
+                break;
+            default:
+                E2D_ASSERT_MSG(false, "unexpected label valign");
+                break;
+            }
+
+            ctx.draw_line(
+                ox - 0.5f * v2f::unit_x() * c->text_width(),
+                ox + 0.5f * v2f::unit_x() * c->text_width(),
+                line_color);
+
+            ctx.draw_line(
+                oy - v2f::unit_y() * corner_height,
+                oy + v2f::unit_y() * corner_height,
+                corner_color);
+        }
+    }
+}
+
+namespace e2d::labels
+{
+    gcomponent<label> mark_dirty(gcomponent<label> self) {
+        if ( self ) {
+            self.owner().component<label::dirty>().ensure();
+        }
+        return self;
+    }
+
+    gcomponent<label> unmark_dirty(gcomponent<label> self) {
+        if ( self ) {
+            self.owner().component<label::dirty>().remove();
+        }
+        return self;
+    }
+
+    bool is_dirty(const const_gcomponent<label>& self) noexcept {
+        return self.owner().component<label::dirty>().exists();
+    }
+
+    gcomponent<label> change_text(gcomponent<label> self, str value) {
+        if ( self ) {
+            self->text(std::move(value));
+        }
+        return mark_dirty(self);
+    }
+
+    gcomponent<label> change_font(gcomponent<label> self, const font_asset::ptr& value) {
+        if ( self ) {
+            self->font(value);
+        }
+        return mark_dirty(self);
+    }
+
+    gcomponent<label> change_tint(gcomponent<label> self, const color32& value) {
+        if ( self ) {
+            self->tint(value);
+        }
+        return mark_dirty(self);
+    }
+
+    gcomponent<label> change_halign(gcomponent<label> self, label::haligns value) {
+        if ( self ) {
+            self->halign(value);
+        }
+        return mark_dirty(self);
+    }
+
+    gcomponent<label> change_valign(gcomponent<label> self, label::valigns value) {
+        if ( self ) {
+            self->valign(value);
+        }
+        return mark_dirty(self);
+    }
+
+    gcomponent<label> change_leading(gcomponent<label> self, f32 value) {
+        if ( self ) {
+            self->leading(value);
+        }
+        return mark_dirty(self);
+    }
+
+    gcomponent<label> change_tracking(gcomponent<label> self, f32 value) {
+        if ( self ) {
+            self->tracking(value);
+        }
+        return mark_dirty(self);
+    }
+
+    gcomponent<label> change_text_width(gcomponent<label> self, f32 value) {
+        if ( self ) {
+            self->text_width(value);
+        }
+        return mark_dirty(self);
+    }
+
+    gcomponent<label> change_glyph_dilate(gcomponent<label> self, f32 value) {
+        if ( self ) {
+            self->glyph_dilate(value);
+        }
+        return mark_dirty(self);
+    }
+
+    gcomponent<label> change_outline_width(gcomponent<label> self, f32 value) {
+        if ( self ) {
+            self->outline_width(value);
+        }
+        return mark_dirty(self);
+    }
+
+    gcomponent<label> change_outline_color(gcomponent<label> self, const color32& value) {
+        if ( self ) {
+            self->outline_color(value);
+        }
+        return mark_dirty(self);
     }
 }

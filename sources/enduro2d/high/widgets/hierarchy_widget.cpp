@@ -109,17 +109,20 @@ namespace
         }
     }
 
-    void show_tree_for_all_scenes(editor& e, input& i, world& w) {
-        w.registry().for_joined_components<scene, actor>(
-        [&e, &i, &w](const ecs::const_entity&, const scene&, actor& a){
-            show_tree_for_node(e, i, w, a.node());
+    void show_tree_for_all_free_nodes(editor& e, input& i, world& w) {
+        ecsex::for_extracted_components<actor>(w.registry(), [&e, &i, &w](
+            const ecs::const_entity&,
+            actor& a)
+        {
+            if ( a.node() && !a.node()->has_parent() ) {
+                show_tree_for_node(e, i, w, a.node());
+            }
         });
 
         ImGui::Separator();
 
-        if ( ImGui::Button("+ Add Scene") ) {
-            gobject inst = w.instantiate();
-            inst.component<scene>().ensure();
+        if ( ImGui::Button("+ Add Node") ) {
+            w.instantiate();
         }
     }
 
@@ -154,7 +157,7 @@ namespace e2d::dbgui_widgets
             return false;
         }
 
-        show_tree_for_all_scenes(
+        show_tree_for_all_free_nodes(
             the<editor>(),
             the<input>(),
             the<world>());

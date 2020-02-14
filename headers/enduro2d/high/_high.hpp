@@ -57,6 +57,7 @@ namespace e2d
     class events;
     class flipbook_player;
     class label;
+    class layout;
     class model_renderer;
     class named;
     class renderer;
@@ -70,6 +71,7 @@ namespace e2d
     class frame_system;
     class gizmos_system;
     class label_system;
+    class layout_system;
     class render_system;
     class script_system;
     class spine_system;
@@ -128,8 +130,12 @@ namespace sol
 
 namespace e2d::ecsex
 {
-    template < typename T, typename... Opts >
-    void remove_all_components(ecs::registry& owner, Opts&&... opts) {
+    template < typename T, typename Disposer, typename... Opts >
+    void remove_all_components_with_disposer(
+        ecs::registry& owner,
+        Disposer&& disposer,
+        Opts&&... opts)
+    {
         static thread_local vector<ecs::entity> to_remove_components;
         E2D_DEFER([](){ to_remove_components.clear(); });
 
@@ -138,8 +144,17 @@ namespace e2d::ecsex
         }, std::forward<Opts>(opts)...);
 
         for ( ecs::entity& e : to_remove_components ) {
+            std::invoke(disposer, e, e.get_component<T>());
             e.remove_component<T>();
         }
+    }
+
+    template < typename T, typename... Opts >
+    void remove_all_components(ecs::registry& owner, Opts&&... opts) {
+        remove_all_components_with_disposer<T>(
+            owner,
+            null_disposer(),
+            std::forward<Opts>(opts)...);
     }
 }
 

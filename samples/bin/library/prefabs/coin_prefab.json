@@ -1,6 +1,9 @@
 {
     "prototype" : "spine_prefab.json",
     "components" : {
+        "named" : {
+            "name" : "coin"
+        },
         "spine_player" : {
             "spine" : "../spines/coin_spine.json"
         },

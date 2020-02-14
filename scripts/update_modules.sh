@@ -123,3 +123,6 @@ cp -fv $MODULES_DIR/stb/stb_truetype.h $SOURCES_RDPARTY_DIR/stb/stb_truetype.h
 
 mkdir -p $SOURCES_RDPARTY_DIR/utfcpp
 cp -rfv $MODULES_DIR/utfcpp/source/. $SOURCES_RDPARTY_DIR/utfcpp/
+
+mkdir -p $SOURCES_RDPARTY_DIR/yoga
+cp -rfv $MODULES_DIR/yoga/yoga/. $SOURCES_RDPARTY_DIR/yoga/

@@ -1,6 +1,6 @@
 {
+    "prototype" : "../prefabs/scene_prefab.json",
     "components" : {
-        "scene" : {},
         "behaviour" : {
             "script" : "../scripts/sample_07/sample_07.lua"
         }

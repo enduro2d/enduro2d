@@ -22,6 +22,7 @@
 #include <enduro2d/high/components/events.hpp>
 #include <enduro2d/high/components/flipbook_player.hpp>
 #include <enduro2d/high/components/label.hpp>
+#include <enduro2d/high/components/layout.hpp>
 #include <enduro2d/high/components/model_renderer.hpp>
 #include <enduro2d/high/components/named.hpp>
 #include <enduro2d/high/components/renderer.hpp>
@@ -35,6 +36,7 @@
 #include <enduro2d/high/systems/frame_system.hpp>
 #include <enduro2d/high/systems/gizmos_system.hpp>
 #include <enduro2d/high/systems/label_system.hpp>
+#include <enduro2d/high/systems/layout_system.hpp>
 #include <enduro2d/high/systems/render_system.hpp>
 #include <enduro2d/high/systems/script_system.hpp>
 #include <enduro2d/high/systems/spine_system.hpp>
@@ -69,6 +71,8 @@ namespace
                     .add_system<gizmos_system>())
                 .feature<struct label_feature>(ecs::feature()
                     .add_system<label_system>())
+                .feature<struct layout_feature>(ecs::feature()
+                    .add_system<layout_system>())
                 .feature<struct render_feature>(ecs::feature()
                     .add_system<render_system>())
                 .feature<struct script_feature>(ecs::feature()
@@ -193,6 +197,8 @@ namespace e2d
             .register_component<flipbook_player>("flipbook_player")
             .register_component<label>("label")
             .register_component<label::dirty>("label.dirty")
+            .register_component<layout>("layout")
+            .register_component<layout::dirty>("layout.dirty")
             .register_component<model_renderer>("model_renderer")
             .register_component<named>("named")
             .register_component<renderer>("renderer")
@@ -217,6 +223,8 @@ namespace e2d
             .register_component<flipbook_player>("flipbook_player")
             .register_component<label>("label")
             //.register_component<label::dirty>("label.dirty")
+            .register_component<layout>("layout")
+            //.register_component<layout::dirty>("layout.dirty")
             .register_component<model_renderer>("model_renderer")
             .register_component<named>("named")
             .register_component<renderer>("renderer")

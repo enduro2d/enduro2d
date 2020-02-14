@@ -1,7 +1,5 @@
 {
-    "components" : {
-        "scene" : {}
-    },
+    "prototype" : "../prefabs/scene_prefab.json",
     "children" : [{
         "prototype" : "../prefabs/camera_prefab.json"
     },{

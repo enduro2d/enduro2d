@@ -30,6 +30,9 @@ local gobject = {
     ---@type label
     label = nil,
 
+    ---@type layout
+    layout = nil,
+
     ---@type model_renderer
     model_renderer = nil,
 
