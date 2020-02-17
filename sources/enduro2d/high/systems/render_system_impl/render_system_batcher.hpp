@@ -106,52 +106,50 @@ namespace e2d::render_system_impl
             flush();
         }
 
-        try {
-            const bool batching_available =
-                !batches_.empty() &&
-                (batches_.back().material == material || batches_.back().material->content() == material->content()) &&
-                batches_.back().properties == properties;
-
-            if ( !batching_available ) {
-                const std::size_t start = batches_.empty()
-                    ? 0u
-                    : batches_.back().start + batches_.back().count;
-                batches_.emplace_back(start, material, properties);
-            }
-
-            if ( indices && index_count ) {
-                auto iter = indices_.insert(
-                    indices_.end(),
-                    indices, indices + index_count);
-                std::transform(
-                    iter, indices_.end(), iter,
-                    [add = vertices_.size()](index_type v) noexcept {
-                        return static_cast<index_type>(v + add);
-                    });
-                batches_.back().count += index_count;
-            }
-
-            if ( vertices && vertex_count ) {
-                vertices_.insert(
-                    vertices_.end(),
-                    vertices, vertices + vertex_count);
-            }
-        } catch ( ... ) {
+        E2D_ERROR_DEFER([this](){
             clear(false);
-            throw;
+        });
+
+        const bool batching_available =
+            !batches_.empty() &&
+            (batches_.back().material == material || batches_.back().material->content() == material->content()) &&
+            batches_.back().properties == properties;
+
+        if ( !batching_available ) {
+            const std::size_t start = batches_.empty()
+                ? 0u
+                : batches_.back().start + batches_.back().count;
+            batches_.emplace_back(start, material, properties);
+        }
+
+        if ( indices && index_count ) {
+            auto iter = indices_.insert(
+                indices_.end(),
+                indices, indices + index_count);
+            std::transform(
+                iter, indices_.end(), iter,
+                [add = vertices_.size()](index_type v) noexcept {
+                    return static_cast<index_type>(v + add);
+                });
+            batches_.back().count += index_count;
+        }
+
+        if ( vertices && vertex_count ) {
+            vertices_.insert(
+                vertices_.end(),
+                vertices, vertices + vertex_count);
         }
     }
 
     template < typename Index, typename Vertex >
     render::property_block& batcher<Index, Vertex>::flush() {
-        try {
-            update_buffers_();
-            render_buffers_();
-        } catch (...) {
+        E2D_DEFER([this](){
             clear(false);
-            throw;
-        }
-        clear(false);
+        });
+
+        update_buffers_();
+        render_buffers_();
+
         return internal_properties_;
     }
 
@@ -181,22 +179,20 @@ namespace e2d::render_system_impl
             .indices(index_buffer_)
             .add_vertices(vertex_buffer_);
 
-        try {
-            for ( const batch_type& batch : batches_ ) {
-                const render::material& mat = batch.material->content();
-                render_.execute(render::draw_command(
-                    mat,
-                    geo,
-                    property_cache_
-                        .merge(internal_properties_)
-                        .merge(batch.properties)
-                ).index_range(batch.start, batch.count));
-            }
-        } catch ( ... ) {
+        E2D_DEFER([this](){
             property_cache_.clear();
-            throw;
+        });
+
+        for ( const batch_type& batch : batches_ ) {
+            const render::material& mat = batch.material->content();
+            render_.execute(render::draw_command(
+                mat,
+                geo,
+                property_cache_
+                    .merge(internal_properties_)
+                    .merge(batch.properties)
+            ).index_range(batch.start, batch.count));
         }
-        property_cache_.clear();
     }
 
     template < typename Index, typename Vertex >
