@@ -20,6 +20,17 @@ namespace
     using namespace e2d;
     using namespace e2d::render_system_impl;
 
+    void for_all_children(
+        const const_node_iptr& root,
+        drawer::context& ctx)
+    {
+        ctx.draw(root);
+
+        nodes::for_each_child(root, [&ctx](const const_node_iptr& child){
+            for_all_children(child, ctx);
+        });
+    }
+
     void for_all_scenes(drawer::context& ctx, const ecs::registry& owner) {
         const auto comp = [](const auto& l, const auto& r) noexcept {
             return std::get<scene>(l).depth() < std::get<scene>(r).depth();
@@ -28,18 +39,18 @@ namespace
         const auto func = [&ctx](
             const ecs::const_entity&,
             const scene&,
-            const actor& scn_a)
+            const actor& scene_a)
         {
-            nodes::for_extracted_children(scn_a.node(), [&ctx](const const_node_iptr& node){
-                ctx.draw(node);
-            }, nodes::options().recursive(true).include_root(true));
+            for_all_children(scene_a.node(), ctx);
         };
 
         ecsex::for_extracted_sorted_components<scene, actor>(
             owner,
             comp,
             func,
-            !ecs::exists<disabled<scene>>());
+            !ecs::exists_any<
+                disabled<actor>,
+                disabled<scene>>());
     }
 }
 
