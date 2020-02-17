@@ -7,7 +7,13 @@ local mask = {
     disabled = false,
 
     ---@type boolean
-    visible = false
+    visible = false,
+
+    ---@type sprite_asset
+    sprite = nil,
+
+    ---@type number
+    alpha_threshold = 0.1
 }
 
 ---@overload fun(self: mask)

@@ -56,6 +56,22 @@ namespace e2d::bindings::high
                 },
                 [](gcomponent<mask>& c, bool v){
                     c->visible(v);
+                }),
+
+            "sprite", sol::property(
+                [](const gcomponent<mask>& c) -> sprite_asset::ptr {
+                    return c->sprite();
+                },
+                [](gcomponent<mask>& c, const sprite_asset::ptr& v){
+                    c->sprite(v);
+                }),
+
+            "alpha_threshold", sol::property(
+                [](const gcomponent<mask>& c) -> f32 {
+                    return c->alpha_threshold();
+                },
+                [](gcomponent<mask>& c, f32 v){
+                    c->alpha_threshold(v);
                 })
         );
     }

@@ -8,7 +8,7 @@
         "prototype" : "../prefabs/layout_prefab.json",
         "components" : {
             "actor" : {
-                "translation" : [-250,0]
+                "translation" : [-250,6]
             },
             "layout" : {
                 "size" : [500,200],
@@ -25,9 +25,7 @@
             "children" : [{
                 "prototype" : "../prefabs/ship_prefab.json",
                 "components" : {
-                    "actor" : {
-                        "translation" : [33,56.5]
-                    }
+                    "layout" : {}
                 }
             }]
         },{
@@ -40,9 +38,7 @@
             "children" : [{
                 "prototype" : "../prefabs/ship_prefab.json",
                 "components" : {
-                    "actor" : {
-                        "translation" : [33,56.5]
-                    }
+                    "layout" : {}
                 }
             }]
         },{
@@ -55,10 +51,39 @@
             "children" : [{
                 "prototype" : "../prefabs/ship_prefab.json",
                 "components" : {
-                    "actor" : {
-                        "translation" : [33,56.5]
-                    }
+                    "layout" : {}
                 }
+            }]
+        },{
+            "prototype" : "../prefabs/layout_prefab.json",
+            "components" : {
+                "layout" : {
+                    "size" : [66,113]
+                }
+            },
+            "children" : [{
+                "prototype" : "../prefabs/mask_prefab.json",
+                "components" : {
+                    "layout" : {},
+                    "mask" : {
+                        "sprite" : "../sprites/ship_sprite.json"
+                    }
+                },
+                "children" : [{
+                    "prototype" : "../prefabs/ship_prefab.json",
+                    "components" : {
+                        "actor" : {
+                            "rotation" : -1
+                        }
+                    }
+                },{
+                    "prototype" : "../prefabs/ship_prefab.json",
+                    "components" : {
+                        "actor" : {
+                            "rotation" : 1
+                        }
+                    }
+                }]
             }]
         }]
     }]
