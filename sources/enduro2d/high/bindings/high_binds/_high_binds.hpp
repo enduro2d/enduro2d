@@ -25,7 +25,7 @@ namespace e2d::bindings::high
     void bind_flipbook_player(sol::state& l);
     void bind_label(sol::state& l);
     void bind_layout(sol::state& l);
-    void bind_mask(sol::state& l);
+    void bind_masks(sol::state& l);
     void bind_model_renderer(sol::state& l);
     void bind_named(sol::state& l);
     void bind_renderer(sol::state& l);
@@ -53,7 +53,7 @@ namespace e2d::bindings
         high::bind_flipbook_player(l);
         high::bind_label(l);
         high::bind_layout(l);
-        high::bind_mask(l);
+        high::bind_masks(l);
         high::bind_model_renderer(l);
         high::bind_named(l);
         high::bind_renderer(l);

@@ -62,10 +62,20 @@
                 }
             },
             "children" : [{
-                "prototype" : "../prefabs/mask_prefab.json",
                 "components" : {
                     "layout" : {},
-                    "mask" : {
+                    "named" : {
+                        "name" : "masks"
+                    },
+                    "rect_mask" : {
+                        "size" : [50,85],
+                        "offset" : [17,0]
+                    },
+                    "circle_mask" : {
+                        "radius" : 42,
+                        "offset" : [-17,0]
+                    },
+                    "sprite_mask" : {
                         "sprite" : "../sprites/ship_sprite.json"
                     }
                 },

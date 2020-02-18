@@ -38,7 +38,7 @@
 #include "components/flipbook_player.hpp"
 #include "components/label.hpp"
 #include "components/layout.hpp"
-#include "components/mask.hpp"
+#include "components/masks.hpp"
 #include "components/model_renderer.hpp"
 #include "components/named.hpp"
 #include "components/renderer.hpp"

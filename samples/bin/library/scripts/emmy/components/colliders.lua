@@ -1,3 +1,9 @@
+-- -----------------------------------------------------------------------------
+--
+-- rect_collider
+--
+-- -----------------------------------------------------------------------------
+
 ---@class rect_collider
 local rect_collider = {
     ---@type boolean
@@ -24,6 +30,12 @@ function rect_collider.disable(self) end
 ---@type rect_collider
 _G.rect_collider = _G.rect_collider or rect_collider
 
+-- -----------------------------------------------------------------------------
+--
+-- circle_collider
+--
+-- -----------------------------------------------------------------------------
+
 ---@class circle_collider
 local circle_collider = {
     ---@type boolean
@@ -49,6 +61,12 @@ function circle_collider.disable(self) end
 
 ---@type circle_collider
 _G.circle_collider = _G.circle_collider or circle_collider
+
+-- -----------------------------------------------------------------------------
+--
+-- polygon_collider
+--
+-- -----------------------------------------------------------------------------
 
 ---@class polygon_collider
 local polygon_collider = {

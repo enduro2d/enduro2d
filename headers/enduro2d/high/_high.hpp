@@ -58,7 +58,9 @@ namespace e2d
     class flipbook_player;
     class label;
     class layout;
-    class mask;
+    class rect_mask;
+    class circle_mask;
+    class sprite_mask;
     class model_renderer;
     class named;
     class renderer;

@@ -33,8 +33,14 @@ local gobject = {
     ---@type layout
     layout = nil,
 
-    ---@type mask
-    mask = nil,
+    ---@type rect_mask
+    rect_mask = nil,
+
+    ---@type circle_mask
+    circle_mask = nil,
+
+    ---@type sprite_mask
+    sprite_mask = nil,
 
     ---@type model_renderer
     model_renderer = nil,
