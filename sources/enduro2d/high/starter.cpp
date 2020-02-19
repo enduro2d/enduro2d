@@ -249,13 +249,14 @@ namespace e2d
     starter::~starter() noexcept {
         the<luasol>().collect_garbage();
 
-        modules::shutdown<editor>();
-        modules::shutdown<world>();
-        modules::shutdown<library>();
-        modules::shutdown<luasol>();
-        modules::shutdown<inspector>();
-        modules::shutdown<factory>();
-        modules::shutdown<engine>();
+        modules::shutdown<
+            editor,
+            world,
+            library,
+            luasol,
+            inspector,
+            factory,
+            engine>();
     }
 
     bool starter::start(application_uptr app) {
