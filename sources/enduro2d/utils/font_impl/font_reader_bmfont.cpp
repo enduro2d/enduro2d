@@ -344,7 +344,6 @@ namespace e2d::fonts::impl
             && font_content.info.atlas_size.y > 0u
             && font_content.info.font_size > 0u
             && font_content.info.line_height > 0u
-            && font_content.info.font_size > 0u
             && font_content.info.glyph_ascent > 0u;
 
         bool glyphs_valid = true;
