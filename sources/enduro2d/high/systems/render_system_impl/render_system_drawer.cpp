@@ -458,7 +458,7 @@ namespace e2d::render_system_impl
             return;
         }
 
-        const b2f& tex_r = spr.texrect();
+        const b2f& tex_r = spr.outer_texrect();
         const v2f& tex_s = tex_p->size().cast_to<f32>();
 
         const f32 sw = tex_r.size.x;

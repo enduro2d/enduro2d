@@ -26,14 +26,16 @@ namespace e2d
 
     void sprite::clear() noexcept {
         pivot_ = v2f::zero();
-        texrect_ = b2f::zero();
+        inner_texrect_ = b2f::zero();
+        outer_texrect_ = b2f::zero();
         texture_.reset();
     }
 
     void sprite::swap(sprite& other) noexcept {
         using std::swap;
         swap(pivot_, other.pivot_);
-        swap(texrect_, other.texrect_);
+        swap(inner_texrect_, other.inner_texrect_);
+        swap(outer_texrect_, other.outer_texrect_);
         swap(texture_, other.texture_);
     }
 
@@ -49,7 +51,8 @@ namespace e2d
         if ( this != &other ) {
             sprite s;
             s.pivot_ = other.pivot_;
-            s.texrect_ = other.texrect_;
+            s.inner_texrect_ = other.inner_texrect_;
+            s.outer_texrect_ = other.outer_texrect_;
             s.texture_ = other.texture_;
             swap(s);
         }
@@ -61,8 +64,13 @@ namespace e2d
         return *this;
     }
 
-    sprite& sprite::set_texrect(const b2f& texrect) noexcept {
-        texrect_ = texrect;
+    sprite& sprite::set_inner_texrect(const b2f& texrect) noexcept {
+        inner_texrect_ = texrect;
+        return *this;
+    }
+
+    sprite& sprite::set_outer_texrect(const b2f& texrect) noexcept {
+        outer_texrect_ = texrect;
         return *this;
     }
 
@@ -75,8 +83,12 @@ namespace e2d
         return pivot_;
     }
 
-    const b2f& sprite::texrect() const noexcept {
-        return texrect_;
+    const b2f& sprite::inner_texrect() const noexcept {
+        return inner_texrect_;
+    }
+
+    const b2f& sprite::outer_texrect() const noexcept {
+        return outer_texrect_;
     }
 
     const texture_asset::ptr& sprite::texture() const noexcept {
@@ -92,7 +104,8 @@ namespace e2d
 
     bool operator==(const sprite& l, const sprite& r) noexcept {
         return l.pivot() == r.pivot()
-            && l.texrect() == r.texrect()
+            && l.inner_texrect() == r.inner_texrect()
+            && l.outer_texrect() == r.outer_texrect()
             && l.texture() == r.texture();
     }
 
