@@ -50,6 +50,45 @@ namespace e2d::bindings::high
                 }
             ),
 
+            "hover", sol::property(
+                [](const gcomponent<touchable>& c) -> bool {
+                    return c.owner().component<touchable::hover>().exists();
+                },
+                [](gcomponent<touchable>& c, bool yesno){
+                    if ( yesno ) {
+                        c.owner().component<touchable::hover>().ensure();
+                    } else {
+                        c.owner().component<touchable::hover>().remove();
+                    }
+                }
+            ),
+
+            "pressed", sol::property(
+                [](const gcomponent<touchable>& c) -> bool {
+                    return c.owner().component<touchable::pressed>().exists();
+                },
+                [](gcomponent<touchable>& c, bool yesno){
+                    if ( yesno ) {
+                        c.owner().component<touchable::pressed>().ensure();
+                    } else {
+                        c.owner().component<touchable::pressed>().remove();
+                    }
+                }
+            ),
+
+            "released", sol::property(
+                [](const gcomponent<touchable>& c) -> bool {
+                    return c.owner().component<touchable::released>().exists();
+                },
+                [](gcomponent<touchable>& c, bool yesno){
+                    if ( yesno ) {
+                        c.owner().component<touchable::released>().ensure();
+                    } else {
+                        c.owner().component<touchable::released>().remove();
+                    }
+                }
+            ),
+
             "bubbling", sol::property(
                 [](const gcomponent<touchable>& c) -> bool {
                     return c->bubbling();

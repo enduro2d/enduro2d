@@ -7,6 +7,15 @@ local touchable = {
     disabled = false,
 
     ---@type boolean
+    hover = false,
+
+    ---@type boolean
+    pressed = false,
+
+    ---@type boolean
+    released = false,
+
+    ---@type boolean
     bubbling = true,
 
     ---@type boolean

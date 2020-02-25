@@ -22,6 +22,10 @@ namespace e2d
 {
     class touchable final {
     public:
+        class hover final {};
+        class pressed final {};
+        class released final {};
+    public:
         touchable() = default;
 
         touchable& bubbling(bool value) noexcept;
@@ -50,6 +54,48 @@ namespace e2d
 
         bool operator()(
             touchable& component,
+            const fill_context& ctx) const;
+
+        bool operator()(
+            asset_dependencies& dependencies,
+            const collect_context& ctx) const;
+    };
+
+    template <>
+    class factory_loader<touchable::hover> final : factory_loader<> {
+    public:
+        static const char* schema_source;
+
+        bool operator()(
+            touchable::hover& component,
+            const fill_context& ctx) const;
+
+        bool operator()(
+            asset_dependencies& dependencies,
+            const collect_context& ctx) const;
+    };
+
+    template <>
+    class factory_loader<touchable::pressed> final : factory_loader<> {
+    public:
+        static const char* schema_source;
+
+        bool operator()(
+            touchable::pressed& component,
+            const fill_context& ctx) const;
+
+        bool operator()(
+            asset_dependencies& dependencies,
+            const collect_context& ctx) const;
+    };
+
+    template <>
+    class factory_loader<touchable::released> final : factory_loader<> {
+    public:
+        static const char* schema_source;
+
+        bool operator()(
+            touchable::released& component,
             const fill_context& ctx) const;
 
         bool operator()(

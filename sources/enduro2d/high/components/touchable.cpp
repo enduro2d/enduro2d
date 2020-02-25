@@ -54,6 +54,84 @@ namespace e2d
 
 namespace e2d
 {
+    const char* factory_loader<touchable::hover>::schema_source = R"json({
+        "type" : "object",
+        "required" : [],
+        "additionalProperties" : false,
+        "properties" : {}
+    })json";
+
+    bool factory_loader<touchable::hover>::operator()(
+        touchable::hover& component,
+        const fill_context& ctx) const
+    {
+        E2D_UNUSED(component, ctx);
+        return true;
+    }
+
+    bool factory_loader<touchable::hover>::operator()(
+        asset_dependencies& dependencies,
+        const collect_context& ctx) const
+    {
+        E2D_UNUSED(dependencies, ctx);
+        return true;
+    }
+}
+
+namespace e2d
+{
+    const char* factory_loader<touchable::pressed>::schema_source = R"json({
+        "type" : "object",
+        "required" : [],
+        "additionalProperties" : false,
+        "properties" : {}
+    })json";
+
+    bool factory_loader<touchable::pressed>::operator()(
+        touchable::pressed& component,
+        const fill_context& ctx) const
+    {
+        E2D_UNUSED(component, ctx);
+        return true;
+    }
+
+    bool factory_loader<touchable::pressed>::operator()(
+        asset_dependencies& dependencies,
+        const collect_context& ctx) const
+    {
+        E2D_UNUSED(dependencies, ctx);
+        return true;
+    }
+}
+
+namespace e2d
+{
+    const char* factory_loader<touchable::released>::schema_source = R"json({
+        "type" : "object",
+        "required" : [],
+        "additionalProperties" : false,
+        "properties" : {}
+    })json";
+
+    bool factory_loader<touchable::released>::operator()(
+        touchable::released& component,
+        const fill_context& ctx) const
+    {
+        E2D_UNUSED(component, ctx);
+        return true;
+    }
+
+    bool factory_loader<touchable::released>::operator()(
+        asset_dependencies& dependencies,
+        const collect_context& ctx) const
+    {
+        E2D_UNUSED(dependencies, ctx);
+        return true;
+    }
+}
+
+namespace e2d
+{
     const char* factory_loader<events<touchable_events::event>>::schema_source = R"json({
         "type" : "object",
         "required" : [],
@@ -83,6 +161,42 @@ namespace e2d
     const char* component_inspector<touchable>::title = ICON_FA_FINGERPRINT " touchable";
 
     void component_inspector<touchable>::operator()(gcomponent<touchable>& c) const {
+        if ( bool hover = c.owner().component<touchable::hover>().exists();
+            ImGui::Checkbox("hover", &hover) )
+        {
+            if ( hover ) {
+                c.owner().component<touchable::hover>().ensure();
+            } else {
+                c.owner().component<touchable::hover>().remove();
+            }
+        }
+
+        ImGui::SameLine();
+
+        if ( bool pressed = c.owner().component<touchable::pressed>().exists();
+            ImGui::Checkbox("pressed", &pressed) )
+        {
+            if ( pressed ) {
+                c.owner().component<touchable::pressed>().ensure();
+            } else {
+                c.owner().component<touchable::pressed>().remove();
+            }
+        }
+
+        ImGui::SameLine();
+
+        if ( bool released = c.owner().component<touchable::released>().exists();
+            ImGui::Checkbox("released", &released) )
+        {
+            if ( released ) {
+                c.owner().component<touchable::released>().ensure();
+            } else {
+                c.owner().component<touchable::released>().remove();
+            }
+        }
+
+        ImGui::Separator();
+
         if ( bool bubbling = c->bubbling();
             ImGui::Checkbox("bubbling", &bubbling) )
         {
