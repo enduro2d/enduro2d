@@ -14,6 +14,8 @@ namespace e2d
         "additionalProperties" : false,
         "properties" : {
             "tint" : { "$ref": "#/common_definitions/color" },
+            "scale" : { "$ref": "#/common_definitions/v2" },
+            "mode" : { "$ref": "#/definitions/modes" },
             "blending" : { "$ref": "#/definitions/blendings" },
             "filtering" : { "type" : "boolean" },
             "atlas" : { "$ref": "#/common_definitions/address" },
@@ -21,6 +23,13 @@ namespace e2d
             "materials" : { "$ref": "#/definitions/materials" }
         },
         "definitions" : {
+            "modes" : {
+                "type" : "string",
+                "enum" : [
+                    "simple",
+                    "sliced"
+                ]
+            },
             "blendings" : {
                 "type" : "string",
                 "enum" : [
@@ -55,6 +64,24 @@ namespace e2d
                 return false;
             }
             component.tint(tint);
+        }
+
+        if ( ctx.root.HasMember("scale") ) {
+            v2f scale = component.scale();
+            if ( !json_utils::try_parse_value(ctx.root["scale"], scale) ) {
+                the<debug>().error("SPRITE_RENDERER: Incorrect formatting of 'scale' property");
+                return false;
+            }
+            component.scale(scale);
+        }
+
+        if ( ctx.root.HasMember("mode") ) {
+            sprite_renderer::modes mode = component.mode();
+            if ( !json_utils::try_parse_value(ctx.root["mode"], mode) ) {
+                the<debug>().error("SPRITE_RENDERER: Incorrect formatting of 'mode' property");
+                return false;
+            }
+            component.mode(mode);
         }
 
         if ( ctx.root.HasMember("blending") ) {
@@ -179,6 +206,18 @@ namespace e2d
             ImGui::ColorEdit4("tint", tint.data()) )
         {
             c->tint(color32(tint));
+        }
+
+        if ( v2f scale = c->scale();
+            ImGui::DragFloat2("scale", scale.data(), 0.01f) )
+        {
+            c->scale(scale);
+        }
+
+        if ( sprite_renderer::modes mode = c->mode();
+            imgui_utils::show_enum_combo_box("mode", &mode) )
+        {
+            c->mode(mode);
         }
 
         if ( sprite_renderer::blendings blending = c->blending();
