@@ -16,6 +16,10 @@ namespace e2d
 {
     class sprite_renderer final {
     public:
+        ENUM_HPP_CLASS_DECL(modes, u8,
+            (simple)
+            (sliced))
+
         ENUM_HPP_CLASS_DECL(blendings, u8,
             (normal)
             (additive)
@@ -27,6 +31,12 @@ namespace e2d
 
         sprite_renderer& tint(const color32& value) noexcept;
         [[nodiscard]] const color32& tint() const noexcept;
+
+        sprite_renderer& scale(const v2f& value) noexcept;
+        [[nodiscard]] const v2f& scale() const noexcept;
+
+        sprite_renderer& mode(modes value) noexcept;
+        [[nodiscard]] modes mode() const noexcept;
 
         sprite_renderer& blending(blendings value) noexcept;
         [[nodiscard]] blendings blending() const noexcept;
@@ -42,6 +52,8 @@ namespace e2d
         [[nodiscard]] material_asset::ptr find_material(str_hash name) const noexcept;
     private:
         color32 tint_ = color32::white();
+        v2f scale_ = v2f::unit();
+        modes mode_ = modes::simple;
         blendings blending_ = blendings::normal;
         bool filtering_ = true;
         sprite_asset::ptr sprite_;
@@ -49,6 +61,7 @@ namespace e2d
     };
 }
 
+ENUM_HPP_REGISTER_TRAITS(e2d::sprite_renderer::modes)
 ENUM_HPP_REGISTER_TRAITS(e2d::sprite_renderer::blendings)
 
 namespace e2d
@@ -94,9 +107,22 @@ namespace e2d
         return tint_;
     }
 
-    inline sprite_renderer& sprite_renderer::filtering(bool value) noexcept {
-        filtering_ = value;
+    inline sprite_renderer& sprite_renderer::scale(const v2f& value) noexcept {
+        scale_ = value;
         return *this;
+    }
+
+    inline const v2f& sprite_renderer::scale() const noexcept {
+        return scale_;
+    }
+
+    inline sprite_renderer& sprite_renderer::mode(modes value) noexcept {
+        mode_ = value;
+        return *this;
+    }
+
+    inline sprite_renderer::modes sprite_renderer::mode() const noexcept {
+        return mode_;
     }
 
     inline sprite_renderer& sprite_renderer::blending(blendings value) noexcept {
@@ -106,6 +132,11 @@ namespace e2d
 
     inline sprite_renderer::blendings sprite_renderer::blending() const noexcept {
         return blending_;
+    }
+
+    inline sprite_renderer& sprite_renderer::filtering(bool value) noexcept {
+        filtering_ = value;
+        return *this;
     }
 
     inline bool sprite_renderer::filtering() const noexcept {

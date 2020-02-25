@@ -128,33 +128,31 @@ namespace e2d::render_system_impl
         const model& mdl = mdl_r.model()->content();
         const mesh& msh = mdl.mesh()->content();
 
-        try {
-            property_cache_
-                .merge(batcher_.flush())
-                .property(matrix_m_property_hash, model_m)
-                .merge(node_r.properties());
-
-            const std::size_t submesh_count = math::min(
-                msh.indices_submesh_count(),
-                node_r.materials().size());
-
-            for ( std::size_t i = 0, first_index = 0; i < submesh_count; ++i ) {
-                const std::size_t index_count = msh.indices(i).size();
-                const material_asset::ptr& mat = node_r.materials()[i];
-                if ( mat ) {
-                    render_.execute(render::draw_command(
-                        mat->content(),
-                        mdl.geometry(),
-                        property_cache_
-                    ).index_range(first_index, index_count));
-                }
-                first_index += index_count;
-            }
-        } catch (...) {
+        E2D_DEFER([this](){
             property_cache_.clear();
-            throw;
+        });
+
+        property_cache_
+            .merge(batcher_.flush())
+            .property(matrix_m_property_hash, model_m)
+            .merge(node_r.properties());
+
+        const std::size_t submesh_count = math::min(
+            msh.indices_submesh_count(),
+            node_r.materials().size());
+
+        for ( std::size_t i = 0, first_index = 0; i < submesh_count; ++i ) {
+            const std::size_t index_count = msh.indices(i).size();
+            const material_asset::ptr& mat = node_r.materials()[i];
+            if ( mat ) {
+                render_.execute(render::draw_command(
+                    mat->content(),
+                    mdl.geometry(),
+                    property_cache_
+                ).index_range(first_index, index_count));
+            }
+            first_index += index_count;
         }
-        property_cache_.clear();
     }
 
     void drawer::context::draw(
@@ -184,12 +182,20 @@ namespace e2d::render_system_impl
 
         unsigned short quad_indices[6] = { 0, 1, 2, 2, 3, 0 };
 
+        E2D_DEFER([this, clipper](){
+            property_cache_.clear();
+            spSkeletonClipping_clipEnd2(clipper);
+        });
+
         for ( int i = 0; i < skeleton->slotsCount; ++i ) {
             spSlot* slot = skeleton->drawOrder[i];
 
+            auto slot_clipping_defer = make_defer([clipper, slot](){
+                spSkeletonClipping_clipEnd(clipper, slot);
+            });
+
             spAttachment* attachment = slot->attachment;
             if ( !attachment || math::is_near_zero(slot->color.a) ) {
-                spSkeletonClipping_clipEnd(clipper, slot);
                 continue;
             }
 
@@ -205,22 +211,16 @@ namespace e2d::render_system_impl
 
                 attachment_color = &region->color;
                 if ( math::is_near_zero(attachment_color->a) ) {
-                    spSkeletonClipping_clipEnd(clipper, slot);
                     continue;
                 }
 
-                try {
+                {
                     vertex_count = 8;
                     if ( temp_vertices.size() < math::numeric_cast<std::size_t>(vertex_count) ) {
                         temp_vertices.resize(math::max(
                             temp_vertices.size() * 2u,
                             math::numeric_cast<std::size_t>(vertex_count)));
                     }
-                } catch (...) {
-                    property_cache_.clear();
-                    spSkeletonClipping_clipEnd(clipper, slot);
-                    spSkeletonClipping_clipEnd2(clipper);
-                    throw;
                 }
 
                 spRegionAttachment_computeWorldVertices(
@@ -238,22 +238,16 @@ namespace e2d::render_system_impl
 
                 attachment_color = &mesh->color;
                 if ( math::is_near_zero(attachment_color->a) ) {
-                    spSkeletonClipping_clipEnd(clipper, slot);
                     continue;
                 }
 
-                try {
+                {
                     vertex_count = mesh->super.worldVerticesLength;
                     if ( temp_vertices.size() < math::numeric_cast<std::size_t>(vertex_count) ) {
                         temp_vertices.resize(math::max(
                             temp_vertices.size() * 2u,
                             math::numeric_cast<std::size_t>(vertex_count)));
                     }
-                } catch (...) {
-                    property_cache_.clear();
-                    spSkeletonClipping_clipEnd(clipper, slot);
-                    spSkeletonClipping_clipEnd2(clipper);
-                    throw;
                 }
 
                 spVertexAttachment_computeWorldVertices(
@@ -271,8 +265,10 @@ namespace e2d::render_system_impl
             } else if ( attachment->type == SP_ATTACHMENT_CLIPPING ) {
                 spClippingAttachment* clip = reinterpret_cast<spClippingAttachment*>(attachment);
                 spSkeletonClipping_clipStart(clipper, slot, clip);
+                slot_clipping_defer.dismiss();
                 continue;
             } else {
+                slot_clipping_defer.dismiss();
                 continue;
             }
 
@@ -381,7 +377,6 @@ namespace e2d::render_system_impl
             }
 
             if ( math::is_near_zero(vert_color.a) || !tex_p || !mat_a ) {
-                spSkeletonClipping_clipEnd(clipper, slot);
                 continue;
             }
 
@@ -400,7 +395,7 @@ namespace e2d::render_system_impl
                 index_count = clipper->clippedTriangles->size;
             }
 
-            try {
+            {
                 const std::size_t batch_vertex_count = vertex_count >> 1;
 
                 if ( batch_vertices.size() < batch_vertex_count ) {
@@ -426,18 +421,8 @@ namespace e2d::render_system_impl
                     property_cache_,
                     indices, math::numeric_cast<std::size_t>(index_count),
                     batch_vertices.data(), batch_vertex_count);
-            } catch (...) {
-                property_cache_.clear();
-                spSkeletonClipping_clipEnd(clipper, slot);
-                spSkeletonClipping_clipEnd2(clipper);
-                throw;
             }
-
-            spSkeletonClipping_clipEnd(clipper, slot);
         }
-
-        spSkeletonClipping_clipEnd2(clipper);
-        property_cache_.clear();
     }
 
     void drawer::context::draw(
@@ -457,36 +442,6 @@ namespace e2d::render_system_impl
         if ( !tex_p || math::is_near_zero(spr_r.tint().a) ) {
             return;
         }
-
-        const b2f& tex_r = spr.texrect();
-        const v2f& tex_s = tex_p->size().cast_to<f32>();
-
-        const f32 sw = tex_r.size.x;
-        const f32 sh = tex_r.size.y;
-
-        const f32 px = tex_r.position.x - spr.pivot().x;
-        const f32 py = tex_r.position.y - spr.pivot().y;
-
-        const v4f p1{px + 0.f, py + 0.f, 0.f, 1.f};
-        const v4f p2{px + sw,  py + 0.f, 0.f, 1.f};
-        const v4f p3{px + sw,  py + sh,  0.f, 1.f};
-        const v4f p4{px + 0.f, py + sh,  0.f, 1.f};
-
-        const f32 tx = tex_r.position.x / tex_s.x;
-        const f32 ty = tex_r.position.y / tex_s.y;
-        const f32 tw = tex_r.size.x / tex_s.x;
-        const f32 th = tex_r.size.y / tex_s.y;
-
-        const color32& tc = spr_r.tint();
-
-        const batcher_type::index_type indices[] = {
-            0u, 1u, 2u, 2u, 3u, 0u};
-
-        const batcher_type::vertex_type vertices[] = {
-            { v3f(p1 * model_m), {tx + 0.f, ty + 0.f}, tc },
-            { v3f(p2 * model_m), {tx + tw,  ty + 0.f}, tc },
-            { v3f(p3 * model_m), {tx + tw,  ty + th }, tc },
-            { v3f(p4 * model_m), {tx + 0.f, ty + th }, tc }};
 
         const render::sampler_min_filter tex_min_f = spr_r.filtering()
             ? render::sampler_min_filter::linear
@@ -511,7 +466,7 @@ namespace e2d::render_system_impl
             mat_a = spr_r.find_material(screen_material_hash);
             break;
         default:
-            E2D_ASSERT_MSG(false, "unexpected blend mode for sprite");
+            E2D_ASSERT_MSG(false, "unexpected sprite blending");
             break;
         }
 
@@ -519,24 +474,154 @@ namespace e2d::render_system_impl
             return;
         }
 
-        try {
-            property_cache_
-                .sampler(texture_sampler_hash, render::sampler_state()
-                    .texture(tex_p)
-                    .filter(tex_min_f, tex_mag_f))
-                .merge(node_r.properties());
+        E2D_DEFER([this](){
+            property_cache_.clear();
+        });
+
+        property_cache_
+            .sampler(texture_sampler_hash, render::sampler_state()
+                .texture(tex_p)
+                .filter(tex_min_f, tex_mag_f))
+            .merge(node_r.properties());
+
+        if ( spr_r.mode() == sprite_renderer::modes::simple ) {
+
+            // 2 -------- 3
+            // |          |
+            // |          |
+            // |          |
+            // 0 -------- 1
+
+            const v2f& tex_s = tex_p->size().cast_to<f32>();
+            const b2f& outer_r = spr.outer_texrect();
+
+            const v2f size = outer_r.size * spr_r.scale();
+            const v2f poff = (outer_r.position - spr.pivot()) * spr_r.scale();
+
+            const v2f pos_xs = v2f{
+                0.f, size.x} + poff.x;
+
+            const v2f pos_ys = v2f{
+                0.f, size.y} + poff.y;
+
+            const v2f tex_xs = v2f{
+                outer_r.position.x,
+                outer_r.position.x + outer_r.size.x} / tex_s.x;
+
+            const v2f tex_ys = v2f{
+                outer_r.position.y,
+                outer_r.position.y + outer_r.size.y} / tex_s.y;
+
+            const color32& tc = spr_r.tint();
+
+            const batcher_type::index_type indices[] = {
+                0, 1, 3, 3, 2, 0,
+            };
+
+            const batcher_type::vertex_type vertices[] = {
+                { v3f{v4f{pos_xs[0], pos_ys[0], 0.f, 1.f} * model_m}, v2f{tex_xs[0], tex_ys[0]}, tc },
+                { v3f{v4f{pos_xs[1], pos_ys[0], 0.f, 1.f} * model_m}, v2f{tex_xs[1], tex_ys[0]}, tc },
+                { v3f{v4f{pos_xs[0], pos_ys[1], 0.f, 1.f} * model_m}, v2f{tex_xs[0], tex_ys[1]}, tc },
+                { v3f{v4f{pos_xs[1], pos_ys[1], 0.f, 1.f} * model_m}, v2f{tex_xs[1], tex_ys[1]}, tc },
+            };
 
             batcher_.batch(
                 mat_a,
                 property_cache_,
                 indices, std::size(indices),
                 vertices, std::size(vertices));
-        } catch (...) {
-            property_cache_.clear();
-            throw;
-        }
+        } else if ( spr_r.mode() == sprite_renderer::modes::sliced ) {
 
-        property_cache_.clear();
+            // 12 13 ********* 14 15
+            // _8 _9 --------- 10 11
+            //  |  *           *  |
+            //  |  *           *  |
+            //  |  *           *  |
+            // _4 _5 ********* _6 _7
+            // _0 _1 --------- _2 _3
+
+            const v2f& tex_s = tex_p->size().cast_to<f32>();
+            const b2f& inner_r = spr.inner_texrect();
+            const b2f& outer_r = spr.outer_texrect();
+
+            const f32 left = inner_r.position.x - outer_r.position.x;
+            const f32 right = (outer_r.size.x - inner_r.size.x) - left;
+            const f32 bottom = inner_r.position.y - outer_r.position.y;
+            const f32 top = (outer_r.size.y - inner_r.size.y) - bottom;
+
+            const v2f size = outer_r.size * spr_r.scale();
+            const v2f poff = (outer_r.position - spr.pivot()) * spr_r.scale();
+
+            const v4f pos_xs = v4f{
+                0.f,
+                left,
+                size.x - right,
+                size.x} + poff.x;
+
+            const v4f pos_ys = v4f{
+                0.f,
+                bottom,
+                size.y - top,
+                size.y} + poff.y;
+
+            const v4f tex_xs = v4f{
+                outer_r.position.x,
+                inner_r.position.x,
+                inner_r.position.x + inner_r.size.x,
+                outer_r.position.x + outer_r.size.x} / tex_s.x;
+
+            const v4f tex_ys = v4f{
+                outer_r.position.y,
+                inner_r.position.y,
+                inner_r.position.y + inner_r.size.y,
+                outer_r.position.y + outer_r.size.y} / tex_s.y;
+
+            const color32& tc = spr_r.tint();
+
+            const batcher_type::index_type indices[] = {
+                0, 1, 5, 5, 4, 0,
+                1, 2, 6, 6, 5, 1,
+                2, 3, 7, 7, 6, 2,
+
+                4, 5, 9, 9, 8, 4,
+                5, 6, 10, 10, 9, 5,
+                6, 7, 11, 11, 10, 6,
+
+                8, 9, 13, 13, 12, 8,
+                9, 10, 14, 14, 13, 9,
+                10, 11, 15, 15, 14, 10,
+            };
+
+            const batcher_type::vertex_type vertices[] = {
+                { v3f{v4f{pos_xs[0], pos_ys[0], 0.f, 1.f} * model_m}, v2f{tex_xs[0], tex_ys[0]}, tc },
+                { v3f{v4f{pos_xs[1], pos_ys[0], 0.f, 1.f} * model_m}, v2f{tex_xs[1], tex_ys[0]}, tc },
+                { v3f{v4f{pos_xs[2], pos_ys[0], 0.f, 1.f} * model_m}, v2f{tex_xs[2], tex_ys[0]}, tc },
+                { v3f{v4f{pos_xs[3], pos_ys[0], 0.f, 1.f} * model_m}, v2f{tex_xs[3], tex_ys[0]}, tc },
+
+                { v3f{v4f{pos_xs[0], pos_ys[1], 0.f, 1.f} * model_m}, v2f{tex_xs[0], tex_ys[1]}, tc },
+                { v3f{v4f{pos_xs[1], pos_ys[1], 0.f, 1.f} * model_m}, v2f{tex_xs[1], tex_ys[1]}, tc },
+                { v3f{v4f{pos_xs[2], pos_ys[1], 0.f, 1.f} * model_m}, v2f{tex_xs[2], tex_ys[1]}, tc },
+                { v3f{v4f{pos_xs[3], pos_ys[1], 0.f, 1.f} * model_m}, v2f{tex_xs[3], tex_ys[1]}, tc },
+
+                { v3f{v4f{pos_xs[0], pos_ys[2], 0.f, 1.f} * model_m}, v2f{tex_xs[0], tex_ys[2]}, tc },
+                { v3f{v4f{pos_xs[1], pos_ys[2], 0.f, 1.f} * model_m}, v2f{tex_xs[1], tex_ys[2]}, tc },
+                { v3f{v4f{pos_xs[2], pos_ys[2], 0.f, 1.f} * model_m}, v2f{tex_xs[2], tex_ys[2]}, tc },
+                { v3f{v4f{pos_xs[3], pos_ys[2], 0.f, 1.f} * model_m}, v2f{tex_xs[3], tex_ys[2]}, tc },
+
+                { v3f{v4f{pos_xs[0], pos_ys[3], 0.f, 1.f} * model_m}, v2f{tex_xs[0], tex_ys[3]}, tc },
+                { v3f{v4f{pos_xs[1], pos_ys[3], 0.f, 1.f} * model_m}, v2f{tex_xs[1], tex_ys[3]}, tc },
+                { v3f{v4f{pos_xs[2], pos_ys[3], 0.f, 1.f} * model_m}, v2f{tex_xs[2], tex_ys[3]}, tc },
+                { v3f{v4f{pos_xs[3], pos_ys[3], 0.f, 1.f} * model_m}, v2f{tex_xs[3], tex_ys[3]}, tc },
+            };
+
+            batcher_.batch(
+                mat_a,
+                property_cache_,
+                indices, std::size(indices),
+                vertices, std::size(vertices));
+        } else {
+            E2D_ASSERT_MSG(false, "unexpected sprite mode");
+        }
     }
 
     //

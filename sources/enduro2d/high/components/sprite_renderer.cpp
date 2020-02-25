@@ -14,6 +14,8 @@ namespace e2d
         "additionalProperties" : false,
         "properties" : {
             "tint" : { "$ref": "#/common_definitions/color" },
+            "scale" : { "$ref": "#/common_definitions/v2" },
+            "mode" : { "$ref": "#/definitions/modes" },
             "blending" : { "$ref": "#/definitions/blendings" },
             "filtering" : { "type" : "boolean" },
             "atlas" : { "$ref": "#/common_definitions/address" },
@@ -21,6 +23,13 @@ namespace e2d
             "materials" : { "$ref": "#/definitions/materials" }
         },
         "definitions" : {
+            "modes" : {
+                "type" : "string",
+                "enum" : [
+                    "simple",
+                    "sliced"
+                ]
+            },
             "blendings" : {
                 "type" : "string",
                 "enum" : [
@@ -55,6 +64,24 @@ namespace e2d
                 return false;
             }
             component.tint(tint);
+        }
+
+        if ( ctx.root.HasMember("scale") ) {
+            v2f scale = component.scale();
+            if ( !json_utils::try_parse_value(ctx.root["scale"], scale) ) {
+                the<debug>().error("SPRITE_RENDERER: Incorrect formatting of 'scale' property");
+                return false;
+            }
+            component.scale(scale);
+        }
+
+        if ( ctx.root.HasMember("mode") ) {
+            sprite_renderer::modes mode = component.mode();
+            if ( !json_utils::try_parse_value(ctx.root["mode"], mode) ) {
+                the<debug>().error("SPRITE_RENDERER: Incorrect formatting of 'mode' property");
+                return false;
+            }
+            component.mode(mode);
         }
 
         if ( ctx.root.HasMember("blending") ) {
@@ -181,6 +208,18 @@ namespace e2d
             c->tint(color32(tint));
         }
 
+        if ( v2f scale = c->scale();
+            ImGui::DragFloat2("scale", scale.data(), 0.01f) )
+        {
+            c->scale(scale);
+        }
+
+        if ( sprite_renderer::modes mode = c->mode();
+            imgui_utils::show_enum_combo_box("mode", &mode) )
+        {
+            c->mode(mode);
+        }
+
         if ( sprite_renderer::blendings blending = c->blending();
             imgui_utils::show_enum_combo_box("blending", &blending) )
         {
@@ -203,9 +242,14 @@ namespace e2d
     {
         if ( const sprite_asset::ptr& spr_a = c->sprite() ) {
             const sprite& spr = spr_a->content();
+
+            const b2f& outer_r = spr.outer_texrect();
+            const v2f size = outer_r.size * c->scale();
+            const v2f poff = (outer_r.position - spr.pivot()) * c->scale();
+
             ctx.draw_wire_rect(
-                spr.texrect().position - spr.pivot() + spr.texrect().size * 0.5f,
-                spr.texrect().size,
+                poff + size * 0.5f,
+                size,
                 ctx.selected() ? color32::yellow() : color32::magenta());
         }
     }

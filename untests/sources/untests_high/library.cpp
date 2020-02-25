@@ -188,20 +188,37 @@ TEST_CASE("library"){
                 REQUIRE(atlas_res->content().texture() == texture_res);
 
                 REQUIRE(atlas_res->find_nested_asset("sprite"));
+                REQUIRE(atlas_res->find_nested_asset("sprite2"));
 
                 sprite_asset::ptr spr = atlas_res->find_nested_asset<sprite_asset>("sprite");
                 REQUIRE(spr);
                 REQUIRE(spr->content().pivot() == v2f(1.f,2.f));
-                REQUIRE(spr->content().texrect() == b2f(5.f,6.f,7.f,8.f));
+                REQUIRE(spr->content().inner_texrect() == b2f(5.f,6.f,7.f,8.f));
+                REQUIRE(spr->content().outer_texrect() == b2f(5.f,6.f,7.f,8.f));
                 REQUIRE(spr->content().texture()== texture_res);
+
+                sprite_asset::ptr spr2 = atlas_res->find_nested_asset<sprite_asset>("sprite2");
+                REQUIRE(spr2);
+                REQUIRE(spr2->content().pivot() == v2f(1.f,2.f));
+                REQUIRE(spr2->content().inner_texrect() == b2f(1.f,2.f,3.f,4.f));
+                REQUIRE(spr2->content().outer_texrect() == b2f(5.f,6.f,7.f,8.f));
+                REQUIRE(spr2->content().texture()== texture_res);
             }
 
             {
                 auto sprite_res = l.load_asset<sprite_asset>("sprite.json");
                 REQUIRE(sprite_res);
                 REQUIRE(sprite_res->content().pivot() == v2f(1.f, 2.f));
-                REQUIRE(sprite_res->content().texrect() == b2f(5.f, 6.f, 7.f, 8.f));
+                REQUIRE(sprite_res->content().inner_texrect() == b2f(5.f, 6.f, 7.f, 8.f));
+                REQUIRE(sprite_res->content().outer_texrect() == b2f(5.f, 6.f, 7.f, 8.f));
                 REQUIRE(sprite_res->content().texture() == texture_res);
+
+                auto sprite2_res = l.load_asset<sprite_asset>("sprite2.json");
+                REQUIRE(sprite2_res);
+                REQUIRE(sprite2_res->content().pivot() == v2f(1.f, 2.f));
+                REQUIRE(sprite2_res->content().inner_texrect() == b2f(1.f, 2.f, 3.f, 4.f));
+                REQUIRE(sprite2_res->content().outer_texrect() == b2f(5.f, 6.f, 7.f, 8.f));
+                REQUIRE(sprite2_res->content().texture() == texture_res);
             }
 
             {

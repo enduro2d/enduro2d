@@ -82,7 +82,7 @@ namespace e2d::modules
 
     template < typename... ImplTs >
     void shutdown() noexcept {
-        return (... , module<typename ImplTs::base_type>::shutdown());
+        (... , module<typename ImplTs::base_type>::shutdown());
     }
 
     template < typename... ImplTs >

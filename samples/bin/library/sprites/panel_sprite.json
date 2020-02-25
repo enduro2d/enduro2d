@@ -1,0 +1,6 @@
+{
+    "texture" : "panel.png",
+    "pivot" : { "x" : 0, "y" : 0 },
+    "inner_texrect" : { "x" : 6, "y" : 6, "w" : 88, "h" : 88 },
+    "outer_texrect" : { "x" : 0, "y" : 0, "w" : 100, "h" : 100 }
+}

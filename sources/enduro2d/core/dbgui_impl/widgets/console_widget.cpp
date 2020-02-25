@@ -62,9 +62,9 @@ namespace e2d::dbgui_widgets
                 const str name = str(enum_hpp::to_string_or_throw(level));
                 const std::size_t index = enum_hpp::to_index_or_throw(level);
 
-                bool level_enable = levels_[index];
-                if ( ImGui::Checkbox(name.c_str(), &level_enable) ) {
-                    levels_[index] = level_enable;
+                bool level_enabled = levels_.test(index);
+                if ( ImGui::Checkbox(name.c_str(), &level_enabled) ) {
+                    levels_.set(index, level_enabled);
                 }
             }
         });

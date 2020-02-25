@@ -23,6 +23,22 @@ namespace e2d::bindings::high
                     c->tint(v);
                 }),
 
+            "scale", sol::property(
+                [](const gcomponent<sprite_renderer>& c) -> v2f {
+                    return c->scale();
+                },
+                [](gcomponent<sprite_renderer>& c, const v2f& v){
+                    c->scale(v);
+                }),
+
+            "mode", sol::property(
+                [](const gcomponent<sprite_renderer>& c) -> sprite_renderer::modes {
+                    return c->mode();
+                },
+                [](gcomponent<sprite_renderer>& c, sprite_renderer::modes v){
+                    c->mode(v);
+                }),
+
             "blending", sol::property(
                 [](const gcomponent<sprite_renderer>& c) -> sprite_renderer::blendings {
                     return c->blending();
@@ -47,6 +63,14 @@ namespace e2d::bindings::high
                     c->sprite(v);
                 })
         );
+
+    #define SPRITE_RENDERER_MODES_PAIR(x) {#x, sprite_renderer::modes::x},
+        l["sprite_renderer"].get_or_create<sol::table>()
+        .new_enum<sprite_renderer::modes>("modes", {
+            SPRITE_RENDERER_MODES_PAIR(simple)
+            SPRITE_RENDERER_MODES_PAIR(sliced)
+        });
+    #undef SPRITE_RENDERER_MODES_PAIR
 
     #define SPRITE_RENDERER_BLENDINGS_PAIR(x) {#x, sprite_renderer::blendings::x},
         l["sprite_renderer"].get_or_create<sol::table>()

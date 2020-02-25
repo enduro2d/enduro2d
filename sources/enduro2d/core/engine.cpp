@@ -477,17 +477,18 @@ namespace e2d
     }
 
     engine::~engine() noexcept {
-        modules::shutdown<dbgui>();
-        modules::shutdown<render>();
-        modules::shutdown<window>();
-        modules::shutdown<network>();
-        modules::shutdown<audio>();
-        modules::shutdown<input>();
-        modules::shutdown<vfs>();
-        modules::shutdown<debug>();
-        modules::shutdown<profiler>();
-        modules::shutdown<deferrer>();
-        modules::shutdown<platform>();
+        modules::shutdown<
+            dbgui,
+            render,
+            window,
+            network,
+            audio,
+            input,
+            vfs,
+            debug,
+            profiler,
+            deferrer,
+            platform>();
     }
 
     bool engine::start(application_uptr app) {
