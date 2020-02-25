@@ -552,28 +552,41 @@ namespace e2d::render_system_impl
             const v2f size = outer_r.size * spr_r.scale();
             const v2f poff = (outer_r.position - spr.pivot()) * spr_r.scale();
 
+            const f32 sides_width = left + right;
+            const f32 sides_height = bottom + top;
+
+            const f32 max_left = sides_width > 0.f ? size.x * (left / sides_width) : 0.f;
+            const f32 max_right = sides_width > 0.f ? size.x * (right / sides_width) : 0.f;
+            const f32 max_bottom = sides_height > 0.f ? size.y * (bottom / sides_height) : 0.f;
+            const f32 max_top = sides_height > 0.f ? size.y * (top / sides_height) : 0.f;
+
+            const f32 adj_left = math::min(left, max_left);
+            const f32 adj_right = math::min(right, max_right);
+            const f32 adj_bottom = math::min(bottom, max_bottom);
+            const f32 adj_top = math::min(top, max_top);
+
             const v4f pos_xs = v4f{
                 0.f,
-                left,
-                size.x - right,
+                adj_left,
+                size.x - adj_right,
                 size.x} + poff.x;
 
             const v4f pos_ys = v4f{
                 0.f,
-                bottom,
-                size.y - top,
+                adj_bottom,
+                size.y - adj_top,
                 size.y} + poff.y;
 
             const v4f tex_xs = v4f{
                 outer_r.position.x,
-                inner_r.position.x,
-                inner_r.position.x + inner_r.size.x,
+                outer_r.position.x + adj_left,
+                outer_r.position.x + outer_r.size.x - adj_right,
                 outer_r.position.x + outer_r.size.x} / tex_s.x;
 
             const v4f tex_ys = v4f{
                 outer_r.position.y,
-                inner_r.position.y,
-                inner_r.position.y + inner_r.size.y,
+                outer_r.position.y + adj_bottom,
+                outer_r.position.y + outer_r.size.y - adj_top,
                 outer_r.position.y + outer_r.size.y} / tex_s.y;
 
             const color32& tc = spr_r.tint();
