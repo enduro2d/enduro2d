@@ -3,6 +3,12 @@ local sprite_renderer = {
     ---@type color32
     tint = color32.white(),
 
+    ---@type v2f
+    scale = v2f.unit(),
+
+    ---@type sprite_renderer_modes
+    mode = sprite_renderer.modes.simple,
+
     ---@type sprite_renderer_blendings
     blending = sprite_renderer.blendings.normal,
 
@@ -11,6 +17,12 @@ local sprite_renderer = {
 
     ---@type sprite_asset
     sprite = nil
+}
+
+---@class sprite_renderer_modes
+sprite_renderer.modes = {
+    simple = "simple",
+    sliced = "sliced"
 }
 
 ---@class sprite_renderer_blendings

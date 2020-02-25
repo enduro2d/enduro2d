@@ -443,36 +443,6 @@ namespace e2d::render_system_impl
             return;
         }
 
-        const b2f& tex_r = spr.texrect();
-        const v2f& tex_s = tex_p->size().cast_to<f32>();
-
-        const f32 sw = tex_r.size.x;
-        const f32 sh = tex_r.size.y;
-
-        const f32 px = tex_r.position.x - spr.pivot().x;
-        const f32 py = tex_r.position.y - spr.pivot().y;
-
-        const v4f p1{px + 0.f, py + 0.f, 0.f, 1.f};
-        const v4f p2{px + sw,  py + 0.f, 0.f, 1.f};
-        const v4f p3{px + sw,  py + sh,  0.f, 1.f};
-        const v4f p4{px + 0.f, py + sh,  0.f, 1.f};
-
-        const f32 tx = tex_r.position.x / tex_s.x;
-        const f32 ty = tex_r.position.y / tex_s.y;
-        const f32 tw = tex_r.size.x / tex_s.x;
-        const f32 th = tex_r.size.y / tex_s.y;
-
-        const color32& tc = spr_r.tint();
-
-        const batcher_type::index_type indices[] = {
-            0u, 1u, 2u, 2u, 3u, 0u};
-
-        const batcher_type::vertex_type vertices[] = {
-            { v3f(p1 * model_m), {tx + 0.f, ty + 0.f}, tc },
-            { v3f(p2 * model_m), {tx + tw,  ty + 0.f}, tc },
-            { v3f(p3 * model_m), {tx + tw,  ty + th }, tc },
-            { v3f(p4 * model_m), {tx + 0.f, ty + th }, tc }};
-
         const render::sampler_min_filter tex_min_f = spr_r.filtering()
             ? render::sampler_min_filter::linear
             : render::sampler_min_filter::nearest;
@@ -496,7 +466,7 @@ namespace e2d::render_system_impl
             mat_a = spr_r.find_material(screen_material_hash);
             break;
         default:
-            E2D_ASSERT_MSG(false, "unexpected blend mode for sprite");
+            E2D_ASSERT_MSG(false, "unexpected sprite blending");
             break;
         }
 
@@ -514,11 +484,144 @@ namespace e2d::render_system_impl
                 .filter(tex_min_f, tex_mag_f))
             .merge(node_r.properties());
 
-        batcher_.batch(
-            mat_a,
-            property_cache_,
-            indices, std::size(indices),
-            vertices, std::size(vertices));
+        if ( spr_r.mode() == sprite_renderer::modes::simple ) {
+
+            // 2 -------- 3
+            // |          |
+            // |          |
+            // |          |
+            // 0 -------- 1
+
+            const v2f& tex_s = tex_p->size().cast_to<f32>();
+            const b2f& outer_r = spr.outer_texrect();
+
+            const v2f size = outer_r.size * spr_r.scale();
+            const v2f poff = (outer_r.position - spr.pivot()) * spr_r.scale();
+
+            const v2f pos_xs = v2f{
+                0.f, size.x} + poff.x;
+
+            const v2f pos_ys = v2f{
+                0.f, size.y} + poff.y;
+
+            const v2f tex_xs = v2f{
+                outer_r.position.x,
+                outer_r.position.x + outer_r.size.x} / tex_s.x;
+
+            const v2f tex_ys = v2f{
+                outer_r.position.y,
+                outer_r.position.y + outer_r.size.y} / tex_s.y;
+
+            const color32& tc = spr_r.tint();
+
+            const batcher_type::index_type indices[] = {
+                0, 1, 3, 3, 2, 0,
+            };
+
+            const batcher_type::vertex_type vertices[] = {
+                { v3f{v4f{pos_xs[0], pos_ys[0], 0.f, 1.f} * model_m}, v2f{tex_xs[0], tex_ys[0]}, tc },
+                { v3f{v4f{pos_xs[1], pos_ys[0], 0.f, 1.f} * model_m}, v2f{tex_xs[1], tex_ys[0]}, tc },
+                { v3f{v4f{pos_xs[0], pos_ys[1], 0.f, 1.f} * model_m}, v2f{tex_xs[0], tex_ys[1]}, tc },
+                { v3f{v4f{pos_xs[1], pos_ys[1], 0.f, 1.f} * model_m}, v2f{tex_xs[1], tex_ys[1]}, tc },
+            };
+
+            batcher_.batch(
+                mat_a,
+                property_cache_,
+                indices, std::size(indices),
+                vertices, std::size(vertices));
+        } else if ( spr_r.mode() == sprite_renderer::modes::sliced ) {
+
+            // 12 13 ********* 14 15
+            // _8 _9 --------- 10 11
+            //  |  *           *  |
+            //  |  *           *  |
+            //  |  *           *  |
+            // _4 _5 ********* _6 _7
+            // _0 _1 --------- _2 _3
+
+            const v2f& tex_s = tex_p->size().cast_to<f32>();
+            const b2f& inner_r = spr.inner_texrect();
+            const b2f& outer_r = spr.outer_texrect();
+
+            const f32 left = inner_r.position.x - outer_r.position.x;
+            const f32 right = (outer_r.size.x - inner_r.size.x) - left;
+            const f32 bottom = inner_r.position.y - outer_r.position.y;
+            const f32 top = (outer_r.size.y - inner_r.size.y) - bottom;
+
+            const v2f size = outer_r.size * spr_r.scale();
+            const v2f poff = (outer_r.position - spr.pivot()) * spr_r.scale();
+
+            const v4f pos_xs = v4f{
+                0.f,
+                left,
+                size.x - right,
+                size.x} + poff.x;
+
+            const v4f pos_ys = v4f{
+                0.f,
+                bottom,
+                size.y - top,
+                size.y} + poff.y;
+
+            const v4f tex_xs = v4f{
+                outer_r.position.x,
+                inner_r.position.x,
+                inner_r.position.x + inner_r.size.x,
+                outer_r.position.x + outer_r.size.x} / tex_s.x;
+
+            const v4f tex_ys = v4f{
+                outer_r.position.y,
+                inner_r.position.y,
+                inner_r.position.y + inner_r.size.y,
+                outer_r.position.y + outer_r.size.y} / tex_s.y;
+
+            const color32& tc = spr_r.tint();
+
+            const batcher_type::index_type indices[] = {
+                0, 1, 5, 5, 4, 0,
+                1, 2, 6, 6, 5, 1,
+                2, 3, 7, 7, 6, 2,
+
+                4, 5, 9, 9, 8, 4,
+                5, 6, 10, 10, 9, 5,
+                6, 7, 11, 11, 10, 6,
+
+                8, 9, 13, 13, 12, 8,
+                9, 10, 14, 14, 13, 9,
+                10, 11, 15, 15, 14, 10,
+            };
+
+            const batcher_type::vertex_type vertices[] = {
+                { v3f{v4f{pos_xs[0], pos_ys[0], 0.f, 1.f} * model_m}, v2f{tex_xs[0], tex_ys[0]}, tc },
+                { v3f{v4f{pos_xs[1], pos_ys[0], 0.f, 1.f} * model_m}, v2f{tex_xs[1], tex_ys[0]}, tc },
+                { v3f{v4f{pos_xs[2], pos_ys[0], 0.f, 1.f} * model_m}, v2f{tex_xs[2], tex_ys[0]}, tc },
+                { v3f{v4f{pos_xs[3], pos_ys[0], 0.f, 1.f} * model_m}, v2f{tex_xs[3], tex_ys[0]}, tc },
+
+                { v3f{v4f{pos_xs[0], pos_ys[1], 0.f, 1.f} * model_m}, v2f{tex_xs[0], tex_ys[1]}, tc },
+                { v3f{v4f{pos_xs[1], pos_ys[1], 0.f, 1.f} * model_m}, v2f{tex_xs[1], tex_ys[1]}, tc },
+                { v3f{v4f{pos_xs[2], pos_ys[1], 0.f, 1.f} * model_m}, v2f{tex_xs[2], tex_ys[1]}, tc },
+                { v3f{v4f{pos_xs[3], pos_ys[1], 0.f, 1.f} * model_m}, v2f{tex_xs[3], tex_ys[1]}, tc },
+
+                { v3f{v4f{pos_xs[0], pos_ys[2], 0.f, 1.f} * model_m}, v2f{tex_xs[0], tex_ys[2]}, tc },
+                { v3f{v4f{pos_xs[1], pos_ys[2], 0.f, 1.f} * model_m}, v2f{tex_xs[1], tex_ys[2]}, tc },
+                { v3f{v4f{pos_xs[2], pos_ys[2], 0.f, 1.f} * model_m}, v2f{tex_xs[2], tex_ys[2]}, tc },
+                { v3f{v4f{pos_xs[3], pos_ys[2], 0.f, 1.f} * model_m}, v2f{tex_xs[3], tex_ys[2]}, tc },
+
+                { v3f{v4f{pos_xs[0], pos_ys[3], 0.f, 1.f} * model_m}, v2f{tex_xs[0], tex_ys[3]}, tc },
+                { v3f{v4f{pos_xs[1], pos_ys[3], 0.f, 1.f} * model_m}, v2f{tex_xs[1], tex_ys[3]}, tc },
+                { v3f{v4f{pos_xs[2], pos_ys[3], 0.f, 1.f} * model_m}, v2f{tex_xs[2], tex_ys[3]}, tc },
+                { v3f{v4f{pos_xs[3], pos_ys[3], 0.f, 1.f} * model_m}, v2f{tex_xs[3], tex_ys[3]}, tc },
+            };
+
+            batcher_.batch(
+                mat_a,
+                property_cache_,
+                indices, std::size(indices),
+                vertices, std::size(vertices));
+        } else {
+            E2D_ASSERT_MSG(false, "unexpected sprite mode");
+        }
     }
 
     //
