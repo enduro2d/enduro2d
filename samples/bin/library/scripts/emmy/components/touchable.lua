@@ -53,6 +53,16 @@ touchable.input_evt = {
 }
 
 --
+-- hover_evt
+--
+
+---@class touchable_hover_evt : touchable_base_evt
+touchable.hover_evt = {
+    ---@type string
+    type = "over"
+}
+
+--
 -- mouse_evt
 --
 
@@ -78,7 +88,7 @@ touchable.touch_evt = {
     finger = 0
 }
 
----@alias touchable_event touchable_mouse_evt | touchable_touch_evt
+---@alias touchable_event touchable_hover_evt | touchable_mouse_evt | touchable_touch_evt
 
 -- -----------------------------------------------------------------------------
 --
