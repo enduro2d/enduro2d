@@ -54,32 +54,6 @@ namespace e2d
 
 namespace e2d
 {
-    const char* factory_loader<touchable::hover>::schema_source = R"json({
-        "type" : "object",
-        "required" : [],
-        "additionalProperties" : false,
-        "properties" : {}
-    })json";
-
-    bool factory_loader<touchable::hover>::operator()(
-        touchable::hover& component,
-        const fill_context& ctx) const
-    {
-        E2D_UNUSED(component, ctx);
-        return true;
-    }
-
-    bool factory_loader<touchable::hover>::operator()(
-        asset_dependencies& dependencies,
-        const collect_context& ctx) const
-    {
-        E2D_UNUSED(dependencies, ctx);
-        return true;
-    }
-}
-
-namespace e2d
-{
     const char* factory_loader<touchable::pressed>::schema_source = R"json({
         "type" : "object",
         "required" : [],
@@ -132,6 +106,58 @@ namespace e2d
 
 namespace e2d
 {
+    const char* factory_loader<touchable::hover_over>::schema_source = R"json({
+        "type" : "object",
+        "required" : [],
+        "additionalProperties" : false,
+        "properties" : {}
+    })json";
+
+    bool factory_loader<touchable::hover_over>::operator()(
+        touchable::hover_over& component,
+        const fill_context& ctx) const
+    {
+        E2D_UNUSED(component, ctx);
+        return true;
+    }
+
+    bool factory_loader<touchable::hover_over>::operator()(
+        asset_dependencies& dependencies,
+        const collect_context& ctx) const
+    {
+        E2D_UNUSED(dependencies, ctx);
+        return true;
+    }
+}
+
+namespace e2d
+{
+    const char* factory_loader<touchable::hover_out>::schema_source = R"json({
+        "type" : "object",
+        "required" : [],
+        "additionalProperties" : false,
+        "properties" : {}
+    })json";
+
+    bool factory_loader<touchable::hover_out>::operator()(
+        touchable::hover_out& component,
+        const fill_context& ctx) const
+    {
+        E2D_UNUSED(component, ctx);
+        return true;
+    }
+
+    bool factory_loader<touchable::hover_out>::operator()(
+        asset_dependencies& dependencies,
+        const collect_context& ctx) const
+    {
+        E2D_UNUSED(dependencies, ctx);
+        return true;
+    }
+}
+
+namespace e2d
+{
     const char* factory_loader<events<touchable_events::event>>::schema_source = R"json({
         "type" : "object",
         "required" : [],
@@ -161,18 +187,6 @@ namespace e2d
     const char* component_inspector<touchable>::title = ICON_FA_FINGERPRINT " touchable";
 
     void component_inspector<touchable>::operator()(gcomponent<touchable>& c) const {
-        if ( bool hover = c.owner().component<touchable::hover>().exists();
-            ImGui::Checkbox("hover", &hover) )
-        {
-            if ( hover ) {
-                c.owner().component<touchable::hover>().ensure();
-            } else {
-                c.owner().component<touchable::hover>().remove();
-            }
-        }
-
-        ImGui::SameLine();
-
         if ( bool pressed = c.owner().component<touchable::pressed>().exists();
             ImGui::Checkbox("pressed", &pressed) )
         {
@@ -192,6 +206,30 @@ namespace e2d
                 c.owner().component<touchable::released>().ensure();
             } else {
                 c.owner().component<touchable::released>().remove();
+            }
+        }
+
+        ImGui::Separator();
+
+        if ( bool hover_over = c.owner().component<touchable::hover_over>().exists();
+            ImGui::Checkbox("hover_over", &hover_over) )
+        {
+            if ( hover_over ) {
+                c.owner().component<touchable::hover_over>().ensure();
+            } else {
+                c.owner().component<touchable::hover_over>().remove();
+            }
+        }
+
+        ImGui::SameLine();
+
+        if ( bool hover_out = c.owner().component<touchable::hover_out>().exists();
+            ImGui::Checkbox("hover_out", &hover_out) )
+        {
+            if ( hover_out ) {
+                c.owner().component<touchable::hover_out>().ensure();
+            } else {
+                c.owner().component<touchable::hover_out>().remove();
             }
         }
 

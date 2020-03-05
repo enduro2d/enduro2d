@@ -208,6 +208,10 @@ namespace e2d
             .register_component<commands<spine_player_commands::command>>("spine_player.commands")
             .register_component<sprite_renderer>("sprite_renderer")
             .register_component<touchable>("touchable")
+            .register_component<touchable::pressed>("touchable.pressed")
+            .register_component<touchable::released>("touchable.released")
+            .register_component<touchable::hover_over>("touchable.hover_over")
+            .register_component<touchable::hover_out>("touchable.hover_out")
             .register_component<events<touchable_events::event>>("touchable.events")
             ;
 
@@ -234,6 +238,10 @@ namespace e2d
             //.register_component<commands<spine_player_commands::command>>("spine_player.commands")
             .register_component<sprite_renderer>("sprite_renderer")
             .register_component<touchable>("touchable")
+            //.register_component<touchable::pressed>("touchable.pressed")
+            //.register_component<touchable::released>("touchable.released")
+            //.register_component<touchable::hover_over>("touchable.hover_over")
+            //.register_component<touchable::hover_out>("touchable.hover_out")
             //.register_component<events<touchable_events::event>>("touchable.events")
             ;
 

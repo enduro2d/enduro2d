@@ -50,19 +50,6 @@ namespace e2d::bindings::high
                 }
             ),
 
-            "hover", sol::property(
-                [](const gcomponent<touchable>& c) -> bool {
-                    return c.owner().component<touchable::hover>().exists();
-                },
-                [](gcomponent<touchable>& c, bool yesno){
-                    if ( yesno ) {
-                        c.owner().component<touchable::hover>().ensure();
-                    } else {
-                        c.owner().component<touchable::hover>().remove();
-                    }
-                }
-            ),
-
             "pressed", sol::property(
                 [](const gcomponent<touchable>& c) -> bool {
                     return c.owner().component<touchable::pressed>().exists();
@@ -89,6 +76,32 @@ namespace e2d::bindings::high
                 }
             ),
 
+            "hover_over", sol::property(
+                [](const gcomponent<touchable>& c) -> bool {
+                    return c.owner().component<touchable::hover_over>().exists();
+                },
+                [](gcomponent<touchable>& c, bool yesno){
+                    if ( yesno ) {
+                        c.owner().component<touchable::hover_over>().ensure();
+                    } else {
+                        c.owner().component<touchable::hover_over>().remove();
+                    }
+                }
+            ),
+
+            "hover_out", sol::property(
+                [](const gcomponent<touchable>& c) -> bool {
+                    return c.owner().component<touchable::hover_out>().exists();
+                },
+                [](gcomponent<touchable>& c, bool yesno){
+                    if ( yesno ) {
+                        c.owner().component<touchable::hover_out>().ensure();
+                    } else {
+                        c.owner().component<touchable::hover_out>().remove();
+                    }
+                }
+            ),
+
             "bubbling", sol::property(
                 [](const gcomponent<touchable>& c) -> bool {
                     return c->bubbling();
@@ -111,31 +124,6 @@ namespace e2d::bindings::high
         //
 
         l["touchable"].get_or_create<sol::table>()
-        .new_usertype<touchable_events::hover_evt>("hover_evt",
-            sol::no_constructor,
-
-            "target", sol::property(
-                [](const touchable_events::hover_evt& c) -> gobject {
-                    return c.target();
-                }),
-
-            "bubbling", sol::property(
-                [](const touchable_events::hover_evt& c) -> bool {
-                    return c.bubbling();
-                }),
-
-            "capturing", sol::property(
-                [](const touchable_events::hover_evt& c) -> bool {
-                    return c.capturing();
-                }),
-
-            "type", sol::property(
-                [](const touchable_events::hover_evt& c) -> str {
-                    return str(enum_hpp::to_string_or_throw(c.type()));
-                })
-        );
-
-        l["touchable"].get_or_create<sol::table>()
         .new_usertype<touchable_events::mouse_evt>("mouse_evt",
             sol::no_constructor,
 
@@ -147,11 +135,6 @@ namespace e2d::bindings::high
             "bubbling", sol::property(
                 [](const touchable_events::mouse_evt& c) -> bool {
                     return c.bubbling();
-                }),
-
-            "capturing", sol::property(
-                [](const touchable_events::mouse_evt& c) -> bool {
-                    return c.capturing();
                 }),
 
             "type", sol::property(
@@ -179,11 +162,6 @@ namespace e2d::bindings::high
                     return c.bubbling();
                 }),
 
-            "capturing", sol::property(
-                [](const touchable_events::touch_evt& c) -> bool {
-                    return c.capturing();
-                }),
-
             "type", sol::property(
                 [](const touchable_events::touch_evt& c) -> str {
                     return str(enum_hpp::to_string_or_throw(c.type()));
@@ -192,6 +170,26 @@ namespace e2d::bindings::high
             "finger", sol::property(
                 [](const touchable_events::touch_evt& c) -> u32 {
                     return c.finger();
+                })
+        );
+
+        l["touchable"].get_or_create<sol::table>()
+        .new_usertype<touchable_events::hover_evt>("hover_evt",
+            sol::no_constructor,
+
+            "target", sol::property(
+                [](const touchable_events::hover_evt& c) -> gobject {
+                    return c.target();
+                }),
+
+            "bubbling", sol::property(
+                [](const touchable_events::hover_evt& c) -> bool {
+                    return c.bubbling();
+                }),
+
+            "type", sol::property(
+                [](const touchable_events::hover_evt& c) -> str {
+                    return str(enum_hpp::to_string_or_throw(c.type()));
                 })
         );
     }

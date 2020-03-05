@@ -11,6 +11,9 @@ namespace
     using namespace e2d;
     using namespace e2d::touch_system_impl;
 
+    class touchable_last_hover final {};
+    class touchable_next_hover final {};
+
     gobject find_event_target(const ecs::registry& owner) {
         static thread_local vector<std::tuple<
             ecs::const_entity,
@@ -44,9 +47,113 @@ namespace
         return gobject();
     }
 
+    void apply_event(gobject target, const touchable_events::mouse_evt& event) {
+        target.component<events<touchable_events::event>>().ensure()
+            .add(event);
+
+        if ( event.button() != mouse_button::left ) {
+            return;
+        }
+
+        switch ( event.type() ) {
+        case touchable_events::mouse_evt::types::pressed:
+            target.component<touchable::pressed>().ensure();
+            break;
+        case touchable_events::mouse_evt::types::released:
+            target.component<touchable::released>().ensure();
+            break;
+        default:
+            E2D_ASSERT_MSG(false, "unexpected mouse event type");
+            break;
+        }
+    }
+
+    void apply_event(gobject target, const touchable_events::touch_evt& event) {
+        target.component<events<touchable_events::event>>().ensure()
+            .add(event);
+
+        if ( event.finger() != 0u ) {
+            return;
+        }
+
+        switch ( event.type() ) {
+        case touchable_events::touch_evt::types::pressed:
+            target.component<touchable::pressed>().ensure();
+            break;
+        case touchable_events::touch_evt::types::released:
+            target.component<touchable::released>().ensure();
+            break;
+        default:
+            E2D_ASSERT_MSG(false, "unexpected touch event type");
+            break;
+        }
+    }
+
+    void apply_event(gobject target, const touchable_events::hover_evt& event) {
+        target.component<events<touchable_events::event>>().ensure()
+            .add(event);
+
+        switch ( event.type() ) {
+        case touchable_events::hover_evt::types::over:
+            target.component<touchable_last_hover>().ensure();
+            target.component<touchable::hover_over>().ensure();
+            break;
+        case touchable_events::hover_evt::types::out:
+            target.component<touchable_last_hover>().remove();
+            target.component<touchable::hover_out>().ensure();
+            break;
+        default:
+            E2D_ASSERT_MSG(false, "unexpected hover event type");
+            break;
+        }
+    }
+
+    bool capture_target(gobject target) {
+        if ( !target ) {
+            return false;
+        }
+
+        const_gcomponent<actor> target_actor = target.component<actor>();
+        const_gcomponent<touchable> target_touchable = target.component<touchable>();
+        if ( !target_actor || !target_touchable ) {
+            return false;
+        }
+
+        static thread_local std::vector<const_gcomponent<touchable>> parents;
+
+        const std::size_t begin_index = parents.size();
+        E2D_DEFER([begin_index](){
+            parents.erase(
+                parents.begin() + begin_index,
+                parents.end());
+        });
+
+        nodes::extract_components_from_parents<touchable>(
+            target_actor->node(),
+            std::back_inserter(parents),
+            nodes::options()
+                .reversed(true)
+                .recursive(true));
+
+        const std::size_t end_index = parents.size();
+        for ( std::size_t i = begin_index; i < end_index; ++i ) {
+            const const_gcomponent<touchable>& parent = parents[i];
+
+            const bool parent_disabled = ecs::exists_any<
+                disabled<actor>,
+                disabled<touchable>
+            >()(parent.owner().raw_entity());
+
+            if ( !parent_disabled && !parent->capturing() ) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     template < typename E >
-    void dispatch_event(E&& event) {
-        gobject target = event.target();
+    void bubble_event_from_target(gobject target, const E& event) {
         if ( !target ) {
             return;
         }
@@ -57,57 +164,53 @@ namespace
             return;
         }
 
-        //
-        // parents
-        //
+        if ( !target_touchable->bubbling() ) {
+            return;
+        }
 
         static thread_local std::vector<const_gcomponent<touchable>> parents;
-        E2D_DEFER([](){ parents.clear(); });
+
+        const std::size_t begin_index = parents.size();
+        E2D_DEFER([begin_index](){
+            parents.erase(
+                parents.begin() + begin_index,
+                parents.end());
+        });
 
         nodes::extract_components_from_parents<touchable>(
             target_actor->node(),
             std::back_inserter(parents),
-            nodes::options().recursive(true));
+            nodes::options()
+                .recursive(true));
 
-        //
-        // capturing
-        //
+        const std::size_t end_index = parents.size();
+        for ( std::size_t i = begin_index; i < end_index; ++i ) {
+            const const_gcomponent<touchable>& parent = parents[i];
 
-        if ( event.capturing() ) {
-            for ( auto iter = parents.rbegin(); iter != parents.rend(); ++iter ) {
-                const bool parent_disabled = ecs::exists_any<
-                    disabled<actor>,
-                    disabled<touchable>
-                >()(iter->owner().raw_entity());
-                if ( !parent_disabled && !(*iter)->capturing() ) {
+            const bool parent_disabled = ecs::exists_any<
+                disabled<actor>,
+                disabled<touchable>
+            >()(parent.owner().raw_entity());
+
+            if ( !parent_disabled ) {
+                apply_event(parent.owner(), event);
+                if ( !parent->bubbling() ) {
                     return;
                 }
             }
         }
+    }
 
-        //
-        // targeting
-        //
+    template < typename E >
+    void dispatch_event(gobject target, const E& event) {
+        if ( !capture_target(target) ) {
+            return;
+        }
 
-        target.component<events<touchable_events::event>>().ensure().add(event);
+        apply_event(target, event);
 
-        //
-        // bubbling
-        //
-
-        if ( event.bubbling() && target_touchable->bubbling() ) {
-            for ( auto iter = parents.begin(); iter != parents.end(); ++iter ) {
-                const bool parent_disabled = ecs::exists_any<
-                    disabled<actor>,
-                    disabled<touchable>
-                >()(iter->owner().raw_entity());
-                if ( !parent_disabled ) {
-                    iter->owner().component<events<touchable_events::event>>().ensure().add(event);
-                    if ( !(*iter)->bubbling() ) {
-                        return;
-                    }
-                }
-            }
+        if ( event.bubbling() ) {
+            bubble_event_from_target(target, event);
         }
     }
 }
@@ -115,27 +218,77 @@ namespace
 namespace e2d::touch_system_impl
 {
     void dispatcher::dispatch_all_events(ecs::registry& owner) {
-        E2D_DEFER([this](){ events_.clear(); });
+        E2D_DEFER([this, &owner](){
+            events_.clear();
+            owner.remove_all_components<touchable_next_hover>();
+        });
+
+        owner.remove_all_components<touchable::pressed>();
+        owner.remove_all_components<touchable::released>();
+        owner.remove_all_components<touchable::hover_over>();
+        owner.remove_all_components<touchable::hover_out>();
 
         owner.for_each_component<events<touchable_events::event>>([
         ](const ecs::const_entity&, events<touchable_events::event>& es) {
             es.clear();
         });
 
-        if ( events_.empty() ) {
-            return;
+        //
+        //
+        //
+
+        const gobject target = find_event_target(owner);
+
+        if ( target ) {
+            if ( auto target_n = target.component<actor>()->node() ) {
+                nodes::for_extracted_components_from_parents<touchable>(target_n, [
+                ](const const_gcomponent<touchable>& parent){
+                    const bool parent_disabled = ecs::exists_any<
+                        disabled<actor>,
+                        disabled<touchable>
+                    >()(parent.owner().raw_entity());
+
+                    if ( !parent_disabled ) {
+                        parent.owner().component<touchable_next_hover>().ensure();
+                    }
+                }, nodes::options()
+                    .recursive(true)
+                    .include_root(true));
+            }
         }
 
-        gobject target = find_event_target(owner);
-        if ( !target ) {
-            return;
-        }
+        owner.for_joined_components<touchable, actor>([
+        ](ecs::entity e, const touchable&, const actor& a){
+            const auto need_hover_out =
+                ecs::exists<touchable_last_hover>() &&
+                !ecs::exists<touchable_next_hover>();
+
+            if ( need_hover_out(e) && a.node() ) {
+                dispatch_event(a.node()->owner(), touchable_events::hover_evt(
+                    a.node()->owner(),
+                    touchable_events::hover_evt::types::out));
+            }
+
+            const auto need_hover_over =
+                !ecs::exists<touchable_last_hover>() &&
+                ecs::exists<touchable_next_hover>();
+
+            if ( need_hover_over(e) && a.node() ) {
+                dispatch_event(a.node()->owner(), touchable_events::hover_evt(
+                    a.node()->owner(),
+                    touchable_events::hover_evt::types::over));
+            }
+        });
+
+        //
+        //
+        //
 
         for ( const auto& event : events_ ) {
             std::visit(utils::overloaded {
                 [](std::monostate){},
-                [&target](auto event_copy){
-                    dispatch_event(event_copy.target(target));
+                [&target](auto event){
+                    dispatch_event(target, event.target(target));
                 }
             }, event);
         }
@@ -148,13 +301,11 @@ namespace e2d::touch_system_impl
         switch ( action ) {
         case mouse_button_action::press:
             events_.push_back(touchable_events::mouse_evt(
-                gobject(),
                 touchable_events::mouse_evt::types::pressed,
                 button));
             break;
         case mouse_button_action::release:
             events_.push_back(touchable_events::mouse_evt(
-                gobject(),
                 touchable_events::mouse_evt::types::released,
                 button));
             break;

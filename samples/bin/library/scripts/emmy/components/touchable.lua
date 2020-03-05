@@ -7,13 +7,16 @@ local touchable = {
     disabled = false,
 
     ---@type boolean
-    hover = false,
-
-    ---@type boolean
     pressed = false,
 
     ---@type boolean
     released = false,
+
+    ---@type boolean
+    hover_over = false,
+
+    ---@type boolean
+    hover_out = false,
 
     ---@type boolean
     bubbling = true,
@@ -46,20 +49,7 @@ touchable.input_evt = {
     target = nil,
 
     ---@type boolean
-    bubbling = true,
-
-    ---@type boolean
-    capturing = true
-}
-
---
--- hover_evt
---
-
----@class touchable_hover_evt : touchable_base_evt
-touchable.hover_evt = {
-    ---@type string
-    type = "over"
+    bubbling = false
 }
 
 --
@@ -88,7 +78,17 @@ touchable.touch_evt = {
     finger = 0
 }
 
----@alias touchable_event touchable_hover_evt | touchable_mouse_evt | touchable_touch_evt
+--
+-- hover_evt
+--
+
+---@class touchable_hover_evt : touchable_base_evt
+touchable.hover_evt = {
+    ---@type string
+    type = "over"
+}
+
+---@alias touchable_event touchable_mouse_evt | touchable_touch_evt | touchable_hover_evt
 
 -- -----------------------------------------------------------------------------
 --

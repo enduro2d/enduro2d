@@ -18,8 +18,7 @@
 
 namespace e2d::touch_system_impl
 {
-    class touchable_under_mouse final {
-    };
+    class touchable_under_mouse final {};
 
     struct world_space_rect_collider final {
         using local_space_collider_t = rect_collider;

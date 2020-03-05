@@ -10,23 +10,24 @@
 
 namespace e2d::touchable_events
 {
-    class hover_evt;
     class mouse_evt;
     class touch_evt;
+    class hover_evt;
 
     using event = std::variant<std::monostate,
-        hover_evt,
         mouse_evt,
-        touch_evt>;
+        touch_evt,
+        hover_evt>;
 }
 
 namespace e2d
 {
     class touchable final {
     public:
-        class hover final {};
         class pressed final {};
         class released final {};
+        class hover_over final {};
+        class hover_out final {};
     public:
         touchable() = default;
 
@@ -64,20 +65,6 @@ namespace e2d
     };
 
     template <>
-    class factory_loader<touchable::hover> final : factory_loader<> {
-    public:
-        static const char* schema_source;
-
-        bool operator()(
-            touchable::hover& component,
-            const fill_context& ctx) const;
-
-        bool operator()(
-            asset_dependencies& dependencies,
-            const collect_context& ctx) const;
-    };
-
-    template <>
     class factory_loader<touchable::pressed> final : factory_loader<> {
     public:
         static const char* schema_source;
@@ -98,6 +85,34 @@ namespace e2d
 
         bool operator()(
             touchable::released& component,
+            const fill_context& ctx) const;
+
+        bool operator()(
+            asset_dependencies& dependencies,
+            const collect_context& ctx) const;
+    };
+
+    template <>
+    class factory_loader<touchable::hover_over> final : factory_loader<> {
+    public:
+        static const char* schema_source;
+
+        bool operator()(
+            touchable::hover_over& component,
+            const fill_context& ctx) const;
+
+        bool operator()(
+            asset_dependencies& dependencies,
+            const collect_context& ctx) const;
+    };
+
+    template <>
+    class factory_loader<touchable::hover_out> final : factory_loader<> {
+    public:
+        static const char* schema_source;
+
+        bool operator()(
+            touchable::hover_out& component,
             const fill_context& ctx) const;
 
         bool operator()(
@@ -138,14 +153,12 @@ namespace e2d::touchable_events
         template < typename Event >
         class base_evt {
         public:
-            base_evt(bool bubbling, bool capturing)
-            : bubbling_(bubbling)
-            , capturing_(capturing) {}
+            base_evt(bool bubbling)
+            : bubbling_(bubbling) {}
 
-            base_evt(gobject target, bool bubbling, bool capturing)
+            base_evt(gobject target, bool bubbling)
             : target_(target)
-            , bubbling_(bubbling)
-            , capturing_(capturing) {}
+            , bubbling_(bubbling) {}
 
             Event& target(gobject value) noexcept {
                 target_ = std::move(value);
@@ -154,32 +167,11 @@ namespace e2d::touchable_events
 
             [[nodiscard]] gobject target() const noexcept { return target_; }
             [[nodiscard]] bool bubbling() const noexcept { return bubbling_; }
-            [[nodiscard]] bool capturing() const noexcept { return capturing_; }
         private:
             gobject target_;
-            bool bubbling_ = true;
-            bool capturing_ = true;
+            bool bubbling_ = false;
         };
     }
-
-    class hover_evt final : public impl::base_evt<hover_evt> {
-    public:
-        ENUM_HPP_CLASS_DECL(types, u8,
-            (over)
-            (out))
-    public:
-        hover_evt(types type)
-        : base_evt(true, true)
-        , type_(type) {}
-
-        hover_evt(gobject target, types type)
-        : base_evt(target, true, true)
-        , type_(type) {}
-
-        [[nodiscard]] types type() const noexcept { return type_; }
-    private:
-        types type_ = types::over;
-    };
 
     class mouse_evt final : public impl::base_evt<mouse_evt> {
     public:
@@ -188,12 +180,12 @@ namespace e2d::touchable_events
             (released))
     public:
         mouse_evt(types type, mouse_button button)
-        : base_evt(true, true)
+        : base_evt(true)
         , type_(type)
         , button_(button) {}
 
         mouse_evt(gobject target, types type, mouse_button button)
-        : base_evt(target, true, true)
+        : base_evt(target, true)
         , type_(type)
         , button_(button) {}
 
@@ -211,12 +203,12 @@ namespace e2d::touchable_events
             (released))
     public:
         touch_evt(types type, u32 finger)
-        : base_evt(true, true)
+        : base_evt(true)
         , type_(type)
         , finger_(finger) {}
 
         touch_evt(gobject target, types type, u32 finger)
-        : base_evt(target, true, true)
+        : base_evt(target, true)
         , type_(type)
         , finger_(finger) {}
 
@@ -226,11 +218,30 @@ namespace e2d::touchable_events
         types type_ = types::pressed;
         u32 finger_ = 0u;
     };
+
+    class hover_evt final : public impl::base_evt<hover_evt> {
+    public:
+        ENUM_HPP_CLASS_DECL(types, u8,
+            (over)
+            (out))
+    public:
+        hover_evt(types type)
+        : base_evt(false)
+        , type_(type) {}
+
+        hover_evt(gobject target, types type)
+        : base_evt(target, false)
+        , type_(type) {}
+
+        [[nodiscard]] types type() const noexcept { return type_; }
+    private:
+        types type_ = types::over;
+    };
 }
 
-ENUM_HPP_REGISTER_TRAITS(e2d::touchable_events::hover_evt::types)
 ENUM_HPP_REGISTER_TRAITS(e2d::touchable_events::mouse_evt::types)
 ENUM_HPP_REGISTER_TRAITS(e2d::touchable_events::touch_evt::types)
+ENUM_HPP_REGISTER_TRAITS(e2d::touchable_events::hover_evt::types)
 
 namespace e2d
 {
