@@ -28,6 +28,8 @@ namespace e2d
         class released final {};
         class hover_over final {};
         class hover_out final {};
+        class hover_enter final {};
+        class hover_leave final {};
     public:
         touchable() = default;
 
@@ -113,6 +115,34 @@ namespace e2d
 
         bool operator()(
             touchable::hover_out& component,
+            const fill_context& ctx) const;
+
+        bool operator()(
+            asset_dependencies& dependencies,
+            const collect_context& ctx) const;
+    };
+
+    template <>
+    class factory_loader<touchable::hover_enter> final : factory_loader<> {
+    public:
+        static const char* schema_source;
+
+        bool operator()(
+            touchable::hover_enter& component,
+            const fill_context& ctx) const;
+
+        bool operator()(
+            asset_dependencies& dependencies,
+            const collect_context& ctx) const;
+    };
+
+    template <>
+    class factory_loader<touchable::hover_leave> final : factory_loader<> {
+    public:
+        static const char* schema_source;
+
+        bool operator()(
+            touchable::hover_leave& component,
             const fill_context& ctx) const;
 
         bool operator()(
@@ -223,14 +253,16 @@ namespace e2d::touchable_events
     public:
         ENUM_HPP_CLASS_DECL(types, u8,
             (over)
-            (out))
+            (out)
+            (enter)
+            (leave))
     public:
         hover_evt(types type)
-        : base_evt(false)
+        : base_evt(type == types::over || type == types::out)
         , type_(type) {}
 
         hover_evt(gobject target, types type)
-        : base_evt(target, false)
+        : base_evt(target, type == types::over || type == types::out)
         , type_(type) {}
 
         [[nodiscard]] types type() const noexcept { return type_; }

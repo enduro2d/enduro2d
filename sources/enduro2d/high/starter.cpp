@@ -212,6 +212,8 @@ namespace e2d
             .register_component<touchable::released>("touchable.released")
             .register_component<touchable::hover_over>("touchable.hover_over")
             .register_component<touchable::hover_out>("touchable.hover_out")
+            .register_component<touchable::hover_enter>("touchable.hover_enter")
+            .register_component<touchable::hover_leave>("touchable.hover_leave")
             .register_component<events<touchable_events::event>>("touchable.events")
             ;
 
@@ -242,6 +244,8 @@ namespace e2d
             //.register_component<touchable::released>("touchable.released")
             //.register_component<touchable::hover_over>("touchable.hover_over")
             //.register_component<touchable::hover_out>("touchable.hover_out")
+            //.register_component<touchable::hover_enter>("touchable.hover_enter")
+            //.register_component<touchable::hover_leave>("touchable.hover_leave")
             //.register_component<events<touchable_events::event>>("touchable.events")
             ;
 

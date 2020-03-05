@@ -11,9 +11,6 @@ namespace
     using namespace e2d;
     using namespace e2d::touch_system_impl;
 
-    class touchable_last_hover final {};
-    class touchable_next_hover final {};
-
     gobject find_event_target(const ecs::registry& owner) {
         static thread_local vector<std::tuple<
             ecs::const_entity,
@@ -95,12 +92,16 @@ namespace
 
         switch ( event.type() ) {
         case touchable_events::hover_evt::types::over:
-            target.component<touchable_last_hover>().ensure();
             target.component<touchable::hover_over>().ensure();
             break;
         case touchable_events::hover_evt::types::out:
-            target.component<touchable_last_hover>().remove();
             target.component<touchable::hover_out>().ensure();
+            break;
+        case touchable_events::hover_evt::types::enter:
+            target.component<touchable::hover_enter>().ensure();
+            break;
+        case touchable_events::hover_evt::types::leave:
+            target.component<touchable::hover_leave>().ensure();
             break;
         default:
             E2D_ASSERT_MSG(false, "unexpected hover event type");
@@ -202,9 +203,9 @@ namespace
     }
 
     template < typename E >
-    void dispatch_event(gobject target, const E& event) {
+    bool dispatch_event(gobject target, const E& event) {
         if ( !capture_target(target) ) {
-            return;
+            return false;
         }
 
         apply_event(target, event);
@@ -212,12 +213,17 @@ namespace
         if ( event.bubbling() ) {
             bubble_event_from_target(target, event);
         }
+
+        return true;
     }
 }
 
 namespace e2d::touch_system_impl
 {
     void dispatcher::dispatch_all_events(ecs::registry& owner) {
+        class touchable_last_hover final {};
+        class touchable_next_hover final {};
+
         E2D_DEFER([this, &owner](){
             events_.clear();
             owner.remove_all_components<touchable_next_hover>();
@@ -227,6 +233,8 @@ namespace e2d::touch_system_impl
         owner.remove_all_components<touchable::released>();
         owner.remove_all_components<touchable::hover_over>();
         owner.remove_all_components<touchable::hover_out>();
+        owner.remove_all_components<touchable::hover_enter>();
+        owner.remove_all_components<touchable::hover_leave>();
 
         owner.for_each_component<events<touchable_events::event>>([
         ](const ecs::const_entity&, events<touchable_events::event>& es) {
@@ -259,26 +267,56 @@ namespace e2d::touch_system_impl
 
         owner.for_joined_components<touchable, actor>([
         ](ecs::entity e, const touchable&, const actor& a){
-            const auto need_hover_out =
+            const auto need_hover_leave =
                 ecs::exists<touchable_last_hover>() &&
                 !ecs::exists<touchable_next_hover>();
 
-            if ( need_hover_out(e) && a.node() ) {
-                dispatch_event(a.node()->owner(), touchable_events::hover_evt(
+            if ( need_hover_leave(e) && a.node() ) {
+                const bool captured = dispatch_event(
                     a.node()->owner(),
-                    touchable_events::hover_evt::types::out));
+                    touchable_events::hover_evt(
+                        a.node()->owner(),
+                        touchable_events::hover_evt::types::leave));
+                if ( captured ) {
+                    e.remove_component<touchable_last_hover>();
+                }
             }
 
-            const auto need_hover_over =
+            const auto need_hover_enter =
                 !ecs::exists<touchable_last_hover>() &&
                 ecs::exists<touchable_next_hover>();
 
-            if ( need_hover_over(e) && a.node() ) {
-                dispatch_event(a.node()->owner(), touchable_events::hover_evt(
+            if ( need_hover_enter(e) && a.node() ) {
+                const bool captured = dispatch_event(
                     a.node()->owner(),
-                    touchable_events::hover_evt::types::over));
+                    touchable_events::hover_evt(
+                        a.node()->owner(),
+                        touchable_events::hover_evt::types::enter));
+                if ( captured ) {
+                    e.ensure_component<touchable_last_hover>();
+                }
             }
         });
+
+        //
+        //
+        //
+
+        if ( target != last_hover_target_ ) {
+            if ( last_hover_target_ ) {
+                dispatch_event(last_hover_target_, touchable_events::hover_evt(
+                    last_hover_target_,
+                    touchable_events::hover_evt::types::out));
+            }
+
+            if ( target ) {
+                dispatch_event(target, touchable_events::hover_evt(
+                    target,
+                    touchable_events::hover_evt::types::over));
+            }
+
+            last_hover_target_ = target;
+        }
 
         //
         //

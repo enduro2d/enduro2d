@@ -20,6 +20,7 @@ namespace e2d::touch_system_impl
             mouse_button button,
             mouse_button_action action) noexcept final;
     private:
+        gobject last_hover_target_;
         vector<touchable_events::event> events_;
     };
 }

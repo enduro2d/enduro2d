@@ -158,6 +158,58 @@ namespace e2d
 
 namespace e2d
 {
+    const char* factory_loader<touchable::hover_enter>::schema_source = R"json({
+        "type" : "object",
+        "required" : [],
+        "additionalProperties" : false,
+        "properties" : {}
+    })json";
+
+    bool factory_loader<touchable::hover_enter>::operator()(
+        touchable::hover_enter& component,
+        const fill_context& ctx) const
+    {
+        E2D_UNUSED(component, ctx);
+        return true;
+    }
+
+    bool factory_loader<touchable::hover_enter>::operator()(
+        asset_dependencies& dependencies,
+        const collect_context& ctx) const
+    {
+        E2D_UNUSED(dependencies, ctx);
+        return true;
+    }
+}
+
+namespace e2d
+{
+    const char* factory_loader<touchable::hover_leave>::schema_source = R"json({
+        "type" : "object",
+        "required" : [],
+        "additionalProperties" : false,
+        "properties" : {}
+    })json";
+
+    bool factory_loader<touchable::hover_leave>::operator()(
+        touchable::hover_leave& component,
+        const fill_context& ctx) const
+    {
+        E2D_UNUSED(component, ctx);
+        return true;
+    }
+
+    bool factory_loader<touchable::hover_leave>::operator()(
+        asset_dependencies& dependencies,
+        const collect_context& ctx) const
+    {
+        E2D_UNUSED(dependencies, ctx);
+        return true;
+    }
+}
+
+namespace e2d
+{
     const char* factory_loader<events<touchable_events::event>>::schema_source = R"json({
         "type" : "object",
         "required" : [],
@@ -230,6 +282,30 @@ namespace e2d
                 c.owner().component<touchable::hover_out>().ensure();
             } else {
                 c.owner().component<touchable::hover_out>().remove();
+            }
+        }
+
+        ImGui::Separator();
+
+        if ( bool hover_enter = c.owner().component<touchable::hover_enter>().exists();
+            ImGui::Checkbox("hover_enter", &hover_enter) )
+        {
+            if ( hover_enter ) {
+                c.owner().component<touchable::hover_enter>().ensure();
+            } else {
+                c.owner().component<touchable::hover_enter>().remove();
+            }
+        }
+
+        ImGui::SameLine();
+
+        if ( bool hover_leave = c.owner().component<touchable::hover_leave>().exists();
+            ImGui::Checkbox("hover_leave", &hover_leave) )
+        {
+            if ( hover_leave ) {
+                c.owner().component<touchable::hover_leave>().ensure();
+            } else {
+                c.owner().component<touchable::hover_leave>().remove();
             }
         }
 
