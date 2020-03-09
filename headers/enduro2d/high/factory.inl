@@ -56,8 +56,10 @@ namespace e2d
             Component component;
             prototype.apply_to_component(component);
 
-            if ( !loader_(component, ctx) ) {
-                return false;
+            if constexpr ( utils::is_detected<has_component_loader, Component>() ) {
+                if ( !loader_(component, ctx) ) {
+                    return false;
+                }
             }
 
             prototype.component<Component>(component);
@@ -69,7 +71,13 @@ namespace e2d
             asset_dependencies& dependencies,
             const factory_loader<>::collect_context& ctx) const
         {
-            return loader_(dependencies, ctx);
+            if constexpr ( utils::is_detected<has_component_loader_collect, Component>() ) {
+                if ( !loader_(dependencies, ctx) ) {
+                    return false;
+                }
+            }
+
+            return true;
         }
     }
 

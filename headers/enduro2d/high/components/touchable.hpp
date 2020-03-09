@@ -67,102 +67,32 @@ namespace e2d
     };
 
     template <>
-    class factory_loader<touchable::pressed> final : factory_loader<> {
-    public:
-        static const char* schema_source;
-
-        bool operator()(
-            touchable::pressed& component,
-            const fill_context& ctx) const;
-
-        bool operator()(
-            asset_dependencies& dependencies,
-            const collect_context& ctx) const;
-    };
+    class factory_loader<touchable::pressed> final
+    : public empty_factory_loader<touchable::pressed> {};
 
     template <>
-    class factory_loader<touchable::released> final : factory_loader<> {
-    public:
-        static const char* schema_source;
-
-        bool operator()(
-            touchable::released& component,
-            const fill_context& ctx) const;
-
-        bool operator()(
-            asset_dependencies& dependencies,
-            const collect_context& ctx) const;
-    };
+    class factory_loader<touchable::released> final
+    : public empty_factory_loader<touchable::released> {};
 
     template <>
-    class factory_loader<touchable::hover_over> final : factory_loader<> {
-    public:
-        static const char* schema_source;
-
-        bool operator()(
-            touchable::hover_over& component,
-            const fill_context& ctx) const;
-
-        bool operator()(
-            asset_dependencies& dependencies,
-            const collect_context& ctx) const;
-    };
+    class factory_loader<touchable::hover_over> final
+    : public empty_factory_loader<touchable::hover_over> {};
 
     template <>
-    class factory_loader<touchable::hover_out> final : factory_loader<> {
-    public:
-        static const char* schema_source;
-
-        bool operator()(
-            touchable::hover_out& component,
-            const fill_context& ctx) const;
-
-        bool operator()(
-            asset_dependencies& dependencies,
-            const collect_context& ctx) const;
-    };
+    class factory_loader<touchable::hover_out> final
+    : public empty_factory_loader<touchable::hover_out> {};
 
     template <>
-    class factory_loader<touchable::hover_enter> final : factory_loader<> {
-    public:
-        static const char* schema_source;
-
-        bool operator()(
-            touchable::hover_enter& component,
-            const fill_context& ctx) const;
-
-        bool operator()(
-            asset_dependencies& dependencies,
-            const collect_context& ctx) const;
-    };
+    class factory_loader<touchable::hover_enter> final
+    : public empty_factory_loader<touchable::hover_enter> {};
 
     template <>
-    class factory_loader<touchable::hover_leave> final : factory_loader<> {
-    public:
-        static const char* schema_source;
-
-        bool operator()(
-            touchable::hover_leave& component,
-            const fill_context& ctx) const;
-
-        bool operator()(
-            asset_dependencies& dependencies,
-            const collect_context& ctx) const;
-    };
+    class factory_loader<touchable::hover_leave> final
+    : public empty_factory_loader<touchable::hover_leave> {};
 
     template <>
-    class factory_loader<events<touchable_events::event>> final : factory_loader<> {
-    public:
-        static const char* schema_source;
-
-        bool operator()(
-            events<touchable_events::event>& component,
-            const fill_context& ctx) const;
-
-        bool operator()(
-            asset_dependencies& dependencies,
-            const collect_context& ctx) const;
-    };
+    class factory_loader<events<touchable_events::event>> final
+    : public empty_factory_loader<events<touchable_events::event>> {};
 }
 
 namespace e2d

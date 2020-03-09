@@ -57,6 +57,48 @@ namespace e2d
         };
     };
 
+    template < typename Component >
+    class empty_factory_loader : factory_loader<> {
+    public:
+        static constexpr const char* const schema_source = R"json({
+            "type" : "object",
+            "required" : [],
+            "additionalProperties" : false,
+            "properties" : {}
+        })json";
+
+        bool operator()(
+            Component& component,
+            const fill_context& ctx) const
+        {
+            E2D_UNUSED(component, ctx);
+            return true;
+        }
+
+        bool operator()(
+            asset_dependencies& dependencies,
+            const collect_context& ctx) const
+        {
+            E2D_UNUSED(dependencies, ctx);
+            return true;
+        }
+    };
+
+    namespace impl
+    {
+        template < typename Component >
+        using has_component_loader =
+            decltype(std::declval<factory_loader<Component>>()(
+                std::declval<Component&>(),
+                std::declval<const factory_loader<>::fill_context&>()));
+
+        template < typename Component >
+        using has_component_loader_collect =
+            decltype(std::declval<factory_loader<Component>>()(
+                std::declval<asset_dependencies&>(),
+                std::declval<const factory_loader<>::collect_context&>()));
+    }
+
     //
     // factory_creator
     //
