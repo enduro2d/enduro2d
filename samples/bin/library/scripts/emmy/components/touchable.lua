@@ -7,6 +7,15 @@ local touchable = {
     disabled = false,
 
     ---@type boolean
+    pushing = false,
+
+    ---@type boolean
+    hovering = false,
+
+    ---@type boolean
+    clicked = false,
+
+    ---@type boolean
     pressed = false,
 
     ---@type boolean
@@ -59,6 +68,14 @@ touchable.input_evt = {
 }
 
 --
+-- click_evt
+--
+
+---@class touchable_click_evt : touchable_base_evt
+touchable.click_evt = {
+}
+
+--
 -- mouse_evt
 --
 
@@ -94,7 +111,7 @@ touchable.hover_evt = {
     type = "over"
 }
 
----@alias touchable_event touchable_mouse_evt | touchable_touch_evt | touchable_hover_evt
+---@alias touchable_event touchable_click_evt | touchable_mouse_evt | touchable_touch_evt | touchable_hover_evt
 
 -- -----------------------------------------------------------------------------
 --

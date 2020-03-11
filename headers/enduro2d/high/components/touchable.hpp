@@ -10,11 +10,13 @@
 
 namespace e2d::touchable_events
 {
+    class click_evt;
     class mouse_evt;
     class touch_evt;
     class hover_evt;
 
     using event = std::variant<std::monostate,
+        click_evt,
         mouse_evt,
         touch_evt,
         hover_evt>;
@@ -24,8 +26,13 @@ namespace e2d
 {
     class touchable final {
     public:
+        class pushing final {};
+        class hovering final {};
+
+        class clicked final {};
         class pressed final {};
         class released final {};
+
         class hover_over final {};
         class hover_out final {};
         class hover_enter final {};
@@ -65,6 +72,18 @@ namespace e2d
             asset_dependencies& dependencies,
             const collect_context& ctx) const;
     };
+
+    template <>
+    class factory_loader<touchable::pushing> final
+    : public empty_factory_loader<touchable::pushing> {};
+
+    template <>
+    class factory_loader<touchable::hovering> final
+    : public empty_factory_loader<touchable::hovering> {};
+
+    template <>
+    class factory_loader<touchable::clicked> final
+    : public empty_factory_loader<touchable::clicked> {};
 
     template <>
     class factory_loader<touchable::pressed> final
@@ -132,6 +151,15 @@ namespace e2d::touchable_events
             bool bubbling_ = false;
         };
     }
+
+    class click_evt final : public impl::base_evt<click_evt> {
+    public:
+        click_evt()
+        : base_evt(true) {}
+
+        click_evt(gobject target)
+        : base_evt(target, true) {}
+    };
 
     class mouse_evt final : public impl::base_evt<mouse_evt> {
     public:

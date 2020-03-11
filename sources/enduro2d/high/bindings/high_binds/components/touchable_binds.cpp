@@ -50,6 +50,45 @@ namespace e2d::bindings::high
                 }
             ),
 
+            "pushing", sol::property(
+                [](const gcomponent<touchable>& c) -> bool {
+                    return c.owner().component<touchable::pushing>().exists();
+                },
+                [](gcomponent<touchable>& c, bool yesno){
+                    if ( yesno ) {
+                        c.owner().component<touchable::pushing>().ensure();
+                    } else {
+                        c.owner().component<touchable::pushing>().remove();
+                    }
+                }
+            ),
+
+            "hovering", sol::property(
+                [](const gcomponent<touchable>& c) -> bool {
+                    return c.owner().component<touchable::hovering>().exists();
+                },
+                [](gcomponent<touchable>& c, bool yesno){
+                    if ( yesno ) {
+                        c.owner().component<touchable::hovering>().ensure();
+                    } else {
+                        c.owner().component<touchable::hovering>().remove();
+                    }
+                }
+            ),
+
+            "clicked", sol::property(
+                [](const gcomponent<touchable>& c) -> bool {
+                    return c.owner().component<touchable::clicked>().exists();
+                },
+                [](gcomponent<touchable>& c, bool yesno){
+                    if ( yesno ) {
+                        c.owner().component<touchable::clicked>().ensure();
+                    } else {
+                        c.owner().component<touchable::clicked>().remove();
+                    }
+                }
+            ),
+
             "pressed", sol::property(
                 [](const gcomponent<touchable>& c) -> bool {
                     return c.owner().component<touchable::pressed>().exists();
@@ -148,6 +187,21 @@ namespace e2d::bindings::high
         //
         // events
         //
+
+        l["touchable"].get_or_create<sol::table>()
+        .new_usertype<touchable_events::click_evt>("click_evt",
+            sol::no_constructor,
+
+            "target", sol::property(
+                [](const touchable_events::click_evt& c) -> gobject {
+                    return c.target();
+                }),
+
+            "bubbling", sol::property(
+                [](const touchable_events::click_evt& c) -> bool {
+                    return c.bubbling();
+                })
+        );
 
         l["touchable"].get_or_create<sol::table>()
         .new_usertype<touchable_events::mouse_evt>("mouse_evt",

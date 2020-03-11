@@ -44,6 +44,16 @@ namespace
         return gobject();
     }
 
+    template < typename E >
+    bool dispatch_event(gobject target, const E& event);
+
+    void apply_event(gobject target, const touchable_events::click_evt& event) {
+        target.component<events<touchable_events::event>>().ensure()
+            .add(event);
+
+        target.component<touchable::clicked>().ensure();
+    }
+
     void apply_event(gobject target, const touchable_events::mouse_evt& event) {
         target.component<events<touchable_events::event>>().ensure()
             .add(event);
@@ -229,8 +239,10 @@ namespace e2d::touch_system_impl
             owner.remove_all_components<touchable_next_hover>();
         });
 
+        owner.remove_all_components<touchable::clicked>();
         owner.remove_all_components<touchable::pressed>();
         owner.remove_all_components<touchable::released>();
+
         owner.remove_all_components<touchable::hover_over>();
         owner.remove_all_components<touchable::hover_out>();
         owner.remove_all_components<touchable::hover_enter>();
@@ -245,7 +257,7 @@ namespace e2d::touch_system_impl
         //
         //
 
-        const gobject target = find_event_target(owner);
+        gobject target = find_event_target(owner);
 
         if ( target ) {
             if ( auto target_n = target.component<actor>()->node() ) {
@@ -307,12 +319,17 @@ namespace e2d::touch_system_impl
                 dispatch_event(last_hover_target_, touchable_events::hover_evt(
                     last_hover_target_,
                     touchable_events::hover_evt::types::out));
+                last_hover_target_.component<touchable::pushing>().remove();
+                last_hover_target_.component<touchable::hovering>().remove();
             }
 
             if ( target ) {
-                dispatch_event(target, touchable_events::hover_evt(
+                const bool captured = dispatch_event(target, touchable_events::hover_evt(
                     target,
                     touchable_events::hover_evt::types::over));
+                if ( captured ) {
+                    target.component<touchable::hovering>().ensure();
+                }
             }
 
             last_hover_target_ = target;
@@ -325,6 +342,50 @@ namespace e2d::touch_system_impl
         for ( const auto& event : events_ ) {
             std::visit(utils::overloaded {
                 [](std::monostate){},
+                [&target](touchable_events::mouse_evt event){
+                    const bool captured = dispatch_event(target, event.target(target));
+
+                    if ( !captured || event.button() != mouse_button::left ) {
+                        return;
+                    }
+
+                    switch ( event.type() ) {
+                    case touchable_events::mouse_evt::types::pressed:
+                        target.component<touchable::pushing>().ensure();
+                        break;
+                    case touchable_events::mouse_evt::types::released:
+                        if ( target.component<touchable::pushing>() ) {
+                            target.component<touchable::pushing>().remove();
+                            dispatch_event(target, touchable_events::click_evt(target));
+                        }
+                        break;
+                    default:
+                        E2D_ASSERT_MSG(false, "unexpected mouse event type");
+                        break;
+                    }
+                },
+                [&target](touchable_events::touch_evt event){
+                    const bool captured = dispatch_event(target, event.target(target));
+
+                    if ( !captured || event.finger() != 0u ) {
+                        return;
+                    }
+
+                    switch ( event.type() ) {
+                    case touchable_events::touch_evt::types::pressed:
+                        target.component<touchable::pushing>().ensure();
+                        break;
+                    case touchable_events::touch_evt::types::released:
+                        if ( target.component<touchable::pushing>() ) {
+                            target.component<touchable::pushing>().remove();
+                            dispatch_event(target, touchable_events::click_evt(target));
+                        }
+                        break;
+                    default:
+                        E2D_ASSERT_MSG(false, "unexpected touch event type");
+                        break;
+                    }
+                },
                 [&target](auto event){
                     dispatch_event(target, event.target(target));
                 }

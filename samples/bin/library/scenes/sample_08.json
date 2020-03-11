@@ -129,5 +129,79 @@
                 "scale" : 1
             }
         }
+    },{
+        "prototype" : "../prefabs/panel_prefab.json",
+        "components" : {
+            "actor" : {
+                "translation" : [-70,150]
+            },
+            "behaviour" : {
+                "script" : "../scripts/sample_08/panel.lua"
+            },
+            "sprite_renderer" : {
+                "scale" : [1,1]
+            },
+            "rect_collider" : {
+                "size" : [100,100],
+                "offset" : [50,50]
+            },
+            "touchable" : {}
+        },
+        "children" : [{
+            "prototype" : "../prefabs/label_sdf_prefab.json",
+            "components" : {
+                "named" : {
+                    "name" : "label"
+                },
+                "label" : {
+                    "text" : "Push me!",
+                    "halign" : "center",
+                    "valign" : "center",
+                    "outline_width" : 0.5,
+                    "outline_color" : [0,0,0,255]
+                },
+                "actor" : {
+                    "translation" : [50,50],
+                    "scale" : 0.45
+                }
+            }
+        }]
+    },{
+        "prototype" : "../prefabs/panel_prefab.json",
+        "components" : {
+            "actor" : {
+                "translation" : [20,200]
+            },
+            "behaviour" : {
+                "script" : "../scripts/sample_08/panel.lua"
+            },
+            "sprite_renderer" : {
+                "scale" : [1,1]
+            },
+            "rect_collider" : {
+                "size" : [100,100],
+                "offset" : [50,50]
+            },
+            "touchable" : {}
+        },
+        "children" : [{
+            "prototype" : "../prefabs/label_sdf_prefab.json",
+            "components" : {
+                "named" : {
+                    "name" : "label"
+                },
+                "label" : {
+                    "text" : "Push me!",
+                    "halign" : "center",
+                    "valign" : "center",
+                    "outline_width" : 0.5,
+                    "outline_color" : [0,0,0,255]
+                },
+                "actor" : {
+                    "translation" : [50,50],
+                    "scale" : 0.45
+                }
+            }
+        }]
     }]
 }

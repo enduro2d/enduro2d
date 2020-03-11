@@ -57,6 +57,51 @@ namespace e2d
     const char* component_inspector<touchable>::title = ICON_FA_FINGERPRINT " touchable";
 
     void component_inspector<touchable>::operator()(gcomponent<touchable>& c) const {
+
+        //
+        // pushing/hovering
+        //
+
+        if ( bool pushing = c.owner().component<touchable::pushing>().exists();
+            ImGui::Checkbox("pushing", &pushing) )
+        {
+            if ( pushing ) {
+                c.owner().component<touchable::pushing>().ensure();
+            } else {
+                c.owner().component<touchable::pushing>().remove();
+            }
+        }
+
+        ImGui::SameLine();
+
+        if ( bool hovering = c.owner().component<touchable::hovering>().exists();
+            ImGui::Checkbox("hovering", &hovering) )
+        {
+            if ( hovering ) {
+                c.owner().component<touchable::hovering>().ensure();
+            } else {
+                c.owner().component<touchable::hovering>().remove();
+            }
+        }
+
+        ImGui::Separator();
+
+        //
+        // clicked/pressed/released
+        //
+
+        if ( bool clicked = c.owner().component<touchable::clicked>().exists();
+            ImGui::Checkbox("clicked", &clicked) )
+        {
+            if ( clicked ) {
+                c.owner().component<touchable::clicked>().ensure();
+            } else {
+                c.owner().component<touchable::clicked>().remove();
+            }
+        }
+
+        ImGui::SameLine();
+
         if ( bool pressed = c.owner().component<touchable::pressed>().exists();
             ImGui::Checkbox("pressed", &pressed) )
         {
@@ -80,6 +125,10 @@ namespace e2d
         }
 
         ImGui::Separator();
+
+        //
+        // hover_over/hover_out
+        //
 
         if ( bool hover_over = c.owner().component<touchable::hover_over>().exists();
             ImGui::Checkbox("hover_over", &hover_over) )
@@ -105,6 +154,10 @@ namespace e2d
 
         ImGui::Separator();
 
+        //
+        // hover_enter/hover_leave
+        //
+
         if ( bool hover_enter = c.owner().component<touchable::hover_enter>().exists();
             ImGui::Checkbox("hover_enter", &hover_enter) )
         {
@@ -128,6 +181,10 @@ namespace e2d
         }
 
         ImGui::Separator();
+
+        //
+        // bubbling/capturing
+        //
 
         if ( bool bubbling = c->bubbling();
             ImGui::Checkbox("bubbling", &bubbling) )
