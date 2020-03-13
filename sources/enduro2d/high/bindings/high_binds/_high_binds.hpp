@@ -20,6 +20,7 @@ namespace e2d::bindings::high
 
     void bind_actor(sol::state& l);
     void bind_behaviour(sol::state& l);
+    void bind_button(sol::state& l);
     void bind_camera(sol::state& l);
     void bind_colliders(sol::state& l);
     void bind_flipbook_player(sol::state& l);
@@ -31,6 +32,7 @@ namespace e2d::bindings::high
     void bind_scene(sol::state& l);
     void bind_spine_player(sol::state& l);
     void bind_sprite_renderer(sol::state& l);
+    void bind_toggle(sol::state& l);
     void bind_touchable(sol::state& l);
 }
 
@@ -47,6 +49,7 @@ namespace e2d::bindings
 
         high::bind_actor(l);
         high::bind_behaviour(l);
+        high::bind_button(l);
         high::bind_camera(l);
         high::bind_colliders(l);
         high::bind_flipbook_player(l);
@@ -58,6 +61,7 @@ namespace e2d::bindings
         high::bind_scene(l);
         high::bind_spine_player(l);
         high::bind_sprite_renderer(l);
+        high::bind_toggle(l);
         high::bind_touchable(l);
     }
 }

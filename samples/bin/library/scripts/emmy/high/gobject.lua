@@ -12,6 +12,9 @@ local gobject = {
     ---@type behaviour
     behaviour = nil,
 
+    ---@type button
+    button = nil,
+
     ---@type camera
     camera = nil,
 
@@ -50,6 +53,9 @@ local gobject = {
 
     ---@type sprite_renderer
     sprite_renderer = nil,
+
+    ---@type toggle
+    toggle = nil,
 
     ---@type touchable
     touchable = nil

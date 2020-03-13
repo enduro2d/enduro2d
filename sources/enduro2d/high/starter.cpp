@@ -15,6 +15,7 @@
 
 #include <enduro2d/high/components/actor.hpp>
 #include <enduro2d/high/components/behaviour.hpp>
+#include <enduro2d/high/components/button.hpp>
 #include <enduro2d/high/components/camera.hpp>
 #include <enduro2d/high/components/colliders.hpp>
 #include <enduro2d/high/components/commands.hpp>
@@ -29,6 +30,7 @@
 #include <enduro2d/high/components/scene.hpp>
 #include <enduro2d/high/components/spine_player.hpp>
 #include <enduro2d/high/components/sprite_renderer.hpp>
+#include <enduro2d/high/components/toggle.hpp>
 #include <enduro2d/high/components/touchable.hpp>
 
 #include <enduro2d/high/systems/camera_system.hpp>
@@ -188,6 +190,8 @@ namespace e2d
         safe_module_initialize<factory>()
             .register_component<actor>("actor")
             .register_component<behaviour>("behaviour")
+            .register_component<button>("button")
+            .register_component<button::pressed>("button.pressed")
             .register_component<camera>("camera")
             .register_component<camera::input>("camera.input")
             .register_component<camera::gizmos>("camera.gizmos")
@@ -207,6 +211,8 @@ namespace e2d
             .register_component<events<spine_player_events::event>>("spine_player.events")
             .register_component<commands<spine_player_commands::command>>("spine_player.commands")
             .register_component<sprite_renderer>("sprite_renderer")
+            .register_component<toggle>("toggle")
+            .register_component<toggle::pressed>("toggle.pressed")
             .register_component<touchable>("touchable")
             .register_component<touchable::pushing>("touchable.pushing")
             .register_component<touchable::hovering>("touchable.hovering")
@@ -223,6 +229,8 @@ namespace e2d
         safe_module_initialize<inspector>()
             .register_component<actor>("actor")
             .register_component<behaviour>("behaviour")
+            .register_component<button>("button")
+            //.register_component<button::pressed>("button.pressed")
             .register_component<camera>("camera")
             //.register_component<camera::gizmos>("camera.input")
             //.register_component<camera::gizmos>("camera.gizmos")
@@ -242,6 +250,8 @@ namespace e2d
             //.register_component<events<spine_player_events::event>>("spine_player.events")
             //.register_component<commands<spine_player_commands::command>>("spine_player.commands")
             .register_component<sprite_renderer>("sprite_renderer")
+            .register_component<toggle>("toggle")
+            //.register_component<toggle::pressed>("toggle.pressed")
             .register_component<touchable>("touchable")
             //.register_component<touchable::pushing>("touchable.pushing")
             //.register_component<touchable::hovering>("touchable.hovering")

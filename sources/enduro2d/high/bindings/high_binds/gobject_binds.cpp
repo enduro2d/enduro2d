@@ -10,6 +10,7 @@
 
 #include <enduro2d/high/components/actor.hpp>
 #include <enduro2d/high/components/behaviour.hpp>
+#include <enduro2d/high/components/button.hpp>
 #include <enduro2d/high/components/camera.hpp>
 #include <enduro2d/high/components/colliders.hpp>
 #include <enduro2d/high/components/flipbook_player.hpp>
@@ -20,6 +21,7 @@
 #include <enduro2d/high/components/scene.hpp>
 #include <enduro2d/high/components/spine_player.hpp>
 #include <enduro2d/high/components/sprite_renderer.hpp>
+#include <enduro2d/high/components/toggle.hpp>
 #include <enduro2d/high/components/touchable.hpp>
 
 namespace e2d::bindings::high
@@ -42,6 +44,7 @@ namespace e2d::bindings::high
 
             "actor", sol::property([](gobject& go){ return component_wrapper<actor>{go}; }),
             "behaviour", sol::property([](gobject& go){ return component_wrapper<behaviour>{go}; }),
+            "button", sol::property([](gobject& go){ return component_wrapper<button>{go}; }),
             "camera", sol::property([](gobject& go){ return component_wrapper<camera>{go}; }),
             "rect_collider", sol::property([](gobject& go){ return component_wrapper<rect_collider>{go}; }),
             "circle_collider", sol::property([](gobject& go){ return component_wrapper<circle_collider>{go}; }),
@@ -54,6 +57,7 @@ namespace e2d::bindings::high
             "scene", sol::property([](gobject& go){ return component_wrapper<scene>{go}; }),
             "spine_player", sol::property([](gobject& go){ return component_wrapper<spine_player>{go}; }),
             "sprite_renderer", sol::property([](gobject& go){ return component_wrapper<sprite_renderer>{go}; }),
+            "toggle", sol::property([](gobject& go){ return component_wrapper<toggle>{go}; }),
             "touchable", sol::property([](gobject& go){ return component_wrapper<touchable>{go}; })
         );
     }

@@ -47,6 +47,7 @@ namespace e2d
 
     class actor;
     class behaviour;
+    class button;
     class camera;
     class rect_collider;
     class circle_collider;
@@ -66,6 +67,7 @@ namespace e2d
     class scene;
     class spine_player;
     class sprite_renderer;
+    class toggle;
     class touchable;
 
     class camera_system;

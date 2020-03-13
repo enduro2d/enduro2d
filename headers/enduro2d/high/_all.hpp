@@ -32,6 +32,7 @@
 
 #include "components/actor.hpp"
 #include "components/behaviour.hpp"
+#include "components/button.hpp"
 #include "components/camera.hpp"
 #include "components/colliders.hpp"
 #include "components/commands.hpp"
@@ -46,6 +47,7 @@
 #include "components/scene.hpp"
 #include "components/spine_player.hpp"
 #include "components/sprite_renderer.hpp"
+#include "components/toggle.hpp"
 #include "components/touchable.hpp"
 
 #include "systems/camera_system.hpp"
