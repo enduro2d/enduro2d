@@ -1,0 +1,20 @@
+{
+    "prototype" : "sprite_prefab.json",
+    "components" : {
+        "named" : {
+            "name" : "toggle"
+        },
+        "toggle" : {
+            "style" : "../styles/toggle_style.json"
+        },
+        "touchable" : {
+        },
+        "rect_collider" : {
+            "size" : [50,50]
+        },
+        "sprite_renderer" : {
+            "mode" : "sliced",
+            "sprite" : "../sprites/button_normal_sprite.json"
+        }
+    }
+}

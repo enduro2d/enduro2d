@@ -33,6 +33,7 @@
 #include <enduro2d/high/components/toggle.hpp>
 #include <enduro2d/high/components/touchable.hpp>
 
+#include <enduro2d/high/systems/button_system.hpp>
 #include <enduro2d/high/systems/camera_system.hpp>
 #include <enduro2d/high/systems/flipbook_system.hpp>
 #include <enduro2d/high/systems/frame_system.hpp>
@@ -42,6 +43,7 @@
 #include <enduro2d/high/systems/render_system.hpp>
 #include <enduro2d/high/systems/script_system.hpp>
 #include <enduro2d/high/systems/spine_system.hpp>
+#include <enduro2d/high/systems/toggle_system.hpp>
 #include <enduro2d/high/systems/touch_system.hpp>
 #include <enduro2d/high/systems/world_system.hpp>
 
@@ -82,7 +84,9 @@ namespace
                 .feature<struct spine_feature>(ecs::feature()
                     .add_system<spine_system>())
                 .feature<struct touch_feature>(ecs::feature()
-                    .add_system<touch_system>())
+                    .add_system<touch_system>()
+                    .add_system<button_system>()
+                    .add_system<toggle_system>())
                 .feature<struct world_feature>(ecs::feature()
                     .add_system<world_system>());
             return !application_ || application_->initialize();

@@ -203,5 +203,19 @@
                 }
             }
         }]
+    },{
+        "prototype" : "../prefabs/button_prefab.json",
+        "components" : {
+            "actor" : {
+                "translation" : [-160,50]
+            }
+        }
+    },{
+        "prototype" : "../prefabs/toggle_prefab.json",
+        "components" : {
+            "actor" : {
+                "translation" : [-100,50]
+            }
+        }
     }]
 }

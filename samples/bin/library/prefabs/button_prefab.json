@@ -1,0 +1,20 @@
+{
+    "prototype" : "sprite_prefab.json",
+    "components" : {
+        "named" : {
+            "name" : "button"
+        },
+        "button" : {
+            "style" : "../styles/button_style.json"
+        },
+        "touchable" : {
+        },
+        "rect_collider" : {
+            "size" : [50,50]
+        },
+        "sprite_renderer" : {
+            "mode" : "sliced",
+            "sprite" : "../sprites/button_normal_sprite.json"
+        }
+    }
+}

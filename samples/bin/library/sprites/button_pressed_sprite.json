@@ -1,0 +1,6 @@
+{
+    "texture" : "button_pressed.png",
+    "pivot" : { "x" : 23.5, "y" : 25.5 },
+    "inner_texrect" : { "x" : 10, "y" : 10, "w" : 27, "h" : 31 },
+    "outer_texrect" : { "x" : 0, "y" : 0, "w" : 47, "h" : 51 }
+}
