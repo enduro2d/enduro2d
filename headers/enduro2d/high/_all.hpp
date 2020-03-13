@@ -47,6 +47,7 @@
 #include "components/scene.hpp"
 #include "components/spine_player.hpp"
 #include "components/sprite_renderer.hpp"
+#include "components/toggle_group.hpp"
 #include "components/toggle.hpp"
 #include "components/touchable.hpp"
 

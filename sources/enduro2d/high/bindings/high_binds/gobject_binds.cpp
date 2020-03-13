@@ -21,6 +21,7 @@
 #include <enduro2d/high/components/scene.hpp>
 #include <enduro2d/high/components/spine_player.hpp>
 #include <enduro2d/high/components/sprite_renderer.hpp>
+#include <enduro2d/high/components/toggle_group.hpp>
 #include <enduro2d/high/components/toggle.hpp>
 #include <enduro2d/high/components/touchable.hpp>
 
@@ -57,6 +58,7 @@ namespace e2d::bindings::high
             "scene", sol::property([](gobject& go){ return component_wrapper<scene>{go}; }),
             "spine_player", sol::property([](gobject& go){ return component_wrapper<spine_player>{go}; }),
             "sprite_renderer", sol::property([](gobject& go){ return component_wrapper<sprite_renderer>{go}; }),
+            "toggle_group", sol::property([](gobject& go){ return component_wrapper<toggle_group>{go}; }),
             "toggle", sol::property([](gobject& go){ return component_wrapper<toggle>{go}; }),
             "touchable", sol::property([](gobject& go){ return component_wrapper<touchable>{go}; })
         );

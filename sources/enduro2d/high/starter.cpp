@@ -30,6 +30,7 @@
 #include <enduro2d/high/components/scene.hpp>
 #include <enduro2d/high/components/spine_player.hpp>
 #include <enduro2d/high/components/sprite_renderer.hpp>
+#include <enduro2d/high/components/toggle_group.hpp>
 #include <enduro2d/high/components/toggle.hpp>
 #include <enduro2d/high/components/touchable.hpp>
 
@@ -215,6 +216,7 @@ namespace e2d
             .register_component<events<spine_player_events::event>>("spine_player.events")
             .register_component<commands<spine_player_commands::command>>("spine_player.commands")
             .register_component<sprite_renderer>("sprite_renderer")
+            .register_component<toggle_group>("toggle_group")
             .register_component<toggle>("toggle")
             .register_component<toggle::pressed>("toggle.pressed")
             .register_component<touchable>("touchable")
@@ -254,6 +256,7 @@ namespace e2d
             //.register_component<events<spine_player_events::event>>("spine_player.events")
             //.register_component<commands<spine_player_commands::command>>("spine_player.commands")
             .register_component<sprite_renderer>("sprite_renderer")
+            .register_component<toggle_group>("toggle_group")
             .register_component<toggle>("toggle")
             //.register_component<toggle::pressed>("toggle.pressed")
             .register_component<touchable>("touchable")

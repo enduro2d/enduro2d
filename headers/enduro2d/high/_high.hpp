@@ -67,6 +67,7 @@ namespace e2d
     class scene;
     class spine_player;
     class sprite_renderer;
+    class toggle_group;
     class toggle;
     class touchable;
 

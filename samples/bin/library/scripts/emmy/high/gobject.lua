@@ -54,6 +54,9 @@ local gobject = {
     ---@type sprite_renderer
     sprite_renderer = nil,
 
+    ---@type toggle_group
+    toggle_group = nil,
+
     ---@type toggle
     toggle = nil,
 

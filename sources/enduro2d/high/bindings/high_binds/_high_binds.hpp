@@ -32,6 +32,7 @@ namespace e2d::bindings::high
     void bind_scene(sol::state& l);
     void bind_spine_player(sol::state& l);
     void bind_sprite_renderer(sol::state& l);
+    void bind_toggle_group(sol::state& l);
     void bind_toggle(sol::state& l);
     void bind_touchable(sol::state& l);
 }
@@ -61,6 +62,7 @@ namespace e2d::bindings
         high::bind_scene(l);
         high::bind_spine_player(l);
         high::bind_sprite_renderer(l);
+        high::bind_toggle_group(l);
         high::bind_toggle(l);
         high::bind_touchable(l);
     }
