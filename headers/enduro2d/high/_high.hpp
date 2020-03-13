@@ -25,6 +25,7 @@ namespace e2d
 {
     class atlas_asset;
     class binary_asset;
+    class button_style_asset;
     class flipbook_asset;
     class font_asset;
     class image_asset;
@@ -41,6 +42,7 @@ namespace e2d
     class sprite_asset;
     class text_asset;
     class texture_asset;
+    class toggle_style_asset;
     class xml_asset;
 
     class actor;
@@ -96,6 +98,9 @@ namespace e2d
     class script;
     class spine;
     class sprite;
+
+    class button_style;
+    class toggle_style;
 
     class editor;
     class inspector;

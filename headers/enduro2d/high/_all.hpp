@@ -10,6 +10,7 @@
 
 #include "assets/atlas_asset.hpp"
 #include "assets/binary_asset.hpp"
+#include "assets/button_style_asset.hpp"
 #include "assets/flipbook_asset.hpp"
 #include "assets/font_asset.hpp"
 #include "assets/image_asset.hpp"
@@ -26,6 +27,7 @@
 #include "assets/sprite_asset.hpp"
 #include "assets/text_asset.hpp"
 #include "assets/texture_asset.hpp"
+#include "assets/toggle_style_asset.hpp"
 #include "assets/xml_asset.hpp"
 
 #include "components/actor.hpp"
@@ -80,4 +82,5 @@
 #include "spine.hpp"
 #include "sprite.hpp"
 #include "starter.hpp"
+#include "styles.hpp"
 #include "world.hpp"

@@ -1,0 +1,14 @@
+{
+    "normal_tint" : [255,0,0,255],
+    "normal_pushing_tint" : [150,0,0,255],
+    "normal_hovering_tint" : [200,0,0,255],
+    "normal_disabled_tint" : [100,0,0,255],
+
+    "pressed_tint" : [0,255,0,255],
+    "pressed_pushing_tint" : [0,150,0,255],
+    "pressed_hovering_tint" : [0,200,0,255],
+    "pressed_disabled_tint" : [0,100,0,255],
+
+    "normal_sprite" : "../sprites/button_normal_sprite.json",
+    "pressed_sprite" : "../sprites/button_pressed_sprite.json"
+}

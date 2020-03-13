@@ -14,6 +14,11 @@ function library.load_binary(self, address) end
 
 ---@param self library
 ---@param address string
+---@return button_style_asset
+function library.load_button_style(self, address) end
+
+---@param self library
+---@param address string
 ---@return flipbook_asset
 function library.load_flipbook(self, address) end
 
@@ -91,6 +96,11 @@ function library.load_text(self, address) end
 ---@param address string
 ---@return texture_asset
 function library.load_texture(self, address) end
+
+---@param self library
+---@param address string
+---@return toggle_style_asset
+function library.load_toggle_style(self, address) end
 
 ---@param self library
 ---@param address string

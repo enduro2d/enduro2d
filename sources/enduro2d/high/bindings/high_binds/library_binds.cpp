@@ -8,6 +8,7 @@
 
 #include <enduro2d/high/assets/atlas_asset.hpp>
 #include <enduro2d/high/assets/binary_asset.hpp>
+#include <enduro2d/high/assets/button_style_asset.hpp>
 #include <enduro2d/high/assets/flipbook_asset.hpp>
 #include <enduro2d/high/assets/font_asset.hpp>
 #include <enduro2d/high/assets/image_asset.hpp>
@@ -24,6 +25,7 @@
 #include <enduro2d/high/assets/sprite_asset.hpp>
 #include <enduro2d/high/assets/text_asset.hpp>
 #include <enduro2d/high/assets/texture_asset.hpp>
+#include <enduro2d/high/assets/toggle_style_asset.hpp>
 #include <enduro2d/high/assets/xml_asset.hpp>
 
 namespace
@@ -56,6 +58,7 @@ namespace e2d::bindings::high
 
         bind_asset<atlas_asset>("atlas", l);
         bind_asset<binary_asset>("binary", l);
+        bind_asset<button_style_asset>("button_style", l);
         bind_asset<flipbook_asset>("flipbook", l);
         bind_asset<font_asset>("font", l);
         bind_asset<image_asset>("image", l);
@@ -72,6 +75,7 @@ namespace e2d::bindings::high
         bind_asset<sprite_asset>("sprite", l);
         bind_asset<text_asset>("text", l);
         bind_asset<texture_asset>("texture", l);
+        bind_asset<toggle_style_asset>("toggle_style", l);
         bind_asset<xml_asset>("xml", l);
     }
 }
