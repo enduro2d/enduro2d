@@ -44,6 +44,7 @@
 #include <enduro2d/high/systems/layout_system.hpp>
 #include <enduro2d/high/systems/render_system.hpp>
 #include <enduro2d/high/systems/script_system.hpp>
+#include <enduro2d/high/systems/slider_system.hpp>
 #include <enduro2d/high/systems/spine_system.hpp>
 #include <enduro2d/high/systems/toggle_system.hpp>
 #include <enduro2d/high/systems/touch_system.hpp>
@@ -88,7 +89,8 @@ namespace
                 .feature<struct touch_feature>(ecs::feature()
                     .add_system<touch_system>()
                     .add_system<button_system>()
-                    .add_system<toggle_system>())
+                    .add_system<toggle_system>()
+                    .add_system<slider_system>())
                 .feature<struct world_feature>(ecs::feature()
                     .add_system<world_system>());
             return !application_ || application_->initialize();
