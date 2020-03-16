@@ -6,8 +6,31 @@ local slider = {
     ---@type boolean
     disabled = false,
 
+    ---@type number
+    min_value = 0.0,
+
+    ---@type number
+    max_value = 1.0,
+
+    ---@type number
+    value = 0.0,
+
+    ---@type boolean
+    whole_numbers = false,
+
+    ---@type slider_directions
+    direction = slider.directions.row,
+
     ---@type button_style_asset
-    style = nil
+    handle_style = nil
+}
+
+---@class slider_directions
+slider.directions = {
+    row = "row",
+    row_reversed = "row_reversed",
+    column = "column",
+    column_reversed = "column_reversed"
 }
 
 ---@overload fun(self: slider)
