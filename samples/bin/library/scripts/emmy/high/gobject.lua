@@ -48,6 +48,9 @@ local gobject = {
     ---@type scene
     scene = nil,
 
+    ---@type slider
+    slider = nil,
+
     ---@type spine_player
     spine_player = nil,
 

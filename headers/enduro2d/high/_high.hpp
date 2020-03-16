@@ -65,6 +65,7 @@ namespace e2d
     class named;
     class renderer;
     class scene;
+    class slider;
     class spine_player;
     class sprite_renderer;
     class toggle_group;

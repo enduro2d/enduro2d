@@ -28,6 +28,7 @@
 #include <enduro2d/high/components/named.hpp>
 #include <enduro2d/high/components/renderer.hpp>
 #include <enduro2d/high/components/scene.hpp>
+#include <enduro2d/high/components/slider.hpp>
 #include <enduro2d/high/components/spine_player.hpp>
 #include <enduro2d/high/components/sprite_renderer.hpp>
 #include <enduro2d/high/components/toggle_group.hpp>
@@ -212,6 +213,7 @@ namespace e2d
             .register_component<named>("named")
             .register_component<renderer>("renderer")
             .register_component<scene>("scene")
+            .register_component<slider>("slider")
             .register_component<spine_player>("spine_player")
             .register_component<events<spine_player_events::event>>("spine_player.events")
             .register_component<commands<spine_player_commands::command>>("spine_player.commands")
@@ -252,6 +254,7 @@ namespace e2d
             .register_component<named>("named")
             .register_component<renderer>("renderer")
             .register_component<scene>("scene")
+            .register_component<slider>("slider")
             .register_component<spine_player>("spine_player")
             //.register_component<events<spine_player_events::event>>("spine_player.events")
             //.register_component<commands<spine_player_commands::command>>("spine_player.commands")

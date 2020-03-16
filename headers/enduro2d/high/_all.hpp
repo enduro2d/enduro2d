@@ -45,6 +45,7 @@
 #include "components/named.hpp"
 #include "components/renderer.hpp"
 #include "components/scene.hpp"
+#include "components/slider.hpp"
 #include "components/spine_player.hpp"
 #include "components/sprite_renderer.hpp"
 #include "components/toggle_group.hpp"
