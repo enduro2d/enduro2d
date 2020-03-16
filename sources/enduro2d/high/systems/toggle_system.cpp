@@ -6,25 +6,80 @@
 
 #include <enduro2d/high/systems/toggle_system.hpp>
 
-#include <enduro2d/high/components/toggle.hpp>
+#include <enduro2d/high/components/actor.hpp>
 #include <enduro2d/high/components/disabled.hpp>
-#include <enduro2d/high/components/touchable.hpp>
 #include <enduro2d/high/components/sprite_renderer.hpp>
+#include <enduro2d/high/components/toggle_group.hpp>
+#include <enduro2d/high/components/toggle.hpp>
+#include <enduro2d/high/components/touchable.hpp>
 
 namespace
 {
     using namespace e2d;
 
+    void check_allow_switch_off(
+        const const_gcomponent<toggle_group>& group,
+        ecs::entity last_unpressed)
+    {
+        if ( !group || group->allow_switch_off() ) {
+            return;
+        }
+
+        const_gcomponent<actor> group_a = group.owner().component<actor>();
+        if ( !group_a || !group_a->node() ) {
+            return;
+        }
+
+        const bool any_pressed = !!nodes::find_component_from_children<toggle::pressed>(
+            group_a->node(),
+            nodes::options().recursive(true));
+
+        if ( !any_pressed ) {
+            last_unpressed.ensure_component<toggle::pressed>();
+        }
+    }
+
+    void check_allow_multiple_on(
+        const const_gcomponent<toggle_group>& group,
+        ecs::entity last_pressed)
+    {
+        if ( !group || group->allow_multiple_on() ) {
+            return;
+        }
+
+        const_gcomponent<actor> group_a = group.owner().component<actor>();
+        if ( !group_a || !group_a->node() ) {
+            return;
+        }
+
+        nodes::for_extracted_components_from_children<toggle::pressed>(
+            group_a->node(),
+            [&last_pressed](const const_gcomponent<toggle::pressed>& pressed){
+                if ( pressed.owner().raw_entity() != last_pressed ) {
+                    pressed.owner().component<toggle::pressed>().remove();
+                }
+            }, nodes::options().recursive(true));
+    }
+
     void update_toggle_states(ecs::registry& owner) {
-        owner.for_joined_components<toggle, touchable::clicked>([](
+        owner.for_joined_components<toggle, touchable::clicked, actor>([](
             ecs::entity e,
             const toggle&,
-            const touchable::clicked&)
+            const touchable::clicked&,
+            const actor& a)
         {
+            const_gcomponent<toggle_group> group =
+                nodes::find_component_from_parents<toggle_group>(
+                    a.node(),
+                    nodes::options()
+                        .recursive(true));
+
             if ( e.exists_component<toggle::pressed>() ) {
                 e.remove_component<toggle::pressed>();
+                check_allow_switch_off(group, e);
             } else {
                 e.ensure_component<toggle::pressed>();
+                check_allow_multiple_on(group, e);
             }
         }, !ecs::exists<disabled<toggle>>());
     }

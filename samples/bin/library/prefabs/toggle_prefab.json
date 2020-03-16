@@ -1,20 +1,31 @@
 {
-    "prototype" : "sprite_prefab.json",
     "components" : {
         "named" : {
             "name" : "toggle"
         },
-        "toggle" : {
-            "style" : "../styles/toggle_style.json"
-        },
-        "touchable" : {
-        },
-        "rect_collider" : {
+        "layout" : {
             "size" : [50,50]
-        },
-        "sprite_renderer" : {
-            "mode" : "sliced",
-            "sprite" : "../sprites/button_normal_sprite.json"
         }
-    }
+    },
+    "children" : [{
+        "prototype" : "sprite_prefab.json",
+        "components" : {
+            "named" : {
+                "name" : "toggle"
+            },
+            "toggle" : {
+                "style" : "../styles/toggle_style.json"
+            },
+            "touchable" : {
+            },
+            "rect_collider" : {
+                "size" : [50,50],
+                "offset" : [23.5,25.5]
+            },
+            "sprite_renderer" : {
+                "mode" : "sliced",
+                "sprite" : "../sprites/button_normal_sprite.json"
+            }
+        }
+    }]
 }
