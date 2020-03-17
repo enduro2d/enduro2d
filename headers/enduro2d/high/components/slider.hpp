@@ -8,8 +8,6 @@
 
 #include "_components.hpp"
 
-#include "../assets/button_style_asset.hpp"
-
 namespace e2d
 {
     class slider final {
@@ -36,16 +34,12 @@ namespace e2d
 
         slider& direction(directions value) noexcept;
         [[nodiscard]] directions direction() const noexcept;
-
-        slider& handle_style(const button_style_asset::ptr& value) noexcept;
-        [[nodiscard]] const button_style_asset::ptr& handle_style() const noexcept;
     private:
         f32 min_value_ = 0.f;
         f32 max_value_ = 1.f;
         f32 value_ = 0.f;
         bool whole_numbers_ = false;
         directions direction_ = directions::row;
-        button_style_asset::ptr handle_style_;
     };
 }
 
@@ -136,14 +130,5 @@ namespace e2d
 
     inline slider::directions slider::direction() const noexcept {
         return direction_;
-    }
-
-    inline slider& slider::handle_style(const button_style_asset::ptr& value) noexcept {
-        handle_style_ = value;
-        return *this;
-    }
-
-    inline const button_style_asset::ptr& slider::handle_style() const noexcept {
-        return handle_style_;
     }
 }

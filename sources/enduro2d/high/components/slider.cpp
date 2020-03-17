@@ -17,8 +17,7 @@ namespace e2d
             "max_value" : { "type" : "number" },
             "value" : { "type" : "number" },
             "whole_numbers" : { "type" : "boolean" },
-            "direction" : { "$ref": "#/definitions/directions" },
-            "handle_style" : { "$ref": "#/common_definitions/address" }
+            "direction" : { "$ref": "#/definitions/directions" }
         },
         "definitions" : {
             "directions" : {
@@ -82,20 +81,6 @@ namespace e2d
             component.direction(direction);
         }
 
-        if ( ctx.root.HasMember("handle_style") ) {
-            auto handle_style = ctx.dependencies.find_asset<button_style_asset>(
-                path::combine(ctx.parent_address, ctx.root["handle_style"].GetString()));
-            if ( !handle_style ) {
-                the<debug>().error("SLIDER: Dependency 'handle_style' is not found:\n"
-                    "--> Parent address: %0\n"
-                    "--> Dependency address: %1",
-                    ctx.parent_address,
-                    ctx.root["handle_style"].GetString());
-                return false;
-            }
-            component.handle_style(handle_style);
-        }
-
         return true;
     }
 
@@ -103,11 +88,7 @@ namespace e2d
         asset_dependencies& dependencies,
         const collect_context& ctx) const
     {
-        if ( ctx.root.HasMember("handle_style") ) {
-            dependencies.add_dependency<button_style_asset>(
-                path::combine(ctx.parent_address, ctx.root["handle_style"].GetString()));
-        }
-
+        E2D_UNUSED(dependencies, ctx);
         return true;
     }
 }
@@ -170,7 +151,5 @@ namespace e2d
         {
             c->direction(direction);
         }
-
-        ///TODO(BlackMat): add 'handle_style' inspector
     }
 }

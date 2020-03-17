@@ -19,10 +19,7 @@ local slider = {
     whole_numbers = false,
 
     ---@type slider_directions
-    direction = slider.directions.row,
-
-    ---@type button_style_asset
-    handle_style = nil
+    direction = slider.directions.row
 }
 
 ---@class slider_directions

@@ -88,14 +88,6 @@ namespace e2d::bindings::high
                 },
                 [](gcomponent<slider>& c, slider::directions v){
                     c->direction(v);
-                }),
-
-            "handle_style", sol::property(
-                [](const gcomponent<slider>& c) -> button_style_asset::ptr {
-                    return c->handle_style();
-                },
-                [](gcomponent<slider>& c, const button_style_asset::ptr& v){
-                    c->handle_style(v);
                 })
         );
     }
