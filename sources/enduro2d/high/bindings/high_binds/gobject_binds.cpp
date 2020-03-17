@@ -14,6 +14,7 @@
 #include <enduro2d/high/components/camera.hpp>
 #include <enduro2d/high/components/colliders.hpp>
 #include <enduro2d/high/components/flipbook_player.hpp>
+#include <enduro2d/high/components/handle.hpp>
 #include <enduro2d/high/components/label.hpp>
 #include <enduro2d/high/components/model_renderer.hpp>
 #include <enduro2d/high/components/named.hpp>
@@ -52,6 +53,7 @@ namespace e2d::bindings::high
             "circle_collider", sol::property([](gobject& go){ return component_wrapper<circle_collider>{go}; }),
             "polygon_collider", sol::property([](gobject& go){ return component_wrapper<polygon_collider>{go}; }),
             "flipbook_player", sol::property([](gobject& go){ return component_wrapper<flipbook_player>{go}; }),
+            "handle", sol::property([](gobject& go){ return component_wrapper<handle>{go}; }),
             "label", sol::property([](gobject& go){ return component_wrapper<label>{go}; }),
             "model_renderer", sol::property([](gobject& go){ return component_wrapper<model_renderer>{go}; }),
             "named", sol::property([](gobject& go){ return component_wrapper<named>{go}; }),

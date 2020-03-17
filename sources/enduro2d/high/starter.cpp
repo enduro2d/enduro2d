@@ -22,6 +22,7 @@
 #include <enduro2d/high/components/disabled.hpp>
 #include <enduro2d/high/components/events.hpp>
 #include <enduro2d/high/components/flipbook_player.hpp>
+#include <enduro2d/high/components/handle.hpp>
 #include <enduro2d/high/components/label.hpp>
 #include <enduro2d/high/components/layout.hpp>
 #include <enduro2d/high/components/model_renderer.hpp>
@@ -207,6 +208,7 @@ namespace e2d
             .register_component<circle_collider>("circle_collider")
             .register_component<polygon_collider>("polygon_collider")
             .register_component<flipbook_player>("flipbook_player")
+            .register_component<handle>("handle")
             .register_component<label>("label")
             .register_component<label::dirty>("label.dirty")
             .register_component<layout>("layout")
@@ -248,6 +250,7 @@ namespace e2d
             .register_component<circle_collider>("circle_collider")
             .register_component<polygon_collider>("polygon_collider")
             .register_component<flipbook_player>("flipbook_player")
+            .register_component<handle>("handle")
             .register_component<label>("label")
             //.register_component<label::dirty>("label.dirty")
             .register_component<layout>("layout")

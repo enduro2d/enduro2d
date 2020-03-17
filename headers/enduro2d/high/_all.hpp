@@ -39,6 +39,7 @@
 #include "components/disabled.hpp"
 #include "components/events.hpp"
 #include "components/flipbook_player.hpp"
+#include "components/handle.hpp"
 #include "components/label.hpp"
 #include "components/layout.hpp"
 #include "components/model_renderer.hpp"
