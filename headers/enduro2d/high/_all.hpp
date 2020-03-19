@@ -45,6 +45,7 @@
 #include "components/spine_player.hpp"
 #include "components/sprite_renderer.hpp"
 #include "components/touchable.hpp"
+#include "components/widget.hpp"
 
 #include "systems/camera_system.hpp"
 #include "systems/flipbook_system.hpp"

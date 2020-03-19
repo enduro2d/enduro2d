@@ -30,6 +30,7 @@
 #include <enduro2d/high/components/spine_player.hpp>
 #include <enduro2d/high/components/sprite_renderer.hpp>
 #include <enduro2d/high/components/touchable.hpp>
+#include <enduro2d/high/components/widget.hpp>
 
 #include <enduro2d/high/systems/camera_system.hpp>
 #include <enduro2d/high/systems/flipbook_system.hpp>
@@ -41,6 +42,7 @@
 #include <enduro2d/high/systems/script_system.hpp>
 #include <enduro2d/high/systems/spine_system.hpp>
 #include <enduro2d/high/systems/touch_system.hpp>
+#include <enduro2d/high/systems/widget_system.hpp>
 #include <enduro2d/high/systems/world_system.hpp>
 
 namespace
@@ -81,6 +83,8 @@ namespace
                     .add_system<spine_system>())
                 .feature<struct touch_feature>(ecs::feature()
                     .add_system<touch_system>())
+                .feature<struct widget_feature>(ecs::feature()
+                    .add_system<widget_system>())
                 .feature<struct world_feature>(ecs::feature()
                     .add_system<world_system>());
             return !application_ || application_->initialize();
@@ -209,6 +213,7 @@ namespace e2d
             .register_component<sprite_renderer>("sprite_renderer")
             .register_component<touchable>("touchable")
             .register_component<events<touchable_events::event>>("touchable.events")
+            .register_component<widget>("widget")
             ;
 
         safe_module_initialize<inspector>()
@@ -235,6 +240,7 @@ namespace e2d
             .register_component<sprite_renderer>("sprite_renderer")
             .register_component<touchable>("touchable")
             //.register_component<events<touchable_events::event>>("touchable.events")
+            .register_component<widget>("widget")
             ;
 
         safe_module_initialize<luasol>();

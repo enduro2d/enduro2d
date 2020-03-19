@@ -65,6 +65,7 @@ namespace e2d
     class spine_player;
     class sprite_renderer;
     class touchable;
+    class widget;
 
     class camera_system;
     class flipbook_system;

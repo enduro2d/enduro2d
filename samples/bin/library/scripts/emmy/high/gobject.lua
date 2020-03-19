@@ -52,7 +52,10 @@ local gobject = {
     sprite_renderer = nil,
 
     ---@type touchable
-    touchable = nil
+    touchable = nil,
+
+    ---@type widget
+    widget = nil
 }
 
 ---@param self gobject
