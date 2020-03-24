@@ -66,6 +66,14 @@ namespace e2d
     class sprite_renderer;
     class touchable;
 
+    class atlas;
+    class flipbook;
+    class model;
+    class prefab;
+    class script;
+    class spine;
+    class sprite;
+
     class camera_system;
     class flipbook_system;
     class frame_system;
@@ -88,21 +96,13 @@ namespace e2d
     class asset_group;
     class asset_dependencies;
 
-    class atlas;
-    class flipbook;
-    class model;
-    class node;
-    class prefab;
-    class script;
-    class spine;
-    class sprite;
-
     class editor;
     class inspector;
     class luasol;
     class starter;
     class world;
 
+    class node;
     class gobject;
     template < typename T >
     class gcomponent;

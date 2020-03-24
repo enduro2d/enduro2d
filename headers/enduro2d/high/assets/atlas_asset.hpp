@@ -9,7 +9,7 @@
 #include "../_high.hpp"
 
 #include "../library.hpp"
-#include "../atlas.hpp"
+#include "../resources/atlas.hpp"
 
 namespace e2d
 {

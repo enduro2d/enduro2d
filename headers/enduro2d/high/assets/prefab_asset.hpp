@@ -9,7 +9,7 @@
 #include "../_high.hpp"
 
 #include "../library.hpp"
-#include "../prefab.hpp"
+#include "../resources/prefab.hpp"
 
 namespace e2d
 {

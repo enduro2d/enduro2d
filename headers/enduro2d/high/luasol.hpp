@@ -8,7 +8,7 @@
 
 #include "_high.hpp"
 
-#include "script.hpp"
+#include "resources/script.hpp"
 
 namespace e2d
 {
