@@ -74,62 +74,65 @@ namespace e2d
     // typed_asset_cache
     //
 
-    template < typename T >
-    typename typed_asset_cache<T>::asset_ptr typed_asset_cache<T>::find(str_hash address) const noexcept {
-        const auto iter = assets_.find(address);
-        return iter != assets_.end()
-            ? iter->second
-            : nullptr;
-    }
-
-    template < typename T >
-    void typed_asset_cache<T>::store(str_hash address, const asset_ptr& asset) {
-        assets_[address] = asset;
-    }
-
-    template < typename T >
-    std::size_t typed_asset_cache<T>::asset_count() const noexcept {
-        return assets_.size();
-    }
-
-    template < typename T >
-    std::size_t typed_asset_cache<T>::unload_unused_assets() noexcept {
-        std::size_t result = 0u;
-        for ( auto iter = assets_.begin(); iter != assets_.end(); ) {
-            if ( !iter->second || 1 == iter->second->use_count() ) {
-                iter = assets_.erase(iter);
-                ++result;
-            } else {
-                ++iter;
-            }
+    namespace impl
+    {
+        template < typename T >
+        typename typed_asset_cache<T>::asset_ptr typed_asset_cache<T>::find(str_hash address) const noexcept {
+            const auto iter = assets_.find(address);
+            return iter != assets_.end()
+                ? iter->second
+                : nullptr;
         }
-        return result;
+
+        template < typename T >
+        void typed_asset_cache<T>::store(str_hash address, const asset_ptr& asset) {
+            assets_[address] = asset;
+        }
+
+        template < typename T >
+        std::size_t typed_asset_cache<T>::asset_count() const noexcept {
+            return assets_.size();
+        }
+
+        template < typename T >
+        std::size_t typed_asset_cache<T>::unload_unused_assets() noexcept {
+            std::size_t result = 0u;
+            for ( auto iter = assets_.begin(); iter != assets_.end(); ) {
+                if ( !iter->second || 1 == iter->second->use_count() ) {
+                    iter = assets_.erase(iter);
+                    ++result;
+                } else {
+                    ++iter;
+                }
+            }
+            return result;
+        }
     }
 
     //
-    // asset_cache
+    // asset_store
     //
 
     template < typename Asset >
-    void asset_cache::store(str_hash address, const typename Asset::ptr& asset) {
+    void asset_store::store(str_hash address, const typename Asset::ptr& asset) {
         const auto family = utils::type_family<Asset>::id();
         const auto iter = caches_.find(family);
-        typed_asset_cache<Asset>* cache = iter != caches_.end() && iter->second
-            ? static_cast<typed_asset_cache<Asset>*>(iter->second.get())
+        impl::typed_asset_cache<Asset>* cache = iter != caches_.end() && iter->second
+            ? static_cast<impl::typed_asset_cache<Asset>*>(iter->second.get())
             : nullptr;
         if ( !cache ) {
-            cache = static_cast<typed_asset_cache<Asset>*>(caches_.emplace(
+            cache = static_cast<impl::typed_asset_cache<Asset>*>(caches_.emplace(
                 family,
-                std::make_unique<typed_asset_cache<Asset>>()).first->second.get());
+                make_intrusive<impl::typed_asset_cache<Asset>>()).first->second.get());
         }
         cache->store(address, asset);
     }
 
     template < typename Asset >
-    typename Asset::ptr asset_cache::find(str_hash address) const noexcept {
+    typename Asset::ptr asset_store::find(str_hash address) const noexcept {
         const auto iter = caches_.find(utils::type_family<Asset>::id());
-        const typed_asset_cache<Asset>* cache = iter != caches_.end() && iter->second
-            ? static_cast<const typed_asset_cache<Asset>*>(iter->second.get())
+        const impl::typed_asset_cache<Asset>* cache = iter != caches_.end() && iter->second
+            ? static_cast<const impl::typed_asset_cache<Asset>*>(iter->second.get())
             : nullptr;
         return cache
             ? cache->find(address)
@@ -137,14 +140,14 @@ namespace e2d
     }
 
     template < typename Asset >
-    std::size_t asset_cache::asset_count() const noexcept {
+    std::size_t asset_store::asset_count() const noexcept {
         const auto iter = caches_.find(utils::type_family<Asset>::id());
         return iter != caches_.end() && iter->second
             ? iter->second->asset_count()
             : 0u;
     }
 
-    inline std::size_t asset_cache::asset_count() const noexcept {
+    inline std::size_t asset_store::asset_count() const noexcept {
         return std::accumulate(
             caches_.begin(), caches_.end(), std::size_t(0),
             [](std::size_t acc, const auto& p){
@@ -154,7 +157,7 @@ namespace e2d
             });
     }
 
-    inline std::size_t asset_cache::unload_unused_assets() noexcept {
+    inline std::size_t asset_store::unload_unused_assets() noexcept {
         return std::accumulate(
             caches_.begin(), caches_.end(), std::size_t(0),
             [](std::size_t acc, const auto& p){

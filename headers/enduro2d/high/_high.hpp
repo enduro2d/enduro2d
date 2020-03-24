@@ -92,7 +92,7 @@ namespace e2d
 
     class factory;
     class library;
-    class asset_cache;
+    class asset_store;
     class asset_group;
     class asset_dependencies;
 
