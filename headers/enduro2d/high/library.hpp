@@ -27,39 +27,42 @@ namespace e2d
     // loading_asset
     //
 
-    class loading_asset;
-    using loading_asset_iptr = intrusive_ptr<loading_asset>;
+    namespace impl
+    {
+        class loading_asset;
+        using loading_asset_iptr = intrusive_ptr<loading_asset>;
 
-    class loading_asset
-        : private noncopyable
-        , public ref_counter<loading_asset> {
-    public:
-        loading_asset() = default;
-        virtual ~loading_asset() noexcept = default;
+        class loading_asset
+            : private noncopyable
+            , public ref_counter<loading_asset> {
+        public:
+            loading_asset() = default;
+            virtual ~loading_asset() noexcept = default;
 
-        virtual void cancel() noexcept = 0;
-        virtual str_hash address() const noexcept = 0;
-        virtual void wait(deferrer& deferrer) const noexcept = 0;
-    };
+            virtual void cancel() noexcept = 0;
+            virtual str_hash address() const noexcept = 0;
+            virtual void wait(deferrer& deferrer) const noexcept = 0;
+        };
 
-    template < typename Asset >
-    class typed_loading_asset : public loading_asset {
-    public:
-        using ptr = intrusive_ptr<typed_loading_asset>;
-        using promise_type = typename Asset::load_async_result;
-    public:
-        typed_loading_asset(str_hash address, promise_type promise);
-        ~typed_loading_asset() noexcept override = default;
+        template < typename Asset >
+        class typed_loading_asset : public loading_asset {
+        public:
+            using ptr = intrusive_ptr<typed_loading_asset>;
+            using promise_type = typename Asset::load_async_result;
+        public:
+            typed_loading_asset(str_hash address, promise_type promise);
+            ~typed_loading_asset() noexcept override = default;
 
-        void cancel() noexcept override;
-        str_hash address() const noexcept override;
-        void wait(deferrer& deferrer) const noexcept override;
+            void cancel() noexcept override;
+            str_hash address() const noexcept override;
+            void wait(deferrer& deferrer) const noexcept override;
 
-        const promise_type& promise() const noexcept;
-    private:
-        str_hash address_;
-        promise_type promise_;
-    };
+            const promise_type& promise() const noexcept;
+        private:
+            str_hash address_;
+            promise_type promise_;
+        };
+    }
 
     //
     // library
@@ -71,7 +74,7 @@ namespace e2d
         ~library() noexcept final;
 
         const url& root() const noexcept;
-        const asset_cache& cache() const noexcept;
+        const asset_store& store() const noexcept;
 
         std::size_t unload_unused_assets() noexcept;
         std::size_t loading_asset_count() const noexcept;
@@ -89,11 +92,11 @@ namespace e2d
         typename Nested::load_async_result load_asset_async(str_view address) const;
     private:
         template < typename Asset >
-        vector<loading_asset_iptr>::iterator
+        vector<impl::loading_asset_iptr>::iterator
         find_loading_asset_iter_(str_hash address) const noexcept;
 
         template < typename Asset >
-        typename typed_loading_asset<Asset>::ptr
+        typename impl::typed_loading_asset<Asset>::ptr
         find_loading_asset_(str_hash address) const noexcept;
 
         template < typename Asset >
@@ -104,9 +107,9 @@ namespace e2d
         starter::library_parameters params_;
         std::atomic<bool> cancelled_{false};
     private:
-        mutable asset_cache cache_;
+        mutable asset_store store_;
         mutable std::recursive_mutex mutex_;
-        mutable vector<loading_asset_iptr> loading_assets_;
+        mutable vector<impl::loading_asset_iptr> loading_assets_;
     };
 
     //
@@ -136,34 +139,37 @@ namespace e2d
     // asset_dependency
     //
 
-    class asset_dependency;
-    using asset_dependency_iptr = intrusive_ptr<asset_dependency>;
+    namespace impl
+    {
+        class asset_dependency;
+        using asset_dependency_iptr = intrusive_ptr<asset_dependency>;
 
-    class asset_dependency
-        : private noncopyable
-        , public ref_counter<asset_dependency> {
-    public:
-        asset_dependency() = default;
-        virtual ~asset_dependency() noexcept = default;
+        class asset_dependency
+            : private noncopyable
+            , public ref_counter<asset_dependency> {
+        public:
+            asset_dependency() = default;
+            virtual ~asset_dependency() noexcept = default;
 
-        virtual const str& main_address() const noexcept = 0;
-        virtual stdex::promise<asset_ptr> load_async(const library& library) = 0;
-    };
+            virtual const str& main_address() const noexcept = 0;
+            virtual stdex::promise<asset_ptr> load_async(const library& library) = 0;
+        };
 
-    template < typename Asset >
-    class typed_asset_dependency : public asset_dependency {
-    public:
-        using asset_type = Asset;
-        using load_result = typename Asset::load_result;
-    public:
-        typed_asset_dependency(str_view address);
-        ~typed_asset_dependency() noexcept override;
+        template < typename Asset >
+        class typed_asset_dependency : public asset_dependency {
+        public:
+            using asset_type = Asset;
+            using load_result = typename Asset::load_result;
+        public:
+            typed_asset_dependency(str_view address);
+            ~typed_asset_dependency() noexcept override;
 
-        const str& main_address() const noexcept override;
-        stdex::promise<asset_ptr> load_async(const library& library) override;
-    private:
-        str main_address_;
-    };
+            const str& main_address() const noexcept override;
+            stdex::promise<asset_ptr> load_async(const library& library) override;
+        private:
+            str main_address_;
+        };
+    }
 
     //
     // asset_dependencies
@@ -178,7 +184,7 @@ namespace e2d
         asset_dependencies& add_dependency(str_view address);
         stdex::promise<asset_group> load_async(const library& library) const;
     private:
-        flat_multimap<str, asset_dependency_iptr> dependencies_;
+        flat_multimap<str, impl::asset_dependency_iptr> dependencies_;
     };
 }
 

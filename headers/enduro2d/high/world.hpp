@@ -9,8 +9,9 @@
 #include "_high.hpp"
 
 #include "node.hpp"
-#include "prefab.hpp"
 #include "gobject.hpp"
+
+#include "resources/prefab.hpp"
 
 namespace e2d
 {

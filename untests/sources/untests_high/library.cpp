@@ -75,7 +75,7 @@ TEST_CASE("library"){
 
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
         REQUIRE(1u == l.unload_unused_assets());
-        REQUIRE(l.cache().asset_count<binary_asset>() == 0);
+        REQUIRE(l.store().asset_count<binary_asset>() == 0);
     }
     {
         {
@@ -101,16 +101,16 @@ TEST_CASE("library"){
         REQUIRE(text_res_from_cache.get() == text_res.get());
 
         REQUIRE(0u == l.unload_unused_assets());
-        REQUIRE(l.cache().asset_count() == 1);
-        REQUIRE(l.cache().asset_count<text_asset>() == 1);
+        REQUIRE(l.store().asset_count() == 1);
+        REQUIRE(l.store().asset_count<text_asset>() == 1);
 
         text_res.reset();
         text_res_from_cache.reset();
 
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
         REQUIRE(1u == l.unload_unused_assets());
-        REQUIRE(l.cache().asset_count() == 0);
-        REQUIRE(l.cache().asset_count<text_asset>() == 0);
+        REQUIRE(l.store().asset_count() == 0);
+        REQUIRE(l.store().asset_count<text_asset>() == 0);
     }
     {
         auto text_res = l.load_asset<text_asset>("text_asset.txt");
@@ -122,14 +122,14 @@ TEST_CASE("library"){
         REQUIRE(binary_res->content() == buffer("world", 5));
 
         REQUIRE(0u == l.unload_unused_assets());
-        REQUIRE(l.cache().asset_count() == 2);
+        REQUIRE(l.store().asset_count() == 2);
 
         text_res.reset();
         binary_res.reset();
 
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
         REQUIRE(2u == l.unload_unused_assets());
-        REQUIRE(l.cache().asset_count() == 0);
+        REQUIRE(l.store().asset_count() == 0);
     }
     {
         auto empty_res = l.load_asset<binary_asset>("empty_asset");
@@ -140,19 +140,19 @@ TEST_CASE("library"){
         REQUIRE(image_res);
         REQUIRE(!image_res->content().empty());
 
-        REQUIRE(l.cache().find<image_asset>("image.png"));
-        REQUIRE(l.cache().find<binary_asset>("image.png"));
+        REQUIRE(l.store().find<image_asset>("image.png"));
+        REQUIRE(l.store().find<binary_asset>("image.png"));
 
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
         l.unload_unused_assets();
-        REQUIRE(l.cache().find<image_asset>("image.png"));
-        REQUIRE_FALSE(l.cache().find<binary_asset>("image.png"));
+        REQUIRE(l.store().find<image_asset>("image.png"));
+        REQUIRE_FALSE(l.store().find<binary_asset>("image.png"));
 
         image_res.reset();
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
         l.unload_unused_assets();
-        REQUIRE_FALSE(l.cache().find<image_asset>("image.png"));
-        REQUIRE_FALSE(l.cache().find<binary_asset>("image.png"));
+        REQUIRE_FALSE(l.store().find<image_asset>("image.png"));
+        REQUIRE_FALSE(l.store().find<binary_asset>("image.png"));
     }
     {
         if ( modules::is_initialized<audio>() ) {

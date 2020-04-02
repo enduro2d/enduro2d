@@ -9,7 +9,7 @@
 #include "../_high.hpp"
 
 #include "../library.hpp"
-#include "../script.hpp"
+#include "../resources/script.hpp"
 
 namespace e2d
 {

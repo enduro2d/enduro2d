@@ -6,9 +6,9 @@
 
 #pragma once
 
-#include "_high.hpp"
+#include "../_high.hpp"
 
-#include "assets/texture_asset.hpp"
+#include "../assets/texture_asset.hpp"
 
 namespace e2d
 {

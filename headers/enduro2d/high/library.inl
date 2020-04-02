@@ -11,33 +11,36 @@
 namespace e2d
 {
     //
-    // loading_asset
+    // typed_loading_asset
     //
 
-    template < typename Asset >
-    typed_loading_asset<Asset>::typed_loading_asset(str_hash address, promise_type promise)
-    : address_(address)
-    , promise_(std::move(promise)) {}
+    namespace impl
+    {
+        template < typename Asset >
+        typed_loading_asset<Asset>::typed_loading_asset(str_hash address, promise_type promise)
+        : address_(address)
+        , promise_(std::move(promise)) {}
 
-    template < typename Asset >
-    void typed_loading_asset<Asset>::cancel() noexcept {
-        promise_.reject(library_cancelled_exception());
-    }
+        template < typename Asset >
+        void typed_loading_asset<Asset>::cancel() noexcept {
+            promise_.reject(library_cancelled_exception());
+        }
 
-    template < typename Asset >
-    str_hash typed_loading_asset<Asset>::address() const noexcept {
-        return address_;
-    }
+        template < typename Asset >
+        str_hash typed_loading_asset<Asset>::address() const noexcept {
+            return address_;
+        }
 
-    template < typename Asset >
-    const typename typed_loading_asset<Asset>::promise_type&
-    typed_loading_asset<Asset>::promise() const noexcept {
-        return promise_;
-    }
+        template < typename Asset >
+        const typename typed_loading_asset<Asset>::promise_type&
+        typed_loading_asset<Asset>::promise() const noexcept {
+            return promise_;
+        }
 
-    template < typename Asset >
-    void typed_loading_asset<Asset>::wait(deferrer& deferrer) const noexcept {
-        deferrer.active_safe_wait_promise(promise_);
+        template < typename Asset >
+        void typed_loading_asset<Asset>::wait(deferrer& deferrer) const noexcept {
+            deferrer.active_safe_wait_promise(promise_);
+        }
     }
 
     //
@@ -56,12 +59,12 @@ namespace e2d
         return params_.root();
     }
 
-    inline const asset_cache& library::cache() const noexcept {
-        return cache_;
+    inline const asset_store& library::store() const noexcept {
+        return store_;
     }
 
     inline std::size_t library::unload_unused_assets() noexcept {
-        return cache_.unload_unused_assets();
+        return store_.unload_unused_assets();
     }
 
     inline std::size_t library::loading_asset_count() const noexcept {
@@ -87,8 +90,8 @@ namespace e2d
             return stdex::make_rejected_promise<typename Asset::load_result>(library_cancelled_exception());
         }
 
-        if ( auto cached_asset = cache_.find<Asset>(main_address_hash) ) {
-            return stdex::make_resolved_promise(std::move(cached_asset));
+        if ( auto stored_asset = store_.find<Asset>(main_address_hash) ) {
+            return stdex::make_resolved_promise(std::move(stored_asset));
         }
 
         if ( auto asset = find_loading_asset_<Asset>(main_address_hash) )  {
@@ -101,7 +104,7 @@ namespace e2d
             main_address_hash
         ](const typename Asset::load_result& new_asset){
             std::lock_guard<std::recursive_mutex> guard(mutex_);
-            cache_.store<Asset>(main_address_hash, new_asset);
+            store_.store<Asset>(main_address_hash, new_asset);
             remove_loading_asset_<Asset>(main_address_hash);
             return new_asset;
         }).except([
@@ -136,7 +139,7 @@ namespace e2d
 
         const auto zero_us = time::to_chrono(make_microseconds(0));
         if ( p.wait_for(zero_us) == stdex::promise_wait_status::timeout ) {
-            loading_assets_.push_back(new typed_loading_asset<Asset>(main_address_hash, p));
+            loading_assets_.push_back(new impl::typed_loading_asset<Asset>(main_address_hash, p));
         }
 
         return p;
@@ -174,22 +177,22 @@ namespace e2d
     }
 
     template < typename Asset >
-    vector<loading_asset_iptr>::iterator
+    vector<impl::loading_asset_iptr>::iterator
     library::find_loading_asset_iter_(str_hash address) const noexcept {
         return std::find_if(
             loading_assets_.begin(), loading_assets_.end(),
-            [address](const loading_asset_iptr& asset) noexcept {
+            [address](const impl::loading_asset_iptr& asset) noexcept {
                 return asset->address() == address
-                    && dynamic_pointer_cast<typed_loading_asset<Asset>>(asset);
+                    && dynamic_pointer_cast<impl::typed_loading_asset<Asset>>(asset);
             });
     }
 
     template < typename Asset >
-    typename typed_loading_asset<Asset>::ptr
+    typename impl::typed_loading_asset<Asset>::ptr
     library::find_loading_asset_(str_hash address) const noexcept {
         auto iter = find_loading_asset_iter_<Asset>(address);
         return iter != loading_assets_.end()
-            ? static_pointer_cast<typed_loading_asset<Asset>>(*iter)
+            ? static_pointer_cast<impl::typed_loading_asset<Asset>>(*iter)
             : nullptr;
     }
 
@@ -261,24 +264,27 @@ namespace e2d
     // asset_dependency
     //
 
-    template < typename Asset >
-    typed_asset_dependency<Asset>::typed_asset_dependency(str_view address)
-    : main_address_(address::parent(address)) {}
+    namespace impl
+    {
+        template < typename Asset >
+        typed_asset_dependency<Asset>::typed_asset_dependency(str_view address)
+        : main_address_(address::parent(address)) {}
 
-    template < typename Asset >
-    typed_asset_dependency<Asset>::~typed_asset_dependency() noexcept = default;
+        template < typename Asset >
+        typed_asset_dependency<Asset>::~typed_asset_dependency() noexcept = default;
 
-    template < typename Asset >
-    const str& typed_asset_dependency<Asset>::main_address() const noexcept {
-        return main_address_;
-    }
+        template < typename Asset >
+        const str& typed_asset_dependency<Asset>::main_address() const noexcept {
+            return main_address_;
+        }
 
-    template < typename Asset >
-    stdex::promise<asset_ptr> typed_asset_dependency<Asset>::load_async(const library& library) {
-        return library.load_main_asset_async<Asset>(main_address_)
-        .then([](const typename Asset::load_result& main_asset){
-            return asset_ptr(main_asset);
-        });
+        template < typename Asset >
+        stdex::promise<asset_ptr> typed_asset_dependency<Asset>::load_async(const library& library) {
+            return library.load_main_asset_async<Asset>(main_address_)
+            .then([](const typename Asset::load_result& main_asset){
+                return asset_ptr(main_asset);
+            });
+        }
     }
 
     //
@@ -287,7 +293,8 @@ namespace e2d
 
     template < typename Asset, typename Nested >
     asset_dependencies& asset_dependencies::add_dependency(str_view address) {
-        asset_dependency_iptr dep(new typed_asset_dependency<Asset>(address));
+        impl::asset_dependency_iptr dep =
+            make_intrusive<impl::typed_asset_dependency<Asset>>(address);
         dependencies_.emplace(dep->main_address(), std::move(dep));
         return *this;
     }
