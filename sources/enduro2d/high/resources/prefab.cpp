@@ -4,7 +4,7 @@
  * Copyright (C) 2018-2020, by Matvey Cherevko (blackmatov@gmail.com)
  ******************************************************************************/
 
-#include <enduro2d/high/prefab.hpp>
+#include <enduro2d/high/resources/prefab.hpp>
 
 namespace e2d
 {

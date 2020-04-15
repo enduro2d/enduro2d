@@ -17,35 +17,35 @@ namespace e2d::bindings::high
             sol::no_constructor,
 
             "enable", [](gcomponent<toggle_group>& c){
-                c.owner().component<disabled<toggle_group>>().remove();
+                c.component<disabled<toggle_group>>().remove();
             },
 
             "disable", [](gcomponent<toggle_group>& c){
-                c.owner().component<disabled<toggle_group>>().ensure();
+                c.component<disabled<toggle_group>>().ensure();
             },
 
             "enabled", sol::property(
                 [](const gcomponent<toggle_group>& c) -> bool {
-                    return !c.owner().component<disabled<toggle_group>>().exists();
+                    return !c.component<disabled<toggle_group>>().exists();
                 },
                 [](gcomponent<toggle_group>& c, bool yesno){
                     if ( yesno ) {
-                        c.owner().component<disabled<toggle_group>>().remove();
+                        c.component<disabled<toggle_group>>().remove();
                     } else {
-                        c.owner().component<disabled<toggle_group>>().ensure();
+                        c.component<disabled<toggle_group>>().ensure();
                     }
                 }
             ),
 
             "disabled", sol::property(
                 [](const gcomponent<toggle_group>& c) -> bool {
-                    return c.owner().component<disabled<toggle_group>>().exists();
+                    return c.component<disabled<toggle_group>>().exists();
                 },
                 [](gcomponent<toggle_group>& c, bool yesno){
                     if ( yesno ) {
-                        c.owner().component<disabled<toggle_group>>().ensure();
+                        c.component<disabled<toggle_group>>().ensure();
                     } else {
-                        c.owner().component<disabled<toggle_group>>().remove();
+                        c.component<disabled<toggle_group>>().remove();
                     }
                 }
             ),

@@ -56,13 +56,13 @@ namespace e2d
     const char* component_inspector<button>::title = ICON_FA_HAND_POINT_UP " button";
 
     void component_inspector<button>::operator()(gcomponent<button>& c) const {
-        if ( bool pressed = c.owner().component<button::pressed>().exists();
+        if ( bool pressed = c.component<button::pressed>().exists();
             ImGui::Checkbox("pressed", &pressed) )
         {
             if ( pressed ) {
-                c.owner().component<button::pressed>().ensure();
+                c.component<button::pressed>().ensure();
             } else {
-                c.owner().component<button::pressed>().remove();
+                c.component<button::pressed>().remove();
             }
         }
 

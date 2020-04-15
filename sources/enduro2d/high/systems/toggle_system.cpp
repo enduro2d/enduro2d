@@ -25,7 +25,7 @@ namespace
             return;
         }
 
-        const_gcomponent<actor> group_a = group.owner().component<actor>();
+        const_gcomponent<actor> group_a = group.component<actor>();
         if ( !group_a || !group_a->node() ) {
             return;
         }
@@ -47,7 +47,7 @@ namespace
             return;
         }
 
-        const_gcomponent<actor> group_a = group.owner().component<actor>();
+        const_gcomponent<actor> group_a = group.component<actor>();
         if ( !group_a || !group_a->node() ) {
             return;
         }

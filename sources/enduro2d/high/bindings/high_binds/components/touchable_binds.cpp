@@ -17,152 +17,152 @@ namespace e2d::bindings::high
             sol::no_constructor,
 
             "enable", [](gcomponent<touchable>& c){
-                c.owner().component<disabled<touchable>>().remove();
+                c.component<disabled<touchable>>().remove();
             },
 
             "disable", [](gcomponent<touchable>& c){
-                c.owner().component<disabled<touchable>>().ensure();
+                c.component<disabled<touchable>>().ensure();
             },
 
             "enabled", sol::property(
                 [](const gcomponent<touchable>& c) -> bool {
-                    return !c.owner().component<disabled<touchable>>().exists();
+                    return !c.component<disabled<touchable>>().exists();
                 },
                 [](gcomponent<touchable>& c, bool yesno){
                     if ( yesno ) {
-                        c.owner().component<disabled<touchable>>().remove();
+                        c.component<disabled<touchable>>().remove();
                     } else {
-                        c.owner().component<disabled<touchable>>().ensure();
+                        c.component<disabled<touchable>>().ensure();
                     }
                 }
             ),
 
             "disabled", sol::property(
                 [](const gcomponent<touchable>& c) -> bool {
-                    return c.owner().component<disabled<touchable>>().exists();
+                    return c.component<disabled<touchable>>().exists();
                 },
                 [](gcomponent<touchable>& c, bool yesno){
                     if ( yesno ) {
-                        c.owner().component<disabled<touchable>>().ensure();
+                        c.component<disabled<touchable>>().ensure();
                     } else {
-                        c.owner().component<disabled<touchable>>().remove();
+                        c.component<disabled<touchable>>().remove();
                     }
                 }
             ),
 
             "pushing", sol::property(
                 [](const gcomponent<touchable>& c) -> bool {
-                    return c.owner().component<touchable::pushing>().exists();
+                    return c.component<touchable::pushing>().exists();
                 },
                 [](gcomponent<touchable>& c, bool yesno){
                     if ( yesno ) {
-                        c.owner().component<touchable::pushing>().ensure();
+                        c.component<touchable::pushing>().ensure();
                     } else {
-                        c.owner().component<touchable::pushing>().remove();
+                        c.component<touchable::pushing>().remove();
                     }
                 }
             ),
 
             "hovering", sol::property(
                 [](const gcomponent<touchable>& c) -> bool {
-                    return c.owner().component<touchable::hovering>().exists();
+                    return c.component<touchable::hovering>().exists();
                 },
                 [](gcomponent<touchable>& c, bool yesno){
                     if ( yesno ) {
-                        c.owner().component<touchable::hovering>().ensure();
+                        c.component<touchable::hovering>().ensure();
                     } else {
-                        c.owner().component<touchable::hovering>().remove();
+                        c.component<touchable::hovering>().remove();
                     }
                 }
             ),
 
             "clicked", sol::property(
                 [](const gcomponent<touchable>& c) -> bool {
-                    return c.owner().component<touchable::clicked>().exists();
+                    return c.component<touchable::clicked>().exists();
                 },
                 [](gcomponent<touchable>& c, bool yesno){
                     if ( yesno ) {
-                        c.owner().component<touchable::clicked>().ensure();
+                        c.component<touchable::clicked>().ensure();
                     } else {
-                        c.owner().component<touchable::clicked>().remove();
+                        c.component<touchable::clicked>().remove();
                     }
                 }
             ),
 
             "pressed", sol::property(
                 [](const gcomponent<touchable>& c) -> bool {
-                    return c.owner().component<touchable::pressed>().exists();
+                    return c.component<touchable::pressed>().exists();
                 },
                 [](gcomponent<touchable>& c, bool yesno){
                     if ( yesno ) {
-                        c.owner().component<touchable::pressed>().ensure();
+                        c.component<touchable::pressed>().ensure();
                     } else {
-                        c.owner().component<touchable::pressed>().remove();
+                        c.component<touchable::pressed>().remove();
                     }
                 }
             ),
 
             "released", sol::property(
                 [](const gcomponent<touchable>& c) -> bool {
-                    return c.owner().component<touchable::released>().exists();
+                    return c.component<touchable::released>().exists();
                 },
                 [](gcomponent<touchable>& c, bool yesno){
                     if ( yesno ) {
-                        c.owner().component<touchable::released>().ensure();
+                        c.component<touchable::released>().ensure();
                     } else {
-                        c.owner().component<touchable::released>().remove();
+                        c.component<touchable::released>().remove();
                     }
                 }
             ),
 
             "hover_over", sol::property(
                 [](const gcomponent<touchable>& c) -> bool {
-                    return c.owner().component<touchable::hover_over>().exists();
+                    return c.component<touchable::hover_over>().exists();
                 },
                 [](gcomponent<touchable>& c, bool yesno){
                     if ( yesno ) {
-                        c.owner().component<touchable::hover_over>().ensure();
+                        c.component<touchable::hover_over>().ensure();
                     } else {
-                        c.owner().component<touchable::hover_over>().remove();
+                        c.component<touchable::hover_over>().remove();
                     }
                 }
             ),
 
             "hover_out", sol::property(
                 [](const gcomponent<touchable>& c) -> bool {
-                    return c.owner().component<touchable::hover_out>().exists();
+                    return c.component<touchable::hover_out>().exists();
                 },
                 [](gcomponent<touchable>& c, bool yesno){
                     if ( yesno ) {
-                        c.owner().component<touchable::hover_out>().ensure();
+                        c.component<touchable::hover_out>().ensure();
                     } else {
-                        c.owner().component<touchable::hover_out>().remove();
+                        c.component<touchable::hover_out>().remove();
                     }
                 }
             ),
 
             "hover_enter", sol::property(
                 [](const gcomponent<touchable>& c) -> bool {
-                    return c.owner().component<touchable::hover_enter>().exists();
+                    return c.component<touchable::hover_enter>().exists();
                 },
                 [](gcomponent<touchable>& c, bool yesno){
                     if ( yesno ) {
-                        c.owner().component<touchable::hover_enter>().ensure();
+                        c.component<touchable::hover_enter>().ensure();
                     } else {
-                        c.owner().component<touchable::hover_enter>().remove();
+                        c.component<touchable::hover_enter>().remove();
                     }
                 }
             ),
 
             "hover_leave", sol::property(
                 [](const gcomponent<touchable>& c) -> bool {
-                    return c.owner().component<touchable::hover_leave>().exists();
+                    return c.component<touchable::hover_leave>().exists();
                 },
                 [](gcomponent<touchable>& c, bool yesno){
                     if ( yesno ) {
-                        c.owner().component<touchable::hover_leave>().ensure();
+                        c.component<touchable::hover_leave>().ensure();
                     } else {
-                        c.owner().component<touchable::hover_leave>().remove();
+                        c.component<touchable::hover_leave>().remove();
                     }
                 }
             ),

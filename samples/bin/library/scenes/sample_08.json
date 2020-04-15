@@ -227,10 +227,12 @@
                 "name" : "toggle_group"
             },
             "layout" : {
-                "size" : [100,200],
-                "halign" : "center",
-                "valign" : "space_evenly",
-                "direction" : "column"
+                "align_items" : "center",
+                "justify_content" : "space_evenly",
+                "flex_direction" : "column"
+            },
+            "widget" : {
+                "size" : [100,200]
             },
             "toggle_group" : {},
             "sprite_renderer" : {
@@ -239,26 +241,11 @@
             }
         },
         "children" : [{
-            "prototype" : "../prefabs/toggle_prefab.json",
-            "components" : {
-                "layout" : {
-                    "size" : [50,50]
-                }
-            }
+            "prototype" : "../prefabs/toggle_prefab.json"
         },{
-            "prototype" : "../prefabs/toggle_prefab.json",
-            "components" : {
-                "layout" : {
-                    "size" : [50,50]
-                }
-            }
+            "prototype" : "../prefabs/toggle_prefab.json"
         },{
-            "prototype" : "../prefabs/toggle_prefab.json",
-            "components" : {
-                "layout" : {
-                    "size" : [50,50]
-                }
-            }
+            "prototype" : "../prefabs/toggle_prefab.json"
         }]
     }]
 }

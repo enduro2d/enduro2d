@@ -17,48 +17,48 @@ namespace e2d::bindings::high
             sol::no_constructor,
 
             "enable", [](gcomponent<button>& c){
-                c.owner().component<disabled<button>>().remove();
+                c.component<disabled<button>>().remove();
             },
 
             "disable", [](gcomponent<button>& c){
-                c.owner().component<disabled<button>>().ensure();
+                c.component<disabled<button>>().ensure();
             },
 
             "enabled", sol::property(
                 [](const gcomponent<button>& c) -> bool {
-                    return !c.owner().component<disabled<button>>().exists();
+                    return !c.component<disabled<button>>().exists();
                 },
                 [](gcomponent<button>& c, bool yesno){
                     if ( yesno ) {
-                        c.owner().component<disabled<button>>().remove();
+                        c.component<disabled<button>>().remove();
                     } else {
-                        c.owner().component<disabled<button>>().ensure();
+                        c.component<disabled<button>>().ensure();
                     }
                 }
             ),
 
             "disabled", sol::property(
                 [](const gcomponent<button>& c) -> bool {
-                    return c.owner().component<disabled<button>>().exists();
+                    return c.component<disabled<button>>().exists();
                 },
                 [](gcomponent<button>& c, bool yesno){
                     if ( yesno ) {
-                        c.owner().component<disabled<button>>().ensure();
+                        c.component<disabled<button>>().ensure();
                     } else {
-                        c.owner().component<disabled<button>>().remove();
+                        c.component<disabled<button>>().remove();
                     }
                 }
             ),
 
             "pressed", sol::property(
                 [](const gcomponent<button>& c) -> bool {
-                    return c.owner().component<button::pressed>().exists();
+                    return c.component<button::pressed>().exists();
                 },
                 [](gcomponent<button>& c, bool yesno){
                     if ( yesno ) {
-                        c.owner().component<button::pressed>().ensure();
+                        c.component<button::pressed>().ensure();
                     } else {
-                        c.owner().component<button::pressed>().remove();
+                        c.component<button::pressed>().remove();
                     }
                 }
             ),

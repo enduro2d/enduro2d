@@ -3,7 +3,7 @@
         "named" : {
             "name" : "button"
         },
-        "layout" : {
+        "widget" : {
             "size" : [50,50]
         }
     },

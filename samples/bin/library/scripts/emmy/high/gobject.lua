@@ -67,7 +67,10 @@ local gobject = {
     toggle = nil,
 
     ---@type touchable
-    touchable = nil
+    touchable = nil,
+
+    ---@type widget
+    widget = nil
 }
 
 ---@param self gobject

@@ -9,8 +9,9 @@
 #include "_high.hpp"
 
 #include "node.hpp"
-#include "prefab.hpp"
 #include "gobject.hpp"
+
+#include "resources/prefab.hpp"
 
 namespace e2d
 {
@@ -23,12 +24,15 @@ namespace e2d
         const ecs::registry& registry() const noexcept;
 
         gobject instantiate();
-        gobject instantiate(const prefab& prefab);
+        gobject instantiate(const t2f& transform);
 
         gobject instantiate(const node_iptr& parent);
-        gobject instantiate(const prefab& prefab, const node_iptr& parent);
-
         gobject instantiate(const node_iptr& parent, const t2f& transform);
+
+        gobject instantiate(const prefab& prefab);
+        gobject instantiate(const prefab& prefab, const t2f& transform);
+
+        gobject instantiate(const prefab& prefab, const node_iptr& parent);
         gobject instantiate(const prefab& prefab, const node_iptr& parent, const t2f& transform);
 
         void destroy_instance(gobject inst) noexcept;

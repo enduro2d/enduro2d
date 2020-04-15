@@ -17,35 +17,35 @@ namespace e2d::bindings::high
             sol::no_constructor,
 
             "enable", [](gcomponent<handle>& c){
-                c.owner().component<disabled<handle>>().remove();
+                c.component<disabled<handle>>().remove();
             },
 
             "disable", [](gcomponent<handle>& c){
-                c.owner().component<disabled<handle>>().ensure();
+                c.component<disabled<handle>>().ensure();
             },
 
             "enabled", sol::property(
                 [](const gcomponent<handle>& c) -> bool {
-                    return !c.owner().component<disabled<handle>>().exists();
+                    return !c.component<disabled<handle>>().exists();
                 },
                 [](gcomponent<handle>& c, bool yesno){
                     if ( yesno ) {
-                        c.owner().component<disabled<handle>>().remove();
+                        c.component<disabled<handle>>().remove();
                     } else {
-                        c.owner().component<disabled<handle>>().ensure();
+                        c.component<disabled<handle>>().ensure();
                     }
                 }
             ),
 
             "disabled", sol::property(
                 [](const gcomponent<handle>& c) -> bool {
-                    return c.owner().component<disabled<handle>>().exists();
+                    return c.component<disabled<handle>>().exists();
                 },
                 [](gcomponent<handle>& c, bool yesno){
                     if ( yesno ) {
-                        c.owner().component<disabled<handle>>().ensure();
+                        c.component<disabled<handle>>().ensure();
                     } else {
-                        c.owner().component<disabled<handle>>().remove();
+                        c.component<disabled<handle>>().remove();
                     }
                 }
             )

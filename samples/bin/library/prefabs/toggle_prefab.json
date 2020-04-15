@@ -3,7 +3,7 @@
         "named" : {
             "name" : "toggle"
         },
-        "layout" : {
+        "widget" : {
             "size" : [50,50]
         }
     },

@@ -62,25 +62,25 @@ namespace e2d
         // pushing/hovering
         //
 
-        if ( bool pushing = c.owner().component<touchable::pushing>().exists();
+        if ( bool pushing = c.component<touchable::pushing>().exists();
             ImGui::Checkbox("pushing", &pushing) )
         {
             if ( pushing ) {
-                c.owner().component<touchable::pushing>().ensure();
+                c.component<touchable::pushing>().ensure();
             } else {
-                c.owner().component<touchable::pushing>().remove();
+                c.component<touchable::pushing>().remove();
             }
         }
 
         ImGui::SameLine();
 
-        if ( bool hovering = c.owner().component<touchable::hovering>().exists();
+        if ( bool hovering = c.component<touchable::hovering>().exists();
             ImGui::Checkbox("hovering", &hovering) )
         {
             if ( hovering ) {
-                c.owner().component<touchable::hovering>().ensure();
+                c.component<touchable::hovering>().ensure();
             } else {
-                c.owner().component<touchable::hovering>().remove();
+                c.component<touchable::hovering>().remove();
             }
         }
 
@@ -90,37 +90,37 @@ namespace e2d
         // clicked/pressed/released
         //
 
-        if ( bool clicked = c.owner().component<touchable::clicked>().exists();
+        if ( bool clicked = c.component<touchable::clicked>().exists();
             ImGui::Checkbox("clicked", &clicked) )
         {
             if ( clicked ) {
-                c.owner().component<touchable::clicked>().ensure();
+                c.component<touchable::clicked>().ensure();
             } else {
-                c.owner().component<touchable::clicked>().remove();
+                c.component<touchable::clicked>().remove();
             }
         }
 
         ImGui::SameLine();
 
-        if ( bool pressed = c.owner().component<touchable::pressed>().exists();
+        if ( bool pressed = c.component<touchable::pressed>().exists();
             ImGui::Checkbox("pressed", &pressed) )
         {
             if ( pressed ) {
-                c.owner().component<touchable::pressed>().ensure();
+                c.component<touchable::pressed>().ensure();
             } else {
-                c.owner().component<touchable::pressed>().remove();
+                c.component<touchable::pressed>().remove();
             }
         }
 
         ImGui::SameLine();
 
-        if ( bool released = c.owner().component<touchable::released>().exists();
+        if ( bool released = c.component<touchable::released>().exists();
             ImGui::Checkbox("released", &released) )
         {
             if ( released ) {
-                c.owner().component<touchable::released>().ensure();
+                c.component<touchable::released>().ensure();
             } else {
-                c.owner().component<touchable::released>().remove();
+                c.component<touchable::released>().remove();
             }
         }
 
@@ -130,25 +130,25 @@ namespace e2d
         // hover_over/hover_out
         //
 
-        if ( bool hover_over = c.owner().component<touchable::hover_over>().exists();
+        if ( bool hover_over = c.component<touchable::hover_over>().exists();
             ImGui::Checkbox("hover_over", &hover_over) )
         {
             if ( hover_over ) {
-                c.owner().component<touchable::hover_over>().ensure();
+                c.component<touchable::hover_over>().ensure();
             } else {
-                c.owner().component<touchable::hover_over>().remove();
+                c.component<touchable::hover_over>().remove();
             }
         }
 
         ImGui::SameLine();
 
-        if ( bool hover_out = c.owner().component<touchable::hover_out>().exists();
+        if ( bool hover_out = c.component<touchable::hover_out>().exists();
             ImGui::Checkbox("hover_out", &hover_out) )
         {
             if ( hover_out ) {
-                c.owner().component<touchable::hover_out>().ensure();
+                c.component<touchable::hover_out>().ensure();
             } else {
-                c.owner().component<touchable::hover_out>().remove();
+                c.component<touchable::hover_out>().remove();
             }
         }
 
@@ -158,25 +158,25 @@ namespace e2d
         // hover_enter/hover_leave
         //
 
-        if ( bool hover_enter = c.owner().component<touchable::hover_enter>().exists();
+        if ( bool hover_enter = c.component<touchable::hover_enter>().exists();
             ImGui::Checkbox("hover_enter", &hover_enter) )
         {
             if ( hover_enter ) {
-                c.owner().component<touchable::hover_enter>().ensure();
+                c.component<touchable::hover_enter>().ensure();
             } else {
-                c.owner().component<touchable::hover_enter>().remove();
+                c.component<touchable::hover_enter>().remove();
             }
         }
 
         ImGui::SameLine();
 
-        if ( bool hover_leave = c.owner().component<touchable::hover_leave>().exists();
+        if ( bool hover_leave = c.component<touchable::hover_leave>().exists();
             ImGui::Checkbox("hover_leave", &hover_leave) )
         {
             if ( hover_leave ) {
-                c.owner().component<touchable::hover_leave>().ensure();
+                c.component<touchable::hover_leave>().ensure();
             } else {
-                c.owner().component<touchable::hover_leave>().remove();
+                c.component<touchable::hover_leave>().remove();
             }
         }
 

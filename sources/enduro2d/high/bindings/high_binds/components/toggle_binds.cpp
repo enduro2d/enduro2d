@@ -17,48 +17,48 @@ namespace e2d::bindings::high
             sol::no_constructor,
 
             "enable", [](gcomponent<toggle>& c){
-                c.owner().component<disabled<toggle>>().remove();
+                c.component<disabled<toggle>>().remove();
             },
 
             "disable", [](gcomponent<toggle>& c){
-                c.owner().component<disabled<toggle>>().ensure();
+                c.component<disabled<toggle>>().ensure();
             },
 
             "enabled", sol::property(
                 [](const gcomponent<toggle>& c) -> bool {
-                    return !c.owner().component<disabled<toggle>>().exists();
+                    return !c.component<disabled<toggle>>().exists();
                 },
                 [](gcomponent<toggle>& c, bool yesno){
                     if ( yesno ) {
-                        c.owner().component<disabled<toggle>>().remove();
+                        c.component<disabled<toggle>>().remove();
                     } else {
-                        c.owner().component<disabled<toggle>>().ensure();
+                        c.component<disabled<toggle>>().ensure();
                     }
                 }
             ),
 
             "disabled", sol::property(
                 [](const gcomponent<toggle>& c) -> bool {
-                    return c.owner().component<disabled<toggle>>().exists();
+                    return c.component<disabled<toggle>>().exists();
                 },
                 [](gcomponent<toggle>& c, bool yesno){
                     if ( yesno ) {
-                        c.owner().component<disabled<toggle>>().ensure();
+                        c.component<disabled<toggle>>().ensure();
                     } else {
-                        c.owner().component<disabled<toggle>>().remove();
+                        c.component<disabled<toggle>>().remove();
                     }
                 }
             ),
 
             "pressed", sol::property(
                 [](const gcomponent<toggle>& c) -> bool {
-                    return c.owner().component<toggle::pressed>().exists();
+                    return c.component<toggle::pressed>().exists();
                 },
                 [](gcomponent<toggle>& c, bool yesno){
                     if ( yesno ) {
-                        c.owner().component<toggle::pressed>().ensure();
+                        c.component<toggle::pressed>().ensure();
                     } else {
-                        c.owner().component<toggle::pressed>().remove();
+                        c.component<toggle::pressed>().remove();
                     }
                 }
             ),

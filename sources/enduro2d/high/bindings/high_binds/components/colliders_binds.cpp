@@ -19,35 +19,35 @@ namespace
             sol::no_constructor,
 
             "enable", [](gcomponent<rect_collider>& c){
-                c.owner().component<disabled<rect_collider>>().remove();
+                c.component<disabled<rect_collider>>().remove();
             },
 
             "disable", [](gcomponent<rect_collider>& c){
-                c.owner().component<disabled<rect_collider>>().ensure();
+                c.component<disabled<rect_collider>>().ensure();
             },
 
             "enabled", sol::property(
                 [](const gcomponent<rect_collider>& c) -> bool {
-                    return !c.owner().component<disabled<rect_collider>>().exists();
+                    return !c.component<disabled<rect_collider>>().exists();
                 },
                 [](gcomponent<rect_collider>& c, bool yesno){
                     if ( yesno ) {
-                        c.owner().component<disabled<rect_collider>>().remove();
+                        c.component<disabled<rect_collider>>().remove();
                     } else {
-                        c.owner().component<disabled<rect_collider>>().ensure();
+                        c.component<disabled<rect_collider>>().ensure();
                     }
                 }
             ),
 
             "disabled", sol::property(
                 [](const gcomponent<rect_collider>& c) -> bool {
-                    return c.owner().component<disabled<rect_collider>>().exists();
+                    return c.component<disabled<rect_collider>>().exists();
                 },
                 [](gcomponent<rect_collider>& c, bool yesno){
                     if ( yesno ) {
-                        c.owner().component<disabled<rect_collider>>().ensure();
+                        c.component<disabled<rect_collider>>().ensure();
                     } else {
-                        c.owner().component<disabled<rect_collider>>().remove();
+                        c.component<disabled<rect_collider>>().remove();
                     }
                 }
             ),
@@ -75,35 +75,35 @@ namespace
             sol::no_constructor,
 
             "enable", [](gcomponent<circle_collider>& c){
-                c.owner().component<disabled<circle_collider>>().remove();
+                c.component<disabled<circle_collider>>().remove();
             },
 
             "disable", [](gcomponent<circle_collider>& c){
-                c.owner().component<disabled<circle_collider>>().ensure();
+                c.component<disabled<circle_collider>>().ensure();
             },
 
             "enabled", sol::property(
                 [](const gcomponent<circle_collider>& c) -> bool {
-                    return !c.owner().component<disabled<circle_collider>>().exists();
+                    return !c.component<disabled<circle_collider>>().exists();
                 },
                 [](gcomponent<circle_collider>& c, bool yesno){
                     if ( yesno ) {
-                        c.owner().component<disabled<circle_collider>>().remove();
+                        c.component<disabled<circle_collider>>().remove();
                     } else {
-                        c.owner().component<disabled<circle_collider>>().ensure();
+                        c.component<disabled<circle_collider>>().ensure();
                     }
                 }
             ),
 
             "disabled", sol::property(
                 [](const gcomponent<circle_collider>& c) -> bool {
-                    return c.owner().component<disabled<circle_collider>>().exists();
+                    return c.component<disabled<circle_collider>>().exists();
                 },
                 [](gcomponent<circle_collider>& c, bool yesno){
                     if ( yesno ) {
-                        c.owner().component<disabled<circle_collider>>().ensure();
+                        c.component<disabled<circle_collider>>().ensure();
                     } else {
-                        c.owner().component<disabled<circle_collider>>().remove();
+                        c.component<disabled<circle_collider>>().remove();
                     }
                 }
             ),
@@ -131,35 +131,35 @@ namespace
             sol::no_constructor,
 
             "enable", [](gcomponent<polygon_collider>& c){
-                c.owner().component<disabled<polygon_collider>>().remove();
+                c.component<disabled<polygon_collider>>().remove();
             },
 
             "disable", [](gcomponent<polygon_collider>& c){
-                c.owner().component<disabled<polygon_collider>>().ensure();
+                c.component<disabled<polygon_collider>>().ensure();
             },
 
             "enabled", sol::property(
                 [](const gcomponent<polygon_collider>& c) -> bool {
-                    return !c.owner().component<disabled<polygon_collider>>().exists();
+                    return !c.component<disabled<polygon_collider>>().exists();
                 },
                 [](gcomponent<polygon_collider>& c, bool yesno){
                     if ( yesno ) {
-                        c.owner().component<disabled<polygon_collider>>().remove();
+                        c.component<disabled<polygon_collider>>().remove();
                     } else {
-                        c.owner().component<disabled<polygon_collider>>().ensure();
+                        c.component<disabled<polygon_collider>>().ensure();
                     }
                 }
             ),
 
             "disabled", sol::property(
                 [](const gcomponent<polygon_collider>& c) -> bool {
-                    return c.owner().component<disabled<polygon_collider>>().exists();
+                    return c.component<disabled<polygon_collider>>().exists();
                 },
                 [](gcomponent<polygon_collider>& c, bool yesno){
                     if ( yesno ) {
-                        c.owner().component<disabled<polygon_collider>>().ensure();
+                        c.component<disabled<polygon_collider>>().ensure();
                     } else {
-                        c.owner().component<disabled<polygon_collider>>().remove();
+                        c.component<disabled<polygon_collider>>().remove();
                     }
                 }
             ),

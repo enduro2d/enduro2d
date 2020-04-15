@@ -15,14 +15,16 @@
             "prototype" : "../prefabs/layout_prefab.json",
             "components" : {
                 "layout" : {
-                    "size" : [400,200],
-                    "halign" : "space_evenly"
+                    "justify_content" : "space_evenly"
+                },
+                "widget" : {
+                    "size" : [400,200]
                 }
             },
             "children" : [{
-                "prototype" : "../prefabs/layout_prefab.json",
+                "prototype" : "../prefabs/widget_prefab.json",
                 "components" : {
-                    "layout" : {
+                    "widget" : {
                         "size" : [66,113]
                     }
                 },
@@ -35,9 +37,9 @@
                     }
                 }]
             },{
-                "prototype" : "../prefabs/layout_prefab.json",
+                "prototype" : "../prefabs/widget_prefab.json",
                 "components" : {
-                    "layout" : {
+                    "widget" : {
                         "size" : [66,113]
                     }
                 },
@@ -50,9 +52,9 @@
                     }
                 }]
             },{
-                "prototype" : "../prefabs/layout_prefab.json",
+                "prototype" : "../prefabs/widget_prefab.json",
                 "components" : {
-                    "layout" : {
+                    "widget" : {
                         "size" : [66,113]
                     }
                 },

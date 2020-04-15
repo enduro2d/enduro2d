@@ -21,9 +21,9 @@ namespace e2d
     }
 
     node_iptr node::create(const t2f& transform) {
-        node_iptr n = create();
-        n->transform(transform);
-        return n;
+        node_iptr child = create();
+        child->transform(transform);
+        return child;
     }
 
     node_iptr node::create(const node_iptr& parent) {
@@ -35,9 +35,9 @@ namespace e2d
     }
 
     node_iptr node::create(const node_iptr& parent, const t2f& transform) {
-        node_iptr n = create(parent);
-        n->transform(transform);
-        return n;
+        node_iptr child = create(parent);
+        child->transform(transform);
+        return child;
     }
 
     node_iptr node::create(gobject owner) {
@@ -45,9 +45,9 @@ namespace e2d
     }
 
     node_iptr node::create(gobject owner, const t2f& transform) {
-        node_iptr n = create(owner);
-        n->transform(transform);
-        return n;
+        node_iptr child = create(std::move(owner));
+        child->transform(transform);
+        return child;
     }
 
     node_iptr node::create(gobject owner, const node_iptr& parent) {
@@ -59,9 +59,9 @@ namespace e2d
     }
 
     node_iptr node::create(gobject owner, const node_iptr& parent, const t2f& transform) {
-        node_iptr n = create(owner, parent);
-        n->transform(transform);
-        return n;
+        node_iptr child = create(std::move(owner), parent);
+        child->transform(transform);
+        return child;
     }
 
     void node::owner(gobject owner) noexcept {

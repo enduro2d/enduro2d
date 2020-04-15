@@ -56,13 +56,13 @@ namespace e2d
     const char* component_inspector<toggle>::title = ICON_FA_TOGGLE_ON " toggle";
 
     void component_inspector<toggle>::operator()(gcomponent<toggle>& c) const {
-        if ( bool pressed = c.owner().component<toggle::pressed>().exists();
+        if ( bool pressed = c.component<toggle::pressed>().exists();
             ImGui::Checkbox("pressed", &pressed) )
         {
             if ( pressed ) {
-                c.owner().component<toggle::pressed>().ensure();
+                c.component<toggle::pressed>().ensure();
             } else {
-                c.owner().component<toggle::pressed>().remove();
+                c.component<toggle::pressed>().remove();
             }
         }
 

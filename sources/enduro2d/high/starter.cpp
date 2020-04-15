@@ -35,6 +35,7 @@
 #include <enduro2d/high/components/toggle_group.hpp>
 #include <enduro2d/high/components/toggle.hpp>
 #include <enduro2d/high/components/touchable.hpp>
+#include <enduro2d/high/components/widget.hpp>
 
 #include <enduro2d/high/systems/button_system.hpp>
 #include <enduro2d/high/systems/camera_system.hpp>
@@ -49,6 +50,7 @@
 #include <enduro2d/high/systems/spine_system.hpp>
 #include <enduro2d/high/systems/toggle_system.hpp>
 #include <enduro2d/high/systems/touch_system.hpp>
+#include <enduro2d/high/systems/widget_system.hpp>
 #include <enduro2d/high/systems/world_system.hpp>
 
 namespace
@@ -92,6 +94,8 @@ namespace
                     .add_system<button_system>()
                     .add_system<toggle_system>()
                     .add_system<slider_system>())
+                .feature<struct widget_feature>(ecs::feature()
+                    .add_system<widget_system>())
                 .feature<struct world_feature>(ecs::feature()
                     .add_system<world_system>());
             return !application_ || application_->initialize();
@@ -236,6 +240,8 @@ namespace e2d
             .register_component<touchable::hover_enter>("touchable.hover_enter")
             .register_component<touchable::hover_leave>("touchable.hover_leave")
             .register_component<events<touchable_events::event>>("touchable.events")
+            .register_component<widget>("widget")
+            .register_component<widget::dirty>("widget.dirty")
             ;
 
         safe_module_initialize<inspector>()
@@ -278,6 +284,8 @@ namespace e2d
             //.register_component<touchable::hover_enter>("touchable.hover_enter")
             //.register_component<touchable::hover_leave>("touchable.hover_leave")
             //.register_component<events<touchable_events::event>>("touchable.events")
+            .register_component<widget>("widget")
+            //.register_component<widget::dirty>("widget.dirty")
             ;
 
         safe_module_initialize<luasol>();

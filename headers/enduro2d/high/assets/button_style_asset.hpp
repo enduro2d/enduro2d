@@ -9,7 +9,7 @@
 #include "../_high.hpp"
 
 #include "../library.hpp"
-#include "../styles.hpp"
+#include "../resources/button_style.hpp"
 
 namespace e2d
 {

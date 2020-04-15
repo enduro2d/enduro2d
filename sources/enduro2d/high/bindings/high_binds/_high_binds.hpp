@@ -37,6 +37,7 @@ namespace e2d::bindings::high
     void bind_toggle_group(sol::state& l);
     void bind_toggle(sol::state& l);
     void bind_touchable(sol::state& l);
+    void bind_widget(sol::state& l);
 }
 
 namespace e2d::bindings
@@ -69,5 +70,6 @@ namespace e2d::bindings
         high::bind_toggle_group(l);
         high::bind_toggle(l);
         high::bind_touchable(l);
+        high::bind_widget(l);
     }
 }

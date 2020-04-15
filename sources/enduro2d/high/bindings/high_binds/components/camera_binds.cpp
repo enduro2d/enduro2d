@@ -17,61 +17,61 @@ namespace e2d::bindings::high
             sol::no_constructor,
 
             "enable", [](gcomponent<camera>& c){
-                c.owner().component<disabled<camera>>().remove();
+                c.component<disabled<camera>>().remove();
             },
 
             "disable", [](gcomponent<camera>& c){
-                c.owner().component<disabled<camera>>().ensure();
+                c.component<disabled<camera>>().ensure();
             },
 
             "enabled", sol::property(
                 [](const gcomponent<camera>& c) -> bool {
-                    return !c.owner().component<disabled<camera>>().exists();
+                    return !c.component<disabled<camera>>().exists();
                 },
                 [](gcomponent<camera>& c, bool yesno){
                     if ( yesno ) {
-                        c.owner().component<disabled<camera>>().remove();
+                        c.component<disabled<camera>>().remove();
                     } else {
-                        c.owner().component<disabled<camera>>().ensure();
+                        c.component<disabled<camera>>().ensure();
                     }
                 }
             ),
 
             "disabled", sol::property(
                 [](const gcomponent<camera>& c) -> bool {
-                    return c.owner().component<disabled<camera>>().exists();
+                    return c.component<disabled<camera>>().exists();
                 },
                 [](gcomponent<camera>& c, bool yesno){
                     if ( yesno ) {
-                        c.owner().component<disabled<camera>>().ensure();
+                        c.component<disabled<camera>>().ensure();
                     } else {
-                        c.owner().component<disabled<camera>>().remove();
+                        c.component<disabled<camera>>().remove();
                     }
                 }
             ),
 
             "input", sol::property(
                 [](const gcomponent<camera>& c) -> bool {
-                    return c.owner().component<camera::input>().exists();
+                    return c.component<camera::input>().exists();
                 },
                 [](gcomponent<camera>& c, bool yesno){
                     if ( yesno ) {
-                        c.owner().component<camera::input>().ensure();
+                        c.component<camera::input>().ensure();
                     } else {
-                        c.owner().component<camera::input>().remove();
+                        c.component<camera::input>().remove();
                     }
                 }
             ),
 
             "gizmos", sol::property(
                 [](const gcomponent<camera>& c) -> bool {
-                    return c.owner().component<camera::gizmos>().exists();
+                    return c.component<camera::gizmos>().exists();
                 },
                 [](gcomponent<camera>& c, bool yesno){
                     if ( yesno ) {
-                        c.owner().component<camera::gizmos>().ensure();
+                        c.component<camera::gizmos>().ensure();
                     } else {
-                        c.owner().component<camera::gizmos>().remove();
+                        c.component<camera::gizmos>().remove();
                     }
                 }
             ),
