@@ -201,7 +201,7 @@ namespace e2d
     const char* component_inspector<label>::title = ICON_FA_PARAGRAPH " label";
 
     void component_inspector<label>::operator()(gcomponent<label>& c) const {
-        if ( bool dirty = c.owner().component<label::dirty>().exists();
+        if ( bool dirty = c.component<label::dirty>().exists();
             ImGui::Checkbox("dirty", &dirty) )
         {
             if ( dirty ) {
@@ -337,20 +337,20 @@ namespace e2d::labels
 {
     gcomponent<label> mark_dirty(gcomponent<label> self) {
         if ( self ) {
-            self.owner().component<label::dirty>().ensure();
+            self.component<label::dirty>().ensure();
         }
         return self;
     }
 
     gcomponent<label> unmark_dirty(gcomponent<label> self) {
         if ( self ) {
-            self.owner().component<label::dirty>().remove();
+            self.component<label::dirty>().remove();
         }
         return self;
     }
 
     bool is_dirty(const const_gcomponent<label>& self) noexcept {
-        return self.owner().component<label::dirty>().exists();
+        return self.component<label::dirty>().exists();
     }
 
     gcomponent<label> change_text(gcomponent<label> self, str value) {

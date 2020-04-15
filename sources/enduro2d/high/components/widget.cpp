@@ -96,7 +96,7 @@ namespace e2d
     const char* component_inspector<widget>::title = ICON_FA_VECTOR_SQUARE " widget";
 
     void component_inspector<widget>::operator()(gcomponent<widget>& c) const {
-        if ( bool dirty = c.owner().component<widget::dirty>().exists();
+        if ( bool dirty = c.component<widget::dirty>().exists();
             ImGui::Checkbox("dirty", &dirty) )
         {
             if ( dirty ) {
@@ -161,20 +161,20 @@ namespace e2d::widgets
 {
     gcomponent<widget> mark_dirty(gcomponent<widget> self) {
         if ( self ) {
-            self.owner().component<widget::dirty>().ensure();
+            self.component<widget::dirty>().ensure();
         }
         return self;
     }
 
     gcomponent<widget> unmark_dirty(gcomponent<widget> self) {
         if ( self ) {
-            self.owner().component<widget::dirty>().remove();
+            self.component<widget::dirty>().remove();
         }
         return self;
     }
 
     bool is_dirty(const const_gcomponent<widget>& self) noexcept {
-        return self.owner().component<widget::dirty>().exists();
+        return self.component<widget::dirty>().exists();
     }
 
     gcomponent<widget> change_size(gcomponent<widget> self, const v2f& value) {
@@ -199,7 +199,7 @@ namespace e2d::widgets
     }
 
     gcomponent<layout> find_parent_layout(const_gcomponent<widget> self) noexcept {
-        const_gcomponent<actor> self_actor = self.owner().component<actor>();
+        const_gcomponent<actor> self_actor = self.component<actor>();
         return self_actor
             ? nodes::find_component_from_parents<layout>(self_actor->node())
             : gcomponent<layout>();

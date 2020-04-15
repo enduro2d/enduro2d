@@ -94,6 +94,12 @@ namespace e2d
 
         gobject owner() const noexcept;
         explicit operator bool() const noexcept;
+
+        template < typename U >
+        gcomponent<U> component() noexcept;
+
+        template < typename U >
+        const_gcomponent<U> component() const noexcept;
     private:
         gobject owner_;
     };
@@ -116,6 +122,9 @@ namespace e2d
 
         gobject owner() const noexcept;
         explicit operator bool() const noexcept;
+
+        template < typename U >
+        const_gcomponent<U> component() const noexcept;
     private:
         gobject owner_;
     };
@@ -239,6 +248,18 @@ namespace e2d
     gcomponent<T>::operator bool() const noexcept {
         return exists();
     }
+
+    template < typename T >
+    template < typename U >
+    gcomponent<U> gcomponent<T>::component() noexcept {
+        return owner_.component<U>();
+    }
+
+    template < typename T >
+    template < typename U >
+    const_gcomponent<U> gcomponent<T>::component() const noexcept {
+        return owner_.component<U>();
+    }
 }
 
 namespace e2d
@@ -293,5 +314,11 @@ namespace e2d
     template < typename T >
     const_gcomponent<T>::operator bool() const noexcept {
         return exists();
+    }
+
+    template < typename T >
+    template < typename U >
+    const_gcomponent<U> const_gcomponent<T>::component() const noexcept {
+        return owner_.component<U>();
     }
 }

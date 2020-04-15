@@ -17,24 +17,24 @@ namespace e2d::bindings::high
             sol::no_constructor,
 
             "enable", [](gcomponent<layout>& c){
-                c.owner().component<disabled<layout>>().remove();
+                c.component<disabled<layout>>().remove();
                 layouts::mark_dirty(c);
             },
 
             "disable", [](gcomponent<layout>& c){
-                c.owner().component<disabled<layout>>().ensure();
+                c.component<disabled<layout>>().ensure();
                 layouts::mark_dirty(c);
             },
 
             "enabled", sol::property(
                 [](const gcomponent<layout>& c) -> bool {
-                    return !c.owner().component<disabled<layout>>().exists();
+                    return !c.component<disabled<layout>>().exists();
                 },
                 [](gcomponent<layout>& c, bool yesno){
                     if ( yesno ) {
-                        c.owner().component<disabled<layout>>().remove();
+                        c.component<disabled<layout>>().remove();
                     } else {
-                        c.owner().component<disabled<layout>>().ensure();
+                        c.component<disabled<layout>>().ensure();
                     }
                     layouts::mark_dirty(c);
                 }
@@ -42,13 +42,13 @@ namespace e2d::bindings::high
 
             "disabled", sol::property(
                 [](const gcomponent<layout>& c) -> bool {
-                    return c.owner().component<disabled<layout>>().exists();
+                    return c.component<disabled<layout>>().exists();
                 },
                 [](gcomponent<layout>& c, bool yesno){
                     if ( yesno ) {
-                        c.owner().component<disabled<layout>>().ensure();
+                        c.component<disabled<layout>>().ensure();
                     } else {
-                        c.owner().component<disabled<layout>>().remove();
+                        c.component<disabled<layout>>().remove();
                     }
                     layouts::mark_dirty(c);
                 }

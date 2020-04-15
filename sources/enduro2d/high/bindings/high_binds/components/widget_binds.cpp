@@ -17,35 +17,35 @@ namespace e2d::bindings::high
             sol::no_constructor,
 
             "enable", [](gcomponent<widget>& c){
-                c.owner().component<disabled<widget>>().remove();
+                c.component<disabled<widget>>().remove();
             },
 
             "disable", [](gcomponent<widget>& c){
-                c.owner().component<disabled<widget>>().ensure();
+                c.component<disabled<widget>>().ensure();
             },
 
             "enabled", sol::property(
                 [](const gcomponent<widget>& c) -> bool {
-                    return !c.owner().component<disabled<widget>>().exists();
+                    return !c.component<disabled<widget>>().exists();
                 },
                 [](gcomponent<widget>& c, bool yesno){
                     if ( yesno ) {
-                        c.owner().component<disabled<widget>>().remove();
+                        c.component<disabled<widget>>().remove();
                     } else {
-                        c.owner().component<disabled<widget>>().ensure();
+                        c.component<disabled<widget>>().ensure();
                     }
                 }
             ),
 
             "disabled", sol::property(
                 [](const gcomponent<widget>& c) -> bool {
-                    return c.owner().component<disabled<widget>>().exists();
+                    return c.component<disabled<widget>>().exists();
                 },
                 [](gcomponent<widget>& c, bool yesno){
                     if ( yesno ) {
-                        c.owner().component<disabled<widget>>().ensure();
+                        c.component<disabled<widget>>().ensure();
                     } else {
-                        c.owner().component<disabled<widget>>().remove();
+                        c.component<disabled<widget>>().remove();
                     }
                 }
             ),

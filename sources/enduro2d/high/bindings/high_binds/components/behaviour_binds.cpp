@@ -17,35 +17,35 @@ namespace e2d::bindings::high
             sol::no_constructor,
 
             "enable", [](gcomponent<behaviour>& c){
-                c.owner().component<disabled<behaviour>>().remove();
+                c.component<disabled<behaviour>>().remove();
             },
 
             "disable", [](gcomponent<behaviour>& c){
-                c.owner().component<disabled<behaviour>>().ensure();
+                c.component<disabled<behaviour>>().ensure();
             },
 
             "enabled", sol::property(
                 [](const gcomponent<behaviour>& c) -> bool {
-                    return !c.owner().component<disabled<behaviour>>().exists();
+                    return !c.component<disabled<behaviour>>().exists();
                 },
                 [](gcomponent<behaviour>& c, bool yesno){
                     if ( yesno ) {
-                        c.owner().component<disabled<behaviour>>().remove();
+                        c.component<disabled<behaviour>>().remove();
                     } else {
-                        c.owner().component<disabled<behaviour>>().ensure();
+                        c.component<disabled<behaviour>>().ensure();
                     }
                 }
             ),
 
             "disabled", sol::property(
                 [](const gcomponent<behaviour>& c) -> bool {
-                    return c.owner().component<disabled<behaviour>>().exists();
+                    return c.component<disabled<behaviour>>().exists();
                 },
                 [](gcomponent<behaviour>& c, bool yesno){
                     if ( yesno ) {
-                        c.owner().component<disabled<behaviour>>().ensure();
+                        c.component<disabled<behaviour>>().ensure();
                     } else {
-                        c.owner().component<disabled<behaviour>>().remove();
+                        c.component<disabled<behaviour>>().remove();
                     }
                 }
             ),

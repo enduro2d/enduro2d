@@ -172,7 +172,7 @@ namespace e2d
     const char* component_inspector<layout>::title = ICON_FA_BARS " layout";
 
     void component_inspector<layout>::operator()(gcomponent<layout>& c) const {
-        if ( bool dirty = c.owner().component<layout::dirty>().exists();
+        if ( bool dirty = c.component<layout::dirty>().exists();
             ImGui::Checkbox("dirty", &dirty) )
         {
             if ( dirty ) {
@@ -226,20 +226,20 @@ namespace e2d::layouts
 {
     gcomponent<layout> mark_dirty(gcomponent<layout> self) {
         if ( self ) {
-            self.owner().component<layout::dirty>().ensure();
+            self.component<layout::dirty>().ensure();
         }
         return self;
     }
 
     gcomponent<layout> unmark_dirty(gcomponent<layout> self) {
         if ( self ) {
-            self.owner().component<layout::dirty>().remove();
+            self.component<layout::dirty>().remove();
         }
         return self;
     }
 
     bool is_dirty(const const_gcomponent<layout>& self) noexcept {
-        return self.owner().component<layout::dirty>().exists();
+        return self.component<layout::dirty>().exists();
     }
 
     gcomponent<layout> change_direction(gcomponent<layout> self, layout::directions value) {
@@ -285,7 +285,7 @@ namespace e2d::layouts
     }
 
     gcomponent<layout> find_parent_layout(const_gcomponent<layout> self) noexcept {
-        const_gcomponent<actor> self_actor = self.owner().component<actor>();
+        const_gcomponent<actor> self_actor = self.component<actor>();
         return self_actor
             ? nodes::find_component_from_parents<layout>(self_actor->node())
             : gcomponent<layout>();
