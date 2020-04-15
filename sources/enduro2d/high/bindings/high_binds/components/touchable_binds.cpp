@@ -17,35 +17,35 @@ namespace e2d::bindings::high
             sol::no_constructor,
 
             "enable", [](gcomponent<touchable>& c){
-                c.owner().component<disabled<touchable>>().remove();
+                c.component<disabled<touchable>>().remove();
             },
 
             "disable", [](gcomponent<touchable>& c){
-                c.owner().component<disabled<touchable>>().ensure();
+                c.component<disabled<touchable>>().ensure();
             },
 
             "enabled", sol::property(
                 [](const gcomponent<touchable>& c) -> bool {
-                    return !c.owner().component<disabled<touchable>>().exists();
+                    return !c.component<disabled<touchable>>().exists();
                 },
                 [](gcomponent<touchable>& c, bool yesno){
                     if ( yesno ) {
-                        c.owner().component<disabled<touchable>>().remove();
+                        c.component<disabled<touchable>>().remove();
                     } else {
-                        c.owner().component<disabled<touchable>>().ensure();
+                        c.component<disabled<touchable>>().ensure();
                     }
                 }
             ),
 
             "disabled", sol::property(
                 [](const gcomponent<touchable>& c) -> bool {
-                    return c.owner().component<disabled<touchable>>().exists();
+                    return c.component<disabled<touchable>>().exists();
                 },
                 [](gcomponent<touchable>& c, bool yesno){
                     if ( yesno ) {
-                        c.owner().component<disabled<touchable>>().ensure();
+                        c.component<disabled<touchable>>().ensure();
                     } else {
-                        c.owner().component<disabled<touchable>>().remove();
+                        c.component<disabled<touchable>>().remove();
                     }
                 }
             ),

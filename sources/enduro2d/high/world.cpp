@@ -72,7 +72,7 @@ namespace
 
         if ( inst_n ) {
             inst_n->remove_from_parent();
-            while ( node_iptr child = inst_n->first_child() ) {
+            while ( const node_iptr& child = inst_n->first_child() ) {
                 delete_instance(child->owner());
             }
         }
@@ -85,60 +85,49 @@ namespace
         }
     }
 
-    gobject new_instance(world& world, const prefab& prefab) {
-        gobject inst;
-        ecs::entity ent = world.registry().create_entity(prefab.prototype());
-
-        try {
-            inst = gobject{make_intrusive<gobject_state>(world, ent)};
-        } catch (...) {
+    gobject new_instance(world& world, const prefab& root_prefab) {
+        ecs::entity ent = world.registry().create_entity(root_prefab.prototype());
+        auto ent_defer = make_error_defer([&ent](){
             ent.destroy();
-            throw;
-        }
+        });
 
-        try {
-            auto n = node::create(inst);
-            gcomponent<actor> inst_a{inst};
-            if ( inst_a && inst_a->node() ) {
-                n->transform(inst_a->node()->transform());
+        gobject root_i(make_intrusive<gobject_state>(world, ent));
+        E2D_ERROR_DEFER([&root_i](){
+            delete_instance(root_i);
+        });
+
+        ent_defer.dismiss();
+
+        {
+            gcomponent<actor> root_a{root_i};
+            node_iptr new_root_node = node::create(root_i);
+            if ( root_a && root_a->node() ) {
+                new_root_node->transform(root_a->node()->transform());
             }
-            inst_a.assign(std::move(n));
-        } catch (...) {
-            delete_instance(inst);
-            throw;
+            root_a.ensure().node(new_root_node);
         }
 
-        try {
-            gcomponent<behaviour> inst_b{inst};
-            if ( inst_b && inst_b->script() ) {
-                const behaviours::fill_result r = behaviours::fill_meta_table(*inst_b);
+        {
+            gcomponent<behaviour> root_b{root_i};
+            if ( root_b && root_b->script() ) {
+                const behaviours::fill_result r = behaviours::fill_meta_table(*root_b);
                 if ( r == behaviours::fill_result::failed ) {
-                    inst.component<disabled<behaviour>>().ensure();
+                    root_i.component<disabled<behaviour>>().ensure();
                 }
             }
-        } catch (...) {
-            delete_instance(inst);
-            throw;
         }
 
-        try {
-            for ( const auto& child_prefab : prefab.children() ) {
-                auto child = new_instance(world, child_prefab);
-                try {
-                    gcomponent<actor> inst_a{inst};
-                    gcomponent<actor> child_a{child};
-                    inst_a->node()->add_child(child_a->node());
-                } catch (...) {
-                    delete_instance(child);
-                    throw;
-                }
-            }
-        } catch (...) {
-            delete_instance(inst);
-            throw;
+        for ( const prefab& child_prefab : root_prefab.children() ) {
+            gobject child_i = new_instance(world, child_prefab);
+            E2D_ERROR_DEFER([&child_i](){
+                delete_instance(child_i);
+            });
+            gcomponent<actor> root_a{root_i};
+            gcomponent<actor> child_a{child_i};
+            root_a->node()->add_child(child_a->node());
         }
 
-        return inst;
+        return root_i;
     }
 
     void shutdown_instance(gobject& inst) noexcept {
@@ -188,57 +177,64 @@ namespace e2d
     }
 
     gobject world::instantiate() {
-        return instantiate(nullptr);
+        return instantiate(prefab(), nullptr);
     }
 
-    gobject world::instantiate(const prefab& prefab) {
-        return instantiate(prefab, nullptr);
+    gobject world::instantiate(const t2f& transform) {
+        return instantiate(prefab(), nullptr, transform);
     }
 
     gobject world::instantiate(const node_iptr& parent) {
         return instantiate(prefab(), parent);
     }
 
+    gobject world::instantiate(const node_iptr& parent, const t2f& transform) {
+        return instantiate(prefab(), parent, transform);
+    }
+
+    gobject world::instantiate(const prefab& prefab) {
+        return instantiate(prefab, nullptr);
+    }
+
+    gobject world::instantiate(const prefab& prefab, const t2f& transform) {
+        return instantiate(prefab, nullptr, transform);
+    }
+
     gobject world::instantiate(const prefab& prefab, const node_iptr& parent) {
         E2D_PROFILER_SCOPE("world.instantiate");
 
         gobject inst = new_instance(*this, prefab);
-
-        if ( parent ) {
-            parent->add_child(inst.component<actor>()->node());
-        }
-
-        try {
-            start_instance(inst);
-        } catch (...) {
+        E2D_ERROR_DEFER([inst](){
             delete_instance(inst);
-            throw;
+        });
+
+        if ( const node_iptr& node = inst.component<actor>()->node() ) {
+            if ( parent ) {
+                parent->add_child(node);
+            }
         }
 
+        start_instance(inst);
         return inst;
-    }
-
-    gobject world::instantiate(const node_iptr& parent, const t2f& transform) {
-        return instantiate(prefab(), parent, transform);
     }
 
     gobject world::instantiate(const prefab& prefab, const node_iptr& parent, const t2f& transform) {
         E2D_PROFILER_SCOPE("world.instantiate");
 
         gobject inst = new_instance(*this, prefab);
-        inst.component<actor>()->node()->transform(transform);
-
-        if ( parent ) {
-            parent->add_child(inst.component<actor>()->node());
-        }
-
-        try {
-            start_instance(inst);
-        } catch (...) {
+        E2D_ERROR_DEFER([inst](){
             delete_instance(inst);
-            throw;
+        });
+
+        if ( const node_iptr& node = inst.component<actor>()->node() ) {
+            node->transform(transform);
+
+            if ( parent ) {
+                parent->add_child(node);
+            }
         }
 
+        start_instance(inst);
         return inst;
     }
 

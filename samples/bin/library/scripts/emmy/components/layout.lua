@@ -9,47 +9,59 @@ local layout = {
     ---@type boolean
     dirty = false,
 
-    ---@type layout_haligns
-    halign = layout.haligns.center,
-
-    ---@type layout_valigns
-    valign = layout.valigns.center,
-
     ---@type layout_directions
-    direction = layout.directions.row,
+    direction = layout.directions.ltr,
 
-    ---@type v2f
-    size = v2f.zero(),
+    ---@type layout_align_modes
+    align_items = layout.align_modes.flex_start,
 
-    ---@type v2f
-    margin = v2f.zero(),
+    ---@type layout_align_modes
+    align_conten = layout.align_modes.flex_start,
 
-    ---@type v2f
-    padding = v2f.zero()
-}
+    ---@type layout_justify_modes
+    justify_content = layout.justify_modes.flex_start,
 
----@class layout_haligns
-layout.haligns = {
-    left = "left",
-    center = "center",
-    right = "right",
-    space_around = "space_around",
-    space_evenly = "space_evenly",
-    space_between = "space_between"
-}
+    ---@type layout_flex_wraps
+    flex_wrap = layout.flex_wraps.no_wrap,
 
----@class layout_valigns
-layout.valigns = {
-    top = "top",
-    center = "center",
-    bottom = "bottom",
-    space_around = "space_around",
-    space_evenly = "space_evenly",
-    space_between = "space_between"
+    ---@type layout_flex_directions
+    flex_direction = layout.flex_directions.row
 }
 
 ---@class layout_directions
 layout.directions = {
+    ltr = "ltr",
+    rtl = "rtl"
+}
+
+---@class layout_align_modes
+layout.align_modes = {
+    flex_start = "flex_start",
+    center = "center",
+    flex_end = "flex_end",
+    space_between = "space_between",
+    space_around = "space_around"
+}
+
+---@class layout_justify_modes
+layout.justify_modes = {
+    flex_start = "flex_start",
+    center = "center",
+    flex_end = "flex_end",
+    space_between = "space_between",
+    space_around = "space_around",
+    space_evenly = "space_evenly"
+}
+
+---@class layout_flex_wraps
+layout.flex_wraps = {
+    no_wrap = "no_wrap",
+    wrap = "wrap",
+    wrap_reversed = "wrap_reversed"
+}
+
+---@class layout_flex_directions
+layout.flex_directions = {
     row = "row",
     row_reversed = "row_reversed",
     column = "column",

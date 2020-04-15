@@ -185,25 +185,25 @@ namespace e2d
     const char* component_inspector<camera>::title = ICON_FA_VIDEO " camera";
 
     void component_inspector<camera>::operator()(gcomponent<camera>& c) const {
-        if ( bool input = c.owner().component<camera::input>().exists();
+        if ( bool input = c.component<camera::input>().exists();
             ImGui::Checkbox("input", &input) )
         {
             if ( input ) {
-                c.owner().component<camera::input>().ensure();
+                c.component<camera::input>().ensure();
             } else {
-                c.owner().component<camera::input>().remove();
+                c.component<camera::input>().remove();
             }
         }
 
         ImGui::SameLine();
 
-        if ( bool gizmos = c.owner().component<camera::gizmos>().exists();
+        if ( bool gizmos = c.component<camera::gizmos>().exists();
             ImGui::Checkbox("gizmos", &gizmos) )
         {
             if ( gizmos ) {
-                c.owner().component<camera::gizmos>().ensure();
+                c.component<camera::gizmos>().ensure();
             } else {
-                c.owner().component<camera::gizmos>().remove();
+                c.component<camera::gizmos>().remove();
             }
         }
 

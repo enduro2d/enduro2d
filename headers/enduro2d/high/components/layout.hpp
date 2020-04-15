@@ -14,23 +14,31 @@ namespace e2d
     public:
         class dirty final {};
     public:
-        ENUM_HPP_CLASS_DECL(haligns, u8,
-            (left)
-            (center)
-            (right)
-            (space_around)
-            (space_evenly)
-            (space_between))
-
-        ENUM_HPP_CLASS_DECL(valigns, u8,
-            (top)
-            (center)
-            (bottom)
-            (space_around)
-            (space_evenly)
-            (space_between))
-
         ENUM_HPP_CLASS_DECL(directions, u8,
+            (ltr)
+            (rtl))
+
+        ENUM_HPP_CLASS_DECL(align_modes, u8,
+            (flex_start)
+            (center)
+            (flex_end)
+            (space_between)
+            (space_around))
+
+        ENUM_HPP_CLASS_DECL(justify_modes, u8,
+            (flex_start)
+            (center)
+            (flex_end)
+            (space_between)
+            (space_around)
+            (space_evenly))
+
+        ENUM_HPP_CLASS_DECL(flex_wraps, u8,
+            (no_wrap)
+            (wrap)
+            (wrap_reversed))
+
+        ENUM_HPP_CLASS_DECL(flex_directions, u8,
             (row)
             (row_reversed)
             (column)
@@ -38,37 +46,38 @@ namespace e2d
     public:
         layout() = default;
 
-        layout& halign(haligns value) noexcept;
-        [[nodiscard]] haligns halign() const noexcept;
-
-        layout& valign(valigns value) noexcept;
-        [[nodiscard]] valigns valign() const noexcept;
-
         layout& direction(directions value) noexcept;
         [[nodiscard]] directions direction() const noexcept;
-    public:
-        layout& size(const v2f& value) noexcept;
-        [[nodiscard]] const v2f& size() const noexcept;
 
-        layout& margin(const v2f& value) noexcept;
-        [[nodiscard]] const v2f& margin() const noexcept;
+        layout& align_items(align_modes value) noexcept;
+        [[nodiscard]] align_modes align_items() const noexcept;
 
-        layout& padding(const v2f& value) noexcept;
-        [[nodiscard]] const v2f& padding() const noexcept;
+        layout& align_content(align_modes value) noexcept;
+        [[nodiscard]] align_modes align_content() const noexcept;
+
+        layout& justify_content(justify_modes value) noexcept;
+        [[nodiscard]] justify_modes justify_content() const noexcept;
+
+        layout& flex_wrap(flex_wraps value) noexcept;
+        [[nodiscard]] flex_wraps flex_wrap() const noexcept;
+
+        layout& flex_direction(flex_directions value) noexcept;
+        [[nodiscard]] flex_directions flex_direction() const noexcept;
     private:
-        haligns halign_ = haligns::center;
-        valigns valign_ = valigns::center;
-        directions direction_ = directions::row;
-    private:
-        v2f size_ = v2f::zero();
-        v2f margin_ = v2f::zero();
-        v2f padding_ = v2f::zero();
+        directions direction_ = directions::ltr;
+        align_modes align_items_ = align_modes::flex_start;
+        align_modes align_content_ = align_modes::flex_start;
+        justify_modes justify_content_ = justify_modes::flex_start;
+        flex_wraps flex_wrap_ = flex_wraps::no_wrap;
+        flex_directions flex_direction_ = flex_directions::row;
     };
 }
 
-ENUM_HPP_REGISTER_TRAITS(e2d::layout::haligns)
-ENUM_HPP_REGISTER_TRAITS(e2d::layout::valigns)
 ENUM_HPP_REGISTER_TRAITS(e2d::layout::directions)
+ENUM_HPP_REGISTER_TRAITS(e2d::layout::align_modes)
+ENUM_HPP_REGISTER_TRAITS(e2d::layout::justify_modes)
+ENUM_HPP_REGISTER_TRAITS(e2d::layout::flex_wraps)
+ENUM_HPP_REGISTER_TRAITS(e2d::layout::flex_directions)
 
 namespace e2d
 {
@@ -109,30 +118,11 @@ namespace e2d
         static const char* title;
 
         void operator()(gcomponent<layout>& c) const;
-        void operator()(gcomponent<layout>& c, gizmos_context& ctx) const;
     };
 }
 
 namespace e2d
 {
-    inline layout& layout::halign(haligns value) noexcept {
-        halign_ = value;
-        return *this;
-    }
-
-    inline layout::haligns layout::halign() const noexcept {
-        return halign_;
-    }
-
-    inline layout& layout::valign(valigns value) noexcept {
-        valign_ = value;
-        return *this;
-    }
-
-    inline layout::valigns layout::valign() const noexcept {
-        return valign_;
-    }
-
     inline layout& layout::direction(directions value) noexcept {
         direction_ = value;
         return *this;
@@ -142,31 +132,49 @@ namespace e2d
         return direction_;
     }
 
-    inline layout& layout::size(const v2f& value) noexcept {
-        size_ = value;
+    inline layout& layout::align_items(align_modes value) noexcept {
+        align_items_ = value;
         return *this;
     }
 
-    inline const v2f& layout::size() const noexcept {
-        return size_;
+    inline layout::align_modes layout::align_items() const noexcept {
+        return align_items_;
     }
 
-    inline layout& layout::margin(const v2f& value) noexcept {
-        margin_ = value;
+    inline layout& layout::align_content(align_modes value) noexcept {
+        align_content_ = value;
         return *this;
     }
 
-    inline const v2f& layout::margin() const noexcept {
-        return margin_;
+    inline layout::align_modes layout::align_content() const noexcept {
+        return align_content_;
     }
 
-    inline layout& layout::padding(const v2f& value) noexcept {
-        padding_ = value;
+    inline layout& layout::justify_content(justify_modes value) noexcept {
+        justify_content_ = value;
         return *this;
     }
 
-    inline const v2f& layout::padding() const noexcept {
-        return padding_;
+    inline layout::justify_modes layout::justify_content() const noexcept {
+        return justify_content_;
+    }
+
+    inline layout& layout::flex_wrap(flex_wraps value) noexcept {
+        flex_wrap_ = value;
+        return *this;
+    }
+
+    inline layout::flex_wraps layout::flex_wrap() const noexcept {
+        return flex_wrap_;
+    }
+
+    inline layout& layout::flex_direction(flex_directions value) noexcept {
+        flex_direction_ = value;
+        return *this;
+    }
+
+    inline layout::flex_directions layout::flex_direction() const noexcept {
+        return flex_direction_;
     }
 }
 
@@ -176,13 +184,12 @@ namespace e2d::layouts
     gcomponent<layout> unmark_dirty(gcomponent<layout> self);
     bool is_dirty(const const_gcomponent<layout>& self) noexcept;
 
-    gcomponent<layout> change_halign(gcomponent<layout> self, layout::haligns value);
-    gcomponent<layout> change_valign(gcomponent<layout> self, layout::valigns value);
     gcomponent<layout> change_direction(gcomponent<layout> self, layout::directions value);
-
-    gcomponent<layout> change_size(gcomponent<layout> self, const v2f& value);
-    gcomponent<layout> change_margin(gcomponent<layout> self, const v2f& value);
-    gcomponent<layout> change_padding(gcomponent<layout> self, const v2f& value);
+    gcomponent<layout> change_align_items(gcomponent<layout> self, layout::align_modes value);
+    gcomponent<layout> change_align_content(gcomponent<layout> self, layout::align_modes value);
+    gcomponent<layout> change_justify_content(gcomponent<layout> self, layout::justify_modes value);
+    gcomponent<layout> change_flex_wrap(gcomponent<layout> self, layout::flex_wraps value);
+    gcomponent<layout> change_flex_direction(gcomponent<layout> self, layout::flex_directions value);
 
     gcomponent<layout> find_parent_layout(const_gcomponent<layout> self) noexcept;
 }

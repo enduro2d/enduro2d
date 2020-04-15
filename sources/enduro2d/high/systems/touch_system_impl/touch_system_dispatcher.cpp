@@ -61,7 +61,7 @@ namespace
         // parents
         //
 
-        static thread_local std::vector<const_gcomponent<touchable>> parents;
+        static thread_local std::vector<gcomponent<touchable>> parents;
         E2D_DEFER([](){ parents.clear(); });
 
         nodes::extract_components_from_parents<touchable>(
@@ -102,7 +102,7 @@ namespace
                     disabled<touchable>
                 >()(iter->owner().raw_entity());
                 if ( !parent_disabled ) {
-                    iter->owner().component<events<touchable_events::event>>().ensure().add(event);
+                    iter->component<events<touchable_events::event>>().ensure().add(event);
                     if ( !(*iter)->bubbling() ) {
                         return;
                     }

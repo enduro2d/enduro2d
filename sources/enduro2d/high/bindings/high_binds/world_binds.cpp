@@ -15,8 +15,23 @@ namespace e2d::bindings::high
             sol::no_constructor,
 
             "instantiate", sol::overload(
+                [](world& w) -> gobject {
+                    return w.instantiate();
+                },
+                [](world& w, const t2f& transform) -> gobject {
+                    return w.instantiate(transform);
+                },
+                [](world& w, const node_iptr& parent) -> gobject {
+                    return w.instantiate(parent);
+                },
+                [](world& w, const node_iptr& parent, const t2f& transform) -> gobject {
+                    return w.instantiate(parent, transform);
+                },
                 [](world& w, const prefab& prefab) -> gobject {
                     return w.instantiate(prefab);
+                },
+                [](world& w, const prefab& prefab, const t2f& transform) -> gobject {
+                    return w.instantiate(prefab, transform);
                 },
                 [](world& w, const prefab& prefab, const node_iptr& parent) -> gobject {
                     return w.instantiate(prefab, parent);
