@@ -9,7 +9,7 @@
 #include "../_high.hpp"
 
 #include "../library.hpp"
-#include "../spine.hpp"
+#include "../resources/spine.hpp"
 
 namespace e2d
 {

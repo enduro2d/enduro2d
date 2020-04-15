@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include "_high.hpp"
+#include "../_high.hpp"
 
 struct spAtlas;
 struct spSkeletonData;

@@ -9,7 +9,7 @@
 #include "../_high.hpp"
 
 #include "../library.hpp"
-#include "../flipbook.hpp"
+#include "../resources/flipbook.hpp"
 
 namespace e2d
 {
