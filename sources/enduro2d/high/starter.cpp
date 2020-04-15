@@ -214,6 +214,7 @@ namespace e2d
             .register_component<touchable>("touchable")
             .register_component<events<touchable_events::event>>("touchable.events")
             .register_component<widget>("widget")
+            .register_component<widget::dirty>("widget.dirty")
             ;
 
         safe_module_initialize<inspector>()
@@ -241,6 +242,7 @@ namespace e2d
             .register_component<touchable>("touchable")
             //.register_component<events<touchable_events::event>>("touchable.events")
             .register_component<widget>("widget")
+            //.register_component<widget::dirty>("widget.dirty")
             ;
 
         safe_module_initialize<luasol>();

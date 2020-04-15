@@ -1,0 +1,9 @@
+{
+    "components" : {
+        "named" : {
+            "name" : "widget"
+        },
+        "widget" : {},
+        "widget.dirty" : {}
+    }
+}

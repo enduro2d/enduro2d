@@ -1,4 +1,5 @@
 {
+    "prototype" : "widget_prefab.json",
     "components" : {
         "named" : {
             "name" : "layout"

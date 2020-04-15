@@ -6,11 +6,17 @@ local widget = {
     ---@type boolean
     disabled = false,
 
+    ---@type boolean
+    dirty = false,
+
     ---@type v2f
     size = v2f.zero(),
 
     ---@type v2f
-    pivot = v2f.unit() * 0.5
+    margin = v2f.zero(),
+
+    ---@type v2f
+    padding = v2f.zero()
 }
 
 ---@overload fun(self: widget)

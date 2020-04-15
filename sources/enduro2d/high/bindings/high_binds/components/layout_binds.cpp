@@ -67,22 +67,6 @@ namespace e2d::bindings::high
                 }
             ),
 
-            "halign", sol::property(
-                [](const gcomponent<layout>& c) -> layout::haligns {
-                    return c->halign();
-                },
-                [](gcomponent<layout>& c, layout::haligns v){
-                    layouts::change_halign(c, v);
-                }),
-
-            "valign", sol::property(
-                [](const gcomponent<layout>& c) -> layout::valigns {
-                    return c->valign();
-                },
-                [](gcomponent<layout>& c, layout::valigns v){
-                    layouts::change_valign(c, v);
-                }),
-
             "direction", sol::property(
                 [](const gcomponent<layout>& c) -> layout::directions {
                     return c->direction();
@@ -91,63 +75,95 @@ namespace e2d::bindings::high
                     layouts::change_direction(c, v);
                 }),
 
-            "size", sol::property(
-                [](const gcomponent<layout>& c) -> v2f {
-                    return c->size();
+            "align_items", sol::property(
+                [](const gcomponent<layout>& c) -> layout::align_modes {
+                    return c->align_items();
                 },
-                [](gcomponent<layout>& c, const v2f& v){
-                    layouts::change_size(c, v);
+                [](gcomponent<layout>& c, layout::align_modes v){
+                    layouts::change_align_items(c, v);
                 }),
 
-            "margin", sol::property(
-                [](const gcomponent<layout>& c) -> v2f {
-                    return c->margin();
+            "align_content", sol::property(
+                [](const gcomponent<layout>& c) -> layout::align_modes {
+                    return c->align_content();
                 },
-                [](gcomponent<layout>& c, const v2f& v){
-                    layouts::change_margin(c, v);
+                [](gcomponent<layout>& c, layout::align_modes v){
+                    layouts::change_align_content(c, v);
                 }),
 
-            "padding", sol::property(
-                [](const gcomponent<layout>& c) -> v2f {
-                    return c->padding();
+            "justify_content", sol::property(
+                [](const gcomponent<layout>& c) -> layout::justify_modes {
+                    return c->justify_content();
                 },
-                [](gcomponent<layout>& c, const v2f& v){
-                    layouts::change_padding(c, v);
+                [](gcomponent<layout>& c, layout::justify_modes v){
+                    layouts::change_justify_content(c, v);
+                }),
+
+            "flex_wrap", sol::property(
+                [](const gcomponent<layout>& c) -> layout::flex_wraps {
+                    return c->flex_wrap();
+                },
+                [](gcomponent<layout>& c, layout::flex_wraps v){
+                    layouts::change_flex_wrap(c, v);
+                }),
+
+            "flex_direction", sol::property(
+                [](const gcomponent<layout>& c) -> layout::flex_directions {
+                    return c->flex_direction();
+                },
+                [](gcomponent<layout>& c, layout::flex_directions v){
+                    layouts::change_flex_direction(c, v);
                 })
         );
-
-    #define LAYOUT_HALIGN_PAIR(x) {#x, layout::haligns::x},
-        l["layout"].get_or_create<sol::table>()
-        .new_enum<layout::haligns>("haligns", {
-            LAYOUT_HALIGN_PAIR(left)
-            LAYOUT_HALIGN_PAIR(center)
-            LAYOUT_HALIGN_PAIR(right)
-            LAYOUT_HALIGN_PAIR(space_around)
-            LAYOUT_HALIGN_PAIR(space_evenly)
-            LAYOUT_HALIGN_PAIR(space_between)
-        });
-    #undef LAYOUT_HALIGN_PAIR
-
-    #define LAYOUT_VALIGN_PAIR(x) {#x, layout::valigns::x},
-        l["layout"].get_or_create<sol::table>()
-        .new_enum<layout::valigns>("valigns", {
-            LAYOUT_VALIGN_PAIR(top)
-            LAYOUT_VALIGN_PAIR(center)
-            LAYOUT_VALIGN_PAIR(bottom)
-            LAYOUT_VALIGN_PAIR(space_around)
-            LAYOUT_VALIGN_PAIR(space_evenly)
-            LAYOUT_VALIGN_PAIR(space_between)
-        });
-    #undef LAYOUT_VALIGN_PAIR
 
     #define LAYOUT_DIRECTION_PAIR(x) {#x, layout::directions::x},
         l["layout"].get_or_create<sol::table>()
         .new_enum<layout::directions>("directions", {
-            LAYOUT_DIRECTION_PAIR(row)
-            LAYOUT_DIRECTION_PAIR(row_reversed)
-            LAYOUT_DIRECTION_PAIR(column)
-            LAYOUT_DIRECTION_PAIR(column_reversed)
+            LAYOUT_DIRECTION_PAIR(ltr)
+            LAYOUT_DIRECTION_PAIR(rtl)
         });
     #undef LAYOUT_DIRECTION_PAIR
+
+    #define LAYOUT_ALIGN_MODE_PAIR(x) {#x, layout::align_modes::x},
+        l["layout"].get_or_create<sol::table>()
+        .new_enum<layout::align_modes>("align_modes", {
+            LAYOUT_ALIGN_MODE_PAIR(flex_start)
+            LAYOUT_ALIGN_MODE_PAIR(center)
+            LAYOUT_ALIGN_MODE_PAIR(flex_end)
+            LAYOUT_ALIGN_MODE_PAIR(space_between)
+            LAYOUT_ALIGN_MODE_PAIR(space_around)
+        });
+    #undef LAYOUT_ALIGN_MODE_PAIR
+
+    #define LAYOUT_JUSTIFY_MODE_PAIR(x) {#x, layout::justify_modes::x},
+        l["layout"].get_or_create<sol::table>()
+        .new_enum<layout::justify_modes>("justify_modes", {
+            LAYOUT_JUSTIFY_MODE_PAIR(flex_start)
+            LAYOUT_JUSTIFY_MODE_PAIR(center)
+            LAYOUT_JUSTIFY_MODE_PAIR(flex_end)
+            LAYOUT_JUSTIFY_MODE_PAIR(space_between)
+            LAYOUT_JUSTIFY_MODE_PAIR(space_around)
+            LAYOUT_JUSTIFY_MODE_PAIR(space_evenly)
+        });
+    #undef LAYOUT_JUSTIFY_MODE_PAIR
+
+    #define LAYOUT_FLEX_WRAP_PAIR(x) {#x, layout::flex_wraps::x},
+        l["layout"].get_or_create<sol::table>()
+        .new_enum<layout::flex_wraps>("flex_wraps", {
+            LAYOUT_FLEX_WRAP_PAIR(no_wrap)
+            LAYOUT_FLEX_WRAP_PAIR(wrap)
+            LAYOUT_FLEX_WRAP_PAIR(wrap_reversed)
+        });
+    #undef LAYOUT_FLEX_WRAP_PAIR
+
+    #define LAYOUT_FLEX_DIRECTION_PAIR(x) {#x, layout::flex_directions::x},
+        l["layout"].get_or_create<sol::table>()
+        .new_enum<layout::flex_directions>("flex_directions", {
+            LAYOUT_FLEX_DIRECTION_PAIR(row)
+            LAYOUT_FLEX_DIRECTION_PAIR(row_reversed)
+            LAYOUT_FLEX_DIRECTION_PAIR(column)
+            LAYOUT_FLEX_DIRECTION_PAIR(column_reversed)
+        });
+    #undef LAYOUT_FLEX_DIRECTION_PAIR
     }
 }

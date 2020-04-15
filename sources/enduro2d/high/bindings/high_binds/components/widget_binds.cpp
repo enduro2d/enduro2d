@@ -50,20 +50,41 @@ namespace e2d::bindings::high
                 }
             ),
 
+            "dirty", sol::property(
+                [](const gcomponent<widget>& c) -> bool {
+                    return widgets::is_dirty(c);
+                },
+                [](gcomponent<widget>& c, bool yesno){
+                    if ( yesno ) {
+                        widgets::mark_dirty(c);
+                    } else {
+                        widgets::unmark_dirty(c);
+                    }
+                }
+            ),
+
             "size", sol::property(
                 [](const gcomponent<widget>& c) -> v2f {
                     return c->size();
                 },
                 [](gcomponent<widget>& c, const v2f& v){
-                    c->size(v);
+                    widgets::change_size(c, v);
                 }),
 
-            "pivot", sol::property(
+            "margin", sol::property(
                 [](const gcomponent<widget>& c) -> v2f {
-                    return c->pivot();
+                    return c->margin();
                 },
                 [](gcomponent<widget>& c, const v2f& v){
-                    c->pivot(v);
+                    widgets::change_margin(c, v);
+                }),
+
+            "padding", sol::property(
+                [](const gcomponent<widget>& c) -> v2f {
+                    return c->padding();
+                },
+                [](gcomponent<widget>& c, const v2f& v){
+                    widgets::change_padding(c, v);
                 })
         );
     }

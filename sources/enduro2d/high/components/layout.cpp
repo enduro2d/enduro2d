@@ -15,37 +15,51 @@ namespace e2d
         "required" : [],
         "additionalProperties" : false,
         "properties" : {
-            "halign" : { "$ref": "#/definitions/haligns" },
-            "valign" : { "$ref": "#/definitions/valigns" },
             "direction" : { "$ref": "#/definitions/directions" },
-            "size" : { "$ref": "#/common_definitions/v2" },
-            "margin" : { "$ref": "#/common_definitions/v2" },
-            "padding" : { "$ref": "#/common_definitions/v2" }
+            "align_items" : { "$ref": "#/definitions/align_modes" },
+            "align_content" : { "$ref": "#/definitions/align_modes" },
+            "justify_content" : { "$ref": "#/definitions/justify_modes" },
+            "flex_wrap" : { "$ref": "#/definitions/flex_wraps" },
+            "flex_direction" : { "$ref": "#/definitions/flex_directions" }
         },
         "definitions" : {
-            "haligns" : {
-                "type" : "string",
-                "enum" : [
-                    "left",
-                    "center",
-                    "right",
-                    "space_around",
-                    "space_evenly",
-                    "space_between"
-                ]
-            },
-            "valigns" : {
-                "type" : "string",
-                "enum" : [
-                    "top",
-                    "center",
-                    "bottom",
-                    "space_around",
-                    "space_evenly",
-                    "space_between"
-                ]
-            },
             "directions" : {
+                "type" : "string",
+                "enum" : [
+                    "ltr",
+                    "rtl"
+                ]
+            },
+            "align_modes" : {
+                "type" : "string",
+                "enum" : [
+                    "flex_start",
+                    "center",
+                    "flex_end",
+                    "space_between",
+                    "space_around"
+                ]
+            },
+            "justify_modes" : {
+                "type" : "string",
+                "enum" : [
+                    "flex_start",
+                    "center",
+                    "flex_end",
+                    "space_between",
+                    "space_around",
+                    "space_evenly"
+                ]
+            },
+            "flex_wraps" : {
+                "type" : "string",
+                "enum" : [
+                    "no_wrap",
+                    "wrap",
+                    "wrap_reversed"
+                ]
+            },
+            "flex_directions" : {
                 "type" : "string",
                 "enum" : [
                     "row",
@@ -61,24 +75,6 @@ namespace e2d
         layout& component,
         const fill_context& ctx) const
     {
-        if ( ctx.root.HasMember("halign") ) {
-            layout::haligns halign = component.halign();
-            if ( !json_utils::try_parse_value(ctx.root["halign"], halign) ) {
-                the<debug>().error("LAYOUT: Incorrect formatting of 'halign' property");
-                return false;
-            }
-            component.halign(halign);
-        }
-
-        if ( ctx.root.HasMember("valign") ) {
-            layout::valigns valign = component.valign();
-            if ( !json_utils::try_parse_value(ctx.root["valign"], valign) ) {
-                the<debug>().error("LAYOUT: Incorrect formatting of 'valign' property");
-                return false;
-            }
-            component.valign(valign);
-        }
-
         if ( ctx.root.HasMember("direction") ) {
             layout::directions direction = component.direction();
             if ( !json_utils::try_parse_value(ctx.root["direction"], direction) ) {
@@ -88,31 +84,49 @@ namespace e2d
             component.direction(direction);
         }
 
-        if ( ctx.root.HasMember("size") ) {
-            v2f size = component.size();
-            if ( !json_utils::try_parse_value(ctx.root["size"], size) ) {
-                the<debug>().error("LAYOUT: Incorrect formatting of 'size' property");
+        if ( ctx.root.HasMember("align_items") ) {
+            layout::align_modes align_items = component.align_items();
+            if ( !json_utils::try_parse_value(ctx.root["align_items"], align_items) ) {
+                the<debug>().error("LAYOUT: Incorrect formatting of 'align_items' property");
                 return false;
             }
-            component.size(size);
+            component.align_items(align_items);
         }
 
-        if ( ctx.root.HasMember("margin") ) {
-            v2f margin = component.margin();
-            if ( !json_utils::try_parse_value(ctx.root["margin"], margin) ) {
-                the<debug>().error("LAYOUT: Incorrect formatting of 'margin' property");
+        if ( ctx.root.HasMember("align_content") ) {
+            layout::align_modes align_content = component.align_content();
+            if ( !json_utils::try_parse_value(ctx.root["align_content"], align_content) ) {
+                the<debug>().error("LAYOUT: Incorrect formatting of 'align_content' property");
                 return false;
             }
-            component.margin(margin);
+            component.align_content(align_content);
         }
 
-        if ( ctx.root.HasMember("padding") ) {
-            v2f padding = component.padding();
-            if ( !json_utils::try_parse_value(ctx.root["padding"], padding) ) {
-                the<debug>().error("LAYOUT: Incorrect formatting of 'padding' property");
+        if ( ctx.root.HasMember("justify_content") ) {
+            layout::justify_modes justify_content = component.justify_content();
+            if ( !json_utils::try_parse_value(ctx.root["justify_content"], justify_content) ) {
+                the<debug>().error("LAYOUT: Incorrect formatting of 'justify_content' property");
                 return false;
             }
-            component.padding(padding);
+            component.justify_content(justify_content);
+        }
+
+        if ( ctx.root.HasMember("flex_wrap") ) {
+            layout::flex_wraps flex_wrap = component.flex_wrap();
+            if ( !json_utils::try_parse_value(ctx.root["flex_wrap"], flex_wrap) ) {
+                the<debug>().error("LAYOUT: Incorrect formatting of 'flex_wrap' property");
+                return false;
+            }
+            component.flex_wrap(flex_wrap);
+        }
+
+        if ( ctx.root.HasMember("flex_direction") ) {
+            layout::flex_directions flex_direction = component.flex_direction();
+            if ( !json_utils::try_parse_value(ctx.root["flex_direction"], flex_direction) ) {
+                the<debug>().error("LAYOUT: Incorrect formatting of 'flex_direction' property");
+                return false;
+            }
+            component.flex_direction(flex_direction);
         }
 
         return true;
@@ -170,66 +184,40 @@ namespace e2d
 
         ImGui::Separator();
 
-        if ( layout::haligns halign = c->halign();
-            imgui_utils::show_enum_combo_box("halign", &halign) )
-        {
-            layouts::change_halign(c, halign);
-        }
-
-        if ( layout::valigns valign = c->valign();
-            imgui_utils::show_enum_combo_box("valign", &valign) )
-        {
-            layouts::change_valign(c, valign);
-        }
-
         if ( layout::directions direction = c->direction();
             imgui_utils::show_enum_combo_box("direction", &direction) )
         {
             layouts::change_direction(c, direction);
         }
 
-        if ( v2f size = c->size();
-            ImGui::DragFloat2("size", size.data(), 1.f) )
+        if ( layout::align_modes align_items = c->align_items();
+            imgui_utils::show_enum_combo_box("align_items", &align_items) )
         {
-            layouts::change_size(c, size);
+            layouts::change_align_items(c, align_items);
         }
 
-        if ( v2f margin = c->margin();
-            ImGui::DragFloat2("margin", margin.data(), 1.f) )
+        if ( layout::align_modes align_content = c->align_content();
+            imgui_utils::show_enum_combo_box("align_content", &align_content) )
         {
-            layouts::change_margin(c, margin);
+            layouts::change_align_content(c, align_content);
         }
 
-        if ( v2f padding = c->padding();
-            ImGui::DragFloat2("padding", padding.data(), 1.f) )
+        if ( layout::justify_modes justify_content = c->justify_content();
+            imgui_utils::show_enum_combo_box("justify_content", &justify_content) )
         {
-            layouts::change_padding(c, padding);
+            layouts::change_justify_content(c, justify_content);
         }
-    }
 
-    void component_inspector<layout>::operator()(
-        gcomponent<layout>& c,
-        gizmos_context& ctx) const
-    {
-        ctx.draw_wire_rect(
-            c->size() * 0.5f,
-            c->size(),
-            ctx.selected() ? color32(255,255,255) : color32(127,127,127));
+        if ( layout::flex_wraps flex_wrap = c->flex_wrap();
+            imgui_utils::show_enum_combo_box("flex_wrap", &flex_wrap) )
+        {
+            layouts::change_flex_wrap(c, flex_wrap);
+        }
 
-        if ( ctx.selected() ) {
-            if ( c->margin() != v2f::zero() ) {
-                ctx.draw_wire_rect(
-                    c->size() * 0.5f,
-                    c->size() + c->margin() * 2.f,
-                    ctx.selected() ? color32(255,255,255) : color32(127,127,127));
-            }
-
-            if ( c->padding() != v2f::zero() ) {
-                ctx.draw_wire_rect(
-                    c->size() * 0.5f,
-                    c->size() - c->padding() * 2.f,
-                    ctx.selected() ? color32(255,255,255) : color32(127,127,127));
-            }
+        if ( layout::flex_directions flex_direction = c->flex_direction();
+            imgui_utils::show_enum_combo_box("flex_direction", &flex_direction) )
+        {
+            layouts::change_flex_direction(c, flex_direction);
         }
     }
 }
@@ -254,20 +242,6 @@ namespace e2d::layouts
         return self.owner().component<layout::dirty>().exists();
     }
 
-    gcomponent<layout> change_halign(gcomponent<layout> self, layout::haligns value) {
-        if ( self ) {
-            self->halign(value);
-        }
-        return mark_dirty(self);
-    }
-
-    gcomponent<layout> change_valign(gcomponent<layout> self, layout::valigns value) {
-        if ( self ) {
-            self->valign(value);
-        }
-        return mark_dirty(self);
-    }
-
     gcomponent<layout> change_direction(gcomponent<layout> self, layout::directions value) {
         if ( self ) {
             self->direction(value);
@@ -275,27 +249,38 @@ namespace e2d::layouts
         return mark_dirty(self);
     }
 
-    gcomponent<layout> change_size(gcomponent<layout> self, const v2f& value) {
+    gcomponent<layout> change_align_items(gcomponent<layout> self, layout::align_modes value) {
         if ( self ) {
-            self->size(value);
+            self->align_items(value);
         }
-        mark_dirty(find_parent_layout(self));
         return mark_dirty(self);
     }
 
-    gcomponent<layout> change_margin(gcomponent<layout> self, const v2f& value) {
+    gcomponent<layout> change_align_content(gcomponent<layout> self, layout::align_modes value) {
         if ( self ) {
-            self->margin(value);
+            self->align_content(value);
         }
-        mark_dirty(find_parent_layout(self));
         return mark_dirty(self);
     }
 
-    gcomponent<layout> change_padding(gcomponent<layout> self, const v2f& value) {
+    gcomponent<layout> change_justify_content(gcomponent<layout> self, layout::justify_modes value) {
         if ( self ) {
-            self->padding(value);
+            self->justify_content(value);
         }
-        mark_dirty(find_parent_layout(self));
+        return mark_dirty(self);
+    }
+
+    gcomponent<layout> change_flex_wrap(gcomponent<layout> self, layout::flex_wraps value) {
+        if ( self ) {
+            self->flex_wrap(value);
+        }
+        return mark_dirty(self);
+    }
+
+    gcomponent<layout> change_flex_direction(gcomponent<layout> self, layout::flex_directions value) {
+        if ( self ) {
+            self->flex_direction(value);
+        }
         return mark_dirty(self);
     }
 
