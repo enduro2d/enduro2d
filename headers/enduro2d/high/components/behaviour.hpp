@@ -87,6 +87,7 @@ namespace e2d::behaviours
     ENUM_HPP_CLASS_DECL(fill_result, u8,
         (failed)
         (success))
+    ENUM_HPP_REGISTER_TRAITS(fill_result)
 
     inline fill_result fill_meta_table(behaviour& behaviour) {
         if ( !behaviour.script() ) {
@@ -116,6 +117,7 @@ namespace e2d::behaviours
         (failed)
         (success)
         (method_not_found))
+    ENUM_HPP_REGISTER_TRAITS(call_result)
 
     template < typename... Args >
     call_result call_meta_method(behaviour& behaviour, str_view method, Args&&... args) {
@@ -145,6 +147,3 @@ namespace e2d::behaviours
         return call_result::success;
     }
 }
-
-ENUM_HPP_REGISTER_TRAITS(e2d::behaviours::fill_result)
-ENUM_HPP_REGISTER_TRAITS(e2d::behaviours::call_result)

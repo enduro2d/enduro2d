@@ -73,6 +73,7 @@ namespace e2d
         (x1)
         (x2)
         (unknown))
+    ENUM_HPP_REGISTER_TRAITS(mouse_button)
 
     ENUM_HPP_CLASS_DECL(keyboard_key, u16,
         (_0) (_1) (_2) (_3) (_4) (_5) (_6) (_7) (_8) (_9)
@@ -110,20 +111,18 @@ namespace e2d
         (kp_add) (kp_enter) (kp_equal) (kp_decimal)
 
         (unknown))
+    ENUM_HPP_REGISTER_TRAITS(keyboard_key)
 
     ENUM_HPP_CLASS_DECL(mouse_button_action, u8,
         (press)
         (release)
         (unknown))
+    ENUM_HPP_REGISTER_TRAITS(mouse_button_action)
 
     ENUM_HPP_CLASS_DECL(keyboard_key_action, u8,
         (press)
         (repeat)
         (release)
         (unknown))
+    ENUM_HPP_REGISTER_TRAITS(keyboard_key_action)
 }
-
-ENUM_HPP_REGISTER_TRAITS(e2d::mouse_button)
-ENUM_HPP_REGISTER_TRAITS(e2d::keyboard_key)
-ENUM_HPP_REGISTER_TRAITS(e2d::mouse_button_action)
-ENUM_HPP_REGISTER_TRAITS(e2d::keyboard_key_action)

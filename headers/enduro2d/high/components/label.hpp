@@ -75,10 +75,10 @@ namespace e2d
         f32 outline_width_ = 0.f;
         color32 outline_color_ = color32::white();
     };
-}
 
-ENUM_HPP_REGISTER_TRAITS(e2d::label::haligns)
-ENUM_HPP_REGISTER_TRAITS(e2d::label::valigns)
+    ENUM_HPP_REGISTER_TRAITS(label::haligns)
+    ENUM_HPP_REGISTER_TRAITS(label::valigns)
+}
 
 namespace e2d
 {
