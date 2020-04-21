@@ -54,9 +54,9 @@ namespace e2d
         render_target_ptr target_ = nullptr;
         color background_ = color::clear();
     };
-}
 
-ENUM_HPP_REGISTER_TRAITS(e2d::camera::modes)
+    ENUM_HPP_REGISTER_TRAITS(camera::modes)
+}
 
 namespace e2d
 {

@@ -41,9 +41,9 @@ namespace e2d
         bool whole_numbers_ = false;
         directions direction_ = directions::row;
     };
-}
 
-ENUM_HPP_REGISTER_TRAITS(e2d::slider::directions)
+    ENUM_HPP_REGISTER_TRAITS(slider::directions)
+}
 
 namespace e2d
 {

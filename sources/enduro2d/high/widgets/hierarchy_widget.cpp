@@ -65,7 +65,11 @@ namespace
         });
 
         if ( ImGui::IsItemClicked() ) {
-            e.select(owner);
+            if ( ImGui::IsItemToggledOpen() || e.selection() != owner ) {
+                e.select(owner);
+            } else {
+                e.clear_selection();
+            }
         }
 
         if ( ImGui::BeginPopupContextItem() ) {
@@ -136,12 +140,6 @@ namespace
             || k.is_key_just_pressed(keyboard_key::backspace) )
         {
             e.selection().destroy();
-        }
-
-        if ( ImGui::IsMouseClicked(ImGuiMouseButton_Left)
-            && ImGui::IsWindowHovered(ImGuiHoveredFlags_RootWindow) )
-        {
-            e.clear_selection();
         }
     }
 }

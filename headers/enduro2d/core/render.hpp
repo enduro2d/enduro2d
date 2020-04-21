@@ -98,6 +98,8 @@ namespace e2d
         pixel_type type_ = pixel_type::rgba8;
     };
 
+    ENUM_HPP_REGISTER_TRAITS(pixel_declaration::pixel_type)
+
     bool operator==(
         const pixel_declaration& l,
         const pixel_declaration& r) noexcept;
@@ -128,6 +130,8 @@ namespace e2d
     private:
         index_type type_ = index_type::unsigned_short;
     };
+
+    ENUM_HPP_REGISTER_TRAITS(index_declaration::index_type)
 
     bool operator==(
         const index_declaration& l,
@@ -205,6 +209,8 @@ namespace e2d
         std::size_t bytes_per_vertex_ = 0;
     };
 
+    ENUM_HPP_REGISTER_TRAITS(vertex_declaration::attribute_type)
+
     bool operator==(
         const vertex_declaration& l,
         const vertex_declaration& r) noexcept;
@@ -278,6 +284,8 @@ namespace e2d
         internal_state_uptr state_;
     };
 
+    ENUM_HPP_REGISTER_TRAITS(index_buffer::usage)
+
     //
     // vertex buffer
     //
@@ -303,6 +311,8 @@ namespace e2d
         internal_state_uptr state_;
     };
 
+    ENUM_HPP_REGISTER_TRAITS(vertex_buffer::usage)
+
     //
     // render target
     //
@@ -327,6 +337,8 @@ namespace e2d
     private:
         internal_state_uptr state_;
     };
+
+    ENUM_HPP_REGISTER_TRAITS(render_target::external_texture)
 
     //
     // render
@@ -971,27 +983,21 @@ namespace e2d
         class internal_state;
         std::unique_ptr<internal_state> state_;
     };
-}
 
-ENUM_HPP_REGISTER_TRAITS(e2d::pixel_declaration::pixel_type)
-ENUM_HPP_REGISTER_TRAITS(e2d::index_declaration::index_type)
-ENUM_HPP_REGISTER_TRAITS(e2d::vertex_declaration::attribute_type)
-ENUM_HPP_REGISTER_TRAITS(e2d::index_buffer::usage)
-ENUM_HPP_REGISTER_TRAITS(e2d::vertex_buffer::usage)
-ENUM_HPP_REGISTER_TRAITS(e2d::render_target::external_texture)
-ENUM_HPP_REGISTER_TRAITS(e2d::render::topology)
-ENUM_HPP_REGISTER_TRAITS(e2d::render::stencil_op)
-ENUM_HPP_REGISTER_TRAITS(e2d::render::compare_func)
-ENUM_HPP_REGISTER_TRAITS(e2d::render::culling_mode)
-ENUM_HPP_REGISTER_TRAITS(e2d::render::culling_face)
-ENUM_HPP_REGISTER_TRAITS(e2d::render::blending_factor)
-ENUM_HPP_REGISTER_TRAITS(e2d::render::blending_equation)
-ENUM_HPP_REGISTER_TRAITS(e2d::render::blending_color_mask)
-ENUM_HPP_REGISTER_TRAITS(e2d::render::sampler_wrap)
-ENUM_HPP_REGISTER_TRAITS(e2d::render::sampler_min_filter)
-ENUM_HPP_REGISTER_TRAITS(e2d::render::sampler_mag_filter)
-ENUM_HPP_REGISTER_TRAITS(e2d::render::clear_command::buffer)
-ENUM_HPP_REGISTER_TRAITS(e2d::render::api_profile)
+    ENUM_HPP_REGISTER_TRAITS(render::topology)
+    ENUM_HPP_REGISTER_TRAITS(render::stencil_op)
+    ENUM_HPP_REGISTER_TRAITS(render::compare_func)
+    ENUM_HPP_REGISTER_TRAITS(render::culling_mode)
+    ENUM_HPP_REGISTER_TRAITS(render::culling_face)
+    ENUM_HPP_REGISTER_TRAITS(render::blending_factor)
+    ENUM_HPP_REGISTER_TRAITS(render::blending_equation)
+    ENUM_HPP_REGISTER_TRAITS(render::blending_color_mask)
+    ENUM_HPP_REGISTER_TRAITS(render::sampler_wrap)
+    ENUM_HPP_REGISTER_TRAITS(render::sampler_min_filter)
+    ENUM_HPP_REGISTER_TRAITS(render::sampler_mag_filter)
+    ENUM_HPP_REGISTER_TRAITS(render::clear_command::buffer)
+    ENUM_HPP_REGISTER_TRAITS(render::api_profile)
+}
 
 namespace e2d
 {

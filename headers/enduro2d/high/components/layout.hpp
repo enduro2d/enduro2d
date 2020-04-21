@@ -71,13 +71,13 @@ namespace e2d
         flex_wraps flex_wrap_ = flex_wraps::no_wrap;
         flex_directions flex_direction_ = flex_directions::row;
     };
-}
 
-ENUM_HPP_REGISTER_TRAITS(e2d::layout::directions)
-ENUM_HPP_REGISTER_TRAITS(e2d::layout::align_modes)
-ENUM_HPP_REGISTER_TRAITS(e2d::layout::justify_modes)
-ENUM_HPP_REGISTER_TRAITS(e2d::layout::flex_wraps)
-ENUM_HPP_REGISTER_TRAITS(e2d::layout::flex_directions)
+    ENUM_HPP_REGISTER_TRAITS(layout::directions)
+    ENUM_HPP_REGISTER_TRAITS(layout::align_modes)
+    ENUM_HPP_REGISTER_TRAITS(layout::justify_modes)
+    ENUM_HPP_REGISTER_TRAITS(layout::flex_wraps)
+    ENUM_HPP_REGISTER_TRAITS(layout::flex_directions)
+}
 
 namespace e2d
 {

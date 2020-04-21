@@ -184,6 +184,8 @@ namespace e2d::touchable_events
         mouse_button button_ = mouse_button::left;
     };
 
+    ENUM_HPP_REGISTER_TRAITS(mouse_evt::types)
+
     class touch_evt final : public impl::base_evt<touch_evt> {
     public:
         ENUM_HPP_CLASS_DECL(types, u8,
@@ -207,6 +209,8 @@ namespace e2d::touchable_events
         u32 finger_ = 0u;
     };
 
+    ENUM_HPP_REGISTER_TRAITS(touch_evt::types)
+
     class hover_evt final : public impl::base_evt<hover_evt> {
     public:
         ENUM_HPP_CLASS_DECL(types, u8,
@@ -227,11 +231,9 @@ namespace e2d::touchable_events
     private:
         types type_ = types::over;
     };
-}
 
-ENUM_HPP_REGISTER_TRAITS(e2d::touchable_events::mouse_evt::types)
-ENUM_HPP_REGISTER_TRAITS(e2d::touchable_events::touch_evt::types)
-ENUM_HPP_REGISTER_TRAITS(e2d::touchable_events::hover_evt::types)
+    ENUM_HPP_REGISTER_TRAITS(hover_evt::types)
+}
 
 namespace e2d
 {

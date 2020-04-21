@@ -228,6 +228,7 @@ namespace e2d::opengl
         (sampler_cube)
 
         (unknown))
+    ENUM_HPP_REGISTER_TRAITS(uniform_type)
 
     ENUM_HPP_CLASS_DECL(attribute_type, u8,
         (floating_point)
@@ -241,10 +242,8 @@ namespace e2d::opengl
         (m4f)
 
         (unknown))
+    ENUM_HPP_REGISTER_TRAITS(attribute_type)
 }
-
-ENUM_HPP_REGISTER_TRAITS(e2d::opengl::uniform_type)
-ENUM_HPP_REGISTER_TRAITS(e2d::opengl::attribute_type)
 
 namespace e2d::opengl
 {

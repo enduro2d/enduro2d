@@ -91,6 +91,8 @@ namespace e2d
         std::unique_ptr<state> state_;
     };
 
+    ENUM_HPP_REGISTER_TRAITS(window::cursor_shapes)
+
     class window_event_tracer final : public window::event_listener {
     public:
         window_event_tracer(debug& debug) noexcept;
@@ -121,8 +123,6 @@ namespace e2d
         input& input_;
     };
 }
-
-ENUM_HPP_REGISTER_TRAITS(e2d::window::cursor_shapes)
 
 namespace e2d
 {
