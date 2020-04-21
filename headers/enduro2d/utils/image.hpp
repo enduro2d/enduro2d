@@ -21,6 +21,7 @@ namespace e2d
         (png)
         (pvr)
         (tga))
+    ENUM_HPP_REGISTER_TRAITS(image_file_format)
 
     ENUM_HPP_CLASS_DECL(image_data_format, u8,
         (a8)
@@ -52,6 +53,7 @@ namespace e2d
 
         (rgba_pvrtc2_v2)
         (rgba_pvrtc4_v2))
+    ENUM_HPP_REGISTER_TRAITS(image_data_format)
 
     class bad_image_access final : public exception {
     public:
@@ -99,9 +101,6 @@ namespace e2d
     bool operator==(const image& l, const image& r) noexcept;
     bool operator!=(const image& l, const image& r) noexcept;
 }
-
-ENUM_HPP_REGISTER_TRAITS(e2d::image_file_format)
-ENUM_HPP_REGISTER_TRAITS(e2d::image_data_format)
 
 namespace e2d::images
 {

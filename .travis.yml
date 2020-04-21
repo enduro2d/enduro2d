@@ -96,14 +96,14 @@ matrix:
       osx_image: xcode10
       stage: macosx
       name: debug, xcode10
-      addons: { homebrew: { packages: ["git-lfs"] } }
+      addons: { homebrew: { packages: ["git-lfs"], update: true } }
       script: ./scripts/build_debug.sh
 
     - os: osx
       osx_image: xcode10
       stage: macosx
       name: release, xcode10
-      addons: { homebrew: { packages: ["git-lfs"] } }
+      addons: { homebrew: { packages: ["git-lfs"], update: true } }
       script: ./scripts/build_release.sh
 
     #
@@ -114,14 +114,14 @@ matrix:
       osx_image: xcode11
       stage: macosx
       name: debug, xcode11
-      addons: { homebrew: { packages: ["git-lfs"] } }
+      addons: { homebrew: { packages: ["git-lfs"], update: true } }
       script: ./scripts/build_debug.sh
 
     - os: osx
       osx_image: xcode11
       stage: macosx
       name: release, xcode11
-      addons: { homebrew: { packages: ["git-lfs"] } }
+      addons: { homebrew: { packages: ["git-lfs"], update: true } }
       script: ./scripts/build_release.sh
 
     #
@@ -132,7 +132,7 @@ matrix:
       osx_image: xcode10
       stage: coverage
       name: coverage, xcode10
-      addons: { homebrew: { packages: ["git-lfs", "lcov"] } }
+      addons: { homebrew: { packages: ["git-lfs", "lcov"], update: true } }
       script: ./scripts/upload_coverage.sh
 
 before_install:

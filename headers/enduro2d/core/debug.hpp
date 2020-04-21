@@ -60,6 +60,8 @@ namespace e2d
         level min_level_ = level::trace;
     };
 
+    ENUM_HPP_REGISTER_TRAITS(debug::level)
+
     class debug_stream_sink final : public debug::sink {
     public:
         debug_stream_sink(output_stream_uptr stream);
@@ -75,8 +77,6 @@ namespace e2d
         bool on_message(debug::level lvl, str_view text) noexcept final;
     };
 }
-
-ENUM_HPP_REGISTER_TRAITS(e2d::debug::level)
 
 namespace e2d
 {

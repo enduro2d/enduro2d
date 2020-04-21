@@ -59,10 +59,10 @@ namespace e2d
         sprite_asset::ptr sprite_;
         flat_map<str_hash, material_asset::ptr> materials_;
     };
-}
 
-ENUM_HPP_REGISTER_TRAITS(e2d::sprite_renderer::modes)
-ENUM_HPP_REGISTER_TRAITS(e2d::sprite_renderer::blendings)
+    ENUM_HPP_REGISTER_TRAITS(sprite_renderer::modes)
+    ENUM_HPP_REGISTER_TRAITS(sprite_renderer::blendings)
+}
 
 namespace e2d
 {
