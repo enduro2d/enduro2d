@@ -197,6 +197,12 @@ namespace
                 }
             }]
         },
+        "guid" : {
+            "type" : "string",
+            "minLength" : 36,
+            "maxLength" : 36,
+            "pattern" : "^[0-9a-fA-F]{8}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{12}$"
+        },
         "name" : {
             "type" : "string",
             "minLength" : 1

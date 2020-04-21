@@ -1,0 +1,12 @@
+{
+    "uuid" : "73740BC4-CE9F-4A7F-A029-4AB65027A8AE",
+    "components" : {
+        "named" : {
+            "name" : "parent"
+        },
+        "circle_collider" : {
+            "radius" : 5,
+            "offset" : [4,2]
+        }
+    }
+}

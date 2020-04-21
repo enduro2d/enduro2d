@@ -24,12 +24,10 @@ namespace
         "required" : [],
         "additionalProperties" : false,
         "properties" : {
-            "prototype" : { "$ref": "#/common_definitions/address" },
-            "components" : { "type" : "object" },
-            "children" : {
-                "type" : "array",
-                "items" : { "$ref": "#/definitions/child" }
-            }
+            "uuid" : { "$ref": "#/common_definitions/uuid" },
+            "parent" : { "$ref": "#/common_definitions/address" },
+            "children" : { "$ref": "#/definitions/children" },
+            "components" : { "type" : "object" }
         },
         "definitions" : {
             "child" : {
@@ -37,13 +35,15 @@ namespace
                 "required" : [],
                 "additionalProperties" : false,
                 "properties" : {
-                    "prototype" : { "$ref": "#/common_definitions/address" },
-                    "components" : { "type" : "object" },
-                    "children" : {
-                        "type" : "array",
-                        "items" : { "$ref": "#/definitions/child" }
-                    }
+                    "uuid" : { "$ref": "#/common_definitions/uuid" },
+                    "parent" : { "$ref": "#/common_definitions/address" },
+                    "children" : { "$ref": "#/definitions/children" },
+                    "components" : { "type" : "object" }
                 }
+            },
+            "children" : {
+                "type" : "array",
+                "items" : { "$ref": "#/definitions/child" }
             }
         }
     })json";
@@ -71,9 +71,16 @@ namespace
         const rapidjson::Value& root,
         asset_dependencies& dependencies)
     {
-        if ( root.HasMember("prototype") ) {
+        if ( root.HasMember("parent") ) {
             dependencies.add_dependency<prefab_asset>(
-                path::combine(parent_address, root["prototype"].GetString()));
+                path::combine(parent_address, root["parent"].GetString()));
+        }
+
+        if ( root.HasMember("children") ) {
+            const rapidjson::Value& children_root = root["children"];
+            for ( rapidjson::SizeType i = 0; i < children_root.Size(); ++i ) {
+                collect_dependencies(parent_address, children_root[i], dependencies);
+            }
         }
 
         if ( root.HasMember("components") ) {
@@ -83,7 +90,7 @@ namespace
                 ++component_root )
             {
                 {
-                    bool success = the<factory>().validate_json(
+                    const bool success = the<factory>().validate_json(
                         component_root->name.GetString(),
                         component_root->value);
                     if ( !success ) {
@@ -94,7 +101,7 @@ namespace
                     factory_loader<>::collect_context ctx(
                         str(parent_address),
                         component_root->value);
-                    bool success = the<factory>().collect_dependencies(
+                    const bool success = the<factory>().collect_dependencies(
                         component_root->name.GetString(),
                         dependencies,
                         ctx);
@@ -102,13 +109,6 @@ namespace
                         throw prefab_asset_loading_exception();
                     }
                 }
-            }
-        }
-
-        if ( root.HasMember("children") ) {
-            const rapidjson::Value& children_root = root["children"];
-            for ( rapidjson::SizeType i = 0; i < children_root.Size(); ++i ) {
-                collect_dependencies(parent_address, children_root[i], dependencies);
             }
         }
     }
@@ -130,38 +130,28 @@ namespace
     {
         prefab content;
 
-        if ( root.HasMember("prototype") ) {
+        if ( root.HasMember("uuid") ) {
+            str uuid = content.uuid();
+            if ( !json_utils::try_parse_value(root["uuid"], uuid) ) {
+                the<debug>().error("PREFAB: Incorrect formatting of 'uuid' property");
+                throw prefab_asset_loading_exception();
+            }
+            content.set_uuid(std::move(uuid));
+        }
+
+        if ( root.HasMember("parent") ) {
             auto proto_res = dependencies.find_asset<prefab_asset>(
-                path::combine(parent_address, root["prototype"].GetString()));
+                path::combine(parent_address, root["parent"].GetString()));
             if ( !proto_res ) {
-                the<debug>().error("PREFAB: Dependency 'prototype' is not found:\n"
+                the<debug>().error("PREFAB: Dependency 'parent' is not found:\n"
                     "--> Parent address: %0\n"
                     "--> Dependency address: %1",
                     parent_address,
-                    root["prototype"].GetString());
+                    root["parent"].GetString());
                 throw prefab_asset_loading_exception();
             }
-            content = proto_res->content();
-        }
-
-        if ( root.HasMember("components") ) {
-            const rapidjson::Value& components_root = root["components"];
-            for ( rapidjson::Value::ConstMemberIterator component_root = components_root.MemberBegin();
-                component_root != components_root.MemberEnd();
-                ++component_root )
-            {
-                factory_loader<>::fill_context ctx(
-                    str(parent_address),
-                    component_root->value,
-                    dependencies);
-                bool success = the<factory>().fill_prototype(
-                    component_root->name.GetString(),
-                    content.prototype(),
-                    ctx);
-                if ( !success ) {
-                    throw prefab_asset_loading_exception();
-                }
-            }
+            content.set_children(proto_res->content().children());
+            content.set_prototype(proto_res->content().prototype());
         }
 
         if ( root.HasMember("children") ) {
@@ -176,6 +166,26 @@ namespace
             }
 
             content.set_children(std::move(children));
+        }
+
+        if ( root.HasMember("components") ) {
+            const rapidjson::Value& components_root = root["components"];
+            for ( rapidjson::Value::ConstMemberIterator component_root = components_root.MemberBegin();
+                component_root != components_root.MemberEnd();
+                ++component_root )
+            {
+                factory_loader<>::fill_context ctx(
+                    str(parent_address),
+                    component_root->value,
+                    dependencies);
+                const bool success = the<factory>().fill_prototype(
+                    component_root->name.GetString(),
+                    content.prototype(),
+                    ctx);
+                if ( !success ) {
+                    throw prefab_asset_loading_exception();
+                }
+            }
         }
 
         return content;

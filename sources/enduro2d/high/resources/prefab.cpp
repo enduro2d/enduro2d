@@ -25,14 +25,16 @@ namespace e2d
     }
 
     void prefab::clear() noexcept {
-        prototype_.clear();
+        uuid_.clear();
         children_.clear();
+        prototype_.clear();
     }
 
     void prefab::swap(prefab& other) noexcept {
         using std::swap;
-        swap(prototype_, other.prototype_);
+        swap(uuid_, other.uuid_);
         swap(children_, other.children_);
+        swap(prototype_, other.prototype_);
     }
 
     prefab& prefab::assign(prefab&& other) noexcept {
@@ -46,20 +48,21 @@ namespace e2d
     prefab& prefab::assign(const prefab& other) {
         if ( this != &other ) {
             prefab s;
-            s.prototype_ = other.prototype_;
+            s.uuid_ = other.uuid_;
             s.children_ = other.children_;
+            s.prototype_ = other.prototype_;
             swap(s);
         }
         return *this;
     }
 
-    prefab& prefab::set_prototype(ecs::prototype&& proto) noexcept {
-        prototype_ = std::move(proto);
+    prefab& prefab::set_uuid(str&& uuid) noexcept {
+        uuid_ = std::move(uuid);
         return *this;
     }
 
-    prefab& prefab::set_prototype(const ecs::prototype& proto) {
-        prototype_ = proto;
+    prefab& prefab::set_uuid(const str& uuid) {
+        uuid_ = uuid;
         return *this;
     }
 
@@ -73,6 +76,32 @@ namespace e2d
         return *this;
     }
 
+    prefab& prefab::set_prototype(ecs::prototype&& prototype) noexcept {
+        prototype_ = std::move(prototype);
+        return *this;
+    }
+
+    prefab& prefab::set_prototype(const ecs::prototype& prototype) {
+        prototype_ = prototype;
+        return *this;
+    }
+
+    str& prefab::uuid() noexcept {
+        return uuid_;
+    }
+
+    const str& prefab::uuid() const noexcept {
+        return uuid_;
+    }
+
+    vector<prefab>& prefab::children() noexcept {
+        return children_;
+    }
+
+    const vector<prefab>& prefab::children() const noexcept {
+        return children_;
+    }
+
     ecs::prototype& prefab::prototype() noexcept {
         return prototype_;
     }
@@ -80,24 +109,11 @@ namespace e2d
     const ecs::prototype& prefab::prototype() const noexcept {
         return prototype_;
     }
-
-    const vector<prefab>& prefab::children() const noexcept {
-        return children_;
-    }
 }
 
 namespace e2d
 {
     void swap(prefab& l, prefab& r) noexcept {
         l.swap(r);
-    }
-
-    bool operator==(const prefab& l, const prefab& r) noexcept {
-        return l.prototype().empty() && l.children().empty()
-            && r.prototype().empty() && r.children().empty();
-    }
-
-    bool operator!=(const prefab& l, const prefab& r) noexcept {
-        return !(l == r);
     }
 }
