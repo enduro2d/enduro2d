@@ -207,8 +207,19 @@ namespace e2d
         return count;
     }
 
-    bool node::add_child(const node_iptr& child) noexcept {
+    bool node::add_child(
+        const node_iptr& child) noexcept
+    {
         return add_child_to_front(child);
+    }
+
+    bool node::add_child_at(
+        const node_iptr& child,
+        std::size_t index) noexcept
+    {
+        return index == 0u
+            ? add_child_to_back(child)
+            : add_child_after(child_at(index - 1u), child);
     }
 
     bool node::add_child_to_back(

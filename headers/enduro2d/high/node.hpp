@@ -85,6 +85,10 @@ namespace e2d
         bool add_child(
             const node_iptr& child) noexcept;
 
+        bool add_child_at(
+            const node_iptr& child,
+            std::size_t index) noexcept;
+
         bool add_child_to_back(
             const node_iptr& child) noexcept;
 

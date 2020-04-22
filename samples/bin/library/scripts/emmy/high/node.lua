@@ -89,6 +89,12 @@ function node.add_child(self, child) end
 
 ---@param self node
 ---@param child node
+---@param index integer
+---@return boolean
+function node.add_child_at(self, child, index) end
+
+---@param self node
+---@param child node
 ---@return boolean
 function node.add_child_to_back(self, child) end
 

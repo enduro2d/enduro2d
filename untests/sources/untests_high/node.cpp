@@ -559,6 +559,39 @@ TEST_CASE("node") {
         REQUIRE(p->child_at(1u) == n2);
         REQUIRE(p->child_at(2u) == n1);
     }
+    SECTION("add_child_at") {
+        auto p = node::create();
+
+        auto n1 = node::create();
+        auto n2 = node::create();
+        auto n3 = node::create();
+        auto n4 = node::create();
+
+        REQUIRE_FALSE(p->add_child_at(p, 0u));
+        REQUIRE_FALSE(p->add_child_at(nullptr, 0u));
+        REQUIRE_FALSE(p->add_child_at(n1, 1u));
+
+        REQUIRE(p->add_child_at(n1, 0u)); // n1
+        REQUIRE(p->add_child_at(n2, 0u)); // n2 n1
+        REQUIRE(p->add_child_at(n3, 2u)); // n2 n1 n3
+        REQUIRE(p->add_child_at(n4, 2u)); // n2 n1 n4 n3
+
+        REQUIRE(p->child_at(0u) == n2);
+        REQUIRE(p->child_at(1u) == n1);
+        REQUIRE(p->child_at(2u) == n4);
+        REQUIRE(p->child_at(3u) == n3);
+
+        REQUIRE_FALSE(p->add_child_at(n1, 5u));
+        REQUIRE(p->add_child_at(n1, 4u)); // n2 n4 n3 n1
+        REQUIRE(p->add_child_at(n3, 0u)); // n3 n2 n4 n1
+        REQUIRE(p->add_child_at(n4, 1u)); // n3 n4 n2 n1
+        REQUIRE(p->add_child_at(n4, p->child_index(n4).first)); // n3 n4 n2 n1
+
+        REQUIRE(p->child_at(0u) == n3);
+        REQUIRE(p->child_at(1u) == n4);
+        REQUIRE(p->child_at(2u) == n2);
+        REQUIRE(p->child_at(3u) == n1);
+    }
     SECTION("add_child_to_back/add_child_to_front") {
         auto p = node::create();
         auto n1 = node::create();

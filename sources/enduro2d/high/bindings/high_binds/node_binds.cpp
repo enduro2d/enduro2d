@@ -87,6 +87,12 @@ namespace e2d::bindings::high
                 return n.add_child(c);
             },
 
+            "add_child_at", [](node& n, const node_iptr& c, i32 i) -> bool {
+                return i >= 0
+                    ? n.add_child_at(c, math::numeric_cast<std::size_t>(i))
+                    : false;
+            },
+
             "add_child_to_back", [](node& n, const node_iptr& c) -> bool {
                 return n.add_child_to_back(c);
             },
@@ -115,9 +121,9 @@ namespace e2d::bindings::high
                 return n.remove_child(c);
             },
 
-            "remove_child_at", [](node& n, i32 index) -> node_iptr {
-                return index >= 0
-                    ? n.remove_child_at(math::numeric_cast<std::size_t>(index))
+            "remove_child_at", [](node& n, i32 i) -> node_iptr {
+                return i >= 0
+                    ? n.remove_child_at(math::numeric_cast<std::size_t>(i))
                     : node_iptr();
             },
 
@@ -159,9 +165,9 @@ namespace e2d::bindings::high
             "next_sibling", sol::property(
                 [](node& n) -> node_iptr { return n.next_sibling(); }),
 
-            "child_at", [](node& n, i32 index) -> node_iptr {
-                return index >= 0
-                    ? n.child_at(math::numeric_cast<std::size_t>(index))
+            "child_at", [](node& n, i32 i) -> node_iptr {
+                return i >= 0
+                    ? n.child_at(math::numeric_cast<std::size_t>(i))
                     : node_iptr();
             },
 
