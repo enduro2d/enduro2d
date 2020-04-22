@@ -125,6 +125,9 @@ namespace e2d
 
         node_iptr next_sibling() noexcept;
         const_node_iptr next_sibling() const noexcept;
+
+        node_iptr child_at(std::size_t index) noexcept;
+        const_node_iptr child_at(std::size_t index) const noexcept;
     protected:
         node() = default;
         node(gobject owner);

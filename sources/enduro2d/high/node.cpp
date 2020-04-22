@@ -414,6 +414,22 @@ namespace e2d
         }
         return const_node_iptr(&*iter);
     }
+
+    node_iptr node::child_at(std::size_t index) noexcept {
+        node_iptr child = first_child();
+        for ( std::size_t i = 0; i < index && child; ++i ) {
+            child = child->next_sibling();
+        }
+        return child;
+    }
+
+    const_node_iptr node::child_at(std::size_t index) const noexcept {
+        const_node_iptr child = first_child();
+        for ( std::size_t i = 0; i < index && child; ++i ) {
+            child = child->next_sibling();
+        }
+        return child;
+    }
 }
 
 namespace e2d

@@ -141,7 +141,13 @@ namespace e2d::bindings::high
                 [](node& n) -> node_iptr { return n.prev_sibling(); }),
 
             "next_sibling", sol::property(
-                [](node& n) -> node_iptr { return n.next_sibling(); })
+                [](node& n) -> node_iptr { return n.next_sibling(); }),
+
+            "child_at", [](node& n, i32 index) -> node_iptr {
+                return index >= 0
+                    ? n.child_at(math::numeric_cast<std::size_t>(index))
+                    : node_iptr();
+            }
         );
     }
 }

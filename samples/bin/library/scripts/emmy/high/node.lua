@@ -140,5 +140,10 @@ function node.send_forward(self) end
 ---@return boolean
 function node.bring_to_front(self) end
 
+---@param self node
+---@param index integer
+---@return node
+function node.child_at(self, index) end
+
 ---@type node
 _G.node = _G.node or node

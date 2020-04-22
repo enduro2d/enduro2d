@@ -429,6 +429,27 @@ TEST_CASE("node") {
             REQUIRE_FALSE(cn4->next_sibling());
         }
     }
+    SECTION("child_at") {
+        auto p = node::create();
+
+        auto n1 = node::create(p);
+        auto n2 = node::create(p);
+        auto n3 = node::create(p);
+
+        REQUIRE(p->child_at(0) == n1);
+        REQUIRE(p->child_at(1) == n2);
+        REQUIRE(p->child_at(2) == n3);
+        REQUIRE_FALSE(p->child_at(3));
+
+        {
+            const_node_iptr cp = p;
+
+            REQUIRE(cp->child_at(0) == n1);
+            REQUIRE(cp->child_at(1) == n2);
+            REQUIRE(cp->child_at(2) == n3);
+            REQUIRE_FALSE(cp->child_at(3));
+        }
+    }
     SECTION("add_child_to_back/add_child_to_front") {
         auto p = node::create();
         auto n1 = node::create();
