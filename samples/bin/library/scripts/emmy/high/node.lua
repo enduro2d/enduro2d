@@ -145,5 +145,10 @@ function node.bring_to_front(self) end
 ---@return node
 function node.child_at(self, index) end
 
+---@param self node
+---@param index integer
+---@return node
+function node.remove_child_at(self, index) end
+
 ---@type node
 _G.node = _G.node or node

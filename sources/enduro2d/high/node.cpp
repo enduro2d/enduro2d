@@ -430,6 +430,13 @@ namespace e2d
         }
         return child;
     }
+
+    node_iptr node::remove_child_at(std::size_t index) noexcept {
+        node_iptr child = child_at(index);
+        return remove_child(child)
+            ? child
+            : node_iptr();
+    }
 }
 
 namespace e2d

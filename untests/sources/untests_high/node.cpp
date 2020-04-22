@@ -450,6 +450,27 @@ TEST_CASE("node") {
             REQUIRE_FALSE(cp->child_at(3));
         }
     }
+    SECTION("remove_child_at") {
+        auto p = node::create();
+
+        auto n1 = node::create(p);
+        auto n2 = node::create(p);
+        auto n3 = node::create(p);
+
+        REQUIRE_FALSE(n1->remove_child_at(0));
+
+        REQUIRE(p->remove_child_at(1) == n2);
+        REQUIRE_FALSE(n2->has_parent());
+        REQUIRE(p->child_count() == 2u);
+
+        REQUIRE(p->remove_child_at(0) == n1);
+        REQUIRE_FALSE(n1->has_parent());
+        REQUIRE(p->child_count() == 1u);
+
+        REQUIRE(p->remove_child_at(0) == n3);
+        REQUIRE_FALSE(n3->has_parent());
+        REQUIRE(p->child_count() == 0u);
+    }
     SECTION("add_child_to_back/add_child_to_front") {
         auto p = node::create();
         auto n1 = node::create();
