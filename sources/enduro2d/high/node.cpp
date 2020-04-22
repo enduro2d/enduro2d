@@ -431,6 +431,20 @@ namespace e2d
         return child;
     }
 
+    std::pair<std::size_t, bool> node::child_index(
+        const const_node_iptr& child) const noexcept
+    {
+        if ( !child || child->parent_ != this ) {
+            return {std::size_t(-1), false};
+        }
+
+        const auto distance = std::distance(
+            children_.begin(),
+            node_children::iterator_to(*child));
+
+        return {math::numeric_cast<std::size_t>(distance), true};
+    }
+
     node_iptr node::remove_child_at(std::size_t index) noexcept {
         node_iptr child = child_at(index);
         return remove_child(child)

@@ -129,6 +129,9 @@ namespace e2d
         node_iptr child_at(std::size_t index) noexcept;
         const_node_iptr child_at(std::size_t index) const noexcept;
 
+        std::pair<std::size_t, bool> child_index(
+            const const_node_iptr& child) const noexcept;
+
         node_iptr remove_child_at(std::size_t index) noexcept;
     protected:
         node() = default;

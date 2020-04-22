@@ -149,6 +149,10 @@ namespace e2d::bindings::high
                     : node_iptr();
             },
 
+            "child_index", [](node& n, const node_iptr& c) -> std::pair<std::size_t, bool> {
+                return n.child_index(c);
+            },
+
             "remove_child_at", [](node& n, i32 index) -> node_iptr {
                 return index >= 0
                     ? n.remove_child_at(math::numeric_cast<std::size_t>(index))

@@ -146,6 +146,11 @@ function node.bring_to_front(self) end
 function node.child_at(self, index) end
 
 ---@param self node
+---@param child node
+---@return integer, boolean
+function node.child_index(self, child) end
+
+---@param self node
 ---@param index integer
 ---@return node
 function node.remove_child_at(self, index) end

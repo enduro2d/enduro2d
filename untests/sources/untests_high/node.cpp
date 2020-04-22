@@ -450,6 +450,48 @@ TEST_CASE("node") {
             REQUIRE_FALSE(cp->child_at(3));
         }
     }
+    SECTION("child_index") {
+        auto p = node::create();
+
+        auto n1 = node::create(p);
+        auto n2 = node::create(p);
+        auto n3 = node::create(p);
+
+        auto p2 = node::create();
+        auto n4 = node::create(p2);
+
+        auto n5 = node::create();
+
+        REQUIRE(p->child_index(n1).second);
+        REQUIRE(p->child_index(n2).second);
+        REQUIRE(p->child_index(n3).second);
+        REQUIRE_FALSE(p->child_index(n4).second);
+        REQUIRE_FALSE(p->child_index(n5).second);
+
+        REQUIRE(p->child_index(n1).first == 0u);
+        REQUIRE(p->child_index(n2).first == 1u);
+        REQUIRE(p->child_index(n3).first == 2u);
+
+        {
+            const_node_iptr cp = p;
+
+            const_node_iptr cn1 = n1;
+            const_node_iptr cn2 = n2;
+            const_node_iptr cn3 = n3;
+            const_node_iptr cn4 = n4;
+            const_node_iptr cn5 = n5;
+
+            REQUIRE(cp->child_index(cn1).second);
+            REQUIRE(cp->child_index(cn2).second);
+            REQUIRE(cp->child_index(cn3).second);
+            REQUIRE_FALSE(cp->child_index(cn4).second);
+            REQUIRE_FALSE(cp->child_index(cn5).second);
+
+            REQUIRE(cp->child_index(cn1).first == 0u);
+            REQUIRE(cp->child_index(cn2).first == 1u);
+            REQUIRE(cp->child_index(cn3).first == 2u);
+        }
+    }
     SECTION("remove_child_at") {
         auto p = node::create();
 
