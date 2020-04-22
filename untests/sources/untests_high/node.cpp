@@ -9,19 +9,6 @@ using namespace e2d;
 
 namespace
 {
-    class safe_starter_initializer final : private noncopyable {
-    public:
-        safe_starter_initializer() {
-            modules::initialize<starter>(0, nullptr,
-                starter::parameters(
-                    engine::parameters("world_untests", "enduro2d")));
-        }
-
-        ~safe_starter_initializer() noexcept {
-            modules::shutdown<starter>();
-        }
-    };
-
     class fake_node final : public node {
     protected:
         fake_node() : node() {
@@ -61,7 +48,6 @@ namespace
 }
 
 TEST_CASE("node") {
-    safe_starter_initializer initializer;
     SECTION("empty_node") {
         auto n = node::create();
         REQUIRE(n);

@@ -27,9 +27,14 @@ namespace
             "uuid" : { "$ref": "#/common_definitions/uuid" },
             "parent" : { "$ref": "#/common_definitions/address" },
             "children" : { "$ref": "#/definitions/children" },
+            "mod_children" : { "$ref": "#/definitions/mod_children" },
             "components" : { "type" : "object" }
         },
         "definitions" : {
+            "children" : {
+                "type" : "array",
+                "items" : { "$ref": "#/definitions/child" }
+            },
             "child" : {
                 "type" : "object",
                 "required" : [],
@@ -38,12 +43,24 @@ namespace
                     "uuid" : { "$ref": "#/common_definitions/uuid" },
                     "parent" : { "$ref": "#/common_definitions/address" },
                     "children" : { "$ref": "#/definitions/children" },
+                    "mod_children" : { "$ref": "#/definitions/mod_children" },
                     "components" : { "type" : "object" }
                 }
             },
-            "children" : {
+            "mod_children" : {
                 "type" : "array",
-                "items" : { "$ref": "#/definitions/child" }
+                "items" : { "$ref": "#/definitions/mod_child" }
+            },
+            "mod_child" : {
+                "type" : "object",
+                "required" : [ "uuid" ],
+                "additionalProperties" : false,
+                "properties" : {
+                    "uuid" : { "$ref": "#/common_definitions/uuid" },
+                    "children" : { "$ref": "#/definitions/children" },
+                    "mod_children" : { "$ref": "#/definitions/mod_children" },
+                    "components" : { "type" : "object" }
+                }
             }
         }
     })json";
@@ -80,6 +97,13 @@ namespace
             const rapidjson::Value& children_root = root["children"];
             for ( rapidjson::SizeType i = 0; i < children_root.Size(); ++i ) {
                 collect_dependencies(parent_address, children_root[i], dependencies);
+            }
+        }
+
+        if ( root.HasMember("mod_children") ) {
+            const rapidjson::Value& mod_children_root = root["mod_children"];
+            for ( rapidjson::SizeType i = 0; i < mod_children_root.Size(); ++i ) {
+                collect_dependencies(parent_address, mod_children_root[i], dependencies);
             }
         }
 
@@ -123,13 +147,28 @@ namespace
         return dependencies.load_async(library);
     }
 
-    prefab parse_prefab(
+    prefab* find_prefab_child(prefab& parent, str_view child_uuid) noexcept {
+        for ( prefab& child : parent.children() ) {
+            if ( child.uuid() == child_uuid ) {
+                return &child;
+            }
+        }
+
+        for ( prefab& child : parent.children() ) {
+            if ( prefab* sub_child = find_prefab_child(child, child_uuid) ) {
+                return sub_child;
+            }
+        }
+
+        return nullptr;
+    }
+
+    void parse_prefab_inplace(
+        prefab& content,
         str_view parent_address,
         const rapidjson::Value& root,
         const asset_group& dependencies)
     {
-        prefab content;
-
         if ( root.HasMember("uuid") ) {
             str uuid = content.uuid();
             if ( !json_utils::try_parse_value(root["uuid"], uuid) ) {
@@ -161,11 +200,37 @@ namespace
             children.reserve(children_root.Size());
 
             for ( rapidjson::SizeType i = 0; i < children_root.Size(); ++i ) {
-                children.emplace_back(parse_prefab(
-                    parent_address, children_root[i], dependencies));
+                prefab child;
+                parse_prefab_inplace(
+                    child,
+                    parent_address,
+                    children_root[i],
+                    dependencies);
+                children.push_back(std::move(child));
             }
 
             content.set_children(std::move(children));
+        }
+
+        if ( root.HasMember("mod_children") ) {
+            const rapidjson::Value& mod_children_root = root["mod_children"];
+
+            for ( rapidjson::SizeType i = 0; i < mod_children_root.Size(); ++i ) {
+                const rapidjson::Value& mod_child_root = mod_children_root[i];
+                E2D_ASSERT(mod_child_root.HasMember("uuid") && mod_child_root["uuid"].IsString());
+                prefab* child_prefab = find_prefab_child(content, mod_child_root["uuid"].GetString());
+                if ( !child_prefab ) {
+                    the<debug>().error("PREFAB: Modifiable child is not found:\n"
+                        "--> Child UUID: %0",
+                        mod_child_root["uuid"].GetString());
+                    throw prefab_asset_loading_exception();
+                }
+                parse_prefab_inplace(
+                    *child_prefab,
+                    parent_address,
+                    mod_child_root,
+                    dependencies);
+            }
         }
 
         if ( root.HasMember("components") ) {
@@ -187,7 +252,15 @@ namespace
                 }
             }
         }
+    }
 
+    prefab parse_prefab(
+        str_view parent_address,
+        const rapidjson::Value& root,
+        const asset_group& dependencies)
+    {
+        prefab content;
+        parse_prefab_inplace(content, parent_address, root, dependencies);
         return content;
     }
 }

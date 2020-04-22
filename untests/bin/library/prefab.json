@@ -1,5 +1,5 @@
 {
-    "parent" : "prototype.json",
+    "parent" : "parent.json",
     "components" : {
         "named" : {
             "name" : "prefab"
@@ -12,5 +12,20 @@
             "points" : [[1,2],[2,3],[3,4]],
             "offset" : [8,4]
         }
-    }
+    },
+    "mod_children" : [{
+        "uuid" : "4A93547E-4635-4C2F-9C59-3546E11B1722",
+        "components" : {
+            "widget" : {
+                "size" : [10,10]
+            }
+        }
+    }, {
+        "uuid" : "58063213-9FC1-457C-B773-B826BE1BE6D7",
+        "components" : {
+            "widget" : {
+                "size" : [20,20]
+            }
+        }
+    }]
 }
