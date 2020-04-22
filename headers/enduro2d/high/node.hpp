@@ -108,6 +108,17 @@ namespace e2d
         bool remove_child(
             const node_iptr& child) noexcept;
 
+        node_iptr remove_child_at(
+            std::size_t index) noexcept;
+
+        bool swap_children(
+            const node_iptr& child_l,
+            const node_iptr& child_r) noexcept;
+
+        bool swap_children_at(
+            std::size_t child_l,
+            std::size_t child_r) noexcept;
+
         bool send_backward() noexcept;
         bool bring_to_back() noexcept;
 
@@ -131,8 +142,6 @@ namespace e2d
 
         std::pair<std::size_t, bool> child_index(
             const const_node_iptr& child) const noexcept;
-
-        node_iptr remove_child_at(std::size_t index) noexcept;
     protected:
         node() = default;
         node(gobject owner);

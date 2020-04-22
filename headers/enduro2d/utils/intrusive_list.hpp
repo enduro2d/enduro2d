@@ -273,6 +273,8 @@ namespace e2d
 
         static iterator iterator_to(T& v) noexcept;
         static const_iterator iterator_to(const T& v) noexcept;
+
+        static void iterator_swap(iterator l, iterator r) noexcept;
     private:
         using node_t = intrusive_list_hook<Tag>;
         using node_ptr = typename node_t::node_ptr;
@@ -495,5 +497,11 @@ namespace e2d
         const node_t& node = static_cast<const node_t&>(v);
         E2D_ASSERT(node.is_linked());
         return const_iterator(&node);
+    }
+
+    template < typename T, typename Tag >
+    void intrusive_list<T,Tag>::iterator_swap(iterator l, iterator r) noexcept {
+        E2D_ASSERT(l.node()->is_linked() && r.node()->is_linked());
+        intrusive_list_hook<Tag>::swap_nodes(l.node(), r.node());
     }
 }

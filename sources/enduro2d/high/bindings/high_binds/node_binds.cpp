@@ -115,6 +115,22 @@ namespace e2d::bindings::high
                 return n.remove_child(c);
             },
 
+            "remove_child_at", [](node& n, i32 index) -> node_iptr {
+                return index >= 0
+                    ? n.remove_child_at(math::numeric_cast<std::size_t>(index))
+                    : node_iptr();
+            },
+
+            "swap_children", [](node& n, const node_iptr& cl, const node_iptr& cr) -> bool {
+                return n.swap_children(cl, cr);
+            },
+
+            "swap_children_at", [](node& n, i32 cl, i32 cr) -> bool {
+                return cl >= 0 && cr >= 0
+                    ? n.swap_children_at(math::numeric_cast<std::size_t>(cl), math::numeric_cast<std::size_t>(cr))
+                    : false;
+            },
+
             "send_backward", [](node& n) -> bool {
                 return n.send_backward();
             },
@@ -151,12 +167,6 @@ namespace e2d::bindings::high
 
             "child_index", [](node& n, const node_iptr& c) -> std::pair<std::size_t, bool> {
                 return n.child_index(c);
-            },
-
-            "remove_child_at", [](node& n, i32 index) -> node_iptr {
-                return index >= 0
-                    ? n.remove_child_at(math::numeric_cast<std::size_t>(index))
-                    : node_iptr();
             }
         );
     }

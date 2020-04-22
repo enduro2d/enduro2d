@@ -125,6 +125,23 @@ function node.add_sibling_after(self, sibling) end
 function node.remove_child(self, child) end
 
 ---@param self node
+---@param index integer
+---@return node
+function node.remove_child_at(self, index) end
+
+---@param self node
+---@param child_l node
+---@param child_r node
+---@return boolean
+function node.swap_children(self, child_l, child_r) end
+
+---@param self node
+---@param child_l integer
+---@param child_r integer
+---@return boolean
+function node.swap_children_at(self, child_l, child_r) end
+
+---@param self node
 ---@return boolean
 function node.send_backward(self) end
 
@@ -149,11 +166,6 @@ function node.child_at(self, index) end
 ---@param child node
 ---@return integer, boolean
 function node.child_index(self, child) end
-
----@param self node
----@param index integer
----@return node
-function node.remove_child_at(self, index) end
 
 ---@type node
 _G.node = _G.node or node
