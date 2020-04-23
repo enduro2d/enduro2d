@@ -25,7 +25,7 @@ namespace
         "additionalProperties" : false,
         "properties" : {
             "uuid" : { "$ref": "#/common_definitions/uuid" },
-            "parent" : { "$ref": "#/common_definitions/address" },
+            "prefab" : { "$ref": "#/common_definitions/address" },
             "children" : { "$ref": "#/definitions/children" },
             "mod_children" : { "$ref": "#/definitions/mod_children" },
             "components" : { "type" : "object" }
@@ -41,7 +41,7 @@ namespace
                 "additionalProperties" : false,
                 "properties" : {
                     "uuid" : { "$ref": "#/common_definitions/uuid" },
-                    "parent" : { "$ref": "#/common_definitions/address" },
+                    "prefab" : { "$ref": "#/common_definitions/address" },
                     "children" : { "$ref": "#/definitions/children" },
                     "mod_children" : { "$ref": "#/definitions/mod_children" },
                     "components" : { "type" : "object" }
@@ -88,9 +88,9 @@ namespace
         const rapidjson::Value& root,
         asset_dependencies& dependencies)
     {
-        if ( root.HasMember("parent") ) {
+        if ( root.HasMember("prefab") ) {
             dependencies.add_dependency<prefab_asset>(
-                path::combine(parent_address, root["parent"].GetString()));
+                path::combine(parent_address, root["prefab"].GetString()));
         }
 
         if ( root.HasMember("children") ) {
@@ -147,14 +147,14 @@ namespace
         return dependencies.load_async(library);
     }
 
-    prefab* find_prefab_child(prefab& parent, str_view child_uuid) noexcept {
-        for ( prefab& child : parent.children() ) {
+    prefab* find_prefab_child(prefab& root, str_view child_uuid) noexcept {
+        for ( prefab& child : root.children() ) {
             if ( child.uuid() == child_uuid ) {
                 return &child;
             }
         }
 
-        for ( prefab& child : parent.children() ) {
+        for ( prefab& child : root.children() ) {
             if ( prefab* sub_child = find_prefab_child(child, child_uuid) ) {
                 return sub_child;
             }
@@ -178,15 +178,15 @@ namespace
             content.set_uuid(std::move(uuid));
         }
 
-        if ( root.HasMember("parent") ) {
+        if ( root.HasMember("prefab") ) {
             auto proto_res = dependencies.find_asset<prefab_asset>(
-                path::combine(parent_address, root["parent"].GetString()));
+                path::combine(parent_address, root["prefab"].GetString()));
             if ( !proto_res ) {
-                the<debug>().error("PREFAB: Dependency 'parent' is not found:\n"
+                the<debug>().error("PREFAB: Dependency 'prefab' is not found:\n"
                     "--> Parent address: %0\n"
                     "--> Dependency address: %1",
                     parent_address,
-                    root["parent"].GetString());
+                    root["prefab"].GetString());
                 throw prefab_asset_loading_exception();
             }
             content.set_children(proto_res->content().children());
@@ -217,14 +217,22 @@ namespace
 
             for ( rapidjson::SizeType i = 0; i < mod_children_root.Size(); ++i ) {
                 const rapidjson::Value& mod_child_root = mod_children_root[i];
-                E2D_ASSERT(mod_child_root.HasMember("uuid") && mod_child_root["uuid"].IsString());
-                prefab* child_prefab = find_prefab_child(content, mod_child_root["uuid"].GetString());
+
+                E2D_ASSERT(
+                    mod_child_root.HasMember("uuid") &&
+                    mod_child_root["uuid"].IsString());
+
+                prefab* const child_prefab = find_prefab_child(
+                    content,
+                    mod_child_root["uuid"].GetString());
+
                 if ( !child_prefab ) {
                     the<debug>().error("PREFAB: Modifiable child is not found:\n"
                         "--> Child UUID: %0",
                         mod_child_root["uuid"].GetString());
                     throw prefab_asset_loading_exception();
                 }
+
                 parse_prefab_inplace(
                     *child_prefab,
                     parent_address,
@@ -243,10 +251,12 @@ namespace
                     str(parent_address),
                     component_root->value,
                     dependencies);
+
                 const bool success = the<factory>().fill_prototype(
                     component_root->name.GetString(),
                     content.prototype(),
                     ctx);
+
                 if ( !success ) {
                     throw prefab_asset_loading_exception();
                 }
@@ -260,7 +270,10 @@ namespace
         const asset_group& dependencies)
     {
         prefab content;
-        parse_prefab_inplace(content, parent_address, root, dependencies);
+        parse_prefab_inplace(
+            content,
+            parent_address,
+            root, dependencies);
         return content;
     }
 }
