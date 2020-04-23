@@ -117,6 +117,7 @@ namespace
                     const bool success = the<factory>().validate_json(
                         component_root->name.GetString(),
                         component_root->value);
+
                     if ( !success ) {
                         throw prefab_asset_loading_exception();
                     }
@@ -125,10 +126,12 @@ namespace
                     factory_loader<>::collect_context ctx(
                         str(parent_address),
                         component_root->value);
+
                     const bool success = the<factory>().collect_dependencies(
                         component_root->name.GetString(),
                         dependencies,
                         ctx);
+
                     if ( !success ) {
                         throw prefab_asset_loading_exception();
                     }
@@ -170,11 +173,7 @@ namespace
         const asset_group& dependencies)
     {
         if ( root.HasMember("uuid") ) {
-            str uuid = content.uuid();
-            if ( !json_utils::try_parse_value(root["uuid"], uuid) ) {
-                the<debug>().error("PREFAB: Incorrect formatting of 'uuid' property");
-                throw prefab_asset_loading_exception();
-            }
+            str uuid = root["uuid"].GetString();
             content.set_uuid(std::move(uuid));
         }
 
@@ -196,20 +195,18 @@ namespace
         if ( root.HasMember("children") ) {
             const rapidjson::Value& children_root = root["children"];
 
-            vector<prefab> children;
-            children.reserve(children_root.Size());
-
             for ( rapidjson::SizeType i = 0; i < children_root.Size(); ++i ) {
+                const rapidjson::Value& child_root = children_root[i];
+
                 prefab child;
                 parse_prefab_inplace(
                     child,
                     parent_address,
-                    children_root[i],
+                    child_root,
                     dependencies);
-                children.push_back(std::move(child));
-            }
 
-            content.set_children(std::move(children));
+                content.children().push_back(std::move(child));
+            }
         }
 
         if ( root.HasMember("mod_children") ) {

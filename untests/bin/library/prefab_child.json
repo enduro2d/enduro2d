@@ -13,18 +13,51 @@
             "offset" : [8,4]
         }
     },
+    "children" : [{
+        "uuid" : "C07CDC21-8D1A-45E5-9321-AC7B6FADA847",
+        "components" : {
+            "named" : {
+                "name" : "child(3)"
+            }
+        }
+    }],
     "mod_children" : [{
         "uuid" : "4A93547E-4635-4C2F-9C59-3546E11B1722",
         "components" : {
             "widget" : {
                 "size" : [10,10]
             }
-        }
+        },
+        "children" : [{
+            "uuid" : "EA1F7728-8061-495E-9E8A-280C5E2979B3",
+            "prefab" : "prefab_root.json",
+            "components" : {
+                "named" : {
+                    "name" : "subchild(1)"
+                }
+            }
+        }]
     }, {
         "uuid" : "58063213-9FC1-457C-B773-B826BE1BE6D7",
         "components" : {
             "widget" : {
                 "size" : [20,20]
+            }
+        },
+        "children" : [{
+            "uuid" : "4DDDD08D-F7B9-4588-8597-3E38051AC433",
+            "prefab" : "prefab_root.json",
+            "components" : {
+                "named" : {
+                    "name" : "subchild(2)"
+                }
+            }
+        }]
+    }, {
+        "uuid" : "C07CDC21-8D1A-45E5-9321-AC7B6FADA847",
+        "components" : {
+            "widget" : {
+                "size" : [30,30]
             }
         }
     }]
