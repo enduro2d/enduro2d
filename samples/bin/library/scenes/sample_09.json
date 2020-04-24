@@ -1,18 +1,18 @@
 {
-    "prototype" : "../prefabs/scene_prefab.json",
+    "prefab" : "../prefabs/scene_prefab.json",
     "children" : [{
-        "prototype" : "../prefabs/background_prefab.json"
+        "prefab" : "../prefabs/background_prefab.json"
     },{
-        "prototype" : "../prefabs/camera_prefab.json"
+        "prefab" : "../prefabs/camera_prefab.json"
     },{
-        "prototype" : "../prefabs/panel_prefab.json",
+        "prefab" : "../prefabs/panel_prefab.json",
         "components" : {
             "sprite_renderer" : {
                 "scale" : [4,2]
             }
         },
         "children" : [{
-            "prototype" : "../prefabs/layout_prefab.json",
+            "prefab" : "../prefabs/layout_prefab.json",
             "components" : {
                 "layout" : {
                     "justify_content" : "space_evenly"
@@ -22,14 +22,14 @@
                 }
             },
             "children" : [{
-                "prototype" : "../prefabs/widget_prefab.json",
+                "prefab" : "../prefabs/widget_prefab.json",
                 "components" : {
                     "widget" : {
                         "size" : [66,113]
                     }
                 },
                 "children" : [{
-                    "prototype" : "../prefabs/ship_prefab.json",
+                    "prefab" : "../prefabs/ship_prefab.json",
                     "components" : {
                         "actor" : {
                             "translation" : [33,56.5]
@@ -37,14 +37,14 @@
                     }
                 }]
             },{
-                "prototype" : "../prefabs/widget_prefab.json",
+                "prefab" : "../prefabs/widget_prefab.json",
                 "components" : {
                     "widget" : {
                         "size" : [66,113]
                     }
                 },
                 "children" : [{
-                    "prototype" : "../prefabs/ship_prefab.json",
+                    "prefab" : "../prefabs/ship_prefab.json",
                     "components" : {
                         "actor" : {
                             "translation" : [33,56.5]
@@ -52,14 +52,14 @@
                     }
                 }]
             },{
-                "prototype" : "../prefabs/widget_prefab.json",
+                "prefab" : "../prefabs/widget_prefab.json",
                 "components" : {
                     "widget" : {
                         "size" : [66,113]
                     }
                 },
                 "children" : [{
-                    "prototype" : "../prefabs/ship_prefab.json",
+                    "prefab" : "../prefabs/ship_prefab.json",
                     "components" : {
                         "actor" : {
                             "translation" : [33,56.5]

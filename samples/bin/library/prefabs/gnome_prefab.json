@@ -1,5 +1,5 @@
 {
-    "prototype" : "model_prefab.json",
+    "prefab" : "model_prefab.json",
     "components" : {
         "named" : {
             "name" : "gnome"

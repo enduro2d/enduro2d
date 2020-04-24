@@ -1,5 +1,5 @@
 {
-    "prototype" : "spine_prefab.json",
+    "prefab" : "spine_prefab.json",
     "components" : {
         "named" : {
             "name" : "coin"
