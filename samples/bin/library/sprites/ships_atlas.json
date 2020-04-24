@@ -2,11 +2,9 @@
     "texture" : "ships.png",
     "sprites" : [{
         "name" : "ship (1).png",
-        "pivot" : { "x" : 441, "y" : 455 },
         "texrect" : { "x" : 408, "y" : 399, "w" : 66, "h" : 113 }
     },{
         "name" : "ship (2).png",
-        "pivot" : { "x" : 441, "y" : 340 },
         "texrect" : { "x" : 408, "y" : 284, "w" : 66, "h" : 113 }
     }]
 }

@@ -13,6 +13,7 @@ namespace e2d
     class named final {
     public:
         named() = default;
+        named(str value) noexcept;
 
         named& name(str value) noexcept;
 
@@ -53,6 +54,9 @@ namespace e2d
 
 namespace e2d
 {
+    inline named::named(str value) noexcept
+    : name_(std::move(value)) {}
+
     inline named& named::name(str value) noexcept {
         name_ = std::move(value);
         return *this;
