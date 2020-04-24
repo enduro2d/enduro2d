@@ -109,6 +109,20 @@ namespace e2d
                 swap_next(l, r);
             }
         }
+
+        static void transfer_nodes(node_ptr p, node_ptr b, node_ptr e) noexcept {
+            if ( b != e ) {
+                node_ptr prev_p = p->prev_;
+                node_ptr prev_b = b->prev_;
+                node_ptr prev_e = e->prev_;
+                prev_e->next_ = p;
+                p->prev_ = prev_e;
+                prev_b->next_ = e;
+                e->prev_ = prev_b;
+                prev_p->next_ = b;
+                b->prev_ = prev_p;
+            }
+        }
     private:
         node_ptr prev_{nullptr};
         node_ptr next_{nullptr};
@@ -252,15 +266,15 @@ namespace e2d
         void swap(intrusive_list& other) noexcept;
 
         template < typename Disposer >
-        void clear_and_dispose(Disposer&& disposer);
+        void clear_and_dispose(Disposer disposer);
         void clear() noexcept;
 
         template < typename Disposer >
-        void pop_back_and_dispose(Disposer&& disposer);
+        void pop_back_and_dispose(Disposer disposer);
         void pop_back() noexcept;
 
         template < typename Disposer >
-        void pop_front_and_dispose(Disposer&& disposer);
+        void pop_front_and_dispose(Disposer disposer);
         void pop_front() noexcept;
 
         void push_back(T& v) noexcept;
@@ -268,11 +282,24 @@ namespace e2d
         iterator insert(const_iterator pos, T& v) noexcept;
 
         template < typename Disposer >
-        iterator erase_and_dispose(const_iterator pos, Disposer&& disposer);
+        iterator erase_and_dispose(const_iterator pos, Disposer disposer);
         iterator erase(const_iterator pos) noexcept;
+
+        void splice(const_iterator pos, intrusive_list& x) noexcept;
+        void splice(const_iterator pos, const_iterator f, const_iterator e) noexcept;
+
+        template < typename Predicate >
+        void merge(intrusive_list& x, Predicate predicate);
+        void merge(intrusive_list& x);
+
+        template < typename Predicate >
+        void sort(Predicate predicate);
+        void sort();
 
         static iterator iterator_to(T& v) noexcept;
         static const_iterator iterator_to(const T& v) noexcept;
+
+        static void iterator_swap(iterator l, iterator r) noexcept;
     private:
         using node_t = intrusive_list_hook<Tag>;
         using node_ptr = typename node_t::node_ptr;
@@ -406,7 +433,7 @@ namespace e2d
 
     template < typename T, typename Tag >
     template < typename Disposer >
-    void intrusive_list<T,Tag>::clear_and_dispose(Disposer&& disposer) {
+    void intrusive_list<T,Tag>::clear_and_dispose(Disposer disposer) {
         while ( !empty() ) {
             pop_back_and_dispose(disposer);
         }
@@ -419,7 +446,7 @@ namespace e2d
 
     template < typename T, typename Tag >
     template < typename Disposer >
-    void intrusive_list<T,Tag>::pop_back_and_dispose(Disposer&& disposer) {
+    void intrusive_list<T,Tag>::pop_back_and_dispose(Disposer disposer) {
         E2D_ASSERT(!empty());
         node_ptr node = root_.prev_;
         node->unlink();
@@ -433,7 +460,7 @@ namespace e2d
 
     template < typename T, typename Tag >
     template < typename Disposer >
-    void intrusive_list<T,Tag>::pop_front_and_dispose(Disposer&& disposer) {
+    void intrusive_list<T,Tag>::pop_front_and_dispose(Disposer disposer) {
         E2D_ASSERT(!empty());
         node_ptr node = root_.next_;
         node->unlink();
@@ -469,7 +496,7 @@ namespace e2d
 
     template < typename T, typename Tag >
     template < typename Disposer >
-    typename intrusive_list<T,Tag>::iterator intrusive_list<T,Tag>::erase_and_dispose(const_iterator pos, Disposer&& disposer) {
+    typename intrusive_list<T,Tag>::iterator intrusive_list<T,Tag>::erase_and_dispose(const_iterator pos, Disposer disposer) {
         node_ptr node = pos.node();
         E2D_ASSERT(node != &root_ && node->is_linked());
         ++pos;
@@ -484,6 +511,70 @@ namespace e2d
     }
 
     template < typename T, typename Tag >
+    void intrusive_list<T,Tag>::splice(const_iterator pos, intrusive_list& x) noexcept {
+        intrusive_list_hook<Tag>::transfer_nodes(pos.node(), x.begin().node(), x.end().node());
+    }
+
+    template < typename T, typename Tag >
+    void intrusive_list<T,Tag>::splice(const_iterator pos, const_iterator f, const_iterator e) noexcept {
+        intrusive_list_hook<Tag>::transfer_nodes(pos.node(), f.node(), e.node());
+    }
+
+    template < typename T, typename Tag >
+    template < typename Predicate >
+    void intrusive_list<T,Tag>::merge(intrusive_list& x, Predicate predicate) {
+        const_iterator b(cbegin()), e(cend()), ex(x.cend());
+        while ( !x.empty() ) {
+            const_iterator ix(x.cbegin());
+            while ( b != e && !predicate(*ix, *b) ) {
+                ++b;
+            }
+            if ( b == e ) {
+                splice(e, x);
+                break;
+            } else {
+                do {
+                    ++ix;
+                } while ( ix != ex && predicate(*ix, *b) );
+                splice(b, x.begin(), ix);
+            }
+        }
+    }
+
+    template < typename T, typename Tag >
+    void intrusive_list<T,Tag>::merge(intrusive_list& x) {
+        merge(x, std::less<value_type>());
+    }
+
+    template < typename T, typename Tag >
+    template < typename Predicate >
+    void intrusive_list<T,Tag>::sort(Predicate predicate) {
+        if ( root_.next_ != &root_ && root_.next_ != root_.prev_ ) {
+            intrusive_list left_list;
+            intrusive_list right_list;
+
+            const_iterator mid(cbegin()), tail(cend());
+            while ( (mid != tail) && (++mid != tail) ) {
+                --tail;
+            }
+
+            left_list.splice(left_list.cbegin(), cbegin(), mid);
+            right_list.splice(right_list.cbegin(), *this);
+
+            left_list.sort(predicate);
+            right_list.sort(predicate);
+
+            splice(cbegin(), left_list);
+            merge(right_list, predicate);
+        }
+    }
+
+    template < typename T, typename Tag >
+    void intrusive_list<T,Tag>::sort() {
+        sort(std::less<value_type>());
+    }
+
+    template < typename T, typename Tag >
     typename intrusive_list<T,Tag>::iterator intrusive_list<T,Tag>::iterator_to(T& v) noexcept {
         node_t& node = static_cast<node_t&>(v);
         E2D_ASSERT(node.is_linked());
@@ -495,5 +586,11 @@ namespace e2d
         const node_t& node = static_cast<const node_t&>(v);
         E2D_ASSERT(node.is_linked());
         return const_iterator(&node);
+    }
+
+    template < typename T, typename Tag >
+    void intrusive_list<T,Tag>::iterator_swap(iterator l, iterator r) noexcept {
+        E2D_ASSERT(l.node()->is_linked() && r.node()->is_linked());
+        intrusive_list_hook<Tag>::swap_nodes(l.node(), r.node());
     }
 }

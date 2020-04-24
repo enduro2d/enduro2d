@@ -1,12 +1,12 @@
 {
-    "prototype" : "../prefabs/scene_prefab.json",
+    "prefab" : "../prefabs/scene_prefab.json",
     "components" : {
         "behaviour" : {
             "script" : "../scripts/sample_08/sample_08.lua"
         }
     },
     "children" : [{
-        "prototype" : "../prefabs/camera_prefab.json",
+        "prefab" : "../prefabs/camera_prefab.json",
         "components" : {
             "actor" : {
                 "rotation" : 0.5
@@ -19,7 +19,7 @@
             }
         }
     },{
-        "prototype" : "../prefabs/camera_prefab.json",
+        "prefab" : "../prefabs/camera_prefab.json",
         "components" : {
             "actor" : {
                 "rotation" : -0.5
@@ -32,7 +32,7 @@
             }
         }
     },{
-        "prototype" : "../prefabs/ship_prefab.json",
+        "prefab" : "../prefabs/ship_prefab.json",
         "components" : {
             "named" : {
                 "name" : "ship(1)"
@@ -51,7 +51,7 @@
             }
         },
         "children" : [{
-            "prototype" : "../prefabs/ship_prefab.json",
+            "prefab" : "../prefabs/ship_prefab.json",
             "components" : {
                 "named" : {
                     "name" : "ship(11)"
@@ -69,11 +69,10 @@
                     "offset" : [10,15],
                     "radius" : 33
                 }
-            },
-            "children" : []
+            }
         }]
     },{
-        "prototype" : "../prefabs/ship_prefab.json",
+        "prefab" : "../prefabs/ship_prefab.json",
         "components" : {
             "named" : {
                 "name" : "ship(2)"
@@ -113,7 +112,7 @@
             }
         }
     },{
-        "prototype" : "../prefabs/label_sdf_prefab.json",
+        "prefab" : "../prefabs/label_sdf_prefab.json",
         "components" : {
             "named" : {
                 "name" : "label"

@@ -1,7 +1,7 @@
 {
-    "prototype" : "../prefabs/scene_prefab.json",
+    "prefab" : "../prefabs/scene_prefab.json",
     "children" : [{
-        "prototype" : "../prefabs/camera_prefab.json",
+        "prefab" : "../prefabs/camera_prefab.json",
         "components" : {
             "actor" : {
                 "rotation" : 0.5
@@ -14,7 +14,7 @@
             }
         }
     },{
-        "prototype" : "../prefabs/camera_prefab.json",
+        "prefab" : "../prefabs/camera_prefab.json",
         "components" : {
             "actor" : {
                 "rotation" : -0.5
@@ -27,7 +27,7 @@
             }
         }
     },{
-        "prototype" : "../prefabs/camera_prefab.json",
+        "prefab" : "../prefabs/camera_prefab.json",
         "components" : {
             "actor" : {
                 "rotation" : 0.5
@@ -40,7 +40,7 @@
             }
         }
     },{
-        "prototype" : "../prefabs/camera_prefab.json",
+        "prefab" : "../prefabs/camera_prefab.json",
         "components" : {
             "actor" : {
                 "rotation" : -0.5
@@ -53,7 +53,7 @@
             }
         }
     },{
-        "prototype" : "../prefabs/gnome_prefab.json",
+        "prefab" : "../prefabs/gnome_prefab.json",
         "components" : {
             "actor" : {
                 "translation" : [0,0],
@@ -64,7 +64,7 @@
             }
         }
     }, {
-        "prototype" : "../prefabs/ship_prefab.json",
+        "prefab" : "../prefabs/ship_prefab.json",
         "components" : {
             "sprite_renderer" : {
                 "blending" : "additive"
@@ -77,7 +77,7 @@
             }
         },
         "children" : [{
-            "prototype" : "../prefabs/ship_prefab.json",
+            "prefab" : "../prefabs/ship_prefab.json",
             "components" : {
                 "sprite_renderer" : {
                     "tint" : [255,0,0,255]
@@ -91,7 +91,7 @@
             }
         }]
     }, {
-        "prototype" : "../prefabs/label_bm_prefab.json",
+        "prefab" : "../prefabs/label_bm_prefab.json",
         "components" : {
             "label" : {
                 "text" : "bm font",
@@ -108,7 +108,7 @@
             }
         }
     }, {
-        "prototype" : "../prefabs/label_sdf_prefab.json",
+        "prefab" : "../prefabs/label_sdf_prefab.json",
         "components" : {
             "label" : {
                 "text" : "sdf font",

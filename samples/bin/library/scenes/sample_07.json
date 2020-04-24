@@ -1,16 +1,16 @@
 {
-    "prototype" : "../prefabs/scene_prefab.json",
+    "prefab" : "../prefabs/scene_prefab.json",
     "components" : {
         "behaviour" : {
             "script" : "../scripts/sample_07/sample_07.lua"
         }
     },
     "children" : [{
-        "prototype" : "../prefabs/camera_prefab.json"
+        "prefab" : "../prefabs/camera_prefab.json"
     },{
-        "prototype" : "../prefabs/background_prefab.json"
+        "prefab" : "../prefabs/background_prefab.json"
     },{
-        "prototype" : "../prefabs/gnome_prefab.json",
+        "prefab" : "../prefabs/gnome_prefab.json",
         "components" : {
             "actor" : {
                 "translation" : [0,0],
@@ -21,7 +21,7 @@
             }
         }
     },{
-        "prototype" : "../prefabs/label_sdf_prefab.json",
+        "prefab" : "../prefabs/label_sdf_prefab.json",
         "components" : {
             "label" : {
                 "text" : "FPS: ",
