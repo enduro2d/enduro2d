@@ -1,5 +1,4 @@
 {
     "texture" : "cube_1.png",
-    "pivot" : { "x" : 12, "y" : 12 },
     "texrect" : { "x" : 0, "y" : 0, "w" : 24, "h" : 24 }
 }

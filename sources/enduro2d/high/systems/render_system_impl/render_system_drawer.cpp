@@ -496,13 +496,12 @@ namespace e2d::render_system_impl
             const b2f& outer_r = spr.outer_texrect();
 
             const v2f size = outer_r.size * spr_r.scale();
-            const v2f poff = (outer_r.position - spr.pivot()) * spr_r.scale();
 
             const v2f pos_xs = v2f{
-                0.f, size.x} + poff.x;
+                0.f, size.x};
 
             const v2f pos_ys = v2f{
-                0.f, size.y} + poff.y;
+                0.f, size.y};
 
             const v2f tex_xs = v2f{
                 outer_r.position.x,
@@ -550,7 +549,6 @@ namespace e2d::render_system_impl
             const f32 top = (outer_r.size.y - inner_r.size.y) - bottom;
 
             const v2f size = outer_r.size * spr_r.scale();
-            const v2f poff = (outer_r.position - spr.pivot()) * spr_r.scale();
 
             const f32 sides_width = left + right;
             const f32 sides_height = bottom + top;
@@ -569,13 +567,13 @@ namespace e2d::render_system_impl
                 0.f,
                 adj_left,
                 size.x - adj_right,
-                size.x} + poff.x;
+                size.x};
 
             const v4f pos_ys = v4f{
                 0.f,
                 adj_bottom,
                 size.y - adj_top,
-                size.y} + poff.y;
+                size.y};
 
             const v4f tex_xs = v4f{
                 outer_r.position.x,

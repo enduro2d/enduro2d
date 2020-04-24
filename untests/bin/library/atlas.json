@@ -2,11 +2,9 @@
     "texture" : "image.png",
     "sprites" : [{
         "name" : "sprite",
-        "pivot" : { "x" : 1, "y" : 2 },
         "texrect" : { "x" : 5, "y" : 6, "w" : 7, "h" : 8 }
     },{
         "name" : "sprite2",
-        "pivot" : { "x" : 1, "y" : 2 },
         "inner_texrect" : { "x" : 1, "y" : 2, "w" : 3, "h" : 4 },
         "outer_texrect" : { "x" : 5, "y" : 6, "w" : 7, "h" : 8 }
     }]

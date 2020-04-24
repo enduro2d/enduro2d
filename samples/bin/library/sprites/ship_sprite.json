@@ -1,5 +1,4 @@
 {
     "texture" : "ships.png",
-    "pivot" : { "x" : 441, "y" : 340.5 },
     "texrect" : { "x" : 408, "y" : 284, "w" : 66, "h" : 113 }
 }

@@ -245,10 +245,9 @@ namespace e2d
 
             const b2f& outer_r = spr.outer_texrect();
             const v2f size = outer_r.size * c->scale();
-            const v2f poff = (outer_r.position - spr.pivot()) * c->scale();
 
             ctx.draw_wire_rect(
-                poff + size * 0.5f,
+                size * 0.5f,
                 size,
                 ctx.selected() ? color32::yellow() : color32::magenta());
         }

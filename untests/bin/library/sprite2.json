@@ -1,6 +1,5 @@
 {
     "texture" : "image.png",
-    "pivot" : { "x" : 1, "y" : 2 },
     "inner_texrect" : { "x" : 1, "y" : 2, "w" : 3, "h" : 4 },
     "outer_texrect" : { "x" : 5, "y" : 6, "w" : 7, "h" : 8 }
 }
