@@ -1,11 +1,22 @@
 {
-    "prototype" : "sprite_prefab.json",
     "components" : {
         "named" : {
             "name" : "ship"
-        },
-        "sprite_renderer" : {
-            "sprite" : "../sprites/ship_sprite.json"
         }
-    }
+    },
+    "children" : [{
+        "uuid" : "6A3E19C4-840C-40E9-9AB0-5D8DF77F0634",
+        "prefab" : "sprite_prefab.json",
+        "components" : {
+            "named" : {
+                "name" : "sprite"
+            },
+            "actor" : {
+                "translation" : [-33,-56.5]
+            },
+            "sprite_renderer" : {
+                "sprite" : "../sprites/ship_sprite.json"
+            }
+        }
+    }]
 }

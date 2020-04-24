@@ -87,6 +87,12 @@ namespace e2d::bindings::high
                 return n.add_child(c);
             },
 
+            "add_child_at", [](node& n, const node_iptr& c, i32 i) -> bool {
+                return i >= 0
+                    ? n.add_child_at(c, math::numeric_cast<std::size_t>(i))
+                    : false;
+            },
+
             "add_child_to_back", [](node& n, const node_iptr& c) -> bool {
                 return n.add_child_to_back(c);
             },
@@ -115,6 +121,22 @@ namespace e2d::bindings::high
                 return n.remove_child(c);
             },
 
+            "remove_child_at", [](node& n, i32 i) -> node_iptr {
+                return i >= 0
+                    ? n.remove_child_at(math::numeric_cast<std::size_t>(i))
+                    : node_iptr();
+            },
+
+            "swap_children", [](node& n, const node_iptr& cl, const node_iptr& cr) -> bool {
+                return n.swap_children(cl, cr);
+            },
+
+            "swap_children_at", [](node& n, i32 cl, i32 cr) -> bool {
+                return cl >= 0 && cr >= 0
+                    ? n.swap_children_at(math::numeric_cast<std::size_t>(cl), math::numeric_cast<std::size_t>(cr))
+                    : false;
+            },
+
             "send_backward", [](node& n) -> bool {
                 return n.send_backward();
             },
@@ -141,7 +163,17 @@ namespace e2d::bindings::high
                 [](node& n) -> node_iptr { return n.prev_sibling(); }),
 
             "next_sibling", sol::property(
-                [](node& n) -> node_iptr { return n.next_sibling(); })
+                [](node& n) -> node_iptr { return n.next_sibling(); }),
+
+            "child_at", [](node& n, i32 i) -> node_iptr {
+                return i >= 0
+                    ? n.child_at(math::numeric_cast<std::size_t>(i))
+                    : node_iptr();
+            },
+
+            "child_index", [](node& n, const node_iptr& c) -> std::pair<std::size_t, bool> {
+                return n.child_index(c);
+            }
         );
     }
 }

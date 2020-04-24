@@ -23,20 +23,18 @@ namespace
     const char* sprite_asset_schema_source = R"json({
         "anyOf" : [{
             "type" : "object",
-            "required" : [ "texture", "pivot", "texrect" ],
+            "required" : [ "texture", "texrect" ],
             "additionalProperties" : false,
             "properties" : {
                 "texture" : { "$ref": "#/common_definitions/address" },
-                "pivot" : { "$ref": "#/common_definitions/v2" },
                 "texrect" : { "$ref": "#/common_definitions/b2" }
             }
         },{
             "type" : "object",
-            "required" : [ "texture", "pivot", "inner_texrect", "outer_texrect" ],
+            "required" : [ "texture", "inner_texrect", "outer_texrect" ],
             "additionalProperties" : false,
             "properties" : {
                 "texture" : { "$ref": "#/common_definitions/address" },
-                "pivot" : { "$ref": "#/common_definitions/v2" },
                 "inner_texrect" : { "$ref": "#/common_definitions/b2" },
                 "outer_texrect" : { "$ref": "#/common_definitions/b2" }
             }
@@ -70,15 +68,8 @@ namespace
         auto texture_p = library.load_asset_async<texture_asset>(
             path::combine(parent_address, root["texture"].GetString()));
 
-        v2f pivot;
         b2f inner_texrect;
         b2f outer_texrect;
-
-        E2D_ASSERT(root.HasMember("pivot"));
-        if ( !json_utils::try_parse_value(root["pivot"], pivot) ) {
-            the<debug>().error("SPRITE: Incorrect formatting of 'pivot' property");
-            return stdex::make_rejected_promise<sprite>(sprite_asset_loading_exception());
-        }
 
         E2D_ASSERT(
             root.HasMember("texrect") ||
@@ -105,12 +96,10 @@ namespace
         }
 
         return texture_p.then([
-            pivot,
             inner_texrect,
             outer_texrect
         ](const texture_asset::load_result& texture){
             sprite content;
-            content.set_pivot(pivot);
             content.set_inner_texrect(inner_texrect);
             content.set_outer_texrect(outer_texrect);
             content.set_texture(texture);

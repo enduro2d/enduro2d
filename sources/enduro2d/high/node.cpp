@@ -207,14 +207,25 @@ namespace e2d
         return count;
     }
 
-    bool node::add_child(const node_iptr& child) noexcept {
+    bool node::add_child(
+        const node_iptr& child) noexcept
+    {
         return add_child_to_front(child);
+    }
+
+    bool node::add_child_at(
+        const node_iptr& child,
+        std::size_t index) noexcept
+    {
+        return index == 0u
+            ? add_child_to_back(child)
+            : add_child_after(child_at(index - 1u), child);
     }
 
     bool node::add_child_to_back(
         const node_iptr& child) noexcept
     {
-        if ( !child ) {
+        if ( !child || child == this ) {
             return false;
         }
 
@@ -233,7 +244,7 @@ namespace e2d
     bool node::add_child_to_front(
         const node_iptr& child) noexcept
     {
-        if ( !child ) {
+        if ( !child || child == this ) {
             return false;
         }
 
@@ -317,6 +328,41 @@ namespace e2d
                 intrusive_ptr_release(n);
             });
         return true;
+    }
+
+    node_iptr node::remove_child_at(std::size_t index) noexcept {
+        node_iptr child = child_at(index);
+        return remove_child(child)
+            ? child
+            : node_iptr();
+    }
+
+    bool node::swap_children(
+        const node_iptr& child_l,
+        const node_iptr& child_r) noexcept
+    {
+        if ( !child_l || !child_r ) {
+            return false;
+        }
+
+        if ( child_l->parent_ != this || child_r->parent_ != this ) {
+            return false;
+        }
+
+        node_children::iterator_swap(
+            node_children::iterator_to(*child_l),
+            node_children::iterator_to(*child_r));
+
+        return true;
+    }
+
+    bool node::swap_children_at(
+        std::size_t child_l,
+        std::size_t child_r) noexcept
+    {
+        return swap_children(
+            child_at(child_l),
+            child_at(child_r));
     }
 
     bool node::send_backward() noexcept {
@@ -413,6 +459,36 @@ namespace e2d
             return nullptr;
         }
         return const_node_iptr(&*iter);
+    }
+
+    node_iptr node::child_at(std::size_t index) noexcept {
+        node_iptr child = first_child();
+        for ( std::size_t i = 0; i < index && child; ++i ) {
+            child = child->next_sibling();
+        }
+        return child;
+    }
+
+    const_node_iptr node::child_at(std::size_t index) const noexcept {
+        const_node_iptr child = first_child();
+        for ( std::size_t i = 0; i < index && child; ++i ) {
+            child = child->next_sibling();
+        }
+        return child;
+    }
+
+    std::pair<std::size_t, bool> node::child_index(
+        const const_node_iptr& child) const noexcept
+    {
+        if ( !child || child->parent_ != this ) {
+            return {std::size_t(-1), false};
+        }
+
+        const auto distance = std::distance(
+            children_.begin(),
+            node_children::iterator_to(*child));
+
+        return {math::numeric_cast<std::size_t>(distance), true};
     }
 }
 

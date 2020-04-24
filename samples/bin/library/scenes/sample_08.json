@@ -1,12 +1,12 @@
 {
-    "prototype" : "../prefabs/scene_prefab.json",
+    "prefab" : "../prefabs/scene_prefab.json",
     "components" : {
         "behaviour" : {
             "script" : "../scripts/sample_08/sample_08.lua"
         }
     },
     "children" : [{
-        "prototype" : "../prefabs/camera_prefab.json",
+        "prefab" : "../prefabs/camera_prefab.json",
         "components" : {
             "actor" : {
                 "rotation" : 0.5
@@ -19,7 +19,7 @@
             }
         }
     },{
-        "prototype" : "../prefabs/camera_prefab.json",
+        "prefab" : "../prefabs/camera_prefab.json",
         "components" : {
             "actor" : {
                 "rotation" : -0.5
@@ -32,7 +32,7 @@
             }
         }
     },{
-        "prototype" : "../prefabs/ship_prefab.json",
+        "prefab" : "../prefabs/ship_prefab.json",
         "components" : {
             "named" : {
                 "name" : "ship(1)"
@@ -51,7 +51,7 @@
             }
         },
         "children" : [{
-            "prototype" : "../prefabs/ship_prefab.json",
+            "prefab" : "../prefabs/ship_prefab.json",
             "components" : {
                 "named" : {
                     "name" : "ship(11)"
@@ -69,11 +69,10 @@
                     "offset" : [-30,15],
                     "radius" : 33
                 }
-            },
-            "children" : []
+            }
         }]
     },{
-        "prototype" : "../prefabs/ship_prefab.json",
+        "prefab" : "../prefabs/ship_prefab.json",
         "components" : {
             "named" : {
                 "name" : "ship(2)"
@@ -113,7 +112,7 @@
             }
         }
     },{
-        "prototype" : "../prefabs/label_sdf_prefab.json",
+        "prefab" : "../prefabs/label_sdf_prefab.json",
         "components" : {
             "named" : {
                 "name" : "label"
@@ -130,7 +129,7 @@
             }
         }
     },{
-        "prototype" : "../prefabs/panel_prefab.json",
+        "prefab" : "../prefabs/panel_prefab.json",
         "components" : {
             "actor" : {
                 "translation" : [-70,150]
@@ -148,7 +147,7 @@
             "touchable" : {}
         },
         "children" : [{
-            "prototype" : "../prefabs/label_sdf_prefab.json",
+            "prefab" : "../prefabs/label_sdf_prefab.json",
             "components" : {
                 "named" : {
                     "name" : "label"
@@ -167,7 +166,7 @@
             }
         }]
     },{
-        "prototype" : "../prefabs/panel_prefab.json",
+        "prefab" : "../prefabs/panel_prefab.json",
         "components" : {
             "actor" : {
                 "translation" : [20,200]
@@ -185,7 +184,7 @@
             "touchable" : {}
         },
         "children" : [{
-            "prototype" : "../prefabs/label_sdf_prefab.json",
+            "prefab" : "../prefabs/label_sdf_prefab.json",
             "components" : {
                 "named" : {
                     "name" : "label"
@@ -204,21 +203,21 @@
             }
         }]
     },{
-        "prototype" : "../prefabs/button_prefab.json",
+        "prefab" : "../prefabs/button_prefab.json",
         "components" : {
             "actor" : {
                 "translation" : [-160,50]
             }
         }
     },{
-        "prototype" : "../prefabs/toggle_prefab.json",
+        "prefab" : "../prefabs/toggle_prefab.json",
         "components" : {
             "actor" : {
                 "translation" : [-100,50]
             }
         }
     },{
-        "prototype" : "../prefabs/panel_prefab.json",
+        "prefab" : "../prefabs/panel_prefab.json",
         "components" : {
             "actor" : {
                 "translation" : [-280,-250]
@@ -241,11 +240,11 @@
             }
         },
         "children" : [{
-            "prototype" : "../prefabs/toggle_prefab.json"
+            "prefab" : "../prefabs/toggle_prefab.json"
         },{
-            "prototype" : "../prefabs/toggle_prefab.json"
+            "prefab" : "../prefabs/toggle_prefab.json"
         },{
-            "prototype" : "../prefabs/toggle_prefab.json"
+            "prefab" : "../prefabs/toggle_prefab.json"
         }]
     }]
 }

@@ -7,6 +7,8 @@
 #include "_utils.hpp"
 using namespace e2d;
 
+#include <random>
+
 namespace
 {
     struct ilist_tag1 {};
@@ -21,6 +23,10 @@ namespace
         obj_t() = default;
         obj_t(int ni) : i(ni) {}
     };
+
+    bool operator<(const obj_t& l, const obj_t& r) noexcept {
+        return l.i < r.i;
+    }
 }
 
 TEST_CASE("intrusive_list") {
@@ -430,6 +436,38 @@ TEST_CASE("intrusive_list") {
                 REQUIRE(l.crend() == l.crend());
                 REQUIRE(l.crend() != l.rbegin());
                 REQUIRE(l.crend() != l.crbegin());
+            }
+        }
+    }
+    SECTION("sort") {
+        {
+            std::random_device rd;
+            std::mt19937 rnd(rd());
+
+            std::uniform_int_distribution<u32> uni_size(0, 1024);
+            std::uniform_int_distribution<i32> uni_number(-65536, 65535);
+
+            const auto pred = [](const obj_t& l, const obj_t& r) noexcept {
+                return l.i < r.i;
+            };
+
+            const auto r_pred = [](const obj_t& l, const obj_t& r) noexcept {
+                return l.i > r.i;
+            };
+
+            for ( std::size_t i = 0; i < 1024; ++i ) {
+                vector<std::unique_ptr<obj_t>> objs;
+                intrusive_list<obj_t, ilist_tag1> l;
+                for ( u32 b = 0, e = uni_size(rnd); b < e; ++b ) {
+                    objs.push_back(std::make_unique<obj_t>(uni_number(rnd)));
+                    l.push_back(*objs.back());
+                }
+                l.sort();
+                REQUIRE(std::is_sorted(l.cbegin(), l.cend()));
+                l.sort(r_pred);
+                REQUIRE(std::is_sorted(l.cbegin(), l.cend(), r_pred));
+                l.sort(pred);
+                REQUIRE(std::is_sorted(l.cbegin(), l.cend(), pred));
             }
         }
     }

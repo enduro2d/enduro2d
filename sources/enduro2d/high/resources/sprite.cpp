@@ -25,7 +25,6 @@ namespace e2d
     }
 
     void sprite::clear() noexcept {
-        pivot_ = v2f::zero();
         inner_texrect_ = b2f::zero();
         outer_texrect_ = b2f::zero();
         texture_.reset();
@@ -33,7 +32,6 @@ namespace e2d
 
     void sprite::swap(sprite& other) noexcept {
         using std::swap;
-        swap(pivot_, other.pivot_);
         swap(inner_texrect_, other.inner_texrect_);
         swap(outer_texrect_, other.outer_texrect_);
         swap(texture_, other.texture_);
@@ -50,17 +48,11 @@ namespace e2d
     sprite& sprite::assign(const sprite& other) {
         if ( this != &other ) {
             sprite s;
-            s.pivot_ = other.pivot_;
             s.inner_texrect_ = other.inner_texrect_;
             s.outer_texrect_ = other.outer_texrect_;
             s.texture_ = other.texture_;
             swap(s);
         }
-        return *this;
-    }
-
-    sprite& sprite::set_pivot(const v2f& pivot) noexcept {
-        pivot_ = pivot;
         return *this;
     }
 
@@ -77,10 +69,6 @@ namespace e2d
     sprite& sprite::set_texture(const texture_asset::ptr& texture) noexcept {
         texture_ = texture;
         return *this;
-    }
-
-    const v2f& sprite::pivot() const noexcept {
-        return pivot_;
     }
 
     const b2f& sprite::inner_texrect() const noexcept {
@@ -103,8 +91,7 @@ namespace e2d
     }
 
     bool operator==(const sprite& l, const sprite& r) noexcept {
-        return l.pivot() == r.pivot()
-            && l.inner_texrect() == r.inner_texrect()
+        return l.inner_texrect() == r.inner_texrect()
             && l.outer_texrect() == r.outer_texrect()
             && l.texture() == r.texture();
     }

@@ -1,0 +1,27 @@
+{
+    "uuid" : "73740BC4-CE9F-4A7F-A029-4AB65027A8AE",
+    "components" : {
+        "named" : {
+            "name" : "root"
+        },
+        "circle_collider" : {
+            "radius" : 5,
+            "offset" : [4,2]
+        }
+    },
+    "children" : [{
+        "uuid" : "4A93547E-4635-4C2F-9C59-3546E11B1722",
+        "components" : {
+            "named" : {
+                "name" : "child(1)"
+            }
+        }
+    }, {
+        "uuid" : "58063213-9FC1-457C-B773-B826BE1BE6D7",
+        "components" : {
+            "named" : {
+                "name" : "child(2)"
+            }
+        }
+    }]
+}

@@ -80,6 +80,7 @@ namespace
 
             auto scene_i = the<world>().instantiate();
             scene_i.component<scene>().assign();
+            scene_i.component<named>().assign("scene");
 
             {
                 prefab prefab;
@@ -113,14 +114,22 @@ namespace
             }
 
             {
+                prefab sprite_prefab;
+                sprite_prefab.prototype()
+                    .component<named>(named()
+                        .name("sprite"))
+                    .component<actor>(actor()
+                        .node(node::create(math::make_translation_trs2(v2f{-33.f,-56.5f}))))
+                    .component<renderer>()
+                    .component<sprite_renderer>(sprite_renderer(sprite_res)
+                        .materials({{"normal", sprite_mat}}));
+
                 prefab prefab;
                 prefab.prototype()
                     .component<named>(named()
                         .name("ship"))
-                    .component<node_rotator>()
-                    .component<renderer>()
-                    .component<sprite_renderer>(sprite_renderer(sprite_res)
-                        .materials({{"normal", sprite_mat}}));
+                    .component<node_rotator>();
+                prefab.set_children({sprite_prefab});
 
                 the<world>().instantiate(
                     prefab,
@@ -129,11 +138,12 @@ namespace
             }
 
             {
-                prefab prefab_a;
-                prefab_a.prototype()
+                prefab sprite_prefab;
+                sprite_prefab.prototype()
                     .component<named>(named()
-                        .name("cube"))
-                    .component<node_rotator>()
+                        .name("sprite"))
+                    .component<actor>(actor()
+                        .node(node::create(math::make_translation_trs2(v2f{-12.f,-12.f}))))
                     .component<renderer>()
                     .component<sprite_renderer>(sprite_renderer()
                         .filtering(false)
@@ -142,28 +152,35 @@ namespace
                         .play("idle")
                         .looped(true));
 
+                prefab child_prefab;
+                child_prefab.prototype()
+                    .component<named>(named()
+                        .name("child"))
+                    .component<actor>(actor()
+                        .node(node::create(make_trs2(
+                            v2f{20.f,0.f},
+                            0.f,
+                            v2f{0.3f,0.3f}))))
+                    .component<node_rotator>();
+                child_prefab.set_children({sprite_prefab});
+
+                prefab root_prefab;
+                root_prefab.prototype()
+                    .component<named>(named()
+                        .name("root"))
+                    .component<node_rotator>();
+                root_prefab.set_children({sprite_prefab, child_prefab});
+
                 for ( std::size_t i = 0; i < 2; ++i )
                 for ( std::size_t j = 0; j < 5; ++j ) {
                     t2f trans{
                         {-80.f + j * 40.f, -200.f + i * 40.f},
                         0.f,
                         {2.f,2.f}};
-                    gobject inst = the<world>().instantiate(
-                        prefab_a,
+                    the<world>().instantiate(
+                        root_prefab,
                         scene_i.component<actor>()->node(),
                         trans);
-
-                    prefab prefab_b = prefab_a;
-                    prefab_b.prototype()
-                        .component<node_rotator>()
-                        .component<actor>(node::create(make_trs2(
-                            v2f{20.f,0.f},
-                            0.f,
-                            v2f{0.3f,0.3f})));
-
-                    the<world>().instantiate(
-                        prefab_b,
-                        inst.component<actor>()->node());
                 }
             }
 

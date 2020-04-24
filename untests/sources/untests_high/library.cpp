@@ -192,14 +192,12 @@ TEST_CASE("library"){
 
                 sprite_asset::ptr spr = atlas_res->find_nested_asset<sprite_asset>("sprite");
                 REQUIRE(spr);
-                REQUIRE(spr->content().pivot() == v2f(1.f,2.f));
                 REQUIRE(spr->content().inner_texrect() == b2f(5.f,6.f,7.f,8.f));
                 REQUIRE(spr->content().outer_texrect() == b2f(5.f,6.f,7.f,8.f));
                 REQUIRE(spr->content().texture()== texture_res);
 
                 sprite_asset::ptr spr2 = atlas_res->find_nested_asset<sprite_asset>("sprite2");
                 REQUIRE(spr2);
-                REQUIRE(spr2->content().pivot() == v2f(1.f,2.f));
                 REQUIRE(spr2->content().inner_texrect() == b2f(1.f,2.f,3.f,4.f));
                 REQUIRE(spr2->content().outer_texrect() == b2f(5.f,6.f,7.f,8.f));
                 REQUIRE(spr2->content().texture()== texture_res);
@@ -208,14 +206,12 @@ TEST_CASE("library"){
             {
                 auto sprite_res = l.load_asset<sprite_asset>("sprite.json");
                 REQUIRE(sprite_res);
-                REQUIRE(sprite_res->content().pivot() == v2f(1.f, 2.f));
                 REQUIRE(sprite_res->content().inner_texrect() == b2f(5.f, 6.f, 7.f, 8.f));
                 REQUIRE(sprite_res->content().outer_texrect() == b2f(5.f, 6.f, 7.f, 8.f));
                 REQUIRE(sprite_res->content().texture() == texture_res);
 
                 auto sprite2_res = l.load_asset<sprite_asset>("sprite2.json");
                 REQUIRE(sprite2_res);
-                REQUIRE(sprite2_res->content().pivot() == v2f(1.f, 2.f));
                 REQUIRE(sprite2_res->content().inner_texrect() == b2f(1.f, 2.f, 3.f, 4.f));
                 REQUIRE(sprite2_res->content().outer_texrect() == b2f(5.f, 6.f, 7.f, 8.f));
                 REQUIRE(sprite2_res->content().texture() == texture_res);
@@ -258,28 +254,6 @@ TEST_CASE("library"){
                 REQUIRE_FALSE(model_res->content().mesh()->content().vertices().empty());
                 REQUIRE(model_res->content().mesh()->content().indices_submesh_count() == 1);
                 REQUIRE_FALSE(model_res->content().mesh()->content().indices(0).empty());
-            }
-
-            {
-                auto prefab_res = l.load_asset<prefab_asset>("prefab.json");
-                REQUIRE(prefab_res);
-
-                ecs::registry w;
-                ecs::entity e = w.create_entity(prefab_res->content().prototype());
-
-                REQUIRE(e.exists_component<touchable>());
-
-                REQUIRE(e.exists_component<rect_collider>());
-                REQUIRE(e.get_component<rect_collider>().size() == v2f(1.f,2.f));
-                REQUIRE(e.get_component<rect_collider>().offset() == v2f(2.f,4.f));
-
-                REQUIRE(e.exists_component<circle_collider>());
-                REQUIRE(math::approximately(e.get_component<circle_collider>().radius(), 5.f));
-                REQUIRE(e.get_component<circle_collider>().offset() == v2f(4.f,2.f));
-
-                REQUIRE(e.exists_component<polygon_collider>());
-                REQUIRE(e.get_component<polygon_collider>().points() == vector<v2f>{{1,2},{2,3},{3,4}});
-                REQUIRE(e.get_component<polygon_collider>().offset() == v2f(8.f,4.f));
             }
         }
     }

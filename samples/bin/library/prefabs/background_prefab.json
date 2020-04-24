@@ -5,7 +5,7 @@
         }
     },
     "children" : [{
-        "prototype" : "sprite_prefab.json",
+        "prefab" : "sprite_prefab.json",
         "components" : {
             "actor" : {
                 "translation" : [-512,0]
@@ -15,7 +15,7 @@
             }
         }
     },{
-        "prototype" : "sprite_prefab.json",
+        "prefab" : "sprite_prefab.json",
         "components" : {
             "actor" : {
                 "translation" : [-256,0]
@@ -25,7 +25,7 @@
             }
         }
     },{
-        "prototype" : "sprite_prefab.json",
+        "prefab" : "sprite_prefab.json",
         "components" : {
             "actor" : {
                 "translation" : [0,0]
@@ -35,7 +35,7 @@
             }
         }
     },{
-        "prototype" : "sprite_prefab.json",
+        "prefab" : "sprite_prefab.json",
         "components" : {
             "actor" : {
                 "translation" : [256,0]
@@ -45,7 +45,7 @@
             }
         }
     },{
-        "prototype" : "sprite_prefab.json",
+        "prefab" : "sprite_prefab.json",
         "components" : {
             "actor" : {
                 "translation" : [-512,-256]
@@ -55,7 +55,7 @@
             }
         }
     },{
-        "prototype" : "sprite_prefab.json",
+        "prefab" : "sprite_prefab.json",
         "components" : {
             "actor" : {
                 "translation" : [-256,-256]
@@ -65,7 +65,7 @@
             }
         }
     },{
-        "prototype" : "sprite_prefab.json",
+        "prefab" : "sprite_prefab.json",
         "components" : {
             "actor" : {
                 "translation" : [0,-256]
@@ -75,7 +75,7 @@
             }
         }
     },{
-        "prototype" : "sprite_prefab.json",
+        "prefab" : "sprite_prefab.json",
         "components" : {
             "actor" : {
                 "translation" : [256,-256]

@@ -36,20 +36,18 @@ namespace
             "sprite" : {
                 "anyOf" : [{
                     "type" : "object",
-                    "required" : [ "name", "pivot", "texrect" ],
+                    "required" : [ "name", "texrect" ],
                     "additionalProperties" : false,
                     "properties" : {
                         "name" : { "$ref": "#/common_definitions/name" },
-                        "pivot" : { "$ref": "#/common_definitions/v2" },
                         "texrect" : { "$ref": "#/common_definitions/b2" }
                     }
                 },{
                     "type" : "object",
-                    "required" : [ "name", "pivot", "inner_texrect", "outer_texrect" ],
+                    "required" : [ "name", "inner_texrect", "outer_texrect" ],
                     "additionalProperties" : false,
                     "properties" : {
                         "name" : { "$ref": "#/common_definitions/name" },
-                        "pivot" : { "$ref": "#/common_definitions/v2" },
                         "inner_texrect" : { "$ref": "#/common_definitions/b2" },
                         "outer_texrect" : { "$ref": "#/common_definitions/b2" }
                     }
@@ -78,7 +76,6 @@ namespace
 
     struct sprite_desc {
         str_hash name;
-        v2f pivot;
         b2f inner_texrect;
         b2f outer_texrect;
     };
@@ -97,12 +94,6 @@ namespace
             E2D_ASSERT(sprite_json.HasMember("name"));
             if ( !json_utils::try_parse_value(sprite_json["name"], tsprite_descs[i].name) ) {
                 the<debug>().error("ATLAS: Incorrect formatting of 'name' property");
-                return false;
-            }
-
-            E2D_ASSERT(sprite_json.HasMember("pivot"));
-            if ( !json_utils::try_parse_value(sprite_json["pivot"], tsprite_descs[i].pivot) ) {
-                the<debug>().error("ATLAS: Incorrect formatting of 'pivot' property");
                 return false;
             }
 
@@ -163,7 +154,6 @@ namespace
             nested_content ncontent;
             for ( const sprite_desc& desc : sprite_descs ) {
                 sprite spr;
-                spr.set_pivot(desc.pivot);
                 spr.set_inner_texrect(desc.inner_texrect);
                 spr.set_outer_texrect(desc.outer_texrect);
                 spr.set_texture(texture);

@@ -1,5 +1,5 @@
 {
-    "prototype" : "sprite_prefab.json",
+    "prefab" : "sprite_prefab.json",
     "components" : {
         "named" : {
             "name" : "panel"
