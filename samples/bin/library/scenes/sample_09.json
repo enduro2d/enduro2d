@@ -7,65 +7,60 @@
     },{
         "prefab" : "../prefabs/panel_prefab.json",
         "components" : {
-            "sprite_renderer" : {
-                "scale" : [4,2]
-            }
+            "layout" : {
+                "align_items" : "center",
+                "justify_content" : "space_evenly"
+            },
+            "layout.dirty" : {},
+            "widget" : {
+                "size" : [400,200]
+            },
+            "widget.dirty" : {}
         },
         "children" : [{
-            "prefab" : "../prefabs/layout_prefab.json",
+            "prefab" : "../prefabs/widget_prefab.json",
             "components" : {
-                "layout" : {
-                    "justify_content" : "space_evenly"
-                },
                 "widget" : {
-                    "size" : [400,200]
+                    "size" : [66,113]
                 }
             },
             "children" : [{
-                "prefab" : "../prefabs/widget_prefab.json",
+                "prefab" : "../prefabs/ship_prefab.json",
                 "components" : {
-                    "widget" : {
-                        "size" : [66,113]
+                    "actor" : {
+                        "translation" : [33,56.5]
                     }
-                },
-                "children" : [{
-                    "prefab" : "../prefabs/ship_prefab.json",
-                    "components" : {
-                        "actor" : {
-                            "translation" : [33,56.5]
-                        }
-                    }
-                }]
-            },{
-                "prefab" : "../prefabs/widget_prefab.json",
+                }
+            }]
+        },{
+            "prefab" : "../prefabs/widget_prefab.json",
+            "components" : {
+                "widget" : {
+                    "size" : [66,113]
+                }
+            },
+            "children" : [{
+                "prefab" : "../prefabs/ship_prefab.json",
                 "components" : {
-                    "widget" : {
-                        "size" : [66,113]
+                    "actor" : {
+                        "translation" : [33,56.5]
                     }
-                },
-                "children" : [{
-                    "prefab" : "../prefabs/ship_prefab.json",
-                    "components" : {
-                        "actor" : {
-                            "translation" : [33,56.5]
-                        }
-                    }
-                }]
-            },{
-                "prefab" : "../prefabs/widget_prefab.json",
+                }
+            }]
+        },{
+            "prefab" : "../prefabs/widget_prefab.json",
+            "components" : {
+                "widget" : {
+                    "size" : [66,113]
+                }
+            },
+            "children" : [{
+                "prefab" : "../prefabs/ship_prefab.json",
                 "components" : {
-                    "widget" : {
-                        "size" : [66,113]
+                    "actor" : {
+                        "translation" : [33,56.5]
                     }
-                },
-                "children" : [{
-                    "prefab" : "../prefabs/ship_prefab.json",
-                    "components" : {
-                        "actor" : {
-                            "translation" : [33,56.5]
-                        }
-                    }
-                }]
+                }
             }]
         }]
     }]

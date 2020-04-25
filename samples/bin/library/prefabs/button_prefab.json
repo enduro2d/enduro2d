@@ -1,5 +1,5 @@
 {
-    "prefab" : "sprite_prefab.json",
+    "prefab" : "wsprite_prefab.json",
     "components" : {
         "named" : {
             "name" : "button"
@@ -11,14 +11,10 @@
             "size" : [50,50],
             "offset" : [23.5,25.5]
         },
-        "sprite_renderer" : {
-            "mode" : "sliced"
-        },
         "touchable" : {
         },
         "widget" : {
             "size" : [50,50]
-        },
-        "widget.dirty" : {}
+        }
     }
 }

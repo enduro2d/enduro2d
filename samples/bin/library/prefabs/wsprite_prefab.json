@@ -1,0 +1,15 @@
+{
+    "prefab" : "sprite_prefab.json",
+    "components" : {
+        "named" : {
+            "name" : "wsprite"
+        },
+        "wsprite" : {
+        },
+        "sprite_renderer" : {
+            "mode" : "sliced"
+        },
+        "widget" : {},
+        "widget.dirty" : {}
+    }
+}
