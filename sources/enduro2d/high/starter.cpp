@@ -36,6 +36,7 @@
 #include <enduro2d/high/components/toggle.hpp>
 #include <enduro2d/high/components/touchable.hpp>
 #include <enduro2d/high/components/widget.hpp>
+#include <enduro2d/high/components/wsprite.hpp>
 
 #include <enduro2d/high/systems/button_system.hpp>
 #include <enduro2d/high/systems/camera_system.hpp>
@@ -52,6 +53,7 @@
 #include <enduro2d/high/systems/touch_system.hpp>
 #include <enduro2d/high/systems/widget_system.hpp>
 #include <enduro2d/high/systems/world_system.hpp>
+#include <enduro2d/high/systems/wsprite_system.hpp>
 
 namespace
 {
@@ -90,12 +92,13 @@ namespace
                 .feature<struct spine_feature>(ecs::feature()
                     .add_system<spine_system>())
                 .feature<struct touch_feature>(ecs::feature()
-                    .add_system<touch_system>()
+                    .add_system<touch_system>())
+                .feature<struct widget_feature>(ecs::feature()
                     .add_system<button_system>()
                     .add_system<toggle_system>()
-                    .add_system<slider_system>())
-                .feature<struct widget_feature>(ecs::feature()
-                    .add_system<widget_system>())
+                    .add_system<slider_system>()
+                    .add_system<widget_system>()
+                    .add_system<wsprite_system>())
                 .feature<struct world_feature>(ecs::feature()
                     .add_system<world_system>());
             return !application_ || application_->initialize();
@@ -242,6 +245,7 @@ namespace e2d
             .register_component<events<touchable_events::event>>("touchable.events")
             .register_component<widget>("widget")
             .register_component<widget::dirty>("widget.dirty")
+            .register_component<wsprite>("wsprite")
             ;
 
         safe_module_initialize<inspector>()
@@ -286,6 +290,7 @@ namespace e2d
             //.register_component<events<touchable_events::event>>("touchable.events")
             .register_component<widget>("widget")
             //.register_component<widget::dirty>("widget.dirty")
+            .register_component<wsprite>("wsprite")
             ;
 
         safe_module_initialize<luasol>();

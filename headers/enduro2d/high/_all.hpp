@@ -53,6 +53,7 @@
 #include "components/toggle.hpp"
 #include "components/touchable.hpp"
 #include "components/widget.hpp"
+#include "components/wsprite.hpp"
 
 #include "resources/atlas.hpp"
 #include "resources/button_style.hpp"
@@ -79,6 +80,7 @@
 #include "systems/touch_system.hpp"
 #include "systems/widget_system.hpp"
 #include "systems/world_system.hpp"
+#include "systems/wsprite_system.hpp"
 
 #include "address.hpp"
 #include "asset.hpp"

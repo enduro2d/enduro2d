@@ -70,7 +70,10 @@ local gobject = {
     touchable = nil,
 
     ---@type widget
-    widget = nil
+    widget = nil,
+
+    ---@type wsprite
+    wsprite = nil
 }
 
 ---@param self gobject
