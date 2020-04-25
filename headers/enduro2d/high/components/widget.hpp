@@ -77,7 +77,7 @@ namespace e2d
 namespace e2d
 {
     inline widget& widget::size(const v2f& value) noexcept {
-        size_ = value;
+        size_ = math::maximized(v2f::zero(), value);
         return *this;
     }
 
@@ -86,7 +86,7 @@ namespace e2d
     }
 
     inline widget& widget::margin(const v2f& value) noexcept {
-        margin_ = value;
+        margin_ = math::maximized(v2f::zero(), value);
         return *this;
     }
 
@@ -95,7 +95,7 @@ namespace e2d
     }
 
     inline widget& widget::padding(const v2f& value) noexcept {
-        padding_ = value;
+        padding_ = math::maximized(v2f::zero(), value);
         return *this;
     }
 

@@ -109,19 +109,19 @@ namespace e2d
         ImGui::Separator();
 
         if ( v2f size = c->size();
-            ImGui::DragFloat2("size", size.data(), 1.f) )
+            ImGui::DragFloat2("size", size.data(), 1.f, 0.f, std::numeric_limits<f32>::max()) )
         {
             widgets::change_size(c, size);
         }
 
         if ( v2f margin = c->margin();
-            ImGui::DragFloat2("margin", margin.data(), 1.f) )
+            ImGui::DragFloat2("margin", margin.data(), 1.f, 0.f, std::numeric_limits<f32>::max()) )
         {
             widgets::change_margin(c, margin);
         }
 
         if ( v2f padding = c->padding();
-            ImGui::DragFloat2("padding", padding.data(), 1.f) )
+            ImGui::DragFloat2("padding", padding.data(), 1.f, 0.f, std::numeric_limits<f32>::max()) )
         {
             widgets::change_padding(c, padding);
         }

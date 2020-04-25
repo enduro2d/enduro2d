@@ -108,7 +108,7 @@ namespace e2d
     }
 
     inline sprite_renderer& sprite_renderer::scale(const v2f& value) noexcept {
-        scale_ = value;
+        scale_ = math::maximized(v2f::zero(), value);
         return *this;
     }
 

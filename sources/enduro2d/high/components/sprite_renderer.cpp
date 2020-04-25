@@ -209,7 +209,7 @@ namespace e2d
         }
 
         if ( v2f scale = c->scale();
-            ImGui::DragFloat2("scale", scale.data(), 0.01f) )
+            ImGui::DragFloat2("scale", scale.data(), 0.01f, 0.f, std::numeric_limits<f32>::max()) )
         {
             c->scale(scale);
         }
