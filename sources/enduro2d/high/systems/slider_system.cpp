@@ -6,12 +6,89 @@
 
 #include <enduro2d/high/systems/slider_system.hpp>
 
+#include <enduro2d/high/components/actor.hpp>
+#include <enduro2d/high/components/disabled.hpp>
+#include <enduro2d/high/components/handle.hpp>
+#include <enduro2d/high/components/slider.hpp>
+#include <enduro2d/high/components/widget.hpp>
+
+namespace
+{
+    using namespace e2d;
+
+    slider& slider_normalized_value(slider& s, f32 value) noexcept {
+        return s.value(math::lerp(s.min_value(), s.max_value(), value));
+    }
+
+    [[nodiscard]] f32 slider_normalized_value(const slider& s) noexcept {
+        return math::approximately(s.min_value(), s.max_value())
+            ? 0.f
+            : math::inverse_lerp(s.min_value(), s.max_value(), s.value());
+    }
+}
+
 namespace
 {
     using namespace e2d;
 
     void update_slider_states(ecs::registry& owner) {
-        E2D_UNUSED(owner);
+        owner.for_joined_components<slider, actor>([](
+            const ecs::const_entity&,
+            const slider& s,
+            const actor& a)
+        {
+            gcomponent<handle> slider_handle =
+                nodes::find_component_from_children<handle>(
+                    a.node(),
+                    nodes::options().recursive(true));
+
+            if ( !slider_handle ) {
+                return;
+            }
+
+            gcomponent<actor> slider_handle_a = slider_handle.owner().component<actor>();
+            if ( !slider_handle_a || !slider_handle_a->node() ) {
+                return;
+            }
+
+            gcomponent<widget> slider_handle_area_w = slider_handle_a->node()->parent()
+                ? slider_handle_a->node()->parent()->owner().component<widget>()
+                : gcomponent<widget>();
+
+            if ( !slider_handle_area_w ) {
+                return;
+            }
+
+            switch ( s.direction() ) {
+            case slider::directions::row:
+                slider_handle_a->node()->translation(
+                    v2f::unit_x() *
+                    slider_handle_area_w->size().x *
+                    slider_normalized_value(s));
+                break;
+            case slider::directions::row_reversed:
+                slider_handle_a->node()->translation(
+                    v2f::unit_x() *
+                    slider_handle_area_w->size().x *
+                    (1.f - slider_normalized_value(s)));
+                break;
+            case slider::directions::column:
+                slider_handle_a->node()->translation(
+                    v2f::unit_y() *
+                    slider_handle_area_w->size().y *
+                    slider_normalized_value(s));
+                break;
+            case slider::directions::column_reversed:
+                slider_handle_a->node()->translation(
+                    v2f::unit_y() *
+                    slider_handle_area_w->size().y *
+                    (1.f - slider_normalized_value(s)));
+                break;
+            default:
+                E2D_ASSERT_MSG(false, "unexpected slider direction type");
+                break;
+            }
+        }, !ecs::exists<disabled<slider>>());
     }
 
     void update_slider_styles(ecs::registry& owner) {

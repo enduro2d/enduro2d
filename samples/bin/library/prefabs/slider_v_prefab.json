@@ -1,0 +1,59 @@
+{
+    "prefab" : "wsprite_prefab.json",
+    "components" : {
+        "named" : {
+            "name" : "slider_v"
+        },
+        "slider" : {
+            "direction" : "column"
+        },
+        "rect_collider" : {
+            "size" : [50,300],
+            "offset" : [25,150]
+        },
+        "sprite_renderer" : {
+            "tint" : [255,0,0,255],
+            "sprite" : "../sprites/panel_sprite.json"
+        },
+        "touchable" : {
+        },
+        "widget" : {
+            "size" : [50,300]
+        }
+    },
+    "children" : [{
+        "prefab" : "widget_prefab.json",
+        "components" : {
+            "named" : {
+                "name" : "handle_area"
+            },
+            "actor" : {
+                "translation" : [0,12.5]
+            },
+            "widget" : {
+                "size" : [50,275]
+            }
+        },
+        "children" : [{
+            "components" : {
+                "named" : {
+                    "name" : "handle"
+                },
+                "handle" : {
+                }
+            },
+            "children" : [{
+                "prefab" : "button_prefab.json",
+                "components" : {
+                    "actor" : {
+                        "translation" : [0,-12.5],
+                        "scale" : [1,0.5]
+                    },
+                    "button" : {
+                        "style" : "../styles/handle_style.json"
+                    }
+                }
+            }]
+        }]
+    }]
+}
