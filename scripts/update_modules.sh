@@ -18,17 +18,19 @@ mkdir -p $UNTESTS_DIR/catch
 cp -fv $MODULES_DIR/catch2/single_include/catch2/catch.hpp $UNTESTS_DIR/catch/catch.hpp
 
 mkdir -p $HEADERS_RDPARTY_DIR/imgui
-cp -fv $MODULES_DIR/imgui/imgui.cpp $HEADERS_RDPARTY_DIR/imgui/imgui.cpp
-cp -fv $MODULES_DIR/imgui/imgui.h $HEADERS_RDPARTY_DIR/imgui/imgui.h
-cp -fv $MODULES_DIR/imgui/imgui_demo.cpp $HEADERS_RDPARTY_DIR/imgui/imgui_demo.cpp
-cp -fv $MODULES_DIR/imgui/imgui_draw.cpp $HEADERS_RDPARTY_DIR/imgui/imgui_draw.cpp
 cp -fv $MODULES_DIR/imgui/imgui_internal.h $HEADERS_RDPARTY_DIR/imgui/imgui_internal.h
-cp -fv $MODULES_DIR/imgui/imgui_widgets.cpp $HEADERS_RDPARTY_DIR/imgui/imgui_widgets.cpp
+cp -fv $MODULES_DIR/imgui/misc/cpp/imgui_stdlib.h $HEADERS_RDPARTY_DIR/imgui/imgui_stdlib.h
+cp -fv $MODULES_DIR/imgui/imgui.h $HEADERS_RDPARTY_DIR/imgui/imgui.h
 cp -fv $MODULES_DIR/imgui/imstb_rectpack.h $HEADERS_RDPARTY_DIR/imgui/imstb_rectpack.h
 cp -fv $MODULES_DIR/imgui/imstb_textedit.h $HEADERS_RDPARTY_DIR/imgui/imstb_textedit.h
 cp -fv $MODULES_DIR/imgui/imstb_truetype.h $HEADERS_RDPARTY_DIR/imgui/imstb_truetype.h
-cp -fv $MODULES_DIR/imgui/misc/cpp/imgui_stdlib.h $HEADERS_RDPARTY_DIR/imgui/imgui_stdlib.h
-cp -fv $MODULES_DIR/imgui/misc/cpp/imgui_stdlib.cpp $HEADERS_RDPARTY_DIR/imgui/imgui_stdlib.cpp
+
+mkdir -p $SOURCES_RDPARTY_DIR/imgui
+cp -fv $MODULES_DIR/imgui/imgui.cpp $SOURCES_RDPARTY_DIR/imgui/imgui.cpp
+cp -fv $MODULES_DIR/imgui/imgui_demo.cpp $SOURCES_RDPARTY_DIR/imgui/imgui_demo.cpp
+cp -fv $MODULES_DIR/imgui/imgui_draw.cpp $SOURCES_RDPARTY_DIR/imgui/imgui_draw.cpp
+cp -fv $MODULES_DIR/imgui/imgui_widgets.cpp $SOURCES_RDPARTY_DIR/imgui/imgui_widgets.cpp
+cp -fv $MODULES_DIR/imgui/misc/cpp/imgui_stdlib.cpp $SOURCES_RDPARTY_DIR/imgui/imgui_stdlib.cpp
 
 mkdir -p $HEADERS_RDPARTY_DIR/lua
 cp -fv $MODULES_DIR/lua/lauxlib.h $HEADERS_RDPARTY_DIR/lua/lauxlib.h
