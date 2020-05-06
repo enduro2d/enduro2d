@@ -1,5 +1,11 @@
 {
     "prefab" : "../prefabs/scene_prefab.json",
+    "components" : {
+        "behaviour" : {
+            "script" : "../scripts/sample_10/sample_10.lua"
+        },
+        "touchable" : {}
+    },
     "children" : [{
         "prefab" : "../prefabs/camera_prefab.json"
     },{
@@ -65,6 +71,11 @@
             "widget" : {
                 "size" : [100,200]
             },
+            "rect_collider" : {
+                "size" : [100,200],
+                "offset" : [50,100]
+            },
+            "touchable" : {},
             "toggle_group" : {},
             "sprite_renderer" : {
                 "tint" : [0,0,255,255],
