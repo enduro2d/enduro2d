@@ -10,13 +10,11 @@
 
 namespace e2d::touchable_events
 {
-    class click_evt;
     class mouse_evt;
     class touch_evt;
     class hover_evt;
 
     using event = std::variant<std::monostate,
-        click_evt,
         mouse_evt,
         touch_evt,
         hover_evt>;
@@ -152,18 +150,10 @@ namespace e2d::touchable_events
         };
     }
 
-    class click_evt final : public impl::base_evt<click_evt> {
-    public:
-        click_evt()
-        : base_evt(true) {}
-
-        click_evt(gobject target)
-        : base_evt(target, true) {}
-    };
-
     class mouse_evt final : public impl::base_evt<mouse_evt> {
     public:
         ENUM_HPP_CLASS_DECL(types, u8,
+            (clicked)
             (pressed)
             (released))
     public:
@@ -189,6 +179,7 @@ namespace e2d::touchable_events
     class touch_evt final : public impl::base_evt<touch_evt> {
     public:
         ENUM_HPP_CLASS_DECL(types, u8,
+            (clicked)
             (pressed)
             (released))
     public:

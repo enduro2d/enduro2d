@@ -47,13 +47,6 @@ namespace
     template < typename E >
     bool dispatch_event(gobject target, const E& event);
 
-    void apply_event(gobject target, const touchable_events::click_evt& event) {
-        target.component<events<touchable_events::event>>().ensure()
-            .add(event);
-
-        target.component<touchable::clicked>().ensure();
-    }
-
     void apply_event(gobject target, const touchable_events::mouse_evt& event) {
         target.component<events<touchable_events::event>>().ensure()
             .add(event);
@@ -63,6 +56,9 @@ namespace
         }
 
         switch ( event.type() ) {
+        case touchable_events::mouse_evt::types::clicked:
+            target.component<touchable::clicked>().ensure();
+            break;
         case touchable_events::mouse_evt::types::pressed:
             target.component<touchable::pressed>().ensure();
             break;
@@ -350,13 +346,20 @@ namespace e2d::touch_system_impl
                     }
 
                     switch ( event.type() ) {
+                    case touchable_events::mouse_evt::types::clicked:
+                        break;
                     case touchable_events::mouse_evt::types::pressed:
                         target.component<touchable::pushing>().ensure();
                         break;
                     case touchable_events::mouse_evt::types::released:
                         if ( target.component<touchable::pushing>() ) {
                             target.component<touchable::pushing>().remove();
-                            dispatch_event(target, touchable_events::click_evt(target));
+                            dispatch_event(
+                                target,
+                                touchable_events::mouse_evt(
+                                    target,
+                                    touchable_events::mouse_evt::types::clicked,
+                                    event.button()));
                         }
                         break;
                     default:
@@ -372,13 +375,20 @@ namespace e2d::touch_system_impl
                     }
 
                     switch ( event.type() ) {
+                    case touchable_events::touch_evt::types::clicked:
+                        break;
                     case touchable_events::touch_evt::types::pressed:
                         target.component<touchable::pushing>().ensure();
                         break;
                     case touchable_events::touch_evt::types::released:
                         if ( target.component<touchable::pushing>() ) {
                             target.component<touchable::pushing>().remove();
-                            dispatch_event(target, touchable_events::click_evt(target));
+                            dispatch_event(
+                                target,
+                                touchable_events::touch_evt(
+                                    target,
+                                    touchable_events::touch_evt::types::clicked,
+                                    event.finger()));
                         }
                         break;
                     default:

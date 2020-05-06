@@ -69,15 +69,6 @@ local touchable_base_evt = {
 touchable.touchable_base_evt = touchable_base_evt
 
 --
--- touchable_click_evt
---
-
----@class touchable_click_evt : touchable_base_evt
-local touchable_click_evt = {
-}
-touchable.touchable_click_evt = touchable_click_evt
-
---
 -- touchable_mouse_evt
 --
 
@@ -116,7 +107,7 @@ local touchable_hover_evt = {
 }
 touchable.touchable_hover_evt = touchable_hover_evt
 
----@alias touchable_event touchable_click_evt | touchable_mouse_evt | touchable_touch_evt | touchable_hover_evt
+---@alias touchable_event touchable_mouse_evt | touchable_touch_evt | touchable_hover_evt
 
 -- -----------------------------------------------------------------------------
 --

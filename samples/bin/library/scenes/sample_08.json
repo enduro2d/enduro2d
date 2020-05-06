@@ -137,8 +137,8 @@
             "behaviour" : {
                 "script" : "../scripts/sample_08/panel.lua"
             },
-            "sprite_renderer" : {
-                "scale" : [1,1]
+            "widget" : {
+                "size" : [100,100]
             },
             "rect_collider" : {
                 "size" : [100,100],
@@ -174,8 +174,8 @@
             "behaviour" : {
                 "script" : "../scripts/sample_08/panel.lua"
             },
-            "sprite_renderer" : {
-                "scale" : [1,1]
+            "widget" : {
+                "size" : [100,100]
             },
             "rect_collider" : {
                 "size" : [100,100],

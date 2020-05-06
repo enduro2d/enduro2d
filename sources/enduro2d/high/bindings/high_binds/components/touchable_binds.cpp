@@ -189,21 +189,6 @@ namespace e2d::bindings::high
         //
 
         l["touchable"].get_or_create<sol::table>()
-        .new_usertype<touchable_events::click_evt>("click_evt",
-            sol::no_constructor,
-
-            "target", sol::property(
-                [](const touchable_events::click_evt& c) -> gobject {
-                    return c.target();
-                }),
-
-            "bubbling", sol::property(
-                [](const touchable_events::click_evt& c) -> bool {
-                    return c.bubbling();
-                })
-        );
-
-        l["touchable"].get_or_create<sol::table>()
         .new_usertype<touchable_events::mouse_evt>("mouse_evt",
             sol::no_constructor,
 
