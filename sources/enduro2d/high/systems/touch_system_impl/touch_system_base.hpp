@@ -24,19 +24,26 @@ namespace e2d::touch_system_impl
 
 namespace e2d::touch_system_impl
 {
-    class touchable_under_mouse final {};
+    struct touchable_under_mouse final {
+        v2f local_point{v2f::zero()};
+        v2f world_point{v2f::zero()};
+    };
 
-    struct world_space_rect_collider final {
+    struct world_space_collider_base {
+        m4f local_to_world{m4f::identity()};
+    };
+
+    struct world_space_rect_collider final : world_space_collider_base {
         using local_space_collider_t = rect_collider;
         std::array<v3f, 4> points{};
     };
 
-    struct world_space_circle_collider final {
+    struct world_space_circle_collider final : world_space_collider_base {
         using local_space_collider_t = circle_collider;
         std::array<v3f, 12> points{};
     };
 
-    struct world_space_polygon_collider final {
+    struct world_space_polygon_collider final : world_space_collider_base {
         using local_space_collider_t = polygon_collider;
         vector<v3f> points{};
     };

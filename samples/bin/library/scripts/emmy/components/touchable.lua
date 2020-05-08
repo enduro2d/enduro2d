@@ -78,7 +78,13 @@ local touchable_mouse_evt = {
     type = "pressed",
 
     ---@type string
-    button = "left"
+    button = "left",
+
+    ---@type v2f
+    local_point = v2f.zero(),
+
+    --@type v2f
+    world_point = v2f.zero()
 }
 touchable.touchable_mouse_evt = touchable_mouse_evt
 

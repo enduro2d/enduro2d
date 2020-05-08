@@ -210,6 +210,16 @@ namespace e2d::bindings::high
             "button", sol::property(
                 [](const touchable_events::mouse_evt& c) -> str {
                     return str(enum_hpp::to_string_or_throw(c.button()));
+                }),
+
+            "local_point", sol::property(
+                [](const touchable_events::mouse_evt& c) -> v2f {
+                    return c.local_point();
+                }),
+
+            "world_point", sol::property(
+                [](const touchable_events::mouse_evt& c) -> v2f {
+                    return c.world_point();
                 })
         );
 

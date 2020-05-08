@@ -11,10 +11,9 @@
 
 namespace e2d::touch_system_impl::impl
 {
-    void update_world_space_collider(
+    void update_world_space_collider_points(
         world_space_rect_collider& dst,
-        const rect_collider& src,
-        const m4f& local_to_world)
+        const rect_collider& src)
     {
         const v2f& of = src.offset();
         const v2f& hs = src.size() * 0.5f;
@@ -24,16 +23,15 @@ namespace e2d::touch_system_impl::impl
         const v2f p3{of.x + hs.x, of.y + hs.y};
         const v2f p4{of.x - hs.x, of.y + hs.y};
 
-        dst.points[0] = v3f(v4f(p1, 0.f, 1.f) * local_to_world);
-        dst.points[1] = v3f(v4f(p2, 0.f, 1.f) * local_to_world);
-        dst.points[2] = v3f(v4f(p3, 0.f, 1.f) * local_to_world);
-        dst.points[3] = v3f(v4f(p4, 0.f, 1.f) * local_to_world);
+        dst.points[0] = v3f(v4f(p1, 0.f, 1.f) * dst.local_to_world);
+        dst.points[1] = v3f(v4f(p2, 0.f, 1.f) * dst.local_to_world);
+        dst.points[2] = v3f(v4f(p3, 0.f, 1.f) * dst.local_to_world);
+        dst.points[3] = v3f(v4f(p4, 0.f, 1.f) * dst.local_to_world);
     }
 
-    void update_world_space_collider(
+    void update_world_space_collider_points(
         world_space_circle_collider& dst,
-        const circle_collider& src,
-        const m4f& local_to_world)
+        const circle_collider& src)
     {
         const v2f& of = src.offset();
         for ( std::size_t i = 0, e = dst.points.size(); i < e; ++i ) {
@@ -45,14 +43,13 @@ namespace e2d::touch_system_impl::impl
                 of +
                 v2f(math::cos(a), math::sin(a)) *
                 src.radius();
-            dst.points[i] = v3f(v4f(p, 0.f, 1.f) * local_to_world);
+            dst.points[i] = v3f(v4f(p, 0.f, 1.f) * dst.local_to_world);
         }
     }
 
-    void update_world_space_collider(
+    void update_world_space_collider_points(
         world_space_polygon_collider& dst,
-        const polygon_collider& src,
-        const m4f& local_to_world)
+        const polygon_collider& src)
     {
         const vector<v2f>& src_points = src.points();
 
@@ -64,7 +61,7 @@ namespace e2d::touch_system_impl::impl
         const v2f& of = src.offset();
         for ( std::size_t i = 0, e = src_points.size(); i < e; ++i ) {
             const v2f p = of + src_points[i];
-            dst.points.push_back(v3f(v4f(p, 0.f, 1.f) * local_to_world));
+            dst.points.push_back(v3f(v4f(p, 0.f, 1.f) * dst.local_to_world));
         }
     }
 }
@@ -80,18 +77,25 @@ namespace e2d::touch_system_impl::impl
         std::array<
             v2f,
             std::tuple_size_v<decltype(c.points)>
-        > points;
+        > screen_points;
 
-        std::transform(c.points.begin(), c.points.end(), points.begin(), [
+        bool success = true;
+        std::transform(c.points.begin(), c.points.end(), screen_points.begin(), [
+            &success,
             &camera_vp,
             &camera_viewport
         ](const v3f& point) noexcept {
-            return v2f(math::project(point, camera_vp, camera_viewport).first);
+            const auto& [screen_point, project_success] = math::project(
+                point,
+                camera_vp,
+                camera_viewport);
+            success = success && project_success;
+            return v2f(screen_point);
         });
 
-        return !!pnpoly_aos(
-            math::numeric_cast<int>(points.size()),
-            points.data()->data(),
+        return success && !!pnpoly_aos(
+            math::numeric_cast<int>(screen_points.size()),
+            screen_points.data()->data(),
             mouse_p.x, mouse_p.y);
     }
 
@@ -104,18 +108,25 @@ namespace e2d::touch_system_impl::impl
         std::array<
             v2f,
             std::tuple_size_v<decltype(c.points)>
-        > points;
+        > screen_points;
 
-        std::transform(c.points.begin(), c.points.end(), points.begin(), [
+        bool success = true;
+        std::transform(c.points.begin(), c.points.end(), screen_points.begin(), [
+            &success,
             &camera_vp,
             &camera_viewport
         ](const v3f& point) noexcept {
-            return v2f(math::project(point, camera_vp, camera_viewport).first);
+            const auto& [screen_point, project_success] = math::project(
+                point,
+                camera_vp,
+                camera_viewport);
+            success = success && project_success;
+            return v2f(screen_point);
         });
 
-        return !!pnpoly_aos(
-            math::numeric_cast<int>(points.size()),
-            points.data()->data(),
+        return success && !!pnpoly_aos(
+            math::numeric_cast<int>(screen_points.size()),
+            screen_points.data()->data(),
             mouse_p.x, mouse_p.y);
     }
 
@@ -125,23 +136,30 @@ namespace e2d::touch_system_impl::impl
         const m4f& camera_vp,
         const b2f& camera_viewport)
     {
-        static thread_local std::vector<v2f> points;
-        E2D_DEFER([](){ points.clear(); });
+        static thread_local std::vector<v2f> screen_points;
+        E2D_DEFER([](){ screen_points.clear(); });
 
-        if ( points.capacity() < c.points.size() ) {
-            points.reserve(math::max(points.capacity() * 2u, c.points.size()));
+        if ( screen_points.capacity() < c.points.size() ) {
+            screen_points.reserve(math::max(screen_points.capacity() * 2u, c.points.size()));
         }
 
-        std::transform(c.points.begin(), c.points.end(), std::back_inserter(points), [
+        bool success = true;
+        std::transform(c.points.begin(), c.points.end(), std::back_inserter(screen_points), [
+            &success,
             &camera_vp,
             &camera_viewport
         ](const v3f& point) noexcept {
-            return v2f(math::project(point, camera_vp, camera_viewport).first);
+            const auto& [screen_point, project_success] = math::project(
+                point,
+                camera_vp,
+                camera_viewport);
+            success = success && project_success;
+            return v2f(screen_point);
         });
 
-        return !!pnpoly_aos(
-            math::numeric_cast<int>(points.size()),
-            points.data()->data(),
+        return success && !!pnpoly_aos(
+            math::numeric_cast<int>(screen_points.size()),
+            screen_points.data()->data(),
             mouse_p.x, mouse_p.y);
     }
 }

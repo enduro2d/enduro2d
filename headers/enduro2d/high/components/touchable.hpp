@@ -155,16 +155,27 @@ namespace e2d::touchable_events
             (pressed)
             (released))
     public:
-        mouse_evt(gobject target, types type, mouse_button button)
+        mouse_evt(
+            gobject target,
+            types type,
+            mouse_button button,
+            const v2f& local_point,
+            const v2f& world_point)
         : base_evt(target, true)
         , type_(type)
-        , button_(button) {}
+        , button_(button)
+        , local_point_(local_point)
+        , world_point_(world_point) {}
 
         [[nodiscard]] types type() const noexcept { return type_; }
         [[nodiscard]] mouse_button button() const noexcept { return button_; }
+        [[nodiscard]] const v2f& local_point() const noexcept { return local_point_; }
+        [[nodiscard]] const v2f& world_point() const noexcept { return world_point_; }
     private:
         types type_ = types::pressed;
         mouse_button button_ = mouse_button::left;
+        v2f local_point_ = v2f::zero();
+        v2f world_point_ = v2f::zero();
     };
 
     ENUM_HPP_REGISTER_TRAITS(mouse_evt::types)

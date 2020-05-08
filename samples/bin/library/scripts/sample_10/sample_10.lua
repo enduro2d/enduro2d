@@ -14,11 +14,13 @@ end
 ---@param event touchable_event
 function M:on_event(go, type, event)
     if type == "touchable.mouse_evt" then
-        the_debug:trace(string.format("event: %q, type: %q, button: %q, target: %q",
+        the_debug:trace(string.format("event: %q\n-->type: %q\n-->button: %q\n-->target: %q\n-->local_point: %s\n-->world_point: %s",
             type,
             event.type,
             event.button,
-            event.target.named and event.target.named.name or "[unnamed]"))
+            event.target.named and event.target.named.name or "[unnamed]",
+            event.local_point,
+            event.world_point))
     end
 end
 
