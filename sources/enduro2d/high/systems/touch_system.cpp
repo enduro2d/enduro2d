@@ -7,6 +7,7 @@
 #include <enduro2d/high/systems/touch_system.hpp>
 
 #include "touch_system_impl/touch_system_base.hpp"
+#include "touch_system_impl/touch_system_collector.hpp"
 #include "touch_system_impl/touch_system_colliders.hpp"
 #include "touch_system_impl/touch_system_dispatcher.hpp"
 
@@ -27,21 +28,22 @@ namespace e2d
         internal_state(input& i, window& w)
         : input_(i)
         , window_(w)
-        , dispatcher_(window_.register_event_listener<dispatcher>()) {}
+        , collector_(window_.register_event_listener<collector>()) {}
 
         ~internal_state() noexcept {
-            window_.unregister_event_listener(dispatcher_);
+            window_.unregister_event_listener(collector_);
         }
 
         void process_update(ecs::registry& owner) {
             update_world_space_colliders(owner);
             update_world_space_colliders_under_mouse(input_, window_, owner);
-            dispatcher_.dispatch_all_events(owner);
+            dispatcher_.dispatch_all_events(collector_, owner);
         }
     private:
         input& input_;
         window& window_;
-        dispatcher& dispatcher_;
+        collector& collector_;
+        dispatcher dispatcher_;
     };
 
     //

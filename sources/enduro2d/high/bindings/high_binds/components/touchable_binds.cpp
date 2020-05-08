@@ -214,31 +214,6 @@ namespace e2d::bindings::high
         );
 
         l["touchable"].get_or_create<sol::table>()
-        .new_usertype<touchable_events::touch_evt>("touch_evt",
-            sol::no_constructor,
-
-            "target", sol::property(
-                [](const touchable_events::touch_evt& c) -> gobject {
-                    return c.target();
-                }),
-
-            "bubbling", sol::property(
-                [](const touchable_events::touch_evt& c) -> bool {
-                    return c.bubbling();
-                }),
-
-            "type", sol::property(
-                [](const touchable_events::touch_evt& c) -> str {
-                    return str(enum_hpp::to_string_or_throw(c.type()));
-                }),
-
-            "finger", sol::property(
-                [](const touchable_events::touch_evt& c) -> u32 {
-                    return c.finger();
-                })
-        );
-
-        l["touchable"].get_or_create<sol::table>()
         .new_usertype<touchable_events::hover_evt>("hover_evt",
             sol::no_constructor,
 

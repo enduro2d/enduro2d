@@ -18,6 +18,12 @@
 
 namespace e2d::touch_system_impl
 {
+    class collector;
+    class dispatcher;
+}
+
+namespace e2d::touch_system_impl
+{
     class touchable_under_mouse final {};
 
     struct world_space_rect_collider final {

@@ -6,6 +6,8 @@
 
 #include "touch_system_dispatcher.hpp"
 
+#include "touch_system_collector.hpp"
+
 namespace
 {
     using namespace e2d;
@@ -67,27 +69,6 @@ namespace
             break;
         default:
             E2D_ASSERT_MSG(false, "unexpected mouse event type");
-            break;
-        }
-    }
-
-    void apply_event(gobject target, const touchable_events::touch_evt& event) {
-        target.component<events<touchable_events::event>>().ensure()
-            .add(event);
-
-        if ( event.finger() != 0u ) {
-            return;
-        }
-
-        switch ( event.type() ) {
-        case touchable_events::touch_evt::types::pressed:
-            target.component<touchable::pressed>().ensure();
-            break;
-        case touchable_events::touch_evt::types::released:
-            target.component<touchable::released>().ensure();
-            break;
-        default:
-            E2D_ASSERT_MSG(false, "unexpected touch event type");
             break;
         }
     }
@@ -226,12 +207,15 @@ namespace
 
 namespace e2d::touch_system_impl
 {
-    void dispatcher::dispatch_all_events(ecs::registry& owner) {
+    void dispatcher::dispatch_all_events(
+        collector& collector,
+        ecs::registry& owner)
+    {
         class touchable_last_hover final {};
         class touchable_next_hover final {};
 
-        E2D_DEFER([this, &owner](){
-            events_.clear();
+        E2D_DEFER([&collector, &owner](){
+            collector.clear();
             owner.remove_all_components<touchable_next_hover>();
         });
 
@@ -335,94 +319,55 @@ namespace e2d::touch_system_impl
         //
         //
 
-        for ( const auto& event : events_ ) {
+        for ( const auto& event : collector ) {
             std::visit(utils::overloaded {
                 [](std::monostate){},
-                [&target](touchable_events::mouse_evt event){
-                    const bool captured = dispatch_event(target, event.target(target));
-
-                    if ( !captured || event.button() != mouse_button::left ) {
-                        return;
-                    }
-
-                    switch ( event.type() ) {
-                    case touchable_events::mouse_evt::types::clicked:
-                        break;
-                    case touchable_events::mouse_evt::types::pressed:
-                        target.component<touchable::pushing>().ensure();
-                        break;
-                    case touchable_events::mouse_evt::types::released:
-                        if ( target.component<touchable::pushing>() ) {
-                            target.component<touchable::pushing>().remove();
-                            dispatch_event(
+                [](const collector::mouse_move_event& event){
+                    E2D_UNUSED(event);
+                },
+                [](const collector::mouse_scroll_event& event){
+                    E2D_UNUSED(event);
+                },
+                [&target](const collector::mouse_button_event& event){
+                    switch ( event.action ) {
+                    case mouse_button_action::press: {
+                        const bool captured = dispatch_event(
+                            target,
+                            touchable_events::mouse_evt(
                                 target,
-                                touchable_events::mouse_evt(
-                                    target,
-                                    touchable_events::mouse_evt::types::clicked,
-                                    event.button()));
+                                touchable_events::mouse_evt::types::pressed,
+                                event.button));
+                        if ( captured && event.button == mouse_button::left ) {
+                            target.component<touchable::pushing>().ensure();
                         }
                         break;
-                    default:
-                        E2D_ASSERT_MSG(false, "unexpected mouse event type");
-                        break;
                     }
-                },
-                [&target](touchable_events::touch_evt event){
-                    const bool captured = dispatch_event(target, event.target(target));
-
-                    if ( !captured || event.finger() != 0u ) {
-                        return;
-                    }
-
-                    switch ( event.type() ) {
-                    case touchable_events::touch_evt::types::clicked:
-                        break;
-                    case touchable_events::touch_evt::types::pressed:
-                        target.component<touchable::pushing>().ensure();
-                        break;
-                    case touchable_events::touch_evt::types::released:
-                        if ( target.component<touchable::pushing>() ) {
-                            target.component<touchable::pushing>().remove();
-                            dispatch_event(
+                    case mouse_button_action::release: {
+                        const bool captured = dispatch_event(
+                            target,
+                            touchable_events::mouse_evt(
                                 target,
-                                touchable_events::touch_evt(
+                                touchable_events::mouse_evt::types::released,
+                                event.button));
+                        if ( captured && event.button == mouse_button::left ) {
+                            if ( target.component<touchable::pushing>() ) {
+                                target.component<touchable::pushing>().remove();
+                                dispatch_event(
                                     target,
-                                    touchable_events::touch_evt::types::clicked,
-                                    event.finger()));
+                                    touchable_events::mouse_evt(
+                                        target,
+                                        touchable_events::mouse_evt::types::clicked,
+                                        event.button));
+                            }
                         }
                         break;
+                    }
                     default:
-                        E2D_ASSERT_MSG(false, "unexpected touch event type");
+                        E2D_ASSERT_MSG(false, "unexpected mouse button event action type");
                         break;
                     }
-                },
-                [&target](auto event){
-                    dispatch_event(target, event.target(target));
                 }
             }, event);
-        }
-    }
-
-    void dispatcher::on_mouse_button(
-        mouse_button button,
-        mouse_button_action action) noexcept
-    {
-        switch ( action ) {
-        case mouse_button_action::press:
-            events_.push_back(touchable_events::mouse_evt(
-                touchable_events::mouse_evt::types::pressed,
-                button));
-            break;
-        case mouse_button_action::release:
-            events_.push_back(touchable_events::mouse_evt(
-                touchable_events::mouse_evt::types::released,
-                button));
-            break;
-        case mouse_button_action::unknown:
-            break;
-        default:
-            E2D_ASSERT_MSG(false, "unexpected mouse action");
-            break;
         }
     }
 }

@@ -83,20 +83,6 @@ local touchable_mouse_evt = {
 touchable.touchable_mouse_evt = touchable_mouse_evt
 
 --
--- touchable_touch_evt
---
-
----@class touchable_touch_evt : touchable_base_evt
-local touchable_touch_evt = {
-    ---@type string
-    type = "pressed",
-
-    ---@type integer
-    finger = 0
-}
-touchable.touchable_touch_evt = touchable_touch_evt
-
---
 -- touchable_hover_evt
 --
 
@@ -107,7 +93,7 @@ local touchable_hover_evt = {
 }
 touchable.touchable_hover_evt = touchable_hover_evt
 
----@alias touchable_event touchable_mouse_evt | touchable_touch_evt | touchable_hover_evt
+---@alias touchable_event touchable_mouse_evt | touchable_hover_evt
 
 -- -----------------------------------------------------------------------------
 --

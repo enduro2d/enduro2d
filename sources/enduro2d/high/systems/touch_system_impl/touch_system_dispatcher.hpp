@@ -10,17 +10,14 @@
 
 namespace e2d::touch_system_impl
 {
-    class dispatcher final : public window::event_listener {
+    class dispatcher final {
     public:
         dispatcher() = default;
 
-        void dispatch_all_events(ecs::registry& owner);
-    private:
-        void on_mouse_button(
-            mouse_button button,
-            mouse_button_action action) noexcept final;
+        void dispatch_all_events(
+            collector& collector,
+            ecs::registry& owner);
     private:
         gobject last_hover_target_;
-        vector<touchable_events::event> events_;
     };
 }
