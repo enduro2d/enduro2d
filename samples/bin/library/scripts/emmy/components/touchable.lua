@@ -94,6 +94,23 @@ local touchable_mouse_hover_evt = {
 touchable.touchable_mouse_hover_evt = touchable_mouse_hover_evt
 
 --
+-- touchable_mouse_scroll_evt
+--
+
+---@class touchable_mouse_scroll_evt : touchable_base_evt
+local touchable_mouse_scroll_evt = {
+    ---@type v2f
+    delta = v2f.zero(),
+
+    ---@type v2f
+    local_point = v2f.zero(),
+
+    --@type v2f
+    world_point = v2f.zero()
+}
+touchable.touchable_mouse_scroll_evt = touchable_mouse_scroll_evt
+
+--
 -- touchable_mouse_button_evt
 --
 
@@ -113,7 +130,7 @@ local touchable_mouse_button_evt = {
 }
 touchable.touchable_mouse_button_evt = touchable_mouse_button_evt
 
----@alias touchable_event touchable_mouse_move_evt | touchable_mouse_hover_evt | touchable_mouse_button_evt
+---@alias touchable_event touchable_mouse_move_evt | touchable_mouse_hover_evt | touchable_mouse_scroll_evt | touchable_mouse_button_evt
 
 -- -----------------------------------------------------------------------------
 --

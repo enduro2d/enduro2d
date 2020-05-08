@@ -95,6 +95,10 @@ namespace
                         r = behaviours::call_meta_method(
                             b, "on_event", a.node()->owner(), "touchable.mouse_hover_evt", e);
                     },
+                    [&b,&a,&r](const touchable_events::mouse_scroll_evt& e){
+                        r = behaviours::call_meta_method(
+                            b, "on_event", a.node()->owner(), "touchable.mouse_scroll_evt", e);
+                    },
                     [&b,&a,&r](const touchable_events::mouse_button_evt& e){
                         r = behaviours::call_meta_method(
                             b, "on_event", a.node()->owner(), "touchable.mouse_button_evt", e);

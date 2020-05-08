@@ -12,11 +12,13 @@ namespace e2d::touchable_events
 {
     class mouse_move_evt;
     class mouse_hover_evt;
+    class mouse_scroll_evt;
     class mouse_button_evt;
 
     using event = std::variant<std::monostate,
         mouse_move_evt,
         mouse_hover_evt,
+        mouse_scroll_evt,
         mouse_button_evt>;
 }
 
@@ -197,6 +199,31 @@ namespace e2d::touchable_events
     };
 
     ENUM_HPP_REGISTER_TRAITS(mouse_hover_evt::types)
+
+    //
+    // mouse_scroll_evt
+    //
+
+    class mouse_scroll_evt final : public impl::base_evt<mouse_scroll_evt> {
+    public:
+        mouse_scroll_evt(
+            gobject target,
+            const v2f& delta,
+            const v2f& local_point,
+            const v2f& world_point)
+        : base_evt(target, true)
+        , delta_(delta)
+        , local_point_(local_point)
+        , world_point_(world_point) {}
+
+        [[nodiscard]] const v2f& delta() const noexcept { return delta_; }
+        [[nodiscard]] const v2f& local_point() const noexcept { return local_point_; }
+        [[nodiscard]] const v2f& world_point() const noexcept { return world_point_; }
+    private:
+        v2f delta_ = v2f::zero();
+        v2f local_point_ = v2f::zero();
+        v2f world_point_ = v2f::zero();
+    };
 
     //
     // mouse_button_evt

@@ -77,6 +77,11 @@ namespace
         }
     }
 
+    void apply_event(gobject target, const touchable_events::mouse_scroll_evt& event) {
+        target.component<events<touchable_events::event>>().ensure()
+            .add(event);
+    }
+
     void apply_event(gobject target, const touchable_events::mouse_button_evt& event) {
         target.component<events<touchable_events::event>>().ensure()
             .add(event);
@@ -341,8 +346,20 @@ namespace e2d::touch_system_impl
                             target,
                             make_mouse_move_evt());
                     },
-                    [](const collector::mouse_scroll_event& event){
-                        E2D_UNUSED(event);
+                    [&target](const collector::mouse_scroll_event& event){
+                        const auto make_mouse_scroll_evt = [
+                            &event,
+                            &target
+                        ](){
+                            return touchable_events::mouse_scroll_evt(
+                                target,
+                                event.delta,
+                                target.component<touchable_under_mouse>()->local_point,
+                                target.component<touchable_under_mouse>()->world_point);
+                        };
+                        dispatch_event(
+                            target,
+                            make_mouse_scroll_evt());
                     },
                     [&target](const collector::mouse_button_event& event){
                         const auto make_mouse_button_evt = [
