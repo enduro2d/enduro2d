@@ -26,9 +26,9 @@ end
 
 ---@param go gobject
 ---@param type string
----@param event touchable_mouse_evt
+---@param event touchable_mouse_button_evt
 function M:on_event(go, type, event)
-    if type == "touchable.mouse_evt" and event.type == "clicked"  then
+    if type == "touchable.mouse_button_evt" and event.type == "clicked"  then
         local offset = v2f.new(math.random(-15,15), math.random(-15,15))
         go.actor.node.translation = go.actor.node.translation + offset
     end

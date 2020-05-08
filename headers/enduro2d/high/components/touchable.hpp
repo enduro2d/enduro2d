@@ -10,12 +10,14 @@
 
 namespace e2d::touchable_events
 {
-    class mouse_evt;
-    class hover_evt;
+    class mouse_move_evt;
+    class mouse_hover_evt;
+    class mouse_button_evt;
 
     using event = std::variant<std::monostate,
-        mouse_evt,
-        hover_evt>;
+        mouse_move_evt,
+        mouse_hover_evt,
+        mouse_button_evt>;
 }
 
 namespace e2d
@@ -123,6 +125,10 @@ namespace e2d
 
 namespace e2d::touchable_events
 {
+    //
+    // base_evt
+    //
+
     namespace impl
     {
         template < typename Event >
@@ -148,14 +154,62 @@ namespace e2d::touchable_events
         };
     }
 
-    class mouse_evt final : public impl::base_evt<mouse_evt> {
+    //
+    // mouse_move_evt
+    //
+
+    class mouse_move_evt final : public impl::base_evt<mouse_move_evt> {
+    public:
+        mouse_move_evt(
+            gobject target,
+            const v2f& local_point,
+            const v2f& world_point)
+        : base_evt(target, true)
+        , local_point_(local_point)
+        , world_point_(world_point) {}
+
+        [[nodiscard]] const v2f& local_point() const noexcept { return local_point_; }
+        [[nodiscard]] const v2f& world_point() const noexcept { return world_point_; }
+    private:
+        v2f local_point_ = v2f::zero();
+        v2f world_point_ = v2f::zero();
+    };
+
+    //
+    // mouse_hover_evt
+    //
+
+    class mouse_hover_evt final : public impl::base_evt<mouse_hover_evt> {
+    public:
+        ENUM_HPP_CLASS_DECL(types, u8,
+            (over)
+            (out)
+            (enter)
+            (leave))
+    public:
+        mouse_hover_evt(gobject target, types type)
+        : base_evt(target, type == types::over || type == types::out)
+        , type_(type) {}
+
+        [[nodiscard]] types type() const noexcept { return type_; }
+    private:
+        types type_ = types::over;
+    };
+
+    ENUM_HPP_REGISTER_TRAITS(mouse_hover_evt::types)
+
+    //
+    // mouse_button_evt
+    //
+
+    class mouse_button_evt final : public impl::base_evt<mouse_button_evt> {
     public:
         ENUM_HPP_CLASS_DECL(types, u8,
             (clicked)
             (pressed)
             (released))
     public:
-        mouse_evt(
+        mouse_button_evt(
             gobject target,
             types type,
             mouse_button button,
@@ -178,26 +232,7 @@ namespace e2d::touchable_events
         v2f world_point_ = v2f::zero();
     };
 
-    ENUM_HPP_REGISTER_TRAITS(mouse_evt::types)
-
-    class hover_evt final : public impl::base_evt<hover_evt> {
-    public:
-        ENUM_HPP_CLASS_DECL(types, u8,
-            (over)
-            (out)
-            (enter)
-            (leave))
-    public:
-        hover_evt(gobject target, types type)
-        : base_evt(target, type == types::over || type == types::out)
-        , type_(type) {}
-
-        [[nodiscard]] types type() const noexcept { return type_; }
-    private:
-        types type_ = types::over;
-    };
-
-    ENUM_HPP_REGISTER_TRAITS(hover_evt::types)
+    ENUM_HPP_REGISTER_TRAITS(mouse_button_evt::types)
 }
 
 namespace e2d

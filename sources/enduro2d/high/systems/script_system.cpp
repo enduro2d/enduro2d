@@ -87,13 +87,17 @@ namespace
                 behaviours::call_result r = behaviours::call_result::success;
                 std::visit(utils::overloaded {
                     [](std::monostate){},
-                    [&b,&a,&r](const touchable_events::mouse_evt& e){
+                    [&b,&a,&r](const touchable_events::mouse_move_evt& e){
                         r = behaviours::call_meta_method(
-                            b, "on_event", a.node()->owner(), "touchable.mouse_evt", e);
+                            b, "on_event", a.node()->owner(), "touchable.mouse_move_evt", e);
                     },
-                    [&b,&a,&r](const touchable_events::hover_evt& e){
+                    [&b,&a,&r](const touchable_events::mouse_hover_evt& e){
                         r = behaviours::call_meta_method(
-                            b, "on_event", a.node()->owner(), "touchable.hover_evt", e);
+                            b, "on_event", a.node()->owner(), "touchable.mouse_hover_evt", e);
+                    },
+                    [&b,&a,&r](const touchable_events::mouse_button_evt& e){
+                        r = behaviours::call_meta_method(
+                            b, "on_event", a.node()->owner(), "touchable.mouse_button_evt", e);
                     }
                 }, evt);
                 if ( r == behaviours::call_result::failed ) {

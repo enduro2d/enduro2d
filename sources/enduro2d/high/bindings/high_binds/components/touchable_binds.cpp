@@ -189,57 +189,82 @@ namespace e2d::bindings::high
         //
 
         l["touchable"].get_or_create<sol::table>()
-        .new_usertype<touchable_events::mouse_evt>("mouse_evt",
+        .new_usertype<touchable_events::mouse_move_evt>("mouse_move_evt",
             sol::no_constructor,
 
             "target", sol::property(
-                [](const touchable_events::mouse_evt& c) -> gobject {
+                [](const touchable_events::mouse_move_evt& c) -> gobject {
                     return c.target();
                 }),
 
             "bubbling", sol::property(
-                [](const touchable_events::mouse_evt& c) -> bool {
+                [](const touchable_events::mouse_move_evt& c) -> bool {
                     return c.bubbling();
                 }),
 
-            "type", sol::property(
-                [](const touchable_events::mouse_evt& c) -> str {
-                    return str(enum_hpp::to_string_or_throw(c.type()));
-                }),
-
-            "button", sol::property(
-                [](const touchable_events::mouse_evt& c) -> str {
-                    return str(enum_hpp::to_string_or_throw(c.button()));
-                }),
-
             "local_point", sol::property(
-                [](const touchable_events::mouse_evt& c) -> v2f {
+                [](const touchable_events::mouse_move_evt& c) -> v2f {
                     return c.local_point();
                 }),
 
             "world_point", sol::property(
-                [](const touchable_events::mouse_evt& c) -> v2f {
+                [](const touchable_events::mouse_move_evt& c) -> v2f {
                     return c.world_point();
                 })
         );
 
         l["touchable"].get_or_create<sol::table>()
-        .new_usertype<touchable_events::hover_evt>("hover_evt",
+        .new_usertype<touchable_events::mouse_hover_evt>("mouse_hover_evt",
             sol::no_constructor,
 
             "target", sol::property(
-                [](const touchable_events::hover_evt& c) -> gobject {
+                [](const touchable_events::mouse_hover_evt& c) -> gobject {
                     return c.target();
                 }),
 
             "bubbling", sol::property(
-                [](const touchable_events::hover_evt& c) -> bool {
+                [](const touchable_events::mouse_hover_evt& c) -> bool {
                     return c.bubbling();
                 }),
 
             "type", sol::property(
-                [](const touchable_events::hover_evt& c) -> str {
+                [](const touchable_events::mouse_hover_evt& c) -> str {
                     return str(enum_hpp::to_string_or_throw(c.type()));
+                })
+        );
+
+        l["touchable"].get_or_create<sol::table>()
+        .new_usertype<touchable_events::mouse_button_evt>("mouse_button_evt",
+            sol::no_constructor,
+
+            "target", sol::property(
+                [](const touchable_events::mouse_button_evt& c) -> gobject {
+                    return c.target();
+                }),
+
+            "bubbling", sol::property(
+                [](const touchable_events::mouse_button_evt& c) -> bool {
+                    return c.bubbling();
+                }),
+
+            "type", sol::property(
+                [](const touchable_events::mouse_button_evt& c) -> str {
+                    return str(enum_hpp::to_string_or_throw(c.type()));
+                }),
+
+            "button", sol::property(
+                [](const touchable_events::mouse_button_evt& c) -> str {
+                    return str(enum_hpp::to_string_or_throw(c.button()));
+                }),
+
+            "local_point", sol::property(
+                [](const touchable_events::mouse_button_evt& c) -> v2f {
+                    return c.local_point();
+                }),
+
+            "world_point", sol::property(
+                [](const touchable_events::mouse_button_evt& c) -> v2f {
+                    return c.world_point();
                 })
         );
     }

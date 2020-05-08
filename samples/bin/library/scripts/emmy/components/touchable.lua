@@ -69,11 +69,36 @@ local touchable_base_evt = {
 touchable.touchable_base_evt = touchable_base_evt
 
 --
--- touchable_mouse_evt
+-- touchable_mouse_move_evt
 --
 
----@class touchable_mouse_evt : touchable_base_evt
-local touchable_mouse_evt = {
+---@class touchable_mouse_move_evt : touchable_base_evt
+local touchable_mouse_move_evt = {
+    ---@type v2f
+    local_point = v2f.zero(),
+
+    --@type v2f
+    world_point = v2f.zero()
+}
+touchable.touchable_mouse_move_evt = touchable_mouse_move_evt
+
+--
+-- touchable_mouse_hover_evt
+--
+
+---@class touchable_mouse_hover_evt : touchable_base_evt
+local touchable_mouse_hover_evt = {
+    ---@type string
+    type = "over"
+}
+touchable.touchable_mouse_hover_evt = touchable_mouse_hover_evt
+
+--
+-- touchable_mouse_button_evt
+--
+
+---@class touchable_mouse_button_evt : touchable_base_evt
+local touchable_mouse_button_evt = {
     ---@type string
     type = "pressed",
 
@@ -86,20 +111,9 @@ local touchable_mouse_evt = {
     --@type v2f
     world_point = v2f.zero()
 }
-touchable.touchable_mouse_evt = touchable_mouse_evt
+touchable.touchable_mouse_button_evt = touchable_mouse_button_evt
 
---
--- touchable_hover_evt
---
-
----@class touchable_hover_evt : touchable_base_evt
-local touchable_hover_evt = {
-    ---@type string
-    type = "over"
-}
-touchable.touchable_hover_evt = touchable_hover_evt
-
----@alias touchable_event touchable_mouse_evt | touchable_hover_evt
+---@alias touchable_event touchable_mouse_move_evt | touchable_mouse_hover_evt | touchable_mouse_button_evt
 
 -- -----------------------------------------------------------------------------
 --
