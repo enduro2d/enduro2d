@@ -18,6 +18,6 @@ namespace e2d::touch_system_impl
             collector& collector,
             ecs::registry& owner);
     private:
-        gobject last_hover_target_;
+        gobject last_target_;
     };
 }

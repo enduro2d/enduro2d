@@ -91,19 +91,16 @@ namespace e2d::touch_system_impl
             using world_space_collider_t = WorldSpaceCollider;
             using local_space_collider_t = typename WorldSpaceCollider::local_space_collider_t;
 
-            m4f inv_camera_vp{m4f::identity()};
-            bool inv_camera_vp_success{false};
-
-            std::tie(inv_camera_vp, inv_camera_vp_success) = math::inversed(camera_vp, 0.f);
+            const auto [inv_camera_vp, inv_camera_vp_success] = math::inversed(camera_vp, 0.f);
             if ( !inv_camera_vp_success ) {
                 return;
             }
 
             owner.for_joined_components<touchable, world_space_collider_t>([
-                &mouse_p,
-                &camera_vp,
-                &inv_camera_vp,
-                &camera_viewport
+                &mouse_p = mouse_p,
+                &camera_vp = camera_vp,
+                &inv_camera_vp = inv_camera_vp,
+                &camera_viewport = camera_viewport
             ](ecs::entity e, const touchable&, const world_space_collider_t& c){
                 if ( is_world_space_collider_under_mouse(c, mouse_p, camera_vp, camera_viewport) ) {
                     const auto& [world_point, world_point_success] = math::unproject(
