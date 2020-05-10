@@ -15,6 +15,15 @@ local slider = {
     ---@type number
     value = 0.0,
 
+    ---@type number
+    raw_value = 0.0,
+
+    ---@type number
+    normalized_value = 0.0,
+
+    ---@type number
+    normalized_raw_value = 0.0,
+
     ---@type boolean
     whole_numbers = false,
 

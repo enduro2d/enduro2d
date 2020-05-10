@@ -29,6 +29,15 @@ namespace e2d
         slider& value(f32 value) noexcept;
         [[nodiscard]] f32 value() const noexcept;
 
+        slider& raw_value(f32 value) noexcept;
+        [[nodiscard]] f32 raw_value() const noexcept;
+
+        slider& normalized_value(f32 value) noexcept;
+        [[nodiscard]] f32 normalized_value() const noexcept;
+
+        slider& normalized_raw_value(f32 value) noexcept;
+        [[nodiscard]] f32 normalized_raw_value() const noexcept;
+
         slider& whole_numbers(bool value) noexcept;
         [[nodiscard]] bool whole_numbers() const noexcept;
 
@@ -98,15 +107,49 @@ namespace e2d
     }
 
     inline slider& slider::value(f32 value) noexcept {
-        value_ = math::clamp(
-            whole_numbers_ ? math::trunc(value) : value,
-            min_value_,
-            max_value_);
+        value_ = math::clamp(value, min_value_, max_value_);
         return *this;
     }
 
     inline f32 slider::value() const noexcept {
+        return whole_numbers_ ? math::round(value_) : value_;
+    }
+
+    inline slider& slider::raw_value(f32 value) noexcept {
+        value_ = math::clamp(value, min_value_, max_value_);
+        return *this;
+    }
+
+    inline f32 slider::raw_value() const noexcept {
         return value_;
+    }
+
+    inline slider& slider::normalized_value(f32 value) noexcept {
+        value_ = math::lerp(
+            min_value_,
+            max_value_,
+            math::saturate(value));
+        return *this;
+    }
+
+    inline f32 slider::normalized_value() const noexcept {
+        return math::approximately(min_value_, max_value_)
+            ? 0.f
+            : math::inverse_lerp(min_value_, max_value_, value());
+    }
+
+    inline slider& slider::normalized_raw_value(f32 value) noexcept {
+        value_ = math::lerp(
+            min_value_,
+            max_value_,
+            math::saturate(value));
+        return *this;
+    }
+
+    inline f32 slider::normalized_raw_value() const noexcept {
+        return math::approximately(min_value_, max_value_)
+            ? 0.f
+            : math::inverse_lerp(min_value_, max_value_, raw_value());
     }
 
     inline slider& slider::whole_numbers(bool value) noexcept {
@@ -114,7 +157,7 @@ namespace e2d
         if ( whole_numbers_ ) {
             min_value_ = math::floor(min_value_);
             max_value_ = math::ceil(max_value_);
-            value_ = math::clamp(math::trunc(value_), min_value_, max_value_);
+            value_ = math::clamp(value_, min_value_, max_value_);
         }
         return *this;
     }

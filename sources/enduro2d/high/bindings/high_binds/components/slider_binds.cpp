@@ -74,6 +74,30 @@ namespace e2d::bindings::high
                     c->value(v);
                 }),
 
+            "raw_value", sol::property(
+                [](const gcomponent<slider>& c) -> f32 {
+                    return c->raw_value();
+                },
+                [](gcomponent<slider>& c, f32 v){
+                    c->raw_value(v);
+                }),
+
+            "normalized_value", sol::property(
+                [](const gcomponent<slider>& c) -> f32 {
+                    return c->normalized_value();
+                },
+                [](gcomponent<slider>& c, f32 v){
+                    c->normalized_value(v);
+                }),
+
+            "normalized_raw_value", sol::property(
+                [](const gcomponent<slider>& c) -> f32 {
+                    return c->normalized_raw_value();
+                },
+                [](gcomponent<slider>& c, f32 v){
+                    c->normalized_raw_value(v);
+                }),
+
             "whole_numbers", sol::property(
                 [](const gcomponent<slider>& c) -> bool {
                     return c->whole_numbers();
