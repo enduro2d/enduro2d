@@ -11,9 +11,7 @@
 namespace e2d
 {
     class slider_system final
-        : public ecs::system<
-            ecs::before<systems::update_event>,
-            ecs::after<systems::update_event>> {
+        : public ecs::system<ecs::before<systems::update_event>> {
     public:
         slider_system();
         ~slider_system() noexcept;
@@ -21,10 +19,6 @@ namespace e2d
         void process(
             ecs::registry& owner,
             const ecs::before<systems::update_event>& trigger) override;
-
-        void process(
-            ecs::registry& owner,
-            const ecs::after<systems::update_event>& trigger) override;
     private:
         class internal_state;
         std::unique_ptr<internal_state> state_;

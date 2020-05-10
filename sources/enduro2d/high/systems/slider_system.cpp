@@ -8,28 +8,51 @@
 
 #include <enduro2d/high/components/actor.hpp>
 #include <enduro2d/high/components/disabled.hpp>
+#include <enduro2d/high/components/events.hpp>
 #include <enduro2d/high/components/handle.hpp>
 #include <enduro2d/high/components/slider.hpp>
+#include <enduro2d/high/components/touchable.hpp>
 #include <enduro2d/high/components/widget.hpp>
 
 namespace
 {
     using namespace e2d;
 
-    slider& slider_normalized_value(slider& s, f32 value) noexcept {
-        return s.value(math::lerp(s.min_value(), s.max_value(), value));
-    }
+    void update_slider_inputs(ecs::registry& owner) {
+        owner.for_joined_components<slider, events<touchable_events::event>>([](
+            const ecs::const_entity&,
+            slider& s,
+            const events<touchable_events::event>& events)
+        {
+            for ( const touchable_events::event& evt : events.get() ) {
+                if ( auto mouse_evt = std::get_if<touchable_events::mouse_scroll_evt>(&evt);
+                    mouse_evt &&
+                    !math::is_near_zero(mouse_evt->delta().y) )
+                {
+                    const f32 slider_range = s.max_value() - s.min_value();
+                    const f32 delta_step = slider_range * 0.01f * mouse_evt->delta().y;
 
-    [[nodiscard]] f32 slider_normalized_value(const slider& s) noexcept {
-        return math::approximately(s.min_value(), s.max_value())
-            ? 0.f
-            : math::inverse_lerp(s.min_value(), s.max_value(), s.value());
+                    switch ( s.direction() ) {
+                    case slider::directions::row:
+                        s.value(s.raw_value() + delta_step);
+                        break;
+                    case slider::directions::row_reversed:
+                        s.value(s.raw_value() - delta_step);
+                        break;
+                    case slider::directions::column:
+                        s.value(s.raw_value() + delta_step);
+                        break;
+                    case slider::directions::column_reversed:
+                        s.value(s.raw_value() - delta_step);
+                        break;
+                    default:
+                        E2D_ASSERT_MSG(false, "unexpected slider direction type");
+                        break;
+                    }
+                }
+            }
+        }, !ecs::exists<disabled<slider>>());
     }
-}
-
-namespace
-{
-    using namespace e2d;
 
     void update_slider_states(ecs::registry& owner) {
         owner.for_joined_components<slider, actor>([](
@@ -64,35 +87,31 @@ namespace
                 slider_handle_a->node()->translation(
                     v2f::unit_x() *
                     slider_handle_area_w->size().x *
-                    slider_normalized_value(s));
+                    s.normalized_value());
                 break;
             case slider::directions::row_reversed:
                 slider_handle_a->node()->translation(
                     v2f::unit_x() *
                     slider_handle_area_w->size().x *
-                    (1.f - slider_normalized_value(s)));
+                    (1.f - s.normalized_value()));
                 break;
             case slider::directions::column:
                 slider_handle_a->node()->translation(
                     v2f::unit_y() *
                     slider_handle_area_w->size().y *
-                    slider_normalized_value(s));
+                    s.normalized_value());
                 break;
             case slider::directions::column_reversed:
                 slider_handle_a->node()->translation(
                     v2f::unit_y() *
                     slider_handle_area_w->size().y *
-                    (1.f - slider_normalized_value(s)));
+                    (1.f - s.normalized_value()));
                 break;
             default:
                 E2D_ASSERT_MSG(false, "unexpected slider direction type");
                 break;
             }
         }, !ecs::exists<disabled<slider>>());
-    }
-
-    void update_slider_styles(ecs::registry& owner) {
-        E2D_UNUSED(owner);
     }
 }
 
@@ -107,12 +126,9 @@ namespace e2d
         internal_state() = default;
         ~internal_state() noexcept = default;
 
-        void process_states(ecs::registry& owner) {
+        void process_update(ecs::registry& owner) {
+            update_slider_inputs(owner);
             update_slider_states(owner);
-        }
-
-        void process_styles(ecs::registry& owner) {
-            update_slider_styles(owner);
         }
     };
 
@@ -129,16 +145,7 @@ namespace e2d
         const ecs::before<systems::update_event>& trigger)
     {
         E2D_UNUSED(trigger);
-        E2D_PROFILER_SCOPE("slider_system.process_states");
-        state_->process_states(owner);
-    }
-
-    void slider_system::process(
-        ecs::registry& owner,
-        const ecs::after<systems::update_event>& trigger)
-    {
-        E2D_UNUSED(trigger);
-        E2D_PROFILER_SCOPE("slider_system.process_styles");
-        state_->process_styles(owner);
+        E2D_PROFILER_SCOPE("slider_system.process_update");
+        state_->process_update(owner);
     }
 }
