@@ -63,6 +63,19 @@ namespace e2d::bindings::high
                 }
             ),
 
+            "dragging", sol::property(
+                [](const gcomponent<touchable>& c) -> bool {
+                    return c.component<touchable::dragging>().exists();
+                },
+                [](gcomponent<touchable>& c, bool yesno){
+                    if ( yesno ) {
+                        c.component<touchable::dragging>().ensure();
+                    } else {
+                        c.component<touchable::dragging>().remove();
+                    }
+                }
+            ),
+
             "hovering", sol::property(
                 [](const gcomponent<touchable>& c) -> bool {
                     return c.component<touchable::hovering>().exists();
@@ -187,6 +200,36 @@ namespace e2d::bindings::high
         //
         // events
         //
+
+        l["touchable"].get_or_create<sol::table>()
+        .new_usertype<touchable_events::mouse_drag_evt>("mouse_drag_evt",
+            sol::no_constructor,
+
+            "target", sol::property(
+                [](const touchable_events::mouse_drag_evt& c) -> gobject {
+                    return c.target();
+                }),
+
+            "bubbling", sol::property(
+                [](const touchable_events::mouse_drag_evt& c) -> bool {
+                    return c.bubbling();
+                }),
+
+            "type", sol::property(
+                [](const touchable_events::mouse_drag_evt& c) -> str {
+                    return str(enum_hpp::to_string_or_throw(c.type()));
+                }),
+
+            "local_point", sol::property(
+                [](const touchable_events::mouse_drag_evt& c) -> v2f {
+                    return c.local_point();
+                }),
+
+            "world_point", sol::property(
+                [](const touchable_events::mouse_drag_evt& c) -> v2f {
+                    return c.world_point();
+                })
+        );
 
         l["touchable"].get_or_create<sol::table>()
         .new_usertype<touchable_events::mouse_move_evt>("mouse_move_evt",

@@ -59,7 +59,7 @@ namespace e2d
     void component_inspector<touchable>::operator()(gcomponent<touchable>& c) const {
 
         //
-        // pushing/hovering
+        // pushing/dragging/hovering
         //
 
         if ( bool pushing = c.component<touchable::pushing>().exists();
@@ -69,6 +69,18 @@ namespace e2d
                 c.component<touchable::pushing>().ensure();
             } else {
                 c.component<touchable::pushing>().remove();
+            }
+        }
+
+        ImGui::SameLine();
+
+        if ( bool dragging = c.component<touchable::dragging>().exists();
+            ImGui::Checkbox("dragging", &dragging) )
+        {
+            if ( dragging ) {
+                c.component<touchable::dragging>().ensure();
+            } else {
+                c.component<touchable::dragging>().remove();
             }
         }
 

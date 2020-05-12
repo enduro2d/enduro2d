@@ -10,12 +10,14 @@
 
 namespace e2d::touchable_events
 {
+    class mouse_drag_evt;
     class mouse_move_evt;
     class mouse_hover_evt;
     class mouse_scroll_evt;
     class mouse_button_evt;
 
     using event = std::variant<std::monostate,
+        mouse_drag_evt,
         mouse_move_evt,
         mouse_hover_evt,
         mouse_scroll_evt,
@@ -27,6 +29,7 @@ namespace e2d
     class touchable final {
     public:
         class pushing final {};
+        class dragging final {};
         class hovering final {};
 
         class clicked final {};
@@ -78,6 +81,10 @@ namespace e2d
     : public empty_factory_loader<touchable::pushing> {};
 
     template <>
+    class factory_loader<touchable::dragging> final
+    : public empty_factory_loader<touchable::dragging> {};
+
+    template <>
     class factory_loader<touchable::hovering> final
     : public empty_factory_loader<touchable::hovering> {};
 
@@ -127,19 +134,18 @@ namespace e2d
 
 namespace e2d::touchable_events
 {
-    //
-    // base_evt
-    //
-
     namespace impl
     {
+        //
+        // base_evt
+        //
+
         template < typename Event >
         class base_evt {
         public:
-            base_evt(bool bubbling)
-            : bubbling_(bubbling) {}
-
-            base_evt(gobject target, bool bubbling)
+            base_evt(
+                gobject target,
+                bool bubbling)
             : target_(target)
             , bubbling_(bubbling) {}
 
@@ -155,6 +161,38 @@ namespace e2d::touchable_events
             bool bubbling_ = false;
         };
     }
+
+    //
+    // mouse_drag_evt
+    //
+
+    class mouse_drag_evt final : public impl::base_evt<mouse_drag_evt> {
+    public:
+        ENUM_HPP_CLASS_DECL(types, u8,
+            (start)
+            (move)
+            (end))
+    public:
+        mouse_drag_evt(
+            gobject target,
+            types type,
+            const v2f& local_point,
+            const v2f& world_point)
+        : base_evt(target, true)
+        , type_(type)
+        , local_point_(local_point)
+        , world_point_(world_point) {}
+
+        [[nodiscard]] types type() const noexcept { return type_; }
+        [[nodiscard]] const v2f& local_point() const noexcept { return local_point_; }
+        [[nodiscard]] const v2f& world_point() const noexcept { return world_point_; }
+    private:
+        types type_ = types::start;
+        v2f local_point_ = v2f::zero();
+        v2f world_point_ = v2f::zero();
+    };
+
+    ENUM_HPP_REGISTER_TRAITS(mouse_drag_evt::types)
 
     //
     // mouse_move_evt
@@ -189,7 +227,9 @@ namespace e2d::touchable_events
             (enter)
             (leave))
     public:
-        mouse_hover_evt(gobject target, types type)
+        mouse_hover_evt(
+            gobject target,
+            types type)
         : base_evt(target, type == types::over || type == types::out)
         , type_(type) {}
 

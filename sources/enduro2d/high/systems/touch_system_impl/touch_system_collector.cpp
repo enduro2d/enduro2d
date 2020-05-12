@@ -8,6 +8,9 @@
 
 namespace e2d::touch_system_impl
 {
+    collector::collector(input& i)
+    : input_(i) {}
+
     void collector::clear() noexcept {
         events_.clear();
     }
@@ -37,11 +40,16 @@ namespace e2d::touch_system_impl
     }
 
     void collector::on_move_cursor(const v2f& pos) noexcept {
-        events_.push_back(mouse_move_event(pos));
+        E2D_UNUSED(pos);
+        events_.push_back(mouse_move_event(
+            input_.mouse().cursor_pos()));
     }
 
     void collector::on_mouse_scroll(const v2f& delta) noexcept {
-        events_.push_back(mouse_scroll_event(delta));
+        E2D_UNUSED(delta);
+        events_.push_back(mouse_scroll_event(
+            input_.mouse().cursor_pos(),
+            input_.mouse().scroll_delta()));
     }
 
     void collector::on_mouse_button(mouse_button button, mouse_button_action action) noexcept {
@@ -53,6 +61,9 @@ namespace e2d::touch_system_impl
             return;
         }
 
-        events_.push_back(mouse_button_event(button, action));
+        events_.push_back(mouse_button_event(
+            input_.mouse().cursor_pos(),
+            button,
+            action));
     }
 }

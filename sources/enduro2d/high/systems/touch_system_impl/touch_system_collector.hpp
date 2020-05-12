@@ -12,24 +12,38 @@ namespace e2d::touch_system_impl
 {
     class collector final : public window::event_listener {
     public:
-        struct mouse_move_event {
-            v2f pos{v2f::zero()};
-            mouse_move_event(const v2f& npos)
-            : pos(npos) {}
+        struct mouse_event {
+            v2f screen_point{v2f::zero()};
+            mouse_event(
+                const v2f& screen_point)
+            : screen_point(screen_point) {}
         };
 
-        struct mouse_scroll_event {
+        struct mouse_move_event : mouse_event {
+            mouse_move_event(
+                const v2f& screen_point)
+            : mouse_event(screen_point) {}
+        };
+
+        struct mouse_scroll_event : mouse_event {
             v2f delta{v2f::zero()};
-            mouse_scroll_event(const v2f& ndelta)
-            : delta(ndelta) {}
+            mouse_scroll_event(
+                const v2f& screen_point,
+                const v2f& delta)
+            : mouse_event(screen_point)
+            , delta(delta) {}
         };
 
-        struct mouse_button_event {
+        struct mouse_button_event : mouse_event {
             mouse_button button{mouse_button::unknown};
             mouse_button_action action{mouse_button_action::unknown};
-            mouse_button_event(mouse_button nbutton, mouse_button_action naction)
-            : button(nbutton)
-            , action(naction) {}
+            mouse_button_event(
+                const v2f& screen_point,
+                mouse_button button,
+                mouse_button_action action)
+            : mouse_event(screen_point)
+            , button(button)
+            , action(action) {}
         };
     public:
         using event = std::variant<std::monostate,
@@ -38,7 +52,7 @@ namespace e2d::touch_system_impl
             mouse_button_event>;
         using events = vector<event>;
     public:
-        collector() = default;
+        collector(input& i);
 
         void clear() noexcept;
 
@@ -60,6 +74,7 @@ namespace e2d::touch_system_impl
             mouse_button button,
             mouse_button_action action) noexcept final;
     private:
+        input& input_;
         vector<event> events_;
     };
 }
