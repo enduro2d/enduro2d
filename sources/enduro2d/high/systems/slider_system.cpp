@@ -19,12 +19,43 @@ namespace
     using namespace e2d;
 
     void update_slider_inputs(ecs::registry& owner) {
-        owner.for_joined_components<slider, events<touchable_events::event>>([](
+        owner.for_joined_components<slider, widget, events<touchable_events::event>, actor>([](
             const ecs::const_entity&,
             slider& s,
-            const events<touchable_events::event>& events)
+            widget& w,
+            const events<touchable_events::event>& events,
+            const actor& a)
         {
             for ( const touchable_events::event& evt : events.get() ) {
+                if ( auto mouse_evt = std::get_if<touchable_events::mouse_drag_evt>(&evt);
+                    mouse_evt &&
+                    a.node() &&
+                    w.size().x > 0.f &&
+                    w.size().y > 0.f )
+                {
+                    const v2f local_point = v2f(a.node()->world_to_local(
+                        v4f(mouse_evt->world_point(), 0.f, 1.f)));
+
+                    switch ( s.direction() ) {
+                    case slider::directions::row:
+                        s.normalized_value(local_point.x / w.size().x);
+                        break;
+                    case slider::directions::row_reversed:
+                        s.normalized_value(1.f - local_point.x / w.size().x);
+                        break;
+                    case slider::directions::column:
+                        s.normalized_value(local_point.y / w.size().y);
+                        break;
+                    case slider::directions::column_reversed:
+                        s.normalized_value(1.f - local_point.y / w.size().y);
+                        break;
+                    default:
+                        E2D_ASSERT_MSG(false, "unexpected slider direction type");
+                        break;
+                    }
+
+                }
+
                 if ( auto mouse_evt = std::get_if<touchable_events::mouse_scroll_evt>(&evt);
                     mouse_evt &&
                     !math::is_near_zero(mouse_evt->delta().y) )
