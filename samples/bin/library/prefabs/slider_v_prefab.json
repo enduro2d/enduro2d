@@ -39,7 +39,7 @@
                 "named" : {
                     "name" : "handle"
                 },
-                "handle" : {
+                "slider_handle" : {
                 }
             },
             "children" : [{

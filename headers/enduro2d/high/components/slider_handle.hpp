@@ -10,21 +10,21 @@
 
 namespace e2d
 {
-    class handle final {
+    class slider_handle final {
     public:
-        handle() = default;
+        slider_handle() = default;
     };
 }
 
 namespace e2d
 {
     template <>
-    class factory_loader<handle> final : factory_loader<> {
+    class factory_loader<slider_handle> final : factory_loader<> {
     public:
         static const char* schema_source;
 
         bool operator()(
-            handle& component,
+            slider_handle& component,
             const fill_context& ctx) const;
 
         bool operator()(
@@ -36,10 +36,10 @@ namespace e2d
 namespace e2d
 {
     template <>
-    class component_inspector<handle> final : component_inspector<> {
+    class component_inspector<slider_handle> final : component_inspector<> {
     public:
         static const char* title;
 
-        void operator()(gcomponent<handle>& c) const;
+        void operator()(gcomponent<slider_handle>& c) const;
     };
 }

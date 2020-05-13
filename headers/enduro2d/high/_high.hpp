@@ -59,7 +59,6 @@ namespace e2d
     template < typename E >
     class events;
     class flipbook_player;
-    class handle;
     class label;
     class layout;
     class model_renderer;
@@ -67,6 +66,7 @@ namespace e2d
     class renderer;
     class scene;
     class slider;
+    class slider_handle;
     class spine_player;
     class sprite_renderer;
     class toggle_group;

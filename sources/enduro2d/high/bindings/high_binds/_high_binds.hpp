@@ -24,7 +24,6 @@ namespace e2d::bindings::high
     void bind_camera(sol::state& l);
     void bind_colliders(sol::state& l);
     void bind_flipbook_player(sol::state& l);
-    void bind_handle(sol::state& l);
     void bind_label(sol::state& l);
     void bind_layout(sol::state& l);
     void bind_model_renderer(sol::state& l);
@@ -32,6 +31,7 @@ namespace e2d::bindings::high
     void bind_renderer(sol::state& l);
     void bind_scene(sol::state& l);
     void bind_slider(sol::state& l);
+    void bind_slider_handle(sol::state& l);
     void bind_spine_player(sol::state& l);
     void bind_sprite_renderer(sol::state& l);
     void bind_toggle_group(sol::state& l);
@@ -58,7 +58,6 @@ namespace e2d::bindings
         high::bind_camera(l);
         high::bind_colliders(l);
         high::bind_flipbook_player(l);
-        high::bind_handle(l);
         high::bind_label(l);
         high::bind_layout(l);
         high::bind_model_renderer(l);
@@ -66,6 +65,7 @@ namespace e2d::bindings
         high::bind_renderer(l);
         high::bind_scene(l);
         high::bind_slider(l);
+        high::bind_slider_handle(l);
         high::bind_spine_player(l);
         high::bind_sprite_renderer(l);
         high::bind_toggle_group(l);

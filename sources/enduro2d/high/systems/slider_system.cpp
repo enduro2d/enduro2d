@@ -9,8 +9,8 @@
 #include <enduro2d/high/components/actor.hpp>
 #include <enduro2d/high/components/disabled.hpp>
 #include <enduro2d/high/components/events.hpp>
-#include <enduro2d/high/components/handle.hpp>
 #include <enduro2d/high/components/slider.hpp>
+#include <enduro2d/high/components/slider_handle.hpp>
 #include <enduro2d/high/components/touchable.hpp>
 #include <enduro2d/high/components/widget.hpp>
 
@@ -91,51 +91,51 @@ namespace
             const slider& s,
             const actor& a)
         {
-            gcomponent<handle> slider_handle =
-                nodes::find_component_from_children<handle>(
+            gcomponent<slider_handle> slider_h =
+                nodes::find_component_from_children<slider_handle>(
                     a.node(),
                     nodes::options().recursive(true));
 
-            if ( !slider_handle ) {
+            if ( !slider_h ) {
                 return;
             }
 
-            gcomponent<actor> slider_handle_a = slider_handle.owner().component<actor>();
-            if ( !slider_handle_a || !slider_handle_a->node() ) {
+            gcomponent<actor> slider_h_a = slider_h.owner().component<actor>();
+            if ( !slider_h_a || !slider_h_a->node() ) {
                 return;
             }
 
-            gcomponent<widget> slider_handle_area_w = slider_handle_a->node()->parent()
-                ? slider_handle_a->node()->parent()->owner().component<widget>()
+            gcomponent<widget> slider_h_area_w = slider_h_a->node()->parent()
+                ? slider_h_a->node()->parent()->owner().component<widget>()
                 : gcomponent<widget>();
 
-            if ( !slider_handle_area_w ) {
+            if ( !slider_h_area_w ) {
                 return;
             }
 
             switch ( s.direction() ) {
             case slider::directions::row:
-                slider_handle_a->node()->translation(
+                slider_h_a->node()->translation(
                     v2f::unit_x() *
-                    slider_handle_area_w->size().x *
+                    slider_h_area_w->size().x *
                     s.normalized_value());
                 break;
             case slider::directions::row_reversed:
-                slider_handle_a->node()->translation(
+                slider_h_a->node()->translation(
                     v2f::unit_x() *
-                    slider_handle_area_w->size().x *
+                    slider_h_area_w->size().x *
                     (1.f - s.normalized_value()));
                 break;
             case slider::directions::column:
-                slider_handle_a->node()->translation(
+                slider_h_a->node()->translation(
                     v2f::unit_y() *
-                    slider_handle_area_w->size().y *
+                    slider_h_area_w->size().y *
                     s.normalized_value());
                 break;
             case slider::directions::column_reversed:
-                slider_handle_a->node()->translation(
+                slider_h_a->node()->translation(
                     v2f::unit_y() *
-                    slider_handle_area_w->size().y *
+                    slider_h_area_w->size().y *
                     (1.f - s.normalized_value()));
                 break;
             default:

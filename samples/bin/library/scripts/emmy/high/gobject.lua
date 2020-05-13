@@ -30,9 +30,6 @@ local gobject = {
     ---@type flipbook_player
     flipbook_player = nil,
 
-    ---@type handle
-    handle = nil,
-
     ---@type label
     label = nil,
 
@@ -53,6 +50,9 @@ local gobject = {
 
     ---@type slider
     slider = nil,
+
+    ---@type slider_handle
+    slider_handle = nil,
 
     ---@type spine_player
     spine_player = nil,
