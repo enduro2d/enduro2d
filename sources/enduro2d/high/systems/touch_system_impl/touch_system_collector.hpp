@@ -13,24 +13,29 @@ namespace e2d::touch_system_impl
     class collector final : public window::event_listener {
     public:
         struct mouse_event {
+            window& event_window;
             v2f screen_point{v2f::zero()};
             mouse_event(
+                window& w,
                 const v2f& screen_point)
-            : screen_point(screen_point) {}
+            : event_window(w)
+            , screen_point(screen_point) {}
         };
 
         struct mouse_move_event : mouse_event {
             mouse_move_event(
+                window& w,
                 const v2f& screen_point)
-            : mouse_event(screen_point) {}
+            : mouse_event(w, screen_point) {}
         };
 
         struct mouse_scroll_event : mouse_event {
             v2f delta{v2f::zero()};
             mouse_scroll_event(
+                window& w,
                 const v2f& screen_point,
                 const v2f& delta)
-            : mouse_event(screen_point)
+            : mouse_event(w, screen_point)
             , delta(delta) {}
         };
 
@@ -38,10 +43,11 @@ namespace e2d::touch_system_impl
             mouse_button button{mouse_button::unknown};
             mouse_button_action action{mouse_button_action::unknown};
             mouse_button_event(
+                window& w,
                 const v2f& screen_point,
                 mouse_button button,
                 mouse_button_action action)
-            : mouse_event(screen_point)
+            : mouse_event(w, screen_point)
             , button(button)
             , action(action) {}
         };
@@ -52,7 +58,7 @@ namespace e2d::touch_system_impl
             mouse_button_event>;
         using events = vector<event>;
     public:
-        collector(input& i);
+        collector(input& i, window& w);
 
         void clear() noexcept;
 
@@ -75,6 +81,7 @@ namespace e2d::touch_system_impl
             mouse_button_action action) noexcept final;
     private:
         input& input_;
+        window& window_;
         vector<event> events_;
     };
 }

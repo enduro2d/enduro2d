@@ -10,6 +10,25 @@
 
 namespace e2d::touch_system_impl
 {
+    struct hovering_info {
+        gobject target;
+        gobject camera;
+        hovering_info(gobject target, gobject camera)
+        : target(std::move(target))
+        , camera(std::move(camera)) {}
+    };
+
+    struct dragging_info {
+        gobject target;
+        gobject camera;
+        dragging_info(gobject target, gobject camera)
+        : target(std::move(target))
+        , camera(std::move(camera)) {}
+    };
+
+    using hovering_info_opt = std::optional<hovering_info>;
+    using dragging_info_opt = std::optional<dragging_info>;
+
     class dispatcher final {
     public:
         dispatcher() = default;
@@ -18,6 +37,7 @@ namespace e2d::touch_system_impl
             collector& collector,
             ecs::registry& owner);
     private:
-        gobject last_target_;
+        hovering_info_opt hovering_;
+        dragging_info_opt dragging_;
     };
 }

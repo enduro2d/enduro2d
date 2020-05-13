@@ -13,6 +13,56 @@ namespace
     using namespace e2d;
     using namespace e2d::touch_system_impl;
 
+    std::pair<v2f, bool> screen_to_world_point(
+        const gobject& input_camera,
+        const collector::mouse_event& event)
+    {
+        if ( !input_camera || !input_camera.component<camera>() ) {
+            return {v2f::zero(), false};
+        }
+
+        const camera& cam = *input_camera.component<camera>();
+
+        const v2f& mouse_p = math::normalized_to_point(
+            b2f(event.event_window.framebuffer_size().cast_to<f32>()),
+            math::point_to_normalized(
+                b2f(event.event_window.real_size().cast_to<f32>()),
+                event.screen_point));
+
+        const m4f& cam_vp =
+            cam.view() * cam.projection();
+
+        const b2f& cam_viewport = b2f(
+            cam.viewport().position * event.event_window.framebuffer_size().cast_to<f32>(),
+            cam.viewport().size * event.event_window.framebuffer_size().cast_to<f32>());
+
+        const auto [inv_cam_vp, inv_cam_vp_success] = math::inversed(cam_vp, 0.f);
+        if ( !inv_cam_vp_success ) {
+            return {v2f::zero(), false};
+        }
+
+        const auto& [world_point, world_point_success] = math::unproject(
+            v3f(mouse_p, 0.f),
+            inv_cam_vp,
+            cam_viewport);
+
+        return std::make_pair(v2f(world_point), world_point_success);
+    }
+}
+
+namespace
+{
+    using namespace e2d;
+    using namespace e2d::touch_system_impl;
+
+    void apply_event(
+        gobject target,
+        const touchable_events::mouse_drag_evt& event)
+    {
+        target.component<events<touchable_events::event>>().ensure()
+            .add(event);
+    }
+
     void apply_event(
         gobject target,
         const touchable_events::mouse_move_evt& event)
@@ -34,12 +84,6 @@ namespace
             break;
         case touchable_events::mouse_hover_evt::types::out:
             target.component<touchable::hover_out>().ensure();
-            break;
-        case touchable_events::mouse_hover_evt::types::enter:
-            target.component<touchable::hover_enter>().ensure();
-            break;
-        case touchable_events::mouse_hover_evt::types::leave:
-            target.component<touchable::hover_leave>().ensure();
             break;
         default:
             E2D_ASSERT_MSG(false, "unexpected mouse hover event type");
@@ -88,7 +132,7 @@ namespace
     using namespace e2d;
     using namespace e2d::touch_system_impl;
 
-    gobject find_event_target(const ecs::registry& owner) {
+    gobject find_current_target(const ecs::registry& owner) {
         static thread_local vector<std::tuple<
             ecs::const_entity,
             scene,
@@ -239,79 +283,134 @@ namespace
     using namespace e2d;
     using namespace e2d::touch_system_impl;
 
-    void process_event(
-        gobject target,
+    hovering_info_opt process_hover_target(
         ecs::registry& owner,
+        gobject current_target,
+        hovering_info_opt hovering,
+        dragging_info_opt dragging)
+    {
+        E2D_UNUSED(owner, dragging);
+        using namespace touchable_events;
+
+        if ( gobject last_target = hovering ? hovering->target : gobject();
+            last_target != current_target )
+        {
+            if ( last_target ) {
+                dispatch_event(last_target, mouse_hover_evt(
+                    last_target,
+                    mouse_hover_evt::types::out));
+
+                last_target.component<touchable::hovering>().remove();
+            }
+
+            if ( current_target ) {
+                const bool captured = dispatch_event(current_target, mouse_hover_evt(
+                    current_target,
+                    mouse_hover_evt::types::over));
+
+                if ( captured ) {
+                    current_target.component<touchable::hovering>().ensure();
+                }
+            }
+        }
+
+        const_gcomponent<touchable_under_mouse> current_target_under_mouse{current_target};
+        return current_target_under_mouse && current_target_under_mouse->input_camera
+            ? std::make_optional<hovering_info>(
+                current_target,
+                current_target_under_mouse->input_camera)
+            : std::nullopt;
+    }
+}
+
+namespace
+{
+    using namespace e2d;
+    using namespace e2d::touch_system_impl;
+
+    void process_hovering_target_event(
+        ecs::registry& owner,
+        const hovering_info_opt& hovering,
+        const dragging_info_opt& dragging,
         const collector::mouse_move_event& event)
     {
-        E2D_UNUSED(owner, event);
+        E2D_UNUSED(owner, dragging, event);
 
-        const_gcomponent<touchable_under_mouse> under_mouse{target};
+        const_gcomponent<touchable_under_mouse> under_mouse = hovering
+            ? hovering->target
+            : const_gcomponent<touchable_under_mouse>();
+
         if ( !under_mouse ) {
             return;
         }
 
         dispatch_event(
-            target,
+            hovering->target,
             touchable_events::mouse_move_evt(
-                target,
+                hovering->target,
                 under_mouse->local_point,
                 under_mouse->world_point));
     }
 
-    void process_event(
-        gobject target,
+    void process_hovering_target_event(
         ecs::registry& owner,
+        const hovering_info_opt& hovering,
+        const dragging_info_opt& dragging,
         const collector::mouse_scroll_event& event)
     {
-        E2D_UNUSED(owner);
+        E2D_UNUSED(owner, dragging);
+        using namespace touchable_events;
 
-        const_gcomponent<touchable_under_mouse> under_mouse{target};
+        const_gcomponent<touchable_under_mouse> under_mouse = hovering
+            ? hovering->target
+            : const_gcomponent<touchable_under_mouse>();
+
         if ( !under_mouse ) {
             return;
         }
 
         dispatch_event(
-            target,
-            touchable_events::mouse_scroll_evt(
-                target,
+            hovering->target,
+            mouse_scroll_evt(
+                hovering->target,
                 event.delta,
                 under_mouse->local_point,
                 under_mouse->world_point));
     }
 
-    void process_event(
-        gobject target,
+    void process_hovering_target_event(
         ecs::registry& owner,
+        const hovering_info_opt& hovering,
+        const dragging_info_opt& dragging,
         const collector::mouse_button_event& event)
     {
+        E2D_UNUSED(owner, dragging);
+        using namespace touchable_events;
+
+        gobject current_target = hovering ? hovering->target : gobject();
+        const_gcomponent<touchable_under_mouse> under_mouse{current_target};
+
         const auto make_mouse_button_evt = [
             &event,
-            &target
-        ](touchable_events::mouse_button_evt::types type){
-            touchable_under_mouse& under_mouse =
-                *target.component<touchable_under_mouse>();
-
-            return touchable_events::mouse_button_evt(
-                target,
+            &under_mouse,
+            &current_target
+        ](mouse_button_evt::types type){
+            return mouse_button_evt(
+                current_target,
                 type,
                 event.button,
-                under_mouse.local_point,
-                under_mouse.world_point);
+                under_mouse->local_point,
+                under_mouse->world_point);
         };
 
         if ( event.action == mouse_button_action::press ) {
-            const_gcomponent<touchable_under_mouse> under_mouse{target};
-
             if ( under_mouse ) {
-                using namespace touchable_events;
-
                 const bool captured = dispatch_event(
-                    target,
+                    current_target,
                     make_mouse_button_evt(mouse_button_evt::types::pressed));
 
                 if ( captured && event.button == mouse_button::left ) {
-                    target.component<touchable::pushing>().ensure();
+                    current_target.component<touchable::pushing>().ensure();
                 }
             }
         }
@@ -321,19 +420,15 @@ namespace
                 owner.remove_all_components<touchable::pushing>();
             });
 
-            const_gcomponent<touchable_under_mouse> under_mouse{target};
-
             if ( under_mouse ) {
-                using namespace touchable_events;
-
                 const bool captured = dispatch_event(
-                    target,
+                    current_target,
                     make_mouse_button_evt(mouse_button_evt::types::released));
 
                 if ( captured && event.button == mouse_button::left ) {
-                    if ( target.component<touchable::pushing>() ) {
+                    if ( current_target.component<touchable::pushing>() ) {
                         dispatch_event(
-                            target,
+                            current_target,
                             make_mouse_button_evt(mouse_button_evt::types::clicked));
                     }
                 }
@@ -347,92 +442,110 @@ namespace
     using namespace e2d;
     using namespace e2d::touch_system_impl;
 
-    void process_new_hover_target(
-        gobject target,
-        gobject last_target,
-        ecs::registry& owner)
+    dragging_info_opt process_dragging_target_event(
+        ecs::registry& owner,
+        hovering_info_opt hovering,
+        dragging_info_opt dragging,
+        const collector::mouse_move_event& event)
     {
-        struct touchable_last_hover final {};
-        struct touchable_next_hover final {};
+        E2D_UNUSED(owner, hovering);
+        using namespace touchable_events;
 
-        E2D_DEFER([&owner](){
-            owner.remove_all_components<touchable_next_hover>();
-        });
+        if ( !dragging || !dragging->target || !dragging->camera ) {
+            return std::nullopt;
+        }
 
-        if ( target ) {
-            if ( auto target_n = target.component<actor>()->node() ) {
-                nodes::for_extracted_components_from_parents<touchable>(target_n, [
-                ](const const_gcomponent<touchable>& parent){
-                    const bool parent_disabled = ecs::exists_any<
-                        disabled<actor>,
-                        disabled<touchable>
-                    >()(parent.owner().raw_entity());
+        const auto& [world_point, world_point_success] = screen_to_world_point(
+            dragging->camera,
+            event);
 
-                    if ( !parent_disabled ) {
-                        parent.owner().component<touchable_next_hover>().ensure();
+        if ( !world_point_success ) {
+            return std::nullopt;
+        }
+
+        const_gcomponent<actor> dragging_target_a{dragging->target};
+        if ( !dragging_target_a || !dragging_target_a->node() ) {
+            return std::nullopt;
+        }
+
+        v2f local_point = v2f(dragging_target_a->node()->world_to_local(
+            v4f(world_point, 0.f, 1.f)));
+
+        dispatch_event(dragging->target, mouse_drag_evt(
+            dragging->target,
+            mouse_drag_evt::types::move,
+            local_point,
+            world_point));
+
+        return dragging;
+    }
+
+    dragging_info_opt process_dragging_target_event(
+        ecs::registry& owner,
+        hovering_info_opt hovering,
+        dragging_info_opt dragging,
+        const collector::mouse_scroll_event& event)
+    {
+        E2D_UNUSED(owner, hovering, dragging, event);
+        return dragging;
+    }
+
+    dragging_info_opt process_dragging_target_event(
+        ecs::registry& owner,
+        hovering_info_opt hovering,
+        dragging_info_opt dragging,
+        const collector::mouse_button_event& event)
+    {
+        E2D_UNUSED(hovering);
+        using namespace touchable_events;
+
+        if ( event.action == mouse_button_action::press ) {
+            gobject current_target = hovering ? hovering->target : gobject();
+            const_gcomponent<touchable_under_mouse> under_mouse{current_target};
+
+            if ( under_mouse ) {
+                const bool captured = dispatch_event(current_target, mouse_drag_evt(
+                    current_target,
+                    mouse_drag_evt::types::start,
+                    under_mouse->local_point,
+                    under_mouse->world_point));
+
+                if ( captured && event.button == mouse_button::left ) {
+                    current_target.component<touchable::dragging>().ensure();
+                    dragging = std::make_optional<dragging_info>(
+                        current_target,
+                        under_mouse->input_camera);
+                }
+            }
+        }
+
+        if ( event.action == mouse_button_action::release ) {
+            E2D_DEFER([&owner, &dragging](){
+                dragging.reset();
+                owner.remove_all_components<touchable::dragging>();
+            });
+
+            if ( dragging && dragging->target && dragging->camera ) {
+                const auto& [world_point, world_point_success] = screen_to_world_point(
+                    dragging->camera,
+                    event);
+
+                if ( world_point_success ) {
+                    const_gcomponent<actor> dragging_target_a{dragging->target};
+                    if ( dragging_target_a && dragging_target_a->node() ) {
+                        v2f local_point = v2f(dragging_target_a->node()->world_to_local(
+                            v4f(world_point, 0.f, 1.f)));
+                        dispatch_event(dragging->target, mouse_drag_evt(
+                            dragging->target,
+                            mouse_drag_evt::types::end,
+                            local_point,
+                            world_point));
                     }
-                }, nodes::options()
-                    .recursive(true)
-                    .include_root(true));
-            }
-        }
-
-        owner.for_joined_components<touchable, actor>([
-        ](ecs::entity e, const touchable&, const actor& a){
-            using namespace touchable_events;
-
-            const auto need_hover_leave =
-                ecs::exists<touchable_last_hover>() &&
-                !ecs::exists<touchable_next_hover>();
-
-            if ( need_hover_leave(e) && a.node() ) {
-                dispatch_event(
-                    a.node()->owner(),
-                    mouse_hover_evt(
-                        a.node()->owner(),
-                        mouse_hover_evt::types::leave));
-
-                e.remove_component<touchable_last_hover>();
-            }
-
-            const auto need_hover_enter =
-                !ecs::exists<touchable_last_hover>() &&
-                ecs::exists<touchable_next_hover>();
-
-            if ( need_hover_enter(e) && a.node() ) {
-                const bool captured = dispatch_event(
-                    a.node()->owner(),
-                    mouse_hover_evt(
-                        a.node()->owner(),
-                        mouse_hover_evt::types::enter));
-
-                if ( captured ) {
-                    e.ensure_component<touchable_last_hover>();
-                }
-            }
-        });
-
-        if ( target != last_target ) {
-            using namespace touchable_events;
-
-            if ( last_target ) {
-                dispatch_event(last_target, mouse_hover_evt(
-                    last_target,
-                    mouse_hover_evt::types::out));
-
-                last_target.component<touchable::hovering>().remove();
-            }
-
-            if ( target ) {
-                const bool captured = dispatch_event(target, mouse_hover_evt(
-                    target,
-                    mouse_hover_evt::types::over));
-
-                if ( captured ) {
-                    target.component<touchable::hovering>().ensure();
                 }
             }
         }
+
+        return dragging;
     }
 }
 
@@ -452,32 +565,34 @@ namespace e2d::touch_system_impl
 
         owner.remove_all_components<touchable::hover_over>();
         owner.remove_all_components<touchable::hover_out>();
-        owner.remove_all_components<touchable::hover_enter>();
-        owner.remove_all_components<touchable::hover_leave>();
 
         owner.for_each_component<events<touchable_events::event>>([
         ](const ecs::const_entity&, events<touchable_events::event>& es) {
             es.clear();
         });
 
-        gobject target = find_event_target(owner);
-        process_new_hover_target(target, last_target_, owner);
+        gobject target = find_current_target(owner);
 
-        if ( target != last_target_ ) {
-            last_target_ = target;
-        }
+        hovering_ = process_hover_target(
+            owner,
+            target,
+            hovering_,
+            dragging_);
 
         for ( const auto& event : collector ) {
             std::visit(utils::overloaded {
                 [](std::monostate){},
-                [&owner, &target](const collector::mouse_move_event& event){
-                    process_event(target, owner, event);
-                },
-                [&owner, &target](const collector::mouse_scroll_event& event){
-                    process_event(target, owner, event);
-                },
-                [&owner, &target](const collector::mouse_button_event& event){
-                    process_event(target, owner, event);
+                [this, &owner](const auto& event){
+                    process_hovering_target_event(
+                        owner,
+                        hovering_,
+                        dragging_,
+                        event);
+                    dragging_ = process_dragging_target_event(
+                        owner,
+                        hovering_,
+                        dragging_,
+                        event);
                 }
             }, event);
         }

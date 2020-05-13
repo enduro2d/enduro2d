@@ -174,17 +174,28 @@ namespace e2d::touch_system_impl
 
     void update_world_space_colliders_under_mouse(input& input, window& window, ecs::registry& owner) {
         owner.remove_all_components<touchable_under_mouse>();
-        owner.for_joined_components<camera::input, camera>([&input, &window, &owner](
+
+        const auto camera_comp = [](const auto& l, const auto& r) noexcept {
+            return std::get<camera>(l).depth() >= std::get<camera>(r).depth();
+        };
+
+        const auto camera_func = [&input, &window, &owner](
             const ecs::const_entity&,
             const camera::input&,
-            const camera& camera)
+            const camera& camera,
+            const actor& camera_a)
         {
-            const v2u& target_size = camera.target()
-                ? camera.target()->size()
-                : window.framebuffer_size();
+            if ( camera.target() ) {
+                return;
+            }
+
+            const gobject camera_go = camera_a.node() ? camera_a.node()->owner() : gobject();
+            if ( !camera_go ) {
+                return;
+            }
 
             const v2f& mouse_p = math::normalized_to_point(
-                b2f(target_size.cast_to<f32>()),
+                b2f(window.framebuffer_size().cast_to<f32>()),
                 math::point_to_normalized(
                     b2f(window.real_size().cast_to<f32>()),
                     input.mouse().cursor_pos()));
@@ -193,32 +204,53 @@ namespace e2d::touch_system_impl
                 camera.view() * camera.projection();
 
             const b2f& camera_viewport = b2f(
-                camera.viewport().position * target_size.cast_to<f32>(),
-                camera.viewport().size * target_size.cast_to<f32>());
+                camera.viewport().position * window.framebuffer_size().cast_to<f32>(),
+                camera.viewport().size * window.framebuffer_size().cast_to<f32>());
 
             if ( !math::inside(camera_viewport, mouse_p) ) {
                 return;
             }
 
-            impl::update_world_space_colliders_under_mouse<world_space_rect_collider>(
-                owner,
-                mouse_p,
-                camera_vp,
-                camera_viewport);
+            const auto under_mouse_func = [
+                &camera_go
+            ](ecs::entity e, const v2f& local_point, const v2f& world_point){
+                if ( e.exists_component<touchable_under_mouse>() ) {
+                    return;
+                }
+                e.ensure_component<touchable_under_mouse>(
+                    camera_go,
+                    local_point,
+                    world_point);
+            };
 
-            impl::update_world_space_colliders_under_mouse<world_space_circle_collider>(
+            impl::for_world_space_colliders_under_mouse<world_space_rect_collider>(
                 owner,
                 mouse_p,
                 camera_vp,
-                camera_viewport);
+                camera_viewport,
+                under_mouse_func);
 
-            impl::update_world_space_colliders_under_mouse<world_space_polygon_collider>(
+            impl::for_world_space_colliders_under_mouse<world_space_circle_collider>(
                 owner,
                 mouse_p,
                 camera_vp,
-                camera_viewport);
-        }, !ecs::exists_any<
-            disabled<actor>,
-            disabled<camera>>());
+                camera_viewport,
+                under_mouse_func);
+
+            impl::for_world_space_colliders_under_mouse<world_space_polygon_collider>(
+                owner,
+                mouse_p,
+                camera_vp,
+                camera_viewport,
+                under_mouse_func);
+        };
+
+        ecsex::for_extracted_sorted_components<camera::input, camera, actor>(
+            owner,
+            camera_comp,
+            camera_func,
+            !ecs::exists_any<
+                disabled<actor>,
+                disabled<camera>>());
     }
 }

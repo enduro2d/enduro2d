@@ -167,34 +167,6 @@ namespace e2d
         ImGui::Separator();
 
         //
-        // hover_enter/hover_leave
-        //
-
-        if ( bool hover_enter = c.component<touchable::hover_enter>().exists();
-            ImGui::Checkbox("hover_enter", &hover_enter) )
-        {
-            if ( hover_enter ) {
-                c.component<touchable::hover_enter>().ensure();
-            } else {
-                c.component<touchable::hover_enter>().remove();
-            }
-        }
-
-        ImGui::SameLine();
-
-        if ( bool hover_leave = c.component<touchable::hover_leave>().exists();
-            ImGui::Checkbox("hover_leave", &hover_leave) )
-        {
-            if ( hover_leave ) {
-                c.component<touchable::hover_leave>().ensure();
-            } else {
-                c.component<touchable::hover_leave>().remove();
-            }
-        }
-
-        ImGui::Separator();
-
-        //
         // bubbling/capturing
         //
 

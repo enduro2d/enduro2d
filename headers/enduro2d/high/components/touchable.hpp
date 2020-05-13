@@ -38,8 +38,6 @@ namespace e2d
 
         class hover_over final {};
         class hover_out final {};
-        class hover_enter final {};
-        class hover_leave final {};
     public:
         touchable() = default;
 
@@ -107,14 +105,6 @@ namespace e2d
     template <>
     class factory_loader<touchable::hover_out> final
     : public empty_factory_loader<touchable::hover_out> {};
-
-    template <>
-    class factory_loader<touchable::hover_enter> final
-    : public empty_factory_loader<touchable::hover_enter> {};
-
-    template <>
-    class factory_loader<touchable::hover_leave> final
-    : public empty_factory_loader<touchable::hover_leave> {};
 
     template <>
     class factory_loader<events<touchable_events::event>> final
@@ -223,14 +213,12 @@ namespace e2d::touchable_events
     public:
         ENUM_HPP_CLASS_DECL(types, u8,
             (over)
-            (out)
-            (enter)
-            (leave))
+            (out))
     public:
         mouse_hover_evt(
             gobject target,
             types type)
-        : base_evt(target, type == types::over || type == types::out)
+        : base_evt(target, true)
         , type_(type) {}
 
         [[nodiscard]] types type() const noexcept { return type_; }

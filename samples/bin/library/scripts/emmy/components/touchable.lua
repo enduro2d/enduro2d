@@ -31,12 +31,6 @@ local touchable = {
     hover_out = false,
 
     ---@type boolean
-    hover_enter = false,
-
-    ---@type boolean
-    hover_leave = false,
-
-    ---@type boolean
     bubbling = true,
 
     ---@type boolean

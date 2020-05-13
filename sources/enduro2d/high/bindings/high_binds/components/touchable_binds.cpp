@@ -154,32 +154,6 @@ namespace e2d::bindings::high
                 }
             ),
 
-            "hover_enter", sol::property(
-                [](const gcomponent<touchable>& c) -> bool {
-                    return c.component<touchable::hover_enter>().exists();
-                },
-                [](gcomponent<touchable>& c, bool yesno){
-                    if ( yesno ) {
-                        c.component<touchable::hover_enter>().ensure();
-                    } else {
-                        c.component<touchable::hover_enter>().remove();
-                    }
-                }
-            ),
-
-            "hover_leave", sol::property(
-                [](const gcomponent<touchable>& c) -> bool {
-                    return c.component<touchable::hover_leave>().exists();
-                },
-                [](gcomponent<touchable>& c, bool yesno){
-                    if ( yesno ) {
-                        c.component<touchable::hover_leave>().ensure();
-                    } else {
-                        c.component<touchable::hover_leave>().remove();
-                    }
-                }
-            ),
-
             "bubbling", sol::property(
                 [](const gcomponent<touchable>& c) -> bool {
                     return c->bubbling();

@@ -81,12 +81,13 @@ namespace e2d::touch_system_impl
             const m4f& camera_vp,
             const b2f& camera_viewport);
 
-        template < typename WorldSpaceCollider >
-        void update_world_space_colliders_under_mouse(
+        template < typename WorldSpaceCollider, typename F >
+        void for_world_space_colliders_under_mouse(
             ecs::registry& owner,
             const v2f& mouse_p,
             const m4f& camera_vp,
-            const b2f& camera_viewport)
+            const b2f& camera_viewport,
+            F&& f)
         {
             using world_space_collider_t = WorldSpaceCollider;
             using local_space_collider_t = typename WorldSpaceCollider::local_space_collider_t;
@@ -100,7 +101,8 @@ namespace e2d::touch_system_impl
                 &mouse_p = mouse_p,
                 &camera_vp = camera_vp,
                 &inv_camera_vp = inv_camera_vp,
-                &camera_viewport = camera_viewport
+                &camera_viewport = camera_viewport,
+                &f = f
             ](ecs::entity e, const touchable&, const world_space_collider_t& c){
                 if ( is_world_space_collider_under_mouse(c, mouse_p, camera_vp, camera_viewport) ) {
                     const auto& [world_point, world_point_success] = math::unproject(
@@ -119,11 +121,9 @@ namespace e2d::touch_system_impl
                         return;
                     }
 
-                    touchable_under_mouse& under_mouse_c
-                        = e.ensure_component<touchable_under_mouse>();
+                    const v2f& local_point = v2f(v4f(world_point, 1.f) * world_to_local);
 
-                    under_mouse_c.world_point = v2f(world_point);
-                    under_mouse_c.local_point = v2f(v4f(world_point, 1.f) * world_to_local);
+                    std::invoke(f, e, v2f(local_point), v2f(world_point));
                 }
             }, !ecs::exists_any<
                 disabled<touchable>,

@@ -25,8 +25,16 @@ namespace e2d::touch_system_impl
 namespace e2d::touch_system_impl
 {
     struct touchable_under_mouse final {
+        gobject input_camera;
         v2f local_point{v2f::zero()};
         v2f world_point{v2f::zero()};
+        touchable_under_mouse(
+            gobject input_camera,
+            const v2f& local_point,
+            const v2f& world_point)
+        : input_camera(input_camera)
+        , local_point(local_point)
+        , world_point(world_point) {}
     };
 
     struct world_space_collider_base {

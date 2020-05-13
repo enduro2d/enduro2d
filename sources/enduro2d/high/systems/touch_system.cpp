@@ -28,7 +28,7 @@ namespace e2d
         internal_state(input& i, window& w)
         : input_(i)
         , window_(w)
-        , collector_(window_.register_event_listener<collector>(i)) {}
+        , collector_(window_.register_event_listener<collector>(i, w)) {}
 
         ~internal_state() noexcept {
             window_.unregister_event_listener(collector_);
