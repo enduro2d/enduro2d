@@ -1,0 +1,59 @@
+{
+    "prefab" : "wsprite_prefab.json",
+    "components" : {
+        "named" : {
+            "name" : "scrollbar_v"
+        },
+        "scrollbar" : {
+            "direction" : "column"
+        },
+        "rect_collider" : {
+            "size" : [20,300],
+            "offset" : [10,150]
+        },
+        "sprite_renderer" : {
+            "tint" : [255,0,0,255],
+            "sprite" : "../sprites/panel_sprite.json"
+        },
+        "touchable" : {
+        },
+        "widget" : {
+            "size" : [20,300]
+        }
+    },
+    "children" : [{
+        "prefab" : "widget_prefab.json",
+        "components" : {
+            "named" : {
+                "name" : "handle_area"
+            },
+            "actor" : {
+                "translation" : [0,25]
+            },
+            "widget" : {
+                "size" : [20,250]
+            }
+        },
+        "children" : [{
+            "components" : {
+                "named" : {
+                    "name" : "handle"
+                },
+                "scrollbar_handle" : {
+                }
+            },
+            "children" : [{
+                "prefab" : "button_prefab.json",
+                "components" : {
+                    "actor" : {
+                        "translation" : [0,-25],
+                        "scale" : [0.4,1]
+                    },
+                    "button" : {
+                        "style" : "../styles/handle_style.json"
+                    }
+                }
+            }]
+        }]
+    }]
+}

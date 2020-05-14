@@ -49,6 +49,7 @@
 #include <enduro2d/high/systems/layout_system.hpp>
 #include <enduro2d/high/systems/render_system.hpp>
 #include <enduro2d/high/systems/script_system.hpp>
+#include <enduro2d/high/systems/scrollbar_system.hpp>
 #include <enduro2d/high/systems/slider_system.hpp>
 #include <enduro2d/high/systems/spine_system.hpp>
 #include <enduro2d/high/systems/toggle_system.hpp>
@@ -98,6 +99,7 @@ namespace
                 .feature<struct widget_feature>(ecs::feature()
                     .add_system<button_system>()
                     .add_system<toggle_system>()
+                    .add_system<scrollbar_system>()
                     .add_system<slider_system>()
                     .add_system<widget_system>()
                     .add_system<wsprite_system>())

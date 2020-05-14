@@ -103,5 +103,19 @@
                 "translation" : [450,-100]
             }
         }
+    },{
+        "prefab" : "../prefabs/scrollbar_h_prefab.json",
+        "components" : {
+            "actor" : {
+                "translation" : [0,-300]
+            }
+        }
+    },{
+        "prefab" : "../prefabs/scrollbar_v_prefab.json",
+        "components" : {
+            "actor" : {
+                "translation" : [300,-300]
+            }
+        }
     }]
 }

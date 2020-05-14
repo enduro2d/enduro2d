@@ -76,6 +76,7 @@
 #include "systems/layout_system.hpp"
 #include "systems/render_system.hpp"
 #include "systems/script_system.hpp"
+#include "systems/scrollbar_system.hpp"
 #include "systems/slider_system.hpp"
 #include "systems/spine_system.hpp"
 #include "systems/toggle_system.hpp"

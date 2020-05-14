@@ -96,6 +96,7 @@ namespace e2d
     class layout_system;
     class render_system;
     class script_system;
+    class scrollbar_system;
     class slider_system;
     class spine_system;
     class toggle_system;
