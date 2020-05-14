@@ -8,8 +8,8 @@
             "direction" : "row"
         },
         "rect_collider" : {
-            "size" : [300,50],
-            "offset" : [150,25]
+            "size" : [300,30],
+            "offset" : [150,5]
         },
         "sprite_renderer" : {
             "tint" : [255,0,0,255],
@@ -18,7 +18,7 @@
         "touchable" : {
         },
         "widget" : {
-            "size" : [300,50]
+            "size" : [300,10]
         }
     },
     "children" : [{
@@ -28,10 +28,10 @@
                 "name" : "handle_area"
             },
             "actor" : {
-                "translation" : [12.5,0]
+                "translation" : [5,-10]
             },
             "widget" : {
-                "size" : [275,50]
+                "size" : [290,30]
             }
         },
         "children" : [{
@@ -46,8 +46,8 @@
                 "prefab" : "button_prefab.json",
                 "components" : {
                     "actor" : {
-                        "translation" : [-12.5,0],
-                        "scale" : [0.5,1]
+                        "translation" : [-5,0],
+                        "scale" : [0.2,0.6]
                     },
                     "button" : {
                         "style" : "../styles/handle_style.json"

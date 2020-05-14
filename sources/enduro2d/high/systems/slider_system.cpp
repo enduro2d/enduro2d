@@ -18,36 +18,95 @@ namespace
 {
     using namespace e2d;
 
+    struct slider_drag_offset {
+        v2f local_offset{v2f::zero()};
+    };
+
     void update_slider_inputs(ecs::registry& owner) {
-        owner.for_joined_components<slider, widget, events<touchable_events::event>, actor>([](
+        owner.for_joined_components<slider, events<touchable_events::event>, actor>([](
             const ecs::const_entity&,
             slider& s,
-            widget& w,
             const events<touchable_events::event>& events,
             const actor& a)
         {
+            if ( events.empty() ) {
+                return;
+            }
+
+            gcomponent<slider_handle> handle_h =
+                nodes::find_component_from_children<slider_handle>(
+                    a.node(),
+                    nodes::options().recursive(true));
+
+            if ( !handle_h ) {
+                return;
+            }
+
+            gcomponent<actor> handle_a = handle_h.component<actor>();
+            if ( !handle_a || !handle_a->node() ) {
+                return;
+            }
+
+            gcomponent<widget> handle_area_w = handle_a->node()->parent()
+                ? handle_a->node()->parent()->owner().component<widget>()
+                : gcomponent<widget>();
+
+            if ( !handle_area_w ) {
+                return;
+            }
+
+            gcomponent<actor> handle_area_a = handle_area_w.component<actor>();
+            if ( !handle_area_a || !handle_area_a->node() ) {
+                return;
+            }
+
             for ( const touchable_events::event& evt : events.get() ) {
-                if ( auto mouse_evt = std::get_if<touchable_events::mouse_drag_evt>(&evt);
-                    mouse_evt &&
-                    a.node() &&
-                    w.size().x > 0.f &&
-                    w.size().y > 0.f )
-                {
-                    const v2f local_point = v2f(a.node()->world_to_local(
+
+                //
+                // mouse_drag_evt
+                //
+
+                if ( auto mouse_evt = std::get_if<touchable_events::mouse_drag_evt>(&evt) ) {
+
+                    if ( mouse_evt->type() == touchable_events::mouse_drag_evt::types::start ) {
+                        const gobject target = mouse_evt->target();
+                        const const_gcomponent<actor> target_a{target};
+                        const const_node_iptr target_n = target_a ? target_a->node() : const_node_iptr();
+
+                        const v2f local_offset = target_n && target_n->has_parent_recursive(handle_a->node())
+                            ? v2f(handle_a->node()->world_to_local(v4f(mouse_evt->world_point(), 0.f, 1.f)))
+                            : v2f::zero();
+
+                        handle_a.component<slider_drag_offset>().ensure().local_offset = local_offset;
+                    }
+
+                    const v2f local_point = v2f(handle_area_a->node()->world_to_local(
                         v4f(mouse_evt->world_point(), 0.f, 1.f)));
+
+                    const v2f local_offset = handle_a.component<slider_drag_offset>()
+                        ? handle_a.component<slider_drag_offset>()->local_offset
+                        : v2f::zero();
 
                     switch ( s.direction() ) {
                     case slider::directions::row:
-                        s.normalized_value(local_point.x / w.size().x);
+                        if ( const f32 sw = handle_area_w->size().x; sw > 0.f ) {
+                            s.normalized_value((local_point.x - local_offset.x) / sw);
+                        }
                         break;
                     case slider::directions::row_reversed:
-                        s.normalized_value(1.f - local_point.x / w.size().x);
+                        if ( const f32 sw = handle_area_w->size().x; sw > 0.f ) {
+                            s.normalized_value(1.f - (local_point.x - local_offset.x) / sw);
+                        }
                         break;
                     case slider::directions::column:
-                        s.normalized_value(local_point.y / w.size().y);
+                        if ( const f32 sh = handle_area_w->size().y; sh > 0.f ) {
+                            s.normalized_value((local_point.y - local_offset.y) / sh);
+                        }
                         break;
                     case slider::directions::column_reversed:
-                        s.normalized_value(1.f - local_point.y / w.size().y);
+                        if ( const f32 sh = handle_area_w->size().y; sh > 0.f ) {
+                            s.normalized_value(1.f - (local_point.y - local_offset.y) / sh);
+                        }
                         break;
                     default:
                         E2D_ASSERT_MSG(false, "unexpected slider direction type");
@@ -55,6 +114,10 @@ namespace
                     }
 
                 }
+
+                //
+                // mouse_scroll_evt
+                //
 
                 if ( auto mouse_evt = std::get_if<touchable_events::mouse_scroll_evt>(&evt);
                     mouse_evt &&
@@ -91,51 +154,51 @@ namespace
             const slider& s,
             const actor& a)
         {
-            gcomponent<slider_handle> slider_h =
+            gcomponent<slider_handle> handle_h =
                 nodes::find_component_from_children<slider_handle>(
                     a.node(),
                     nodes::options().recursive(true));
 
-            if ( !slider_h ) {
+            if ( !handle_h ) {
                 return;
             }
 
-            gcomponent<actor> slider_h_a = slider_h.owner().component<actor>();
-            if ( !slider_h_a || !slider_h_a->node() ) {
+            gcomponent<actor> handle_a = handle_h.component<actor>();
+            if ( !handle_a || !handle_a->node() ) {
                 return;
             }
 
-            gcomponent<widget> slider_h_area_w = slider_h_a->node()->parent()
-                ? slider_h_a->node()->parent()->owner().component<widget>()
+            gcomponent<widget> handle_area_w = handle_a->node()->parent()
+                ? handle_a->node()->parent()->owner().component<widget>()
                 : gcomponent<widget>();
 
-            if ( !slider_h_area_w ) {
+            if ( !handle_area_w ) {
                 return;
             }
 
             switch ( s.direction() ) {
             case slider::directions::row:
-                slider_h_a->node()->translation(
+                handle_a->node()->translation(
                     v2f::unit_x() *
-                    slider_h_area_w->size().x *
+                    handle_area_w->size().x *
                     s.normalized_value());
                 break;
             case slider::directions::row_reversed:
-                slider_h_a->node()->translation(
+                handle_a->node()->translation(
                     v2f::unit_x() *
-                    slider_h_area_w->size().x *
+                    handle_area_w->size().x *
                     (1.f - s.normalized_value()));
                 break;
             case slider::directions::column:
-                slider_h_a->node()->translation(
+                handle_a->node()->translation(
                     v2f::unit_y() *
-                    slider_h_area_w->size().y *
+                    handle_area_w->size().y *
                     s.normalized_value());
                 break;
             case slider::directions::column_reversed:
-                slider_h_a->node()->translation(
+                handle_a->node()->translation(
                     v2f::unit_y() *
-                    slider_h_area_w->size().y *
+                    handle_area_w->size().y *
                     (1.f - s.normalized_value()));
                 break;
             default:

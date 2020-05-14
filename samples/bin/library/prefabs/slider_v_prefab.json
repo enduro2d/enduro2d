@@ -8,8 +8,8 @@
             "direction" : "column"
         },
         "rect_collider" : {
-            "size" : [50,300],
-            "offset" : [25,150]
+            "size" : [30,300],
+            "offset" : [5,150]
         },
         "sprite_renderer" : {
             "tint" : [255,0,0,255],
@@ -18,7 +18,7 @@
         "touchable" : {
         },
         "widget" : {
-            "size" : [50,300]
+            "size" : [10,300]
         }
     },
     "children" : [{
@@ -28,10 +28,10 @@
                 "name" : "handle_area"
             },
             "actor" : {
-                "translation" : [0,12.5]
+                "translation" : [-10,5]
             },
             "widget" : {
-                "size" : [50,275]
+                "size" : [30,290]
             }
         },
         "children" : [{
@@ -46,8 +46,8 @@
                 "prefab" : "button_prefab.json",
                 "components" : {
                     "actor" : {
-                        "translation" : [0,-12.5],
-                        "scale" : [1,0.5]
+                        "translation" : [0,-5],
+                        "scale" : [0.6,0.2]
                     },
                     "button" : {
                         "style" : "../styles/handle_style.json"
