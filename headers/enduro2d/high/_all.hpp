@@ -55,6 +55,7 @@
 #include "components/toggle.hpp"
 #include "components/touchable.hpp"
 #include "components/widget.hpp"
+#include "components/wlabel.hpp"
 #include "components/wsprite.hpp"
 
 #include "resources/atlas.hpp"

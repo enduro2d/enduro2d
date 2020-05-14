@@ -75,6 +75,7 @@ namespace e2d
     class toggle;
     class touchable;
     class widget;
+    class wlabel;
     class wsprite;
 
     class atlas;

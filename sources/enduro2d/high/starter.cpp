@@ -38,6 +38,7 @@
 #include <enduro2d/high/components/toggle.hpp>
 #include <enduro2d/high/components/touchable.hpp>
 #include <enduro2d/high/components/widget.hpp>
+#include <enduro2d/high/components/wlabel.hpp>
 #include <enduro2d/high/components/wsprite.hpp>
 
 #include <enduro2d/high/systems/button_system.hpp>
@@ -250,6 +251,7 @@ namespace e2d
             .register_component<events<touchable_events::event>>("touchable.events")
             .register_component<widget>("widget")
             .register_component<widget::dirty>("widget.dirty")
+            .register_component<wlabel>("wlabel")
             .register_component<wsprite>("wsprite")
             ;
 
@@ -296,6 +298,7 @@ namespace e2d
             //.register_component<events<touchable_events::event>>("touchable.events")
             .register_component<widget>("widget")
             //.register_component<widget::dirty>("widget.dirty")
+            .register_component<wlabel>("wlabel")
             .register_component<wsprite>("wsprite")
             ;
 
