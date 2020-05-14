@@ -28,6 +28,8 @@
 #include <enduro2d/high/components/named.hpp>
 #include <enduro2d/high/components/renderer.hpp>
 #include <enduro2d/high/components/scene.hpp>
+#include <enduro2d/high/components/scrollbar.hpp>
+#include <enduro2d/high/components/scrollbar_handle.hpp>
 #include <enduro2d/high/components/slider.hpp>
 #include <enduro2d/high/components/slider_handle.hpp>
 #include <enduro2d/high/components/spine_player.hpp>
@@ -223,6 +225,8 @@ namespace e2d
             .register_component<named>("named")
             .register_component<renderer>("renderer")
             .register_component<scene>("scene")
+            .register_component<scrollbar>("scrollbar")
+            .register_component<scrollbar_handle>("scrollbar_handle")
             .register_component<slider>("slider")
             .register_component<slider_handle>("slider_handle")
             .register_component<spine_player>("spine_player")
@@ -267,6 +271,8 @@ namespace e2d
             .register_component<named>("named")
             .register_component<renderer>("renderer")
             .register_component<scene>("scene")
+            .register_component<scrollbar>("scrollbar")
+            .register_component<scrollbar_handle>("scrollbar_handle")
             .register_component<slider>("slider")
             .register_component<slider_handle>("slider_handle")
             .register_component<spine_player>("spine_player")

@@ -48,6 +48,12 @@ local gobject = {
     ---@type scene
     scene = nil,
 
+    ---@type scrollbar
+    scrollbar = nil,
+
+    ---@type scrollbar_handle
+    scrollbar_handle = nil,
+
     ---@type slider
     slider = nil,
 

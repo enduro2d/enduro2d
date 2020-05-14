@@ -19,6 +19,8 @@
 #include <enduro2d/high/components/named.hpp>
 #include <enduro2d/high/components/renderer.hpp>
 #include <enduro2d/high/components/scene.hpp>
+#include <enduro2d/high/components/scrollbar.hpp>
+#include <enduro2d/high/components/scrollbar_handle.hpp>
 #include <enduro2d/high/components/slider.hpp>
 #include <enduro2d/high/components/slider_handle.hpp>
 #include <enduro2d/high/components/spine_player.hpp>
@@ -60,6 +62,8 @@ namespace e2d::bindings::high
             "named", sol::property([](gobject& go){ return component_wrapper<named>{go}; }),
             "renderer", sol::property([](gobject& go){ return component_wrapper<renderer>{go}; }),
             "scene", sol::property([](gobject& go){ return component_wrapper<scene>{go}; }),
+            "scrollbar", sol::property([](gobject& go){ return component_wrapper<scrollbar>{go}; }),
+            "scrollbar_handle", sol::property([](gobject& go){ return component_wrapper<scrollbar_handle>{go}; }),
             "slider", sol::property([](gobject& go){ return component_wrapper<slider>{go}; }),
             "slider_handle", sol::property([](gobject& go){ return component_wrapper<slider_handle>{go}; }),
             "spine_player", sol::property([](gobject& go){ return component_wrapper<spine_player>{go}; }),

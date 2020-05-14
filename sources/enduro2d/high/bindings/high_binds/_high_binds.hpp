@@ -30,6 +30,8 @@ namespace e2d::bindings::high
     void bind_named(sol::state& l);
     void bind_renderer(sol::state& l);
     void bind_scene(sol::state& l);
+    void bind_scrollbar(sol::state& l);
+    void bind_scrollbar_handle(sol::state& l);
     void bind_slider(sol::state& l);
     void bind_slider_handle(sol::state& l);
     void bind_spine_player(sol::state& l);
@@ -64,6 +66,8 @@ namespace e2d::bindings
         high::bind_named(l);
         high::bind_renderer(l);
         high::bind_scene(l);
+        high::bind_scrollbar(l);
+        high::bind_scrollbar_handle(l);
         high::bind_slider(l);
         high::bind_slider_handle(l);
         high::bind_spine_player(l);

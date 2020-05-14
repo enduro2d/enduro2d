@@ -65,6 +65,8 @@ namespace e2d
     class named;
     class renderer;
     class scene;
+    class scrollbar;
+    class scrollbar_handle;
     class slider;
     class slider_handle;
     class spine_player;

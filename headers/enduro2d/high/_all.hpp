@@ -45,6 +45,8 @@
 #include "components/named.hpp"
 #include "components/renderer.hpp"
 #include "components/scene.hpp"
+#include "components/scrollbar.hpp"
+#include "components/scrollbar_handle.hpp"
 #include "components/slider.hpp"
 #include "components/slider_handle.hpp"
 #include "components/spine_player.hpp"
