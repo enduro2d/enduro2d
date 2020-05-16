@@ -52,6 +52,14 @@ namespace e2d::bindings::high
                     labels::change_tint(c, v);
                 }),
 
+            "wrap", sol::property(
+                [](const gcomponent<label>& c) -> label::wraps {
+                    return c->wrap();
+                },
+                [](gcomponent<label>& c, label::wraps v){
+                    labels::change_wrap(c, v);
+                }),
+
             "halign", sol::property(
                 [](const gcomponent<label>& c) -> label::haligns {
                     return c->halign();
@@ -84,14 +92,6 @@ namespace e2d::bindings::high
                     labels::change_tracking(c, v);
                 }),
 
-            "text_width", sol::property(
-                [](const gcomponent<label>& c) -> f32 {
-                    return c->text_width();
-                },
-                [](gcomponent<label>& c, f32 v){
-                    labels::change_text_width(c, v);
-                }),
-
             "glyph_dilate", sol::property(
                 [](const gcomponent<label>& c) -> f32 {
                     return c->glyph_dilate();
@@ -117,6 +117,15 @@ namespace e2d::bindings::high
                 })
         );
 
+    #define LABEL_WRAP_PAIR(x) {#x, label::wraps::x},
+        l["label"].get_or_create<sol::table>()
+        .new_enum<label::wraps>("wraps", {
+            LABEL_WRAP_PAIR(no_wrap)
+            LABEL_WRAP_PAIR(wrap_by_chars)
+            LABEL_WRAP_PAIR(wrap_by_spaces)
+        });
+    #undef LABEL_WRAP_PAIR
+
     #define LABEL_HALIGN_PAIR(x) {#x, label::haligns::x},
         l["label"].get_or_create<sol::table>()
         .new_enum<label::haligns>("haligns", {
@@ -132,7 +141,6 @@ namespace e2d::bindings::high
             LABEL_VALIGN_PAIR(top)
             LABEL_VALIGN_PAIR(center)
             LABEL_VALIGN_PAIR(bottom)
-            LABEL_VALIGN_PAIR(baseline)
         });
     #undef LABEL_VALIGN_PAIR
     }

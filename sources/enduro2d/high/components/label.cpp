@@ -16,16 +16,24 @@ namespace e2d
             "text" : { "type" : "string" },
             "font" : { "$ref": "#/common_definitions/address" },
             "tint" : { "$ref": "#/common_definitions/color" },
+            "wrap" : { "$ref": "#/definitions/wraps" },
             "halign" : { "$ref": "#/definitions/haligns" },
             "valign" : { "$ref": "#/definitions/valigns" },
             "leading" : { "type" : "number" },
             "tracking" : { "type" : "number" },
-            "text_width" : { "type" : "number" },
             "glyph_dilate" : { "type" : "number" },
             "outline_width" : { "type" : "number" },
             "outline_color" : { "$ref": "#/common_definitions/color" }
         },
         "definitions" : {
+            "wraps" : {
+                "type" : "string",
+                "enum" : [
+                    "no_wrap",
+                    "wrap_by_chars",
+                    "wrap_by_spaces"
+                ]
+            },
             "haligns" : {
                 "type" : "string",
                 "enum" : [
@@ -39,8 +47,7 @@ namespace e2d
                 "enum" : [
                     "top",
                     "center",
-                    "bottom",
-                    "baseline"
+                    "bottom"
                 ]
             }
         }
@@ -82,6 +89,15 @@ namespace e2d
             component.tint(tint);
         }
 
+        if ( ctx.root.HasMember("wrap") ) {
+            label::wraps wrap = component.wrap();
+            if ( !json_utils::try_parse_value(ctx.root["wrap"], wrap) ) {
+                the<debug>().error("LABEL: Incorrect formatting of 'wrap' property");
+                return false;
+            }
+            component.wrap(wrap);
+        }
+
         if ( ctx.root.HasMember("halign") ) {
             label::haligns halign = component.halign();
             if ( !json_utils::try_parse_value(ctx.root["halign"], halign) ) {
@@ -116,15 +132,6 @@ namespace e2d
                 return false;
             }
             component.tracking(tracking);
-        }
-
-        if ( ctx.root.HasMember("text_width") ) {
-            f32 text_width = component.text_width();
-            if ( !json_utils::try_parse_value(ctx.root["text_width"], text_width) ) {
-                the<debug>().error("LABEL: Incorrect formatting of 'text_width' property");
-                return false;
-            }
-            component.text_width(text_width);
         }
 
         if ( ctx.root.HasMember("glyph_dilate") ) {
@@ -172,32 +179,6 @@ namespace e2d
 
 namespace e2d
 {
-    const char* factory_loader<label::dirty>::schema_source = R"json({
-        "type" : "object",
-        "required" : [],
-        "additionalProperties" : false,
-        "properties" : {}
-    })json";
-
-    bool factory_loader<label::dirty>::operator()(
-        label::dirty& component,
-        const fill_context& ctx) const
-    {
-        E2D_UNUSED(component, ctx);
-        return true;
-    }
-
-    bool factory_loader<label::dirty>::operator()(
-        asset_dependencies& dependencies,
-        const collect_context& ctx) const
-    {
-        E2D_UNUSED(dependencies, ctx);
-        return true;
-    }
-}
-
-namespace e2d
-{
     const char* component_inspector<label>::title = ICON_FA_PARAGRAPH " label";
 
     void component_inspector<label>::operator()(gcomponent<label>& c) const {
@@ -227,6 +208,12 @@ namespace e2d
             labels::change_tint(c, color32(tint));
         }
 
+        if ( label::wraps wrap = c->wrap();
+            imgui_utils::show_enum_combo_box("wrap", &wrap) )
+        {
+            labels::change_wrap(c, wrap);
+        }
+
         if ( label::haligns halign = c->halign();
             imgui_utils::show_enum_combo_box("halign", &halign) )
         {
@@ -251,12 +238,6 @@ namespace e2d
             labels::change_tracking(c, tracking);
         }
 
-        if ( f32 text_width = c->text_width();
-            ImGui::DragFloat("text_width", &text_width, 1.f) )
-        {
-            labels::change_text_width(c, text_width);
-        }
-
         if ( f32 glyph_dilate = c->glyph_dilate();
             ImGui::SliderFloat("glyph_dilate", &glyph_dilate, -1.f, 1.f) )
         {
@@ -273,62 +254,6 @@ namespace e2d
             ImGui::ColorEdit4("outline_color", outline_color.data()) )
         {
             labels::change_outline_color(c, color32(outline_color));
-        }
-    }
-
-    void component_inspector<label>::operator()(
-        gcomponent<label>& c,
-        gizmos_context& ctx) const
-    {
-        if ( c->font() && c->text_width() > 0.f ) {
-            const f32 corner_height = 0.2f * c->font()->content().info().line_height;
-            const color32 line_color = ctx.selected() ? color32(255,255,255) : color32(127,127,127);
-            const color32 corner_color = ctx.selected() ? color32(0,255,0) : color32(0,127,0);
-
-            v2f ox = v2f::zero();
-            switch ( c->halign() ) {
-            case label::haligns::left:
-                ox = +0.5f * v2f::unit_x() * c->text_width();
-                break;
-            case label::haligns::center:
-                ox = v2f::zero();
-                break;
-            case label::haligns::right:
-                ox = -0.5f * v2f::unit_x() * c->text_width();
-                break;
-            default:
-                E2D_ASSERT_MSG(false, "unexpected label halign");
-                break;
-            }
-
-            v2f oy = v2f::zero();
-            switch ( c->valign() ) {
-            case label::valigns::top:
-                oy = -v2f::unit_y() * corner_height;
-                break;
-            case label::valigns::center:
-                oy = v2f::zero();
-                break;
-            case label::valigns::bottom:
-                oy = +v2f::unit_y() * corner_height;
-                break;
-            case label::valigns::baseline:
-                oy = v2f::zero();
-                break;
-            default:
-                E2D_ASSERT_MSG(false, "unexpected label valign");
-                break;
-            }
-
-            ctx.draw_line(
-                ox - 0.5f * v2f::unit_x() * c->text_width(),
-                ox + 0.5f * v2f::unit_x() * c->text_width(),
-                line_color);
-
-            ctx.draw_line(
-                oy - v2f::unit_y() * corner_height,
-                oy + v2f::unit_y() * corner_height,
-                corner_color);
         }
     }
 }
@@ -374,6 +299,13 @@ namespace e2d::labels
         return mark_dirty(self);
     }
 
+    gcomponent<label> change_wrap(gcomponent<label> self, label::wraps value) {
+        if ( self ) {
+            self->wrap(value);
+        }
+        return mark_dirty(self);
+    }
+
     gcomponent<label> change_halign(gcomponent<label> self, label::haligns value) {
         if ( self ) {
             self->halign(value);
@@ -398,13 +330,6 @@ namespace e2d::labels
     gcomponent<label> change_tracking(gcomponent<label> self, f32 value) {
         if ( self ) {
             self->tracking(value);
-        }
-        return mark_dirty(self);
-    }
-
-    gcomponent<label> change_text_width(gcomponent<label> self, f32 value) {
-        if ( self ) {
-            self->text_width(value);
         }
         return mark_dirty(self);
     }

@@ -13,6 +13,7 @@ namespace e2d
     class widget final {
     public:
         class dirty final {};
+        class was_dirty final {};
     public:
         widget() = default;
 
@@ -48,18 +49,12 @@ namespace e2d
     };
 
     template <>
-    class factory_loader<widget::dirty> final : factory_loader<> {
-    public:
-        static const char* schema_source;
+    class factory_loader<widget::dirty> final
+    : public empty_factory_loader<widget::dirty> {};
 
-        bool operator()(
-            widget::dirty& component,
-            const fill_context& ctx) const;
-
-        bool operator()(
-            asset_dependencies& dependencies,
-            const collect_context& ctx) const;
-    };
+    template <>
+    class factory_loader<widget::was_dirty> final
+    : public empty_factory_loader<widget::was_dirty> {};
 }
 
 namespace e2d

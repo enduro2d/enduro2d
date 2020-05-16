@@ -23,36 +23,25 @@
             }
         }
     },{
-        "prefab" : "../prefabs/label_bm_prefab.json",
-        "components" : {
-            "named" : {
-                "name" : "label(1)"
-            },
-            "actor" : {
-                "translation" : [100,100]
-            },
-            "label" : {
-                "text" : "bm font",
-                "valign" : "center",
-                "outline_width" : 0.5,
-                "outline_color" : [0,0,0,255]
-            }
-        }
-    },{
         "prefab" : "../prefabs/label_sdf_prefab.json",
         "components" : {
             "named" : {
-                "name" : "label(2)"
+                "name" : "label"
             },
             "actor" : {
-                "translation" : [100,50]
+                "translation" : [-50,-150]
             },
             "label" : {
-                "text" : "sdf font",
+                "text" : "SDF font text is here.\nAnother long text line.",
+                "wrap" : "wrap_by_spaces",
                 "valign" : "center",
                 "outline_width" : 0.5,
                 "outline_color" : [0,0,0,255]
-            }
+            },
+            "widget" : {
+                "size" : [300,250]
+            },
+            "widget.dirty" : {}
         }
     },{
         "prefab" : "../prefabs/panel_prefab.json",

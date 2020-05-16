@@ -9,9 +9,12 @@
 #include <enduro2d/high/assets/font_asset.hpp>
 #include <enduro2d/high/assets/texture_asset.hpp>
 
+#include <enduro2d/high/components/actor.hpp>
+#include <enduro2d/high/components/disabled.hpp>
 #include <enduro2d/high/components/label.hpp>
-#include <enduro2d/high/components/renderer.hpp>
 #include <enduro2d/high/components/model_renderer.hpp>
+#include <enduro2d/high/components/renderer.hpp>
+#include <enduro2d/high/components/widget.hpp>
 
 namespace
 {
@@ -109,6 +112,7 @@ namespace
     using namespace e2d;
 
     f32 calculate_halign_offset(
+        f32 widget_width,
         label::haligns halign,
         f32 string_width) noexcept
     {
@@ -116,9 +120,9 @@ namespace
         case label::haligns::left:
             return 0.0f;
         case label::haligns::center:
-            return -0.5f * string_width;
+            return 0.5f * widget_width - 0.5f * string_width;
         case label::haligns::right:
-            return -1.0f * string_width;
+            return 1.0f * widget_width - 1.0f * string_width;
         default:
             E2D_ASSERT_MSG(false, "unexpected label halign");
             return 0.f;
@@ -126,9 +130,9 @@ namespace
     }
 
     f32 calculate_valign_offset(
+        f32 widget_height,
         label::valigns valign,
         f32 leading,
-        u32 glyph_ascent,
         u32 line_height,
         std::size_t string_count) noexcept
     {
@@ -138,20 +142,18 @@ namespace
 
         switch ( valign ) {
         case label::valigns::top:
-            return 0.f;
+            return widget_height;
         case label::valigns::center:
-            return 0.5f * label_height;
+            return 0.5f * widget_height + 0.5f * label_height;
         case label::valigns::bottom:
             return 1.0f * label_height;
-        case label::valigns::baseline:
-            return 1.0f * glyph_ascent;
         default:
             E2D_ASSERT_MSG(false, "unexpected label valign");
             return 0.f;
         }
     }
 
-    std::size_t calculate_string_count(str32_view text) noexcept {
+    std::size_t calculate_new_lines(str32_view text) noexcept {
         std::size_t count{0u};
         for ( std::size_t i = 0; i < text.size(); ++i ) {
             if ( text[i] == '\n' ) {
@@ -189,7 +191,14 @@ namespace
             .property("u_outline_color", outline_color));
     }
 
-    void update_label_geometry(const label& l, model_renderer& mr, geometry_builder& gb) {
+    void update_label_geometry(
+        const label& l,
+        const widget* w,
+        model_renderer& mr)
+    {
+        static thread_local geometry_builder gb;
+        E2D_DEFER([](){ gb.clear(); });
+
         if ( !l.font() || l.font()->content().empty() || l.text().empty() ) {
             gb.update_model(mr);
             return;
@@ -197,6 +206,9 @@ namespace
 
         const font& f = l.font()->content();
         const str32& text = make_utf32(l.text());
+
+        const f32 widget_width = w ? w->size().x : 0.f;
+        const f32 widget_height = w ? w->size().y : 0.f;
 
         //
         // update glyphs
@@ -209,7 +221,7 @@ namespace
 
         //TODO(BlackMat): replace it to frame allocator
         static thread_local vector<glyph_desc> glyphs;
-        glyphs.clear();
+        E2D_DEFER([](){ glyphs.clear(); });
 
         if ( glyphs.capacity() < text.size() ) {
             glyphs.reserve(math::max(glyphs.capacity() * 2u, text.size()));
@@ -250,12 +262,16 @@ namespace
 
         //TODO(BlackMat): replace it to frame allocator
         static thread_local vector<string_desc> strings;
-        strings.clear();
+        E2D_DEFER([](){ strings.clear(); });
 
-        const std::size_t string_count = calculate_string_count(text);
-        if ( strings.capacity() < string_count ) {
-            strings.reserve(math::max(strings.capacity() * 2u, string_count));
+        if ( const std::size_t count = calculate_new_lines(text);
+            strings.capacity() < count + 1u )
+        {
+            strings.reserve(math::max(strings.capacity() * 2u, count));
         }
+
+        f32 last_char_width = 0.f;
+        std::size_t last_char_index = std::size_t(-1);
 
         f32 last_space_width = 0.f;
         std::size_t last_space_index = std::size_t(-1);
@@ -265,6 +281,9 @@ namespace
         for ( std::size_t i = 0, e = text.size(); i < e; ++i ) {
             const u32 code_point = text[i];
             const glyph_desc& glyph = glyphs[i];
+
+            last_char_width = strings.back().width;
+            last_char_index = i;
 
             if ( code_point == ' ' ) {
                 last_space_width = strings.back().width;
@@ -282,16 +301,32 @@ namespace
                     glyph.glyph->advance +
                     tracking_width;
 
-                const bool break_line =
-                    l.text_width() > 0.f &&
-                    last_space_index != std::size_t(-1) &&
-                    strings.back().width > l.text_width();
-
-                if ( break_line ) {
-                    new_line = true;
-                    strings.back().width = last_space_width;
-                    strings.back().length = last_space_index - strings.back().start;
-                    i = last_space_index;
+                switch ( l.wrap() ) {
+                case label::wraps::no_wrap:
+                    break;
+                case label::wraps::wrap_by_chars:
+                case label::wraps::wrap_by_spaces: {
+                    const bool need_break_line =
+                        widget_width > 0.f &&
+                        strings.back().width > widget_width;
+                    if ( need_break_line ) {
+                        if ( last_space_index != std::size_t(-1) ) {
+                            new_line = true;
+                            strings.back().width = last_space_width;
+                            strings.back().length = last_space_index - strings.back().start;
+                            i = last_space_index;
+                        } else if ( l.wrap() == label::wraps::wrap_by_chars && i - strings.back().start > 0u ) {
+                            new_line = true;
+                            strings.back().width = last_char_width;
+                            strings.back().length = last_char_index - strings.back().start;
+                            i = last_char_index - 1u;
+                        }
+                    }
+                }
+                break;
+                default:
+                    E2D_ASSERT_MSG(false, "unexpected label wrap");
+                    break;
                 }
             }
 
@@ -304,6 +339,10 @@ namespace
                 if ( i < e - 1 ) {
                     strings.push_back(string_desc(i + 1u));
                 }
+
+                last_char_width = 0.f;
+                last_char_width = std::size_t(-1);
+
                 last_space_width = 0.f;
                 last_space_index = std::size_t(-1);
             }
@@ -314,14 +353,18 @@ namespace
         //
 
         v2f cursor = v2f::unit_y() * calculate_valign_offset(
+            widget_height,
             l.valign(),
             l.leading(),
-            f.info().glyph_ascent,
             f.info().line_height,
             strings.size());
 
         for ( std::size_t i = 0, ie = strings.size(); i < ie; ++i ) {
-            cursor.x = calculate_halign_offset(l.halign(), strings[i].width);
+            cursor.x = calculate_halign_offset(
+                widget_width,
+                l.halign(),
+                strings[i].width);
+
             for ( std::size_t j = strings[i].start, je = strings[i].start + strings[i].length; j < je; ++j ) {
                 const glyph_desc& glyph = glyphs[j];
                 if ( !glyph.glyph ) {
@@ -351,19 +394,43 @@ namespace
     }
 
     void update_dirty_labels(ecs::registry& owner) {
-        geometry_builder gb;
-        owner.for_joined_components<label::dirty, label, renderer, model_renderer>([&gb](
+        owner.for_joined_components<widget::was_dirty, widget, actor>([](
             const ecs::const_entity&,
+            const widget::was_dirty&,
+            const widget&,
+            const actor& a)
+        {
+            if ( a.node() && a.node()->owner() ) {
+                gobject go = a.node()->owner();
+                labels::mark_dirty(go);
+            }
+        }, !ecs::exists_any<
+            disabled<actor>,
+            disabled<widget>>());
+
+        owner.for_joined_components<label::dirty, label, renderer, model_renderer>([](
+            const ecs::const_entity& e,
             const label::dirty&,
             const label& l,
             renderer& r,
             model_renderer& mr
         ){
             update_label_material(l, r);
-            update_label_geometry(l, mr, gb);
-            gb.clear();
+            update_label_geometry(l, e.find_component<widget>(), mr);
         });
-        owner.remove_all_components<label::dirty>();
+    }
+
+    void update_was_dirty_flags(ecs::registry& owner) {
+        E2D_RETURN_DEFER([&owner](){
+            owner.remove_all_components<label::dirty>();
+        });
+
+        owner.remove_all_components<label::was_dirty>();
+
+        owner.for_joined_components<label::dirty>([
+        ](ecs::entity e, const label::dirty&) {
+            e.ensure_component<label::was_dirty>();
+        });
     }
 }
 
@@ -380,6 +447,7 @@ namespace e2d
 
         void process_update(ecs::registry& owner) {
             update_dirty_labels(owner);
+            update_was_dirty_flags(owner);
         }
     };
 

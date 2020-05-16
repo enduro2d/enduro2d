@@ -15,7 +15,13 @@ namespace e2d
     class label final {
     public:
         class dirty final {};
+        class was_dirty final {};
     public:
+        ENUM_HPP_CLASS_DECL(wraps, u8,
+            (no_wrap)
+            (wrap_by_chars)
+            (wrap_by_spaces))
+
         ENUM_HPP_CLASS_DECL(haligns, u8,
             (left)
             (center)
@@ -24,8 +30,7 @@ namespace e2d
         ENUM_HPP_CLASS_DECL(valigns, u8,
             (top)
             (center)
-            (bottom)
-            (baseline))
+            (bottom))
     public:
         label() = default;
         label(const font_asset::ptr& font);
@@ -39,6 +44,9 @@ namespace e2d
         label& tint(const color32& value) noexcept;
         [[nodiscard]] const color32& tint() const noexcept;
 
+        label& wrap(wraps value) noexcept;
+        [[nodiscard]] wraps wrap() const noexcept;
+
         label& halign(haligns value) noexcept;
         [[nodiscard]] haligns halign() const noexcept;
 
@@ -50,9 +58,6 @@ namespace e2d
 
         label& tracking(f32 value) noexcept;
         [[nodiscard]] f32 tracking() const noexcept;
-
-        label& text_width(f32 value) noexcept;
-        [[nodiscard]] f32 text_width() const noexcept;
 
         label& glyph_dilate(f32 value) noexcept;
         [[nodiscard]] f32 glyph_dilate() const noexcept;
@@ -66,16 +71,17 @@ namespace e2d
         str text_;
         font_asset::ptr font_;
         color32 tint_ = color32::white();
+        wraps wrap_ = wraps::no_wrap;
         haligns halign_ = haligns::center;
-        valigns valign_ = valigns::baseline;
+        valigns valign_ = valigns::center;
         f32 leading_ = 1.f;
         f32 tracking_ = 0.f;
-        f32 text_width_ = 0.f;
         f32 glyph_dilate_ = 0.f;
         f32 outline_width_ = 0.f;
         color32 outline_color_ = color32::white();
     };
 
+    ENUM_HPP_REGISTER_TRAITS(label::wraps)
     ENUM_HPP_REGISTER_TRAITS(label::haligns)
     ENUM_HPP_REGISTER_TRAITS(label::valigns)
 }
@@ -97,18 +103,12 @@ namespace e2d
     };
 
     template <>
-    class factory_loader<label::dirty> final : factory_loader<> {
-    public:
-        static const char* schema_source;
+    class factory_loader<label::dirty> final
+    : public empty_factory_loader<label::dirty> {};
 
-        bool operator()(
-            label::dirty& component,
-            const fill_context& ctx) const;
-
-        bool operator()(
-            asset_dependencies& dependencies,
-            const collect_context& ctx) const;
-    };
+    template <>
+    class factory_loader<label::was_dirty> final
+    : public empty_factory_loader<label::was_dirty> {};
 }
 
 namespace e2d
@@ -119,7 +119,6 @@ namespace e2d
         static const char* title;
 
         void operator()(gcomponent<label>& c) const;
-        void operator()(gcomponent<label>& c, gizmos_context& ctx) const;
     };
 }
 
@@ -153,6 +152,15 @@ namespace e2d
 
     inline const color32& label::tint() const noexcept {
         return tint_;
+    }
+
+    inline label& label::wrap(wraps value) noexcept {
+        wrap_ = value;
+        return *this;
+    }
+
+    inline label::wraps label::wrap() const noexcept {
+        return wrap_;
     }
 
     inline label& label::halign(haligns value) noexcept {
@@ -189,15 +197,6 @@ namespace e2d
 
     inline f32 label::tracking() const noexcept {
         return tracking_;
-    }
-
-    inline label& label::text_width(f32 value) noexcept {
-        text_width_ = value;
-        return *this;
-    }
-
-    inline f32 label::text_width() const noexcept {
-        return text_width_;
     }
 
     inline label& label::glyph_dilate(f32 value) noexcept {
@@ -237,11 +236,11 @@ namespace e2d::labels
     gcomponent<label> change_text(gcomponent<label> self, str value);
     gcomponent<label> change_font(gcomponent<label> self, const font_asset::ptr& value);
     gcomponent<label> change_tint(gcomponent<label> self, const color32& value);
+    gcomponent<label> change_wrap(gcomponent<label> self, label::wraps value);
     gcomponent<label> change_halign(gcomponent<label> self, label::haligns value);
     gcomponent<label> change_valign(gcomponent<label> self, label::valigns value);
     gcomponent<label> change_leading(gcomponent<label> self, f32 value);
     gcomponent<label> change_tracking(gcomponent<label> self, f32 value);
-    gcomponent<label> change_text_width(gcomponent<label> self, f32 value);
     gcomponent<label> change_glyph_dilate(gcomponent<label> self, f32 value);
     gcomponent<label> change_outline_width(gcomponent<label> self, f32 value);
     gcomponent<label> change_outline_color(gcomponent<label> self, const color32& value);

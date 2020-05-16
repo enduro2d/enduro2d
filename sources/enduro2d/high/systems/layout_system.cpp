@@ -141,10 +141,9 @@ namespace
                 if ( const actor* a = e.find_component<actor>();
                     a && a->node() && a->node()->owner() )
                 {
-                    gcomponent<layout> l{a->node()->owner()};
-                    gcomponent<widget> w{a->node()->owner()};
-                    layouts::mark_dirty(l);
-                    layouts::mark_dirty(widgets::find_parent_layout(w));
+                    gobject go = a->node()->owner();
+                    layouts::mark_dirty(go);
+                    layouts::mark_dirty(widgets::find_parent_layout(go));
                 }
             }, !ecs::exists_all<
                 actor,
@@ -160,10 +159,9 @@ namespace
         {
             e.ensure_component<yogo_node>();
             if ( a.node() && a.node()->owner() ) {
-                gcomponent<layout> l{a.node()->owner()};
-                gcomponent<widget> w{a.node()->owner()};
-                layouts::mark_dirty(l);
-                layouts::mark_dirty(widgets::find_parent_layout(w));
+                gobject go = a.node()->owner();
+                layouts::mark_dirty(go);
+                layouts::mark_dirty(widgets::find_parent_layout(go));
             }
         }, !ecs::exists_any<
             yogo_node,
@@ -172,6 +170,21 @@ namespace
     }
 
     void update_dirty_layouts(ecs::registry& owner) {
+        owner.for_joined_components<widget::was_dirty, widget, actor>([](
+            const ecs::const_entity&,
+            const widget::was_dirty&,
+            const widget&,
+            const actor& a)
+        {
+            if ( a.node() && a.node()->owner() ) {
+                gobject go = a.node()->owner();
+                layouts::mark_dirty(go);
+                layouts::mark_dirty(widgets::find_parent_layout(go));
+            }
+        }, !ecs::exists_any<
+            disabled<actor>,
+            disabled<widget>>());
+
         owner.for_joined_components<layout::dirty, yogo_node, layout, widget, actor>([](
             const ecs::const_entity&,
             const layout::dirty&,
@@ -223,9 +236,23 @@ namespace
                         YGNodeLayoutGetTop(item_yn->as_item.get())));
                 }
             }
+        }, !ecs::exists_any<
+            disabled<actor>,
+            disabled<layout>,
+            disabled<widget>>());
+    }
+
+    void update_was_dirty_flags(ecs::registry& owner) {
+        E2D_RETURN_DEFER([&owner](){
+            owner.remove_all_components<layout::dirty>();
         });
 
-        owner.remove_all_components<layout::dirty>();
+        owner.remove_all_components<layout::was_dirty>();
+
+        owner.for_joined_components<layout::dirty>([
+        ](ecs::entity e, const layout::dirty&) {
+            e.ensure_component<layout::was_dirty>();
+        });
     }
 }
 
@@ -243,6 +270,7 @@ namespace e2d
         void process_update(ecs::registry& owner) {
             update_yogo_nodes(owner);
             update_dirty_layouts(owner);
+            update_was_dirty_flags(owner);
         }
     };
 

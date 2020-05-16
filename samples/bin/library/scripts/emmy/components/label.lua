@@ -12,20 +12,20 @@ local label = {
     ---@type color32
     tint = color32.white(),
 
+    ---@type label_wraps
+    wrap = label.wraps.no_wrap,
+
     ---@type label_haligns
     halign = label.haligns.center,
 
     ---@type label_valigns
-    valign = label.valigns.baseline,
+    valign = label.valigns.center,
 
     ---@type number
     leading = 1,
 
     ---@type number
     tracking = 0,
-
-    ---@type number
-    text_width = 0,
 
     ---@type number
     glyph_dilate = 0,
@@ -35,6 +35,13 @@ local label = {
 
     ---@type color32
     outline_color = color32.white()
+}
+
+---@class label_wraps
+label.wraps = {
+    no_wrap = "no_wrap",
+    wrap_by_chars = "wrap_by_chars",
+    wrap_by_spaces = "wrap_by_spaces"
 }
 
 ---@class label_haligns
@@ -48,8 +55,7 @@ label.haligns = {
 label.valigns = {
     top = "top",
     center = "center",
-    bottom = "bottom",
-    baseline = "baseline"
+    bottom = "bottom"
 }
 
 ---@type label

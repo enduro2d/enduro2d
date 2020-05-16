@@ -8,31 +8,23 @@
 
 #include <enduro2d/high/components/actor.hpp>
 #include <enduro2d/high/components/disabled.hpp>
-#include <enduro2d/high/components/layout.hpp>
 #include <enduro2d/high/components/widget.hpp>
 
 namespace
 {
     using namespace e2d;
 
-    void update_dirty_widgets(ecs::registry& owner) {
-        owner.for_joined_components<widget::dirty, widget, actor>([](
-            const ecs::const_entity&,
-            const widget::dirty&,
-            const widget&,
-            const actor& a)
-        {
-            if ( a.node() && a.node()->owner() ) {
-                gcomponent<layout> l{a.node()->owner()};
-                gcomponent<widget> w{a.node()->owner()};
-                layouts::mark_dirty(l);
-                layouts::mark_dirty(widgets::find_parent_layout(w));
-            }
-        }, !ecs::exists_any<
-            disabled<actor>,
-            disabled<widget>>());
+    void update_was_dirty_flags(ecs::registry& owner) {
+        E2D_RETURN_DEFER([&owner](){
+            owner.remove_all_components<widget::dirty>();
+        });
 
-        owner.remove_all_components<widget::dirty>();
+        owner.remove_all_components<widget::was_dirty>();
+
+        owner.for_joined_components<widget::dirty>([
+        ](ecs::entity e, const widget::dirty&) {
+            e.ensure_component<widget::was_dirty>();
+        });
     }
 }
 
@@ -48,7 +40,7 @@ namespace e2d
         ~internal_state() noexcept = default;
 
         void process_update(ecs::registry& owner) {
-            update_dirty_widgets(owner);
+            update_was_dirty_flags(owner);
         }
     };
 

@@ -67,32 +67,6 @@ namespace e2d
 
 namespace e2d
 {
-    const char* factory_loader<widget::dirty>::schema_source = R"json({
-        "type" : "object",
-        "required" : [],
-        "additionalProperties" : false,
-        "properties" : {}
-    })json";
-
-    bool factory_loader<widget::dirty>::operator()(
-        widget::dirty& component,
-        const fill_context& ctx) const
-    {
-        E2D_UNUSED(component, ctx);
-        return true;
-    }
-
-    bool factory_loader<widget::dirty>::operator()(
-        asset_dependencies& dependencies,
-        const collect_context& ctx) const
-    {
-        E2D_UNUSED(dependencies, ctx);
-        return true;
-    }
-}
-
-namespace e2d
-{
     const char* component_inspector<widget>::title = ICON_FA_VECTOR_SQUARE " widget";
 
     void component_inspector<widget>::operator()(gcomponent<widget>& c) const {
