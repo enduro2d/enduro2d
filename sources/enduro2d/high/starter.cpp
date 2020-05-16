@@ -28,18 +28,16 @@
 #include <enduro2d/high/components/named.hpp>
 #include <enduro2d/high/components/renderer.hpp>
 #include <enduro2d/high/components/scene.hpp>
-#include <enduro2d/high/components/scrollbar.hpp>
 #include <enduro2d/high/components/scrollbar_handle.hpp>
-#include <enduro2d/high/components/slider.hpp>
+#include <enduro2d/high/components/scrollbar.hpp>
 #include <enduro2d/high/components/slider_handle.hpp>
+#include <enduro2d/high/components/slider.hpp>
 #include <enduro2d/high/components/spine_player.hpp>
 #include <enduro2d/high/components/sprite_renderer.hpp>
 #include <enduro2d/high/components/toggle_group.hpp>
 #include <enduro2d/high/components/toggle.hpp>
 #include <enduro2d/high/components/touchable.hpp>
 #include <enduro2d/high/components/widget.hpp>
-#include <enduro2d/high/components/wlabel.hpp>
-#include <enduro2d/high/components/wsprite.hpp>
 
 #include <enduro2d/high/systems/button_system.hpp>
 #include <enduro2d/high/systems/camera_system.hpp>
@@ -53,11 +51,11 @@
 #include <enduro2d/high/systems/scrollbar_system.hpp>
 #include <enduro2d/high/systems/slider_system.hpp>
 #include <enduro2d/high/systems/spine_system.hpp>
+#include <enduro2d/high/systems/sprite_system.hpp>
 #include <enduro2d/high/systems/toggle_system.hpp>
 #include <enduro2d/high/systems/touch_system.hpp>
 #include <enduro2d/high/systems/widget_system.hpp>
 #include <enduro2d/high/systems/world_system.hpp>
-#include <enduro2d/high/systems/wsprite_system.hpp>
 
 namespace
 {
@@ -77,33 +75,40 @@ namespace
 
         bool initialize() final {
             ecs::registry_filler(the<world>().registry())
-                .feature<struct camera_feature>(ecs::feature()
-                    .add_system<camera_system>())
-                .feature<struct flipbook_feature>(ecs::feature()
-                    .add_system<flipbook_system>())
                 .feature<struct frame_feature>(ecs::feature()
                     .add_system<frame_system>())
-                .feature<struct gizmos_feature>(ecs::feature()
-                    .add_system<gizmos_system>())
-                .feature<struct label_feature>(ecs::feature()
-                    .add_system<label_system>())
-                .feature<struct layout_feature>(ecs::feature()
-                    .add_system<layout_system>())
-                .feature<struct render_feature>(ecs::feature()
-                    .add_system<render_system>())
-                .feature<struct script_feature>(ecs::feature()
-                    .add_system<script_system>())
-                .feature<struct spine_feature>(ecs::feature()
-                    .add_system<spine_system>())
+
+                .feature<struct animation_feature>(ecs::feature()
+                    .add_system<spine_system>()
+                    .add_system<flipbook_system>())
+
                 .feature<struct touch_feature>(ecs::feature()
                     .add_system<touch_system>())
+
                 .feature<struct widget_feature>(ecs::feature()
                     .add_system<button_system>()
                     .add_system<toggle_system>()
                     .add_system<scrollbar_system>()
                     .add_system<slider_system>()
-                    .add_system<widget_system>()
-                    .add_system<wsprite_system>())
+                    .add_system<widget_system>())
+
+                .feature<struct layout_feature>(ecs::feature()
+                    .add_system<layout_system>())
+
+                .feature<struct label_feature>(ecs::feature()
+                    .add_system<label_system>())
+
+                .feature<struct sprite_feature>(ecs::feature()
+                    .add_system<sprite_system>())
+
+                .feature<struct render_feature>(ecs::feature()
+                    .add_system<camera_system>()
+                    .add_system<gizmos_system>()
+                    .add_system<render_system>())
+
+                .feature<struct script_feature>(ecs::feature()
+                    .add_system<script_system>())
+
                 .feature<struct world_feature>(ecs::feature()
                     .add_system<world_system>());
             return !application_ || application_->initialize();
@@ -251,8 +256,6 @@ namespace e2d
             .register_component<events<touchable_events::event>>("touchable.events")
             .register_component<widget>("widget")
             .register_component<widget::dirty>("widget.dirty")
-            .register_component<wlabel>("wlabel")
-            .register_component<wsprite>("wsprite")
             ;
 
         safe_module_initialize<inspector>()
@@ -298,8 +301,6 @@ namespace e2d
             //.register_component<events<touchable_events::event>>("touchable.events")
             .register_component<widget>("widget")
             //.register_component<widget::dirty>("widget.dirty")
-            .register_component<wlabel>("wlabel")
-            .register_component<wsprite>("wsprite")
             ;
 
         safe_module_initialize<luasol>();

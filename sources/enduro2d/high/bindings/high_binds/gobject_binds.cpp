@@ -29,8 +29,6 @@
 #include <enduro2d/high/components/toggle.hpp>
 #include <enduro2d/high/components/touchable.hpp>
 #include <enduro2d/high/components/widget.hpp>
-#include <enduro2d/high/components/wlabel.hpp>
-#include <enduro2d/high/components/wsprite.hpp>
 
 namespace e2d::bindings::high
 {
@@ -72,9 +70,7 @@ namespace e2d::bindings::high
             "toggle_group", sol::property([](gobject& go){ return component_wrapper<toggle_group>{go}; }),
             "toggle", sol::property([](gobject& go){ return component_wrapper<toggle>{go}; }),
             "touchable", sol::property([](gobject& go){ return component_wrapper<touchable>{go}; }),
-            "widget", sol::property([](gobject& go){ return component_wrapper<widget>{go}; }),
-            "wlabel", sol::property([](gobject& go){ return component_wrapper<wlabel>{go}; }),
-            "wsprite", sol::property([](gobject& go){ return component_wrapper<wsprite>{go}; })
+            "widget", sol::property([](gobject& go){ return component_wrapper<widget>{go}; })
         );
     }
 }

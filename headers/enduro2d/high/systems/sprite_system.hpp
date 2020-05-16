@@ -10,11 +10,11 @@
 
 namespace e2d
 {
-    class wsprite_system final
+    class sprite_system final
         : public ecs::system<ecs::after<systems::update_event>> {
     public:
-        wsprite_system();
-        ~wsprite_system() noexcept final;
+        sprite_system();
+        ~sprite_system() noexcept final;
 
         void process(
             ecs::registry& owner,

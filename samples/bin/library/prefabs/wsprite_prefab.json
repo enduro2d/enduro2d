@@ -4,8 +4,6 @@
         "named" : {
             "name" : "wsprite"
         },
-        "wsprite" : {
-        },
         "sprite_renderer" : {
             "mode" : "sliced"
         },

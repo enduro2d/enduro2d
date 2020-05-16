@@ -1,5 +1,5 @@
 {
-    "prefab" : "wsprite_prefab.json",
+    "prefab" : "widget_prefab.json",
     "components" : {
         "named" : {
             "name" : "slider_h"
@@ -9,29 +9,42 @@
         },
         "rect_collider" : {
             "size" : [300,30],
-            "offset" : [150,5]
-        },
-        "sprite_renderer" : {
-            "tint" : [255,0,0,255],
-            "sprite" : "../sprites/panel_sprite.json"
+            "offset" : [150,15]
         },
         "touchable" : {
         },
         "widget" : {
-            "size" : [300,10]
+            "size" : [300,30]
         }
     },
     "children" : [{
+        "prefab" : "wsprite_prefab.json",
+        "components" : {
+            "named" : {
+                "name" : "background"
+            },
+            "actor" : {
+                "translation" : [0,10]
+            },
+            "sprite_renderer" : {
+                "tint" : [255,0,0,255],
+                "sprite" : "../sprites/panel_sprite.json"
+            },
+            "widget" : {
+                "size" : [300,10]
+            }
+        }
+    },{
         "prefab" : "widget_prefab.json",
         "components" : {
             "named" : {
                 "name" : "handle_area"
             },
             "actor" : {
-                "translation" : [5,-10]
+                "translation" : [5,15]
             },
             "widget" : {
-                "size" : [290,30]
+                "size" : [290,0]
             }
         },
         "children" : [{
@@ -46,7 +59,7 @@
                 "prefab" : "button_prefab.json",
                 "components" : {
                     "actor" : {
-                        "translation" : [-5,0],
+                        "translation" : [-5,-15],
                         "scale" : [0.2,0.6]
                     },
                     "button" : {

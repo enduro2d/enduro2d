@@ -75,8 +75,6 @@ namespace e2d
     class toggle;
     class touchable;
     class widget;
-    class wlabel;
-    class wsprite;
 
     class atlas;
     class button_style;
@@ -100,11 +98,11 @@ namespace e2d
     class scrollbar_system;
     class slider_system;
     class spine_system;
+    class sprite_system;
     class toggle_system;
     class touch_system;
     class widget_system;
     class world_system;
-    class wsprite_system;
 
     template < typename Asset, typename Content >
     class content_asset;

@@ -55,8 +55,6 @@
 #include "components/toggle.hpp"
 #include "components/touchable.hpp"
 #include "components/widget.hpp"
-#include "components/wlabel.hpp"
-#include "components/wsprite.hpp"
 
 #include "resources/atlas.hpp"
 #include "resources/button_style.hpp"
@@ -80,11 +78,11 @@
 #include "systems/scrollbar_system.hpp"
 #include "systems/slider_system.hpp"
 #include "systems/spine_system.hpp"
+#include "systems/sprite_system.hpp"
 #include "systems/toggle_system.hpp"
 #include "systems/touch_system.hpp"
 #include "systems/widget_system.hpp"
 #include "systems/world_system.hpp"
-#include "systems/wsprite_system.hpp"
 
 #include "address.hpp"
 #include "asset.hpp"

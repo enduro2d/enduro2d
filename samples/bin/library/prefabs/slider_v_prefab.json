@@ -9,29 +9,42 @@
         },
         "rect_collider" : {
             "size" : [30,300],
-            "offset" : [5,150]
-        },
-        "sprite_renderer" : {
-            "tint" : [255,0,0,255],
-            "sprite" : "../sprites/panel_sprite.json"
+            "offset" : [15,150]
         },
         "touchable" : {
         },
         "widget" : {
-            "size" : [10,300]
+            "size" : [30,300]
         }
     },
     "children" : [{
+        "prefab" : "wsprite_prefab.json",
+        "components" : {
+            "named" : {
+                "name" : "background"
+            },
+            "actor" : {
+                "translation" : [10,0]
+            },
+            "sprite_renderer" : {
+                "tint" : [255,0,0,255],
+                "sprite" : "../sprites/panel_sprite.json"
+            },
+            "widget" : {
+                "size" : [10,300]
+            }
+        }
+    },{
         "prefab" : "widget_prefab.json",
         "components" : {
             "named" : {
                 "name" : "handle_area"
             },
             "actor" : {
-                "translation" : [-10,5]
+                "translation" : [15,5]
             },
             "widget" : {
-                "size" : [30,290]
+                "size" : [0,290]
             }
         },
         "children" : [{
@@ -46,7 +59,7 @@
                 "prefab" : "button_prefab.json",
                 "components" : {
                     "actor" : {
-                        "translation" : [0,-5],
+                        "translation" : [-15,-5],
                         "scale" : [0.6,0.2]
                     },
                     "button" : {

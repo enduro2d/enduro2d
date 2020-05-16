@@ -1,5 +1,5 @@
 {
-    "prefab" : "wsprite_prefab.json",
+    "prefab" : "widget_prefab.json",
     "components" : {
         "named" : {
             "name" : "scrollbar_h"
@@ -11,10 +11,6 @@
             "size" : [300,20],
             "offset" : [150,10]
         },
-        "sprite_renderer" : {
-            "tint" : [255,0,0,255],
-            "sprite" : "../sprites/panel_sprite.json"
-        },
         "touchable" : {
         },
         "widget" : {
@@ -22,16 +18,30 @@
         }
     },
     "children" : [{
+        "prefab" : "wsprite_prefab.json",
+        "components" : {
+            "named" : {
+                "name" : "background"
+            },
+            "sprite_renderer" : {
+                "tint" : [255,0,0,255],
+                "sprite" : "../sprites/panel_sprite.json"
+            },
+            "widget" : {
+                "size" : [300,20]
+            }
+        }
+    },{
         "prefab" : "widget_prefab.json",
         "components" : {
             "named" : {
                 "name" : "handle_area"
             },
             "actor" : {
-                "translation" : [25,0]
+                "translation" : [25,10]
             },
             "widget" : {
-                "size" : [250,20]
+                "size" : [250,0]
             }
         },
         "children" : [{
@@ -46,7 +56,7 @@
                 "prefab" : "button_prefab.json",
                 "components" : {
                     "actor" : {
-                        "translation" : [-25,0],
+                        "translation" : [-25,-10],
                         "scale" : [1,0.4]
                     },
                     "button" : {
