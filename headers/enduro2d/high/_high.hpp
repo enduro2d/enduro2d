@@ -67,6 +67,7 @@ namespace e2d
     class progress_handle;
     class renderer;
     class scene;
+    class scroll;
     class scrollbar;
     class scrollbar_handle;
     class slider;
@@ -98,6 +99,7 @@ namespace e2d
     class progress_system;
     class render_system;
     class script_system;
+    class scroll_system;
     class scrollbar_system;
     class slider_system;
     class spine_system;

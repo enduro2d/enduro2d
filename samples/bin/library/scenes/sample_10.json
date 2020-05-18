@@ -132,5 +132,12 @@
                 "value" : 0.25
             }
         }
+    },{
+        "prefab" : "../prefabs/scroll_prefab.json",
+        "components" : {
+            "actor" : {
+                "translation" : [-380,-150]
+            }
+        }
     }]
 }

@@ -1,0 +1,17 @@
+{
+    "prefab" : "wsprite_prefab.json",
+    "components" : {
+        "named" : {
+            "name" : "scroll"
+        },
+        "scroll" : {
+        },
+        "widget" : {
+            "size" : [300,300]
+        },
+        "sprite_renderer" : {
+            "tint" : [100,200,200,255],
+            "sprite" : "../sprites/panel_sprite.json"
+        }
+    }
+}
