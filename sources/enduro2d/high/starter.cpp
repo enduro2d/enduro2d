@@ -26,6 +26,8 @@
 #include <enduro2d/high/components/layout.hpp>
 #include <enduro2d/high/components/model_renderer.hpp>
 #include <enduro2d/high/components/named.hpp>
+#include <enduro2d/high/components/progress_handle.hpp>
+#include <enduro2d/high/components/progress.hpp>
 #include <enduro2d/high/components/renderer.hpp>
 #include <enduro2d/high/components/scene.hpp>
 #include <enduro2d/high/components/scrollbar_handle.hpp>
@@ -46,6 +48,7 @@
 #include <enduro2d/high/systems/gizmos_system.hpp>
 #include <enduro2d/high/systems/label_system.hpp>
 #include <enduro2d/high/systems/layout_system.hpp>
+#include <enduro2d/high/systems/progress_system.hpp>
 #include <enduro2d/high/systems/render_system.hpp>
 #include <enduro2d/high/systems/script_system.hpp>
 #include <enduro2d/high/systems/scrollbar_system.hpp>
@@ -88,6 +91,7 @@ namespace
                 .feature<struct widget_feature>(ecs::feature()
                     .add_system<button_system>()
                     .add_system<toggle_system>()
+                    .add_system<progress_system>()
                     .add_system<scrollbar_system>()
                     .add_system<slider_system>()
                     .add_system<widget_system>())
@@ -231,6 +235,8 @@ namespace e2d
             .register_component<layout::dirty>("layout.dirty")
             .register_component<model_renderer>("model_renderer")
             .register_component<named>("named")
+            .register_component<progress>("progress")
+            .register_component<progress_handle>("progress_handle")
             .register_component<renderer>("renderer")
             .register_component<scene>("scene")
             .register_component<scrollbar>("scrollbar")
@@ -264,7 +270,7 @@ namespace e2d
             .register_component<button>("button")
             //.register_component<button::pressed>("button.pressed")
             .register_component<camera>("camera")
-            //.register_component<camera::gizmos>("camera.input")
+            //.register_component<camera::input>("camera.input")
             //.register_component<camera::gizmos>("camera.gizmos")
             .register_component<rect_collider>("rect_collider")
             .register_component<circle_collider>("circle_collider")
@@ -276,6 +282,8 @@ namespace e2d
             //.register_component<layout::dirty>("layout.dirty")
             .register_component<model_renderer>("model_renderer")
             .register_component<named>("named")
+            .register_component<progress>("progress")
+            .register_component<progress_handle>("progress_handle")
             .register_component<renderer>("renderer")
             .register_component<scene>("scene")
             .register_component<scrollbar>("scrollbar")

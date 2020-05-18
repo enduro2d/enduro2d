@@ -63,6 +63,8 @@ namespace e2d
     class layout;
     class model_renderer;
     class named;
+    class progress;
+    class progress_handle;
     class renderer;
     class scene;
     class scrollbar;
@@ -93,6 +95,7 @@ namespace e2d
     class gizmos_system;
     class label_system;
     class layout_system;
+    class progress_system;
     class render_system;
     class script_system;
     class scrollbar_system;

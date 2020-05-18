@@ -1,0 +1,62 @@
+{
+    "prefab" : "widget_prefab.json",
+    "components" : {
+        "named" : {
+            "name" : "progress_v"
+        },
+        "progress" : {
+            "direction" : "column"
+        },
+        "widget" : {
+            "size" : [20,300]
+        }
+    },
+    "children" : [{
+        "prefab" : "wsprite_prefab.json",
+        "components" : {
+            "named" : {
+                "name" : "background"
+            },
+            "sprite_renderer" : {
+                "tint" : [255,0,0,255],
+                "sprite" : "../sprites/panel_sprite.json"
+            },
+            "widget" : {
+                "size" : [20,300]
+            }
+        }
+    },{
+        "prefab" : "widget_prefab.json",
+        "components" : {
+            "named" : {
+                "name" : "handle_area"
+            },
+            "actor" : {
+                "translation" : [0,0]
+            },
+            "widget" : {
+                "size" : [20,300]
+            }
+        },
+        "children" : [{
+            "prefab" : "wsprite_prefab.json",
+            "components" : {
+                "named" : {
+                    "name" : "handle"
+                },
+                "actor" : {
+                    "translation" : [0,0]
+                },
+                "widget" : {
+                    "size" : [20,0]
+                },
+                "progress_handle" : {
+                },
+                "sprite_renderer" : {
+                    "tint" : [0,0,255,255],
+                    "sprite" : "../sprites/panel_sprite.json"
+                }
+            }
+        }]
+    }]
+}

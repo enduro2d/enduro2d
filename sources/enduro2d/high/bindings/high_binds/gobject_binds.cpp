@@ -17,12 +17,14 @@
 #include <enduro2d/high/components/label.hpp>
 #include <enduro2d/high/components/model_renderer.hpp>
 #include <enduro2d/high/components/named.hpp>
+#include <enduro2d/high/components/progress_handle.hpp>
+#include <enduro2d/high/components/progress.hpp>
 #include <enduro2d/high/components/renderer.hpp>
 #include <enduro2d/high/components/scene.hpp>
-#include <enduro2d/high/components/scrollbar.hpp>
 #include <enduro2d/high/components/scrollbar_handle.hpp>
-#include <enduro2d/high/components/slider.hpp>
+#include <enduro2d/high/components/scrollbar.hpp>
 #include <enduro2d/high/components/slider_handle.hpp>
+#include <enduro2d/high/components/slider.hpp>
 #include <enduro2d/high/components/spine_player.hpp>
 #include <enduro2d/high/components/sprite_renderer.hpp>
 #include <enduro2d/high/components/toggle_group.hpp>
@@ -52,19 +54,21 @@ namespace e2d::bindings::high
             "behaviour", sol::property([](gobject& go){ return component_wrapper<behaviour>{go}; }),
             "button", sol::property([](gobject& go){ return component_wrapper<button>{go}; }),
             "camera", sol::property([](gobject& go){ return component_wrapper<camera>{go}; }),
-            "rect_collider", sol::property([](gobject& go){ return component_wrapper<rect_collider>{go}; }),
             "circle_collider", sol::property([](gobject& go){ return component_wrapper<circle_collider>{go}; }),
-            "polygon_collider", sol::property([](gobject& go){ return component_wrapper<polygon_collider>{go}; }),
             "flipbook_player", sol::property([](gobject& go){ return component_wrapper<flipbook_player>{go}; }),
             "label", sol::property([](gobject& go){ return component_wrapper<label>{go}; }),
             "model_renderer", sol::property([](gobject& go){ return component_wrapper<model_renderer>{go}; }),
             "named", sol::property([](gobject& go){ return component_wrapper<named>{go}; }),
+            "polygon_collider", sol::property([](gobject& go){ return component_wrapper<polygon_collider>{go}; }),
+            "progress_handle", sol::property([](gobject& go){ return component_wrapper<progress_handle>{go}; }),
+            "progress", sol::property([](gobject& go){ return component_wrapper<progress>{go}; }),
+            "rect_collider", sol::property([](gobject& go){ return component_wrapper<rect_collider>{go}; }),
             "renderer", sol::property([](gobject& go){ return component_wrapper<renderer>{go}; }),
             "scene", sol::property([](gobject& go){ return component_wrapper<scene>{go}; }),
-            "scrollbar", sol::property([](gobject& go){ return component_wrapper<scrollbar>{go}; }),
             "scrollbar_handle", sol::property([](gobject& go){ return component_wrapper<scrollbar_handle>{go}; }),
-            "slider", sol::property([](gobject& go){ return component_wrapper<slider>{go}; }),
+            "scrollbar", sol::property([](gobject& go){ return component_wrapper<scrollbar>{go}; }),
             "slider_handle", sol::property([](gobject& go){ return component_wrapper<slider_handle>{go}; }),
+            "slider", sol::property([](gobject& go){ return component_wrapper<slider>{go}; }),
             "spine_player", sol::property([](gobject& go){ return component_wrapper<spine_player>{go}; }),
             "sprite_renderer", sol::property([](gobject& go){ return component_wrapper<sprite_renderer>{go}; }),
             "toggle_group", sol::property([](gobject& go){ return component_wrapper<toggle_group>{go}; }),

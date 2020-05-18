@@ -97,6 +97,9 @@
         "components" : {
             "actor" : {
                 "translation" : [0,-300]
+            },
+            "scrollbar" : {
+                "value" : 0.25
             }
         }
     },{
@@ -104,6 +107,29 @@
         "components" : {
             "actor" : {
                 "translation" : [300,-300]
+            },
+            "scrollbar" : {
+                "value" : 0.25
+            }
+        }
+    },{
+        "prefab" : "../prefabs/progress_h_prefab.json",
+        "components" : {
+            "actor" : {
+                "translation" : [50,-350]
+            },
+            "progress" : {
+                "value" : 0.25
+            }
+        }
+    },{
+        "prefab" : "../prefabs/progress_v_prefab.json",
+        "components" : {
+            "actor" : {
+                "translation" : [350,-350]
+            },
+            "progress" : {
+                "value" : 0.25
             }
         }
     }]

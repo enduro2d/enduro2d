@@ -42,6 +42,12 @@ local gobject = {
     ---@type named
     named = nil,
 
+    ---@type progress
+    progress = nil,
+
+    ---@type progress_handle
+    progress_handle = nil,
+
     ---@type renderer
     renderer = nil,
 
