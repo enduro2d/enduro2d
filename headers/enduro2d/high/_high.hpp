@@ -68,6 +68,7 @@ namespace e2d
     class renderer;
     class scene;
     class scroll;
+    class scroll_content;
     class scrollbar;
     class scrollbar_handle;
     class slider;

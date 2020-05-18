@@ -47,6 +47,7 @@
 #include "components/progress.hpp"
 #include "components/renderer.hpp"
 #include "components/scene.hpp"
+#include "components/scroll_content.hpp"
 #include "components/scroll.hpp"
 #include "components/scrollbar_handle.hpp"
 #include "components/scrollbar.hpp"

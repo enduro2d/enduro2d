@@ -21,6 +21,7 @@
 #include <enduro2d/high/components/progress.hpp>
 #include <enduro2d/high/components/renderer.hpp>
 #include <enduro2d/high/components/scene.hpp>
+#include <enduro2d/high/components/scroll_content.hpp>
 #include <enduro2d/high/components/scroll.hpp>
 #include <enduro2d/high/components/scrollbar_handle.hpp>
 #include <enduro2d/high/components/scrollbar.hpp>
@@ -66,6 +67,7 @@ namespace e2d::bindings::high
             "rect_collider", sol::property([](gobject& go){ return component_wrapper<rect_collider>{go}; }),
             "renderer", sol::property([](gobject& go){ return component_wrapper<renderer>{go}; }),
             "scene", sol::property([](gobject& go){ return component_wrapper<scene>{go}; }),
+            "scroll_content", sol::property([](gobject& go){ return component_wrapper<scroll_content>{go}; }),
             "scroll", sol::property([](gobject& go){ return component_wrapper<scroll>{go}; }),
             "scrollbar_handle", sol::property([](gobject& go){ return component_wrapper<scrollbar_handle>{go}; }),
             "scrollbar", sol::property([](gobject& go){ return component_wrapper<scrollbar>{go}; }),

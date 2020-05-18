@@ -57,6 +57,9 @@ local gobject = {
     ---@type scroll
     scroll = nil,
 
+    ---@type scroll_content
+    scroll_content = nil,
+
     ---@type scrollbar
     scrollbar = nil,
 

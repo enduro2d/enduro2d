@@ -13,5 +13,34 @@
             "tint" : [100,200,200,255],
             "sprite" : "../sprites/panel_sprite.json"
         }
-    }
+    },
+    "children" : [{
+        "uuid" : "1A9AF704-EF81-4DAE-A314-C1727F6FFED3",
+        "prefab" : "widget_prefab.json",
+        "components" : {
+            "named" : {
+                "name" : "viewport"
+            },
+            "widget" : {
+                "size" : [300,300]
+            }
+        },
+        "children" : [{
+            "uuid" : "6E41A46F-7D07-487C-B9FB-7859D81FAE8A",
+            "prefab" : "layout_prefab.json",
+            "components" : {
+                "named" : {
+                    "name" : "content"
+                },
+                "layout" : {
+                    "flex_direction" : "column_reversed",
+                    "justify_content" : "space_around"
+                },
+                "widget" : {
+                    "size" : [300,300]
+                },
+                "scroll_content" : {}
+            }
+        }]
+    }]
 }

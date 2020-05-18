@@ -30,6 +30,7 @@
 #include <enduro2d/high/components/progress.hpp>
 #include <enduro2d/high/components/renderer.hpp>
 #include <enduro2d/high/components/scene.hpp>
+#include <enduro2d/high/components/scroll_content.hpp>
 #include <enduro2d/high/components/scroll.hpp>
 #include <enduro2d/high/components/scrollbar_handle.hpp>
 #include <enduro2d/high/components/scrollbar.hpp>
@@ -243,6 +244,7 @@ namespace e2d
             .register_component<renderer>("renderer")
             .register_component<scene>("scene")
             .register_component<scroll>("scroll")
+            .register_component<scroll_content>("scroll_content")
             .register_component<scrollbar>("scrollbar")
             .register_component<scrollbar_handle>("scrollbar_handle")
             .register_component<slider>("slider")
@@ -291,6 +293,7 @@ namespace e2d
             .register_component<renderer>("renderer")
             .register_component<scene>("scene")
             .register_component<scroll>("scroll")
+            .register_component<scroll_content>("scroll_content")
             .register_component<scrollbar>("scrollbar")
             .register_component<scrollbar_handle>("scrollbar_handle")
             .register_component<slider>("slider")
