@@ -90,16 +90,16 @@ namespace
                 .feature<struct touch_feature>(ecs::feature()
                     .add_system<touch_system>())
 
-                .feature<struct widget_feature>(ecs::feature()
+                .feature<struct controls_feature>(ecs::feature()
                     .add_system<button_system>()
-                    .add_system<toggle_system>()
                     .add_system<progress_system>()
                     .add_system<scroll_system>()
                     .add_system<scrollbar_system>()
                     .add_system<slider_system>()
-                    .add_system<widget_system>())
+                    .add_system<toggle_system>())
 
                 .feature<struct layout_feature>(ecs::feature()
+                    .add_system<widget_system>()
                     .add_system<layout_system>())
 
                 .feature<struct label_feature>(ecs::feature()

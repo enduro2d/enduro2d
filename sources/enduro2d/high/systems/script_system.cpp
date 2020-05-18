@@ -133,6 +133,11 @@ namespace e2d
         }
         ~internal_state() noexcept = default;
 
+        void process_events(ecs::registry& owner) {
+            process_spine_player_events(owner);
+            process_touchable_events(owner);
+        }
+
         void process_update(ecs::registry& owner) {
             ecsex::for_extracted_components<behaviour, actor>(owner,
             [](ecs::entity e, behaviour& b, actor& a){
@@ -144,11 +149,6 @@ namespace e2d
                     e.assign_component<disabled<behaviour>>();
                 }
             }, !ecs::exists<disabled<behaviour>>());
-        }
-
-        void process_events(ecs::registry& owner) {
-            process_spine_player_events(owner);
-            process_touchable_events(owner);
         }
     };
 
@@ -165,16 +165,13 @@ namespace e2d
         const systems::update_event& event)
     {
         E2D_UNUSED(event);
-        E2D_PROFILER_SCOPE("script_system.process_update");
-        state_->process_update(owner);
-    }
-
-    void script_system::process(
-        ecs::registry& owner,
-        const ecs::before<systems::update_event>& trigger)
-    {
-        E2D_UNUSED(trigger);
-        E2D_PROFILER_SCOPE("script_system.process_events");
-        state_->process_events(owner);
+        {
+            E2D_PROFILER_SCOPE("script_system.process_events");
+            state_->process_events(owner);
+        }
+        {
+            E2D_PROFILER_SCOPE("script_system.process_update");
+            state_->process_update(owner);
+        }
     }
 }
