@@ -61,13 +61,7 @@ namespace
             }
 
             for ( const touchable_events::event& evt : events.get() ) {
-
-                //
-                // mouse_drag_evt
-                //
-
                 if ( auto mouse_evt = std::get_if<touchable_events::mouse_drag_evt>(&evt) ) {
-
                     if ( mouse_evt->type() == touchable_events::mouse_drag_evt::types::start ) {
                         const gobject target = mouse_evt->target();
                         const const_gcomponent<actor> target_a{target};
@@ -107,37 +101,6 @@ namespace
                         if ( const f32 sh = handle_area_w->size().y; sh > 0.f ) {
                             s.normalized_value(1.f - (local_point.y - local_offset.y) / sh);
                         }
-                        break;
-                    default:
-                        E2D_ASSERT_MSG(false, "unexpected slider direction type");
-                        break;
-                    }
-
-                }
-
-                //
-                // mouse_scroll_evt
-                //
-
-                if ( auto mouse_evt = std::get_if<touchable_events::mouse_scroll_evt>(&evt);
-                    mouse_evt &&
-                    !math::is_near_zero(mouse_evt->delta().y) )
-                {
-                    const f32 slider_range = s.max_value() - s.min_value();
-                    const f32 delta_step = slider_range * 0.01f * mouse_evt->delta().y;
-
-                    switch ( s.direction() ) {
-                    case slider::directions::row:
-                        s.value(s.raw_value() + delta_step);
-                        break;
-                    case slider::directions::row_reversed:
-                        s.value(s.raw_value() - delta_step);
-                        break;
-                    case slider::directions::column:
-                        s.value(s.raw_value() + delta_step);
-                        break;
-                    case slider::directions::column_reversed:
-                        s.value(s.raw_value() - delta_step);
                         break;
                     default:
                         E2D_ASSERT_MSG(false, "unexpected slider direction type");
