@@ -489,32 +489,14 @@ namespace e2d::math
     }
 
     //
-    // mod
-    //
-
-    template < typename T >
-    std::enable_if_t<std::is_integral_v<T>, T>
-    mod(T x, T y) noexcept {
-        E2D_ASSERT(y != T(0));
-        return x % y;
-    }
-
-    template < typename T >
-    std::enable_if_t<std::is_floating_point_v<T>, T>
-    mod(T x, T y) noexcept {
-        E2D_ASSERT(y != T(0));
-        return std::fmod(x, y);
-    }
-
-    //
-    // sign
+    // signbit
     //
 
     template < typename T >
     std::enable_if_t<
         std::is_integral_v<T> && std::is_signed_v<T>,
         bool>
-    sign(T v) noexcept {
+    signbit(T v) noexcept {
         return v < 0;
     }
 
@@ -522,7 +504,7 @@ namespace e2d::math
     std::enable_if_t<
         std::is_integral_v<T> && std::is_unsigned_v<T>,
         bool>
-    sign(T v) noexcept {
+    signbit(T v) noexcept {
         E2D_UNUSED(v);
         return false;
     }
@@ -531,13 +513,25 @@ namespace e2d::math
     std::enable_if_t<
         std::is_floating_point_v<T>,
         bool>
-    sign(T v) noexcept {
+    signbit(T v) noexcept {
         return std::signbit(v);
     }
 
     //
-    // sqrt
+    // mod/pow/sqrt
     //
+
+    template < typename T >
+    std::enable_if_t<std::is_floating_point_v<T>, T>
+    mod(T x, T y) noexcept {
+        return std::fmod(x, y);
+    }
+
+    template < typename T >
+    std::enable_if_t<std::is_floating_point_v<T>, T>
+    pow(T base, T exp) noexcept {
+        return std::pow(base, exp);
+    }
 
     template < typename T >
     std::enable_if_t<std::is_floating_point_v<T>, T>
