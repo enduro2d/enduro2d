@@ -518,6 +518,16 @@ namespace e2d::math
     }
 
     //
+    // sign
+    //
+
+    template < typename T >
+    std::enable_if_t<std::is_arithmetic_v<T>, T>
+    sign(T v) noexcept {
+        return signbit(v) ? T(-1) : T(1);
+    }
+
+    //
     // mod/pow/sqrt
     //
 

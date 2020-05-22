@@ -390,6 +390,23 @@ TEST_CASE("math") {
         REQUIRE(math::signbit(-0.1));
     }
     {
+        REQUIRE(math::sign(0) == 1);
+        REQUIRE(math::sign(1) == 1);
+        REQUIRE(math::sign(2) == 1);
+        REQUIRE(math::sign(-1) == -1);
+        REQUIRE(math::sign(-2) == -1);
+
+        REQUIRE(math::sign(0u) == 1);
+        REQUIRE(math::sign(1u) == 1);
+        REQUIRE(math::sign(2u) == 1);
+
+        REQUIRE(math::approximately(math::sign(0.f) == 1.f));
+        REQUIRE(math::approximately(math::sign(1.f) == 1.f));
+        REQUIRE(math::approximately(math::sign(2.f) == 1.f));
+        REQUIRE(math::approximately(math::sign(-1.f) == -1.f));
+        REQUIRE(math::approximately(math::sign(-2.f) == -1.f));
+    }
+    {
         REQUIRE(math::approximately(math::ceil(1), 1));
         REQUIRE(math::approximately(math::floor(1), 1));
         REQUIRE(math::approximately(math::round(1), 1));
