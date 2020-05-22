@@ -138,6 +138,61 @@
             "actor" : {
                 "translation" : [-380,-150]
             }
-        }
+        },
+        "mod_children" : [{
+            "uuid" : "1A9AF704-EF81-4DAE-A314-C1727F6FFED3",
+            "mod_children" : [{
+                "uuid" : "6E41A46F-7D07-487C-B9FB-7859D81FAE8A",
+                "components" : {
+                    "widget" : {
+                        "size" : [300,400]
+                    }
+                },
+                "children" : [{
+                    "prefab" : "../prefabs/slider_h_prefab.json",
+                    "components" : {
+                        "slider" : {
+                            "value" : 0.1
+                        }
+                    }
+                },{
+                    "prefab" : "../prefabs/button_prefab.json"
+                },{
+                    "prefab" : "../prefabs/slider_h_prefab.json",
+                    "components" : {
+                        "slider" : {
+                            "value" : 0.2
+                        }
+                    }
+                },{
+                    "prefab" : "../prefabs/button_prefab.json"
+                },{
+                    "prefab" : "../prefabs/slider_h_prefab.json",
+                    "components" : {
+                        "slider" : {
+                            "value" : 0.3
+                        }
+                    }
+                },{
+                    "prefab" : "../prefabs/button_prefab.json"
+                },{
+                    "prefab" : "../prefabs/slider_h_prefab.json",
+                    "components" : {
+                        "slider" : {
+                            "value" : 0.4
+                        }
+                    }
+                },{
+                    "prefab" : "../prefabs/button_prefab.json"
+                },{
+                    "prefab" : "../prefabs/slider_h_prefab.json",
+                    "components" : {
+                        "slider" : {
+                            "value" : 0.5
+                        }
+                    }
+                }]
+            }]
+        }]
     }]
 }

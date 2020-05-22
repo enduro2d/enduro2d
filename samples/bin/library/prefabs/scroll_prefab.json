@@ -1,20 +1,37 @@
 {
-    "prefab" : "wsprite_prefab.json",
+    "prefab" : "widget_prefab.json",
     "components" : {
         "named" : {
             "name" : "scroll"
         },
         "scroll" : {
         },
+        "rect_collider" : {
+            "size" : [300,300],
+            "offset" : [150,150]
+        },
+        "touchable" : {
+        },
         "widget" : {
             "size" : [300,300]
-        },
-        "sprite_renderer" : {
-            "tint" : [100,200,200,255],
-            "sprite" : "../sprites/panel_sprite.json"
         }
     },
     "children" : [{
+        "uuid" : "827087BB-81F0-4036-BCA2-3013F20699EC",
+        "prefab" : "wsprite_prefab.json",
+        "components" : {
+            "named" : {
+                "name" : "background"
+            },
+            "sprite_renderer" : {
+                "tint" : [100,200,200,255],
+                "sprite" : "../sprites/panel_sprite.json"
+            },
+            "widget" : {
+                "size" : [300,300]
+            }
+        }
+    },{
         "uuid" : "1A9AF704-EF81-4DAE-A314-C1727F6FFED3",
         "prefab" : "widget_prefab.json",
         "components" : {
