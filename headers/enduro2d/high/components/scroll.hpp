@@ -12,6 +12,28 @@ namespace e2d
 {
     class scroll final {
     public:
+        scroll() = default;
+
+        scroll& vertical(bool value) noexcept;
+        [[nodiscard]] bool vertical() const noexcept;
+
+        scroll& horizontal(bool value) noexcept;
+        [[nodiscard]] bool horizontal() const noexcept;
+
+        scroll& inertia(f32 value) noexcept;
+        [[nodiscard]] f32 inertia() const noexcept;
+
+        scroll& elasticity(f32 value) noexcept;
+        [[nodiscard]] f32 elasticity() const noexcept;
+
+        scroll& sensitivity(f32 value) noexcept;
+        [[nodiscard]] f32 sensitivity() const noexcept;
+    private:
+        bool vertical_ = true;
+        bool horizontal_ = true;
+        f32 inertia_ = 0.135f;
+        f32 elasticity_ = 0.1f;
+        f32 sensitivity_ = 1.f;
     };
 }
 
@@ -41,4 +63,52 @@ namespace e2d
 
         void operator()(gcomponent<scroll>& c) const;
     };
+}
+
+namespace e2d
+{
+    inline scroll& scroll::vertical(bool value) noexcept {
+        vertical_ = value;
+        return *this;
+    }
+
+    inline bool scroll::vertical() const noexcept {
+        return vertical_;
+    }
+
+    inline scroll& scroll::horizontal(bool value) noexcept {
+        horizontal_ = value;
+        return *this;
+    }
+
+    inline bool scroll::horizontal() const noexcept {
+        return horizontal_;
+    }
+
+    inline scroll& scroll::inertia(f32 value) noexcept {
+        inertia_ = math::saturate(value);
+        return *this;
+    }
+
+    inline f32 scroll::inertia() const noexcept {
+        return inertia_;
+    }
+
+    inline scroll& scroll::elasticity(f32 value) noexcept {
+        elasticity_ = math::saturate(value);
+        return *this;
+    }
+
+    inline f32 scroll::elasticity() const noexcept {
+        return elasticity_;
+    }
+
+    inline scroll& scroll::sensitivity(f32 value) noexcept {
+        sensitivity_ = math::max(value, 0.f);
+        return *this;
+    }
+
+    inline f32 scroll::sensitivity() const noexcept {
+        return sensitivity_;
+    }
 }

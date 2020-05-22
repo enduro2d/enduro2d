@@ -4,7 +4,22 @@ local scroll = {
     enabled = true,
 
     ---@type boolean
-    disabled = false
+    disabled = false,
+
+    ---@type boolean
+    vertical = true,
+
+    ---@type boolean
+    horizontal = true,
+
+    ---@type number
+    inertia = 0.135,
+
+    ---@type number
+    elasticity = 0.1,
+
+    ---@type number
+    sensitivity = 1.0
 }
 
 ---@overload fun(self: scroll)

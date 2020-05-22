@@ -48,7 +48,47 @@ namespace e2d::bindings::high
                         c.component<disabled<scroll>>().remove();
                     }
                 }
-            )
+            ),
+
+            "vertical", sol::property(
+                [](const gcomponent<scroll>& c) -> bool {
+                    return c->vertical();
+                },
+                [](gcomponent<scroll>& c, bool v){
+                    c->vertical(v);
+                }),
+
+            "horizontal", sol::property(
+                [](const gcomponent<scroll>& c) -> bool {
+                    return c->horizontal();
+                },
+                [](gcomponent<scroll>& c, bool v){
+                    c->horizontal(v);
+                }),
+
+            "inertia", sol::property(
+                [](const gcomponent<scroll>& c) -> f32 {
+                    return c->inertia();
+                },
+                [](gcomponent<scroll>& c, f32 v){
+                    c->inertia(v);
+                }),
+
+            "elasticity", sol::property(
+                [](const gcomponent<scroll>& c) -> f32 {
+                    return c->elasticity();
+                },
+                [](gcomponent<scroll>& c, f32 v){
+                    c->elasticity(v);
+                }),
+
+            "sensitivity", sol::property(
+                [](const gcomponent<scroll>& c) -> f32 {
+                    return c->sensitivity();
+                },
+                [](gcomponent<scroll>& c, f32 v){
+                    c->sensitivity(v);
+                })
         );
     }
 }
