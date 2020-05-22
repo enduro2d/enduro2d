@@ -87,10 +87,16 @@ namespace
         const v2f& delta,
         const v2f& content_size,
         const v2f& content_area_size,
-        const v2f& content_translation) noexcept
+        const t2f& content_transform) noexcept
     {
-        const v2f& content_min = content_translation + delta;
-        const v2f& content_max = content_translation + content_size + delta;
+        const v2f& content_min =
+            content_transform.translation +
+            delta;
+
+        const v2f& content_max =
+            content_transform.translation +
+            content_size * content_transform.scale +
+            delta;
 
         const v2f& content_area_min = v2f::zero();
         const v2f& content_area_max = content_area_size;
@@ -146,7 +152,7 @@ namespace
 {
     using namespace e2d;
 
-    void update_scroll_state(ecs::registry& owner) {
+    void update_scroll_states(ecs::registry& owner) {
         owner.for_joined_components<scroll, actor>([](
             const ecs::const_entity&,
             scroll&,
@@ -244,7 +250,7 @@ namespace
                                 next_translation - curr_translation,
                                 state.content_w->size(),
                                 state.content_area_w->size(),
-                                state.content_a->node()->translation());
+                                state.content_a->node()->transform());
 
                             next_translation += offset;
 
@@ -288,7 +294,7 @@ namespace
                             next_translation - curr_translation,
                             state.content_w->size(),
                             state.content_area_w->size(),
-                            state.content_a->node()->translation());
+                            state.content_a->node()->transform());
                     }
 
                     move_scroll_content(s, next_translation - curr_translation, state.content_a);
@@ -316,7 +322,7 @@ namespace
                 v2f::zero(),
                 state.content_w->size(),
                 state.content_area_w->size(),
-                state.content_a->node()->translation());
+                state.content_a->node()->transform());
 
             if ( !state.dragging && (offset != v2f::zero() || state.velocity != v2f::zero()) ) {
                 const v2f curr_translation = state.content_a->node()->translation();
@@ -353,7 +359,7 @@ namespace
                         next_translation - curr_translation,
                         state.content_w->size(),
                         state.content_area_w->size(),
-                        state.content_a->node()->translation());
+                        state.content_a->node()->transform());
                     next_translation += offset;
                 }
 
@@ -382,7 +388,7 @@ namespace e2d
         ~internal_state() noexcept = default;
 
         void process_update(f32 dt, ecs::registry& owner) {
-            update_scroll_state(owner);
+            update_scroll_states(owner);
             update_scroll_inputs(owner);
             update_scroll_inertia(dt, owner);
         }
