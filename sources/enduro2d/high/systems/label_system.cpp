@@ -341,7 +341,7 @@ namespace
                 }
 
                 last_char_width = 0.f;
-                last_char_width = std::size_t(-1);
+                last_char_index = std::size_t(-1);
 
                 last_space_width = 0.f;
                 last_space_index = std::size_t(-1);

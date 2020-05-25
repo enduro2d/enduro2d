@@ -335,18 +335,19 @@ namespace
         const collector::mouse_move_event& event)
     {
         E2D_UNUSED(owner, dragging, event);
+        using namespace touchable_events;
 
         const_gcomponent<touchable_under_mouse> under_mouse = hovering
             ? hovering->target
             : const_gcomponent<touchable_under_mouse>();
 
-        if ( !under_mouse ) {
+        if ( !hovering || !under_mouse ) {
             return;
         }
 
         dispatch_event(
             hovering->target,
-            touchable_events::mouse_move_evt(
+            mouse_move_evt(
                 hovering->target,
                 under_mouse->local_point,
                 under_mouse->world_point));
@@ -365,7 +366,7 @@ namespace
             ? hovering->target
             : const_gcomponent<touchable_under_mouse>();
 
-        if ( !under_mouse ) {
+        if ( !hovering || !under_mouse ) {
             return;
         }
 
