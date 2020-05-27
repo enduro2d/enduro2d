@@ -11,7 +11,6 @@
 #include <enduro2d/core/debug.hpp>
 #include <enduro2d/core/deferrer.hpp>
 #include <enduro2d/core/input.hpp>
-#include <enduro2d/core/network.hpp>
 #include <enduro2d/core/platform.hpp>
 #include <enduro2d/core/profiler.hpp>
 #include <enduro2d/core/render.hpp>
@@ -189,11 +188,6 @@ namespace e2d
         return *this;
     }
 
-    engine::parameters& engine::parameters::without_network(bool value) {
-        without_network_ = value;
-        return *this;
-    }
-
     engine::parameters& engine::parameters::without_graphics(bool value) {
         without_graphics_ = value;
         return *this;
@@ -226,10 +220,6 @@ namespace e2d
         return without_audio_;
     }
 
-    bool& engine::parameters::without_network() noexcept {
-        return without_network_;
-    }
-
     bool& engine::parameters::without_graphics() noexcept {
         return without_graphics_;
     }
@@ -256,10 +246,6 @@ namespace e2d
 
     bool engine::parameters::without_audio() const noexcept {
         return without_audio_;
-    }
-
-    bool engine::parameters::without_network() const noexcept {
-        return without_network_;
     }
 
     bool engine::parameters::without_graphics() const noexcept {
@@ -435,12 +421,6 @@ namespace e2d
                 the<debug>());
         }
 
-        // setup network
-
-        if ( !params.without_network() ) {
-            safe_module_initialize<network>();
-        }
-
         // setup graphics
 
         const bool without_graphics =
@@ -481,7 +461,6 @@ namespace e2d
             dbgui,
             render,
             window,
-            network,
             audio,
             input,
             vfs,

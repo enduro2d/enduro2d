@@ -1,11 +1,15 @@
 -Iheaders
 -Iheaders/3rdparty
 -Iheaders/3rdparty/lua
+-Iheaders/3rdparty/imgui
+-Iheaders/3rdparty/pugixml
+
 -Isources
+-Isources/3rdparty
 
 -Imodules/ecs.hpp/headers
+-Imodules/enum.hpp/headers
 -Imodules/flat.hpp/headers
--Imodules/curly.hpp/headers
 -Imodules/promise.hpp/headers
 
 -Imodules/glew/include

@@ -128,7 +128,6 @@ namespace e2d
         parameters& game_name(str value) noexcept;
         parameters& company_name(str value) noexcept;
         parameters& without_audio(bool value);
-        parameters& without_network(bool value);
         parameters& without_graphics(bool value);
         parameters& debug_params(debug_parameters value) noexcept;
         parameters& window_params(window_parameters value) noexcept;
@@ -137,7 +136,6 @@ namespace e2d
         str& game_name() noexcept;
         str& company_name() noexcept;
         bool& without_audio() noexcept;
-        bool& without_network() noexcept;
         bool& without_graphics() noexcept;
         debug_parameters& debug_params() noexcept;
         window_parameters& window_params() noexcept;
@@ -146,7 +144,6 @@ namespace e2d
         const str& game_name() const noexcept;
         const str& company_name() const noexcept;
         bool without_audio() const noexcept;
-        bool without_network() const noexcept;
         bool without_graphics() const noexcept;
         const debug_parameters& debug_params() const noexcept;
         const window_parameters& window_params() const noexcept;
@@ -155,7 +152,6 @@ namespace e2d
         str game_name_{"noname"};
         str company_name_{"noname"};
         bool without_audio_{false};
-        bool without_network_{false};
         bool without_graphics_{false};
         debug_parameters debug_params_;
         window_parameters window_params_;

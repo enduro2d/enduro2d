@@ -10,19 +10,12 @@
 #include "../math/_all.hpp"
 #include "../utils/_all.hpp"
 
-#include <curly.hpp/curly.hpp>
-
 #include <promise.hpp/jobber.hpp>
 #include <promise.hpp/promise.hpp>
 #include <promise.hpp/scheduler.hpp>
 
 namespace e2d
 {
-    namespace net
-    {
-        using namespace curly_hpp;
-    }
-
     namespace stdex
     {
         using namespace jobber_hpp;
@@ -40,7 +33,6 @@ namespace e2d
     class mouse;
     class keyboard;
     class input;
-    class network;
     class platform;
     class profiler;
     class render;

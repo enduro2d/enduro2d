@@ -116,13 +116,6 @@ file(GLOB_RECURSE E2D_3RDPARTY
 # e2d external 3rd party
 #
 
-set(USE_STATIC_CRT ${E2D_BUILD_WITH_STATIC_CRT} CACHE INTERNAL "" FORCE)
-set(USE_SYSTEM_CURL OFF CACHE INTERNAL "" FORCE)
-set(USE_EMBEDDED_CURL ON CACHE INTERNAL "" FORCE)
-
-add_subdirectory(modules/curly.hpp)
-set_target_properties(curly.hpp libcurl PROPERTIES FOLDER modules)
-
 add_subdirectory(modules/ecs.hpp)
 add_subdirectory(modules/enum.hpp)
 add_subdirectory(modules/flat.hpp)
@@ -227,7 +220,6 @@ source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES
     ${E2D_3RDPARTY})
 
 target_link_libraries(${PROJECT_NAME}
-    PUBLIC curly.hpp
     PUBLIC ecs.hpp
     PUBLIC enum.hpp
     PUBLIC flat.hpp
