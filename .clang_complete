@@ -1,6 +1,5 @@
 -Iheaders
 -Iheaders/3rdparty
--Iheaders/3rdparty/lua
 -Iheaders/3rdparty/imgui
 -Iheaders/3rdparty/pugixml
 

@@ -167,7 +167,6 @@ target_link_libraries(${PROJECT_NAME}
 target_include_directories(${PROJECT_NAME}
     PUBLIC headers
     PUBLIC headers/3rdparty
-    PUBLIC headers/3rdparty/lua
     PUBLIC headers/3rdparty/imgui
     PUBLIC headers/3rdparty/pugixml
     PRIVATE sources
