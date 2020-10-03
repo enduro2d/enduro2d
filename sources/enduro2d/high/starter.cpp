@@ -10,11 +10,9 @@
 #include <enduro2d/high/factory.hpp>
 #include <enduro2d/high/inspector.hpp>
 #include <enduro2d/high/library.hpp>
-#include <enduro2d/high/luasol.hpp>
 #include <enduro2d/high/world.hpp>
 
 #include <enduro2d/high/components/actor.hpp>
-#include <enduro2d/high/components/behaviour.hpp>
 #include <enduro2d/high/components/camera.hpp>
 #include <enduro2d/high/components/colliders.hpp>
 #include <enduro2d/high/components/commands.hpp>
@@ -39,7 +37,6 @@
 #include <enduro2d/high/systems/label_system.hpp>
 #include <enduro2d/high/systems/layout_system.hpp>
 #include <enduro2d/high/systems/render_system.hpp>
-#include <enduro2d/high/systems/script_system.hpp>
 #include <enduro2d/high/systems/spine_system.hpp>
 #include <enduro2d/high/systems/touch_system.hpp>
 #include <enduro2d/high/systems/widget_system.hpp>
@@ -77,8 +74,6 @@ namespace
                     .add_system<layout_system>())
                 .feature<struct render_feature>(ecs::feature()
                     .add_system<render_system>())
-                .feature<struct script_feature>(ecs::feature()
-                    .add_system<script_system>())
                 .feature<struct spine_feature>(ecs::feature()
                     .add_system<spine_system>())
                 .feature<struct touch_feature>(ecs::feature()
@@ -191,7 +186,6 @@ namespace e2d
 
         safe_module_initialize<factory>()
             .register_component<actor>("actor")
-            .register_component<behaviour>("behaviour")
             .register_component<camera>("camera")
             .register_component<camera::input>("camera.input")
             .register_component<camera::gizmos>("camera.gizmos")
@@ -219,7 +213,6 @@ namespace e2d
 
         safe_module_initialize<inspector>()
             .register_component<actor>("actor")
-            .register_component<behaviour>("behaviour")
             .register_component<camera>("camera")
             //.register_component<camera::gizmos>("camera.input")
             //.register_component<camera::gizmos>("camera.gizmos")
@@ -245,8 +238,6 @@ namespace e2d
             //.register_component<widget::dirty>("widget.dirty")
             ;
 
-        safe_module_initialize<luasol>();
-
         safe_module_initialize<library>(
             params.library_params());
 
@@ -255,13 +246,10 @@ namespace e2d
     }
 
     starter::~starter() noexcept {
-        the<luasol>().collect_garbage();
-
         modules::shutdown<
             editor,
             world,
             library,
-            luasol,
             inspector,
             factory,
             engine>();

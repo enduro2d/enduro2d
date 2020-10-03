@@ -10,9 +10,6 @@
 
 #include <ecs.hpp/ecs.hpp>
 
-#define SOL_ALL_SAFETIES_ON 1
-#include <3rdparty/sol/sol.hpp>
-
 namespace e2d
 {
     namespace ecs
@@ -33,7 +30,6 @@ namespace e2d
     class mesh_asset;
     class model_asset;
     class prefab_asset;
-    class script_asset;
     class shader_asset;
     class shape_asset;
     class sound_asset;
@@ -44,7 +40,6 @@ namespace e2d
     class xml_asset;
 
     class actor;
-    class behaviour;
     class camera;
     class rect_collider;
     class circle_collider;
@@ -71,7 +66,6 @@ namespace e2d
     class flipbook;
     class model;
     class prefab;
-    class script;
     class spine;
     class sprite;
 
@@ -82,7 +76,6 @@ namespace e2d
     class label_system;
     class layout_system;
     class render_system;
-    class script_system;
     class spine_system;
     class touch_system;
     class world_system;
@@ -99,7 +92,6 @@ namespace e2d
 
     class editor;
     class inspector;
-    class luasol;
     class starter;
     class world;
 
@@ -109,24 +101,6 @@ namespace e2d
     class gcomponent;
     template < typename T >
     class const_gcomponent;
-}
-
-namespace sol
-{
-    template < typename T >
-    struct unique_usertype_traits<e2d::intrusive_ptr<T>> {
-        using type = T;
-        using actual_type = e2d::intrusive_ptr<T>;
-        static const bool value = true;
-
-        static bool is_null(const actual_type& ptr) {
-            return !ptr;
-        }
-
-        static type* get(actual_type& ptr) {
-            return ptr.get();
-        }
-    };
 }
 
 namespace e2d::ecsex

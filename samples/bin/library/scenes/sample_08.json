@@ -1,10 +1,5 @@
 {
     "prefab" : "../prefabs/scene_prefab.json",
-    "components" : {
-        "behaviour" : {
-            "script" : "../scripts/sample_08/sample_08.lua"
-        }
-    },
     "children" : [{
         "prefab" : "../prefabs/camera_prefab.json",
         "components" : {
@@ -41,9 +36,6 @@
                 "translation" : [0,0],
                 "rotation" : 1
             },
-            "behaviour" : {
-                "script" : "../scripts/sample_08/ship.lua"
-            },
             "touchable" : {},
             "circle_collider" : {
                 "offset" : [10,15],
@@ -61,9 +53,6 @@
                     "rotation" : 1,
                     "scale" : [0.5,0.5]
                 },
-                "behaviour" : {
-                    "script" : "../scripts/sample_08/ship.lua"
-                },
                 "touchable" : {},
                 "circle_collider" : {
                     "offset" : [10,15],
@@ -80,9 +69,6 @@
             "actor" : {
                 "translation" : [120,100],
                 "rotation" : 0.2
-            },
-            "behaviour" : {
-                "script" : "../scripts/sample_08/ship.lua"
             },
             "touchable" : {},
             "rect_collider" : {

@@ -1,10 +1,5 @@
 {
     "prefab" : "../prefabs/scene_prefab.json",
-    "components" : {
-        "behaviour" : {
-            "script" : "../scripts/sample_07/sample_07.lua"
-        }
-    },
     "children" : [{
         "prefab" : "../prefabs/camera_prefab.json"
     },{
@@ -15,9 +10,6 @@
             "actor" : {
                 "translation" : [0,0],
                 "scale" : 20
-            },
-            "behaviour" : {
-                "script" : "../scripts/sample_07/gnome.lua"
             }
         }
     },{
@@ -32,9 +24,6 @@
             "actor" : {
                 "translation" : [-502,-246],
                 "scale" : 1
-            },
-            "behaviour" : {
-                "script" : "../scripts/sample_07/fps_label.lua"
             }
         }
     }]
