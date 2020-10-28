@@ -126,7 +126,7 @@ namespace e2d::touch_system_impl::impl
         const b2f& camera_viewport)
     {
         static thread_local std::vector<v2f> points;
-        E2D_DEFER([](){ points.clear(); });
+        DEFER([](){ points.clear(); });
 
         if ( points.capacity() < c.points.size() ) {
             points.reserve(math::max(points.capacity() * 2u, c.points.size()));

@@ -1,6 +1,8 @@
 #!/bin/bash
 SCRIPT_DIR=`dirname "$BASH_SOURCE"`
 cloc \
+  $SCRIPT_DIR/../modules/defer.hpp/headers \
+  $SCRIPT_DIR/../modules/defer.hpp/untests \
   $SCRIPT_DIR/../modules/ecs.hpp/headers \
   $SCRIPT_DIR/../modules/ecs.hpp/untests \
   $SCRIPT_DIR/../modules/enum.hpp/headers \

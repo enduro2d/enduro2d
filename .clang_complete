@@ -6,6 +6,7 @@
 -Isources
 -Isources/3rdparty
 
+-Imodules/defer.hpp/headers
 -Imodules/ecs.hpp/headers
 -Imodules/enum.hpp/headers
 -Imodules/flat.hpp/headers

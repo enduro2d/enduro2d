@@ -49,3 +49,6 @@
 [submodule "modules/yoga"]
 	path = modules/yoga
 	url = https://github.com/facebook/yoga
+[submodule "modules/defer.hpp"]
+	path = modules/defer.hpp
+	url = https://github.com/blackmatov/defer.hpp

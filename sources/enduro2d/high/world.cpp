@@ -86,12 +86,12 @@ namespace
 
     gobject new_instance(world& world, const prefab& root_prefab) {
         ecs::entity ent = world.registry().create_entity(root_prefab.prototype());
-        auto ent_defer = make_error_defer([&ent](){
+        auto ent_defer = defer_hpp::make_error_defer([&ent](){
             ent.destroy();
         });
 
         gobject root_i(make_intrusive<gobject_state>(world, ent));
-        E2D_ERROR_DEFER([&root_i](){
+        ERROR_DEFER([&root_i](){
             delete_instance(root_i);
         });
 
@@ -108,7 +108,7 @@ namespace
 
         for ( const prefab& child_prefab : root_prefab.children() ) {
             gobject child_i = new_instance(world, child_prefab);
-            E2D_ERROR_DEFER([&child_i](){
+            ERROR_DEFER([&child_i](){
                 delete_instance(child_i);
             });
             gcomponent<actor> root_a{root_i};
@@ -158,7 +158,7 @@ namespace e2d
 
     gobject world::instantiate(const prefab& prefab, const node_iptr& parent) {
         gobject inst = new_instance(*this, prefab);
-        E2D_ERROR_DEFER([inst](){
+        ERROR_DEFER([inst](){
             delete_instance(inst);
         });
 
@@ -173,7 +173,7 @@ namespace e2d
 
     gobject world::instantiate(const prefab& prefab, const node_iptr& parent, const t2f& transform) {
         gobject inst = new_instance(*this, prefab);
-        E2D_ERROR_DEFER([inst](){
+        ERROR_DEFER([inst](){
             delete_instance(inst);
         });
 

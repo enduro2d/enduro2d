@@ -8,7 +8,7 @@
 using namespace e2d;
 
 TEST_CASE("images") {
-    E2D_DEFER([](){
+    DEFER([](){
         filesystem::remove_file("image_save_test.jpg");
         filesystem::remove_file("image_save_test.png");
         filesystem::remove_file("image_save_test.tga");

@@ -37,7 +37,7 @@ namespace e2d::imgui_utils
     template < typename... Args >
     void show_colored_text(const color& color, str_view fmt, Args&&... args) {
         ImGui::PushStyleColor(ImGuiCol_Text, make_vec4(color));
-        E2D_DEFER([](){ ImGui::PopStyleColor(); });
+        DEFER([](){ ImGui::PopStyleColor(); });
 
         show_formatted_text(fmt, std::forward<Args>(args)...);
     }
@@ -54,7 +54,7 @@ namespace e2d::imgui_utils
         }
 
         if ( ImGui::BeginCombo(label_cstr, preview_cstr) ) {
-            E2D_DEFER([](){ ImGui::EndCombo(); });
+            DEFER([](){ ImGui::EndCombo(); });
 
             for ( std::size_t i = 0; i < enum_hpp::size<E>(); ++i ) {
                 str_view item_name = enum_hpp::names<E>()[i];
@@ -80,10 +80,10 @@ namespace e2d::imgui_utils
     template < typename F, typename... Args >
     void with_disabled_flag(F&& f, Args&&... args) {
         ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-        E2D_DEFER([](){ ImGui::PopItemFlag(); });
+        DEFER([](){ ImGui::PopItemFlag(); });
 
         ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
-        E2D_DEFER([](){ ImGui::PopStyleVar(); });
+        DEFER([](){ ImGui::PopStyleVar(); });
 
         std::invoke(std::forward<F>(f), std::forward<Args>(args)...);
     }

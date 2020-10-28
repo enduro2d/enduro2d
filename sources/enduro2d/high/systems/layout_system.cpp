@@ -181,13 +181,13 @@ namespace
             const actor& root_a)
         {
             static thread_local vector<gcomponent<widget>> item_ws;
-            E2D_DEFER([](){ item_ws.clear(); });
+            DEFER([](){ item_ws.clear(); });
 
             nodes::extract_components_from_children<widget>(
                 root_a.node(),
                 std::back_inserter(item_ws));
 
-            E2D_DEFER([&root_yn](){
+            DEFER([&root_yn](){
                 YGNodeRemoveAllChildren(root_yn.as_root.get());
             });
 

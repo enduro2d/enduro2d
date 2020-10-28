@@ -116,6 +116,7 @@ file(GLOB_RECURSE E2D_3RDPARTY
 # e2d external 3rd party
 #
 
+add_subdirectory(modules/defer.hpp)
 add_subdirectory(modules/ecs.hpp)
 add_subdirectory(modules/enum.hpp)
 add_subdirectory(modules/flat.hpp)
@@ -153,6 +154,7 @@ source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES
     ${E2D_3RDPARTY})
 
 target_link_libraries(${PROJECT_NAME}
+    PUBLIC defer.hpp
     PUBLIC ecs.hpp
     PUBLIC enum.hpp
     PUBLIC flat.hpp

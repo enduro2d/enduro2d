@@ -128,7 +128,7 @@ namespace e2d::render_system_impl
         const model& mdl = mdl_r.model()->content();
         const mesh& msh = mdl.mesh()->content();
 
-        E2D_DEFER([this](){
+        DEFER([this](){
             property_cache_.clear();
         });
 
@@ -182,7 +182,7 @@ namespace e2d::render_system_impl
 
         unsigned short quad_indices[6] = { 0, 1, 2, 2, 3, 0 };
 
-        E2D_DEFER([this, clipper](){
+        DEFER([this, clipper](){
             property_cache_.clear();
             spSkeletonClipping_clipEnd2(clipper);
         });
@@ -190,7 +190,7 @@ namespace e2d::render_system_impl
         for ( int i = 0; i < skeleton->slotsCount; ++i ) {
             spSlot* slot = skeleton->drawOrder[i];
 
-            auto slot_clipping_defer = make_defer([clipper, slot](){
+            auto slot_clipping_defer = defer_hpp::make_defer([clipper, slot](){
                 spSkeletonClipping_clipEnd(clipper, slot);
             });
 
@@ -474,7 +474,7 @@ namespace e2d::render_system_impl
             return;
         }
 
-        E2D_DEFER([this](){
+        DEFER([this](){
             property_cache_.clear();
         });
 
