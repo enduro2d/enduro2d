@@ -126,10 +126,6 @@ namespace
                 atlas_path,
                 atlas_folder
             ](){
-                E2D_PROFILER_SCOPE_EX("spine_asset.atlas_parsing", {
-                    {"address", atlas_path}
-                });
-
                 auto atlas_internal = std::make_unique<atlas_internal_state>();
 
                 spine::atlas_ptr atlas(
@@ -152,10 +148,6 @@ namespace
                 atlas_path,
                 atlas_folder
             ](auto&& dependencies){
-                E2D_PROFILER_SCOPE_EX("spine_asset.atlas_parsing", {
-                    {"address", atlas_path}
-                });
-
                 auto atlas_internal = std::make_unique<atlas_internal_state>();
                 atlas_internal->loaded = std::forward<decltype(dependencies)>(dependencies);
 
@@ -205,9 +197,6 @@ namespace
                 address = std::move(address),
                 skeleton_data
             ](){
-                E2D_PROFILER_SCOPE_EX("spine_asset.skeleton_parsing", {
-                    {"address", address}
-                });
                 if ( strings::ends_with(address, ".skel") ) {
                     using skeleton_bin_ptr = std::unique_ptr<
                         spSkeletonBinary,

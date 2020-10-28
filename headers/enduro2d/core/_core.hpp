@@ -34,7 +34,6 @@ namespace e2d
     class keyboard;
     class input;
     class platform;
-    class profiler;
     class render;
     class shader;
     class texture;

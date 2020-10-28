@@ -76,10 +76,6 @@ namespace
                 vertex_a = std::move(vertex_a),
                 fragment_a = std::move(fragment_a)
             ](){
-                E2D_PROFILER_SCOPE_EX("shader_asset.create_shader", {
-                    {"vertex_address", vertex_a},
-                    {"fragment_address", fragment_a}
-                });
                 const shader_ptr content = the<render>().create_shader(
                     std::get<0>(results)->content(),
                     std::get<1>(results)->content());

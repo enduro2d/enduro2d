@@ -92,19 +92,16 @@ namespace
         }
 
         bool frame_tick() final {
-            E2D_PROFILER_SCOPE("application.frame_tick");
             the<world>().registry().process_event(systems::frame_update_event{});
             return !the<window>().should_close()
                 || (application_ && !application_->on_should_close());
         }
 
         void frame_render() final {
-            E2D_PROFILER_SCOPE("application.frame_render");
             the<world>().registry().process_event(systems::frame_render_event{});
         }
 
         void frame_finalize() final {
-            E2D_PROFILER_SCOPE("application.frame_finalize");
             the<world>().registry().process_event(systems::frame_finalize_event{});
         }
     private:

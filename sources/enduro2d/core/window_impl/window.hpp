@@ -7,5 +7,4 @@
 #pragma once
 
 #include <enduro2d/core/debug.hpp>
-#include <enduro2d/core/profiler.hpp>
 #include <enduro2d/core/window.hpp>

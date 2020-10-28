@@ -41,7 +41,6 @@ namespace e2d
         const ecs::after<systems::frame_finalize_event>& trigger)
     {
         E2D_UNUSED(trigger);
-        E2D_PROFILER_SCOPE("world_system.process_frame_finalize");
         state_->process_frame_finalize(owner);
     }
 }

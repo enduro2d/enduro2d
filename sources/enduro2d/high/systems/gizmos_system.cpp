@@ -271,7 +271,6 @@ namespace e2d
         ecs::registry& owner,
         const ecs::after<systems::render_event>& trigger)
     {
-        E2D_PROFILER_SCOPE("gizmos_system.process_render");
         state_->process_render(trigger.event.cam_e, owner);
     }
 }

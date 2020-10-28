@@ -157,8 +157,6 @@ namespace e2d
     }
 
     gobject world::instantiate(const prefab& prefab, const node_iptr& parent) {
-        E2D_PROFILER_SCOPE("world.instantiate");
-
         gobject inst = new_instance(*this, prefab);
         E2D_ERROR_DEFER([inst](){
             delete_instance(inst);
@@ -174,8 +172,6 @@ namespace e2d
     }
 
     gobject world::instantiate(const prefab& prefab, const node_iptr& parent, const t2f& transform) {
-        E2D_PROFILER_SCOPE("world.instantiate");
-
         gobject inst = new_instance(*this, prefab);
         E2D_ERROR_DEFER([inst](){
             delete_instance(inst);
@@ -203,7 +199,6 @@ namespace e2d
     }
 
     void world::finalize_instances() noexcept {
-        E2D_PROFILER_SCOPE("world.finalize_instances");
         while ( !destroying_states_.empty() ) {
             gobject inst{&destroying_states_.front()};
             destroying_states_.pop_front();

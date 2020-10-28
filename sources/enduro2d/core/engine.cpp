@@ -12,7 +12,6 @@
 #include <enduro2d/core/deferrer.hpp>
 #include <enduro2d/core/input.hpp>
 #include <enduro2d/core/platform.hpp>
-#include <enduro2d/core/profiler.hpp>
 #include <enduro2d/core/render.hpp>
 #include <enduro2d/core/vfs.hpp>
 #include <enduro2d/core/window.hpp>
@@ -306,8 +305,6 @@ namespace e2d
         }
     public:
         void calculate_end_frame_timers() noexcept {
-            E2D_PROFILER_SCOPE("engine.wait_for_target_fps");
-
             const auto second_us = time::second_us<u64>();
 
             const auto minimal_delta_time_us =
@@ -370,11 +367,6 @@ namespace e2d
         // setup deferrer
 
         safe_module_initialize<deferrer>();
-
-        // setup profiler
-
-        safe_module_initialize<profiler>(
-            the<deferrer>());
 
         // setup debug
 
@@ -465,7 +457,6 @@ namespace e2d
             input,
             vfs,
             debug,
-            profiler,
             deferrer,
             platform>();
     }
@@ -502,8 +493,6 @@ namespace e2d
 
             the<input>().frame_tick();
             window::poll_events();
-
-            E2D_PROFILER_GLOBAL_EVENT("engine.end_of_frame");
         }
 
         app->shutdown();

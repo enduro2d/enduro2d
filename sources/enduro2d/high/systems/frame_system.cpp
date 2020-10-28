@@ -61,39 +61,17 @@ namespace e2d
             const f32 dt = engine_.delta_time();
             const f32 time = engine_.time();
 
-            {
-                E2D_PROFILER_SCOPE("ecs.pre_update");
-                owner.process_event(systems::pre_update_event{dt,time});
-            }
-
-            {
-                E2D_PROFILER_SCOPE("ecs.update");
-                owner.process_event(systems::update_event{dt,time});
-            }
-
-            {
-                E2D_PROFILER_SCOPE("ecs.post_update");
-                owner.process_event(systems::post_update_event{dt,time});
-            }
+            owner.process_event(systems::pre_update_event{dt,time});
+            owner.process_event(systems::update_event{dt,time});
+            owner.process_event(systems::post_update_event{dt,time});
         }
 
         void process_frame_render(ecs::registry& owner) {
             clear_framebuffer(render_, window_);
 
-            {
-                E2D_PROFILER_SCOPE("ecs.pre_render");
-                for_all_cameras<systems::pre_render_event>(owner);
-            }
-
-            {
-                E2D_PROFILER_SCOPE("ecs.render");
-                for_all_cameras<systems::render_event>(owner);
-            }
-
-            {
-                E2D_PROFILER_SCOPE("ecs.post_render");
-                for_all_cameras<systems::post_render_event>(owner);
-            }
+            for_all_cameras<systems::pre_render_event>(owner);
+            for_all_cameras<systems::render_event>(owner);
+            for_all_cameras<systems::post_render_event>(owner);
         }
     private:
         engine& engine_;
@@ -114,7 +92,6 @@ namespace e2d
         const ecs::after<systems::frame_update_event>& trigger)
     {
         E2D_UNUSED(trigger);
-        E2D_PROFILER_SCOPE("frame_system.process_frame_update");
         state_->process_frame_update(owner);
     }
 
@@ -123,7 +100,6 @@ namespace e2d
         const ecs::after<systems::frame_render_event>& trigger)
     {
         E2D_UNUSED(trigger);
-        E2D_PROFILER_SCOPE("frame_system.process_frame_render");
         state_->process_frame_render(owner);
     }
 }

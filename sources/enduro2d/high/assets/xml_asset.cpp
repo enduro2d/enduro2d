@@ -31,9 +31,6 @@ namespace e2d
                 xml_data,
                 address = std::move(address)
             ](){
-                E2D_PROFILER_SCOPE_EX("xml_asset.parsing", {
-                    {"address", address}
-                });
                 auto xml = std::make_shared<pugi::xml_document>();
                 if ( !xml->load_string(xml_data->content().c_str()) ) {
                     throw xml_asset_loading_exception();

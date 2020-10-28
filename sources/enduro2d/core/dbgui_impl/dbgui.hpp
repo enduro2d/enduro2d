@@ -11,7 +11,6 @@
 #include <enduro2d/core/debug.hpp>
 #include <enduro2d/core/engine.hpp>
 #include <enduro2d/core/input.hpp>
-#include <enduro2d/core/profiler.hpp>
 #include <enduro2d/core/render.hpp>
 #include <enduro2d/core/window.hpp>
 
