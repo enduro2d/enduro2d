@@ -136,9 +136,6 @@ set(glew-cmake_BUILD_MULTI_CONTEXT OFF CACHE INTERNAL "" FORCE)
 add_subdirectory(modules/glew)
 set_target_properties(libglew_static PROPERTIES FOLDER modules)
 
-add_subdirectory(modules/spine/spine-c)
-set_target_properties(spine-c PROPERTIES FOLDER modules)
-
 #
 # e2d library target
 #
@@ -163,7 +160,6 @@ target_link_libraries(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME}
     PRIVATE glfw
     PRIVATE libglew_static
-    PRIVATE spine-c
     PRIVATE $<$<CXX_COMPILER_ID:MSVC>:winmm.lib>)
 
 target_include_directories(${PROJECT_NAME}

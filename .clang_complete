@@ -14,7 +14,6 @@
 
 -Imodules/glew/include
 -Imodules/glfw/include
--Imodules/spine/spine-c/spine-c/include
 
 -std=c++17
 -stdlib=libc++

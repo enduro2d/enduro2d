@@ -33,7 +33,6 @@ namespace e2d
     class shader_asset;
     class shape_asset;
     class sound_asset;
-    class spine_asset;
     class sprite_asset;
     class text_asset;
     class texture_asset;
@@ -57,7 +56,6 @@ namespace e2d
     class named;
     class renderer;
     class scene;
-    class spine_player;
     class sprite_renderer;
     class touchable;
     class widget;
@@ -66,7 +64,6 @@ namespace e2d
     class flipbook;
     class model;
     class prefab;
-    class spine;
     class sprite;
 
     class camera_system;
@@ -76,7 +73,6 @@ namespace e2d
     class label_system;
     class layout_system;
     class render_system;
-    class spine_system;
     class touch_system;
     class world_system;
 

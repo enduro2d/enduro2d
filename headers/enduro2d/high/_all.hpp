@@ -21,7 +21,6 @@
 #include "assets/shader_asset.hpp"
 #include "assets/shape_asset.hpp"
 #include "assets/sound_asset.hpp"
-#include "assets/spine_asset.hpp"
 #include "assets/sprite_asset.hpp"
 #include "assets/text_asset.hpp"
 #include "assets/texture_asset.hpp"
@@ -40,7 +39,6 @@
 #include "components/named.hpp"
 #include "components/renderer.hpp"
 #include "components/scene.hpp"
-#include "components/spine_player.hpp"
 #include "components/sprite_renderer.hpp"
 #include "components/touchable.hpp"
 #include "components/widget.hpp"
@@ -49,7 +47,6 @@
 #include "resources/flipbook.hpp"
 #include "resources/model.hpp"
 #include "resources/prefab.hpp"
-#include "resources/spine.hpp"
 #include "resources/sprite.hpp"
 
 #include "systems/camera_system.hpp"
@@ -59,7 +56,6 @@
 #include "systems/label_system.hpp"
 #include "systems/layout_system.hpp"
 #include "systems/render_system.hpp"
-#include "systems/spine_system.hpp"
 #include "systems/touch_system.hpp"
 #include "systems/world_system.hpp"
 

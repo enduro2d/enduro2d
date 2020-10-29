@@ -25,7 +25,6 @@
 #include <enduro2d/high/components/named.hpp>
 #include <enduro2d/high/components/renderer.hpp>
 #include <enduro2d/high/components/scene.hpp>
-#include <enduro2d/high/components/spine_player.hpp>
 #include <enduro2d/high/components/sprite_renderer.hpp>
 #include <enduro2d/high/components/touchable.hpp>
 #include <enduro2d/high/components/widget.hpp>
@@ -37,7 +36,6 @@
 #include <enduro2d/high/systems/label_system.hpp>
 #include <enduro2d/high/systems/layout_system.hpp>
 #include <enduro2d/high/systems/render_system.hpp>
-#include <enduro2d/high/systems/spine_system.hpp>
 #include <enduro2d/high/systems/touch_system.hpp>
 #include <enduro2d/high/systems/widget_system.hpp>
 #include <enduro2d/high/systems/world_system.hpp>
@@ -74,8 +72,6 @@ namespace
                     .add_system<layout_system>())
                 .feature<struct render_feature>(ecs::feature()
                     .add_system<render_system>())
-                .feature<struct spine_feature>(ecs::feature()
-                    .add_system<spine_system>())
                 .feature<struct touch_feature>(ecs::feature()
                     .add_system<touch_system>())
                 .feature<struct widget_feature>(ecs::feature()
@@ -198,9 +194,6 @@ namespace e2d
             .register_component<named>("named")
             .register_component<renderer>("renderer")
             .register_component<scene>("scene")
-            .register_component<spine_player>("spine_player")
-            .register_component<events<spine_player_events::event>>("spine_player.events")
-            .register_component<commands<spine_player_commands::command>>("spine_player.commands")
             .register_component<sprite_renderer>("sprite_renderer")
             .register_component<touchable>("touchable")
             .register_component<events<touchable_events::event>>("touchable.events")
@@ -225,9 +218,6 @@ namespace e2d
             .register_component<named>("named")
             .register_component<renderer>("renderer")
             .register_component<scene>("scene")
-            .register_component<spine_player>("spine_player")
-            //.register_component<events<spine_player_events::event>>("spine_player.events")
-            //.register_component<commands<spine_player_commands::command>>("spine_player.commands")
             .register_component<sprite_renderer>("sprite_renderer")
             .register_component<touchable>("touchable")
             //.register_component<events<touchable_events::event>>("touchable.events")

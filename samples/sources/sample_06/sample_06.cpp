@@ -29,44 +29,6 @@ namespace
             if ( k.is_key_pressed(keyboard_key::lsuper) && k.is_key_just_released(keyboard_key::enter) ) {
                 the<window>().toggle_fullscreen(!the<window>().fullscreen());
             }
-
-            // use keys R, J, G to start animations
-            const bool roar = k.is_key_just_pressed(keyboard_key::r);
-            const bool jump = k.is_key_just_pressed(keyboard_key::j);
-            const bool gun_grab = k.is_key_just_pressed(keyboard_key::g);
-
-            if ( roar || jump || gun_grab ) {
-                owner.for_each_component<spine_player>([
-                    roar, jump, gun_grab
-                ](ecs::entity e, const spine_player& p) {
-                    if ( roar && p.has_animation("roar") ) {
-                        e.ensure_component<commands<spine_player_commands::command>>()
-                            .add(spine_player_commands::set_anim_cmd(0, "roar")
-                                .complete_message("to_walk"));
-                    } else if ( jump && p.has_animation("jump") ) {
-                        e.ensure_component<commands<spine_player_commands::command>>()
-                            .add(spine_player_commands::set_anim_cmd(0, "jump")
-                                .complete_message("to_walk"));
-                    } else if ( gun_grab && p.has_animation("gun-grab") ) {
-                        e.ensure_component<commands<spine_player_commands::command>>()
-                            .add(spine_player_commands::set_anim_cmd(1, "gun-grab"))
-                            .add(spine_player_commands::add_anim_cmd(1, "gun-holster").delay(3.f));
-                    }
-                });
-            }
-
-            owner.for_joined_components<events<spine_player_events::event>>([
-            ](ecs::entity e, const events<spine_player_events::event>& pe) {
-                for ( const auto& evt : pe.get() ) {
-                    if ( auto complete = std::get_if<spine_player_events::complete_evt>(&evt);
-                        complete && complete->message() == "to_walk" )
-                    {
-                        e.ensure_component<commands<spine_player_commands::command>>()
-                            .add(spine_player_commands::add_anim_cmd(0, "walk")
-                                .loop(true));
-                    }
-                }
-            });
         }
     };
 
