@@ -1,7 +1,7 @@
-// File: 'fa_solid_900.ttf' (193780 bytes)
+// File: 'fa-solid-900.ttf' (193780 bytes)
 // Exported using binary_to_compressed_c.cpp
-static const unsigned int fa_solid_900_compressed_size = 137436;
-static const unsigned int fa_solid_900_compressed_data[137436/4] =
+static const unsigned int fa_solid_compressed_size = 137436;
+static const unsigned int fa_solid_compressed_data[137436/4] =
 {
     0x0000bc57, 0x00000000, 0xf4f40200, 0x00000400, 0x00010037, 0x000d0000, 0x00030080, 0x54464650, 0xb5968d4d, 0xf4020074, 0x281582d8, 0x4544471c, 
     0x032a0046, 0x200f82cd, 0x2c0f82b8, 0x2f534f1e, 0x56824332, 0x010000a0, 0x360f8258, 0x616d6360, 0x254d1970, 0x100000eb, 0x0c0000d4, 0x736167ae, 

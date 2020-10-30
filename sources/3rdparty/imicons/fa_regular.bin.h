@@ -1,7 +1,7 @@
-// File: 'fa_regular_400.ttf' (34092 bytes)
+// File: 'fa-regular-400.ttf' (34092 bytes)
 // Exported using binary_to_compressed_c.cpp
-static const unsigned int fa_regular_400_compressed_size = 22305;
-static const unsigned int fa_regular_400_compressed_data[22308/4] =
+static const unsigned int fa_regular_compressed_size = 22305;
+static const unsigned int fa_regular_compressed_data[22308/4] =
 {
     0x0000bc57, 0x00000000, 0x2c850000, 0x00000400, 0x00010037, 0x000d0000, 0x00030080, 0x54464650, 0xb5968d4d, 0x85000076, 0x2c158210, 0x4544471c, 
     0x002a0046, 0x840000a0, 0x2c0f82f0, 0x2f534f1e, 0x53924132, 0x0100001b, 0x360f8258, 0x616d6360, 0xc8a0c770, 0x040000f4, 0x0300000c, 0x736167da, 

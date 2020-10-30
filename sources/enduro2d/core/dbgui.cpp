@@ -11,9 +11,9 @@
 #include "dbgui_impl/widgets/input_widget.hpp"
 #include "dbgui_impl/widgets/window_widget.hpp"
 
-#include <3rdparty/icons/fa_solid_900.h>
-#include <3rdparty/icons/fa_regular_400.h>
-#include <3rdparty/icons/materialicons_regular.h>
+#include <3rdparty/imicons/fa_regular.bin.h>
+#include <3rdparty/imicons/fa_solid.bin.h>
+#include <3rdparty/imicons/md_regular.bin.h>
 
 namespace e2d
 {
@@ -258,8 +258,8 @@ namespace e2d
             {
                 static const ImWchar icons_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0};
                 io.Fonts->AddFontFromMemoryCompressedTTF(
-                    fa_solid_900_compressed_data,
-                    math::numeric_cast<int>(fa_solid_900_compressed_size),
+                    fa_solid_compressed_data,
+                    math::numeric_cast<int>(fa_solid_compressed_size),
                     13.f,
                     &icons_config, icons_ranges);
             }
@@ -267,8 +267,8 @@ namespace e2d
             {
                 static const ImWchar icons_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0};
                 io.Fonts->AddFontFromMemoryCompressedTTF(
-                    fa_regular_400_compressed_data,
-                    math::numeric_cast<int>(fa_regular_400_compressed_size),
+                    fa_regular_compressed_data,
+                    math::numeric_cast<int>(fa_regular_compressed_size),
                     13.f,
                     &icons_config, icons_ranges);
             }
@@ -276,8 +276,8 @@ namespace e2d
             {
                 static const ImWchar icons_ranges[] = { ICON_MIN_MD, ICON_MAX_MD, 0};
                 io.Fonts->AddFontFromMemoryCompressedTTF(
-                    materialicons_regular_compressed_data,
-                    math::numeric_cast<int>(materialicons_regular_compressed_size),
+                    md_regular_compressed_data,
+                    math::numeric_cast<int>(md_regular_compressed_size),
                     13.f,
                     &icons_config, icons_ranges);
             }

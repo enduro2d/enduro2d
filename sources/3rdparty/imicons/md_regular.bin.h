@@ -1,7 +1,7 @@
-// File: 'materialicons_regular.ttf' (128180 bytes)
+// File: 'MaterialIcons-Regular.ttf' (128180 bytes)
 // Exported using binary_to_compressed_c.cpp
-static const unsigned int materialicons_regular_compressed_size = 84439;
-static const unsigned int materialicons_regular_compressed_data[84440/4] =
+static const unsigned int md_regular_compressed_size = 84439;
+static const unsigned int md_regular_compressed_data[84440/4] =
 {
     0x0000bc57, 0x00000000, 0xb4f40100, 0x00000400, 0x00010037, 0x000f0000, 0x00030080, 0x45444770, 0x00000446, 0x8b010053, 0x28158208, 0x4f504724, 
     0xef18e053, 0x200f829c, 0x280f822c, 0x55534736, 0xa9d2e442, 0x230f8251, 0x69000064, 0x2f291d82, 0x22730a32, 0x01000063, 0x2b1f8278, 0x616d6360, 
