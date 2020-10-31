@@ -116,13 +116,7 @@ file(GLOB_RECURSE E2D_3RDPARTY
 # e2d external 3rd party
 #
 
-set(USE_STATIC_CRT ${E2D_BUILD_WITH_STATIC_CRT} CACHE INTERNAL "" FORCE)
-set(USE_SYSTEM_CURL OFF CACHE INTERNAL "" FORCE)
-set(USE_EMBEDDED_CURL ON CACHE INTERNAL "" FORCE)
-
-add_subdirectory(modules/curly.hpp)
-set_target_properties(curly.hpp libcurl PROPERTIES FOLDER modules)
-
+add_subdirectory(modules/defer.hpp)
 add_subdirectory(modules/ecs.hpp)
 add_subdirectory(modules/enum.hpp)
 add_subdirectory(modules/flat.hpp)
@@ -142,76 +136,6 @@ set(glew-cmake_BUILD_MULTI_CONTEXT OFF CACHE INTERNAL "" FORCE)
 add_subdirectory(modules/glew)
 set_target_properties(libglew_static PROPERTIES FOLDER modules)
 
-add_subdirectory(modules/spine/spine-c)
-set_target_properties(spine-c PROPERTIES FOLDER modules)
-
-if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
-    if(CMAKE_SIZEOF_VOID_P EQUAL 4)
-        add_library(bass SHARED IMPORTED)
-        set_target_properties(bass PROPERTIES IMPORTED_IMPLIB
-            ${E2D_ROOT_DIRECTORY}/sources/3rdparty/bass/linux/x86/libbass.so)
-        set_target_properties(bass PROPERTIES IMPORTED_LOCATION
-            ${E2D_ROOT_DIRECTORY}/sources/3rdparty/bass/linux/x86/libbass.so)
-    elseif(CMAKE_SIZEOF_VOID_P EQUAL 8)
-        add_library(bass SHARED IMPORTED)
-        set_target_properties(bass PROPERTIES IMPORTED_IMPLIB
-            ${E2D_ROOT_DIRECTORY}/sources/3rdparty/bass/linux/x64/libbass.so)
-        set_target_properties(bass PROPERTIES IMPORTED_LOCATION
-            ${E2D_ROOT_DIRECTORY}/sources/3rdparty/bass/linux/x64/libbass.so)
-    endif()
-elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
-    add_library(bass SHARED IMPORTED)
-    set_target_properties(bass PROPERTIES IMPORTED_LOCATION
-        ${E2D_ROOT_DIRECTORY}/sources/3rdparty/bass/macosx/libbass.dylib)
-elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
-    if(CMAKE_SIZEOF_VOID_P EQUAL 4)
-        add_library(bass SHARED IMPORTED)
-        set_target_properties(bass PROPERTIES IMPORTED_IMPLIB
-            ${E2D_ROOT_DIRECTORY}/sources/3rdparty/bass/windows/x86/bass.lib)
-        set_target_properties(bass PROPERTIES IMPORTED_LOCATION
-            ${E2D_ROOT_DIRECTORY}/sources/3rdparty/bass/windows/x86/bass.dll)
-    elseif(CMAKE_SIZEOF_VOID_P EQUAL 8)
-        add_library(bass SHARED IMPORTED)
-        set_target_properties(bass PROPERTIES IMPORTED_IMPLIB
-            ${E2D_ROOT_DIRECTORY}/sources/3rdparty/bass/windows/x64/bass.lib)
-        set_target_properties(bass PROPERTIES IMPORTED_LOCATION
-            ${E2D_ROOT_DIRECTORY}/sources/3rdparty/bass/windows/x64/bass.dll)
-    endif()
-endif()
-
-function(add_e2d_shared_libraries_to_target TO)
-    if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
-        if(CMAKE_SIZEOF_VOID_P EQUAL 4)
-            add_custom_command(TARGET ${TO} POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy
-                ${E2D_ROOT_DIRECTORY}/sources/3rdparty/bass/linux/x86/libbass.so
-                $<TARGET_FILE_DIR:${TO}>)
-        elseif(CMAKE_SIZEOF_VOID_P EQUAL 8)
-            add_custom_command(TARGET ${TO} POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy
-                ${E2D_ROOT_DIRECTORY}/sources/3rdparty/bass/linux/x64/libbass.so
-                $<TARGET_FILE_DIR:${TO}>)
-        endif()
-    elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
-        add_custom_command(TARGET ${TO} POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy
-            ${E2D_ROOT_DIRECTORY}/sources/3rdparty/bass/macosx/libbass.dylib
-            $<TARGET_FILE_DIR:${TO}>)
-    elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
-        if(CMAKE_SIZEOF_VOID_P EQUAL 4)
-            add_custom_command(TARGET ${TO} POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy
-                ${E2D_ROOT_DIRECTORY}/sources/3rdparty/bass/windows/x86/bass.dll
-                $<TARGET_FILE_DIR:${TO}>)
-        elseif(CMAKE_SIZEOF_VOID_P EQUAL 8)
-            add_custom_command(TARGET ${TO} POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy
-                ${E2D_ROOT_DIRECTORY}/sources/3rdparty/bass/windows/x64/bass.dll
-                $<TARGET_FILE_DIR:${TO}>)
-        endif()
-    endif()
-endfunction(add_e2d_shared_libraries_to_target)
-
 #
 # e2d library target
 #
@@ -227,23 +151,20 @@ source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES
     ${E2D_3RDPARTY})
 
 target_link_libraries(${PROJECT_NAME}
-    PUBLIC curly.hpp
+    PUBLIC defer.hpp
     PUBLIC ecs.hpp
     PUBLIC enum.hpp
     PUBLIC flat.hpp
     PUBLIC promise.hpp)
 
 target_link_libraries(${PROJECT_NAME}
-    PRIVATE bass
     PRIVATE glfw
     PRIVATE libglew_static
-    PRIVATE spine-c
     PRIVATE $<$<CXX_COMPILER_ID:MSVC>:winmm.lib>)
 
 target_include_directories(${PROJECT_NAME}
     PUBLIC headers
     PUBLIC headers/3rdparty
-    PUBLIC headers/3rdparty/lua
     PUBLIC headers/3rdparty/imgui
     PUBLIC headers/3rdparty/pugixml
     PRIVATE sources

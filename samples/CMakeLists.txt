@@ -35,7 +35,6 @@ function(add_e2d_sample NAME)
         COMMAND ${CMAKE_COMMAND} -E copy_directory
         ${CMAKE_CURRENT_SOURCE_DIR}/bin
         $<TARGET_FILE_DIR:${SAMPLE_NAME}>/bin)
-    add_e2d_shared_libraries_to_target(${SAMPLE_NAME})
 endfunction(add_e2d_sample)
 
 add_e2d_sample(00)

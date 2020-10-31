@@ -65,7 +65,6 @@ namespace e2d
         const ecs::after<systems::update_event>& trigger)
     {
         E2D_UNUSED(trigger);
-        E2D_PROFILER_SCOPE("widget_system.process_update");
         state_->process_update(owner);
     }
 }

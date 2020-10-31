@@ -31,9 +31,6 @@ namespace e2d
                 shape_data,
                 address = std::move(address)
             ](){
-                E2D_PROFILER_SCOPE_EX("shape_asset.parsing", {
-                    {"address", address}
-                });
                 shape content;
                 if ( !shapes::try_load_shape(content, shape_data->content()) ) {
                     throw shape_asset_loading_exception();

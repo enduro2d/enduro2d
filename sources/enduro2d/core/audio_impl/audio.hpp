@@ -8,4 +8,3 @@
 
 #include <enduro2d/core/audio.hpp>
 #include <enduro2d/core/debug.hpp>
-#include <enduro2d/core/profiler.hpp>

@@ -31,9 +31,6 @@ namespace e2d
                 texture_data,
                 address = std::move(address)
             ](){
-                E2D_PROFILER_SCOPE_EX("texture_asset.create_texture", {
-                    {"address", address}
-                });
                 const texture_ptr content = the<render>().create_texture(
                     texture_data->content());
                 if ( !content ) {

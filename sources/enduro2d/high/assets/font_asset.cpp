@@ -33,9 +33,6 @@ namespace e2d
                 font_data,
                 address = std::move(address)
             ](){
-                E2D_PROFILER_SCOPE_EX("font_asset.parsing", {
-                    {"address", address}
-                });
                 font content;
                 if ( !fonts::try_load_font(content, font_data->content()) ) {
                     throw font_asset_loading_exception();

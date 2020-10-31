@@ -9,6 +9,7 @@
 #include "../base/_all.hpp"
 #include "../math/_all.hpp"
 
+#include <defer.hpp/defer.hpp>
 #include <enum.hpp/enum.hpp>
 
 namespace e2d

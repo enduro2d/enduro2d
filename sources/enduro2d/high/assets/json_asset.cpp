@@ -31,9 +31,6 @@ namespace e2d
                 json_data,
                 address = std::move(address)
             ](){
-                E2D_PROFILER_SCOPE_EX("json_asset.parsing", {
-                    {"address", address}
-                });
                 auto json = std::make_shared<rapidjson::Document>();
                 if ( json->Parse(json_data->content().c_str()).HasParseError() ) {
                     throw json_asset_loading_exception();

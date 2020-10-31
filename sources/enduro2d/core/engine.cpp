@@ -11,9 +11,7 @@
 #include <enduro2d/core/debug.hpp>
 #include <enduro2d/core/deferrer.hpp>
 #include <enduro2d/core/input.hpp>
-#include <enduro2d/core/network.hpp>
 #include <enduro2d/core/platform.hpp>
-#include <enduro2d/core/profiler.hpp>
 #include <enduro2d/core/render.hpp>
 #include <enduro2d/core/vfs.hpp>
 #include <enduro2d/core/window.hpp>
@@ -189,11 +187,6 @@ namespace e2d
         return *this;
     }
 
-    engine::parameters& engine::parameters::without_network(bool value) {
-        without_network_ = value;
-        return *this;
-    }
-
     engine::parameters& engine::parameters::without_graphics(bool value) {
         without_graphics_ = value;
         return *this;
@@ -226,10 +219,6 @@ namespace e2d
         return without_audio_;
     }
 
-    bool& engine::parameters::without_network() noexcept {
-        return without_network_;
-    }
-
     bool& engine::parameters::without_graphics() noexcept {
         return without_graphics_;
     }
@@ -256,10 +245,6 @@ namespace e2d
 
     bool engine::parameters::without_audio() const noexcept {
         return without_audio_;
-    }
-
-    bool engine::parameters::without_network() const noexcept {
-        return without_network_;
     }
 
     bool engine::parameters::without_graphics() const noexcept {
@@ -320,8 +305,6 @@ namespace e2d
         }
     public:
         void calculate_end_frame_timers() noexcept {
-            E2D_PROFILER_SCOPE("engine.wait_for_target_fps");
-
             const auto second_us = time::second_us<u64>();
 
             const auto minimal_delta_time_us =
@@ -385,11 +368,6 @@ namespace e2d
 
         safe_module_initialize<deferrer>();
 
-        // setup profiler
-
-        safe_module_initialize<profiler>(
-            the<deferrer>());
-
         // setup debug
 
         safe_module_initialize<debug>();
@@ -435,12 +413,6 @@ namespace e2d
                 the<debug>());
         }
 
-        // setup network
-
-        if ( !params.without_network() ) {
-            safe_module_initialize<network>();
-        }
-
         // setup graphics
 
         const bool without_graphics =
@@ -481,12 +453,10 @@ namespace e2d
             dbgui,
             render,
             window,
-            network,
             audio,
             input,
             vfs,
             debug,
-            profiler,
             deferrer,
             platform>();
     }
@@ -523,8 +493,6 @@ namespace e2d
 
             the<input>().frame_tick();
             window::poll_events();
-
-            E2D_PROFILER_GLOBAL_EVENT("engine.end_of_frame");
         }
 
         app->shutdown();

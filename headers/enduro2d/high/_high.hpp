@@ -10,9 +10,6 @@
 
 #include <ecs.hpp/ecs.hpp>
 
-#define SOL_ALL_SAFETIES_ON 1
-#include <3rdparty/sol/sol.hpp>
-
 namespace e2d
 {
     namespace ecs
@@ -33,18 +30,15 @@ namespace e2d
     class mesh_asset;
     class model_asset;
     class prefab_asset;
-    class script_asset;
     class shader_asset;
     class shape_asset;
     class sound_asset;
-    class spine_asset;
     class sprite_asset;
     class text_asset;
     class texture_asset;
     class xml_asset;
 
     class actor;
-    class behaviour;
     class camera;
     class rect_collider;
     class circle_collider;
@@ -62,7 +56,6 @@ namespace e2d
     class named;
     class renderer;
     class scene;
-    class spine_player;
     class sprite_renderer;
     class touchable;
     class widget;
@@ -71,8 +64,6 @@ namespace e2d
     class flipbook;
     class model;
     class prefab;
-    class script;
-    class spine;
     class sprite;
 
     class camera_system;
@@ -82,8 +73,6 @@ namespace e2d
     class label_system;
     class layout_system;
     class render_system;
-    class script_system;
-    class spine_system;
     class touch_system;
     class world_system;
 
@@ -99,7 +88,6 @@ namespace e2d
 
     class editor;
     class inspector;
-    class luasol;
     class starter;
     class world;
 
@@ -111,24 +99,6 @@ namespace e2d
     class const_gcomponent;
 }
 
-namespace sol
-{
-    template < typename T >
-    struct unique_usertype_traits<e2d::intrusive_ptr<T>> {
-        using type = T;
-        using actual_type = e2d::intrusive_ptr<T>;
-        static const bool value = true;
-
-        static bool is_null(const actual_type& ptr) {
-            return !ptr;
-        }
-
-        static type* get(actual_type& ptr) {
-            return ptr.get();
-        }
-    };
-}
-
 namespace e2d::ecsex
 {
     template < typename T, typename Disposer, typename... Opts >
@@ -138,7 +108,7 @@ namespace e2d::ecsex
         Opts&&... opts)
     {
         static thread_local vector<ecs::entity> to_remove_components;
-        E2D_DEFER([](){ to_remove_components.clear(); });
+        DEFER([](){ to_remove_components.clear(); });
 
         owner.for_each_component<T>([](const ecs::entity& e, const T&){
             to_remove_components.push_back(e);
@@ -193,7 +163,7 @@ namespace e2d::ecsex
             std::tuple<ecs::entity, Ts...>> components;
 
         const std::size_t begin_index = components.size();
-        E2D_DEFER([begin_index](){
+        DEFER([begin_index](){
             components.erase(
                 components.begin() + begin_index,
                 components.end());
@@ -217,7 +187,7 @@ namespace e2d::ecsex
             std::tuple<ecs::const_entity, Ts...>> components;
 
         const std::size_t begin_index = components.size();
-        E2D_DEFER([begin_index](){
+        DEFER([begin_index](){
             components.erase(
                 components.begin() + begin_index,
                 components.end());
@@ -244,7 +214,7 @@ namespace e2d::ecsex
             std::tuple<ecs::entity, Ts...>> components;
 
         const std::size_t begin_index = components.size();
-        E2D_DEFER([begin_index](){
+        DEFER([begin_index](){
             components.erase(
                 components.begin() + begin_index,
                 components.end());
@@ -273,7 +243,7 @@ namespace e2d::ecsex
             std::tuple<ecs::const_entity, Ts...>> components;
 
         const std::size_t begin_index = components.size();
-        E2D_DEFER([begin_index](){
+        DEFER([begin_index](){
             components.erase(
                 components.begin() + begin_index,
                 components.end());
