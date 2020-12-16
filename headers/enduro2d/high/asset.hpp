@@ -91,7 +91,7 @@ namespace e2d
         };
 
         template < typename Asset >
-        class typed_asset_cache : public asset_cache {
+        class typed_asset_cache final : public asset_cache {
         public:
             using asset_ptr = typename Asset::ptr;
         public:

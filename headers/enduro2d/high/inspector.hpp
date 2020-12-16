@@ -187,7 +187,7 @@ namespace e2d
     // inspector
     //
 
-    class inspector : public module<inspector> {
+    class inspector final : public module<inspector> {
     public:
         inspector() = default;
         ~inspector() noexcept final = default;

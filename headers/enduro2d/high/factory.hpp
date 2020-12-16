@@ -111,7 +111,7 @@ namespace e2d
     // factory
     //
 
-    class factory : public module<factory> {
+    class factory final : public module<factory> {
     public:
         factory() = default;
         ~factory() noexcept final = default;
