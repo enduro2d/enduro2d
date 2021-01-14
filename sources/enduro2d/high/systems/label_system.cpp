@@ -197,7 +197,7 @@ namespace
         model_renderer& mr)
     {
         static thread_local geometry_builder gb;
-        E2D_DEFER([](){ gb.clear(); });
+        DEFER([](){ gb.clear(); });
 
         if ( !l.font() || l.font()->content().empty() || l.text().empty() ) {
             gb.update_model(mr);
@@ -221,7 +221,7 @@ namespace
 
         //TODO(BlackMat): replace it to frame allocator
         static thread_local vector<glyph_desc> glyphs;
-        E2D_DEFER([](){ glyphs.clear(); });
+        DEFER([](){ glyphs.clear(); });
 
         if ( glyphs.capacity() < text.size() ) {
             glyphs.reserve(math::max(glyphs.capacity() * 2u, text.size()));
@@ -262,7 +262,7 @@ namespace
 
         //TODO(BlackMat): replace it to frame allocator
         static thread_local vector<string_desc> strings;
-        E2D_DEFER([](){ strings.clear(); });
+        DEFER([](){ strings.clear(); });
 
         if ( const std::size_t count = calculate_new_lines(text);
             strings.capacity() < count + 1u )
@@ -421,7 +421,7 @@ namespace
     }
 
     void update_was_dirty_flags(ecs::registry& owner) {
-        E2D_RETURN_DEFER([&owner](){
+        RETURN_DEFER([&owner](){
             owner.remove_all_components<label::dirty>();
         });
 
@@ -464,7 +464,6 @@ namespace e2d
         const ecs::after<systems::update_event>& trigger)
     {
         E2D_UNUSED(trigger);
-        E2D_PROFILER_SCOPE("label_system.process_update");
         state_->process_update(owner);
     }
 }

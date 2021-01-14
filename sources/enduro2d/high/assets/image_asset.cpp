@@ -31,9 +31,6 @@ namespace e2d
                 image_data,
                 address = std::move(address)
             ](){
-                E2D_PROFILER_SCOPE_EX("image_asset.load_async", {
-                    {"address", address}
-                });
                 image content;
                 if ( !images::try_load_image(content, image_data->content()) ) {
                     throw image_asset_loading_exception();

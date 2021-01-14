@@ -194,13 +194,13 @@ namespace
             const actor& root_a)
         {
             static thread_local vector<gcomponent<widget>> item_ws;
-            E2D_DEFER([](){ item_ws.clear(); });
+            DEFER([](){ item_ws.clear(); });
 
             nodes::extract_components_from_children<widget>(
                 root_a.node(),
                 std::back_inserter(item_ws));
 
-            E2D_DEFER([&root_yn](){
+            DEFER([&root_yn](){
                 YGNodeRemoveAllChildren(root_yn.as_root.get());
             });
 
@@ -243,7 +243,7 @@ namespace
     }
 
     void update_was_dirty_flags(ecs::registry& owner) {
-        E2D_RETURN_DEFER([&owner](){
+        RETURN_DEFER([&owner](){
             owner.remove_all_components<layout::dirty>();
         });
 
@@ -287,7 +287,6 @@ namespace e2d
         const ecs::after<systems::update_event>& trigger)
     {
         E2D_UNUSED(trigger);
-        E2D_PROFILER_SCOPE("layout_system.process_update");
         state_->process_update(owner);
     }
 }

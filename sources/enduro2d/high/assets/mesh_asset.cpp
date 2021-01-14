@@ -31,9 +31,6 @@ namespace e2d
                 mesh_data,
                 address = std::move(address)
             ](){
-                E2D_PROFILER_SCOPE_EX("mesh_asset.parsing", {
-                    {"address", address}
-                });
                 mesh content;
                 if ( !meshes::try_load_mesh(content, mesh_data->content()) ) {
                     throw mesh_asset_loading_exception();

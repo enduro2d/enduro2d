@@ -51,11 +51,6 @@ namespace e2d::render_system_impl
                 const m4f& model_m,
                 const renderer& node_r,
                 const sprite_renderer& spr_r);
-
-            void draw(
-                const m4f& model_m,
-                const renderer& node_r,
-                const spine_player& spine_r);
         private:
             render& render_;
             batcher_type& batcher_;

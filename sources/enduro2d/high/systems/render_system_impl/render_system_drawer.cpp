@@ -9,10 +9,7 @@
 #include <enduro2d/high/components/disabled.hpp>
 #include <enduro2d/high/components/model_renderer.hpp>
 #include <enduro2d/high/components/renderer.hpp>
-#include <enduro2d/high/components/spine_player.hpp>
 #include <enduro2d/high/components/sprite_renderer.hpp>
-
-#include <spine/spine.h>
 
 namespace
 {
@@ -103,10 +100,6 @@ namespace e2d::render_system_impl
             draw(model_m, *node_r, *mdl_r);
         }
 
-        if ( auto spn_p = gcomponent<spine_player>{owner} ) {
-            draw(model_m, *node_r, *spn_p);
-        }
-
         if ( auto spr_r = gcomponent<sprite_renderer>{owner} ) {
             draw(model_m, *node_r, *spr_r);
         }
@@ -128,7 +121,7 @@ namespace e2d::render_system_impl
         const model& mdl = mdl_r.model()->content();
         const mesh& msh = mdl.mesh()->content();
 
-        E2D_DEFER([this](){
+        DEFER([this](){
             property_cache_.clear();
         });
 
@@ -152,276 +145,6 @@ namespace e2d::render_system_impl
                 ).index_range(first_index, index_count));
             }
             first_index += index_count;
-        }
-    }
-
-    void drawer::context::draw(
-        const m4f& model_m,
-        const renderer& node_r,
-        const spine_player& spine_r)
-    {
-        //TODO(BlackMat): replace it to frame allocator
-        static thread_local std::vector<float> temp_vertices(1000u, 0.f);
-        static thread_local std::vector<batcher_type::vertex_type> batch_vertices(1000u);
-
-        spSkeleton* skeleton = spine_r.skeleton().get();
-        spSkeletonClipping* clipper = spine_r.clipper().get();
-
-        if ( !skeleton || !clipper ) {
-            return;
-        }
-
-        if ( math::is_near_zero(skeleton->color.a) ) {
-            return;
-        }
-
-        material_asset::ptr normal_mat_a;
-        material_asset::ptr additive_mat_a;
-        material_asset::ptr multiply_mat_a;
-        material_asset::ptr screen_mat_a;
-
-        unsigned short quad_indices[6] = { 0, 1, 2, 2, 3, 0 };
-
-        E2D_DEFER([this, clipper](){
-            property_cache_.clear();
-            spSkeletonClipping_clipEnd2(clipper);
-        });
-
-        for ( int i = 0; i < skeleton->slotsCount; ++i ) {
-            spSlot* slot = skeleton->drawOrder[i];
-
-            auto slot_clipping_defer = make_defer([clipper, slot](){
-                spSkeletonClipping_clipEnd(clipper, slot);
-            });
-
-            spAttachment* attachment = slot->attachment;
-            if ( !attachment || math::is_near_zero(slot->color.a) ) {
-                continue;
-            }
-
-            float* uvs = nullptr;
-            unsigned short* indices = nullptr;
-            int index_count = 0;
-            int vertex_count = 0;
-            const spAtlasPage* atlas_page = nullptr;
-            const spColor* attachment_color = nullptr;
-
-            if ( attachment->type == SP_ATTACHMENT_REGION ) {
-                spRegionAttachment* region = reinterpret_cast<spRegionAttachment*>(attachment);
-
-                attachment_color = &region->color;
-                if ( math::is_near_zero(attachment_color->a) ) {
-                    continue;
-                }
-
-                {
-                    vertex_count = 8;
-                    if ( temp_vertices.size() < math::numeric_cast<std::size_t>(vertex_count) ) {
-                        temp_vertices.resize(math::max(
-                            temp_vertices.size() * 2u,
-                            math::numeric_cast<std::size_t>(vertex_count)));
-                    }
-                }
-
-                spRegionAttachment_computeWorldVertices(
-                    region,
-                    slot->bone,
-                    temp_vertices.data(),
-                    0, 2);
-
-                uvs = region->uvs;
-                indices = quad_indices;
-                index_count = 6;
-                atlas_page = static_cast<spAtlasRegion*>(region->rendererObject)->page;
-            } else if ( attachment->type == SP_ATTACHMENT_MESH ) {
-                spMeshAttachment* mesh = reinterpret_cast<spMeshAttachment*>(attachment);
-
-                attachment_color = &mesh->color;
-                if ( math::is_near_zero(attachment_color->a) ) {
-                    continue;
-                }
-
-                {
-                    vertex_count = mesh->super.worldVerticesLength;
-                    if ( temp_vertices.size() < math::numeric_cast<std::size_t>(vertex_count) ) {
-                        temp_vertices.resize(math::max(
-                            temp_vertices.size() * 2u,
-                            math::numeric_cast<std::size_t>(vertex_count)));
-                    }
-                }
-
-                spVertexAttachment_computeWorldVertices(
-                    &mesh->super,
-                    slot,
-                    0,
-                    mesh->super.worldVerticesLength,
-                    temp_vertices.data(),
-                    0, 2);
-
-                uvs = mesh->uvs;
-                indices = mesh->triangles;
-                index_count = mesh->trianglesCount;
-                atlas_page = static_cast<spAtlasRegion*>(mesh->rendererObject)->page;
-            } else if ( attachment->type == SP_ATTACHMENT_CLIPPING ) {
-                spClippingAttachment* clip = reinterpret_cast<spClippingAttachment*>(attachment);
-                spSkeletonClipping_clipStart(clipper, slot, clip);
-                slot_clipping_defer.dismiss();
-                continue;
-            } else {
-                slot_clipping_defer.dismiss();
-                continue;
-            }
-
-            color32 vert_color = color32(
-                color(skeleton->color.r, skeleton->color.g, skeleton->color.b, skeleton->color.a) *
-                color(slot->color.r, slot->color.g, slot->color.b, slot->color.a) *
-                color(attachment_color->r, attachment_color->g, attachment_color->b, attachment_color->a));
-
-            texture_ptr tex_p;
-            const texture_asset* texture_asset_ptr = atlas_page
-                ? static_cast<const texture_asset*>(atlas_page->rendererObject)
-                : nullptr;
-            if ( texture_asset_ptr ) {
-                tex_p = texture_asset_ptr->content();
-            }
-
-            render::sampler_min_filter tex_min_f = render::sampler_min_filter::linear;
-            if ( atlas_page ) {
-                switch ( atlas_page->minFilter ) {
-                case SP_ATLAS_NEAREST:
-                case SP_ATLAS_MIPMAP_NEAREST_LINEAR:
-                case SP_ATLAS_MIPMAP_NEAREST_NEAREST:
-                    tex_min_f = render::sampler_min_filter::nearest;
-                    break;
-                default:
-                    tex_min_f = render::sampler_min_filter::linear;
-                    break;
-                }
-            }
-
-            render::sampler_mag_filter tex_mag_f = render::sampler_mag_filter::linear;
-            if ( atlas_page ) {
-                switch ( atlas_page->magFilter ) {
-                case SP_ATLAS_NEAREST:
-                case SP_ATLAS_MIPMAP_NEAREST_LINEAR:
-                case SP_ATLAS_MIPMAP_NEAREST_NEAREST:
-                    tex_mag_f = render::sampler_mag_filter::nearest;
-                    break;
-                default:
-                    tex_mag_f = render::sampler_mag_filter::linear;
-                    break;
-                }
-            }
-
-            render::sampler_wrap tex_wrap_s = render::sampler_wrap::repeat;
-            if ( atlas_page ) {
-                switch ( atlas_page->uWrap ) {
-                case SP_ATLAS_MIRROREDREPEAT:
-                    tex_wrap_s = render::sampler_wrap::mirror;
-                    break;
-                case SP_ATLAS_CLAMPTOEDGE:
-                    tex_wrap_s = render::sampler_wrap::clamp;
-                    break;
-                case SP_ATLAS_REPEAT:
-                    tex_wrap_s = render::sampler_wrap::repeat;
-                    break;
-                default:
-                    E2D_ASSERT_MSG(false, "unexpected wrap mode for slot");
-                    break;
-                }
-            }
-
-            render::sampler_wrap tex_wrap_t = render::sampler_wrap::repeat;
-            if ( atlas_page ) {
-                switch ( atlas_page->vWrap ) {
-                case SP_ATLAS_MIRROREDREPEAT:
-                    tex_wrap_t = render::sampler_wrap::mirror;
-                    break;
-                case SP_ATLAS_CLAMPTOEDGE:
-                    tex_wrap_t = render::sampler_wrap::clamp;
-                    break;
-                case SP_ATLAS_REPEAT:
-                    tex_wrap_t = render::sampler_wrap::repeat;
-                    break;
-                default:
-                    E2D_ASSERT_MSG(false, "unexpected wrap mode for slot");
-                    break;
-                }
-            }
-
-            material_asset::ptr mat_a;
-            switch ( slot->data->blendMode ) {
-                case SP_BLEND_MODE_NORMAL:
-                    mat_a = normal_mat_a
-                        ? normal_mat_a
-                        : (normal_mat_a = spine_r.find_material(normal_material_hash));
-                    break;
-                case SP_BLEND_MODE_ADDITIVE:
-                    mat_a = additive_mat_a
-                        ? additive_mat_a
-                        : (additive_mat_a = spine_r.find_material(additive_material_hash));
-                    break;
-                case SP_BLEND_MODE_MULTIPLY:
-                    mat_a = multiply_mat_a
-                        ? multiply_mat_a
-                        : (multiply_mat_a = spine_r.find_material(multiply_material_hash));
-                    break;
-                case SP_BLEND_MODE_SCREEN:
-                    mat_a = screen_mat_a
-                        ? screen_mat_a
-                        : (screen_mat_a = spine_r.find_material(screen_material_hash));
-                    break;
-                default:
-                    E2D_ASSERT_MSG(false, "unexpected blend mode for slot");
-                    break;
-            }
-
-            if ( math::is_near_zero(vert_color.a) || !tex_p || !mat_a ) {
-                continue;
-            }
-
-            const float* vertices = temp_vertices.data();
-            if ( spSkeletonClipping_isClipping(clipper) ) {
-                spSkeletonClipping_clipTriangles(
-                    clipper,
-                    temp_vertices.data(), vertex_count,
-                    indices, index_count,
-                    uvs,
-                    2);
-                vertices = clipper->clippedVertices->items;
-                vertex_count = clipper->clippedVertices->size;
-                uvs = clipper->clippedUVs->items;
-                indices = clipper->clippedTriangles->items;
-                index_count = clipper->clippedTriangles->size;
-            }
-
-            {
-                const std::size_t batch_vertex_count = vertex_count >> 1;
-
-                if ( batch_vertices.size() < batch_vertex_count ) {
-                    batch_vertices.resize(math::max(batch_vertices.size() * 2u, batch_vertex_count));
-                }
-
-                for ( std::size_t j = 0; j < batch_vertex_count; ++j ) {
-                    batcher_type::vertex_type& vert = batch_vertices[j];
-                    vert.v = v3f(v4f(vertices[j * 2], vertices[j * 2 + 1], 0.f, 1.f) * model_m);
-                    vert.t = v2f(uvs[j * 2], uvs[j * 2 + 1]);
-                    vert.c = vert_color;
-                }
-
-                property_cache_
-                    .sampler(texture_sampler_hash, render::sampler_state()
-                        .texture(tex_p)
-                        .filter(tex_min_f, tex_mag_f)
-                        .wrap(tex_wrap_s, tex_wrap_t))
-                    .merge(node_r.properties());
-
-                batcher_.batch(
-                    mat_a,
-                    property_cache_,
-                    indices, math::numeric_cast<std::size_t>(index_count),
-                    batch_vertices.data(), batch_vertex_count);
-            }
         }
     }
 
@@ -474,7 +197,7 @@ namespace e2d::render_system_impl
             return;
         }
 
-        E2D_DEFER([this](){
+        DEFER([this](){
             property_cache_.clear();
         });
 

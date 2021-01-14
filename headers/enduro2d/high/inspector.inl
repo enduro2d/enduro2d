@@ -82,7 +82,7 @@ namespace e2d::impl
             }
 
             ImGui::PushID(co.find());
-            E2D_DEFER([](){ ImGui::PopID(); });
+            DEFER([](){ ImGui::PopID(); });
 
             const bool inspector_opened = ImGui::CollapsingHeader(
                 component_inspector<Component>::title,
@@ -90,7 +90,7 @@ namespace e2d::impl
 
             const char* component_popup_context_str_id = "e2d_component_popup_context";
             if ( ImGui::BeginPopupContextItem(component_popup_context_str_id) ) {
-                E2D_DEFER([](){ ImGui::EndPopup(); });
+                DEFER([](){ ImGui::EndPopup(); });
 
                 auto disabled_co = co.owner().template component<disabled<Component>>();
                 if ( bool enabled = !disabled_co; ImGui::Checkbox("Enabled", &enabled) ) {
@@ -137,7 +137,7 @@ namespace e2d::impl
             }
 
             ImGui::PushID(co.find());
-            E2D_DEFER([](){ ImGui::PopID(); });
+            DEFER([](){ ImGui::PopID(); });
 
             if (  !co.owner().template component<disabled<Component>>() ) {
                 inspector_(co, ctx);

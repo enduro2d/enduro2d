@@ -6,8 +6,6 @@
 
 #include <enduro2d/core/vfs.hpp>
 
-#include <enduro2d/core/profiler.hpp>
-
 #include <3rdparty/miniz/miniz.h>
 
 namespace
@@ -175,9 +173,6 @@ namespace e2d
     }
 
     std::optional<buffer> vfs::load(const url& url) const {
-        E2D_PROFILER_SCOPE_EX("vfs.sync_load", {
-            {"url", url.schemepath()}
-        });
         return load_async(url).then([](auto&& src){
             return std::optional<buffer>(std::forward<decltype(src)>(src));
         }).get_or_default(std::nullopt);
@@ -185,9 +180,6 @@ namespace e2d
 
     stdex::promise<buffer> vfs::load_async(const url& url) const {
         return state_->worker.async([this, url](){
-            E2D_PROFILER_SCOPE_EX("vfs.load_async", {
-                {"url", url.schemepath()}
-            });
             buffer content;
             const input_stream_uptr stream = read(url);
             if ( !stream || !streams::try_read_tail(content, stream) ) {
@@ -198,9 +190,6 @@ namespace e2d
     }
 
     std::optional<str> vfs::load_as_string(const url& url) const {
-        E2D_PROFILER_SCOPE_EX("vfs.sync_load_as_string", {
-            {"url", url.schemepath()}
-        });
         return load_as_string_async(url).then([](auto&& src){
             return std::optional<str>(std::forward<decltype(src)>(src));
         }).get_or_default(std::nullopt);
@@ -208,9 +197,6 @@ namespace e2d
 
     stdex::promise<str> vfs::load_as_string_async(const url& url) const {
         return state_->worker.async([this, url](){
-            E2D_PROFILER_SCOPE_EX("vfs.load_as_string_async", {
-                {"url", url.schemepath()}
-            });
             str content;
             const input_stream_uptr stream = read(url);
             if ( !stream || !streams::try_read_tail(content, stream) ) {

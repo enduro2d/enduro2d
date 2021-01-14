@@ -14,7 +14,7 @@ namespace
 {
     using namespace e2d;
 
-    class read_file_winapi : public read_file {
+    class read_file_winapi final : public read_file {
     public:
         read_file_winapi(str path)
         : path_(std::move(path))
@@ -120,7 +120,7 @@ namespace
         HANDLE handle_ = INVALID_HANDLE_VALUE;
     };
 
-    class write_file_winapi : public write_file {
+    class write_file_winapi final : public write_file {
     public:
         write_file_winapi(str path, bool append)
         : path_(std::move(path))

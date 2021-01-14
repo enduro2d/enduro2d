@@ -406,7 +406,6 @@ namespace e2d
         ecs::registry& owner,
         const ecs::before<systems::update_event>& trigger)
     {
-        E2D_PROFILER_SCOPE("scroll_system.process_update");
         state_->process_update(trigger.event.dt, owner);
     }
 }

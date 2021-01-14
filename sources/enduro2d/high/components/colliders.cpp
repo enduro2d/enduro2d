@@ -221,7 +221,7 @@ namespace e2d
             c->points().size());
 
         if ( ImGui::TreeNode(points_label.c_str()) ) {
-            E2D_DEFER([](){ ImGui::TreePop(); });
+            DEFER([](){ ImGui::TreePop(); });
 
             int count = math::numeric_cast<int>(c->points().size());
             if ( ImGui::DragInt("count", &count, 1.f, 0, std::numeric_limits<int>::max()) ) {
@@ -230,7 +230,7 @@ namespace e2d
 
             for ( std::size_t i = 0; i < c->points().size(); ++i ) {
                 ImGui::PushID(math::numeric_cast<int>(i));
-                E2D_DEFER([](){ ImGui::PopID(); });
+                DEFER([](){ ImGui::PopID(); });
 
                 if ( v2f point = c->points()[i];
                     ImGui::DragFloat2("###point", point.data(), 1.f) )

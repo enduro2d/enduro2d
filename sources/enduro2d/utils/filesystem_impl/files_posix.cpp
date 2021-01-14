@@ -101,7 +101,7 @@ namespace
         int handle_ = -1;
     };
 
-    class write_file_posix : public write_file {
+    class write_file_posix final : public write_file {
     public:
         write_file_posix(str path, bool append)
         : path_(std::move(path))

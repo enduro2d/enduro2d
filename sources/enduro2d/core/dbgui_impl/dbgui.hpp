@@ -11,7 +11,6 @@
 #include <enduro2d/core/debug.hpp>
 #include <enduro2d/core/engine.hpp>
 #include <enduro2d/core/input.hpp>
-#include <enduro2d/core/profiler.hpp>
 #include <enduro2d/core/render.hpp>
 #include <enduro2d/core/window.hpp>
 
@@ -46,7 +45,7 @@ namespace e2d::imgex
         char* id_cstr = static_cast<char*>(E2D_CLEAR_ALLOCA(id.size() + 1));
         std::memcpy(id_cstr, id.data(), id.size());
 
-        if ( E2D_DEFER([](){ ImGui::EndChild(); });
+        if ( DEFER([](){ ImGui::EndChild(); });
             ImGui::BeginChild(id_cstr, ImVec2(0.f, 0.f), border, flags) )
         {
             f();
@@ -59,7 +58,7 @@ namespace e2d::imgex
         std::memcpy(label_cstr, label.data(), label.size());
 
         if ( ImGui::BeginMenu(label_cstr) ) {
-            E2D_DEFER([](){ ImGui::EndMenu(); });
+            DEFER([](){ ImGui::EndMenu(); });
             f();
         }
     }
@@ -67,7 +66,7 @@ namespace e2d::imgex
     template < typename F >
     void with_menu_bar(F&& f) {
         if ( ImGui::BeginMenuBar() ) {
-            E2D_DEFER([](){ ImGui::EndMenuBar(); });
+            DEFER([](){ ImGui::EndMenuBar(); });
             f();
         }
     }
@@ -78,7 +77,7 @@ namespace e2d::imgex
         std::memcpy(id_cstr, id.data(), id.size());
 
         if ( ImGui::BeginPopup(id_cstr) ) {
-            E2D_DEFER([](){ ImGui::EndPopup(); });
+            DEFER([](){ ImGui::EndPopup(); });
             f();
         }
     }
@@ -88,7 +87,7 @@ namespace e2d::imgex
         char* name_cstr = static_cast<char*>(E2D_CLEAR_ALLOCA(name.size() + 1));
         std::memcpy(name_cstr, name.data(), name.size());
 
-        if ( E2D_DEFER([](){ ImGui::End(); });
+        if ( DEFER([](){ ImGui::End(); });
             ImGui::Begin(name_cstr, opened, flags) )
         {
             f();
@@ -119,7 +118,7 @@ namespace e2d::imgex
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.f, 0.f));
 
         ImGui::Begin("e2d_dock_space_window", nullptr, window_flags);
-        E2D_DEFER([](){ ImGui::End(); });
+        DEFER([](){ ImGui::End(); });
 
         ImGui::PopStyleVar(3);
 

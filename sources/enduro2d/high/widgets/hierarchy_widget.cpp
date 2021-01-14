@@ -38,7 +38,7 @@ namespace
             : strings::rformat("%0 %1", icon_name, component_name);
 
         ImGui::PushID(root.get());
-        E2D_DEFER([](){ ImGui::PopID(); });
+        DEFER([](){ ImGui::PopID(); });
 
         ImGuiTreeNodeFlags tree_node_flags =
             ImGuiTreeNodeFlags_OpenOnArrow |
@@ -58,7 +58,7 @@ namespace
             tree_node_flags,
             "%s", tree_node_name.c_str());
 
-        E2D_DEFER([tree_node_opened](){
+        DEFER([tree_node_opened](){
             if ( tree_node_opened ) {
                 ImGui::TreePop();
             }
@@ -73,7 +73,7 @@ namespace
         }
 
         if ( ImGui::BeginPopupContextItem() ) {
-            E2D_DEFER([](){ ImGui::EndPopup(); });
+            DEFER([](){ ImGui::EndPopup(); });
 
             if ( ImGui::MenuItem("Add child") ) {
                 gobject inst = w.instantiate();

@@ -10,11 +10,9 @@
 #include <enduro2d/high/factory.hpp>
 #include <enduro2d/high/inspector.hpp>
 #include <enduro2d/high/library.hpp>
-#include <enduro2d/high/luasol.hpp>
 #include <enduro2d/high/world.hpp>
 
 #include <enduro2d/high/components/actor.hpp>
-#include <enduro2d/high/components/behaviour.hpp>
 #include <enduro2d/high/components/button.hpp>
 #include <enduro2d/high/components/camera.hpp>
 #include <enduro2d/high/components/colliders.hpp>
@@ -36,7 +34,6 @@
 #include <enduro2d/high/components/scrollbar.hpp>
 #include <enduro2d/high/components/slider_handle.hpp>
 #include <enduro2d/high/components/slider.hpp>
-#include <enduro2d/high/components/spine_player.hpp>
 #include <enduro2d/high/components/sprite_renderer.hpp>
 #include <enduro2d/high/components/toggle_group.hpp>
 #include <enduro2d/high/components/toggle.hpp>
@@ -52,11 +49,9 @@
 #include <enduro2d/high/systems/layout_system.hpp>
 #include <enduro2d/high/systems/progress_system.hpp>
 #include <enduro2d/high/systems/render_system.hpp>
-#include <enduro2d/high/systems/script_system.hpp>
 #include <enduro2d/high/systems/scroll_system.hpp>
 #include <enduro2d/high/systems/scrollbar_system.hpp>
 #include <enduro2d/high/systems/slider_system.hpp>
-#include <enduro2d/high/systems/spine_system.hpp>
 #include <enduro2d/high/systems/sprite_system.hpp>
 #include <enduro2d/high/systems/toggle_system.hpp>
 #include <enduro2d/high/systems/touch_system.hpp>
@@ -85,7 +80,6 @@ namespace
                     .add_system<frame_system>())
 
                 .feature<struct animation_feature>(ecs::feature()
-                    .add_system<spine_system>()
                     .add_system<flipbook_system>())
 
                 .feature<struct touch_feature>(ecs::feature()
@@ -114,9 +108,6 @@ namespace
                     .add_system<gizmos_system>()
                     .add_system<render_system>())
 
-                .feature<struct script_feature>(ecs::feature()
-                    .add_system<script_system>())
-
                 .feature<struct world_feature>(ecs::feature()
                     .add_system<world_system>());
             return !application_ || application_->initialize();
@@ -129,19 +120,16 @@ namespace
         }
 
         bool frame_tick() final {
-            E2D_PROFILER_SCOPE("application.frame_tick");
             the<world>().registry().process_event(systems::frame_update_event{});
             return !the<window>().should_close()
                 || (application_ && !application_->on_should_close());
         }
 
         void frame_render() final {
-            E2D_PROFILER_SCOPE("application.frame_render");
             the<world>().registry().process_event(systems::frame_render_event{});
         }
 
         void frame_finalize() final {
-            E2D_PROFILER_SCOPE("application.frame_finalize");
             the<world>().registry().process_event(systems::frame_finalize_event{});
         }
     private:
@@ -223,7 +211,6 @@ namespace e2d
 
         safe_module_initialize<factory>()
             .register_component<actor>("actor")
-            .register_component<behaviour>("behaviour")
             .register_component<button>("button")
             .register_component<button::pressed>("button.pressed")
             .register_component<camera>("camera")
@@ -249,9 +236,6 @@ namespace e2d
             .register_component<scrollbar_handle>("scrollbar_handle")
             .register_component<slider>("slider")
             .register_component<slider_handle>("slider_handle")
-            .register_component<spine_player>("spine_player")
-            .register_component<events<spine_player_events::event>>("spine_player.events")
-            .register_component<commands<spine_player_commands::command>>("spine_player.commands")
             .register_component<sprite_renderer>("sprite_renderer")
             .register_component<toggle_group>("toggle_group")
             .register_component<toggle>("toggle")
@@ -272,7 +256,6 @@ namespace e2d
 
         safe_module_initialize<inspector>()
             .register_component<actor>("actor")
-            .register_component<behaviour>("behaviour")
             .register_component<button>("button")
             //.register_component<button::pressed>("button.pressed")
             .register_component<camera>("camera")
@@ -298,9 +281,6 @@ namespace e2d
             .register_component<scrollbar_handle>("scrollbar_handle")
             .register_component<slider>("slider")
             .register_component<slider_handle>("slider_handle")
-            .register_component<spine_player>("spine_player")
-            //.register_component<events<spine_player_events::event>>("spine_player.events")
-            //.register_component<commands<spine_player_commands::command>>("spine_player.commands")
             .register_component<sprite_renderer>("sprite_renderer")
             .register_component<toggle_group>("toggle_group")
             .register_component<toggle>("toggle")
@@ -319,8 +299,6 @@ namespace e2d
             //.register_component<widget::dirty>("widget.dirty")
             ;
 
-        safe_module_initialize<luasol>();
-
         safe_module_initialize<library>(
             params.library_params());
 
@@ -329,13 +307,10 @@ namespace e2d
     }
 
     starter::~starter() noexcept {
-        the<luasol>().collect_garbage();
-
         modules::shutdown<
             editor,
             world,
             library,
-            luasol,
             inspector,
             factory,
             engine>();

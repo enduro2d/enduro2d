@@ -7,7 +7,6 @@
 #include <enduro2d/high/world.hpp>
 
 #include <enduro2d/high/components/actor.hpp>
-#include <enduro2d/high/components/behaviour.hpp>
 #include <enduro2d/high/components/disabled.hpp>
 
 namespace
@@ -87,12 +86,12 @@ namespace
 
     gobject new_instance(world& world, const prefab& root_prefab) {
         ecs::entity ent = world.registry().create_entity(root_prefab.prototype());
-        auto ent_defer = make_error_defer([&ent](){
+        auto ent_defer = defer_hpp::make_error_defer([&ent](){
             ent.destroy();
         });
 
         gobject root_i(make_intrusive<gobject_state>(world, ent));
-        E2D_ERROR_DEFER([&root_i](){
+        ERROR_DEFER([&root_i](){
             delete_instance(root_i);
         });
 
@@ -107,19 +106,9 @@ namespace
             root_a.ensure().node(new_root_node);
         }
 
-        {
-            gcomponent<behaviour> root_b{root_i};
-            if ( root_b && root_b->script() ) {
-                const behaviours::fill_result r = behaviours::fill_meta_table(*root_b);
-                if ( r == behaviours::fill_result::failed ) {
-                    root_i.component<disabled<behaviour>>().ensure();
-                }
-            }
-        }
-
         for ( const prefab& child_prefab : root_prefab.children() ) {
             gobject child_i = new_instance(world, child_prefab);
-            E2D_ERROR_DEFER([&child_i](){
+            ERROR_DEFER([&child_i](){
                 delete_instance(child_i);
             });
             gcomponent<actor> root_a{root_i};
@@ -128,39 +117,6 @@ namespace
         }
 
         return root_i;
-    }
-
-    void shutdown_instance(gobject& inst) noexcept {
-        gcomponent<actor> inst_a = inst.component<actor>();
-        if ( !inst_a ) {
-            return;
-        }
-        nodes::for_extracted_components_from_children<behaviour>(
-            inst_a->node(),
-            [](gcomponent<behaviour>& inst_b){
-                behaviours::call_meta_method(
-                    *inst_b,
-                    "on_shutdown",
-                    inst_b.owner());
-            }, nodes::options().recursive(true).include_root(true));
-    }
-
-    void start_instance(gobject& inst) {
-        gcomponent<actor> inst_a = inst.component<actor>();
-        if ( !inst_a ) {
-            return;
-        }
-        nodes::for_extracted_components_from_children<behaviour>(
-            inst_a->node(),
-            [&inst](gcomponent<behaviour>& inst_b){
-                const auto result = behaviours::call_meta_method(
-                    *inst_b,
-                    "on_start",
-                    inst_b.owner());
-                if ( result == behaviours::call_result::failed ) {
-                    inst.component<disabled<behaviour>>().assign();
-                }
-            }, nodes::options().recursive(true).include_root(true));
     }
 }
 
@@ -201,10 +157,8 @@ namespace e2d
     }
 
     gobject world::instantiate(const prefab& prefab, const node_iptr& parent) {
-        E2D_PROFILER_SCOPE("world.instantiate");
-
         gobject inst = new_instance(*this, prefab);
-        E2D_ERROR_DEFER([inst](){
+        ERROR_DEFER([inst](){
             delete_instance(inst);
         });
 
@@ -214,15 +168,12 @@ namespace e2d
             }
         }
 
-        start_instance(inst);
         return inst;
     }
 
     gobject world::instantiate(const prefab& prefab, const node_iptr& parent, const t2f& transform) {
-        E2D_PROFILER_SCOPE("world.instantiate");
-
         gobject inst = new_instance(*this, prefab);
-        E2D_ERROR_DEFER([inst](){
+        ERROR_DEFER([inst](){
             delete_instance(inst);
         });
 
@@ -234,7 +185,6 @@ namespace e2d
             }
         }
 
-        start_instance(inst);
         return inst;
     }
 
@@ -249,11 +199,9 @@ namespace e2d
     }
 
     void world::finalize_instances() noexcept {
-        E2D_PROFILER_SCOPE("world.finalize_instances");
         while ( !destroying_states_.empty() ) {
             gobject inst{&destroying_states_.front()};
             destroying_states_.pop_front();
-            shutdown_instance(inst);
             delete_instance(inst);
         }
     }

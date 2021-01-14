@@ -7,9 +7,8 @@ cloc \
   $SCRIPT_DIR/../samples/sources \
   $SCRIPT_DIR/../untests/bin \
   $SCRIPT_DIR/../untests/sources \
-  $SCRIPT_DIR/../modules/curly.hpp/headers \
-  $SCRIPT_DIR/../modules/curly.hpp/sources \
-  $SCRIPT_DIR/../modules/curly.hpp/untests \
+  $SCRIPT_DIR/../modules/defer.hpp/headers \
+  $SCRIPT_DIR/../modules/defer.hpp/untests \
   $SCRIPT_DIR/../modules/ecs.hpp/headers \
   $SCRIPT_DIR/../modules/ecs.hpp/untests \
   $SCRIPT_DIR/../modules/enum.hpp/headers \

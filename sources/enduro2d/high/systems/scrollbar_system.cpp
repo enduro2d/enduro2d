@@ -238,7 +238,6 @@ namespace e2d
         const ecs::before<systems::update_event>& trigger)
     {
         E2D_UNUSED(trigger);
-        E2D_PROFILER_SCOPE("scrollbar_system.process_update");
         state_->process_update(owner);
     }
 }

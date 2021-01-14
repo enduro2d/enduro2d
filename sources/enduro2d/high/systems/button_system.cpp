@@ -100,7 +100,6 @@ namespace e2d
         const ecs::before<systems::update_event>& trigger)
     {
         E2D_UNUSED(trigger);
-        E2D_PROFILER_SCOPE("button_system.process_states");
         state_->process_states(owner);
     }
 
@@ -109,7 +108,6 @@ namespace e2d
         const ecs::after<systems::update_event>& trigger)
     {
         E2D_UNUSED(trigger);
-        E2D_PROFILER_SCOPE("button_system.process_styles");
         state_->process_styles(owner);
     }
 }

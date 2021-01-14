@@ -100,7 +100,6 @@ namespace e2d
         ecs::registry& owner,
         const ecs::after<systems::update_event>& trigger)
     {
-        E2D_PROFILER_SCOPE("flipbook_system.process_update");
         state_->process_update(trigger.event.dt, owner);
     }
 }

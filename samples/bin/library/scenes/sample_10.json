@@ -1,9 +1,6 @@
 {
     "prefab" : "../prefabs/scene_prefab.json",
     "components" : {
-        "behaviour" : {
-            "script" : "../scripts/sample_10/sample_10.lua"
-        },
         "touchable" : {}
     },
     "children" : [{

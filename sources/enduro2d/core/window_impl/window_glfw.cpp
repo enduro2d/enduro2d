@@ -719,7 +719,6 @@ namespace e2d
     }
 
     void window::swap_buffers() noexcept {
-        E2D_PROFILER_SCOPE("window.swap_buffers");
         std::lock_guard<std::recursive_mutex> guard(state_->rmutex);
         E2D_ASSERT(
             state_->window &&
@@ -728,7 +727,6 @@ namespace e2d
     }
 
     bool window::poll_events() noexcept {
-        E2D_PROFILER_SCOPE("window.poll_events");
         return glfw_state::poll_events();
     }
 
