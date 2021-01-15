@@ -47,6 +47,7 @@ mkdir -p $SOURCES_RDPARTY_DIR/imgui
 cp -fv $MODULES_DIR/imgui/imgui.cpp $SOURCES_RDPARTY_DIR/imgui/imgui.cpp
 cp -fv $MODULES_DIR/imgui/imgui_demo.cpp $SOURCES_RDPARTY_DIR/imgui/imgui_demo.cpp
 cp -fv $MODULES_DIR/imgui/imgui_draw.cpp $SOURCES_RDPARTY_DIR/imgui/imgui_draw.cpp
+cp -fv $MODULES_DIR/imgui/imgui_tables.cpp $SOURCES_RDPARTY_DIR/imgui/imgui_tables.cpp
 cp -fv $MODULES_DIR/imgui/imgui_widgets.cpp $SOURCES_RDPARTY_DIR/imgui/imgui_widgets.cpp
 cp -fv $MODULES_DIR/imgui/misc/cpp/imgui_stdlib.cpp $SOURCES_RDPARTY_DIR/imgui/imgui_stdlib.cpp
 
