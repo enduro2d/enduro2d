@@ -217,12 +217,12 @@ namespace
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.f, 0.f));
 
         ImGui::Begin("e2d_gizmos_window", nullptr, window_flags);
-        DEFER([](){ ImGui::End(); });
+        DEFER_HPP([](){ ImGui::End(); });
 
         ImGui::PopStyleVar(3);
 
         ImGui::PushClipRect(clip_rect.Min, clip_rect.Max, true);
-        DEFER([](){ ImGui::PopClipRect(); });
+        DEFER_HPP([](){ ImGui::PopClipRect(); });
 
         std::invoke(std::forward<F>(f), std::forward<Args>(args)...);
     }

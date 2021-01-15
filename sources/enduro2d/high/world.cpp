@@ -91,7 +91,7 @@ namespace
         });
 
         gobject root_i(make_intrusive<gobject_state>(world, ent));
-        ERROR_DEFER([&root_i](){
+        ERROR_DEFER_HPP([&root_i](){
             delete_instance(root_i);
         });
 
@@ -108,7 +108,7 @@ namespace
 
         for ( const prefab& child_prefab : root_prefab.children() ) {
             gobject child_i = new_instance(world, child_prefab);
-            ERROR_DEFER([&child_i](){
+            ERROR_DEFER_HPP([&child_i](){
                 delete_instance(child_i);
             });
             gcomponent<actor> root_a{root_i};
@@ -158,7 +158,7 @@ namespace e2d
 
     gobject world::instantiate(const prefab& prefab, const node_iptr& parent) {
         gobject inst = new_instance(*this, prefab);
-        ERROR_DEFER([inst](){
+        ERROR_DEFER_HPP([inst](){
             delete_instance(inst);
         });
 
@@ -173,7 +173,7 @@ namespace e2d
 
     gobject world::instantiate(const prefab& prefab, const node_iptr& parent, const t2f& transform) {
         gobject inst = new_instance(*this, prefab);
-        ERROR_DEFER([inst](){
+        ERROR_DEFER_HPP([inst](){
             delete_instance(inst);
         });
 

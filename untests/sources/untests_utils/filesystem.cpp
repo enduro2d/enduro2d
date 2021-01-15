@@ -8,7 +8,7 @@
 using namespace e2d;
 
 TEST_CASE("filesystem") {
-    DEFER([](){
+    DEFER_HPP([](){
         filesystem::remove_file("files_test");
     });
     SECTION("files") {
