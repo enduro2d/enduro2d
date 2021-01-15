@@ -95,7 +95,7 @@
      possibility that the archive's central directory could be lost with this method if anything goes wrong, though.
 
      - ZIP archive support limitations:
-     No zip64 or spanning support. Extraction functions can only handle unencrypted, stored or deflated files.
+     No spanning support. Extraction functions can only handle unencrypted, stored or deflated files.
      Requires streams capable of seeking.
 
    * This is a header file library, like stb_image.c. To get only a header file, either cut and paste the
@@ -220,7 +220,7 @@ enum
 #define MZ_DEFLATED 8
 
 /* Heap allocation callbacks.
-Note that mz_alloc_func parameter types purpsosely differ from zlib's: items/size is size_t, not unsigned long. */
+Note that mz_alloc_func parameter types purposely differ from zlib's: items/size is size_t, not unsigned long. */
 typedef void *(*mz_alloc_func)(void *opaque, size_t items, size_t size);
 typedef void (*mz_free_func)(void *opaque, void *address);
 typedef void *(*mz_realloc_func)(void *opaque, void *address, size_t items, size_t size);

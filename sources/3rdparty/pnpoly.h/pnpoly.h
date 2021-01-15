@@ -62,7 +62,7 @@ PNPOLY_DEF int pnpoly_soa(int nvert, const float *vertx, const float *verty, flo
 
 /*
 Copyright (c) 1970-2003, Wm. Randolph Franklin
-Copyright (c) 2020, by Matvey Cherevko (blackmatov@gmail.com)
+Copyright (c) 2020-2021, by Matvey Cherevko (blackmatov@gmail.com)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
