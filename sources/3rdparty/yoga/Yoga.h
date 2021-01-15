@@ -69,6 +69,11 @@ WIN_EXPORT void YGNodeInsertChild(
     YGNodeRef child,
     uint32_t index);
 
+WIN_EXPORT void YGNodeSwapChild(
+    YGNodeRef node,
+    YGNodeRef child,
+    uint32_t index);
+
 WIN_EXPORT void YGNodeRemoveChild(YGNodeRef node, YGNodeRef child);
 WIN_EXPORT void YGNodeRemoveAllChildren(YGNodeRef node);
 WIN_EXPORT YGNodeRef YGNodeGetChild(YGNodeRef node, uint32_t index);
@@ -347,8 +352,8 @@ WIN_EXPORT void YGConfigSetContext(YGConfigRef config, void* context);
 WIN_EXPORT void* YGConfigGetContext(YGConfigRef config);
 
 WIN_EXPORT float YGRoundValueToPixelGrid(
-    float value,
-    float pointScaleFactor,
+    double value,
+    double pointScaleFactor,
     bool forceCeil,
     bool forceFloor);
 
