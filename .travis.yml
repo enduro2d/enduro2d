@@ -1,128 +1,70 @@
-language: cpp
-
 env:
   global:
     - E2D_WITHOUT_AUDIO=true
     - E2D_WITHOUT_GRAPHICS=true
 
-matrix:
+language: cpp
+
+jobs:
   include:
 
     #
-    # linux (g++-7)
+    # linux (g++)
     #
 
     - os: linux
-      dist: xenial
+      dist: bionic
       stage: linux
-      name: debug, g++-7
+      name: g++-7
       addons: { apt: { sources: ["ubuntu-toolchain-r-test"], packages: ["libx11-dev", "libgl1-mesa-dev", "xorg-dev", "g++-7"] } }
       env: CC=gcc-7 CXX=g++-7
-      script: ./scripts/build_debug.sh
+      script: .ci/builds/build_linux.sh
 
     - os: linux
-      dist: xenial
+      dist: bionic
       stage: linux
-      name: release, g++-7
-      addons: { apt: { sources: ["ubuntu-toolchain-r-test"], packages: ["libx11-dev", "libgl1-mesa-dev", "xorg-dev", "g++-7"] } }
-      env: CC=gcc-7 CXX=g++-7
-      script: ./scripts/build_release.sh
-
-    #
-    # linux (g++-8)
-    #
-
-    - os: linux
-      dist: xenial
-      stage: linux
-      name: debug, g++-8
+      name: g++-8
       addons: { apt: { sources: ["ubuntu-toolchain-r-test"], packages: ["libx11-dev", "libgl1-mesa-dev", "xorg-dev", "g++-8"] } }
       env: CC=gcc-8 CXX=g++-8
-      script: ./scripts/build_debug.sh
-
-    - os: linux
-      dist: xenial
-      stage: linux
-      name: release, g++-8
-      addons: { apt: { sources: ["ubuntu-toolchain-r-test"], packages: ["libx11-dev", "libgl1-mesa-dev", "xorg-dev", "g++-8"] } }
-      env: CC=gcc-8 CXX=g++-8
-      script: ./scripts/build_release.sh
+      script: .ci/builds/build_linux.sh
 
     #
-    # linux (clang++-5.0)
+    # linux (clang++)
     #
 
     - os: linux
-      dist: xenial
+      dist: bionic
       stage: linux
-      name: debug, clang++-5.0
-      addons: { apt: { sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-xenial-5.0"], packages: ["libx11-dev", "libgl1-mesa-dev", "xorg-dev", "g++-7", "clang-5.0"] } }
+      name: clang++-5.0
+      addons: { apt: { sources: ["ubuntu-toolchain-r-test"], packages: ["libx11-dev", "libgl1-mesa-dev", "xorg-dev", "clang-5.0"] } }
       env: CC=clang-5.0 CXX=clang++-5.0
-      script: ./scripts/build_debug.sh
+      script: .ci/builds/build_linux.sh
 
     - os: linux
-      dist: xenial
+      dist: bionic
       stage: linux
-      name: release, clang++-5.0
-      addons: { apt: { sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-xenial-5.0"], packages: ["libx11-dev", "libgl1-mesa-dev", "xorg-dev", "g++-7", "clang-5.0"] } }
-      env: CC=clang-5.0 CXX=clang++-5.0
-      script: ./scripts/build_release.sh
-
-    #
-    # linux (clang++-6.0)
-    #
-
-    - os: linux
-      dist: xenial
-      stage: linux
-      name: debug, clang++-6.0
-      addons: { apt: { sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-xenial-6.0"], packages: ["libx11-dev", "libgl1-mesa-dev", "xorg-dev", "g++-7", "clang-6.0"] } }
+      name: clang++-6.0
+      addons: { apt: { sources: ["ubuntu-toolchain-r-test"], packages: ["libx11-dev", "libgl1-mesa-dev", "xorg-dev", "clang-6.0"] } }
       env: CC=clang-6.0 CXX=clang++-6.0
-      script: ./scripts/build_debug.sh
-
-    - os: linux
-      dist: xenial
-      stage: linux
-      name: release, clang++-6.0
-      addons: { apt: { sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-xenial-6.0"], packages: ["libx11-dev", "libgl1-mesa-dev", "xorg-dev", "g++-7", "clang-6.0"] } }
-      env: CC=clang-6.0 CXX=clang++-6.0
-      script: ./scripts/build_release.sh
+      script: .ci/builds/build_linux.sh
 
     #
-    # macosx (xcode10)
+    # darwin
     #
 
     - os: osx
       osx_image: xcode10
-      stage: macosx
-      name: debug, xcode10
+      stage: darwin
+      name: xcode10
       addons: { homebrew: { packages: ["git-lfs"], update: true } }
-      script: ./scripts/build_debug.sh
-
-    - os: osx
-      osx_image: xcode10
-      stage: macosx
-      name: release, xcode10
-      addons: { homebrew: { packages: ["git-lfs"], update: true } }
-      script: ./scripts/build_release.sh
-
-    #
-    # macosx (xcode11)
-    #
+      script: .ci/builds/build_darwin.sh
 
     - os: osx
       osx_image: xcode11
-      stage: macosx
-      name: debug, xcode11
+      stage: darwin
+      name: xcode11
       addons: { homebrew: { packages: ["git-lfs"], update: true } }
-      script: ./scripts/build_debug.sh
-
-    - os: osx
-      osx_image: xcode11
-      stage: macosx
-      name: release, xcode11
-      addons: { homebrew: { packages: ["git-lfs"], update: true } }
-      script: ./scripts/build_release.sh
+      script: .ci/builds/build_darwin.sh
 
     #
     # coverage
@@ -133,15 +75,7 @@ matrix:
       stage: coverage
       name: coverage, xcode10
       addons: { homebrew: { packages: ["git-lfs", "lcov"], update: true } }
-      script: ./scripts/upload_coverage.sh
-
-before_install:
-  - if [ "$TRAVIS_OS_NAME" == 'linux' ]; then
-    mkdir $HOME/cmake;
-    export PATH="$HOME/cmake/bin:$PATH";
-    travis_retry wget -q https://cmake.org/files/v3.11/cmake-3.11.4-Linux-x86_64.sh;
-    sh cmake-3.11.4-Linux-x86_64.sh --prefix=$HOME/cmake --exclude-subdir --skip-license;
-    fi
+      script: .ci/builds/build_coverage.sh
 
 before_script:
   - git submodule update --init --recursive
