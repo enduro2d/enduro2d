@@ -125,8 +125,6 @@ add_subdirectory(modules/enum.hpp)
 add_subdirectory(modules/flat.hpp)
 add_subdirectory(modules/promise.hpp)
 
-# glfw
-
 set(GLFW_INSTALL OFF CACHE INTERNAL "" FORCE)
 set(GLFW_BUILD_DOCS OFF CACHE INTERNAL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE INTERNAL "" FORCE)
@@ -134,14 +132,6 @@ set(GLFW_BUILD_EXAMPLES OFF CACHE INTERNAL "" FORCE)
 
 add_subdirectory(modules/glfw)
 set_target_properties(glfw PROPERTIES FOLDER modules)
-
-# glew
-
-set(glew-cmake_BUILD_STATIC ON CACHE INTERNAL "" FORCE)
-set(glew-cmake_BUILD_SHARED OFF CACHE INTERNAL "" FORCE)
-
-add_subdirectory(modules/glew)
-set_target_properties(libglew_static PROPERTIES FOLDER modules)
 
 #
 # e2d library target
@@ -166,7 +156,6 @@ target_link_libraries(${PROJECT_NAME}
 
 target_link_libraries(${PROJECT_NAME}
     PRIVATE glfw
-    PRIVATE libglew_static
     PRIVATE OpenGL::GL
     PRIVATE Threads::Threads
     PRIVATE $<$<CXX_COMPILER_ID:MSVC>:winmm.lib>)
@@ -178,7 +167,7 @@ target_include_directories(${PROJECT_NAME}
     PUBLIC headers/3rdparty/pugixml
     PRIVATE sources
     PRIVATE sources/3rdparty
-    PRIVATE sources/3rdparty/glew)
+    PRIVATE sources/3rdparty/glad)
 
 target_compile_options(${PROJECT_NAME}
     PRIVATE
