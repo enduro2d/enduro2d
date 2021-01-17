@@ -24,14 +24,6 @@ mkdir -p $UNTESTS_DIR/catch
 cp -fv $MODULES_DIR/catch2/single_include/catch2/catch.hpp $UNTESTS_DIR/catch/catch.hpp
 
 #
-# glew
-#
-
-mkdir -p $SOURCES_RDPARTY_DIR/glew
-cp -rfv $MODULES_DIR/glew/include/. $SOURCES_RDPARTY_DIR/glew/
-cp -fv $MODULES_DIR/glew/src/glew.c $SOURCES_RDPARTY_DIR/glew/glew.c
-
-#
 # imgui
 #
 
