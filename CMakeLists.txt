@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.11 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.21 FATAL_ERROR)
 
 if(NOT DEFINED PROJECT_NAME)
     set(E2D_BUILD_AS_STANDALONE ON)

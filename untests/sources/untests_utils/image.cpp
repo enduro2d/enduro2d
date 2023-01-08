@@ -9,7 +9,6 @@ using namespace e2d;
 
 TEST_CASE("images") {
     DEFER_HPP([](){
-        filesystem::remove_file("image_save_test.jpg");
         filesystem::remove_file("image_save_test.png");
         filesystem::remove_file("image_save_test.tga");
         filesystem::remove_file("image_save_test.dds");
@@ -46,7 +45,6 @@ TEST_CASE("images") {
 
     SECTION("stb") {
         {
-            REQUIRE(filesystem::remove_file("image_save_test.jpg"));
             REQUIRE(filesystem::remove_file("image_save_test.png"));
             REQUIRE(filesystem::remove_file("image_save_test.tga"));
             const u8 img_data[] = {
@@ -71,11 +69,6 @@ TEST_CASE("images") {
             image img(v2u(2,15), image_data_format::rgb8, buffer(img_data, sizeof(img_data)));
             REQUIRE(images::try_save_image(
                 img,
-                image_file_format::jpg,
-                make_write_file("image_save_test.jpg", false)));
-            REQUIRE(filesystem::file_exists("image_save_test.jpg"));
-            REQUIRE(images::try_save_image(
-                img,
                 image_file_format::png,
                 make_write_file("image_save_test.png", false)));
             REQUIRE(filesystem::file_exists("image_save_test.png"));
@@ -87,13 +80,6 @@ TEST_CASE("images") {
         }
         {
             image img;
-
-            REQUIRE(images::try_load_image(img, make_read_file("image_save_test.jpg")));
-            REQUIRE(img.size() == v2u(2,15));
-            REQUIRE(img.format() == image_data_format::rgb8);
-            REQUIRE(math::approximately(img.pixel32(0,2), color32::red(),   10u));
-            REQUIRE(math::approximately(img.pixel32(0,7), color32::green(), 10u));
-            REQUIRE(math::approximately(img.pixel32(0,12), color32::blue(), 10u));
 
             REQUIRE(images::try_load_image(img, make_read_file("image_save_test.png")));
             REQUIRE(img.size() == v2u(2,15));
@@ -110,7 +96,6 @@ TEST_CASE("images") {
             REQUIRE(math::approximately(img.pixel32(0,12), color32::blue(), 0u));
         }
         {
-            REQUIRE(filesystem::remove_file("image_save_test.jpg"));
             REQUIRE(filesystem::remove_file("image_save_test.png"));
             REQUIRE(filesystem::remove_file("image_save_test.tga"));
             const u8 img_data[] = {
@@ -136,11 +121,6 @@ TEST_CASE("images") {
             buffer buf;
             REQUIRE(images::try_save_image(
                 img,
-                image_file_format::jpg,
-                buf));
-            REQUIRE(filesystem::try_write_all(buf, "image_save_test.jpg", false));
-            REQUIRE(images::try_save_image(
-                img,
                 image_file_format::png,
                 buf));
             REQUIRE(filesystem::try_write_all(buf, "image_save_test.png", false));
@@ -153,14 +133,6 @@ TEST_CASE("images") {
         {
             image img;
             buffer buf;
-
-            REQUIRE(filesystem::try_read_all(buf, "image_save_test.jpg"));
-            REQUIRE(images::try_load_image(img, buf));
-            REQUIRE(img.size() == v2u(2,15));
-            REQUIRE(img.format() == image_data_format::rgb8);
-            REQUIRE(math::approximately(img.pixel32(0,2), color32::red(),   10u));
-            REQUIRE(math::approximately(img.pixel32(0,7), color32::green(), 10u));
-            REQUIRE(math::approximately(img.pixel32(0,12), color32::blue(), 10u));
 
             REQUIRE(filesystem::try_read_all(buf, "image_save_test.png"));
             REQUIRE(images::try_load_image(img, buf));
@@ -192,7 +164,6 @@ TEST_CASE("images") {
             image_data_format format;
         };
         const img_info test_infos[] = {
-            {"bin/images/stb/ship.jpg", 64 * 128 * 3, image_data_format::rgb8},
             {"bin/images/stb/ship.png", 64 * 128 * 4, image_data_format::rgba8},
             {"bin/images/stb/ship.tga", 64 * 128 * 4, image_data_format::rgba8}};
         for ( const auto& info : test_infos ) {
