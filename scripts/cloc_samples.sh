@@ -1,5 +1,8 @@
 #!/bin/bash
-SCRIPT_DIR=`dirname "$BASH_SOURCE"`
+DIR="$( cd "$( dirname "${BASH_SOURCE}" )" && pwd )"
+
+ROOT_DIR="${DIR}/.."
+
 cloc \
-  $SCRIPT_DIR/../samples/bin \
-  $SCRIPT_DIR/../samples/sources
+  "${ROOT_DIR}/samples/bin" \
+  "${ROOT_DIR}/samples/sources"

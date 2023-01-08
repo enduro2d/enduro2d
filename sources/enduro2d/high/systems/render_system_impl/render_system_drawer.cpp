@@ -121,7 +121,7 @@ namespace e2d::render_system_impl
         const model& mdl = mdl_r.model()->content();
         const mesh& msh = mdl.mesh()->content();
 
-        DEFER([this](){
+        DEFER_HPP([this](){
             property_cache_.clear();
         });
 
@@ -197,7 +197,7 @@ namespace e2d::render_system_impl
             return;
         }
 
-        DEFER([this](){
+        DEFER_HPP([this](){
             property_cache_.clear();
         });
 

@@ -890,10 +890,6 @@ namespace e2d
             u32 max_vertex_attributes = 0;
             u32 max_vertex_texture_image_units = 0;
 
-            u32 max_varying_vectors = 0;
-            u32 max_vertex_uniform_vectors = 0;
-            u32 max_fragment_uniform_vectors = 0;
-
             bool npot_texture_supported = false;
             bool depth_texture_supported = false;
             bool render_target_supported = false;

@@ -1319,25 +1319,6 @@ namespace e2d::opengl
         GL_CHECK_CODE(debug, glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &max_vertex_attributes));
         GL_CHECK_CODE(debug, glGetIntegerv(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS, &max_vertex_texture_image_units));
 
-        GLint max_varying_vectors = 0;
-        GLint max_vertex_uniform_vectors = 0;
-        GLint max_fragment_uniform_vectors = 0;
-
-    #if E2D_RENDER_MODE == E2D_RENDER_MODE_OPENGLES
-        GL_CHECK_CODE(debug, glGetIntegerv(GL_MAX_VARYING_VECTORS, &max_varying_vectors));
-        GL_CHECK_CODE(debug, glGetIntegerv(GL_MAX_VERTEX_UNIFORM_VECTORS, &max_vertex_uniform_vectors));
-        GL_CHECK_CODE(debug, glGetIntegerv(GL_MAX_FRAGMENT_UNIFORM_VECTORS, &max_fragment_uniform_vectors));
-    #elif E2D_RENDER_MODE == E2D_RENDER_MODE_OPENGL
-        GL_CHECK_CODE(debug, glGetIntegerv(GL_MAX_VARYING_COMPONENTS, &max_varying_vectors));
-        GL_CHECK_CODE(debug, glGetIntegerv(GL_MAX_VERTEX_UNIFORM_COMPONENTS, &max_vertex_uniform_vectors));
-        GL_CHECK_CODE(debug, glGetIntegerv(GL_MAX_FRAGMENT_UNIFORM_COMPONENTS, &max_fragment_uniform_vectors));
-        max_varying_vectors *= 4;
-        max_vertex_uniform_vectors *= 4;
-        max_fragment_uniform_vectors *= 4;
-    #else
-    #   error unknown render mode
-    #endif
-
         caps.max_texture_size = math::numeric_cast<u32>(max_texture_size);
         caps.max_renderbuffer_size = math::numeric_cast<u32>(max_renderbuffer_size);
         caps.max_cube_map_texture_size = math::numeric_cast<u32>(max_cube_map_texture_size);
@@ -1347,10 +1328,6 @@ namespace e2d::opengl
 
         caps.max_vertex_attributes = math::numeric_cast<u32>(max_vertex_attributes);
         caps.max_vertex_texture_image_units = math::numeric_cast<u32>(max_vertex_texture_image_units);
-
-        caps.max_varying_vectors = math::numeric_cast<u32>(max_varying_vectors);
-        caps.max_vertex_uniform_vectors = math::numeric_cast<u32>(max_vertex_uniform_vectors);
-        caps.max_fragment_uniform_vectors = math::numeric_cast<u32>(max_fragment_uniform_vectors);
 
         const gl_version version = gl_get_version(debug);
 
@@ -1379,7 +1356,6 @@ namespace e2d::opengl
             version >= gl_version::gles_2_0 ||
             gl_has_any_extension(debug,
                 "GL_OES_framebuffer_object",
-                "GL_EXT_framebuffer_object",
                 "GL_ARB_framebuffer_object");
 
         caps.element_index_uint =
@@ -1425,9 +1401,7 @@ namespace e2d::opengl
 
         caps.astc_compression_supported =
             gl_has_any_extension(debug,
-                "GL_OES_texture_compression_astc",
-                "GL_KHR_texture_compression_astc_ldr",
-                "GL_KHR_texture_compression_astc_hdr");
+                "GL_OES_texture_compression_astc");
 
         caps.pvrtc_compression_supported =
             gl_has_any_extension(debug,

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.11 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.21 FATAL_ERROR)
 
 if(NOT DEFINED PROJECT_NAME)
     set(E2D_BUILD_AS_STANDALONE ON)
@@ -116,6 +116,9 @@ file(GLOB_RECURSE E2D_3RDPARTY
 # e2d external 3rd party
 #
 
+find_package(OpenGL REQUIRED)
+find_package(Threads REQUIRED)
+
 add_subdirectory(modules/defer.hpp)
 add_subdirectory(modules/ecs.hpp)
 add_subdirectory(modules/enum.hpp)
@@ -129,12 +132,6 @@ set(GLFW_BUILD_EXAMPLES OFF CACHE INTERNAL "" FORCE)
 
 add_subdirectory(modules/glfw)
 set_target_properties(glfw PROPERTIES FOLDER modules)
-
-set(glew-cmake_BUILD_SHARED OFF CACHE INTERNAL "" FORCE)
-set(glew-cmake_BUILD_MULTI_CONTEXT OFF CACHE INTERNAL "" FORCE)
-
-add_subdirectory(modules/glew)
-set_target_properties(libglew_static PROPERTIES FOLDER modules)
 
 #
 # e2d library target
@@ -159,7 +156,8 @@ target_link_libraries(${PROJECT_NAME}
 
 target_link_libraries(${PROJECT_NAME}
     PRIVATE glfw
-    PRIVATE libglew_static
+    PRIVATE OpenGL::GL
+    PRIVATE Threads::Threads
     PRIVATE $<$<CXX_COMPILER_ID:MSVC>:winmm.lib>)
 
 target_include_directories(${PROJECT_NAME}
@@ -168,7 +166,8 @@ target_include_directories(${PROJECT_NAME}
     PUBLIC headers/3rdparty/imgui
     PUBLIC headers/3rdparty/pugixml
     PRIVATE sources
-    PRIVATE sources/3rdparty)
+    PRIVATE sources/3rdparty
+    PRIVATE sources/3rdparty/glad)
 
 target_compile_options(${PROJECT_NAME}
     PRIVATE

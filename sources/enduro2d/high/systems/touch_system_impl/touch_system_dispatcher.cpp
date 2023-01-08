@@ -17,7 +17,7 @@ namespace
             scene,
             actor>> scenes;
 
-        DEFER([](){ scenes.clear(); });
+        DEFER_HPP([](){ scenes.clear(); });
         ecsex::extract_components<scene, actor>(
             owner,
             std::back_inserter(scenes),
@@ -62,7 +62,7 @@ namespace
         //
 
         static thread_local std::vector<gcomponent<touchable>> parents;
-        DEFER([](){ parents.clear(); });
+        DEFER_HPP([](){ parents.clear(); });
 
         nodes::extract_components_from_parents<touchable>(
             target_actor->node(),
@@ -115,7 +115,7 @@ namespace
 namespace e2d::touch_system_impl
 {
     void dispatcher::dispatch_all_events(ecs::registry& owner) {
-        DEFER([this](){ events_.clear(); });
+        DEFER_HPP([this](){ events_.clear(); });
 
         owner.for_each_component<events<touchable_events::event>>([
         ](const ecs::const_entity&, events<touchable_events::event>& es) {

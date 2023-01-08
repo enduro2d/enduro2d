@@ -12,7 +12,7 @@
 #if E2D_RENDER_MODE == E2D_RENDER_MODE_OPENGL || E2D_RENDER_MODE == E2D_RENDER_MODE_OPENGLES
 
 #if E2D_RENDER_MODE == E2D_RENDER_MODE_OPENGL
-#  include <GL/glew.h>
+#  include <glad/glad.h>
 #elif E2D_RENDER_MODE == E2D_RENDER_MODE_OPENGLES
 #  include <GLES2/gl2.h>
 #  include <GLES2/gl2ext.h>

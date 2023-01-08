@@ -25,7 +25,7 @@ namespace e2d
             }
 
             if ( ImGui::BeginPopup(add_component_popup_str_id) ) {
-                DEFER([](){ ImGui::EndPopup(); });
+                DEFER_HPP([](){ ImGui::EndPopup(); });
 
                 for ( const auto& p : inspector_impls_ ) {
                     imgui_utils::with_disabled_flag_ex(

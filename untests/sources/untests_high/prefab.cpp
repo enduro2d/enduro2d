@@ -44,7 +44,7 @@ TEST_CASE("prefab"){
             REQUIRE(go.component<named>()->name() == "root");
 
             REQUIRE(go.component<circle_collider>());
-            REQUIRE(go.component<circle_collider>()->radius() == Approx(5.f));
+            REQUIRE(go.component<circle_collider>()->radius() == Catch::Approx(5.f));
             REQUIRE(go.component<circle_collider>()->offset() == v2f(4.f,2.f));
         }
 
@@ -116,7 +116,7 @@ TEST_CASE("prefab"){
             REQUIRE(go.component<rect_collider>()->offset() == v2f(2.f,4.f));
 
             REQUIRE(go.component<circle_collider>());
-            REQUIRE(go.component<circle_collider>()->radius() == Approx(5.f));
+            REQUIRE(go.component<circle_collider>()->radius() == Catch::Approx(5.f));
             REQUIRE(go.component<circle_collider>()->offset() == v2f(4.f,2.f));
 
             REQUIRE(go.component<polygon_collider>());

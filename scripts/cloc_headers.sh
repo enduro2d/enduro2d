@@ -1,3 +1,7 @@
 #!/bin/bash
-SCRIPT_DIR=`dirname "$BASH_SOURCE"`
-cloc $SCRIPT_DIR/../headers/enduro2d
+DIR="$( cd "$( dirname "${BASH_SOURCE}" )" && pwd )"
+
+ROOT_DIR="${DIR}/.."
+
+cloc \
+  "${ROOT_DIR}/headers/enduro2d"

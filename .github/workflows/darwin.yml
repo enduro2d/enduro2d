@@ -1,0 +1,36 @@
+name: darwin
+
+on: [push, pull_request]
+
+env:
+  E2D_WITHOUT_AUDIO: true
+  E2D_WITHOUT_GRAPHICS: true
+
+jobs:
+  build:
+    runs-on: ${{matrix.config.os}}
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+        # https://github.com/actions/virtual-environments/tree/main/images/macos
+        - { os: "macos-10.15", xcode: "10.3", arch: "x64" }
+        - { os: "macos-12", xcode: "14.2", arch: "x64" }
+    name: "xcode-${{matrix.config.xcode}}"
+    steps:
+    - name: Setup
+      run: brew install cmake ninja
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        lfs: true
+        submodules: true
+    - name: Select Xcode
+      run: sudo xcode-select --switch "/Applications/Xcode_${{matrix.config.xcode}}.app"
+    - name: Build
+      run: |
+        cmake --preset macos-${{matrix.config.arch}}
+        cmake --build --preset macos-${{matrix.config.arch}}-release
+    - name: Test
+      run: |
+        ctest --preset macos-${{matrix.config.arch}}-release

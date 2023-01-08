@@ -34,7 +34,7 @@ namespace e2d::dbgui_widgets
                 ImGui::Text("pressed keys:");
 
                 ImGui::Indent();
-                DEFER([](){ ImGui::Unindent(); });
+                DEFER_HPP([](){ ImGui::Unindent(); });
 
                 const vector<keyboard_key> pressed_keys = i.keyboard().pressed_keys();
                 for ( keyboard_key pk : pressed_keys ) {
@@ -46,7 +46,7 @@ namespace e2d::dbgui_widgets
                 ImGui::Text("pressed buttons:");
 
                 ImGui::Indent();
-                DEFER([](){ ImGui::Unindent(); });
+                DEFER_HPP([](){ ImGui::Unindent(); });
 
                 const vector<mouse_button> pressed_buttons = i.mouse().pressed_buttons();
                 for ( mouse_button mb : pressed_buttons ) {
