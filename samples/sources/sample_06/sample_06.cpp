@@ -18,7 +18,7 @@ namespace
             E2D_UNUSED(owner, event);
             const keyboard& k = the<input>().keyboard();
 
-            if ( k.is_key_just_released(keyboard_key::f12) ) {
+            if ( k.is_key_just_released(keyboard_key::f1) ) {
                 the<dbgui>().toggle_visible(!the<dbgui>().visible());
             }
 
