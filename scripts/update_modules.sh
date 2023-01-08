@@ -23,7 +23,8 @@ mkdir -p "${SOURCES_RDPARTY_DIR}"
 #
 
 mkdir -p "${UNTESTS_DIR}/catch"
-cp -fv "${MODULES_DIR}/catch2/single_include/catch2/catch.hpp" "${UNTESTS_DIR}/catch/catch.hpp"
+cp -fv "${MODULES_DIR}/catch2/extras/catch_amalgamated.hpp" "${UNTESTS_DIR}/catch/catch_amalgamated.hpp"
+cp -fv "${MODULES_DIR}/catch2/extras/catch_amalgamated.cpp" "${UNTESTS_DIR}/catch/catch_amalgamated.cpp"
 
 #
 # imgui
