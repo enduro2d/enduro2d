@@ -205,7 +205,7 @@ namespace e2d
         }
 
         void setup_key_map_(ImGuiIO& io) noexcept {
-            const auto map_key = [&io](ImGuiKey_ imgui_key, keyboard_key key) noexcept {
+            const auto map_key = [&io](ImGuiKey imgui_key, keyboard_key key) noexcept {
                 E2D_ASSERT(imgui_key < ImGuiKey_COUNT);
                 io.KeyMap[imgui_key] = utils::enum_to_underlying(key);
             };
