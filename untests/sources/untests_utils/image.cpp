@@ -91,6 +91,7 @@ TEST_CASE("images") {
             REQUIRE(images::try_load_image(img, make_read_file("image_save_test.tga")));
             REQUIRE(img.size() == v2u(2,15));
             REQUIRE(img.format() == image_data_format::rgb8);
+
             REQUIRE(math::approximately(img.pixel32(0,2), color32::red(),   0u));
             REQUIRE(math::approximately(img.pixel32(0,7), color32::green(), 0u));
             REQUIRE(math::approximately(img.pixel32(0,12), color32::blue(), 0u));
