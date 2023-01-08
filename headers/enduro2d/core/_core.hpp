@@ -10,9 +10,9 @@
 #include "../math/_all.hpp"
 #include "../utils/_all.hpp"
 
-#include <promise.hpp/jobber.hpp>
 #include <promise.hpp/promise.hpp>
-#include <promise.hpp/scheduler.hpp>
+#include <promise.hpp/bonus/jobber.hpp>
+#include <promise.hpp/bonus/scheduler.hpp>
 
 namespace e2d
 {
