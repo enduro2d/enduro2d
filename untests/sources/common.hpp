@@ -6,8 +6,8 @@
 
 #pragma once
 
-#include "../catch/catch.hpp"
 #include <enduro2d/enduro2d.hpp>
+#include "../catch/catch_amalgamated.hpp"
 
 namespace e2d_untests
 {

@@ -138,7 +138,7 @@ namespace
             scene,
             actor>> scenes;
 
-        DEFER([](){ scenes.clear(); });
+        DEFER_HPP([](){ scenes.clear(); });
         ecsex::extract_components<scene, actor>(
             owner,
             std::back_inserter(scenes),
@@ -181,7 +181,7 @@ namespace
             const_gcomponent<touchable>> parents;
 
         const std::size_t begin_index = parents.size();
-        DEFER([begin_index](){
+        DEFER_HPP([begin_index](){
             parents.erase(
                 parents.begin() + begin_index,
                 parents.end());
@@ -232,7 +232,7 @@ namespace
             const_gcomponent<touchable>> parents;
 
         const std::size_t begin_index = parents.size();
-        DEFER([begin_index](){
+        DEFER_HPP([begin_index](){
             parents.erase(
                 parents.begin() + begin_index,
                 parents.end());
@@ -417,7 +417,7 @@ namespace
         }
 
         if ( event.action == mouse_button_action::release ) {
-            DEFER([&owner](){
+            DEFER_HPP([&owner](){
                 owner.remove_all_components<touchable::pushing>();
             });
 
@@ -521,7 +521,7 @@ namespace
         }
 
         if ( event.action == mouse_button_action::release ) {
-            DEFER([&owner, &dragging](){
+            DEFER_HPP([&owner, &dragging](){
                 dragging.reset();
                 owner.remove_all_components<touchable::dragging>();
             });
@@ -556,7 +556,7 @@ namespace e2d::touch_system_impl
         collector& collector,
         ecs::registry& owner)
     {
-        DEFER([&collector](){
+        DEFER_HPP([&collector](){
             collector.clear();
         });
 

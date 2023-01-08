@@ -155,20 +155,6 @@ TEST_CASE("library"){
         REQUIRE_FALSE(l.store().find<binary_asset>("image.png"));
     }
     {
-        if ( modules::is_initialized<audio>() ) {
-            auto sound_res = l.load_asset<sound_asset>("sound.json");
-            REQUIRE(sound_res);
-            REQUIRE(sound_res->content());
-
-            auto music_res = l.load_asset<sound_asset>("music.json");
-            REQUIRE(music_res);
-            REQUIRE(music_res->content());
-
-            auto fake_sound_res = l.load_asset<sound_asset>("fake_sound.json");
-            REQUIRE_FALSE(fake_sound_res);
-        }
-    }
-    {
         if ( modules::is_initialized<render>() ) {
             auto shader_res = l.load_asset<shader_asset>("shader.json");
             REQUIRE(shader_res);

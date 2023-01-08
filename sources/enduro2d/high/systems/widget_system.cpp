@@ -15,7 +15,7 @@ namespace
     using namespace e2d;
 
     void update_was_dirty_flags(ecs::registry& owner) {
-        RETURN_DEFER([&owner](){
+        RETURN_DEFER_HPP([&owner](){
             owner.remove_all_components<widget::dirty>();
         });
 

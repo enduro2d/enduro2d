@@ -4,8 +4,8 @@
 
 - [git](https://git-scm.com/)
 - [git-lfs](https://git-lfs.github.com/)
-- [cmake](https://cmake.org/) **>= 3.11**
-- [gcc](https://www.gnu.org/software/gcc/) **>= 7** or [clang](https://clang.llvm.org/) **>= 5.0** or [msvc](https://visualstudio.microsoft.com/) **>= 2017**
+- [cmake](https://cmake.org/) **>= 3.21**
+- [gcc](https://www.gnu.org/software/gcc/) **>= 7** or [clang](https://clang.llvm.org/) **>= 7** or [msvc](https://visualstudio.microsoft.com/) **>= 2019** or [xcode](https://developer.apple.com/xcode/) **>= 10.3**
 
 ## * Cloning
 
@@ -33,7 +33,7 @@ $ open enduro2d.xcodeproj
 # or Visual Studio project
 $ cd your_engine_repository_directory
 $ mkdir msvc-build && cd msvc-build
-$ cmake -G "Visual Studio 15 2017" ..
+$ cmake -G "Visual Studio 16 2019" ..
 $ start enduro2d.sln
 ```
 

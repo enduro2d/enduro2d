@@ -1,0 +1,344 @@
+{
+    "version": 3,
+
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 21,
+        "patch": 0
+    },
+
+    "configurePresets": [
+        {
+            "name": "ninja-base",
+            "hidden": true,
+            "generator": "Ninja Multi-Config",
+            "binaryDir": "${sourceDir}/build/${presetName}",
+            "installDir": "${sourceDir}/install/${presetName}",
+            "cacheVariables": {
+                "CMAKE_EXPORT_COMPILE_COMMANDS": true
+            }
+        },
+        {
+            "name": "linux-base",
+            "hidden": true,
+            "inherits": "ninja-base",
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Linux"
+            }
+        },
+        {
+            "name": "linux-clang-7",
+            "inherits": "linux-base",
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "clang-7",
+                "CMAKE_CXX_COMPILER": "clang++-7"
+            }
+        },
+        {
+            "name": "linux-clang-14",
+            "inherits": "linux-base",
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "clang-14",
+                "CMAKE_CXX_COMPILER": "clang++-14"
+            }
+        },
+        {
+            "name": "linux-gcc-7",
+            "inherits": "linux-base",
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "gcc-7",
+                "CMAKE_CXX_COMPILER": "g++-7"
+            }
+        },
+        {
+            "name": "linux-gcc-12",
+            "inherits": "linux-base",
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "gcc-12",
+                "CMAKE_CXX_COMPILER": "g++-12"
+            }
+        },
+        {
+            "name": "macos-base",
+            "hidden": true,
+            "inherits": "ninja-base",
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Darwin"
+            }
+        },
+        {
+            "name": "macos-arm64",
+            "inherits": "macos-base",
+            "architecture": {
+                "value": "arm64",
+                "strategy": "external"
+            }
+        },
+        {
+            "name": "macos-arm64-san",
+            "inherits": "macos-arm64",
+            "cacheVariables": {
+                "E2D_BUILD_WITH_ASAN": true,
+                "E2D_BUILD_WITH_UBSAN": true
+            }
+        },
+        {
+            "name": "macos-x64",
+            "inherits": "macos-base",
+            "architecture": {
+                "value": "x64",
+                "strategy": "external"
+            }
+        },
+        {
+            "name": "macos-x64-san",
+            "inherits": "macos-x64",
+            "cacheVariables": {
+                "E2D_BUILD_WITH_ASAN": true,
+                "E2D_BUILD_WITH_UBSAN": true
+            }
+        },
+        {
+            "name": "windows-base",
+            "hidden": true,
+            "inherits": "ninja-base",
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Windows"
+            }
+        },
+        {
+            "name": "windows-x86-msvc2019",
+            "inherits": "windows-base",
+            "architecture": {
+                "value": "x86",
+                "strategy": "external"
+            },
+            "toolset": {
+                "value": "v142,host=x64",
+                "strategy": "external"
+            },
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "cl",
+                "CMAKE_CXX_COMPILER": "cl"
+            }
+        },
+        {
+            "name": "windows-x64-msvc2019",
+            "inherits": "windows-base",
+            "architecture": {
+                "value": "x64",
+                "strategy": "external"
+            },
+            "toolset": {
+                "value": "v142,host=x64",
+                "strategy": "external"
+            },
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "cl",
+                "CMAKE_CXX_COMPILER": "cl"
+            }
+        },
+        {
+            "name": "windows-x86-msvc2022",
+            "inherits": "windows-base",
+            "architecture": {
+                "value": "x86",
+                "strategy": "external"
+            },
+            "toolset": {
+                "value": "v143,host=x64",
+                "strategy": "external"
+            },
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "cl",
+                "CMAKE_CXX_COMPILER": "cl"
+            }
+        },
+        {
+            "name": "windows-x64-msvc2022",
+            "inherits": "windows-base",
+            "architecture": {
+                "value": "x64",
+                "strategy": "external"
+            },
+            "toolset": {
+                "value": "v143,host=x64",
+                "strategy": "external"
+            },
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "cl",
+                "CMAKE_CXX_COMPILER": "cl"
+            }
+        }
+    ],
+
+    "buildPresets": [
+        {
+            "name": "linux-clang-7-debug",
+            "configuration": "Debug",
+            "configurePreset": "linux-clang-7"
+        },
+        {
+            "name": "linux-clang-7-release",
+            "configuration": "Release",
+            "configurePreset": "linux-clang-7"
+        },
+        {
+            "name": "linux-clang-14-debug",
+            "configuration": "Debug",
+            "configurePreset": "linux-clang-14"
+        },
+        {
+            "name": "linux-clang-14-release",
+            "configuration": "Release",
+            "configurePreset": "linux-clang-14"
+        },
+        {
+            "name": "linux-gcc-7-debug",
+            "configuration": "Debug",
+            "configurePreset": "linux-gcc-7"
+        },
+        {
+            "name": "linux-gcc-7-release",
+            "configuration": "Release",
+            "configurePreset": "linux-gcc-7"
+        },
+        {
+            "name": "linux-gcc-12-debug",
+            "configuration": "Debug",
+            "configurePreset": "linux-gcc-12"
+        },
+        {
+            "name": "linux-gcc-12-release",
+            "configuration": "Release",
+            "configurePreset": "linux-gcc-12"
+        },
+        {
+            "name": "macos-arm64-debug",
+            "configuration": "Debug",
+            "configurePreset": "macos-arm64-san"
+        },
+        {
+            "name": "macos-arm64-release",
+            "configuration": "Release",
+            "configurePreset": "macos-arm64"
+        },
+        {
+            "name": "macos-x64-debug",
+            "configuration": "Debug",
+            "configurePreset": "macos-x64-san"
+        },
+        {
+            "name": "macos-x64-release",
+            "configuration": "Release",
+            "configurePreset": "macos-x64"
+        },
+        {
+            "name": "windows-x86-msvc2019-debug",
+            "configuration": "Debug",
+            "configurePreset": "windows-x86-msvc2019"
+        },
+        {
+            "name": "windows-x86-msvc2019-release",
+            "configuration": "Release",
+            "configurePreset": "windows-x86-msvc2019"
+        },
+        {
+            "name": "windows-x64-msvc2019-debug",
+            "configuration": "Debug",
+            "configurePreset": "windows-x64-msvc2019"
+        },
+        {
+            "name": "windows-x64-msvc2019-release",
+            "configuration": "Release",
+            "configurePreset": "windows-x64-msvc2019"
+        },
+        {
+            "name": "windows-x86-msvc2022-debug",
+            "configuration": "Debug",
+            "configurePreset": "windows-x86-msvc2022"
+        },
+        {
+            "name": "windows-x86-msvc2022-release",
+            "configuration": "Release",
+            "configurePreset": "windows-x86-msvc2022"
+        },
+        {
+            "name": "windows-x64-msvc2022-debug",
+            "configuration": "Debug",
+            "configurePreset": "windows-x64-msvc2022"
+        },
+        {
+            "name": "windows-x64-msvc2022-release",
+            "configuration": "Release",
+            "configurePreset": "windows-x64-msvc2022"
+        }
+    ],
+
+    "testPresets": [
+        {
+            "name": "test-base",
+            "hidden": true,
+            "output": {
+                "verbosity": "verbose"
+            },
+            "configuration": "Release"
+        },
+        {
+            "name": "linux-clang-7-release",
+            "inherits": "test-base",
+            "configurePreset": "linux-clang-7"
+        },
+        {
+            "name": "linux-clang-14-release",
+            "inherits": "test-base",
+            "configurePreset": "linux-clang-14"
+        },
+        {
+            "name": "linux-gcc-7-release",
+            "inherits": "test-base",
+            "configurePreset": "linux-gcc-7"
+        },
+        {
+            "name": "linux-gcc-12-release",
+            "inherits": "test-base",
+            "configurePreset": "linux-gcc-12"
+        },
+        {
+            "name": "macos-arm64-release",
+            "inherits": "test-base",
+            "configurePreset": "macos-arm64"
+        },
+        {
+            "name": "macos-x64-release",
+            "inherits": "test-base",
+            "configurePreset": "macos-x64"
+        },
+        {
+            "name": "windows-x86-msvc2019-release",
+            "inherits": "test-base",
+            "configurePreset": "windows-x86-msvc2019"
+        },
+        {
+            "name": "windows-x64-msvc2019-release",
+            "inherits": "test-base",
+            "configurePreset": "windows-x64-msvc2019"
+        },
+        {
+            "name": "windows-x86-msvc2022-release",
+            "inherits": "test-base",
+            "configurePreset": "windows-x86-msvc2022"
+        },
+        {
+            "name": "windows-x64-msvc2022-release",
+            "inherits": "test-base",
+            "configurePreset": "windows-x64-msvc2022"
+        }
+    ]
+}

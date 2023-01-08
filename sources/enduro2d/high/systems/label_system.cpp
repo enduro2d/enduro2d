@@ -197,7 +197,7 @@ namespace
         model_renderer& mr)
     {
         static thread_local geometry_builder gb;
-        DEFER([](){ gb.clear(); });
+        DEFER_HPP([](){ gb.clear(); });
 
         if ( !l.font() || l.font()->content().empty() || l.text().empty() ) {
             gb.update_model(mr);
@@ -221,7 +221,7 @@ namespace
 
         //TODO(BlackMat): replace it to frame allocator
         static thread_local vector<glyph_desc> glyphs;
-        DEFER([](){ glyphs.clear(); });
+        DEFER_HPP([](){ glyphs.clear(); });
 
         if ( glyphs.capacity() < text.size() ) {
             glyphs.reserve(math::max(glyphs.capacity() * 2u, text.size()));
@@ -262,7 +262,7 @@ namespace
 
         //TODO(BlackMat): replace it to frame allocator
         static thread_local vector<string_desc> strings;
-        DEFER([](){ strings.clear(); });
+        DEFER_HPP([](){ strings.clear(); });
 
         if ( const std::size_t count = calculate_new_lines(text);
             strings.capacity() < count + 1u )
@@ -421,7 +421,7 @@ namespace
     }
 
     void update_was_dirty_flags(ecs::registry& owner) {
-        RETURN_DEFER([&owner](){
+        RETURN_DEFER_HPP([&owner](){
             owner.remove_all_components<label::dirty>();
         });
 

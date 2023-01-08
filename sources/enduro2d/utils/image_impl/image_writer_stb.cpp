@@ -92,11 +92,12 @@ namespace e2d::images::impl
         int img_w = math::numeric_cast<int>(src.size().x);
         int img_h = math::numeric_cast<int>(src.size().y);
         int img_c = stb_channels_from_image_format(src.format());
-        const auto write_ctx = std::make_unique<stb_write_context>();
+
+        stb_write_context write_ctx;
 
         if ( !stbi_write_jpg_to_func(
             stb_write_callback,
-            write_ctx.get(),
+            &write_ctx,
             img_w,
             img_h,
             img_c,
@@ -106,11 +107,11 @@ namespace e2d::images::impl
             return false;
         }
 
-        if ( write_ctx->exception ) {
-            std::rethrow_exception(write_ctx->exception);
+        if ( write_ctx.exception ) {
+            std::rethrow_exception(write_ctx.exception);
         }
 
-        dst.assign(write_ctx->data.data(), write_ctx->data.size());
+        dst.assign(write_ctx.data.data(), write_ctx.data.size());
         return true;
     }
 
@@ -122,11 +123,12 @@ namespace e2d::images::impl
         int img_w = math::numeric_cast<int>(src.size().x);
         int img_h = math::numeric_cast<int>(src.size().y);
         int img_c = stb_channels_from_image_format(src.format());
-        const auto write_ctx = std::make_unique<stb_write_context>();
+
+        stb_write_context write_ctx;
 
         if ( !stbi_write_png_to_func(
             stb_write_callback,
-            write_ctx.get(),
+            &write_ctx,
             img_w,
             img_h,
             img_c,
@@ -136,11 +138,11 @@ namespace e2d::images::impl
             return false;
         }
 
-        if ( write_ctx->exception ) {
-            std::rethrow_exception(write_ctx->exception);
+        if ( write_ctx.exception ) {
+            std::rethrow_exception(write_ctx.exception);
         }
 
-        dst.assign(write_ctx->data.data(), write_ctx->data.size());
+        dst.assign(write_ctx.data.data(), write_ctx.data.size());
         return true;
     }
 
@@ -152,12 +154,12 @@ namespace e2d::images::impl
         int img_w = math::numeric_cast<int>(src.size().x);
         int img_h = math::numeric_cast<int>(src.size().y);
         int img_c = stb_channels_from_image_format(src.format());
-        const auto write_ctx = std::make_unique<stb_write_context>();
 
-        vector<u8> data;
+        stb_write_context write_ctx;
+
         if ( !stbi_write_tga_to_func(
             stb_write_callback,
-            write_ctx.get(),
+            &write_ctx,
             img_w,
             img_h,
             img_c,
@@ -166,11 +168,11 @@ namespace e2d::images::impl
             return false;
         }
 
-        if ( write_ctx->exception ) {
-            std::rethrow_exception(write_ctx->exception);
+        if ( write_ctx.exception ) {
+            std::rethrow_exception(write_ctx.exception);
         }
 
-        dst.assign(write_ctx->data.data(), write_ctx->data.size());
+        dst.assign(write_ctx.data.data(), write_ctx.data.size());
         return true;
     }
 }

@@ -6,6 +6,7 @@ function(add_e2d_tests NAME)
     #
 
     file(GLOB ${TESTS_NAME}_sources
+        catch/*.*
         sources/*.*
         sources/${TESTS_NAME}/*.*)
     set(TESTS_SOURCES ${${TESTS_NAME}_sources})

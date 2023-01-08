@@ -153,7 +153,7 @@ namespace e2d::nodes
         static thread_local vector<intrusive_ptr<Node>> parents;
 
         const std::size_t begin_index = parents.size();
-        DEFER([begin_index](){
+        DEFER_HPP([begin_index](){
             parents.erase(
                 parents.begin() + begin_index,
                 parents.end());
@@ -184,7 +184,7 @@ namespace e2d::nodes
         static thread_local vector<intrusive_ptr<Node>> children;
 
         const std::size_t begin_index = children.size();
-        DEFER([begin_index](){
+        DEFER_HPP([begin_index](){
             children.erase(
                 children.begin() + begin_index,
                 children.end());
@@ -253,7 +253,7 @@ namespace e2d::nodes
         static thread_local vector<gcomponent<Component>> components;
 
         const std::size_t begin_index = components.size();
-        DEFER([begin_index](){
+        DEFER_HPP([begin_index](){
             components.erase(
                 components.begin() + begin_index,
                 components.end());
@@ -284,7 +284,7 @@ namespace e2d::nodes
         static thread_local vector<gcomponent<Component>> components;
 
         const std::size_t begin_index = components.size();
-        DEFER([begin_index](){
+        DEFER_HPP([begin_index](){
             components.erase(
                 components.begin() + begin_index,
                 components.end());

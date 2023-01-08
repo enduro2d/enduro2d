@@ -8,7 +8,9 @@
 
 #if defined(E2D_WINDOW_MODE) && E2D_WINDOW_MODE == E2D_WINDOW_MODE_GLFW
 
+#define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
+#include <glad/glad.h>
 
 namespace
 {
@@ -424,6 +426,7 @@ namespace e2d
             if ( w ) {
                 glfwMakeContextCurrent(w);
                 glfwSwapInterval(vsync ? 1 : 0);
+                gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
             }
             return {w, glfwDestroyWindow};
         }

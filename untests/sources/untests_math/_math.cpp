@@ -400,11 +400,11 @@ TEST_CASE("math") {
         REQUIRE(math::sign(1u) == 1);
         REQUIRE(math::sign(2u) == 1);
 
-        REQUIRE(math::approximately(math::sign(0.f) == 1.f));
-        REQUIRE(math::approximately(math::sign(1.f) == 1.f));
-        REQUIRE(math::approximately(math::sign(2.f) == 1.f));
-        REQUIRE(math::approximately(math::sign(-1.f) == -1.f));
-        REQUIRE(math::approximately(math::sign(-2.f) == -1.f));
+        REQUIRE(math::approximately(math::sign(0.f), 1.f));
+        REQUIRE(math::approximately(math::sign(1.f), 1.f));
+        REQUIRE(math::approximately(math::sign(2.f), 1.f));
+        REQUIRE(math::approximately(math::sign(-1.f), -1.f));
+        REQUIRE(math::approximately(math::sign(-2.f), -1.f));
     }
     {
         REQUIRE(math::approximately(math::ceil(1), 1));

@@ -1,6 +1,5 @@
-.vs/*
-.vscode/*
 build/*
+.clangd/*
 .DS_Store
 CMakeSettings.json
 CMakeLists.txt.user

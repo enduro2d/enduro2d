@@ -286,12 +286,6 @@ namespace e2d
     , default_sp_(gl_program_id::current(debug))
     , default_fb_(gl_framebuffer_id::current(debug, GL_FRAMEBUFFER))
     {
-    #if E2D_RENDER_MODE == E2D_RENDER_MODE_OPENGL
-        if ( glewInit() != GLEW_OK ) {
-            throw bad_render_operation();
-        }
-    #endif
-
         gl_trace_info(debug_);
         gl_trace_limits(debug_);
         gl_fill_device_caps(debug_, device_caps_);

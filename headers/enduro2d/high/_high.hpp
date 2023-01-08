@@ -131,7 +131,7 @@ namespace e2d::ecsex
         Opts&&... opts)
     {
         static thread_local vector<ecs::entity> to_remove_components;
-        DEFER([](){ to_remove_components.clear(); });
+        DEFER_HPP([](){ to_remove_components.clear(); });
 
         owner.for_each_component<T>([](const ecs::entity& e, const T&){
             to_remove_components.push_back(e);
@@ -186,7 +186,7 @@ namespace e2d::ecsex
             std::tuple<ecs::entity, Ts...>> components;
 
         const std::size_t begin_index = components.size();
-        DEFER([begin_index](){
+        DEFER_HPP([begin_index](){
             components.erase(
                 components.begin() + begin_index,
                 components.end());
@@ -210,7 +210,7 @@ namespace e2d::ecsex
             std::tuple<ecs::const_entity, Ts...>> components;
 
         const std::size_t begin_index = components.size();
-        DEFER([begin_index](){
+        DEFER_HPP([begin_index](){
             components.erase(
                 components.begin() + begin_index,
                 components.end());
@@ -237,7 +237,7 @@ namespace e2d::ecsex
             std::tuple<ecs::entity, Ts...>> components;
 
         const std::size_t begin_index = components.size();
-        DEFER([begin_index](){
+        DEFER_HPP([begin_index](){
             components.erase(
                 components.begin() + begin_index,
                 components.end());
@@ -266,7 +266,7 @@ namespace e2d::ecsex
             std::tuple<ecs::const_entity, Ts...>> components;
 
         const std::size_t begin_index = components.size();
-        DEFER([begin_index](){
+        DEFER_HPP([begin_index](){
             components.erase(
                 components.begin() + begin_index,
                 components.end());

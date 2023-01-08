@@ -106,7 +106,7 @@ namespace e2d::render_system_impl
             flush();
         }
 
-        ERROR_DEFER([this](){
+        ERROR_DEFER_HPP([this](){
             clear(false);
         });
 
@@ -143,7 +143,7 @@ namespace e2d::render_system_impl
 
     template < typename Index, typename Vertex >
     render::property_block& batcher<Index, Vertex>::flush() {
-        DEFER([this](){
+        DEFER_HPP([this](){
             clear(false);
         });
 
@@ -179,7 +179,7 @@ namespace e2d::render_system_impl
             .indices(index_buffer_)
             .add_vertices(vertex_buffer_);
 
-        DEFER([this](){
+        DEFER_HPP([this](){
             property_cache_.clear();
         });
 

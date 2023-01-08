@@ -220,7 +220,7 @@ namespace e2d
         }
 
         if ( ImGui::TreeNode("clipping") ) {
-            DEFER([](){ ImGui::TreePop(); });
+            DEFER_HPP([](){ ImGui::TreePop(); });
 
             if ( f32 znear = c->znear();
                 ImGui::DragFloat("znear", &znear, 1.f) )
@@ -240,7 +240,7 @@ namespace e2d
         ///TODO(BlackMat): add 'view' inspector
 
         if ( ImGui::TreeNode("viewport") ) {
-            DEFER([](){ ImGui::TreePop(); });
+            DEFER_HPP([](){ ImGui::TreePop(); });
 
             if ( b2f viewport = c->viewport();
                 ImGui::DragFloat2("position", viewport.position.data(), 0.01f) )
